@@ -5,74 +5,20 @@
  */
 
 import { safeJsonStringify } from '../utils/safeJsonStringify.js';
-import type {
+import {
+  BaseDeclarativeTool,
+  BaseToolInvocation,
+  Kind,
   ToolCallConfirmationDetails,
+  ToolConfirmationOutcome,
   ToolInvocation,
   ToolMcpConfirmationDetails,
   ToolResult,
-  ToolResultDisplay,
-  ToolConfirmationPayload,
-  McpToolProgressData,
-  ToolConfirmationOutcome,
 } from './tools.js';
-import type { PermissionDecision } from '../permissions/types.js';
-import { BaseDeclarativeTool, BaseToolInvocation, Kind } from './tools.js';
-import type { CallableTool, FunctionCall, Part } from '@google/genai';
+import { CallableTool, FunctionCall, Part } from '@google/genai';
 import { ToolErrorType } from './tool-error.js';
-import type { Config } from '../config/config.js';
-import { truncateToolOutput } from '../utils/truncation.js';
-import { createDebugLogger } from '../utils/debugLogger.js';
-import { getErrorMessage, isAbortError } from '../utils/errors.js';
-import { getMCPServerStatus, MCPServerStatus } from './mcp-status.js';
-
-const debugLogger = createDebugLogger('MCP_TOOL');
-
-const MCP_CONNECTION_ERROR_PATTERNS = [
-  /ECONNREFUSED/i,
-  /ENOTFOUND/i,
-  /ECONNRESET/i,
-  /ETIMEDOUT/i,
-  /connection (closed|lost)/i,
-  /not connected/i,
-  /disconnected/i,
-  /transport closed/i,
-];
 
 type ToolParams = Record<string, unknown>;
-
-/**
- * Minimal interface for the raw MCP Client's callTool method.
- * This avoids a direct import of @modelcontextprotocol/sdk in this file,
- * keeping the dependency contained in mcp-client.ts.
- */
-export interface McpDirectClient {
-  callTool(
-    params: { name: string; arguments?: Record<string, unknown> },
-    resultSchema?: unknown,
-    options?: {
-      onprogress?: (progress: {
-        progress: number;
-        total?: number;
-        message?: string;
-      }) => void;
-      timeout?: number;
-      signal?: AbortSignal;
-    },
-  ): Promise<McpCallToolResult>;
-}
-
-/** The result shape returned by MCP SDK Client.callTool(). */
-interface McpCallToolResult {
-  content?: Array<{
-    type: string;
-    text?: string;
-    data?: string;
-    mimeType?: string;
-    [key: string]: unknown;
-  }>;
-  isError?: boolean;
-  [key: string]: unknown;
-}
 
 // Discriminated union for MCP Content Blocks to ensure type safety.
 type McpTextBlock = {
@@ -108,29 +54,18 @@ type McpContentBlock =
   | McpResourceBlock
   | McpResourceLinkBlock;
 
-/**
- * MCP Tool Annotations as defined in the MCP specification.
- * These provide hints about a tool's behavior to help clients make decisions
- * about tool approval and safety.
- */
-export interface McpToolAnnotations {
-  readOnlyHint?: boolean;
-  destructiveHint?: boolean;
-  idempotentHint?: boolean;
-  openWorldHint?: boolean;
-}
-
 class DiscoveredMCPToolInvocation extends BaseToolInvocation<
   ToolParams,
   ToolResult
 > {
-  private static readonly MAX_RECONNECT_RETRIES = 3;
+  private static readonly allowlist: Set<string> = new Set();
 
   constructor(
     private readonly mcpTool: CallableTool,
     readonly serverName: string,
     readonly serverToolName: string,
     readonly displayName: string,
+    readonly timeout?: number,
     readonly trust?: boolean,
     params: ToolParams = {},
     private readonly cliConfig?: Config,
@@ -143,51 +78,42 @@ class DiscoveredMCPToolInvocation extends BaseToolInvocation<
     super(params);
   }
 
-  /**
-   * MCP tool default permission based on trust and annotations:
-   * - trust: true in a trusted folder → 'allow' (server explicitly trusted by user config)
-   * - readOnlyHint → 'allow'
-   * - All other MCP tools → 'ask'
-   */
-  override async getDefaultPermission(): Promise<PermissionDecision> {
-    // MCP servers explicitly marked as trusted bypass confirmation,
-    // but only when the workspace folder is also trusted (security gate).
-    if (this.trust === true && this.cliConfig?.isTrustedFolder()) {
-      return 'allow';
-    }
-    // MCP tools annotated with readOnlyHint: true are safe
-    if (this.annotations?.readOnlyHint === true) {
-      return 'allow';
-    }
-    return 'ask';
-  }
-
-  /**
-   * Constructs confirmation dialog details for an MCP tool call.
-   */
-  override async getConfirmationDetails(
+  override async shouldConfirmExecute(
     _abortSignal: AbortSignal,
-  ): Promise<ToolCallConfirmationDetails> {
-    const permissionRule = `mcp__${this.serverName}__${this.serverToolName}`;
+  ): Promise<ToolCallConfirmationDetails | false> {
+    const serverAllowListKey = this.serverName;
+    const toolAllowListKey = `${this.serverName}.${this.serverToolName}`;
+
+    if (this.trust) {
+      return false; // server is trusted, no confirmation needed
+    }
+
+    if (
+      DiscoveredMCPToolInvocation.allowlist.has(serverAllowListKey) ||
+      DiscoveredMCPToolInvocation.allowlist.has(toolAllowListKey)
+    ) {
+      return false; // server and/or tool already allowlisted
+    }
 
     const confirmationDetails: ToolMcpConfirmationDetails = {
       type: 'mcp',
       title: 'Confirm MCP Tool Execution',
       serverName: this.serverName,
-      toolName: this.serverToolName,
-      toolDisplayName: this.displayName,
-      permissionRules: [permissionRule],
-      onConfirm: async (
-        _outcome: ToolConfirmationOutcome,
-        _payload?: ToolConfirmationPayload,
-      ) => {
-        // No-op: persistence is handled by coreToolScheduler via PM rules
+      toolName: this.serverToolName, // Display original tool name in confirmation
+      toolDisplayName: this.displayName, // Display global registry name exposed to model and user
+      onConfirm: async (outcome: ToolConfirmationOutcome) => {
+        if (outcome === ToolConfirmationOutcome.ProceedAlwaysServer) {
+          DiscoveredMCPToolInvocation.allowlist.add(serverAllowListKey);
+        } else if (outcome === ToolConfirmationOutcome.ProceedAlwaysTool) {
+          DiscoveredMCPToolInvocation.allowlist.add(toolAllowListKey);
+        }
       },
     };
     return confirmationDetails;
   }
 
-  // MCP spec: errors are returned inside the CallToolResult, not as exceptions.
+  // Determine if the response contains tool errors
+  // This is needed because CallToolResults should return errors inside the response.
   // ref: https://modelcontextprotocol.io/specification/2025-06-18/schema#calltoolresult
   isMCPToolError(rawResponseParts: Part[]): boolean {
     const functionResponse = rawResponseParts?.[0]?.functionResponse;
@@ -432,96 +358,31 @@ class DiscoveredMCPToolInvocation extends BaseToolInvocation<
       },
     ];
 
-    // Race MCP tool call with abort signal to respect cancellation
-    try {
-      const rawResponseParts = await new Promise<Part[]>((resolve, reject) => {
-        if (signal.aborted) {
-          const error = new Error('Tool call aborted');
-          error.name = 'AbortError';
-          reject(error);
-          return;
-        }
-        const onAbort = () => {
-          cleanup();
-          const error = new Error('Tool call aborted');
-          error.name = 'AbortError';
-          reject(error);
-        };
-        const cleanup = () => {
-          signal.removeEventListener('abort', onAbort);
-        };
-        signal.addEventListener('abort', onAbort, { once: true });
+    const rawResponseParts = await this.mcpTool.callTool(functionCalls);
 
-        this.mcpTool
-          .callTool(functionCalls)
-          .then((res) => {
-            cleanup();
-            resolve(res);
-          })
-          .catch((err) => {
-            cleanup();
-            reject(err);
-          });
-      });
-
-      if (this.isMCPToolError(rawResponseParts)) {
-        const errorMessage = `MCP tool '${
-          this.serverToolName
-        }' reported tool error for function call: ${safeJsonStringify(
-          functionCalls[0],
-        )} with response: ${safeJsonStringify(rawResponseParts)}`;
-        return {
-          llmContent: errorMessage,
-          returnDisplay: `Error: MCP tool '${this.serverToolName}' reported an error.`,
-          error: {
-            message: errorMessage,
-            type: ToolErrorType.MCP_TOOL_ERROR,
-          },
-        };
-      }
-
-      const transformedParts = transformMcpContentToParts(rawResponseParts);
-      const truncatedParts = await this.truncateTextParts(transformedParts);
-
+    // Ensure the response is not an error
+    if (this.isMCPToolError(rawResponseParts)) {
+      const errorMessage = `MCP tool '${
+        this.serverToolName
+      }' reported tool error for function call: ${safeJsonStringify(
+        functionCalls[0],
+      )} with response: ${safeJsonStringify(rawResponseParts)}`;
       return {
-        llmContent: truncatedParts,
-        returnDisplay: getDisplayFromParts(truncatedParts),
+        llmContent: errorMessage,
+        returnDisplay: `Error: MCP tool '${this.serverToolName}' reported an error.`,
+        error: {
+          message: errorMessage,
+          type: ToolErrorType.MCP_TOOL_ERROR,
+        },
       };
-    } catch (error) {
-      return this.handleReconnectOnError(error, signal);
-    }
-  }
-
-  /**
-   * Truncates text parts in the transformed result if they exceed the
-   * configured threshold. Non-text parts (images, audio, etc.) are preserved.
-   */
-  private async truncateTextParts(parts: Part[]): Promise<Part[]> {
-    if (!this.cliConfig) {
-      return parts;
     }
 
-    const result: Part[] = [];
-    for (const part of parts) {
-      if (part.text && !part.inlineData) {
-        const truncated = await truncateToolOutput(
-          this.cliConfig,
-          `mcp__${this.serverName}__${this.serverToolName}`,
-          part.text,
-          // Per-tool char budget; mirrors DiscoveredMCPTool.maxOutputChars
-          // (10x the global default, since MCP servers return large structured
-          // output). char-only (lines: Infinity) so the global line cap can't
-          // undercut the 500k char budget — many short lines (structured JSON,
-          // tables) would otherwise truncate while chars remain. Consistent
-          // with the shell tool's in-tool truncation.
-          { threshold: 500_000, lines: Number.POSITIVE_INFINITY },
-        );
-        result.push({ text: truncated.content });
-      } else {
-        result.push(part);
-      }
-    }
-    return result;
+    const transformedParts = transformMcpContentToParts(rawResponseParts);
+
+    return {
+      llmContent: transformedParts,
+      returnDisplay: getStringifiedResultForDisplay(rawResponseParts),
+    };
   }
 
   getDescription(): string {
@@ -533,19 +394,13 @@ export class DiscoveredMCPTool extends BaseDeclarativeTool<
   ToolParams,
   ToolResult
 > {
-  // MCP servers often return large structured payloads; allow 10x the global
-  // budget (mirrors Claude Code's MCP `maxResultSizeChars`) before the
-  // scheduler offloads. truncateTextParts uses the same ceiling per text part.
-  override get maxOutputChars(): number {
-    return 500_000;
-  }
-
   constructor(
     private readonly mcpTool: CallableTool,
     readonly serverName: string,
     readonly serverToolName: string,
     description: string,
     override readonly parameterSchema: unknown,
+    readonly timeout?: number,
     readonly trust?: boolean,
     nameOverride?: string,
     private readonly cliConfig?: Config,
@@ -556,11 +411,10 @@ export class DiscoveredMCPTool extends BaseDeclarativeTool<
     alwaysLoad = false,
   ) {
     super(
-      nameOverride ??
-        generateValidName(`mcp__${serverName}__${serverToolName}`),
+      nameOverride ?? generateValidName(serverToolName),
       `${serverToolName} (${serverName} MCP Server)`,
       description,
-      annotations?.readOnlyHint === true ? Kind.Read : Kind.Other,
+      Kind.Other,
       parameterSchema,
       true, // isOutputMarkdown
       true, // canUpdateOutput — enables streaming progress for MCP tools
@@ -580,6 +434,7 @@ export class DiscoveredMCPTool extends BaseDeclarativeTool<
       this.serverToolName,
       this.description,
       this.parameterSchema,
+      this.timeout,
       this.trust,
       generateValidName(`mcp__${this.serverName}__${this.serverToolName}`),
       this.cliConfig,
@@ -636,6 +491,7 @@ export class DiscoveredMCPTool extends BaseDeclarativeTool<
       this.serverName,
       this.serverToolName,
       this.displayName,
+      this.timeout,
       this.trust,
       params,
       this.cliConfig,
@@ -645,31 +501,6 @@ export class DiscoveredMCPTool extends BaseDeclarativeTool<
       this.annotations,
     );
   }
-}
-
-/**
- * Wraps a raw MCP CallToolResult into the Part[] format that the
- * existing transform/display functions expect. This bridges the gap
- * between the raw MCP SDK response and the @google/genai Part format.
- */
-function wrapMcpCallToolResultAsParts(
-  toolName: string,
-  result: {
-    content?: Array<{ [key: string]: unknown }>;
-    isError?: boolean;
-  },
-): Part[] {
-  const response = result.isError
-    ? { error: result, content: result.content }
-    : result;
-  return [
-    {
-      functionResponse: {
-        name: toolName,
-        response,
-      },
-    },
-  ];
 }
 
 function transformTextBlock(block: McpTextBlock): Part {
@@ -763,22 +594,43 @@ function transformMcpContentToParts(sdkResponse: Part[]): Part[] {
 }
 
 /**
- * Builds a human-readable display string from transformed Part[].
- * Text parts are shown directly; inline data is summarized by mime type.
+ * Processes the raw response from the MCP tool to generate a clean,
+ * human-readable string for display in the CLI. It summarizes non-text
+ * content and presents text directly.
+ *
+ * @param rawResponse The raw Part[] array from the GenAI SDK.
+ * @returns A formatted string representing the tool's output.
  */
-function getDisplayFromParts(parts: Part[]): string {
-  if (parts.length === 0) {
-    return '';
+function getStringifiedResultForDisplay(rawResponse: Part[]): string {
+  const mcpContent = rawResponse?.[0]?.functionResponse?.response?.[
+    'content'
+  ] as McpContentBlock[];
+
+  if (!Array.isArray(mcpContent)) {
+    return '```json\n' + JSON.stringify(rawResponse, null, 2) + '\n```';
   }
 
-  const displayParts: string[] = [];
-  for (const part of parts) {
-    if (part.text !== undefined) {
-      displayParts.push(part.text);
-    } else if (part.inlineData) {
-      displayParts.push(`[${part.inlineData.mimeType}]`);
+  const displayParts = mcpContent.map((block: McpContentBlock): string => {
+    switch (block.type) {
+      case 'text':
+        return block.text;
+      case 'image':
+        return `[Image: ${block.mimeType}]`;
+      case 'audio':
+        return `[Audio: ${block.mimeType}]`;
+      case 'resource_link':
+        return `[Link to ${block.title || block.name}: ${block.uri}]`;
+      case 'resource':
+        if (block.resource?.text) {
+          return block.resource.text;
+        }
+        return `[Embedded Resource: ${
+          block.resource?.mimeType || 'unknown type'
+        }]`;
+      default:
+        return `[Unknown content type: ${(block as { type: string }).type}]`;
     }
-  }
+  });
 
   return displayParts.join('\n');
 }
