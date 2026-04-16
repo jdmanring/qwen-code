@@ -216,20 +216,6 @@ function filterTerminalResponses(data: Buffer): {
 }
 
 /**
- * Decide whether pending trailing bytes should be replayed when capture stops.
- * Known terminal-response prefixes are dropped; user/ambiguous prefixes are kept.
- */
-function shouldReplayPendingAtStop(pending: Buffer): boolean {
-  if (pending.length === 0) {
-    return false;
-  }
-  if (pending.length === 1 && pending[0] === 0x1b) {
-    return true;
-  }
-  return classifyEscapeSequence(pending, 0) === 'user';
-}
-
-/**
  * Start early input capture
  * Call immediately after setting raw mode in gemini.tsx
  */
@@ -335,7 +321,7 @@ export function stopEarlyInputCapture(): void {
  */
 export function getAndClearCapturedInput(): Buffer {
   const parts = [...inputBuffer.chunks];
-  if (shouldReplayPendingAtStop(pendingTerminalResponse)) {
+  if (pendingTerminalResponse.length > 0) {
     parts.push(Buffer.from(pendingTerminalResponse));
   }
   const buffer = parts.length > 0 ? Buffer.concat(parts) : Buffer.alloc(0);
