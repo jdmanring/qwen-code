@@ -8,7 +8,6 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import type { Content } from '@google/genai';
 import type { Storage } from '../config/storage.js';
-import { atomicWriteFile } from '../utils/atomicFileWrite.js';
 import { createDebugLogger, type DebugLogger } from '../utils/debugLogger.js';
 
 const LOG_FILE_NAME = 'logs.json';
@@ -77,13 +76,11 @@ export class Logger {
   private initialized = false;
   private logs: LogEntry[] = []; // In-memory cache, ideally reflects the last known state of the file
   private lastLoggedUserEntry: LogEntry | null = null; // Tracks the most recently persisted USER entry for cancel-undo (mirrors claude-code's lastAddedEntry).
-  // Per-instance write queue for the log-history file (logs.json).
-  // Only `logMessage` and `removeLastUserMessage` chain on this queue;
-  // their read → splice/append → writeFile cycle is otherwise non-atomic
-  // and a fast cancel + resubmit could make removeLast clobber the
-  // just-appended entry. Checkpoint ops (saveCheckpoint /
-  // deleteCheckpoint / loadCheckpoint) write to *separate* files and are
-  // intentionally not serialized on this queue.
+  // Per-instance write queue. Every disk-mutating op chains here so that
+  // logMessage/removeLastUserMessage can never observe a stale snapshot
+  // produced by a concurrent op on the same Logger (read → splice/append
+  // → writeFile is otherwise non-atomic; a fast cancel + resubmit could
+  // make removeLast clobber the just-appended entry).
   private writeQueue: Promise<unknown> = Promise.resolve();
   private debugLogger: DebugLogger;
 
@@ -96,22 +93,14 @@ export class Logger {
   }
 
   /**
-   * Serializes a log-history mutation against every previously enqueued
-   * op on this Logger. Errors propagate to the caller but do NOT poison
-   * the queue (the next op runs regardless). Scope: only `logMessage`
-   * and `removeLastUserMessage` go through here — checkpoint ops touch
-   * separate files and don't share this queue. Single-instance only:
-   * a separate Logger pointing at the same file would have its own
-   * queue, which is why callers should share one Logger per session.
+   * Run `op` after every previously enqueued op on this Logger settles.
+   * Errors propagate to the caller but do NOT poison the queue (the next
+   * op runs regardless). Single-instance only — a separate Logger pointing
+   * at the same file would have its own queue, which is why callers should
+   * share one Logger per session.
    */
   private serialize<T>(op: () => Promise<T>): Promise<T> {
-    // The queue's tail is always sourced from `.catch(() => undefined)`
-    // below, so writeQueue never rejects — `.then(op)` is sufficient and
-    // the earlier `then(op, op)` would have wrongly implied "retry op on
-    // rejection". `op`'s return Promise is what propagates to the
-    // caller; the queue itself swallows errors so subsequent ops run
-    // regardless of any earlier failure.
-    const next = this.writeQueue.then(() => op());
+    const next = this.writeQueue.then(op, op);
     this.writeQueue = next.catch(() => undefined);
     return next;
   }
@@ -188,7 +177,7 @@ export class Logger {
       }
       this.logs = await this._readLogFile();
       if (!fileExisted && this.logs.length === 0) {
-        await atomicWriteFile(this.logFilePath, '[]', { encoding: 'utf-8' });
+        await fs.writeFile(this.logFilePath, '[]', 'utf-8');
       }
       const sessionLogs = this.logs.filter(
         (entry) => entry.sessionId === this.sessionId,
@@ -259,10 +248,10 @@ export class Logger {
     currentLogsOnDisk.push(entryToAppend);
 
     try {
-      await atomicWriteFile(
+      await fs.writeFile(
         this.logFilePath,
         JSON.stringify(currentLogsOnDisk, null, 2),
-        { encoding: 'utf-8' },
+        'utf-8',
       );
       this.logs = currentLogsOnDisk;
       return entryToAppend; // Return the successfully appended entry
@@ -313,29 +302,14 @@ export class Logger {
         if (writtenEntry.type === MessageSenderType.USER) {
           this.lastLoggedUserEntry = writtenEntry;
         }
-      } else if (type === MessageSenderType.USER) {
-        // Duplicate-skip path: another logger instance won the race and
-        // wrote an entry with the same (sessionId, messageId, timestamp,
-        // message). `_updateLogFile` mutated `newEntryObject.messageId`
-        // in-place to match disk, so the 5-tuple identifies the row that
-        // IS on disk — adopt it as the undo target. Leaving the tracker
-        // pointing at the previous USER would let cancel/auto-restore
-        // delete an older, unrelated row.
-        this.lastLoggedUserEntry = newEntryObject;
       }
     } catch (_error) {
-      // Persist failed. Only invalidate the undo tracker when the FAILED
-      // attempt was itself a USER write — that's the case where the
-      // tracker would otherwise lie about the most recent user entry
-      // (logMessage("A" USER) succeeds, logMessage("B" USER) throws,
-      // user cancels B → without this guard removeLastUserMessage would
-      // delete A's row). A failed non-USER write (e.g., MODEL_SWITCH
-      // disk error) doesn't change which row was the last user prompt,
-      // so leave the tracker alone — the prior USER undo target is
-      // still valid.
-      if (type === MessageSenderType.USER) {
-        this.lastLoggedUserEntry = null;
-      }
+      // Persist failed — drop the undo target so a later
+      // removeLastUserMessage doesn't delete an unrelated earlier entry
+      // by mistake (e.g., logMessage("A") succeeds, logMessage("B")
+      // throws on a transient disk error, the user cancels B → tracker
+      // would otherwise still point at A's row and remove it).
+      this.lastLoggedUserEntry = null;
       // Error already logged by _updateLogFile or _readLogFile
     }
   }
@@ -353,91 +327,18 @@ export class Logger {
    * appended a different entry between log and undo will not silently
    * remove the wrong row.
    *
-   * Two-phase semantics:
-   *   1. Synchronous in-memory removal of the entry from `this.logs` —
-   *      runs before this method even returns its Promise. Consumers
-   *      that read `getPreviousUserMessages()` on the same render
-   *      observe the removal immediately.
-   *   2. Async serialized disk reconciliation — read, splice, writeFile.
-   *      The returned Promise resolves to whether *the disk write*
-   *      succeeded (not whether the in-memory removal happened).
-   *
-   * Failure handling: when the disk read or write THROWS, the optimistic
-   * in-memory removal is ROLLED BACK so the cache stays consistent with
-   * what's on disk (which is still the pre-call state). The target entry
-   * is re-inserted at its original index (when still absent) and
-   * `lastLoggedUserEntry` is restored so a follow-up retry has a target.
-   *
-   * The other `false`-returning paths intentionally do NOT roll back:
-   *   - Initial guards (logger uninitialized / no tracked entry):
-   *     nothing was removed in the first place, so nothing to restore.
-   *   - Disk read succeeds but the tracked row is no longer on disk
-   *     (e.g. another logger instance rotated/cleared the file): the
-   *     in-memory cache is re-synced to the fresh disk snapshot, so
-   *     both sides agree the entry is gone. Returning `false` here is
-   *     truthful — we didn't perform a write — but the entry will NOT
-   *     be observable in-memory either.
-   *
-   * @returns true when the disk row was actually removed; false otherwise.
-   *   On `false`, the in-memory cache mirrors disk (entry restored if a
-   *   disk op threw; entry stays gone if disk no longer had it).
+   * @returns true when an entry was removed; false otherwise.
    */
   async removeLastUserMessage(): Promise<boolean> {
     if (!this.initialized || !this.logFilePath) {
       return false;
     }
-    const target = this.lastLoggedUserEntry;
-    if (!target) return false;
-    this.lastLoggedUserEntry = null;
-    const matchesTarget = (e: LogEntry): boolean =>
-      e.sessionId === target.sessionId &&
-      e.messageId === target.messageId &&
-      e.timestamp === target.timestamp &&
-      e.message === target.message &&
-      e.type === target.type;
-    // Optimistic in-memory removal BEFORE the async serialize queue runs.
-    // AppContainer's userMessages effect reads `getPreviousUserMessages()`
-    // (which reads `this.logs`) on the same render that history truncation
-    // fires. Without this sync update, ↑-history in the current session
-    // would still surface the cancelled prompt until some unrelated
-    // future history change forced the effect to re-run.
-    //
-    // If the disk path fails (read or write), restore the removed entry
-    // from the snapshot so the in-memory state stays consistent with
-    // disk — without rollback the caller gets `false` but the in-memory
-    // logs show the entry already removed, contract-violating drift.
-    const optimisticIdx = this.logs.findIndex(matchesTarget);
-    if (optimisticIdx >= 0) {
-      this.logs = [
-        ...this.logs.slice(0, optimisticIdx),
-        ...this.logs.slice(optimisticIdx + 1),
-      ];
-    }
-    const restoreOptimistic = () => {
-      // Restore the removed entry back into `this.logs` if (a) we
-      // actually performed the optimistic removal AND (b) the entry
-      // is no longer present (i.e. concurrent code didn't re-add it
-      // by some other path). Re-insert at the original index when
-      // possible, otherwise append (insertion order isn't a
-      // load-bearing invariant downstream — `getPreviousUserMessages`
-      // sorts by timestamp / index).
-      if (optimisticIdx >= 0 && this.logs.findIndex(matchesTarget) === -1) {
-        const insertAt = Math.min(optimisticIdx, this.logs.length);
-        this.logs = [
-          ...this.logs.slice(0, insertAt),
-          target,
-          ...this.logs.slice(insertAt),
-        ];
-      }
-      // Always restore `lastLoggedUserEntry` so a follow-up retry has
-      // a target to find. (This survives reentrant retry but doesn't
-      // resurrect a target that another path legitimately replaced.)
-      if (this.lastLoggedUserEntry === null) {
-        this.lastLoggedUserEntry = target;
-      }
-    };
     const logFilePath = this.logFilePath;
     return this.serialize(async () => {
+      const target = this.lastLoggedUserEntry;
+      if (!target) return false;
+      this.lastLoggedUserEntry = null;
+
       let currentLogsOnDisk: LogEntry[];
       try {
         currentLogsOnDisk = await this._readLogFile();
@@ -446,15 +347,20 @@ export class Logger {
           'Failed to read log file while undoing last user entry:',
           error,
         );
-        restoreOptimistic();
         return false;
       }
 
-      const idx = currentLogsOnDisk.findIndex(matchesTarget);
+      const idx = currentLogsOnDisk.findIndex(
+        (e) =>
+          e.sessionId === target.sessionId &&
+          e.messageId === target.messageId &&
+          e.timestamp === target.timestamp &&
+          e.message === target.message &&
+          e.type === target.type,
+      );
       if (idx === -1) {
-        // Entry already gone from disk (concurrent rotation/clear).
-        // Adopt disk state as truth so the in-memory cache doesn't
-        // diverge from a freshly-rotated file.
+        // Entry already gone (concurrent rotation/clear). Sync the in-memory
+        // cache with disk so callers don't see a stale row.
         this.logs = currentLogsOnDisk;
         return false;
       }
@@ -462,10 +368,10 @@ export class Logger {
       currentLogsOnDisk.splice(idx, 1);
 
       try {
-        await atomicWriteFile(
+        await fs.writeFile(
           logFilePath,
           JSON.stringify(currentLogsOnDisk, null, 2),
-          { encoding: 'utf-8' },
+          'utf-8',
         );
         this.logs = currentLogsOnDisk;
         // Roll back this instance's nextMessageId so a subsequent log doesn't
@@ -482,7 +388,6 @@ export class Logger {
           'Failed to write log file while undoing last user entry:',
           error,
         );
-        restoreOptimistic();
         return false;
       }
     });
@@ -540,9 +445,7 @@ export class Logger {
     // Always save with the new encoded path.
     const path = this._checkpointPath(tag);
     try {
-      await atomicWriteFile(path, JSON.stringify(conversation, null, 2), {
-        encoding: 'utf-8',
-      });
+      await fs.writeFile(path, JSON.stringify(conversation, null, 2), 'utf-8');
     } catch (error) {
       this.debugLogger.error('Error writing to checkpoint file:', error);
     }
