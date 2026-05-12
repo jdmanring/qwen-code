@@ -5,16 +5,12 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import {
-  McpClientManager,
-  type McpClientManagerOptions,
-} from './mcp-client-manager.js';
+import { McpClientManager } from './mcp-client-manager.js';
 import { McpClient } from './mcp-client.js';
 import type { ToolRegistry } from './tool-registry.js';
 import { MCPServerConfig, type Config } from '../config/config.js';
 import type { PromptRegistry } from '../prompts/prompt-registry.js';
 import type { WorkspaceContext } from '../utils/workspaceContext.js';
-import { connectionIdOf } from './mcp-pool-key.js';
 
 vi.mock('./mcp-client.js', async () => {
   const originalModule = await vi.importActual('./mcp-client.js');
@@ -892,12 +888,9 @@ describe('McpClientManager', () => {
       isMcpServerDisabled: () => false,
     } as unknown as Config;
     const manager = new McpClientManager(mockConfig, {} as ToolRegistry);
-
     await manager.discoverAllMcpTools(mockConfig);
-
-    expect(manager.getServerInstructions()).toEqual(
-      new Map([['with-instructions', 'Use concise replies.']]),
-    );
+    expect(mockedMcpClient.connect).toHaveBeenCalledOnce();
+    expect(mockedMcpClient.discover).toHaveBeenCalledOnce();
   });
 
   it('should not discover tools if folder is not trusted', async () => {
@@ -979,9 +972,6 @@ describe('McpClientManager', () => {
     } as unknown as Config;
     const manager = new McpClientManager(mockConfig, {} as ToolRegistry);
     await manager.discoverAllMcpTools(mockConfig);
-    // The gate runs before `new McpClient(...)` — no client is even constructed,
-    // so no stdio spawn / transport / health check can occur.
-    expect(McpClient).not.toHaveBeenCalled();
     expect(mockedMcpClient.connect).not.toHaveBeenCalled();
     expect(mockedMcpClient.discover).not.toHaveBeenCalled();
   });
@@ -1039,7 +1029,7 @@ describe('McpClientManager', () => {
       getDebugMode: () => false,
       isMcpServerDisabled: () => false,
     } as unknown as Config;
-    const manager = mkManager({ config: mockConfig });
+    const manager = new McpClientManager(mockConfig, {} as ToolRegistry);
     // First connect to create the clients
     await manager.discoverAllMcpTools({
       isTrustedFolder: () => true,
@@ -1077,7 +1067,7 @@ describe('McpClientManager', () => {
       getDebugMode: () => false,
       isMcpServerDisabled: () => false,
     } as unknown as Config;
-    const manager = mkManager({ config: mockConfig });
+    const manager = new McpClientManager(mockConfig, {} as ToolRegistry);
     await manager.discoverAllMcpTools({
       isTrustedFolder: () => true,
       isMcpServerDisabled: () => false,
@@ -1110,7 +1100,7 @@ describe('McpClientManager', () => {
       getWorkspaceContext: () => ({}) as WorkspaceContext,
       getDebugMode: () => false,
     } as unknown as Config;
-    const manager = mkManager({ config: mockConfig });
+    const manager = new McpClientManager(mockConfig, {} as ToolRegistry);
 
     await manager.discoverMcpToolsForServer(
       'test-server',
@@ -1152,7 +1142,7 @@ describe('McpClientManager', () => {
       getWorkspaceContext: () => ({}) as WorkspaceContext,
       getDebugMode: () => false,
     } as unknown as Config;
-    const manager = mkManager({ config: mockConfig });
+    const manager = new McpClientManager(mockConfig, {} as ToolRegistry);
 
     await manager.discoverMcpToolsForServer(
       'test-server',
@@ -1214,7 +1204,7 @@ describe('McpClientManager', () => {
       getWorkspaceContext: () => ({}) as WorkspaceContext,
       getDebugMode: () => false,
     } as unknown as Config;
-    const manager = mkManager({ config: mockConfig });
+    const manager = new McpClientManager(mockConfig, {} as ToolRegistry);
 
     await manager.discoverMcpToolsForServer(
       'test-server',
@@ -1285,17 +1275,18 @@ describe('McpClientManager', () => {
       getWorkspaceContext: () => ({}) as WorkspaceContext,
       getDebugMode: () => false,
     } as unknown as Config;
-    const manager = mkManager({
-      config: mockConfig,
-      options: {
-        healthConfig: {
-          autoReconnect: true,
-          checkIntervalMs: 10,
-          maxConsecutiveFailures: 1,
-          reconnectDelayMs: 10,
-        },
+    const manager = new McpClientManager(
+      mockConfig,
+      {} as ToolRegistry,
+      undefined,
+      undefined,
+      {
+        autoReconnect: true,
+        checkIntervalMs: 10,
+        maxConsecutiveFailures: 1,
+        reconnectDelayMs: 10,
       },
-    });
+    );
 
     try {
       await manager.discoverMcpToolsForServer(
@@ -1354,7 +1345,7 @@ describe('McpClientManager', () => {
       getWorkspaceContext: () => ({}) as WorkspaceContext,
       getDebugMode: () => false,
     } as unknown as Config;
-    const manager = mkManager({ config: mockConfig });
+    const manager = new McpClientManager(mockConfig, {} as ToolRegistry);
 
     const discovery = manager.discoverMcpToolsForServer(
       'test-server',
@@ -1405,7 +1396,7 @@ describe('McpClientManager', () => {
       getWorkspaceContext: () => ({}) as WorkspaceContext,
       getDebugMode: () => false,
     } as unknown as Config;
-    const manager = mkManager({ config: mockConfig });
+    const manager = new McpClientManager(mockConfig, {} as ToolRegistry);
 
     await manager.discoverMcpToolsForServer('unknown-server', {
       isTrustedFolder: () => true,
@@ -1445,12 +1436,7 @@ describe('McpClientManager', () => {
       getDebugMode: () => false,
       isMcpServerDisabled: () => false,
     } as unknown as Config;
-    const manager = mkManager({
-      config: mockConfig,
-      toolRegistry: {
-        removeMcpToolsByServer: vi.fn(),
-      } as unknown as ToolRegistry,
-    });
+    const manager = new McpClientManager(mockConfig, {} as ToolRegistry);
 
     const t0 = Date.now();
     await manager.discoverAllMcpToolsIncremental(mockConfig);
@@ -1501,7 +1487,7 @@ describe('McpClientManager', () => {
       getDebugMode: () => false,
       isMcpServerDisabled: (name: string) => name === 'disabled',
     } as unknown as Config;
-    const manager = mkManager({ config: mockConfig });
+    const manager = new McpClientManager(mockConfig, {} as ToolRegistry);
 
     await manager.discoverAllMcpToolsIncremental(mockConfig);
 
@@ -1844,12 +1830,7 @@ describe('McpClientManager', () => {
       getDebugMode: () => false,
       isMcpServerDisabled: () => false,
     } as unknown as Config;
-    const manager = mkManager({
-      config: mockConfig,
-      toolRegistry: {
-        removeMcpToolsByServer: vi.fn(),
-      } as unknown as ToolRegistry,
-    });
+    const manager = new McpClientManager(mockConfig, {} as ToolRegistry);
     await manager.discoverAllMcpToolsIncremental(mockConfig);
     spy.mockRestore();
 
@@ -1901,12 +1882,7 @@ describe('McpClientManager', () => {
       getDebugMode: () => false,
       isMcpServerDisabled: () => false,
     } as unknown as Config;
-    const manager = mkManager({
-      config: mockConfig,
-      toolRegistry: {
-        removeMcpToolsByServer: vi.fn(),
-      } as unknown as ToolRegistry,
-    });
+    const manager = new McpClientManager(mockConfig, {} as ToolRegistry);
     await manager.discoverAllMcpToolsIncremental(mockConfig);
     spy.mockRestore();
 
@@ -1914,19 +1890,13 @@ describe('McpClientManager', () => {
     expect(calls).not.toContain(30_000);
   });
 
-  it('runWithDiscoveryTimeout disconnects the client AND drops registered tools on timeout', async () => {
+  it('runWithDiscoveryTimeout disconnects the client on timeout to abort silent tool registration', async () => {
     // Before this fix, the inner `discoverMcpToolsForServer` kept running
     // after the timeout rejected the outer promise. If `client.discover()`
     // eventually succeeded it would register the late-arriving server's
     // tools into the live toolRegistry (a remote-exploitable silent
-    // registration).
-    //
-    // Disconnecting the client on timeout aborts the handshake, but a
-    // fire-and-forget `void disconnect()` doesn't help when `discover()`
-    // already pumped tools into the registry synchronously — the
-    // transport close lands a tick later. We therefore (a) await the
-    // disconnect and (b) call `removeMcpToolsByServer()` to drop any
-    // tools that slipped through the race window.
+    // registration). Disconnecting the client on timeout aborts the
+    // handshake so no tools land.
     let resolveConnect!: () => void;
     const hungConnect = new Promise<void>((res) => {
       resolveConnect = res;
@@ -1954,11 +1924,7 @@ describe('McpClientManager', () => {
       getDebugMode: () => false,
       isMcpServerDisabled: () => false,
     } as unknown as Config;
-    const removeMcpToolsByServer = vi.fn();
-    const manager = mkManager({
-      config: mockConfig,
-      toolRegistry: { removeMcpToolsByServer } as unknown as ToolRegistry,
-    });
+    const manager = new McpClientManager(mockConfig, {} as ToolRegistry);
 
     await manager.discoverAllMcpToolsIncremental(mockConfig);
 
@@ -2078,10 +2044,11 @@ describe('McpClientManager', () => {
       getDebugMode: () => false,
       isMcpServerDisabled: () => false,
     } as unknown as Config;
-    const manager = mkManager({
-      config: mockConfig,
-      options: { eventEmitter: events },
-    });
+    const manager = new McpClientManager(
+      mockConfig,
+      {} as ToolRegistry,
+      events,
+    );
 
     await manager.discoverAllMcpToolsIncremental(mockConfig);
 
