@@ -1,19 +1,10 @@
-name: '🧐 Qwen Pull Request Review'
+name: 'Qwen Pull Request Review'
 
 on:
   pull_request_target:
-    types:
-      - 'opened'
-      - 'synchronize'
-      - 'reopened'
-      - 'ready_for_review'
-      - 'review_requested'
+    types: ['opened', 'reopened', 'ready_for_review', 'synchronize']
   issue_comment:
-    types: ['created']
-  pull_request_review_comment:
-    types: ['created']
-  pull_request_review:
-    types: ['submitted']
+    types: ['created', 'edited']
   workflow_dispatch:
     inputs:
       pr_number:
@@ -29,15 +20,15 @@ on:
           - 'review'
           - 'resolve'
       review_mode:
-        description: 'dry-run (no comments) or comment (post inline comments)'
+        description: 'Run without posting comments, or publish a PR summary comment'
         required: true
-        default: 'comment'
+        default: 'dry-run'
         type: 'choice'
         options:
           - 'dry-run'
           - 'comment'
-      timeout_minutes:
-        description: 'Review timeout in minutes'
+      tier_override:
+        description: 'Force a specific tier and skip preflight triage'
         required: false
         default: '120'
         type: 'number'
@@ -312,15 +303,10 @@ jobs:
       ((github.event_name == 'workflow_dispatch' &&
        (github.event.inputs.command == 'review' || github.event.inputs.command == '')) ||
       (github.event_name == 'pull_request_target' &&
-       github.event.pull_request.state == 'open' &&
-       !github.event.pull_request.draft &&
-       needs.authorize.outputs.should_review == 'true' &&
-       ((github.event.action == 'review_requested' &&
-         github.event.requested_reviewer.login == needs.review-config.outputs.bot_login) ||
-        (github.event.action != 'review_requested' &&
-         ((github.event.action != 'opened' &&
-           github.event.action != 'synchronize') ||
-          needs.delay-automatic-review.outputs.should_review == 'true')))) ||
+       (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'ready_for_review' || github.event.action == 'synchronize') &&
+       (github.event.pull_request.author_association == 'OWNER' ||
+        github.event.pull_request.author_association == 'MEMBER' ||
+        github.event.pull_request.author_association == 'COLLABORATOR')) ||
       (github.event_name == 'issue_comment' &&
         github.event.issue.pull_request &&
         github.event.issue.state == 'open' &&
@@ -344,8 +330,17 @@ jobs:
     runs-on: "${{ (github.repository == 'QwenLM/qwen-code' && vars.MAINTAINER_ECS_RUNNER_DISABLED != 'true') && fromJSON('[\"self-hosted\", \"linux\", \"x64\", \"ecs-qwen\"]') || fromJSON('[\"ubuntu-latest\"]') }}"
     permissions:
       contents: 'read'
+      # 'write' is required even though we only use `gh pr comment`: the gh
+      # CLI calls the GraphQL addComment mutation, which is gated on
+      # pull-requests:write (not issues:write — that path is for issue
+      # comments on non-PR issues). Validated by an empirical
+      # workflow_dispatch run that failed with
+      # "GraphQL: Resource not accessible by integration (addComment)".
       pull-requests: 'write'
-      issues: 'write'
+    env:
+      GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+      OPENAI_MODEL: '${{ vars.QWEN_PR_REVIEW_MODEL }}'
+      QWEN_PR_REVIEW_MAX_CHANGED_LINES: "${{ vars.QWEN_PR_REVIEW_MAX_CHANGED_LINES || '1500' }}"
     steps:
       # Self-hosted runners reuse $HOME, /tmp and the workspace, so a prior run
       # can bleed into this one: its agent session/memory (under QWEN_HOME),
@@ -382,13 +377,18 @@ jobs:
       - name: 'Checkout base branch'
         uses: 'actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd' # v6.0.2
         with:
-          ref: '${{ github.event.repository.default_branch }}'
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          ref: "${{ github.event_name == 'workflow_dispatch' && github.ref || 'main' }}"
           fetch-depth: 0
 
       - name: 'Resolve PR context'
-        id: 'context'
+        id: 'pr'
         env:
-          TRIGGER_BODY: "${{ github.event.comment.body || github.event.review.body || '' }}"
+          EVENT_NAME: '${{ github.event_name }}'
+          WORKFLOW_PR_NUMBER: '${{ github.event.inputs.pr_number }}'
+          WORKFLOW_REVIEW_MODE: '${{ github.event.inputs.review_mode }}'
+          WORKFLOW_TIER_OVERRIDE: '${{ github.event.inputs.tier_override }}'
+          WORKFLOW_ADDITIONAL_INSTRUCTIONS: '${{ github.event.inputs.additional_instructions }}'
         run: |-
           set -euo pipefail
           DEFAULT_TIMEOUT_MINUTES=120
@@ -436,11 +436,95 @@ jobs:
             set +f
           fi
 
+          should_run_review="true"
+
+          # Use grep -qE with end-boundary so '@qwen /review' does not match
+          # '@qwen /reviewer' or similar variants.
+          if [ "$EVENT_NAME" != "workflow_dispatch" ] && [ "$EVENT_NAME" != "pull_request_target" ]; then
+            if printf '%s' "$comment_body" | grep -qE '@qwen /review($|[[:space:]])'; then
+              additional_instructions="$(
+                printf '%s' "$comment_body" |
+                  awk '
+                    BEGIN { found = 0 }
+                    !found {
+                      if (match($0, /@qwen \/review([[:space:]]|$)/)) {
+                        found = 1
+                        rest = substr($0, RSTART + RLENGTH)
+                        if (length(rest) > 0) print rest
+                      }
+                      next
+                    }
+                    { print }
+                  ' |
+                  sed 's/^[[:space:]]*//'
+              )"
+            else
+              should_run_review="false"
+            fi
+          fi
+
+          # Parse `--tier=X` from comment body or from additional_instructions
+          # (it ends up there after the regex strip above). Match: --tier=light,
+          # --tier=DEEP, etc. The matched token is REMOVED from
+          # additional_instructions so it doesn't leak into the review prompt.
+          # Only honored when the event is issue_comment (workflow_dispatch
+          # already set tier_override from its input above).
+          if [ "$EVENT_NAME" = "issue_comment" ] && [ -z "$tier_override" ]; then
+            if printf '%s' "$additional_instructions" | grep -qiE '(^|[[:space:]])--tier=(ultra_light|light|standard|deep)([[:space:]]|$)'; then
+              tier_raw="$(printf '%s' "$additional_instructions" \
+                | grep -oiE -- '--tier=(ultra_light|light|standard|deep)' \
+                | head -n1 \
+                | sed 's/^--tier=//')"
+              tier_override="$(printf '%s' "$tier_raw" | tr '[:lower:]' '[:upper:]')"
+              additional_instructions="$(printf '%s' "$additional_instructions" \
+                | sed -E 's/(^|[[:space:]])--tier=(ultra_light|light|standard|deep|ULTRA_LIGHT|LIGHT|STANDARD|DEEP)([[:space:]]|$)/\1\3/g')"
+            fi
+          fi
+          # Strip leading blank lines so the prompt doesn't start with an
+          # empty line when @qwen /review is on its own line.
+          additional_instructions="$(printf '%s' "$additional_instructions" | sed '/./,$!d')"
+          # Keep maintainer focus text from changing the slash-command flags.
+          additional_instructions="$(printf '%s' "$additional_instructions" | LC_ALL=C perl -0pe 's/(?<!\S)--comment(?!\S)/`--comment`/g')"
+          # Hard-cap to 2048 characters to keep prompt-injection surface
+          # bounded without using a pipe that can trip pipefail on SIGPIPE.
+          # Reviewers should keep instructions short.
+          additional_instructions="${additional_instructions:0:2048}"
+
+          # Build the review prompt for qwen-code-action.
+          # Pass the full PR URL so the skill can resolve owner/repo unambiguously.
+          #
+          # Intentionally NOT passing `/review --comment` even in comment mode:
+          # the bundled skill may submit an APPROVE review when no findings are
+          # found, and this workflow is comment-only (it posts the action
+          # summary itself below). The dry-run vs comment distinction is
+          # carried via $should_comment, not by changing the slash-command.
+          review_target="${GITHUB_SERVER_URL:-https://github.com}/${GITHUB_REPOSITORY}/pull/${pr_number}"
+          review_prompt="/review $review_target"
+          if [ "$review_mode" = "comment" ]; then
+            should_comment="true"
+          else
+            should_comment="false"
+          fi
+
+          if [ -n "$additional_instructions" ]; then
+            review_prompt="$review_prompt
+
+            Additional reviewer focus: $additional_instructions"
+          fi
+
+          output_delimiter="QWEN_REVIEW_PROMPT_$(date +%s%N)"
           {
-            echo "should_run=true"
-            echo "pr_number=$PR_NUMBER"
-            echo "review_mode=$REVIEW_MODE"
-            echo "timeout_minutes=$TIMEOUT_MINUTES"
+            echo "number=$pr_number"
+            echo "review_mode=$review_mode"
+            echo "should_comment=$should_comment"
+            echo "should_run_review=$should_run_review"
+            echo "tier_override=$tier_override"
+            echo "additional_instructions<<QWEN_REVIEW_AI_${output_delimiter}"
+            printf '%s\n' "$additional_instructions"
+            echo "QWEN_REVIEW_AI_${output_delimiter}"
+            echo "review_prompt<<$output_delimiter"
+            printf '%s\n' "$review_prompt"
+            echo "$output_delimiter"
           } >> "$GITHUB_OUTPUT"
 
       - name: 'Setup Node.js for hosted review'
@@ -464,7 +548,400 @@ jobs:
         id: 'review'
         if: "steps.context.outputs.should_run == 'true'"
         env:
-          GH_TOKEN: '${{ secrets.CI_BOT_PAT }}'
+          PR_NUMBER: '${{ steps.pr.outputs.number }}'
+          REVIEW_MODE: '${{ steps.pr.outputs.review_mode }}'
+          SHOULD_COMMENT: '${{ steps.pr.outputs.should_comment }}'
+        run: |-
+          set -euo pipefail
+
+          write_output() {
+            echo "$1" >> "$GITHUB_OUTPUT"
+          }
+
+          if [ -z "${OPENAI_MODEL:-}" ]; then
+            echo "::error::Repository variable QWEN_PR_REVIEW_MODEL is required for this workflow (maps to env var OPENAI_MODEL)."
+            exit 1
+          fi
+
+          if ! printf '%s' "$QWEN_PR_REVIEW_MAX_CHANGED_LINES" | grep -Eq '^[0-9]+$'; then
+            echo "::error::QWEN_PR_REVIEW_MAX_CHANGED_LINES must be an integer."
+            exit 1
+          fi
+
+          if [ "$QWEN_PR_REVIEW_MAX_CHANGED_LINES" -lt 100 ] || [ "$QWEN_PR_REVIEW_MAX_CHANGED_LINES" -gt 50000 ]; then
+            echo "::error::QWEN_PR_REVIEW_MAX_CHANGED_LINES must be between 100 and 50000 (got $QWEN_PR_REVIEW_MAX_CHANGED_LINES)."
+            exit 1
+          fi
+
+          pr_json="$(gh pr view "$PR_NUMBER" \
+            --repo "$GITHUB_REPOSITORY" \
+            --json additions,deletions,changedFiles,title,baseRefName,baseRefOid,headRefName,headRefOid)"
+          additions="$(jq -r '.additions' <<< "$pr_json")"
+          deletions="$(jq -r '.deletions' <<< "$pr_json")"
+          changed_files="$(jq -r '.changedFiles' <<< "$pr_json")"
+          title="$(jq -r '.title' <<< "$pr_json")"
+          base_ref="$(jq -r '.baseRefName' <<< "$pr_json")"
+          base_sha="$(jq -r '.baseRefOid // ""' <<< "$pr_json")"
+          head_ref="$(jq -r '.headRefName' <<< "$pr_json")"
+          head_sha="$(jq -r '.headRefOid // ""' <<< "$pr_json")"
+          changed_lines=$((additions + deletions))
+
+          # Reject empty head_sha / base_sha early. Both are queried via
+          # gh pr view; an empty value almost always means gh pr view
+          # partially failed.
+          if [ -z "$head_sha" ]; then
+            echo "::error::Could not resolve PR head SHA via gh pr view --json headRefOid."
+            exit 1
+          fi
+          if [ -z "$base_sha" ]; then
+            echo "::error::Could not resolve PR base SHA via gh pr view --json baseRefOid."
+            exit 1
+          fi
+
+          # Compute the merge-base SHA, i.e., the commit where the PR's
+          # history forks from the base branch. The merge base is what the
+          # cache key must be scoped to, NOT baseRefOid.
+          #
+          # baseRefOid is the current tip of the base ref (e.g., main HEAD).
+          # That value can stay fixed across reviews even when the PR
+          # merges base into itself: if the author clicks "Update branch"
+          # while base hasn't moved, baseRefOid is unchanged but the PR's
+          # history now incorporates base's commits. A cache restored under
+          # baseRefOid would then let the bundled /review skill compute
+          # `git diff <oldHead>..<newHead>` across upstream commits the PR
+          # did not author. The merge base, in contrast, advances whenever
+          # base content enters the PR (Update branch, rebase onto newer
+          # base, or base retarget), which is exactly the boundary we
+          # want to invalidate the cache on.
+          #
+          # merge-base is best-effort: the compare endpoint can fail to
+          # resolve SHAs for fork PRs in the base repo's namespace. That
+          # must not abort the review (set -euo pipefail) — it only means
+          # the incremental cache can't be scoped this run, so we fall
+          # back to a full review rather than failing the job.
+          merge_base_sha="$(gh api \
+            "repos/${GITHUB_REPOSITORY}/compare/${base_sha}...${head_sha}" \
+            --jq '.merge_base_commit.sha // ""' 2>/dev/null || true)"
+          if [ -z "$merge_base_sha" ]; then
+            echo "::warning::Could not resolve PR merge base; incremental cache will fall back to a full review this run."
+          fi
+
+          write_output "changed_lines=$changed_lines"
+          write_output "changed_files=$changed_files"
+          write_output "head_sha=$head_sha"
+          write_output "base_sha=$base_sha"
+          write_output "merge_base_sha=$merge_base_sha"
+          echo "Review target: PR #$PR_NUMBER"
+          echo "Review title: $title"
+          echo "Review branch: $base_ref ($base_sha) <- $head_ref ($head_sha)"
+          if [ -n "$merge_base_sha" ]; then
+            echo "Review merge base: $merge_base_sha"
+          else
+            echo "Review merge base: (unresolved; full review this run)"
+          fi
+          echo "Review scope: $changed_files files, +$additions/-$deletions ($changed_lines changed lines)"
+
+          if [ "$changed_lines" -gt "$QWEN_PR_REVIEW_MAX_CHANGED_LINES" ]; then
+            # Size > AI-review threshold: skip AI review but DO NOT post a
+            # blocking comment. Merge-blocking by oversized PR is the job
+            # of the sibling workflow `pr-gate.yml` (PR Size check). This
+            # step is informational only. See docs/design/pr-gate-plan.md.
+            write_output "should_review=false"
+            echo "::notice::PR size ($changed_lines lines) exceeds AI-review threshold ($QWEN_PR_REVIEW_MAX_CHANGED_LINES). Skipping AI review; pr-gate.yml 'PR Size' check handles merge-blocking for oversized PRs."
+            {
+              printf '### Qwen PR review skipped (PR too large for AI review)\n\n'
+              printf 'PR size: %s lines across %s files (threshold %s).\n\n' \
+                "$changed_lines" "$changed_files" "$QWEN_PR_REVIEW_MAX_CHANGED_LINES"
+              printf 'Skipped automated AI review. Merge-blocking by size is handled by `pr-gate.yml` (PR Size check).\n'
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            write_output "should_review=true"
+          fi
+
+      # Restore the bundled /review skill's per-PR cache only on synchronize.
+      # The skill writes .qwen/review-cache/pr-<n>.json with the last reviewed
+      # commit SHA so subsequent runs can scope review to the incremental
+      # diff. Cache is intentionally NOT restored on opened/reopened (full
+      # review) or comment / workflow_dispatch (manual re-review must not
+      # short-circuit on "No new changes since last review"). See
+      # docs/design/code-review/code-review-design.md §增量评审与缓存.
+      #
+      # Cache key uses merge_base_sha + head_sha (not baseRefOid). The
+      # merge base advances whenever base content enters the PR — Update
+      # branch, rebase onto newer base, or base retarget — which are
+      # exactly the boundaries that should invalidate the cache. Pure
+      # author pushes leave the merge base alone, so the restore-keys
+      # prefix `qwen-review-<pr#>-<merge_base_sha>-` keeps matching and
+      # bundled /review can still scope to the incremental diff.
+      - name: 'Restore review cache'
+        id: 'restore-cache'
+        if: |-
+          steps.size.outputs.should_review == 'true' &&
+          github.event_name == 'pull_request_target' &&
+          github.event.action == 'synchronize'
+        uses: 'actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830' # v4.3.0
+        with:
+          path: '.qwen/review-cache'
+          key: 'qwen-review-${{ steps.pr.outputs.number }}-${{ steps.size.outputs.merge_base_sha }}-${{ steps.size.outputs.head_sha }}'
+          restore-keys: |
+            qwen-review-${{ steps.pr.outputs.number }}-${{ steps.size.outputs.merge_base_sha }}-
+
+      # @qwen-code/qwen-code requires Node >=22; runner default is 20
+      # (npm EBADENGINE). Pin Node 22 before installing/invoking qwen.
+      - name: 'Set up Node.js'
+        if: |-
+          steps.size.outputs.should_review == 'true'
+        uses: 'actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e' # v4
+        with:
+          node-version: '22'
+
+      # Cache the npm download cache so the global qwen-code install is
+      # offline-fast on subsequent runs (content-addressed; a stale key
+      # only misses the newest tarball, never serves wrong content).
+      - name: 'Cache npm for qwen-code install'
+        if: |-
+          steps.size.outputs.should_review == 'true'
+        uses: 'actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830' # v4.3.0
+        with:
+          path: '~/.npm'
+          key: 'qwen-npm-global-${{ runner.os }}-v1'
+          restore-keys: |
+            qwen-npm-global-${{ runner.os }}-
+
+      # ─── Install qwen-code CLI (shared by preflight, LIGHT, STANDARD, DEEP) ───
+      #
+      # Extracted from the previous monolithic 'Run Qwen Code Review' step so
+      # the same `qwen` binary is reused by the preflight LLM call and by all
+      # tier-specific execution paths below. ULTRA_LIGHT does not need qwen
+      # but the install is cached and cheap (~5s warm); skipping it
+      # conditionally would add branching with no real saving.
+      #
+      # Intentionally @latest: this workflow is still in the Phase 1-3
+      # bundled-action rollout (see docs/design/code-review/roadmap.md)
+      # and we want every CI run to exercise the newest bundled /review
+      # skill while it stabilizes — pinning a version would freeze the
+      # in-progress skill iterations behind a manual bump PR. Once the
+      # workflow lands and the skill cadence slows, switch this to a
+      # pinned `@qwen-code/qwen-code@x.y.z` so the secret-bearing
+      # pull_request_target run can't be moved by a future package
+      # publish. Tracked as a follow-up; not blocking on this PR.
+      - name: 'Install qwen-code CLI'
+        if: |-
+          steps.size.outputs.should_review == 'true'
+        run: |-
+          set -euo pipefail
+
+          mkdir -p .qwen
+          cat > .qwen/settings.json <<'EOF'
+          {
+            "security": { "folderTrust": { "enabled": false } },
+            "tools": { "approvalMode": "yolo" },
+            "sandbox": false
+          }
+          EOF
+
+          echo "::group::Install qwen-code"
+          npm install -g @qwen-code/qwen-code@latest
+          qwen --version
+          echo "::endgroup::"
+
+      # ─── Preflight triage: LLM judges blast radius, picks tier ────────────
+      #
+      # Skipped when the maintainer explicitly forced a tier via slash flag
+      # (`@qwen /review --tier=...`) or workflow_dispatch input. Otherwise
+      # runs a single qwen call against `.qwen/preflight-prompt.md` with PR
+      # context appended, expecting strict JSON output. Any failure mode
+      # (timeout, non-JSON, schema invalid) defaults to DEEP (P7 conservative
+      # bias). See docs/design/code-review/preflight-triage.md §Preflight 实现.
+      - name: 'Preflight triage'
+        id: 'triage'
+        if: |-
+          steps.size.outputs.should_review == 'true' &&
+          steps.pr.outputs.tier_override == ''
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          OPENAI_API_KEY: '${{ secrets.REVIEW_OPENAI_API_KEY }}'
+          OPENAI_BASE_URL: '${{ secrets.REVIEW_OPENAI_BASE_URL }}'
+          OPENAI_MODEL: '${{ vars.QWEN_PR_PREFLIGHT_MODEL || vars.QWEN_PR_REVIEW_MODEL }}'
+          PR_NUMBER: '${{ steps.pr.outputs.number }}'
+          CHANGED_LINES: '${{ steps.size.outputs.changed_lines }}'
+        timeout-minutes: 5
+        run: |-
+          set -euo pipefail
+
+          if [ -z "${{ vars.QWEN_PR_PREFLIGHT_MODEL }}" ]; then
+            echo "::warning::vars.QWEN_PR_PREFLIGHT_MODEL is unset; preflight is falling back to the deep-review model SKU. Configure a cheaper SKU to reduce token cost — see docs/design/code-review/preflight-triage.md §关键决策 D1."
+          fi
+
+          echo "::group::Gather preflight inputs"
+          pr_json="$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --json title,body,additions,deletions,changedFiles,files,headRefName,baseRefName)"
+          pr_title="$(jq -r '.title' <<< "$pr_json")"
+          # Trim the body to keep prompt size bounded.
+          pr_body="$(jq -r '.body // ""' <<< "$pr_json" | head -c 2000)"
+          base_ref="$(jq -r '.baseRefName' <<< "$pr_json")"
+          head_ref="$(jq -r '.headRefName' <<< "$pr_json")"
+          changed_files_block="$(jq -r '.files[] | "\(.path) (+\(.additions)/-\(.deletions))"' <<< "$pr_json")"
+          diff_stat="$(gh pr diff "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --patch | diffstat -p1 2>/dev/null || gh pr diff "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --patch | head -200)"
+          # First ~50KB of unified diff for content judgment. Anything beyond
+          # is unlikely to flip the tier — preflight is a triage step, not
+          # the actual review.
+          unified_diff="$(gh pr diff "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --patch | head -c 50000)"
+          echo "::endgroup::"
+
+          # Build the PR context body into a file so the heredoc-with-YAML
+          # indentation pitfall is avoided. Variable substitution happens at
+          # the shell level (printf), not the YAML level.
+          {
+            printf '**PR title:** %s\n\n' "$pr_title"
+            printf '**Branches:** %s → %s\n\n' "$head_ref" "$base_ref"
+            printf '**Changed lines:** %s\n\n' "$CHANGED_LINES"
+            printf '**Changed files (path + line counts):**\n'
+            printf '```\n%s\n```\n\n' "$changed_files_block"
+            printf '**git diff --stat:**\n'
+            printf '```\n%s\n```\n\n' "$diff_stat"
+            printf '**First 50KB of unified diff:**\n'
+            printf '```diff\n%s\n```\n\n' "$unified_diff"
+            printf '**PR body (first 2KB):**\n%s\n' "$pr_body"
+          } > /tmp/preflight-pr-context.md
+
+          # Render the final prompt by substituting the two template markers.
+          # Use node (Node 22 is on the runner already) for reliable handling
+          # of any character in the substituted text.
+          PR_CONTEXT_FILE=/tmp/preflight-pr-context.md \
+          node -e '
+            const fs = require("fs");
+            const template = fs.readFileSync(".qwen/preflight-prompt.md", "utf8");
+            const rules = fs.readFileSync(".qwen/review-rules.md", "utf8");
+            const ctx = fs.readFileSync(process.env.PR_CONTEXT_FILE, "utf8");
+            const out = template
+              .replace("<<<REVIEW_RULES_MD>>>", rules)
+              .replace("<<<PR_CONTEXT>>>", ctx);
+            fs.writeFileSync("/tmp/preflight-prompt-rendered.md", out);
+          ' || { echo "::error::Failed to render preflight prompt"; exit 1; }
+
+          echo "::group::Run preflight LLM"
+          set +e
+          # `timeout 3m` kills qwen at 3 min; the step's `timeout-minutes: 5`
+          # is the outer safety net (D6).
+          raw_out="$(timeout 3m qwen --yolo --prompt "$(cat /tmp/preflight-prompt-rendered.md)" 2>&1)"
+          qwen_status=$?
+          set -e
+          echo "$raw_out"
+          echo "::endgroup::"
+
+          # Default to DEEP on any failure (P7 conservative bias).
+          tier="DEEP"
+          rationale="preflight defaulted to DEEP"
+
+          if [ "$qwen_status" -eq 124 ]; then
+            echo "::warning::Preflight timed out at 3m; falling back to DEEP."
+            rationale="preflight timed out at 3m"
+          elif [ "$qwen_status" -ne 0 ]; then
+            echo "::warning::Preflight exited with status $qwen_status; falling back to DEEP."
+            rationale="preflight exited non-zero ($qwen_status)"
+          else
+            # Strip code fences if the model added them despite instructions.
+            json_text="$(printf '%s' "$raw_out" | sed -E 's/^```(json)?$//; s/^```$//' | sed '/^[[:space:]]*$/d')"
+            if ! parsed="$(printf '%s' "$json_text" | jq -e '. | select(.tier and .blast_radius)' 2>/dev/null)"; then
+              echo "::warning::Preflight returned invalid JSON or missing required fields; falling back to DEEP."
+              rationale="invalid preflight JSON"
+            else
+              model_tier="$(printf '%s' "$parsed" | jq -r '.tier' | tr '[:lower:]' '[:upper:]')"
+              case "$model_tier" in
+                ULTRA_LIGHT|LIGHT|STANDARD|DEEP)
+                  tier="$model_tier"
+                  rationale="$(printf '%s' "$parsed" | jq -r '.rationale // ""' | head -c 200)"
+                  # Optional fields, may be empty.
+                  focus_areas="$(printf '%s' "$parsed" | jq -c '.focus_areas // []')"
+                  agents_to_run="$(printf '%s' "$parsed" | jq -c '.agents_to_run // []')"
+                  printf '%s' "$focus_areas" > /tmp/qwen-focus-areas.json
+                  printf '%s' "$agents_to_run" > /tmp/qwen-agents-to-run.json
+                  ;;
+                *)
+                  echo "::warning::Preflight returned unknown tier value '$model_tier'; falling back to DEEP."
+                  rationale="unknown tier value: $model_tier"
+                  ;;
+              esac
+            fi
+          fi
+
+          echo "tier=$tier" >> "$GITHUB_OUTPUT"
+          echo "rationale=$rationale" >> "$GITHUB_OUTPUT"
+          echo "::notice::Preflight tier=$tier (rationale: $rationale)"
+
+      # ─── Compute effective tier (override OR preflight) ────────────────────
+      #
+      # Final tier = `tier_override` (if set by maintainer slash flag or
+      # dispatch input) else `triage.outputs.tier`. Shell-only step; no LLM
+      # call. Output is used by the four tier-execution steps below.
+      - name: 'Compute effective tier'
+        id: 'tier'
+        if: |-
+          steps.size.outputs.should_review == 'true'
+        env:
+          TIER_OVERRIDE: '${{ steps.pr.outputs.tier_override }}'
+          TRIAGE_TIER: '${{ steps.triage.outputs.tier }}'
+        run: |-
+          set -euo pipefail
+
+          if [ -n "${TIER_OVERRIDE}" ]; then
+            tier="$TIER_OVERRIDE"
+            source="override"
+          elif [ -n "${TRIAGE_TIER:-}" ]; then
+            tier="$TRIAGE_TIER"
+            source="preflight"
+          else
+            # Defensive fallback: if neither override nor preflight ran (e.g.
+            # preflight step was skipped due to an upstream condition), pick
+            # DEEP. Should be unreachable in practice.
+            tier="DEEP"
+            source="default-fallback"
+          fi
+
+          case "$tier" in
+            ULTRA_LIGHT|LIGHT|STANDARD|DEEP) ;;
+            *)
+              echo "::error::Invalid effective tier '$tier'"
+              exit 1
+              ;;
+          esac
+
+          echo "tier=$tier" >> "$GITHUB_OUTPUT"
+          echo "source=$source" >> "$GITHUB_OUTPUT"
+          echo "::notice::Effective tier=$tier (source=$source)"
+
+      # ─── ULTRA_LIGHT: shell-only "no deep review needed" comment ──────────
+      - name: 'Compose ULTRA_LIGHT verdict'
+        id: 'ultra-light'
+        if: |-
+          steps.size.outputs.should_review == 'true' &&
+          steps.tier.outputs.tier == 'ULTRA_LIGHT'
+        env:
+          RATIONALE: '${{ steps.triage.outputs.rationale }}'
+          CHANGED_FILES: '${{ steps.size.outputs.changed_files }}'
+          CHANGED_LINES: '${{ steps.size.outputs.changed_lines }}'
+        run: |-
+          set -euo pipefail
+          {
+            printf '## Qwen Code Review — ULTRA_LIGHT\n\n'
+            printf '_Preflight triage decided this PR does not need a deep review._\n\n'
+            if [ -n "${RATIONALE:-}" ]; then
+              printf '**Rationale:** %s\n\n' "$RATIONALE"
+            fi
+            printf '- Changed files: %s\n' "$CHANGED_FILES"
+            printf '- Changed lines: %s\n\n' "$CHANGED_LINES"
+            printf '_Reply `@qwen /review --tier=light|standard|deep` to force a deeper review._\n'
+          } > qwen-review-summary.md
+
+      # ─── LIGHT: single-shot qwen with focused prompt ──────────────────────
+      - name: 'Run LIGHT review'
+        id: 'light'
+        if: |-
+          steps.size.outputs.should_review == 'true' &&
+          steps.tier.outputs.tier == 'LIGHT'
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           OPENAI_API_KEY: '${{ secrets.REVIEW_OPENAI_API_KEY }}'
           OPENAI_BASE_URL: '${{ secrets.REVIEW_OPENAI_BASE_URL }}'
           OPENAI_MODEL: '${{ vars.QWEN_PR_REVIEW_MODEL }}'
@@ -490,36 +967,29 @@ jobs:
             exit "$code"
           }
 
-          REPO="${GITHUB_REPOSITORY}"
-          REVIEW_URL="${GITHUB_SERVER_URL}/${REPO}/pull/${PR_NUMBER}"
-          LOG_PATH="${RUNNER_TEMP:-/tmp}/qwen-review-pr-${PR_NUMBER}.jsonl"
-          trap 'rm -f "$LOG_PATH"' EXIT
+          pr_json="$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --json title,body,files)"
+          pr_title="$(jq -r '.title' <<< "$pr_json")"
+          pr_body="$(jq -r '.body // ""' <<< "$pr_json" | head -c 2000)"
+          changed_files_block="$(jq -r '.files[] | "\(.path) (+\(.additions)/-\(.deletions))"' <<< "$pr_json")"
+          unified_diff="$(gh pr diff "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --patch | head -c 50000)"
+          focus_areas="$(cat /tmp/qwen-focus-areas.json 2>/dev/null || echo '[]')"
 
-          if [ -z "${GH_TOKEN:-}" ]; then
-            fail "CI_BOT_PAT secret is required for Qwen PR review."
-          fi
-          if [ -z "${OPENAI_API_KEY:-}" ]; then
-            fail "REVIEW_OPENAI_API_KEY secret is required for Qwen PR review."
-          fi
-          if [ -z "${OPENAI_BASE_URL:-}" ]; then
-            fail "REVIEW_OPENAI_BASE_URL secret is required for Qwen PR review."
-          fi
-          if ! command -v qwen >/dev/null 2>&1; then
-            fail "qwen CLI is required on the review runner."
-          fi
+          {
+            printf '**PR title:** %s\n\n' "$pr_title"
+            printf '**Changed files:**\n```\n%s\n```\n\n' "$changed_files_block"
+            printf '**Unified diff (first 50KB):**\n```diff\n%s\n```\n\n' "$unified_diff"
+            printf '**Preflight focus_areas (hints, not mandatory):**\n```json\n%s\n```\n\n' "$focus_areas"
+            printf '**PR body (first 2KB):**\n%s\n' "$pr_body"
+          } > /tmp/light-pr-context.md
 
-          # shellcheck disable=SC2016
-          configure_qwen_network() {
-            local openai_host proxy_bin
-            if ! command -v node >/dev/null 2>&1; then
-              fail "node is required to parse OPENAI_BASE_URL for the proxy bypass."
-            fi
-            openai_host="$(node -e 'console.log(new URL(process.env.OPENAI_BASE_URL).hostname)')"
-            if [ -z "$openai_host" ]; then
-              fail "Could not parse a hostname from OPENAI_BASE_URL."
-            fi
-            export NO_PROXY="${NO_PROXY:+$NO_PROXY,}${openai_host}"
-            export no_proxy="${no_proxy:+$no_proxy,}${openai_host}"
+          PR_CONTEXT_FILE=/tmp/light-pr-context.md \
+          node -e '
+            const fs = require("fs");
+            const template = fs.readFileSync(".qwen/preflight-light-review-prompt.md", "utf8");
+            const ctx = fs.readFileSync(process.env.PR_CONTEXT_FILE, "utf8");
+            fs.writeFileSync("/tmp/light-prompt-rendered.md", template.replace("<<<PR_CONTEXT>>>", ctx));
+          '
 
             # qwen currently reads HTTP(S)_PROXY directly and does not apply
             # NO_PROXY when constructing its proxy agent. Clear proxy env for
@@ -612,18 +1082,12 @@ jobs:
 
           QWEN_TIMEOUT="$TIMEOUT_MINUTES"
           set +e
-          # GNU timeout times out command children unless --foreground is used.
-          timeout --kill-after=10s "${QWEN_TIMEOUT}m" qwen \
-            --auth-type openai \
-            --approval-mode yolo \
-            "${MODEL_ARGS[@]}" \
-            --prompt "$PROMPT" \
-            --output-format stream-json \
-            | tee "$LOG_PATH"
-          pipeline_status=("${PIPESTATUS[@]}")
+          timeout --kill-after=15s 3m qwen --yolo \
+            --output-format stream-json --include-partial-messages \
+            --prompt "$(cat /tmp/light-prompt-rendered.md)" 2>&1 | tee "$out"
+          status=${PIPESTATUS[0]}
           set -e
-          qwen_status="${pipeline_status[0]}"
-          tee_status="${pipeline_status[1]}"
+          echo "::endgroup::"
 
           if [ "$tee_status" -ne 0 ]; then
             fail "Failed to write qwen review log."
@@ -636,39 +1100,34 @@ jobs:
             fail "Qwen review exited with status ${qwen_status}."
           fi
 
-          if [ ! -s "$LOG_PATH" ]; then
-            fail "Qwen review completed but produced no output."
+          node scripts/parse-review-stream.cjs "$out" qwen-review-summary.md LIGHT "$status_label"
+
+          if [ "$status_label" = "timeout" ]; then
+            # Prepend warning so maintainer sees the review was capped.
+            {
+              printf '## ⚠️ LIGHT review was time-capped at 3 min — partial output below\n\n'
+              cat qwen-review-summary.md
+            } > /tmp/qwen-review-summary-with-warning.md
+            mv /tmp/qwen-review-summary-with-warning.md qwen-review-summary.md
           fi
 
-          # qwen can exit 0 even when the run aborted mid-review (e.g. the model
-          # connection dropped before the review was posted). In that case the
-          # final stream-json `result` event still renders the error inline and
-          # carries subtype=success / is_error=false, so the checks above all
-          # pass and the job goes green without ever posting a comment. Inspect
-          # the terminal `result` event explicitly and treat an errored or
-          # aborted run as a failure so the fallback-comment step runs.
-          RESULT_LINE="$(grep '"type":"result"' "$LOG_PATH" | tail -n1 || true)"
-          if [ -z "$RESULT_LINE" ]; then
-            fail "Qwen review produced no result event (run aborted before completion)."
+          # If the accumulator only wrote its "no assistant text parsed"
+          # placeholder, delete the file so the post-summary step skips and
+          # the fallback comment fires instead of posting a useless stub.
+          # 200-char threshold leaves room for the metadata header + small
+          # actual reviews (a one-liner finding is still ≥ 200 chars when
+          # wrapped in the markdown skeleton).
+          if [ "$(wc -c < qwen-review-summary.md)" -lt 200 ]; then
+            echo "::warning::LIGHT review produced near-empty output; removing summary file so fallback comment fires."
+            rm -f qwen-review-summary.md
           fi
-          RESULT_IS_ERROR="$(printf '%s' "$RESULT_LINE" | jq -r '.is_error // false')"
-          RESULT_SUBTYPE="$(printf '%s' "$RESULT_LINE" | jq -r '.subtype // ""')"
-          RESULT_TEXT="$(printf '%s' "$RESULT_LINE" | jq -r '.result // ""')"
-          if [ "$RESULT_IS_ERROR" = "true" ] || [ "$RESULT_SUBTYPE" != "success" ]; then
-            fail "Qwen review ended in an error result (subtype=${RESULT_SUBTYPE}, is_error=${RESULT_IS_ERROR})."
-          fi
-          case "$RESULT_TEXT" in
-            *"[API Error"*)
-              fail "Qwen review aborted with an API error before posting comments."
-              ;;
-          esac
 
-      - name: 'Post fallback comment on failure'
+      # ─── STANDARD: single-shot qwen with structured prompt ─────────────────
+      - name: 'Run STANDARD review'
+        id: 'standard'
         if: |-
-          failure() &&
-          steps.context.outputs.should_run == 'true' &&
-          steps.context.outputs.review_mode == 'comment' &&
-          steps.context.outputs.pr_number != ''
+          steps.size.outputs.should_review == 'true' &&
+          steps.tier.outputs.tier == 'STANDARD'
         env:
           GH_TOKEN: '${{ secrets.CI_BOT_PAT }}'
           FAILURE_KIND: "${{ steps.review.outputs.failure_kind || '' }}"
