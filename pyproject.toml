@@ -1,0 +1,8 @@
+[project]
+name = "megacode-sovereign-stack"
+version = "0.1.0"
+description = "Sovereign Monorepo for Mega Code"
+dependencies = []
+
+[tool.uv]
+managed = true
