@@ -5,13 +5,13 @@ To ensure stability and protect our sovereign innovations, we use a tiered branc
 
 | Branch | Source | Purpose | Authority |
 | :--- | :--- | :--- | :--- |
-| `upstream-main` | `upstream/main` | Raw mirror of official QwenL code. | Read-Only |
+| `upstream-main` | `mirror/main` (Public Fork) | Mirror of the user's public fork of official QwenL code. | Read-Only |
 | `integration` | `upstream-main` | Refactoring and 'Sovereignizing' upstream changes. | Integration Lead |
 | `develop` | `integration` | Active development of Mega Code features. | Developer |
 | `main` | `develop` | Stable, production-ready Sovereign Blueprint. | Architect |
 
 ## 🔄 The Integration Loop
-1. **Sourcing**: Pull latest from `upstream/main` $\to$ `upstream-main`.
+1. **Sourcing**: Pull latest from `upstream/main` $\to$ `mirror/main` (Public Fork) $\to$ `upstream-main` (Monorepo).
 2. **Refining**: Merge `upstream-main` $\to$ `integration`. Resolve conflicts and adapt to Mega Code architecture.
 3. **Building**: Merge `integration` $\to$ `develop`. Implement new features on top of the stable base.
 4. **Releasing**: Merge `develop` $\to$ `main` after successful verification.
