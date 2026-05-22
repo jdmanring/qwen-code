@@ -68,7 +68,8 @@ def test_build_cli_arguments_maps_supported_options() -> None:
     ]
 
 
-def test_cli_argument_precedence_prefers_resume_then_continue_then_session_id() -> None:
+def test_cli_argument_precedence_prefers_resume_then_continue_then_session_id(
+) -> None:
     args = build_cli_arguments(
         QueryOptions(
             resume=VALID_UUID,
@@ -82,7 +83,9 @@ def test_cli_argument_precedence_prefers_resume_then_continue_then_session_id() 
     assert "--session-id" not in args
 
 
-def test_prepare_spawn_info_uses_runtime_for_python_scripts(tmp_path: Path) -> None:
+def test_prepare_spawn_info_uses_runtime_for_python_scripts(
+    tmp_path: Path
+) -> None:
     script_path = tmp_path / "fake-qwen.py"
     script_path.write_text("print('ok')\n", encoding="utf-8")
 
@@ -92,7 +95,9 @@ def test_prepare_spawn_info_uses_runtime_for_python_scripts(tmp_path: Path) -> N
     assert spawn_info.args == [str(script_path.resolve())]
 
 
-def test_prepare_spawn_info_uses_node_for_javascript_files(tmp_path: Path) -> None:
+def test_prepare_spawn_info_uses_node_for_javascript_files(
+    tmp_path: Path
+) -> None:
     script_path = tmp_path / "fake-qwen.js"
     script_path.write_text("console.log('ok');\n", encoding="utf-8")
 
@@ -115,7 +120,9 @@ async def test_transport_discards_stderr_when_debug_is_disabled(
 ) -> None:
     captured: dict[str, Any] = {}
 
-    async def fake_create_subprocess_exec(*args: Any, **kwargs: Any) -> DummyProcess:
+    async def fake_create_subprocess_exec(
+        *args: object, **kwargs: object
+    ) -> DummyProcess:
         captured["args"] = args
         captured["kwargs"] = kwargs
         return DummyProcess()
@@ -170,7 +177,9 @@ def test_prepare_spawn_info_uses_node_for_cjs_files(tmp_path: Path) -> None:
 async def test_transport_start_raises_after_close(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    async def fake_create_subprocess_exec(*args: Any, **kwargs: Any) -> DummyProcess:
+    async def fake_create_subprocess_exec(
+        *args: object, **kwargs: object
+    ) -> DummyProcess:
         return DummyProcess()
 
     monkeypatch.setattr(

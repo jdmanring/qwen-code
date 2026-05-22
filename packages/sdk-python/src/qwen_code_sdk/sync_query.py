@@ -21,7 +21,9 @@ class SyncQuery:
     def __init__(
         self,
         prompt: str | Iterable[SDKUserMessage] | AsyncIterable[SDKUserMessage],
-        options: QueryOptions | QueryOptionsDict | Mapping[str, Any] | None = None,
+        options: (
+            QueryOptions | QueryOptionsDict | Mapping[str, Any] | None
+        ) = None,
     ) -> None:
         self._queue: Queue[SDKMessage | Exception | object] = Queue()
         self._ready = threading.Event()
@@ -127,14 +129,14 @@ class SyncQuery:
             self._loop,
         ).result(timeout=q.control_request_timeout + _SYNC_TIMEOUT_MARGIN)
 
-    def supported_commands(self) -> Any:
+    def supported_commands(self) -> object:
         q = self._require_query()
         return asyncio.run_coroutine_threadsafe(
             q.supported_commands(),
             self._loop,
         ).result(timeout=q.control_request_timeout + _SYNC_TIMEOUT_MARGIN)
 
-    def mcp_server_status(self) -> Any:
+    def mcp_server_status(self) -> object:
         q = self._require_query()
         return asyncio.run_coroutine_threadsafe(
             q.mcp_server_status(),
@@ -198,7 +200,8 @@ class SyncQuery:
             if not self._shutdown.is_set():
                 warnings.warn(
                     "SyncQuery was not closed. "
-                    "Use 'with SyncQuery(...) as q:' or call q.close() explicitly.",
+                    "Use 'with SyncQuery(...) as q:' or call q.close() "
+                    "explicitly.",
                     ResourceWarning,
                     stacklevel=1,
                 )

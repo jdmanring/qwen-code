@@ -1,1 +1,4 @@
-[project]\nname = "channels"\nversion = "0.1.0"\ndependencies = []
+[project]
+name = "channels"
+version = "0.1.0"
+dependencies = []

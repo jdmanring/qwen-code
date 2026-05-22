@@ -63,7 +63,9 @@ class ToolResultBlock(TypedDict):
     annotations: NotRequired[list[Annotation]]
 
 
-ContentBlock: TypeAlias = TextBlock | ThinkingBlock | ToolUseBlock | ToolResultBlock
+ContentBlock: TypeAlias = (
+    TextBlock | ThinkingBlock | ToolUseBlock | ToolResultBlock
+)
 
 
 class APIUserMessage(TypedDict):
@@ -292,11 +294,15 @@ ControlMessage: TypeAlias = (
 )
 
 
-def is_sdk_user_message(msg: Any) -> TypeGuard[SDKUserMessage]:
-    return isinstance(msg, dict) and msg.get("type") == "user" and "message" in msg
+def is_sdk_user_message(msg: object) -> TypeGuard[SDKUserMessage]:
+    return (
+        isinstance(msg, dict)
+        and msg.get("type") == "user"
+        and "message" in msg
+    )
 
 
-def is_sdk_assistant_message(msg: Any) -> TypeGuard[SDKAssistantMessage]:
+def is_sdk_assistant_message(msg: object) -> TypeGuard[SDKAssistantMessage]:
     return (
         isinstance(msg, dict)
         and msg.get("type") == "assistant"
@@ -305,7 +311,7 @@ def is_sdk_assistant_message(msg: Any) -> TypeGuard[SDKAssistantMessage]:
     )
 
 
-def is_sdk_system_message(msg: Any) -> TypeGuard[SDKSystemMessage]:
+def is_sdk_system_message(msg: object) -> TypeGuard[SDKSystemMessage]:
     return (
         isinstance(msg, dict)
         and msg.get("type") == "system"
@@ -314,7 +320,7 @@ def is_sdk_system_message(msg: Any) -> TypeGuard[SDKSystemMessage]:
     )
 
 
-def is_sdk_result_message(msg: Any) -> TypeGuard[SDKResultMessage]:
+def is_sdk_result_message(msg: object) -> TypeGuard[SDKResultMessage]:
     return (
         isinstance(msg, dict)
         and msg.get("type") == "result"
@@ -323,7 +329,9 @@ def is_sdk_result_message(msg: Any) -> TypeGuard[SDKResultMessage]:
     )
 
 
-def is_sdk_partial_assistant_message(msg: Any) -> TypeGuard[SDKPartialAssistantMessage]:
+def is_sdk_partial_assistant_message(
+    msg: object
+) -> TypeGuard[SDKPartialAssistantMessage]:
     return (
         isinstance(msg, dict)
         and msg.get("type") == "stream_event"
@@ -332,7 +340,7 @@ def is_sdk_partial_assistant_message(msg: Any) -> TypeGuard[SDKPartialAssistantM
     )
 
 
-def is_control_request(msg: Any) -> TypeGuard[CLIControlRequest]:
+def is_control_request(msg: object) -> TypeGuard[CLIControlRequest]:
     return (
         isinstance(msg, dict)
         and msg.get("type") == "control_request"
@@ -341,7 +349,7 @@ def is_control_request(msg: Any) -> TypeGuard[CLIControlRequest]:
     )
 
 
-def is_control_response(msg: Any) -> TypeGuard[CLIControlResponse]:
+def is_control_response(msg: object) -> TypeGuard[CLIControlResponse]:
     return (
         isinstance(msg, dict)
         and msg.get("type") == "control_response"
@@ -349,7 +357,7 @@ def is_control_response(msg: Any) -> TypeGuard[CLIControlResponse]:
     )
 
 
-def is_control_cancel(msg: Any) -> TypeGuard[ControlCancelRequest]:
+def is_control_cancel(msg: object) -> TypeGuard[ControlCancelRequest]:
     return (
         isinstance(msg, dict)
         and msg.get("type") == "control_cancel_request"

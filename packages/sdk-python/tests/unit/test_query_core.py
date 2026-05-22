@@ -35,7 +35,7 @@ class FakeTransport:
     def end_input(self) -> None:
         self.input_closed = True
 
-    async def read_messages(self):  # type: ignore[no-untyped-def]
+    async def read_messages(self) -> AsyncIterator[dict[str, Any] | object]:
         while True:
             item = await self._queue.get()
             if item is _EOF:
@@ -52,7 +52,9 @@ class FakeTransport:
         self._queue.put_nowait(payload)
 
 
-async def _wait_for(predicate: Callable[[], bool], timeout: float = 1.0) -> None:
+async def _wait_for(
+    predicate: Callable[[], bool], timeout: float = 1.0
+) -> None:
     loop = asyncio.get_running_loop()
     deadline = loop.time() + timeout
     while loop.time() < deadline:
@@ -133,7 +135,9 @@ async def _start_query(transport: FakeTransport) -> Query:
         }
     )
     await _wait_for(
-        lambda: any(payload.get("type") == "user" for payload in transport.writes)
+        lambda: any(
+            payload.get("type") == "user" for payload in transport.writes
+        )
     )
     return query
 
@@ -244,7 +248,9 @@ async def test_incoming_control_request_cancel_does_not_block_router() -> None:
         }
     )
     await _wait_for(
-        lambda: any(payload.get("type") == "user" for payload in transport.writes)
+        lambda: any(
+            payload.get("type") == "user" for payload in transport.writes
+        )
     )
 
     transport.push(
@@ -341,7 +347,9 @@ async def test_permission_request_passes_blocked_path_to_callback() -> None:
         }
     )
     await _wait_for(
-        lambda: any(payload.get("type") == "user" for payload in transport.writes)
+        lambda: any(
+            payload.get("type") == "user" for payload in transport.writes
+        )
     )
 
     transport.push(
@@ -414,7 +422,9 @@ async def test_permission_request_cancelled_callback_returns_deny() -> None:
         }
     )
     await _wait_for(
-        lambda: any(payload.get("type") == "user" for payload in transport.writes)
+        lambda: any(
+            payload.get("type") == "user" for payload in transport.writes
+        )
     )
 
     transport.push(
@@ -443,7 +453,8 @@ async def test_permission_request_cancelled_callback_returns_deny() -> None:
 
 
 @pytest.mark.asyncio
-async def test_finish_with_error_closes_transport_and_fails_pending_requests() -> None:
+async def test_finish_with_error_closes_transport_and_fails_pending_requests(
+    ) -> None:
     transport = FakeTransport()
     query = await _start_query(transport)
 
@@ -552,7 +563,9 @@ async def test_initialize_failure_no_unhandled_task_exception(
     await asyncio.sleep(0.1)
 
     # No "Task exception was never retrieved" warnings should have appeared.
-    task_warnings = [w for w in recwarn.list if "never retrieved" in str(w.message)]
+    task_warnings = [
+        w for w in recwarn.list if "never retrieved" in str(w.message)
+    ]
     assert task_warnings == []
 
 

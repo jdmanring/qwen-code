@@ -22,7 +22,8 @@ def fake_qwen_path(tmp_path: Path) -> str:
 
 
             def send(message):
-                sys.stdout.write(json.dumps(message, separators=(",", ":")) + "\\n")
+                out = json.dumps(message, separators=(",", ":")) + "\\n"
+                sys.stdout.write(out)
                 sys.stdout.flush()
 
 
@@ -34,7 +35,10 @@ def fake_qwen_path(tmp_path: Path) -> str:
                 if isinstance(content, list):
                     text_parts = []
                     for block in content:
-                        if isinstance(block, dict) and block.get("type") == "text":
+                        if (
+                            isinstance(block, dict)
+                            and block.get("type") == "text"
+                        ):
                             text_parts.append(str(block.get("text", "")))
                     return " ".join(text_parts)
                 return str(content)
@@ -106,7 +110,9 @@ def fake_qwen_path(tmp_path: Path) -> str:
             parser = argparse.ArgumentParser(add_help=False)
             parser.add_argument("--model")
             parser.add_argument("--approval-mode")
-            parser.add_argument("--include-partial-messages", action="store_true")
+            parser.add_argument(
+                "--include-partial-messages", action="store_true"
+            )
             parser.add_argument("--session-id")
             parser.add_argument("--resume")
             parser.add_argument(
@@ -283,7 +289,10 @@ def fake_qwen_path(tmp_path: Path) -> str:
                                             },
                                         }
                                     ],
-                                    "usage": {"input_tokens": 1, "output_tokens": 1},
+                                    "usage": {
+                                        "input_tokens": 1,
+                                        "output_tokens": 1,
+                                    },
                                 },
                                 "parent_tool_use_id": None,
                             }
@@ -302,9 +311,15 @@ def fake_qwen_path(tmp_path: Path) -> str:
                                     "subtype": "can_use_tool",
                                     "tool_name": "write_file",
                                     "tool_use_id": tool_use_id,
-                                    "input": {"path": "demo.txt", "content": "hello"},
+                                    "input": {
+                                        "path": "demo.txt",
+                                        "content": "hello",
+                                    },
                                     "permission_suggestions": [
-                                        {"type": "allow", "label": "Allow write"}
+                                        {
+                                            "type": "allow",
+                                            "label": "Allow write",
+                                        }
                                     ],
                                     "blocked_path": None,
                                 },
@@ -321,7 +336,10 @@ def fake_qwen_path(tmp_path: Path) -> str:
                                 "event": {
                                     "type": "content_block_delta",
                                     "index": 0,
-                                    "delta": {"type": "text_delta", "text": "partial"},
+                                    "delta": {
+                                        "type": "text_delta",
+                                        "text": "partial",
+                                    },
                                 },
                                 "parent_tool_use_id": None,
                             }
@@ -375,7 +393,9 @@ def fake_qwen_path(tmp_path: Path) -> str:
                                             "type": "tool_result",
                                             "tool_use_id": tool_use_id,
                                             "is_error": not is_allowed,
-                                            "content": "ok" if is_allowed else "denied",
+                                            "content": (
+                                                "ok" if is_allowed else "denied"
+                                            ),
                                         }
                                     ],
                                 },
