@@ -6,7 +6,12 @@ This document catalogs the specialized agent personas used by the Sovereign stac
 All agent personas are stored as standalone Markdown files in the configuration directory:
 `config/agents/*.md`
 
-## 👥 Active Agent Catalog
+## 👥 Agent Roles & Orchestration
+
+The system distinguishes between agent **Personas** (the "Who") and agent **Roles** (the "How").
+
+### 1. Persona Catalog (The "Who")
+Personas are defined in `config/agents/*.md` and determine the expert identity and behavioral constraints.
 
 | Agent | Persona File | Primary Responsibility | Key Constraints |
 | :--- | :--- | :--- | :--- |
@@ -16,6 +21,13 @@ All agent personas are stored as standalone Markdown files in the configuration 
 | **Security Auditor**| `security-auditor.md`| Vulnerability scanning and threat modeling. | Prioritize "Elite" security standards. |
 | **Troubleshooter** | `troubleshooter.md`| Root-cause analysis and bug fixing. | Must reproduce the bug before implementing a fix. |
 | **General Purpose** | `general.md` | Default fallback for non-specialized tasks. | Balanced reasoning and speed. |
+
+### 2. Orchestration Roles (The "How")
+A single persona may operate in different roles depending on the orchestration pattern:
+
+- **Orchestrator (Main Agent)**: The primary session agent. It manages the high-level task, maintains the global Todo list, and decides when to delegate.
+- **Subagent (Focused Worker)**: A temporary agent spawned by the Orchestrator to handle a specific, atomic sub-task. It reports results back to the Orchestrator.
+- **Arena Agent (Competitive Variant)**: An independent agent instance running in an isolated Git worktree. It competes against other Arena Agents to find the optimal solution.
 
 ---
 
