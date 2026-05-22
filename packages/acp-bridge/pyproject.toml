@@ -1,4 +1,1 @@
-[project]
-name = "acp-bridge"
-version = "0.1.0"
-dependencies = []
+[project]\nname = "acp-bridge"\nversion = "0.1.0"\ndependencies = []

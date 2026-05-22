@@ -1,4 +1,1 @@
-[project]
-name = "sdk-python"
-version = "0.1.0"
-dependencies = []
+[project]\nname = "sdk-python"\nversion = "0.1.0"\ndependencies = []

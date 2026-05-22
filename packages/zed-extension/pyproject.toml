@@ -1,4 +1,1 @@
-[project]
-name = "zed-extension"
-version = "0.1.0"
-dependencies = []
+[project]\nname = "zed-extension"\nversion = "0.1.0"\ndependencies = []

@@ -1,4 +1,1 @@
-[project]
-name = "vscode-ide-companion"
-version = "0.1.0"
-dependencies = []
+[project]\nname = "vscode-ide-companion"\nversion = "0.1.0"\ndependencies = []

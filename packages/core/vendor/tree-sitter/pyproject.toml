@@ -1,4 +1,0 @@
-[project]
-name = "tree-sitter"
-version = "0.1.0"
-dependencies = []
