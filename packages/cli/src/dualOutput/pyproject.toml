@@ -1,0 +1,4 @@
+[project]
+name = "dualOutput"
+version = "0.1.0"
+dependencies = []

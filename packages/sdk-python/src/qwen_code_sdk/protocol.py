@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal, TypeAlias, TypeGuard
+from typing import Any, Literal, NotRequired, TypeAlias, TypeGuard
 
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import TypedDict
 
 from .types import PermissionMode, PermissionSuggestion
 

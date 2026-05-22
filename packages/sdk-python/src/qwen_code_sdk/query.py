@@ -275,7 +275,7 @@ class Query:
                 self._options.can_use_tool(tool_name, tool_input, context),
                 timeout=self._options.timeout.can_use_tool,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return {
                 "behavior": "deny",
                 "message": "Permission request timed out",
@@ -454,7 +454,7 @@ class Query:
                         self._first_result_event.wait(),
                         timeout=self._options.timeout.stream_close,
                     )
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     pass
 
                 self._transport.end_input()

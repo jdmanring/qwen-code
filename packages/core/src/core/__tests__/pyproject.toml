@@ -1,0 +1,4 @@
+[project]
+name = "__tests__"
+version = "0.1.0"
+dependencies = []

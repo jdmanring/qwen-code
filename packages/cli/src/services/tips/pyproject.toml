@@ -1,0 +1,4 @@
+[project]
+name = "tips"
+version = "0.1.0"
+dependencies = []

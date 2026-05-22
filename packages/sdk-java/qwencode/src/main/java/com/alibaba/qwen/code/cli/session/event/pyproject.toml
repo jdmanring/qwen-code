@@ -1,0 +1,4 @@
+[project]
+name = "event"
+version = "0.1.0"
+dependencies = []

@@ -1,0 +1,4 @@
+[project]
+name = "arena"
+version = "0.1.0"
+dependencies = []

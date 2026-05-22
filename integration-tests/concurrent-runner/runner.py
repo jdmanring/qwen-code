@@ -9,27 +9,26 @@ the Qwen CLI in parallel with status tracking and output capture.
 from __future__ import annotations
 
 import argparse
-import html
 import asyncio
+import html
 import json
 import os
 import shutil
 import subprocess
 import sys
 import uuid
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional, Dict, Any, Tuple
+from typing import Any
 
-from rich.console import Console
-from rich.live import Live
-from rich.table import Table
-from rich.panel import Panel
-from rich.progress import Progress, TaskID
 import aiofiles
 import aiofiles.os
+from rich.console import Console
+from rich.live import Live
+from rich.panel import Panel
+from rich.table import Table
 
 
 class RunStatus(Enum):
@@ -47,28 +46,28 @@ class Task:
     """A task definition containing one or more prompts."""
     id: str
     name: str
-    prompts: List[str]
+    prompts: list[str]
 
 
 @dataclass
 class ModelSpec:
     """One model to run: name and optional auth_type (e.g. anthropic)."""
     name: str
-    auth_type: Optional[str] = None
+    auth_type: str | None = None
 
 
 @dataclass
 class RunConfig:
     """Configuration for the concurrent execution."""
-    tasks: List[Task]
-    models: List[ModelSpec]  # name + optional auth_type per model
+    tasks: list[Task]
+    models: list[ModelSpec]  # name + optional auth_type per model
     concurrency: int = 4
     yolo: bool = True
     source_repo: Path = field(default_factory=lambda: Path.cwd())
     worktree_base: Path = field(default_factory=lambda: Path.home() / ".qwen" / "worktrees")
     outputs_dir: Path = field(default_factory=lambda: Path("./outputs"))
     results_file: Path = field(default_factory=lambda: Path("./results.json"))
-    branch: Optional[str] = None  # Git branch to checkout (uses default if not set)
+    branch: str | None = None  # Git branch to checkout (uses default if not set)
     keep_worktree: bool = False  # If true, don't remove git worktree after run
 
 
@@ -91,21 +90,21 @@ class RunRecord:
     task_name: str
     model: str
     status: RunStatus
-    auth_type: Optional[str] = None  # e.g. "anthropic" for qwen --auth-type
-    worktree_path: Optional[str] = None
-    output_dir: Optional[str] = None
-    logs_dir: Optional[str] = None
-    started_at: Optional[str] = None
-    ended_at: Optional[str] = None
-    exit_code: Optional[int] = None
-    error_message: Optional[str] = None
-    prompt_results: List[PromptResult] = field(default_factory=list)
-    diff_file: Optional[str] = None  # Path to git diff output
-    session_log_file: Optional[str] = None  # Path to session log (chat recording)
-    session_html_file: Optional[str] = None  # Path to rendered chat HTML
-    session_id: Optional[str] = None  # Session ID (UUID from chat recording)
+    auth_type: str | None = None  # e.g. "anthropic" for qwen --auth-type
+    worktree_path: str | None = None
+    output_dir: str | None = None
+    logs_dir: str | None = None
+    started_at: str | None = None
+    ended_at: str | None = None
+    exit_code: int | None = None
+    error_message: str | None = None
+    prompt_results: list[PromptResult] = field(default_factory=list)
+    diff_file: str | None = None  # Path to git diff output
+    session_log_file: str | None = None  # Path to session log (chat recording)
+    session_html_file: str | None = None  # Path to rendered chat HTML
+    session_id: str | None = None  # Session ID (UUID from chat recording)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "run_id": self.run_id,
             "task_id": self.task_id,
@@ -138,7 +137,7 @@ class RunRecord:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> RunRecord:
+    def from_dict(cls, data: dict[str, Any]) -> RunRecord:
         return cls(
             run_id=data["run_id"],
             task_id=data["task_id"],
@@ -163,7 +162,7 @@ class RunRecord:
 @dataclass
 class ExecutionState:
     """Overall execution state across all runs."""
-    runs: List[RunRecord] = field(default_factory=list)
+    runs: list[RunRecord] = field(default_factory=list)
     total: int = 0
     completed: int = 0
     succeeded: int = 0
@@ -183,7 +182,7 @@ class GitWorktreeManager:
         if git_dir.exists():
             return
 
-        self.console.print(f"[yellow]Source repo is not a git repository. Initializing...[/yellow]")
+        self.console.print("[yellow]Source repo is not a git repository. Initializing...[/yellow]")
 
         # git init
         result = await self._run_command(["git", "init"], cwd=self.source_repo)
@@ -203,9 +202,9 @@ class GitWorktreeManager:
         if result.returncode != 0:
             raise RuntimeError(f"Failed to create initial commit: {result.stderr}")
 
-        self.console.print(f"[green]✓ Git repository initialized[/green]")
+        self.console.print("[green]✓ Git repository initialized[/green]")
 
-    async def create(self, source_repo: Path, worktree_dir: Path, branch: Optional[str] = None) -> Path:
+    async def create(self, source_repo: Path, worktree_dir: Path, branch: str | None = None) -> Path:
         """Create a new git worktree from the source repository."""
         worktree_dir.parent.mkdir(parents=True, exist_ok=True)
 
@@ -262,7 +261,7 @@ class GitWorktreeManager:
 
         return result.stdout
 
-    async def collect_session_log(self, worktree_dir: Path, output_dir: Path) -> Optional[Tuple[Path, str, Path]]:
+    async def collect_session_log(self, worktree_dir: Path, output_dir: Path) -> tuple[Path, str, Path] | None:
         """Collect the session log file from the worktree's chat recording.
 
         Session logs are stored at:
@@ -309,7 +308,7 @@ class GitWorktreeManager:
         actual_cwd = str(Path.cwd())
         messages = []
         start_time = None
-        async with aiofiles.open(session_log, 'r') as src, aiofiles.open(output_log, 'w') as dst:
+        async with aiofiles.open(session_log) as src, aiofiles.open(output_log, 'w') as dst:
             async for line in src:
                 line = line.strip()
                 if line:
@@ -350,8 +349,8 @@ class GitWorktreeManager:
 
     async def _run_command(
         self,
-        cmd: List[str],
-        cwd: Optional[Path] = None,
+        cmd: list[str],
+        cwd: Path | None = None,
         timeout: int = 60
     ) -> subprocess.CompletedProcess:
         """Run a command asynchronously."""
@@ -363,7 +362,7 @@ class GitWorktreeManager:
         )
         try:
             stdout, stderr = await asyncio.wait_for(
-                proc.communicate(), 
+                proc.communicate(),
                 timeout=timeout
             )
             return subprocess.CompletedProcess(
@@ -372,7 +371,7 @@ class GitWorktreeManager:
                 stdout=stdout.decode() if stdout else "",
                 stderr=stderr.decode() if stderr else "",
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             proc.kill()
             await proc.wait()
             raise RuntimeError(f"Command timed out after {timeout}s: {' '.join(cmd)}")
@@ -385,9 +384,9 @@ class StatusTracker:
         self.results_file = results_file
         self.console = console
         self._lock = asyncio.Lock()
-        self._runs: Dict[str, RunRecord] = {}
+        self._runs: dict[str, RunRecord] = {}
 
-    async def initialize(self, runs: List[RunRecord]) -> None:
+    async def initialize(self, runs: list[RunRecord]) -> None:
         """Initialize the tracker with all runs."""
         async with self._lock:
             for run in runs:
@@ -395,8 +394,8 @@ class StatusTracker:
             await self._persist()
 
     async def update_status(
-        self, 
-        run_id: str, 
+        self,
+        run_id: str,
         status: RunStatus,
         **kwargs
     ) -> None:
@@ -416,47 +415,47 @@ class StatusTracker:
             "updated_at": datetime.now().isoformat(),
             "runs": [run.to_dict() for run in self._runs.values()],
         }
-        
+
         # Write JSON atomically
         temp_file = self.results_file.with_suffix('.tmp')
         async with aiofiles.open(temp_file, 'w') as f:
             await f.write(json.dumps(data, indent=2))
-        
+
         temp_file.replace(self.results_file)
 
         # Generate HTML report
         await self._generate_html(data)
 
-    async def _generate_html(self, data: Dict[str, Any]) -> None:
+    async def _generate_html(self, data: dict[str, Any]) -> None:
         """Generate a beautiful HTML report."""
         html_file = self.results_file.with_name("index.html")
-        
+
         # Calculate summary
         total = len(data["runs"])
         succeeded = sum(1 for r in data["runs"] if r["status"] == "succeeded")
         failed = sum(1 for r in data["runs"] if r["status"] == "failed")
         running = sum(1 for r in data["runs"] if r["status"] in ["preparing", "running"])
-        
+
         # Build rows
         rows = []
         for run in sorted(data["runs"], key=lambda x: x.get("started_at") or "", reverse=True):
             status = run["status"]
             status_class = f"status-{status}"
-            
+
             # Links
             links = []
-            
+
             # Output Directory
             if run.get("output_dir"):
                 # Make path absolute for local viewing
                 abs_output_dir = os.path.abspath(run["output_dir"])
                 links.append(f'<a href="file://{abs_output_dir}">Outputs</a>')
-            
+
             # Diff File
             if run.get("diff_file"):
                 abs_diff_file = os.path.abspath(run["diff_file"])
                 links.append(f'<a href="file://{abs_diff_file}">Diff</a>')
-                
+
             # Session Log
             if run.get("session_html_file"):
                 abs_session_html = os.path.abspath(run["session_html_file"])
@@ -478,13 +477,13 @@ class StatusTracker:
                     p_links.append(f'<a href="file://{os.path.abspath(p["stdout_file"])}">out</a>')
                 if p.get("stderr_file"):
                     p_links.append(f'<a href="file://{os.path.abspath(p["stderr_file"])}">err</a>')
-                
+
                 if p_links:
                     prompt_links.append(f'P{i}: {"|".join(p_links)}')
 
             links_html = " | ".join(links)
             prompts_html = "<br>".join(prompt_links)
-            
+
             duration = "N/A"
             if run.get("started_at") and run.get("ended_at"):
                 try:
@@ -576,7 +575,7 @@ class StatusTracker:
         completed = sum(1 for r in runs if r.status in (RunStatus.SUCCEEDED, RunStatus.FAILED))
         succeeded = sum(1 for r in runs if r.status == RunStatus.SUCCEEDED)
         failed = sum(1 for r in runs if r.status == RunStatus.FAILED)
-        
+
         return ExecutionState(
             runs=runs,
             total=len(runs),
@@ -585,7 +584,7 @@ class StatusTracker:
             failed=failed,
         )
 
-    def get_active_runs(self) -> List[RunRecord]:
+    def get_active_runs(self) -> list[RunRecord]:
         """Get currently active runs."""
         active_statuses = {RunStatus.PREPARING, RunStatus.RUNNING}
         return [r for r in self._runs.values() if r.status in active_statuses]
@@ -596,7 +595,7 @@ class ProgressDisplay:
 
     def __init__(self, console: Console):
         self.console = console
-        self.live: Optional[Live] = None
+        self.live: Live | None = None
 
     def start(self) -> None:
         """Start the live display."""
@@ -628,7 +627,7 @@ class ProgressDisplay:
 
         # Active runs table
         active_runs = [r for r in state.runs if r.status not in (RunStatus.SUCCEEDED, RunStatus.FAILED, RunStatus.QUEUED)]
-        
+
         runs_table = Table(
             title="Active Runs",
             show_header=True,
@@ -680,7 +679,7 @@ class ProgressDisplay:
                     duration = f"{duration_sec:.1f}s"
                 except:
                     pass
-            
+
             completed_table.add_row(
                 run.task_name[:30],
                 run.model[:25],
@@ -809,7 +808,7 @@ class QwenRunner:
             run.stdout_file = run.prompt_results[0].stdout_file
             run.stderr_file = run.prompt_results[0].stderr_file
 
-    def _build_command(self, run: RunRecord, prompt_text: str, use_continue: bool = False) -> List[str]:
+    def _build_command(self, run: RunRecord, prompt_text: str, use_continue: bool = False) -> list[str]:
         """Build the qwen CLI command for a single prompt."""
         cmd = ["qwen"]
 
@@ -838,7 +837,7 @@ class QwenRunner:
         return cmd
 
 
-def generate_run_matrix(config: RunConfig) -> List[RunRecord]:
+def generate_run_matrix(config: RunConfig) -> list[RunRecord]:
     """Generate all task × model combinations."""
     runs = []
     for task in config.tasks:
@@ -854,9 +853,9 @@ def generate_run_matrix(config: RunConfig) -> List[RunRecord]:
     return runs
 
 
-def _parse_models(data_models: List[Any]) -> List[ModelSpec]:
+def _parse_models(data_models: list[Any]) -> list[ModelSpec]:
     """Parse models: string or {name, auth_type/authType}; returns list of ModelSpec."""
-    specs: List[ModelSpec] = []
+    specs: list[ModelSpec] = []
     for item in data_models or []:
         if isinstance(item, str):
             name, auth = item, None
@@ -871,7 +870,7 @@ def _parse_models(data_models: List[Any]) -> List[ModelSpec]:
 
 def load_config(config_path: Path) -> RunConfig:
     """Load configuration from JSON file."""
-    with open(config_path, 'r') as f:
+    with open(config_path) as f:
         data = json.load(f)
     tasks = [Task(**t) for t in data.get("tasks", [])]
     models = _parse_models(data.get("models", []))
@@ -899,7 +898,7 @@ async def execute_single_run(
 ) -> None:
     """Execute a single run with proper cleanup."""
     worktree_dir = None
-    
+
     try:
         # Step 1: Create worktree
         await tracker.update_status(run.run_id, RunStatus.PREPARING)
@@ -907,22 +906,22 @@ async def execute_single_run(
         await worktree_manager.create(config.source_repo, worktree_dir, config.branch)
         run.worktree_path = str(worktree_dir)
         run.started_at = datetime.now().isoformat()
-        
+
         # Step 2: Run CLI
         await tracker.update_status(run.run_id, RunStatus.RUNNING)
         output_dir = config.outputs_dir / run.run_id
         await qwen_runner.run(run, worktree_dir, output_dir)
-        
+
         # Step 3: Success
         run.ended_at = datetime.now().isoformat()
         await tracker.update_status(
-            run.run_id, 
+            run.run_id,
             RunStatus.SUCCEEDED,
             exit_code=run.exit_code,
             ended_at=run.ended_at,
         )
         console.print(f"[green]✓[/green] {run.task_name} / {run.model}")
-        
+
     except Exception as e:
         run.ended_at = datetime.now().isoformat()
         await tracker.update_status(
@@ -986,15 +985,15 @@ async def run_all(config: RunConfig, console: Console) -> ExecutionState:
     # Setup directories
     config.worktree_base.mkdir(parents=True, exist_ok=True)
     config.outputs_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Generate all runs
     runs = generate_run_matrix(config)
     console.print(f"[bold]Generated {len(runs)} runs:[/bold] {len(config.tasks)} tasks × {len(config.models)} models")
-    
+
     # Initialize components
     tracker = StatusTracker(config.results_file, console)
     await tracker.initialize(runs)
-    
+
     worktree_manager = GitWorktreeManager(console, config.source_repo)
     await worktree_manager.ensure_git_repo()
     qwen_runner = QwenRunner(config, console)
@@ -1015,7 +1014,7 @@ async def run_all(config: RunConfig, console: Console) -> ExecutionState:
                 break
             try:
                 await asyncio.wait_for(stop_event.wait(), timeout=0.5)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 continue
 
     # Execute runs with semaphore-controlled concurrency
@@ -1040,7 +1039,7 @@ async def run_all(config: RunConfig, console: Console) -> ExecutionState:
     # Show final summary
     final_state = tracker.get_state()
     display.show_final_summary(final_state)
-    
+
     return final_state
 
 
@@ -1058,16 +1057,16 @@ def main():
         action="version",
         version="%(prog)s 1.0.0",
     )
-    
+
     args = parser.parse_args()
-    
+
     if not args.config.exists():
         print(f"Error: Config file not found: {args.config}", file=sys.stderr)
         sys.exit(1)
-    
+
     console = Console()
     config = load_config(args.config)
-    
+
     try:
         final_state = asyncio.run(run_all(config, console))
         sys.exit(0 if final_state.failed == 0 else 1)

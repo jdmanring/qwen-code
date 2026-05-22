@@ -25,5 +25,5 @@ This document defines the mandatory requirements for any code entering the `mega
 
 ## 3. The Migration Filter
 During the Great Migration, code will be processed as follows:
-`Legacy Code` $\to$ `Linter Check` $\to$ `Sovereign Refactor` $\to$ `Symmetry Update` $\to$ `Sovereign Commit`
+`Legacy Code` -> `Linter Check` -> `Sovereign Refactor` -> `Symmetry Update` -> `Sovereign Commit`
 

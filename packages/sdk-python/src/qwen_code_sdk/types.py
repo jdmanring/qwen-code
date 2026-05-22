@@ -8,12 +8,11 @@ from inspect import Parameter, Signature, iscoroutinefunction, signature
 from typing import (
     Any,
     Literal,
+    NotRequired,
     TypeAlias,
     TypedDict,
     cast,
 )
-
-from typing_extensions import NotRequired
 
 PermissionMode: TypeAlias = Literal["default", "plan", "auto-edit", "yolo"]
 AuthType: TypeAlias = Literal[
