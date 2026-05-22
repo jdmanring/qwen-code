@@ -1,1 +1,4 @@
-[project]\nname = "sdk-typescript"\nversion = "0.1.0"\ndependencies = []
+[project]
+name = "sdk-typescript"
+version = "0.1.0"
+dependencies = []

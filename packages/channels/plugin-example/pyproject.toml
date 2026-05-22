@@ -1,1 +1,4 @@
-[project]\nname = "channels/plugin-example"\nversion = "0.1.0"\ndependencies = []
+[project]
+name = "channels-plugin-example"
+version = "0.1.0"
+dependencies = []

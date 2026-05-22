@@ -1,1 +1,4 @@
-[project]\nname = "webui"\nversion = "0.1.0"\ndependencies = []
+[project]
+name = "webui"
+version = "0.1.0"
+dependencies = []

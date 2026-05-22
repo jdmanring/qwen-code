@@ -1,1 +1,4 @@
-[project]\nname = "sdk-java"\nversion = "0.1.0"\ndependencies = []
+[project]
+name = "sdk-java"
+version = "0.1.0"
+dependencies = []
