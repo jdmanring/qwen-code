@@ -1,15 +1,26 @@
-# Ruff Configuration for Megacode Monorepo
 line-length = 100
-target-version = "py310"
+target-version = "py312"
+
+# Directories outside our enforcement scope (upstream code or legacy scripts)
+extend-exclude = [
+    ".venv",
+    "integration-tests",
+    ".qwen/skills",
+    "packages/sdk-python/scripts",
+]
 
 [lint]
-# Ignore inherited legacy noise
+select = ["E", "F", "W", "I", "UP", "B", "ANN"]
 ignore = [
-    "ANN",   # Missing type annotations (inherited debt)
-    "E501",  # Line too long (inherited debt)
-    "UP040", # TypeAlias vs type keyword (inherited debt)
-    "B007",  # Unused loop variable (inherited debt)
+    "ANN401", # Any is acceptable in limited cases
+    "UP040",  # TypeAlias vs type keyword — not universally supported yet
 ]
+
+[lint.per-file-ignores]
+# Test files: mypy covers source annotation requirements; skip ANN in tests
+"**/tests/**" = ["ANN"]
+"**/test_*.py" = ["ANN"]
+"tooling/sync-upstreams/gate_failure_tests.py" = ["ANN"]
 
 [format]
 quote-style = "double"

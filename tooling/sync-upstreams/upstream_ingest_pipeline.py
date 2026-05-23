@@ -10,15 +10,14 @@ Usage:
 """
 
 import argparse
+import logging
 import os
 import shutil
 import subprocess
 import sys
-import logging
-from pathlib import Path
-from datetime import datetime
-from typing import Optional
 from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
 
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
 logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, stream=sys.stdout)
@@ -77,8 +76,7 @@ def _resolve_ruff() -> list[str]:
     if system_ruff:
         return [system_ruff]
     raise RuntimeError(
-        "ruff not found. Install uv (https://docs.astral.sh/uv/) "
-        "or set RUFF_BIN=/path/to/ruff"
+        "ruff not found. Install uv (https://docs.astral.sh/uv/) or set RUFF_BIN=/path/to/ruff"
     )
 
 
@@ -87,7 +85,7 @@ class SyncResult:
     success: bool
     stage: str
     message: str
-    lkg_tag: Optional[str] = None
+    lkg_tag: str | None = None
     dry_run: bool = False
 
 
@@ -97,12 +95,8 @@ class _GitRunner:
     def __init__(self, root: Path) -> None:
         self.root = root
 
-    def run(
-        self, cmd: list[str], check: bool = True
-    ) -> subprocess.CompletedProcess:
-        return subprocess.run(
-            cmd, cwd=self.root, capture_output=True, text=True, check=check
-        )
+    def run(self, cmd: list[str], check: bool = True) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(cmd, cwd=self.root, capture_output=True, text=True, check=check)
 
     def output(self, cmd: list[str]) -> str:
         return self.run(cmd).stdout.strip()
@@ -122,9 +116,7 @@ class PreFlight:
         try:
             branch = self._git.current_branch()
             if branch != INTEGRATION_BRANCH:
-                raise RuntimeError(
-                    f"Must be on '{INTEGRATION_BRANCH}' branch. Current: '{branch}'"
-                )
+                raise RuntimeError(f"Must be on '{INTEGRATION_BRANCH}' branch. Current: '{branch}'")
 
             remotes = set(self._git.output(["git", "remote"]).splitlines())
             missing = REQUIRED_REMOTES - remotes
@@ -133,16 +125,12 @@ class PreFlight:
 
             symmetry_check = self._git.root / "tooling" / "symmetry-check.py"
             if not symmetry_check.exists():
-                raise RuntimeError(
-                    f"Missing {symmetry_check.relative_to(self._git.root)}"
-                )
+                raise RuntimeError(f"Missing {symmetry_check.relative_to(self._git.root)}")
 
             _resolve_ruff()
 
             if not shutil.which("uv"):
-                raise RuntimeError(
-                    "uv not found. Install from https://docs.astral.sh/uv/"
-                )
+                raise RuntimeError("uv not found. Install from https://docs.astral.sh/uv/")
 
             # Only block on changes to tracked files — untracked files can't pollute a merge.
             dirty = self._git.run(["git", "diff", "--quiet", "HEAD"], check=False).returncode != 0
@@ -163,7 +151,7 @@ class SyncManager:
 
     def __init__(self, git: _GitRunner) -> None:
         self._git = git
-        self.staging_branch: Optional[str] = None
+        self.staging_branch: str | None = None
 
     def sync_mirror(self) -> bool:
         """
@@ -176,7 +164,7 @@ class SyncManager:
         self._git.run(["git", "fetch", "upstream", "main"])
 
         new_count = self._git.output(
-            ["git", "rev-list", "--count", f"upstream/main", f"^{INTEGRATION_BRANCH}"]
+            ["git", "rev-list", "--count", "upstream/main", f"^{INTEGRATION_BRANCH}"]
         )
         if new_count == "0":
             log_success("Already up to date — nothing to sync.")
@@ -206,16 +194,12 @@ class SyncManager:
         because _purge_upstream_artifacts() removes .bat files before the merge.
         """
         log_info(f"Merging {MIRROR_BRANCH} into {self.staging_branch}...")
-        result = self._git.run(
-            ["git", "merge", MIRROR_BRANCH, "--no-edit"], check=False
-        )
+        result = self._git.run(["git", "merge", MIRROR_BRANCH, "--no-edit"], check=False)
         if result.returncode == 0:
             log_success("Merge clean.")
             return
 
-        conflict_files = self._git.output(
-            ["git", "diff", "--name-only", "--diff-filter=U"]
-        )
+        conflict_files = self._git.output(["git", "diff", "--name-only", "--diff-filter=U"])
         self._git.run(["git", "merge", "--abort"], check=False)
         raise RuntimeError(
             f"Merge conflict — manual resolution required:\n{conflict_files}\n\n"
@@ -227,9 +211,7 @@ class SyncManager:
             return
         if self._git.current_branch() == self.staging_branch:
             self._git.run(["git", "checkout", INTEGRATION_BRANCH])
-        self._git.run(
-            ["git", "branch", "-D", self.staging_branch], check=False
-        )
+        self._git.run(["git", "branch", "-D", self.staging_branch], check=False)
         self.staging_branch = None
 
 
@@ -242,11 +224,7 @@ class GateKeeper:
 
     def verify(self) -> bool:
         # Boot runs first: fail before `uv run ruff` can recreate a missing lockfile.
-        return (
-            self._gate_boot()
-            and self._gate_lint()
-            and self._gate_symmetry()
-        )
+        return self._gate_boot() and self._gate_lint() and self._gate_symmetry()
 
     def _gate_boot(self) -> bool:
         """
@@ -288,9 +266,7 @@ class GateKeeper:
             cwd=self._git.root,
         )
         if result.returncode != 0:
-            log_error(
-                "Symmetry gate failed. config/ and docs/ are out of sync."
-            )
+            log_error("Symmetry gate failed. config/ and docs/ are out of sync.")
             return False
         log_success("Symmetry gate passed.")
         return True
@@ -309,9 +285,7 @@ class PromotionEngine:
 
         timestamp = datetime.now().strftime("%Y%m%d-%H%M")
         tag = f"LKG-{timestamp}"
-        self._git.run(
-            ["git", "tag", "-a", tag, "-m", f"Last Known Good — {timestamp}"]
-        )
+        self._git.run(["git", "tag", "-a", tag, "-m", f"Last Known Good — {timestamp}"])
         log_success(f"Tagged as {tag}.")
         return tag
 
@@ -366,10 +340,10 @@ class UpstreamIngestPipeline:
 
             if self._dry_run:
                 log_success("[dry-run] All gates passed. Nothing promoted.")
-                return SyncResult(
-                    True, "DRY_RUN", "Dry run complete.", dry_run=True
-                )
+                return SyncResult(True, "DRY_RUN", "Dry run complete.", dry_run=True)
 
+            if not self.sync.staging_branch:
+                raise RuntimeError("staging_branch is None after create_staging — this is a bug")
             tag = self.promotion.promote(self.sync.staging_branch)
             return SyncResult(True, "PROMOTION", "Sync complete.", lkg_tag=tag)
 

@@ -1,7 +1,8 @@
 [project]
-name = "megacode-sovereign-stack"
+name = "megacode-monorepo"
 version = "0.1.0"
-description = "Sovereign Monorepo for Mega Code"
+description = "Megalonyx monorepo — upstream sync pipeline, Python SDK, and sovereign tooling"
+requires-python = ">=3.12"
 dependencies = []
 
 [tool.uv]
@@ -10,5 +11,14 @@ managed = true
 [tool.uv.workspace]
 members = ["apps/*", "packages/*"]
 
-# Ruff config lives in .ruff.toml (project root) — not here.
-# Having config in both places causes silent conflicts; .ruff.toml wins.
+[dependency-groups]
+dev = [
+    "mypy>=2.1.0",
+]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true

@@ -5,7 +5,6 @@ from collections.abc import AsyncIterator, Callable
 from typing import Any
 
 import pytest
-
 from qwen_code_sdk import (
     ProcessExitError,
     SDKUserMessage,
@@ -29,9 +28,7 @@ async def _collect_messages(result: object) -> list[dict[str, Any]]:
     return messages
 
 
-async def _wait_for(
-    predicate: Callable[[], bool], timeout: float = 2.0
-) -> None:
+async def _wait_for(predicate: Callable[[], bool], timeout: float = 2.0) -> None:
     loop = asyncio.get_running_loop()
     deadline = loop.time() + timeout
     while loop.time() < deadline:
@@ -57,12 +54,8 @@ async def test_single_turn_query(fake_qwen_path: str) -> None:
     )
     messages = await _collect_messages(result)
 
-    assistant = next(
-        message for message in messages if is_sdk_assistant_message(message)
-    )
-    final = next(
-        message for message in messages if is_sdk_result_message(message)
-    )
+    assistant = next(message for message in messages if is_sdk_assistant_message(message))
+    final = next(message for message in messages if is_sdk_result_message(message))
 
     assert assistant["message"]["content"][0]["text"] == "Echo: hello world"
     assert final["result"] == "done: hello world"
@@ -80,19 +73,13 @@ async def test_include_partial_messages(fake_qwen_path: str) -> None:
     )
     messages = await _collect_messages(result)
 
-    partial = next(
-        message
-        for message in messages
-        if is_sdk_partial_assistant_message(message)
-    )
+    partial = next(message for message in messages if is_sdk_partial_assistant_message(message))
     assert partial["event"]["type"] == "content_block_delta"
     await result.close()
 
 
 @pytest.mark.asyncio
-async def test_default_permission_callback_denies_tool_use(
-    fake_qwen_path: str
-) -> None:
+async def test_default_permission_callback_denies_tool_use(fake_qwen_path: str) -> None:
     result = query(
         "use tool now",
         {
@@ -104,17 +91,14 @@ async def test_default_permission_callback_denies_tool_use(
     tool_result = next(
         message
         for message in messages
-        if is_sdk_user_message(message)
-        and isinstance(message["message"]["content"], list)
+        if is_sdk_user_message(message) and isinstance(message["message"]["content"], list)
     )
     assert _tool_result_error_flag(tool_result) is True
     await result.close()
 
 
 @pytest.mark.asyncio
-async def test_permission_callback_can_allow_tool_use(
-    fake_qwen_path: str
-) -> None:
+async def test_permission_callback_can_allow_tool_use(fake_qwen_path: str) -> None:
     async def can_use_tool(
         tool_name: str,
         tool_input: dict[str, Any],
@@ -137,17 +121,14 @@ async def test_permission_callback_can_allow_tool_use(
     tool_result = next(
         message
         for message in messages
-        if is_sdk_user_message(message)
-        and isinstance(message["message"]["content"], list)
+        if is_sdk_user_message(message) and isinstance(message["message"]["content"], list)
     )
     assert _tool_result_error_flag(tool_result) is False
     await result.close()
 
 
 @pytest.mark.asyncio
-async def test_unknown_control_requests_are_rejected(
-    fake_qwen_path: str
-) -> None:
+async def test_unknown_control_requests_are_rejected(fake_qwen_path: str) -> None:
     result = query(
         "request unknown control",
         {
@@ -156,9 +137,7 @@ async def test_unknown_control_requests_are_rejected(
     )
     messages = await _collect_messages(result)
 
-    final = next(
-        message for message in messages if is_sdk_result_message(message)
-    )
+    final = next(message for message in messages if is_sdk_result_message(message))
     assert final["result"] == "unknown-control: request unknown control"
     await result.close()
 
@@ -195,9 +174,7 @@ async def test_dynamic_controls_and_status(fake_qwen_path: str) -> None:
         return messages
 
     collector = asyncio.create_task(consume())
-    await _wait_for(
-        lambda: any(is_sdk_result_message(message) for message in messages)
-    )
+    await _wait_for(lambda: any(is_sdk_result_message(message) for message in messages))
 
     assert await result.supported_commands() == {
         "commands": [
@@ -214,15 +191,9 @@ async def test_dynamic_controls_and_status(fake_qwen_path: str) -> None:
     release_input.set()
     await collector
 
-    system_messages = [
-        message for message in messages if is_sdk_system_message(message)
-    ]
-    assert any(
-        message["model"] == "new-model" for message in system_messages
-    )
-    assert any(
-        message["permission_mode"] == "plan" for message in system_messages
-    )
+    system_messages = [message for message in messages if is_sdk_system_message(message)]
+    assert any(message["model"] == "new-model" for message in system_messages)
+    assert any(message["permission_mode"] == "plan" for message in system_messages)
     await result.close()
 
 
@@ -237,9 +208,7 @@ async def test_session_id_resume_and_continue(fake_qwen_path: str) -> None:
     )
     explicit_messages = await _collect_messages(explicit)
     assert explicit.get_session_id() == VALID_UUID
-    assert all(
-        message["session_id"] == VALID_UUID for message in explicit_messages
-    )
+    assert all(message["session_id"] == VALID_UUID for message in explicit_messages)
     await explicit.close()
 
     resumed = query(
@@ -251,9 +220,7 @@ async def test_session_id_resume_and_continue(fake_qwen_path: str) -> None:
     )
     resumed_messages = await _collect_messages(resumed)
     assert resumed.get_session_id() == RESUME_UUID
-    assert all(
-        message["session_id"] == RESUME_UUID for message in resumed_messages
-    )
+    assert all(message["session_id"] == RESUME_UUID for message in resumed_messages)
     await resumed.close()
 
     continued = query(
@@ -265,10 +232,7 @@ async def test_session_id_resume_and_continue(fake_qwen_path: str) -> None:
     )
     continued_messages = await _collect_messages(continued)
     assert continued.get_session_id() == CONTINUED_SESSION_ID
-    assert any(
-        message["session_id"] == CONTINUED_SESSION_ID
-        for message in continued_messages
-    )
+    assert any(message["session_id"] == CONTINUED_SESSION_ID for message in continued_messages)
     await continued.close()
 
 

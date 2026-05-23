@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-
 from qwen_code_sdk.transport import build_cli_arguments, prepare_spawn_info
 from qwen_code_sdk.types import QueryOptions, TimeoutOptions
 
@@ -69,8 +68,7 @@ def test_build_cli_arguments_maps_supported_options() -> None:
     ]
 
 
-def test_cli_argument_precedence_prefers_resume_then_continue_then_session_id(
-) -> None:
+def test_cli_argument_precedence_prefers_resume_then_continue_then_session_id() -> None:
     args = build_cli_arguments(
         QueryOptions(
             resume=VALID_UUID,
@@ -84,9 +82,7 @@ def test_cli_argument_precedence_prefers_resume_then_continue_then_session_id(
     assert "--session-id" not in args
 
 
-def test_prepare_spawn_info_uses_runtime_for_python_scripts(
-    tmp_path: Path
-) -> None:
+def test_prepare_spawn_info_uses_runtime_for_python_scripts(tmp_path: Path) -> None:
     script_path = tmp_path / "fake-qwen.py"
     script_path.write_text("print('ok')\n", encoding="utf-8")
 
@@ -96,9 +92,7 @@ def test_prepare_spawn_info_uses_runtime_for_python_scripts(
     assert spawn_info.args == [str(script_path.resolve())]
 
 
-def test_prepare_spawn_info_uses_node_for_javascript_files(
-    tmp_path: Path
-) -> None:
+def test_prepare_spawn_info_uses_node_for_javascript_files(tmp_path: Path) -> None:
     script_path = tmp_path / "fake-qwen.js"
     script_path.write_text("console.log('ok');\n", encoding="utf-8")
 
@@ -121,9 +115,7 @@ async def test_transport_discards_stderr_when_debug_is_disabled(
 ) -> None:
     captured: dict[str, Any] = {}
 
-    async def fake_create_subprocess_exec(
-        *args: object, **kwargs: object
-    ) -> DummyProcess:
+    async def fake_create_subprocess_exec(*args: object, **kwargs: object) -> DummyProcess:
         captured["args"] = args
         captured["kwargs"] = kwargs
         return DummyProcess()
@@ -138,9 +130,7 @@ async def test_transport_discards_stderr_when_debug_is_disabled(
         "qwen_code_sdk.transport",
         fromlist=["ProcessTransport"],
     )
-    transport = transport_module.ProcessTransport(
-        QueryOptions(timeout=TimeoutOptions())
-    )
+    transport = transport_module.ProcessTransport(QueryOptions(timeout=TimeoutOptions()))
 
     await transport.start()
 
@@ -178,9 +168,7 @@ def test_prepare_spawn_info_uses_node_for_cjs_files(tmp_path: Path) -> None:
 async def test_transport_start_raises_after_close(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    async def fake_create_subprocess_exec(
-        *args: object, **kwargs: object
-    ) -> DummyProcess:
+    async def fake_create_subprocess_exec(*args: object, **kwargs: object) -> DummyProcess:
         return DummyProcess()
 
     monkeypatch.setattr(
@@ -193,9 +181,7 @@ async def test_transport_start_raises_after_close(
         "qwen_code_sdk.transport",
         fromlist=["ProcessTransport"],
     )
-    transport = transport_module.ProcessTransport(
-        QueryOptions(timeout=TimeoutOptions())
-    )
+    transport = transport_module.ProcessTransport(QueryOptions(timeout=TimeoutOptions()))
     transport._closed = True
 
     with pytest.raises(RuntimeError, match="Transport is closed"):
@@ -217,9 +203,7 @@ async def test_read_messages_skips_malformed_json_lines() -> None:
         "qwen_code_sdk.transport",
         fromlist=["ProcessTransport"],
     )
-    transport = transport_module.ProcessTransport(
-        QueryOptions(timeout=TimeoutOptions())
-    )
+    transport = transport_module.ProcessTransport(QueryOptions(timeout=TimeoutOptions()))
 
     class FakeProcess:
         returncode = 0

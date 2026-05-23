@@ -63,9 +63,7 @@ class ToolResultBlock(TypedDict):
     annotations: NotRequired[list[Annotation]]
 
 
-ContentBlock: TypeAlias = (
-    TextBlock | ThinkingBlock | ToolUseBlock | ToolResultBlock
-)
+ContentBlock: TypeAlias = TextBlock | ThinkingBlock | ToolUseBlock | ToolResultBlock
 
 
 class APIUserMessage(TypedDict):
@@ -289,17 +287,11 @@ SDKMessage: TypeAlias = (
 )
 
 
-ControlMessage: TypeAlias = (
-    CLIControlRequest | CLIControlResponse | ControlCancelRequest
-)
+ControlMessage: TypeAlias = CLIControlRequest | CLIControlResponse | ControlCancelRequest
 
 
 def is_sdk_user_message(msg: object) -> TypeGuard[SDKUserMessage]:
-    return (
-        isinstance(msg, dict)
-        and msg.get("type") == "user"
-        and "message" in msg
-    )
+    return isinstance(msg, dict) and msg.get("type") == "user" and "message" in msg
 
 
 def is_sdk_assistant_message(msg: object) -> TypeGuard[SDKAssistantMessage]:
@@ -329,9 +321,7 @@ def is_sdk_result_message(msg: object) -> TypeGuard[SDKResultMessage]:
     )
 
 
-def is_sdk_partial_assistant_message(
-    msg: object
-) -> TypeGuard[SDKPartialAssistantMessage]:
+def is_sdk_partial_assistant_message(msg: object) -> TypeGuard[SDKPartialAssistantMessage]:
     return (
         isinstance(msg, dict)
         and msg.get("type") == "stream_event"
@@ -350,11 +340,7 @@ def is_control_request(msg: object) -> TypeGuard[CLIControlRequest]:
 
 
 def is_control_response(msg: object) -> TypeGuard[CLIControlResponse]:
-    return (
-        isinstance(msg, dict)
-        and msg.get("type") == "control_response"
-        and "response" in msg
-    )
+    return isinstance(msg, dict) and msg.get("type") == "control_response" and "response" in msg
 
 
 def is_control_cancel(msg: object) -> TypeGuard[ControlCancelRequest]:

@@ -65,6 +65,6 @@ class QwenCodeAgent(AbstractInstalledAgent):
                 command=f"qwen -y --prompt {escaped_description}",
                 max_timeout_sec=float("inf"),
                 block=True,
-                append_enter=True
+                append_enter=True,
             )
         ]

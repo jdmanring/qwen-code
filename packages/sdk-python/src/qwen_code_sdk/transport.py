@@ -28,9 +28,7 @@ def prepare_spawn_info(path_to_qwen_executable: str | None) -> SpawnInfo:
         return SpawnInfo(command="qwen", args=[])
 
     spec = path_to_qwen_executable
-    if os.path.sep not in spec and (
-        os.path.altsep is None or os.path.altsep not in spec
-    ):
+    if os.path.sep not in spec and (os.path.altsep is None or os.path.altsep not in spec):
         return SpawnInfo(command=spec, args=[])
 
     path = Path(spec).expanduser().resolve()

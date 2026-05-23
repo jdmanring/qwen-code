@@ -10,14 +10,14 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent))
-from upstream_ingest_pipeline import UpstreamIngestPipeline, SyncManager, _GitRunner, REPO_ROOT
+from upstream_ingest_pipeline import REPO_ROOT, SyncManager, UpstreamIngestPipeline, _GitRunner
 
 
 class Colors:
-    GREEN = '\033[0;32m'
-    RED = '\033[0;31m'
-    BLUE = '\033[0;34m'
-    NC = '\033[0m'
+    GREEN = "\033[0;32m"
+    RED = "\033[0;31m"
+    BLUE = "\033[0;34m"
+    NC = "\033[0m"
 
 
 def log_info(msg: str):

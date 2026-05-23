@@ -150,8 +150,7 @@ class QueryOptions:
         return cls(
             cwd=_as_optional_str(data, "cwd"),
             model=_as_optional_str(data, "model"),
-            path_to_qwen_executable=
-            _as_optional_str(data, "path_to_qwen_executable"),
+            path_to_qwen_executable=_as_optional_str(data, "path_to_qwen_executable"),
             permission_mode=cast(
                 PermissionMode | None,
                 _as_optional_str(data, "permission_mode"),
@@ -172,11 +171,9 @@ class QueryOptions:
                 AuthType | None,
                 _as_optional_str(data, "auth_type"),
             ),
-            include_partial_messages=
-            _as_optional_bool(data, "include_partial_messages") or False,
+            include_partial_messages=_as_optional_bool(data, "include_partial_messages") or False,
             resume=_as_optional_str(data, "resume"),
-            continue_session=
-            _as_optional_bool(data, "continue_session") or False,
+            continue_session=_as_optional_bool(data, "continue_session") or False,
             session_id=_as_optional_str(data, "session_id"),
             timeout=timeout,
             mcp_servers=_as_optional_nested_dict(data, "mcp_servers"),
@@ -214,9 +211,7 @@ def _as_optional_bool(data: Mapping[str, Any], key: str) -> bool | None:
     return raw
 
 
-def _as_optional_callable(
-    data: Mapping[str, Any], key: str
-) -> Callable[..., Any] | None:
+def _as_optional_callable(data: Mapping[str, Any], key: str) -> Callable[..., Any] | None:
     raw = data.get(key)
     if raw is None:
         return None
@@ -229,9 +224,7 @@ def _as_optional_callable(
     return cast(Callable[..., Any], raw)
 
 
-def _validate_can_use_tool_callable(
-    value: object, error_type: type[Exception]
-) -> None:
+def _validate_can_use_tool_callable(value: object, error_type: type[Exception]) -> None:
     if not callable(value):
         raise error_type("can_use_tool must be callable")
 
@@ -244,14 +237,10 @@ def _validate_can_use_tool_callable(
         return
 
     if not _supports_argument_count(sig, 3):
-        raise error_type(
-            "can_use_tool must accept exactly 3 positional arguments"
-        )
+        raise error_type("can_use_tool must accept exactly 3 positional arguments")
 
 
-def _validate_stderr_callable(
-    value: object, error_type: type[Exception]
-) -> None:
+def _validate_stderr_callable(value: object, error_type: type[Exception]) -> None:
     if not callable(value):
         raise error_type("stderr must be callable")
 
@@ -275,12 +264,8 @@ def _supports_argument_count(sig: Signature, count: int) -> bool:
             Parameter.POSITIONAL_OR_KEYWORD,
         )
     ]
-    required_positional = [
-        param for param in positional_params if param.default is Parameter.empty
-    ]
-    has_var_positional = any(
-        param.kind is Parameter.VAR_POSITIONAL for param in params
-    )
+    required_positional = [param for param in positional_params if param.default is Parameter.empty]
+    has_var_positional = any(param.kind is Parameter.VAR_POSITIONAL for param in params)
 
     if len(required_positional) > count:
         return False
@@ -289,9 +274,7 @@ def _supports_argument_count(sig: Signature, count: int) -> bool:
     return len(positional_params) >= count
 
 
-def _as_optional_str_dict(
-    data: Mapping[str, Any], key: str
-) -> dict[str, str] | None:
+def _as_optional_str_dict(data: Mapping[str, Any], key: str) -> dict[str, str] | None:
     raw = data.get(key)
     if raw is None:
         return None
@@ -306,9 +289,7 @@ def _as_optional_str_dict(
     return parsed
 
 
-def _as_optional_str_list(
-    data: Mapping[str, Any], key: str
-) -> list[str] | None:
+def _as_optional_str_list(data: Mapping[str, Any], key: str) -> list[str] | None:
     raw = data.get(key)
     if raw is None:
         return None
@@ -319,9 +300,7 @@ def _as_optional_str_list(
     return list(raw)
 
 
-def _as_optional_nested_dict(
-    data: Mapping[str, Any], key: str
-) -> dict[str, dict[str, Any]] | None:
+def _as_optional_nested_dict(data: Mapping[str, Any], key: str) -> dict[str, dict[str, Any]] | None:
     raw = data.get(key)
     if raw is None:
         return None

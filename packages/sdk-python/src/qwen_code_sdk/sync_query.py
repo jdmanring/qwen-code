@@ -21,9 +21,7 @@ class SyncQuery:
     def __init__(
         self,
         prompt: str | Iterable[SDKUserMessage] | AsyncIterable[SDKUserMessage],
-        options: (
-            QueryOptions | QueryOptionsDict | Mapping[str, Any] | None
-        ) = None,
+        options: (QueryOptions | QueryOptionsDict | Mapping[str, Any] | None) = None,
     ) -> None:
         self._queue: Queue[SDKMessage | Exception | object] = Queue()
         self._ready = threading.Event()
@@ -160,9 +158,7 @@ class SyncQuery:
         q = self._query
         if q is not None:
             try:
-                asyncio.run_coroutine_threadsafe(q.close(), self._loop).result(
-                    timeout=30
-                )
+                asyncio.run_coroutine_threadsafe(q.close(), self._loop).result(timeout=30)
             except Exception:
                 pass
 
@@ -170,9 +166,9 @@ class SyncQuery:
         # otherwise consumers blocked on queue.get() will deadlock.
         if self._consumer_task is not None:
             try:
-                asyncio.run_coroutine_threadsafe(
-                    self._await_consumer(), self._loop
-                ).result(timeout=5)
+                asyncio.run_coroutine_threadsafe(self._await_consumer(), self._loop).result(
+                    timeout=5
+                )
             except Exception:
                 pass
 

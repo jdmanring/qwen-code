@@ -17,10 +17,7 @@ _VALID_AUTH_TYPES = {"openai", "anthropic", "qwen-oauth", "gemini", "vertex-ai"}
 
 
 def validate_query_options(options: QueryOptions) -> None:
-    if (
-        options.permission_mode
-        and options.permission_mode not in _VALID_PERMISSION_MODES
-    ):
+    if options.permission_mode and options.permission_mode not in _VALID_PERMISSION_MODES:
         raise ValidationError(
             f"Invalid permission_mode: {options.permission_mode!r}. "
             "Expected one of: default, plan, auto-edit, yolo."
@@ -32,12 +29,8 @@ def validate_query_options(options: QueryOptions) -> None:
             "Expected one of: openai, anthropic, qwen-oauth, gemini, vertex-ai."
         )
 
-    _validate_optional_callable(
-        options.can_use_tool, _validate_can_use_tool_callable
-    )
-    _validate_optional_callable(
-        options.stderr, _validate_stderr_callable
-    )
+    _validate_optional_callable(options.can_use_tool, _validate_can_use_tool_callable)
+    _validate_optional_callable(options.stderr, _validate_stderr_callable)
 
     if options.resume and options.continue_session:
         raise ValidationError(
@@ -60,14 +53,9 @@ def validate_query_options(options: QueryOptions) -> None:
         validate_session_id(options.resume, "resume")
 
     if options.max_session_turns is not None and options.max_session_turns < -1:
-        raise ValidationError(
-            "max_session_turns must be -1 or a non-negative integer"
-        )
+        raise ValidationError("max_session_turns must be -1 or a non-negative integer")
 
-    if (
-        options.path_to_qwen_executable is not None
-        and not options.path_to_qwen_executable.strip()
-    ):
+    if options.path_to_qwen_executable is not None and not options.path_to_qwen_executable.strip():
         raise ValidationError("path_to_qwen_executable cannot be empty")
 
     if options.mcp_servers:
@@ -90,11 +78,7 @@ def validate_session_id(value: str, param_name: str) -> None:
     try:
         parsed = UUID(value)
     except ValueError as exc:
-        raise ValidationError(
-            f"Invalid {param_name}: {value!r}. Must be a valid UUID."
-        ) from exc
+        raise ValidationError(f"Invalid {param_name}: {value!r}. Must be a valid UUID.") from exc
 
     if parsed.variant != RFC_4122:
-        raise ValidationError(
-            f"Invalid {param_name}: {value!r}. UUID variant must be RFC 4122."
-        )
+        raise ValidationError(f"Invalid {param_name}: {value!r}. UUID variant must be RFC 4122.")

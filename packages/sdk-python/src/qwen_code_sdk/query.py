@@ -66,9 +66,7 @@ class Query:
         self._session_id = session_id
         self._session_id_locked = bool(options.resume or options.session_id)
 
-        self._message_queue: asyncio.Queue[SDKMessage | Exception | object] = (
-            asyncio.Queue()
-        )
+        self._message_queue: asyncio.Queue[SDKMessage | Exception | object] = asyncio.Queue()
         self._closed = False
         self._started = False
         self._start_lock = asyncio.Lock()
@@ -100,9 +98,7 @@ class Query:
             self._initialize_task = asyncio.create_task(self._initialize())
 
             if self._single_turn:
-                self._input_task = asyncio.create_task(
-                    self._send_single_turn_prompt()
-                )
+                self._input_task = asyncio.create_task(self._send_single_turn_prompt())
             else:
                 self._input_task = asyncio.create_task(
                     self.stream_input(self._prompt)  # type: ignore[arg-type]
@@ -198,9 +194,7 @@ class Query:
             self._session_id = session_id
             self._session_id_locked = True
 
-    def _start_incoming_control_request(
-        self, request: CLIControlRequest
-    ) -> None:
+    def _start_incoming_control_request(self, request: CLIControlRequest) -> None:
         request_id = request["request_id"]
         cancel_event = asyncio.Event()
 
@@ -236,20 +230,14 @@ class Query:
                     cancel_event,
                 )
             elif subtype == "mcp_message":
-                raise RuntimeError(
-                    "mcp_message is unsupported in python sdk v1"
-                )
+                raise RuntimeError("mcp_message is unsupported in python sdk v1")
             else:
-                raise RuntimeError(
-                    f"Unknown control request subtype: {subtype}"
-                )
+                raise RuntimeError(f"Unknown control request subtype: {subtype}")
 
             if cancel_event.is_set():
                 return
 
-            await self._send_control_response(
-                request_id, success=True, response=response
-            )
+            await self._send_control_response(request_id, success=True, response=response)
         except Exception as exc:
             if cancel_event.is_set():
                 return
@@ -312,11 +300,7 @@ class Query:
         return {
             "behavior": "deny",
             "message": deny_result.get("message", "Denied"),
-            **(
-                {"interrupt": deny_result["interrupt"]}
-                if "interrupt" in deny_result
-                else {}
-            ),
+            **({"interrupt": deny_result["interrupt"]} if "interrupt" in deny_result else {}),
         }
 
     def _handle_control_response(self, response: CLIControlResponse) -> None:
@@ -335,17 +319,13 @@ class Query:
         else:
             error = payload.get("error", "Unknown control error")
             if isinstance(error, dict):
-                error_message = str(
-                    error.get("message", "Unknown control error")
-                )
+                error_message = str(error.get("message", "Unknown control error"))
             else:
                 error_message = str(error)
             if not pending.future.done():
                 pending.future.set_exception(RuntimeError(error_message))
 
-    def _handle_control_cancel_request(
-        self, message: Mapping[str, Any]
-    ) -> None:
+    def _handle_control_cancel_request(self, message: Mapping[str, Any]) -> None:
         request_id = message.get("request_id")
         if not isinstance(request_id, str):
             return
@@ -355,9 +335,7 @@ class Query:
             pending.timeout_handle.cancel()
             pending.cancel_event.set()
             if not pending.future.done():
-                pending.future.set_exception(
-                    AbortError("Control request cancelled")
-                )
+                pending.future.set_exception(AbortError("Control request cancelled"))
 
         incoming = self._incoming_control_requests.get(request_id)
         if incoming is None:
@@ -390,9 +368,7 @@ class Query:
             pending.cancel_event.set()
             if not pending.future.done():
                 pending.future.set_exception(
-                    ControlRequestTimeoutError(
-                        f"Control request timeout: {subtype}"
-                    )
+                    ControlRequestTimeoutError(f"Control request timeout: {subtype}")
                 )
 
         timeout_handle = loop.call_later(
@@ -452,9 +428,7 @@ class Query:
         self._transport.write(serialize_json_line(payload))
         await self._transport.drain()
 
-    async def stream_input(
-        self, messages: AsyncIterable[SDKUserMessage]
-    ) -> None:
+    async def stream_input(self, messages: AsyncIterable[SDKUserMessage]) -> None:
         try:
             if self._closed:
                 raise RuntimeError("Query is closed")
