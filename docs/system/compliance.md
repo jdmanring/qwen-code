@@ -17,9 +17,9 @@ The project uses a strict set of tools to ensure code consistency across the mon
 
 ---
 
-## 📏 Sovereign Code Standard
+## Engineering Standards
 
-All code entering the monorepo must adhere to the `docs/meta/sovereign-code-standard.md`. Key requirements include:
+All code entering the monorepo must adhere to `docs/meta/engineering-standards.md`. Key requirements include:
 - **Type Safety**: Mandatory type hints for Python and `noImplicitAny` for TypeScript.
 - **Determinism**: No magic strings; all paths must be resolved relative to the workspace root.
 - **Symmetry**: Configuration changes must be mirrored in the documentation.

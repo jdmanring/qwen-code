@@ -89,7 +89,7 @@ The following patterns are imported from state-of-the-art agentic frameworks:
 - [x] Implement **Production Transport Validation** (Socket vs Stdio) in the installer.
 - [ ] Synchronize all manifests (`todo.md`, `master-plan.md`, `QWEN.md`) and documentation.
 
-**Definition of Done**: Blueprint and Machine are synchronized, and `install.sh` provides a verified, reproducible deployment. Adversarial verification of infrastructure stability is complete.
+**Definition of Done**: Blueprint and Machine are synchronized, and `install.sh` provides a verified, reproducible deployment. Gate failure tests for infrastructure stability all pass.
 
 ---
 

@@ -10,7 +10,7 @@ This document is the operational reference for the Upstream Ingest Pipeline. It 
 | :--- | :--- |
 | Sync upstream into integration | `python3 tooling/sync-upstreams/upstream_ingest_pipeline.py` |
 | Check gates without syncing | `python3 tooling/sync-upstreams/upstream_ingest_pipeline.py --dry-run` |
-| Run adversarial certification | `python3 tooling/sync-upstreams/chaos_tests.py` |
+| Run gate failure tests | `python3 tooling/sync-upstreams/gate_failure_tests.py` |
 | Submit a fix to upstream | `./tooling/sync-upstreams/contribute-upstream.sh <commit> <branch-name>` |
 | Roll back integration | `git reset --hard <LKG-tag>` |
 
@@ -181,24 +181,24 @@ This is useful to verify your environment is clean before a real sync, or to che
 
 ---
 
-## Adversarial Certification
+## Gate Failure Tests
 
-The chaos suite verifies that all three failure modes are correctly blocked. Run it after any changes to the pipeline itself:
+Verifies that all three pipeline failure modes are correctly blocked. Run after any changes to the pipeline itself:
 
 ```bash
-python3 tooling/sync-upstreams/chaos_tests.py
+python3 tooling/sync-upstreams/gate_failure_tests.py
 ```
 
 Expected output ends with:
 ```
 ==========================================
-INTEGRATION PIPELINE CERTIFICATION REPORT
+PIPELINE GATE FAILURE TEST REPORT
 ==========================================
   Merge Conflict           : PASS
   Symmetry Violation       : PASS
   Boot Failure             : PASS
 ==========================================
-[PASS] SYSTEM CERTIFIED: Adversarial-Proof.
+[PASS] All gate failure tests passed.
 ```
 
 ---

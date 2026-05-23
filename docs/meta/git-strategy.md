@@ -4,10 +4,10 @@
 
 | Branch | Tracks | Purpose | Who writes to it |
 | :--- | :--- | :--- | :--- |
-| `upstream-mirror` | `upstream/main` (QwenLM/qwen-code) | Clean snapshot of official upstream. Reset on every sync — never commit sovereign work here. | Pipeline only |
-| `integration` | `upstream-mirror` (via pipeline) | Sovereignization layer. All upstream changes must pass three gates before landing here. | Pipeline + Integration Lead |
+| `upstream-mirror` | `upstream/main` (QwenLM/qwen-code) | Clean snapshot of official upstream. Reset on every sync — never commit local work here. | Pipeline only |
+| `integration` | `upstream-mirror` (via pipeline) | Normalization layer. All upstream changes must pass three gates before landing here. | Pipeline + Integration Lead |
 | `develop` | `integration` | Active feature development on the verified base. | Developers |
-| `main` | `develop` | Stable, production-ready Sovereign Blueprint. | Architect |
+| `main` | `develop` | Stable, production-ready release branch. | Architect |
 
 > `develop` and `main` are not yet restored from `origin`. Active work is on `integration`.
 
@@ -115,7 +115,7 @@ git remote add mirror https://github.com/YOUR_FORK/qwen-code.git
 | File | Purpose |
 | :--- | :--- |
 | `tooling/sync-upstreams/upstream_ingest_pipeline.py` | **Primary entry point.** Full pipeline: fetch → stage → gate → promote. |
-| `tooling/sync-upstreams/chaos_tests.py` | Adversarial certification suite. Run to verify pipeline failure modes work. |
+| `tooling/sync-upstreams/gate_failure_tests.py` | Gate failure test suite. Run to verify all three pipeline failure modes are correctly blocked. |
 | `tooling/sync-upstreams/contribute-upstream.sh` | Submits a fix to upstream as a PR via the public fork. |
 | `tooling/sync-upstreams/verification-gate.sh` | Standalone gate runner. Mirrors pipeline gate logic for manual use. |
 | `tooling/sync-upstreams/raw-inline.sh` | Low-level: resets `upstream-mirror` to `upstream/main` only. |

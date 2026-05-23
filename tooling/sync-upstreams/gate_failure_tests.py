@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Integration Pipeline Adversarial Certification Suite
-Tests the resilience of the Integration Pipeline against failure modes.
+Pipeline gate failure tests.
+Verifies that each failure mode (merge conflict, symmetry violation, boot failure)
+is correctly detected and blocked by the upstream sync pipeline.
 """
 
 import subprocess
@@ -35,7 +36,7 @@ def git(cmd: list, cwd: Path, check: bool = True) -> subprocess.CompletedProcess
     return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, check=check)
 
 
-class ChaosSuite:
+class GateFailureTests:
     def __init__(self):
         self.root = REPO_ROOT
 
@@ -177,7 +178,7 @@ class ChaosSuite:
         results.append(("Boot Failure", self.test_boot_failure()))
 
         print("\n" + "=" * 42)
-        print("INTEGRATION PIPELINE CERTIFICATION REPORT")
+        print("PIPELINE GATE FAILURE TEST REPORT")
         print("=" * 42)
         for name, res in results:
             status = "PASS" if res else "FAIL"
@@ -188,10 +189,10 @@ class ChaosSuite:
 
 
 if __name__ == "__main__":
-    suite = ChaosSuite()
+    suite = GateFailureTests()
     if suite.run_all():
-        log_success("SYSTEM CERTIFIED: Adversarial-Proof.")
+        log_success("All gate failure tests passed.")
         sys.exit(0)
     else:
-        log_error("SYSTEM CERTIFICATION FAILED.")
+        log_error("One or more gate failure tests failed.")
         sys.exit(1)

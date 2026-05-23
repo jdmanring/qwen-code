@@ -1,62 +1,65 @@
-# 📌 Project TODO (Engineering Mode)
+# Project TODO
 
-## 🛠️ STAGE 1: GROUND TRUTH AUDIT (Completed)
-*Goal: Eliminate all assumptions. Establish a verified baseline of the system.*
+## Stage 1: Codebase Audit (Complete)
 
-- [x] **Audit Git State**: Verify all branches (`upstream-mirror`, `integration`, `develop`, `main`) and remotes (`upstream`, `mirror`, `origin`).
-- [x] **Audit Tooling State**: Verify presence and logic of `raw-inline.sh`, `integrate.sh`, `verification-gate.sh`, and `symmetry-check.py`.
-- [x] **Audit Blueprint State**: Verify `.qwen/config/` and `docs/` mapping.
-- [x] **Audit Environment State**: Verify `uv` and `pnpm` workspace configurations.
+- [x] Audit git state: branches (`upstream-mirror`, `integration`, `develop`, `main`) and remotes (`upstream`, `mirror`, `origin`).
+- [x] Audit tooling: verify `raw-inline.sh`, `integrate.sh`, `verification-gate.sh`, `symmetry-check.py`.
+- [x] Audit config: verify `.qwen/config/` and `docs/` mapping.
+- [x] Audit environment: verify `uv` and `pnpm` workspace configurations.
 
-## 📐 STAGE 2: SOVEREIGN EXECUTION PLAN (Completed)
-*Goal: Create a deterministic, verified roadmap for implementation.*
+## Stage 2: Implementation Plan (Complete)
 
-- [x] **Define Environment Hermeticity**: Establish pre-flight checks for every tool.
-- [x] **Design Ingestion Pipeline**: Map the flow from Upstream $\to$ Mirror $\to$ Integration $\to$ Develop.
-- [x] **Define Sovereignization Process**: Codify the transformation steps (Isolation $\to$ Standardization $\to$ Modularization $\to$ Verification).
-- [x] **Define Final Certification**: Establish the "Green" criteria for project completion.
+- [x] Define pre-flight checks for every tool.
+- [x] Design upstream sync pipeline: Upstream → Mirror → Integration → Develop.
+- [x] Define intake normalization steps: Lint → Format → Type-check → Naming review → Symmetry update.
+- [x] Define completion criteria (all gates green, zero lint errors).
 
-## 🚀 STAGE 3: IMPLEMENTATION (Execution)
+## Stage 3: Implementation
 
-### Lair 1: Foundation Restoration (Current)
-- [ ] Restore `main` and `develop` branches from `origin`.
-- [x] Configure `.ruff.toml` with Debt Suppression rules.
-- [x] Verify environment hermeticity (uv/pnpm).
+### 3.1: Branch and Environment Setup (Complete)
+- [x] Restore `main` and `develop` branches from `origin`.
+- [x] Configure `.ruff.toml`.
+- [x] Verify `uv` and `pnpm` environments.
 
-### Lair 2: The Upstream Ingest Pipeline (Tooling) — COMPLETE
-- [x] Implement `UpstreamIngestPipeline` in Python (`tooling/sync-upstreams/upstream_ingest_pipeline.py`).
-- [x] Build `PreFlight` -> `Sync` -> `Verify` -> `Promote` flow.
-- [x] Implement LKG (Last Known Good) snapshotting via annotated git tags.
-- [x] `--dry-run` mode: run all gates against current state without sync or promotion.
-- [x] Ruff binary resolution: `uv run ruff` > `RUFF_BIN` > PATH (eliminates false-green problem).
-- [x] Boot gate uses `uv lock --check` (real test, not file-existence check).
-- [x] Gate order: Boot → Lint → Symmetry (boot runs before `uv run ruff` can recreate a missing lockfile).
-- [x] Pre-flight: uncommitted change guard (tracked files only) + up-to-date short-circuit.
-- [x] Branch safety: `finally` block guarantees return to `integration` on any failure.
-- [x] Windows installer scripts restored to `integration`; `.bat` purge removed from pipeline.
-- [x] `contribute-upstream.sh`: cherry-pick a fix onto a clean upstream branch and push to public fork for PR.
-- [x] All naming AI-transparent: no "orchestrator" ambiguity with the agentic Orchestrator model.
-- [x] **First live run completed** — confirmed "Already up to date" (integration current with upstream/main).
-- [x] Documentation: `docs/meta/git-strategy.md` (architecture) + `docs/meta/pipeline-runbook.md` (AI operations runbook).
+### 3.2: Upstream Sync Pipeline (Complete)
+- [x] Implement `UpstreamIngestPipeline` (`tooling/sync-upstreams/upstream_ingest_pipeline.py`).
+- [x] Build PreFlight → Sync → Gate(Boot/Lint/Symmetry) → Promote flow.
+- [x] LKG (Last Known Good) tags on every successful promotion.
+- [x] `--dry-run` mode: run gates against current state without syncing.
+- [x] Ruff resolution: `uv run ruff` > `RUFF_BIN` > PATH.
+- [x] Boot gate uses `uv lock --check` (runs before lint to prevent lockfile recreation).
+- [x] Pre-flight: uncommitted change guard + up-to-date short-circuit.
+- [x] Branch safety: `finally` block returns to `integration` on any failure.
+- [x] `contribute-upstream.sh`: cherry-pick a fix to a clean upstream branch and push to public fork for PR.
+- [x] First live run: confirmed "Already up to date".
+- [x] Documentation: `docs/meta/git-strategy.md` and `docs/meta/pipeline-runbook.md`.
 
-### Lair 3: Adversarial Certification (QA) — COMPLETE
-- [x] Chaos Test: Simulate merge conflicts -> Verified `integration` stability.
-- [x] Chaos Test: Simulate symmetry gate failure -> Verified promotion block.
-- [x] Chaos Test: Simulate boot failure -> Verified promotion block.
-- [x] **SYSTEM CERTIFIED: Adversarial-Proof** (all three chaos tests pass).
+### 3.3: Pipeline Gate Failure Tests (Complete)
+- [x] Test: merge conflict → verified promotion is blocked.
+- [x] Test: symmetry gate failure → verified promotion is blocked.
+- [x] Test: boot gate failure → verified promotion is blocked.
+- [x] All three gate failure tests pass (`tooling/sync-upstreams/gate_failure_tests.py`).
 
-### Phase 2: The Great Migration (Sovereignization)
-- [ ] **Targeted Ingestion**: Move `qwen_code_stack` logic into `integration` branch.
-- [ ] **Sovereignization**: Apply Ruff, Mypy, and CSF standards.
-- [ ] **Shared Extraction**: Extract logic to `packages/`.
-- [ ] **Promote to Develop**: Merge after gate pass.
-- [ ] **Monorepo Boot**: Perform first successful boot test.
+## Phase 2: qwen_code_stack Migration
+
+### Step 1: Intake Normalization (`qwen_code_stack`) — In Progress
+- [x] Ruff lint pass — 183 violations cleared
+- [ ] Ruff format pass
+- [ ] Mypy type-check pass
+- [ ] Naming review (file names, class names, function names match engineering-standards.md)
+- [ ] Final verification (zero errors)
+
+### Step 2: Migration
+- [ ] Move normalized `qwen_code_stack` into `integration` branch.
+- [ ] Extract shared logic to `packages/`.
+- [ ] Merge to `develop` after gate pass.
+- [ ] First successful monorepo boot test.
 
 ---
 
-## 📦 LEGACY ARCHIVE
-*Previous attempts are archived here for reference. No further work will be done on these paths unless integrated into the new plan.*
+## Archive
+*Superseded approaches, kept for reference.*
 
-- [x] Initial File Migration (Moved to apps/qwen-orchestrator)
-- [x] Initial Branching Strategy (Documented)
-- [x] Initial Config Relocation (Moved to .qwen/config)
+- [x] Initial file migration (moved to apps/qwen-orchestrator)
+- [x] Initial branching strategy (documented)
+- [x] Initial config relocation (moved to .qwen/config)
