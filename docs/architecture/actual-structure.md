@@ -1,6 +1,6 @@
 # 🗺️ Actual Project Structure
 
-This document provides a factual map of the current filesystem state of the `megacode-sovereign-stack` monorepo.
+This document provides a factual map of the current filesystem state of the `megalonyx-monorepo`.
 
 ## 📂 Directory Map
 

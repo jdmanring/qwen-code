@@ -1,7 +1,7 @@
 [project]
-name = "megacode-monorepo"
+name = "megalonyx-monorepo"
 version = "0.1.0"
-description = "Megalonyx monorepo — upstream sync pipeline, Python SDK, and sovereign tooling"
+description = "Megalonyx monorepo — upstream sync pipeline, Python SDK, and proprietary extensions"
 requires-python = ">=3.12"
 dependencies = []
 

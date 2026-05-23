@@ -1,1 +1,1 @@
-{"name": "megacode-sovereign-stack", "version": "0.1.0", "private": true, "scripts": {"nx": "nx", "dev": "nx run-many --target=serve", "check": "nx run-many --target=lint", "test-all": "nx run-many --target=test"}, "devDependencies": {"nx": "^22.7.2"}}
+{"name": "megalonyx-monorepo", "version": "0.1.0", "private": true, "scripts": {"nx": "nx", "dev": "nx run-many --target=serve", "check": "nx run-many --target=lint", "test-all": "nx run-many --target=test"}, "devDependencies": {"nx": "^22.7.2"}}

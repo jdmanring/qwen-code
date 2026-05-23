@@ -1,4 +1,4 @@
-# CLAUDE.md — AI Agent Guide for megacode-monorepo
+# CLAUDE.md — AI Agent Guide for megalonyx-monorepo
 
 This file is loaded automatically by Claude Code. It tells you what this repo is, how it works, and how to operate in it without asking the user for context.
 
