@@ -160,11 +160,9 @@ class SyncManager:
 
     def sync_mirror(self) -> None:
         """
-        Resets upstream-mirror to a clean snapshot of upstream/main, purges
-        Windows-only artifacts with a commit, then returns to integration.
-
-        The return-to-integration step is critical: it ensures create_staging()
-        branches from integration (our work) not from the mirror (upstream code).
+        Resets upstream-mirror to a clean snapshot of upstream/main, then
+        returns to integration so create_staging() branches from our work,
+        not from the mirror.
         """
         log_info("Fetching upstream/main...")
         self._git.run(["git", "fetch", "upstream", "main"])
@@ -173,32 +171,8 @@ class SyncManager:
         self._git.run(["git", "checkout", "-f", MIRROR_BRANCH])
         self._git.run(["git", "reset", "--hard", "upstream/main"])
 
-        self._purge_upstream_artifacts()
-
         self._git.run(["git", "checkout", INTEGRATION_BRANCH])
         log_success("Mirror synchronized.")
-
-    def _purge_upstream_artifacts(self) -> None:
-        """
-        Removes Windows-only files (.bat) from the mirror and commits the
-        removal. By doing this on upstream-mirror, the problematic files are
-        gone before any merge, eliminating modify/delete conflicts downstream.
-        """
-        tracked = self._git.output(["git", "ls-files", "--", "*.bat"])
-        bat_files = [f for f in tracked.splitlines() if f]
-        if not bat_files:
-            return
-        logger.info(f"Purging {len(bat_files)} upstream artifact(s): {bat_files}")
-        self._git.run(["git", "rm", "-f", "--"] + bat_files)
-        self._git.run(
-            [
-                "git",
-                "commit",
-                "-m",
-                "chore(mirror): purge upstream Windows artifacts",
-            ]
-        )
-        log_success(f"Purged and committed: {bat_files}")
 
     def create_staging(self) -> None:
         """Creates a short-lived staging branch from integration HEAD."""
