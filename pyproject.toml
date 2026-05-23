@@ -14,6 +14,7 @@ members = ["apps/*", "packages/*"]
 [dependency-groups]
 dev = [
     "mypy>=2.1.0",
+    "ruff>=0.15.14",
 ]
 
 [tool.mypy]
