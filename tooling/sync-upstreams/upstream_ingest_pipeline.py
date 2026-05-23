@@ -144,7 +144,8 @@ class PreFlight:
                     "uv not found. Install from https://docs.astral.sh/uv/"
                 )
 
-            dirty = self._git.run(["git", "status", "--porcelain"], check=False).stdout.strip()
+            # Only block on changes to tracked files — untracked files can't pollute a merge.
+            dirty = self._git.run(["git", "diff", "--quiet", "HEAD"], check=False).returncode != 0
             if dirty:
                 raise RuntimeError(
                     "Integration branch has uncommitted changes — stash or commit before syncing."
