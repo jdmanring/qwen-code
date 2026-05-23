@@ -23,16 +23,21 @@
 - [ ] Configure `.ruff.toml` with Debt Suppression rules.
 - [ ] Verify environment hermeticity (uv/pnpm).
 
-### Lair 2: The Orchestrator (Tooling)
-- [ ] Implement `SovereignSyncOrchestrator` in Python.
-- [ ] Build `PreFlight` $\to$ `Sync` $\to$ `Verify` $\to$ `Promote` flow.
-- [ ] Implement LKG (Last Known Good) snapshotting.
-- [ ] Verify orchestrator with "Dry Run" mode.
+### Lair 2: The Orchestrator (Tooling) — COMPLETE
+- [x] Implement `IntegrationOrchestrator` in Python (`tooling/sync-upstreams/orchestrator.py`).
+- [x] Build `PreFlight` -> `Sync` -> `Verify` -> `Promote` flow.
+- [x] Implement LKG (Last Known Good) snapshotting via annotated git tags.
+- [x] `--dry-run` mode: run all gates against current state without sync or promotion.
+- [x] Ruff binary resolution: `uv run ruff` > `RUFF_BIN` > PATH (eliminates false-green problem).
+- [x] Gate 3 boot test replaced with `uv lock --check` (real test, not file-existence check).
+- [x] `.bat` artifact purge now uses `git rm` + commit (eliminates modify/delete conflicts).
+- [x] `contribute-upstream.sh`: cherry-pick a fix onto a clean upstream branch and push to public fork for PR.
+- [x] All three gates verified green via `--dry-run`.
 
 ### Lair 3: Adversarial Certification (QA)
-- [ ] Chaos Test: Simulate merge conflicts $\to$ Verify `integration` stability.
-- [ ] Chaos Test: Simulate gate failures $\to$ Verify promotion block.
-- [ ] Chaos Test: Simulate boot failure $\to$ Verify promotion block.
+- [ ] Chaos Test: Simulate merge conflicts -> Verify `integration` stability.
+- [ ] Chaos Test: Simulate gate failures -> Verify promotion block.
+- [ ] Chaos Test: Simulate boot failure -> Verify promotion block.
 - [ ] Final Certification: Successful end-to-end sync with LKG tag.
 
 ### Phase 2: The Great Migration (Sovereignization)
