@@ -299,7 +299,7 @@ class PromotionEngine:
         return tag
 
 
-class IntegrationOrchestrator:
+class UpstreamIngestPipeline:
     """
     Coordinates the full upstream ingestion pipeline:
 
@@ -376,7 +376,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    orch = IntegrationOrchestrator(dry_run=args.dry_run)
+    orch = UpstreamIngestPipeline(dry_run=args.dry_run)
     result = orch.run()
 
     if result.success:

@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent))
-from upstream_ingest_pipeline import IntegrationOrchestrator, SyncManager, _GitRunner, REPO_ROOT
+from upstream_ingest_pipeline import UpstreamIngestPipeline, SyncManager, _GitRunner, REPO_ROOT
 
 
 class Colors:
@@ -119,7 +119,7 @@ class ChaosSuite:
         try:
             config_file.write_text("test = 1\n")
 
-            orch = IntegrationOrchestrator(dry_run=True)
+            orch = UpstreamIngestPipeline(dry_run=True)
             result = orch.run()
 
             if not result.success and result.stage == "VERIFICATION":
@@ -154,7 +154,7 @@ class ChaosSuite:
 
         success = False
         try:
-            orch = IntegrationOrchestrator(dry_run=True)
+            orch = UpstreamIngestPipeline(dry_run=True)
             result = orch.run()
 
             if not result.success and result.stage == "VERIFICATION":
