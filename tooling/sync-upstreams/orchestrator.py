@@ -2,7 +2,7 @@
 """
 Integration Orchestrator
 Propagates changes from upstream-mirror to integration through a hardened
-verification pipeline: Sync → Gate(Lint/Symmetry/Boot) → Promote.
+verification pipeline: Sync → Gate(Boot/Lint/Symmetry) → Promote.
 
 Usage:
     python3 tooling/sync-upstreams/orchestrator.py           # full sync
@@ -250,44 +250,19 @@ class GateKeeper:
         self._ruff = _resolve_ruff()
 
     def verify(self) -> bool:
+        # Boot runs first: fail before `uv run ruff` can recreate a missing lockfile.
         return (
-            self._gate_lint()
+            self._gate_boot()
+            and self._gate_lint()
             and self._gate_symmetry()
-            and self._gate_boot()
         )
-
-    def _gate_lint(self) -> bool:
-        logger.info("Gate 1/3: Ruff lint...")
-        cmd = self._ruff + ["check", "."]
-        result = subprocess.run(cmd, cwd=self._git.root)
-        if result.returncode != 0:
-            fix_cmd = " ".join(self._ruff + ["check", "--fix", "."])
-            log_error(f"Lint gate failed. Auto-fix attempt: {fix_cmd}")
-            return False
-        log_success("Lint gate passed.")
-        return True
-
-    def _gate_symmetry(self) -> bool:
-        logger.info("Gate 2/3: Symmetry check (config ↔ docs)...")
-        result = subprocess.run(
-            ["python3", "tooling/symmetry-check.py"],
-            cwd=self._git.root,
-        )
-        if result.returncode != 0:
-            log_error(
-                "Symmetry gate failed. config/ and docs/ are out of sync."
-            )
-            return False
-        log_success("Symmetry gate passed.")
-        return True
 
     def _gate_boot(self) -> bool:
         """
-        Verifies the Python workspace is bootable by checking the uv lockfile
-        is consistent with pyproject.toml. A stale lockfile (e.g. upstream added
-        a dependency without running `uv lock`) will fail here, not in production.
+        Runs first — verifies the Python workspace is bootable before any `uv run`
+        command can silently recreate a stale or missing lockfile.
         """
-        logger.info("Gate 3/3: Boot test (uv lock --check)...")
+        logger.info("Gate 1/3: Boot test (uv lock --check)...")
         result = subprocess.run(
             ["uv", "lock", "--check"],
             cwd=self._git.root,
@@ -302,6 +277,31 @@ class GateKeeper:
             )
             return False
         log_success("Boot gate passed.")
+        return True
+
+    def _gate_lint(self) -> bool:
+        logger.info("Gate 2/3: Ruff lint...")
+        cmd = self._ruff + ["check", "."]
+        result = subprocess.run(cmd, cwd=self._git.root)
+        if result.returncode != 0:
+            fix_cmd = " ".join(self._ruff + ["check", "--fix", "."])
+            log_error(f"Lint gate failed. Auto-fix attempt: {fix_cmd}")
+            return False
+        log_success("Lint gate passed.")
+        return True
+
+    def _gate_symmetry(self) -> bool:
+        logger.info("Gate 3/3: Symmetry check (config ↔ docs)...")
+        result = subprocess.run(
+            ["python3", "tooling/symmetry-check.py"],
+            cwd=self._git.root,
+        )
+        if result.returncode != 0:
+            log_error(
+                "Symmetry gate failed. config/ and docs/ are out of sync."
+            )
+            return False
+        log_success("Symmetry gate passed.")
         return True
 
 
@@ -334,9 +334,9 @@ class IntegrationOrchestrator:
         upstream-mirror  [Windows artifacts purged + committed]
             ↓  (merge into staging branch off integration)
         sync/staging-TIMESTAMP
-            ↓  (Gate 1: ruff lint)
-            ↓  (Gate 2: symmetry check)
-            ↓  (Gate 3: uv lock --check)
+            ↓  (Gate 1: uv lock --check)
+            ↓  (Gate 2: ruff lint)
+            ↓  (Gate 3: symmetry check)
         integration  [ff-only merge + LKG tag]
     """
 

@@ -7,11 +7,10 @@ Tests the resilience of the Integration Pipeline against failure modes.
 import subprocess
 import sys
 from pathlib import Path
-from typing import List
 
-# Fix for hyphenated directory name in import
 sys.path.append(str(Path(__file__).parent))
-from orchestrator import IntegrationOrchestrator
+from orchestrator import IntegrationOrchestrator, SyncManager, _GitRunner, REPO_ROOT
+
 
 class Colors:
     GREEN = '\033[0;32m'
@@ -19,137 +18,156 @@ class Colors:
     BLUE = '\033[0;34m'
     NC = '\033[0m'
 
+
 def log_info(msg: str):
     print(f"{Colors.BLUE}[INFO]{Colors.NC} {msg}")
 
+
 def log_success(msg: str):
-    print(f"{Colors.GREEN}[SUCCESS]{Colors.NC} {msg}")
+    print(f"{Colors.GREEN}[PASS]{Colors.NC} {msg}")
+
 
 def log_error(msg: str):
-    print(f"{Colors.RED}[ERROR]{Colors.NC} {msg}")
+    print(f"{Colors.RED}[FAIL]{Colors.NC} {msg}")
 
-def run_cmd(cmd: List[str], cwd: Path):
-    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
+
+def git(cmd: list, cwd: Path, check: bool = True) -> subprocess.CompletedProcess:
+    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, check=check)
+
 
 class ChaosSuite:
     def __init__(self):
-        self.root = Path(__file__).parent.parent.parent.resolve()
-        self.orch = IntegrationOrchestrator()
+        self.root = REPO_ROOT
 
     def test_merge_conflict(self):
+        """
+        Verify the pipeline aborts and leaves integration untouched when a
+        merge conflict occurs.
+
+        Uses SyncManager directly so the injected commits on upstream-mirror
+        are not wiped by sync_mirror()'s reset-to-upstream/main.
+        """
         log_info("Testing Failure Mode: Merge Conflict")
-        
-        # 1. Setup conflict: Modify a file in both mirror and integration
+
+        _git = _GitRunner(self.root)
+        sync = SyncManager(_git)
         test_file = self.root / "Conflict_Test.txt"
-        
-        # On integration
-        run_cmd(["git", "checkout", "integration"], self.root)
-        test_file.write_text("Integration version\n")
-        run_cmd(["git", "add", str(test_file)], self.root)
-        run_cmd(["git", "commit", "-m", "conflict: base"], self.root)
-        
-        # On mirror
-        run_cmd(["git", "checkout", "upstream-mirror"], self.root)
-        test_file.write_text("Mirror version\n")
-        run_cmd(["git", "add", str(test_file)], self.root)
-        run_cmd(["git", "commit", "-m", "conflict: mirror"], self.root)
-        
-        # Return to integration
-        run_cmd(["git", "checkout", "integration"], self.root)
-        
-        # 2. Execute Sync
-        result = self.orch.run()
-        
-        # 3. Verify: Pipeline should fail, and integration should NOT have the mirror's change
-        if not result.success and "ORCHESTRATION" in result.stage:
-            log_success("Pipeline correctly failed on merge conflict.")
-            
-            # Verify integration is still at the original state
-            content = test_file.read_text()
-            if "Integration version" in content:
-                log_success("Integration branch remained stable.")
-            else:
-                log_error("Integration branch was polluted!")
-                return False
-        else:
-            log_error(f"Pipeline unexpectedly { 'succeeded' if result.success else 'failed' }")
-            return False
-        
-        # Cleanup
-        run_cmd(["git", "checkout", "integration"], self.root)
-        run_cmd(["git", "rm", str(test_file)], self.root)
-        run_cmd(["git", "commit", "-m", "chore: cleanup conflict test"], self.root)
-        return True
+
+        orig_integration = _git.output(["git", "rev-parse", "integration"])
+        orig_mirror = _git.output(["git", "rev-parse", "upstream-mirror"])
+
+        success = False
+        try:
+            # Establish a shared base on integration
+            git(["git", "checkout", "integration"], self.root)
+            test_file.write_text("base version\n")
+            git(["git", "add", str(test_file)], self.root)
+            git(["git", "commit", "-m", "chaos: conflict-test base"], self.root)
+            base_commit = _git.output(["git", "rev-parse", "HEAD"])
+
+            # Diverge integration from the base
+            test_file.write_text("Integration version\n")
+            git(["git", "add", str(test_file)], self.root)
+            git(["git", "commit", "-m", "chaos: conflict-test integration"], self.root)
+
+            # Reset upstream-mirror to the shared base and add a conflicting change
+            git(["git", "checkout", "-B", "upstream-mirror", base_commit], self.root)
+            test_file.write_text("Mirror version\n")
+            git(["git", "add", str(test_file)], self.root)
+            git(["git", "commit", "-m", "chaos: conflict-test mirror"], self.root)
+
+            git(["git", "checkout", "integration"], self.root)
+
+            # Merge via SyncManager — bypasses sync_mirror so injected commits survive
+            sync.create_staging()
+            try:
+                sync.merge_mirror_to_stage()
+                log_error("Merge unexpectedly succeeded — conflict was not detected!")
+            except RuntimeError:
+                log_success("Pipeline correctly detected and aborted merge conflict.")
+
+                git(["git", "checkout", "integration"], self.root, check=False)
+                content = test_file.read_text() if test_file.exists() else ""
+                if "Integration version" in content:
+                    log_success("Integration branch remained stable.")
+                    success = True
+                else:
+                    log_error(f"Integration branch was polluted! Content: {content!r}")
+
+        finally:
+            sync.cleanup_staging()
+            git(["git", "checkout", "integration"], self.root, check=False)
+            git(["git", "reset", "--hard", orig_integration], self.root, check=False)
+            git(["git", "checkout", "-B", "upstream-mirror", orig_mirror], self.root, check=False)
+            git(["git", "checkout", "integration"], self.root, check=False)
+            test_file.unlink(missing_ok=True)
+
+        return success
 
     def test_symmetry_violation(self):
+        """
+        Verify the symmetry gate blocks a config file without a matching doc.
+
+        Writes an untracked file (survives git checkouts) and uses dry_run to
+        run gates against the current working state.
+        """
         log_info("Testing Failure Mode: Symmetry Violation")
-        
-        # 1. Setup violation: Add config without doc
+
         config_file = self.root / ".qwen" / "config" / "violation.toml"
         config_file.parent.mkdir(parents=True, exist_ok=True)
-        config_file.write_text("test = 1")
-        
-        # Put it in the mirror
-        run_cmd(["git", "checkout", "upstream-mirror"], self.root)
-        config_file.write_text("test = 1")
-        run_cmd(["git", "add", str(config_file)], self.root)
-        run_cmd(["git", "commit", "-m", "violation: mirror config"], self.root)
-        
-        run_cmd(["git", "checkout", "integration"], self.root)
-        
-        # 2. Execute Sync
-        result = self.orch.run()
-        
-        # 3. Verify: Gate should block promotion
-        if not result.success and result.stage == "VERIFICATION":
-            log_success("Pipeline correctly blocked symmetry violation.")
-        else:
-            log_error(f"Pipeline failed to block symmetry violation. Result: {result.stage}")
-            return False
-            
-        # Cleanup: remove from upstream-mirror (committed) and working directory
-        run_cmd(["git", "checkout", "upstream-mirror"], self.root)
-        run_cmd(["git", "rm", "-f", str(config_file)], self.root)
-        run_cmd(["git", "commit", "-m", "chore: cleanup symmetry test"], self.root)
-        run_cmd(["git", "checkout", "integration"], self.root)
-        config_file.unlink(missing_ok=True)
-        return True
+
+        try:
+            config_file.write_text("test = 1\n")
+
+            orch = IntegrationOrchestrator(dry_run=True)
+            result = orch.run()
+
+            if not result.success and result.stage == "VERIFICATION":
+                log_success("Pipeline correctly blocked symmetry violation.")
+                return True
+            else:
+                log_error(
+                    f"Pipeline failed to block symmetry violation. "
+                    f"Stage: {result.stage}, success: {result.success}"
+                )
+                return False
+        finally:
+            config_file.unlink(missing_ok=True)
 
     def test_boot_failure(self):
+        """
+        Verify the boot gate blocks when uv.lock is missing.
+
+        Uses dry_run=True so no git checkout can restore uv.lock before the
+        gate runs. Boot gate is ordered first (before lint) so uv run ruff
+        cannot recreate the lockfile and defeat the check.
+        """
         log_info("Testing Failure Mode: Boot Failure")
 
         lockfile = self.root / "uv.lock"
         if not lockfile.exists():
-            log_info("uv.lock not found — skipping boot failure test.")
+            log_info("uv.lock not found — skipping.")
             return True
 
-        # 1. Setup failure: rename uv.lock so `uv lock --check` fails.
-        #    This simulates upstream adding a dependency without regenerating
-        #    the lockfile — a real scenario the gate is designed to catch.
         backup = lockfile.with_suffix(".lock.bak")
         lockfile.rename(backup)
 
-        # Ensure mirror is ahead so the orchestrator has something to sync
-        run_cmd(["git", "checkout", "upstream-mirror"], self.root)
-        run_cmd(["git", "commit", "--allow-empty", "-m", "trigger: boot failure test"], self.root)
-        run_cmd(["git", "checkout", "integration"], self.root)
+        success = False
+        try:
+            orch = IntegrationOrchestrator(dry_run=True)
+            result = orch.run()
 
-        # 2. Execute sync
-        result = self.orch.run()
+            if not result.success and result.stage == "VERIFICATION":
+                log_success("Pipeline correctly blocked boot failure.")
+                success = True
+            else:
+                log_error(
+                    f"Pipeline failed to block boot failure. "
+                    f"Stage: {result.stage}, success: {result.success}"
+                )
+        finally:
+            backup.rename(lockfile)
 
-        # 3. Verify: boot gate must block promotion
-        if not result.success and result.stage == "VERIFICATION":
-            log_success("Pipeline correctly blocked boot failure.")
-            success = True
-        else:
-            log_error(
-                f"Pipeline failed to block boot failure. "
-                f"Stage: {result.stage}, success: {result.success}"
-            )
-            success = False
-
-        # Always restore — leave repo in working state regardless of outcome
-        backup.rename(lockfile)
         return success
 
     def run_all(self):
@@ -157,16 +175,17 @@ class ChaosSuite:
         results.append(("Merge Conflict", self.test_merge_conflict()))
         results.append(("Symmetry Violation", self.test_symmetry_violation()))
         results.append(("Boot Failure", self.test_boot_failure()))
-        
-        print("\n" + "="*30)
+
+        print("\n" + "=" * 42)
         print("INTEGRATION PIPELINE CERTIFICATION REPORT")
-        print("="*30)
+        print("=" * 42)
         for name, res in results:
             status = "PASS" if res else "FAIL"
-            print(f"{name: <25} : {status}")
-        print("="*30)
-        
-        return all(res for name, res in results)
+            print(f"  {name:<25}: {status}")
+        print("=" * 42)
+
+        return all(res for _, res in results)
+
 
 if __name__ == "__main__":
     suite = ChaosSuite()
