@@ -45,7 +45,7 @@ def prepare_spawn_info(path_to_qwen_executable: str | None) -> SpawnInfo:
 
 
 class ProcessTransport:
-    def __init__(self, options: QueryOptions):
+    def __init__(self, options: QueryOptions) -> None:
         self._options = options
         self._process: asyncio.subprocess.Process | None = None
         self._stderr_task: asyncio.Task[None] | None = None
@@ -187,7 +187,7 @@ class ProcessTransport:
             self._process.terminate()
             try:
                 await asyncio.wait_for(self._process.wait(), timeout=5.0)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 self._process.kill()
                 await self._process.wait()
 

@@ -23,7 +23,8 @@ def test_sync_query_single_turn(fake_qwen_path: str) -> None:
 
     assert commands["commands"][0] == "initialize"
     assert any(
-        is_sdk_result_message(message) and message["result"] == "done: hello sync"
+        is_sdk_result_message(message)
+        and message["result"] == "done: hello sync"
         for message in messages
     )
 

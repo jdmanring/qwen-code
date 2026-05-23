@@ -1,0 +1,16 @@
+{
+  "symmetry_mappings": [
+    {
+      "code_path": "apps/qwen-orchestrator",
+      "doc_path": "docs/apps/qwen-orchestrator"
+    },
+    {
+      "code_path": "packages/mcp-uds-bridge",
+      "doc_path": "docs/packages/mcp-uds-bridge"
+    },
+    {
+      "code_path": "tooling/sync-upstreams",
+      "doc_path": "docs/meta/git-strategy.md"
+    }
+  ]
+}

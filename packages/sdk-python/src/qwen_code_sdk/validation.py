@@ -32,8 +32,12 @@ def validate_query_options(options: QueryOptions) -> None:
             "Expected one of: openai, anthropic, qwen-oauth, gemini, vertex-ai."
         )
 
-    _validate_optional_callable(options.can_use_tool, _validate_can_use_tool_callable)
-    _validate_optional_callable(options.stderr, _validate_stderr_callable)
+    _validate_optional_callable(
+        options.can_use_tool, _validate_can_use_tool_callable
+    )
+    _validate_optional_callable(
+        options.stderr, _validate_stderr_callable
+    )
 
     if options.resume and options.continue_session:
         raise ValidationError(
@@ -56,7 +60,9 @@ def validate_query_options(options: QueryOptions) -> None:
         validate_session_id(options.resume, "resume")
 
     if options.max_session_turns is not None and options.max_session_turns < -1:
-        raise ValidationError("max_session_turns must be -1 or a non-negative integer")
+        raise ValidationError(
+            "max_session_turns must be -1 or a non-negative integer"
+        )
 
     if (
         options.path_to_qwen_executable is not None

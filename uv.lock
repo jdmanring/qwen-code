@@ -1,0 +1,79 @@
+version = 1
+revision = 3
+requires-python = ">=3.14"
+
+[manifest]
+members = [
+    "acp-bridge",
+    "channels",
+    "cli",
+    "core",
+    "megacode-sovereign-stack",
+    "sdk-java",
+    "sdk-python",
+    "sdk-typescript",
+    "vscode-ide-companion",
+    "web-templates",
+    "webui",
+    "zed-extension",
+]
+
+[[package]]
+name = "acp-bridge"
+version = "0.1.0"
+source = { virtual = "packages/acp-bridge" }
+
+[[package]]
+name = "channels"
+version = "0.1.0"
+source = { virtual = "packages/channels" }
+
+[[package]]
+name = "cli"
+version = "0.1.0"
+source = { virtual = "packages/cli" }
+
+[[package]]
+name = "core"
+version = "0.1.0"
+source = { virtual = "packages/core" }
+
+[[package]]
+name = "megacode-sovereign-stack"
+version = "0.1.0"
+source = { virtual = "." }
+
+[[package]]
+name = "sdk-java"
+version = "0.1.0"
+source = { virtual = "packages/sdk-java" }
+
+[[package]]
+name = "sdk-python"
+version = "0.1.0"
+source = { virtual = "packages/sdk-python" }
+
+[[package]]
+name = "sdk-typescript"
+version = "0.1.0"
+source = { virtual = "packages/sdk-typescript" }
+
+[[package]]
+name = "vscode-ide-companion"
+version = "0.1.0"
+source = { virtual = "packages/vscode-ide-companion" }
+
+[[package]]
+name = "web-templates"
+version = "0.1.0"
+source = { virtual = "packages/web-templates" }
+
+[[package]]
+name = "webui"
+version = "0.1.0"
+source = { virtual = "packages/webui" }
+
+[[package]]
+name = "zed-extension"
+version = "0.1.0"
+source = { virtual = "packages/zed-extension" }

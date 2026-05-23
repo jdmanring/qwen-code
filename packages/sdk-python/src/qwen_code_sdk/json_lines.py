@@ -6,9 +6,9 @@ import json
 from typing import Any
 
 
-def serialize_json_line(payload: Any) -> str:
+def serialize_json_line(payload: object) -> str:
     return json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + "\n"
 
 
-def parse_json_line(line: str) -> Any:
+def parse_json_line(line: str) -> object:
     return json.loads(line)

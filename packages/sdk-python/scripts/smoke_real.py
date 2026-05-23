@@ -161,8 +161,8 @@ async def run_async_single(args: argparse.Namespace) -> AsyncSingleResult:
     try:
         async for message in q:
             if is_sdk_assistant_message(message):
-                assistant_text = (assistant_text or "") + extract_assistant_text(
-                    message
+                assistant_text = (
+                    (assistant_text or "") + extract_assistant_text(message)
                 )
             if is_sdk_result_message(message):
                 result_text = str(message.get("result", ""))
@@ -227,7 +227,9 @@ async def run_async_controls(args: argparse.Namespace) -> AsyncControlResult:
     )
 
 
-async def run_stage(stage: str, coro: Awaitable[T], timeout_seconds: float) -> T:
+async def run_stage(
+    stage: str, coro: Awaitable[T], timeout_seconds: float
+) -> T:
     try:
         return await asyncio.wait_for(coro, timeout=timeout_seconds)
     except TimeoutError as exc:
@@ -329,7 +331,9 @@ async def main() -> int:
 
     try:
         qwen_version = check_qwen_cli_available(args.qwen, args.timeout_seconds)
-    except (subprocess.CalledProcessError, OSError, subprocess.TimeoutExpired) as exc:
+    except (
+        subprocess.CalledProcessError, OSError, subprocess.TimeoutExpired
+    ) as exc:
         payload = build_failure_payload(stage="preflight", exc=exc)
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 2
