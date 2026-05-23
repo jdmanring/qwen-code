@@ -22,7 +22,7 @@ from dataclasses import dataclass
 
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
 logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, stream=sys.stdout)
-logger = logging.getLogger("orchestrator")
+logger = logging.getLogger("upstream_ingest_pipeline")
 
 REPO_ROOT = Path(__file__).parent.parent.parent.resolve()
 INTEGRATION_BRANCH = "integration"
@@ -144,6 +144,12 @@ class PreFlight:
                     "uv not found. Install from https://docs.astral.sh/uv/"
                 )
 
+            dirty = self._git.run(["git", "status", "--porcelain"], check=False).stdout.strip()
+            if dirty:
+                raise RuntimeError(
+                    "Integration branch has uncommitted changes — stash or commit before syncing."
+                )
+
             log_success("Pre-flight passed.")
             return True
         except Exception as e:
@@ -158,21 +164,31 @@ class SyncManager:
         self._git = git
         self.staging_branch: Optional[str] = None
 
-    def sync_mirror(self) -> None:
+    def sync_mirror(self) -> bool:
         """
-        Resets upstream-mirror to a clean snapshot of upstream/main, then
-        returns to integration so create_staging() branches from our work,
-        not from the mirror.
+        Fetches upstream/main, checks for new commits, then resets upstream-mirror
+        and returns to integration.
+
+        Returns False if integration already contains all upstream commits (nothing to do).
         """
         log_info("Fetching upstream/main...")
         self._git.run(["git", "fetch", "upstream", "main"])
 
+        new_count = self._git.output(
+            ["git", "rev-list", "--count", f"upstream/main", f"^{INTEGRATION_BRANCH}"]
+        )
+        if new_count == "0":
+            log_success("Already up to date — nothing to sync.")
+            return False
+
+        log_info(f"{new_count} new upstream commit(s) to integrate.")
         log_info(f"Resetting {MIRROR_BRANCH} to upstream/main...")
         self._git.run(["git", "checkout", "-f", MIRROR_BRANCH])
         self._git.run(["git", "reset", "--hard", "upstream/main"])
 
         self._git.run(["git", "checkout", INTEGRATION_BRANCH])
         log_success("Mirror synchronized.")
+        return True
 
     def create_staging(self) -> None:
         """Creates a short-lived staging branch from integration HEAD."""
@@ -202,7 +218,7 @@ class SyncManager:
         self._git.run(["git", "merge", "--abort"], check=False)
         raise RuntimeError(
             f"Merge conflict — manual resolution required:\n{conflict_files}\n\n"
-            "Resolve, commit, then re-run the orchestrator."
+            "Resolve, commit, then re-run the ingest pipeline."
         )
 
     def cleanup_staging(self) -> None:
@@ -305,7 +321,7 @@ class UpstreamIngestPipeline:
 
         upstream/main
             ↓  (fetch + reset)
-        upstream-mirror  [Windows artifacts purged + committed]
+        upstream-mirror
             ↓  (merge into staging branch off integration)
         sync/staging-TIMESTAMP
             ↓  (Gate 1: uv lock --check)
@@ -331,7 +347,9 @@ class UpstreamIngestPipeline:
 
         try:
             if not self._dry_run:
-                self.sync.sync_mirror()
+                has_new = self.sync.sync_mirror()
+                if not has_new:
+                    return SyncResult(True, "UP_TO_DATE", "Already up to date.")
                 self.sync.create_staging()
                 self.sync.merge_mirror_to_stage()
             else:
@@ -356,10 +374,13 @@ class UpstreamIngestPipeline:
 
         except Exception as e:
             log_error(str(e))
-            return SyncResult(False, "ORCHESTRATION", str(e))
+            return SyncResult(False, "PIPELINE_ERROR", str(e))
         finally:
             if not self._dry_run:
                 self.sync.cleanup_staging()
+                # Ensure we always land on integration regardless of where a failure left us.
+                if self._git.current_branch() != INTEGRATION_BRANCH:
+                    self._git.run(["git", "checkout", INTEGRATION_BRANCH], check=False)
 
 
 def main() -> None:
@@ -382,6 +403,8 @@ def main() -> None:
     if result.success:
         if result.lkg_tag:
             log_success(f"Pipeline complete. LKG tag: {result.lkg_tag}")
+        elif result.stage == "UP_TO_DATE":
+            log_success("Nothing to do — integration is already current.")
         sys.exit(0)
     else:
         log_error(f"Pipeline failed at [{result.stage}]: {result.message}")
