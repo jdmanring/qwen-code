@@ -23,17 +23,21 @@
 - [x] Configure `.ruff.toml` with Debt Suppression rules.
 - [x] Verify environment hermeticity (uv/pnpm).
 
-### Lair 2: The Orchestrator (Tooling) — COMPLETE
-- [x] Implement `IntegrationOrchestrator` in Python (`tooling/sync-upstreams/orchestrator.py`).
+### Lair 2: The Upstream Ingest Pipeline (Tooling) — COMPLETE
+- [x] Implement `UpstreamIngestPipeline` in Python (`tooling/sync-upstreams/upstream_ingest_pipeline.py`).
 - [x] Build `PreFlight` -> `Sync` -> `Verify` -> `Promote` flow.
 - [x] Implement LKG (Last Known Good) snapshotting via annotated git tags.
 - [x] `--dry-run` mode: run all gates against current state without sync or promotion.
 - [x] Ruff binary resolution: `uv run ruff` > `RUFF_BIN` > PATH (eliminates false-green problem).
 - [x] Boot gate uses `uv lock --check` (real test, not file-existence check).
 - [x] Gate order: Boot → Lint → Symmetry (boot runs before `uv run ruff` can recreate a missing lockfile).
+- [x] Pre-flight: uncommitted change guard (tracked files only) + up-to-date short-circuit.
+- [x] Branch safety: `finally` block guarantees return to `integration` on any failure.
 - [x] Windows installer scripts restored to `integration`; `.bat` purge removed from pipeline.
 - [x] `contribute-upstream.sh`: cherry-pick a fix onto a clean upstream branch and push to public fork for PR.
-- [x] All three gates verified green via `--dry-run`.
+- [x] All naming AI-transparent: no "orchestrator" ambiguity with the agentic Orchestrator model.
+- [x] **First live run completed** — confirmed "Already up to date" (integration current with upstream/main).
+- [x] Documentation: `docs/meta/git-strategy.md` (architecture) + `docs/meta/pipeline-runbook.md` (AI operations runbook).
 
 ### Lair 3: Adversarial Certification (QA) — COMPLETE
 - [x] Chaos Test: Simulate merge conflicts -> Verified `integration` stability.
