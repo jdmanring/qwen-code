@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Callable
+from collections.abc import Callable, AsyncIterator
 from typing import Any, cast
 
 import pytest

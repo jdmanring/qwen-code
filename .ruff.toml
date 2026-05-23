@@ -1,0 +1,16 @@
+# Ruff Configuration for Megacode Monorepo
+line-length = 100
+target-version = "py310"
+
+[lint]
+# Ignore inherited legacy noise
+ignore = [
+    "ANN",   # Missing type annotations (inherited debt)
+    "E501",  # Line too long (inherited debt)
+    "UP040", # TypeAlias vs type keyword (inherited debt)
+    "B007",  # Unused loop variable (inherited debt)
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"
