@@ -12,7 +12,6 @@ import {
   MCPServerStatus,
   removeMCPStatusChangeListener,
   type DiscoveredMCPPrompt,
-  type DiscoveredMCPResource,
   type McpClient,
   updateMCPServerStatus,
 } from './mcp-client.js';
@@ -53,20 +52,20 @@ export interface PoolEntryOptions {
 }
 
 /**
- * Pool entry defaults by transport family. See reconnect backoff
+ * Pool entry defaults by transport family. See §6.6 reconnect backoff
  * in the design doc.
  */
 export function defaultPoolEntryOptions(
   transport: McpTransportKind,
 ): PoolEntryOptions {
-  // include
+  // F2 (#4175 commit 6 review fix — wenshao R23 T4): include
   // 'websocket' in the remote set so the classification matches
   // `discoveryTimeoutFor` in `mcp-discovery-timeout.ts:47`
   // (`!!(cfg.httpUrl || cfg.url || cfg.tcp)` — websocket configs
   // populate `cfg.tcp`/`cfg.url` and got the 5s remote discovery
   // timeout). Pre-fix websocket got remote-style discovery timing
   // (5s) but local-style reconnect timing (3 attempts, fixed 5s
-  // delay).
+  // delay), an inconsistency surfaced by reviewer.
   // NOTE: `maxReconnectAttempts` and `reconnectStrategy` are
   // currently unconsumed by any pool code path (pool mode has no
   // health monitor — see `mcp-client-manager.ts:1383-1386`); the
@@ -102,8 +101,6 @@ export interface PooledConnection {
   readonly toolsSnapshot: readonly DiscoveredMCPTool[];
   /** Current canonical prompt snapshot. Re-issued on `promptsChanged`. */
   readonly promptsSnapshot: readonly DiscoveredMCPPrompt[];
-  /** Current canonical resource snapshot. Re-issued on `resourcesChanged`. */
-  readonly resourcesSnapshot: readonly DiscoveredMCPResource[];
   on(event: 'event', listener: (e: PoolEvent) => void): this;
   off(event: 'event', listener: (e: PoolEvent) => void): this;
   /** Release this session's reference; pool starts drain when refs=0. */
@@ -111,9 +108,9 @@ export interface PooledConnection {
 }
 
 /**
- * structured outcome of
+ * F2 (#4175 follow-up — W134): structured outcome of
  * `PoolEntry.sweepAndDisconnect`. The silent-drop fire-and-forget
- * caller (the silent-drop block inside `statusChangeListener`)
+ * caller (the W120 silent-drop block inside `statusChangeListener`)
  * reads this off the chained promise to surface orphan-process
  * pressure to operators via a structured `warn` log. `forceShutdown`
  * and `doRestart` callers ignore the return — their own catch paths
@@ -160,20 +157,19 @@ export class PoolEntry {
   private subscriberHandles = new Map<string, PooledConnectionImpl>();
   toolsSnapshot: DiscoveredMCPTool[] = [];
   promptsSnapshot: DiscoveredMCPPrompt[] = [];
-  resourcesSnapshot: DiscoveredMCPResource[] = [];
   private drainTimer?: NodeJS.Timeout;
   private maxIdleTimer?: NodeJS.Timeout;
   private firstIdleAt?: number;
   private restartInFlight?: Promise<void>;
   /**
-   * set
+   * F2 (#4175 commit 6 review fix — claude-opus-4-7 W120 gate): set
    * SYNCHRONOUSLY at the top of `doRestart` (before any side effects).
    * Distinct from `restartInFlight` which only becomes truthy AFTER
-   * `doRestart()` returns its Promise — the status listener
+   * `doRestart()` returns its Promise — the W120 status listener
    * fires synchronously inside `client.disconnect()`'s
    * `updateMCPServerStatus` call (via `sweepAndDisconnect`), which
    * happens BEFORE `restart()`'s `this.restartInFlight = ...` assignment.
-   * Without this flag the listener would trip the 'failed'
+   * Without this flag the listener would trip the W120 'failed'
    * transition mid-restart, aborting the restart at the state guard.
    */
   private restartInProgress = false;
@@ -185,7 +181,7 @@ export class PoolEntry {
   private readonly emitter = new EventEmitter();
 
   /**
-   * status change
+   * F2 (#4175 commit 4 review fix — wenshao C6): status change
    * listener registered against the module-level `serverStatuses`
    * registry. McpClient.onerror flips the GLOBAL map to DISCONNECTED
    * on transport drop, but pool's `aggregateStatusByName` reads each
@@ -212,7 +208,7 @@ export class PoolEntry {
    * @param id Stable ConnectionId (`name::fingerprint`).
    * @param serverName Server name as advertised in `MCPServerConfig`.
    * @param entryIndex Opaque, monotonic-within-name-group index for
-   *   status-route exposure. Stable across reconnect / drain
+   *   status-route exposure (V21-7). Stable across reconnect / drain
    *   grace; only changes when an entry is fully closed and a new
    *   one created for the same name.
    * @param cfg Original config used to create the entry (read-only
@@ -232,7 +228,7 @@ export class PoolEntry {
     readonly id: ConnectionId,
     readonly serverName: string,
     readonly entryIndex: number,
-    // `cfg` carries
+    // F2 (#4175 commit 5 review fix — wenshao R6): `cfg` carries
     // secrets (env API keys, header auth tokens, OAuth fields) and
     // must NOT be exposed publicly on the entry. Pool callers that
     // need transport classification go through `transportKind`
@@ -248,7 +244,7 @@ export class PoolEntry {
     // Unbounded listener count — N session views may attach.
     this.emitter.setMaxListeners(0);
 
-    // subscribe to McpClient's
+    // F2 commit 4 review fix (wenshao C6): subscribe to McpClient's
     // module-level status writes (CONNECTING / CONNECTED /
     // DISCONNECTED). When the underlying SDK transport dies and
     // McpClient.onerror writes DISCONNECTED, we need to mirror it
@@ -256,7 +252,7 @@ export class PoolEntry {
     // surface accurate state. Filter by serverName; ignore removal
     // notifications (`status === undefined` after disable/uninstall).
     //
-    // the module-level
+    // F2 (#4175 commit 6 review fix — wenshao W2): the module-level
     // `serverStatuses` map is shared across all entries for the same
     // `serverName`. When two entries A and B share a name (different
     // fingerprints — e.g. divergent OAuth tokens), entry A's
@@ -280,7 +276,7 @@ export class PoolEntry {
       // status to the module-level map; our job is to mirror it
       // into localStatus only.
       //
-      //
+      // F2 (#4175 commit 6 review fix — claude-opus-4-7 W120):
       // transition the entry to terminal state when localStatus flips
       // to DISCONNECTED on a currently-active entry. Pre-fix the
       // transport could die silently (server crash, EPIPE, network
@@ -300,7 +296,7 @@ export class PoolEntry {
       // from `pooledConnections`, AND set `state='failed'` so the
       // next fast-path `acquire` short-circuits to a fresh spawn via
       // `attach`'s state guard. `localStatus = DISCONNECTED` was
-      // already set above; mirrors the sync ordering invariant.
+      // already set above; mirrors the W69 sync ordering invariant.
       //
       // Gate on `!this.restartInProgress`: `doRestart`'s `sweepAndDisconnect`
       // intentionally disconnects the client mid-restart, which would
@@ -309,14 +305,14 @@ export class PoolEntry {
       // 'failed' transition on a reconnect FAILURE; the restart's
       // success path leaves state='active'. Don't preempt that.
       //
-      // also
+      // F2 (#4175 commit 6 review fix — claude-opus-4-7 W131): also
       // catch DISCONNECTED in the 'draining' state. Pre-fix the gate
       // only triggered on 'active', so during the 30s drain window a
       // silent transport drop did NOT flip state→'failed'. A fresh
       // acquire arriving inside that window would hit the fast-path,
       // `attach()` flipped 'draining' → 'active' (cancelling drain
       // timer) and replayed the stale snapshot — exact same zombie-
-      // attach failure was meant to prevent, just shifted into
+      // attach failure W120 was meant to prevent, just shifted into
       // the drain window. Cancel the drain timer on the 'draining'
       // path so the now-terminal entry doesn't fire its old
       // `forceShutdown('drain_timer')` after we've already evicted.
@@ -330,9 +326,9 @@ export class PoolEntry {
         if (wasDraining) {
           this.cancelDrainTimer();
         }
-        // full
+        // F2 (#4175 commit 6 review fix — wenshao W122 / W123): full
         // terminal cleanup parity with `forceShutdown` (line 549-608).
-        // Pre-fix the path only set state + emitted +
+        // Pre-fix the W120/W131 path only set state + emitted +
         // removed the status listener, leaving:
         //   - `maxIdleTimer` armed → fired later against an
         //     already-terminal entry (no-op via forceShutdown
@@ -351,14 +347,14 @@ export class PoolEntry {
           clearTimeout(this.maxIdleTimer);
           this.maxIdleTimer = undefined;
         }
-        // Detach the status listener now that we're terminal
+        // Detach the status listener now that we're terminal —
         // mirrors the cleanup symmetry in forceShutdown / doRestart
         // catch (otherwise the listener leaks across entry recreation).
         if (this.statusChangeListener) {
           removeMCPStatusChangeListener(this.statusChangeListener);
           this.statusChangeListener = undefined;
         }
-        //
+        // F2 (#4175 commit 6 review fix — claude-opus-4-7 W133-b):
         // log the silent drop so operators tailing `--debug` see
         // which server / when / what state, mirroring the doRestart
         // catch path's `debugLogger.error`. Pre-fix the only signal
@@ -377,7 +373,7 @@ export class PoolEntry {
         // to MCPCallInterruptedError. Mirrors forceShutdown's
         // emit→detach ordering at line 583-593.
         //
-        // thread the upstream
+        // F2 (#4175 follow-up — W133-a): thread the upstream
         // McpClient.onerror cause (EPIPE, OAuth 401, server crash)
         // into `lastError` instead of emitting only the synthetic
         // marker. Pre-fix the only diagnostic carrier was the synthetic
@@ -396,13 +392,14 @@ export class PoolEntry {
             ? `transport disconnected (silent transport drop): ${upstreamError.message}`
             : 'transport disconnected (silent transport drop)',
         });
-        // Detach all subscriber views. Snapshot keys
+        // Detach all subscriber views (W122 cleanup). Snapshot keys
         // because detach mutates `subscribers`.
         for (const [sid] of [...this.subscribers]) {
           this.detach(sid);
         }
-        // Ordering fix: chain `updateGlobalStatus` AFTER
-        // `sweepAndDisconnect` resolves. Pre-fix the followup
+        // F2 (#4175 commit 6 review fix — wenshao W122 R20-followup +
+        // R23 T15 ordering fix): chain `updateGlobalStatus` AFTER
+        // `sweepAndDisconnect` resolves. Pre-R23 the W122-followup
         // called `updateGlobalStatus` synchronously BEFORE the void
         // sweep had run, so the sweep's later `client.disconnect()`
         // — which unconditionally writes
@@ -428,7 +425,7 @@ export class PoolEntry {
         // `sweepAndDisconnect`'s own catches.
         void this.sweepAndDisconnect('silent_drop').then(
           (result) => {
-            // surface orphan-process
+            // F2 (#4175 follow-up — W134): surface orphan-process
             // pressure to operators. Two failure shapes worth a
             // structured `warn` here:
             //   (a) `pidSweepError`: pid-discovery itself threw
@@ -449,7 +446,7 @@ export class PoolEntry {
               result.descendantsSignaled !== undefined &&
               result.descendantsSignaled < result.descendantsFound;
             if (result.pidSweepError !== undefined || partialSignal) {
-              //
+              // F2 (#4175 follow-up — copilot review T2 on #4460):
               // log `'unknown'` instead of `0` when the count fields are
               // undefined. They are undefined ONLY in the
               // `pidSweepError` branch (the throw happened before
@@ -484,7 +481,7 @@ export class PoolEntry {
         // becomes a leading edge of "eventually correct".
         this.updateGlobalStatus();
         // Notify the pool so it drops this entry from `pool.entries`
-        // The next `pool.acquire(serverName, cfg)` for the
+        // (W122). The next `pool.acquire(serverName, cfg)` for the
         // same fingerprint will then miss the fast-path lookup and
         // fall through to spawn a fresh entry — pool self-heals
         // after a silent transport drop without operator intervention.
@@ -507,14 +504,14 @@ export class PoolEntry {
    * `subprocessCount` in `pool.getSnapshot()`). Exposed as a getter
    * instead of letting callers read `entry.cfg` so secrets in `cfg`
    * (env API keys, header auth tokens, OAuth fields) stay
-   * encapsulated.
+   * encapsulated — see wenshao R6 review fold-in.
    */
   get transportKind(): McpTransportKind {
     return mcpTransportOf(this.cfg);
   }
 
   /**
-   * public terminal-
+   * F2 (#4175 commit 6 review fix — gpt-5.5 W77): public terminal-
    * state probe. Lets callers short-circuit before invoking
    * `markActive` / `attach` when a concurrent `forceShutdown` has
    * already torn the entry down (e.g. an unpooled connect/discover
@@ -532,11 +529,8 @@ export class PoolEntry {
   markActive(
     initialTools: DiscoveredMCPTool[],
     initialPrompts: DiscoveredMCPPrompt[],
-    // Required (no `= []` default): an omitted arg would silently wipe a
-    // server's resources from session registries via `applyResources([])`.
-    initialResources: DiscoveredMCPResource[],
   ): void {
-    // never resurrect a
+    // F2 (#4175 commit 6 review fix — gpt-5.5 W77): never resurrect a
     // torn-down entry. `forceShutdown` may run concurrently with the
     // unpooled connect/discover window in `createUnpooledConnection`;
     // without this guard, `markActive` would overwrite `state='closed'`
@@ -545,7 +539,6 @@ export class PoolEntry {
     if (this.state === 'closed' || this.state === 'failed') return;
     this.toolsSnapshot = initialTools;
     this.promptsSnapshot = initialPrompts;
-    this.resourcesSnapshot = initialResources;
     this.state = 'active';
     this.localStatus = MCPServerStatus.CONNECTED;
     this.updateGlobalStatus();
@@ -555,7 +548,7 @@ export class PoolEntry {
    * Attach a session subscriber. Returns the `PooledConnection`
    * handle for the caller to interact with (events, release).
    *
-   * Snapshot replay : immediately invokes
+   * Snapshot replay (V21 C4 / §7.2): immediately invokes
    * `view.applyTools` / `view.applyPrompts` with the current
    * snapshots so the new subscriber doesn't miss state captured
    * between in-flight discover completion and this attach.
@@ -588,12 +581,12 @@ export class PoolEntry {
     // — the session's McpClient has already registered tools/prompts
     // directly via the legacy `discover()` flow, and the view's
     // snapshot is empty. Without this gate, `applyTools([])` would
-    // call `removeMcpToolsByServer` and wipe those registrations.
+    // call `removeMcpToolsByServer` and wipe those registrations
+    // (commit-2 review P1 #2 fix).
     if (this.state === 'active' && opts?.skipReplay !== true) {
       try {
         view.applyTools(this.toolsSnapshot);
         view.applyPrompts(this.promptsSnapshot);
-        view.applyResources(this.resourcesSnapshot);
       } catch (err) {
         if (!hadRef) {
           this.refs.delete(sessionId);
@@ -660,7 +653,7 @@ export class PoolEntry {
     if (this.firstIdleAt === undefined) {
       this.firstIdleAt = Date.now();
       this.maxIdleTimer = setTimeout(() => {
-        // the C2 fix
+        // F2 (#4175 commit 5 review fix — wenshao R1): the C2 fix
         // intentionally lets `maxIdleTimer` survive attach/detach
         // flap so the hard cap measures wall-clock from FIRST idle
         // — but the timer's fire-action must still respect current
@@ -702,13 +695,13 @@ export class PoolEntry {
       clearTimeout(this.drainTimer);
       this.drainTimer = undefined;
     }
-    // the maxIdle hard
+    // F2 (#4175 commit 4 review fix — wenshao C2): the maxIdle hard
     // cap is intentionally NEVER reset by attach/detach flap. Pre-fix
     // this code cleared `maxIdleTimer` + `firstIdleAt` whenever
     // `refs.size > 0`, but `attach()` adds the ref BEFORE calling
     // `cancelDrainTimer`, so the condition was always true and the
     // hard cap got reset on every attach — completely defeating its
-    // purpose (per design: "started at first idle and NEVER
+    // purpose (per design §6.3: "started at first idle and NEVER
     // reset"). Now `cancelDrainTimer` only cancels the drain grace
     // timer; the maxIdle timer survives the entire entry lifetime
     // and is only cleared by `forceShutdown` (which is the entry's
@@ -728,7 +721,7 @@ export class PoolEntry {
     reason: 'drain_timer' | 'max_idle' | 'manual',
   ): Promise<void> {
     if (this.state === 'closed' || this.state === 'failed') return;
-    // flip state to
+    // F2 (#4175 commit 4 review fix — wenshao C4): flip state to
     // `'closed'` SYNCHRONOUSLY before any await. Pre-fix this
     // assignment lived at line 361, after `await listDescendantPids`
     // and `await client.disconnect()` — during those yields a
@@ -737,7 +730,7 @@ export class PoolEntry {
     // entry mid-teardown (zombie connection). Now any concurrent
     // attach sees 'closed' immediately and rejects.
     this.state = 'closed';
-    // missed sibling of
+    // F2 (#4175 commit 6 review fix — wenshao W69): missed sibling of
     // C4 fix. Pre-fix `localStatus = DISCONNECTED` happened AFTER
     // `await sweepAndDisconnect` — during that async yield,
     // `getSnapshot()` / `aggregateStatusByName` reading
@@ -754,7 +747,7 @@ export class PoolEntry {
     }
     // Detach the module-level status listener now that this entry
     // is terminal — leaving it attached would leak across entry
-    // recreation.
+    // recreation (wenshao C6 cleanup symmetry).
     if (this.statusChangeListener) {
       removeMCPStatusChangeListener(this.statusChangeListener);
       this.statusChangeListener = undefined;
@@ -772,7 +765,7 @@ export class PoolEntry {
     for (const [sid] of this.subscribers) {
       this.detach(sid);
     }
-    // SIGTERM descendant
+    // F2 commit 3 + commit 6 wenshao W37: SIGTERM descendant
     // processes + disconnect via the shared `sweepAndDisconnect`
     // helper. Wrapper processes (`npx`, `uvx`, `pnpm dlx`) spawn the
     // actual server as a grandchild; killing only the wrapper via
@@ -781,15 +774,15 @@ export class PoolEntry {
     // `forceShutdown` AND `doRestart` (both pre- and failure-
     // paths) so future changes to either step happen in one place.
     await this.sweepAndDisconnect(reason);
-    // state + localStatus already set synchronously above.
-    // Just propagate the now-stable status into
+    // state + localStatus already set synchronously above (wenshao
+    // C4 + W69 fixes). Just propagate the now-stable status into
     // the module-global map for cross-name aggregators.
     this.updateGlobalStatus();
     this.onClosed(this.id);
   }
 
   /**
-   * shared sweep +
+   * F2 (#4175 commit 6 review fix — wenshao W37): shared sweep +
    * disconnect helper used by `forceShutdown` AND `doRestart` (both
    * pre-call and failure path). Pre-fix the same try/catch pair was
    * duplicated 3 ways with different log levels — drift target.
@@ -801,14 +794,14 @@ export class PoolEntry {
    * `sigtermPids`'s ESRCH-tolerant loop; pid lookup returns
    * undefined for remote transports / already-exited stdio children.
    *
-   * Log levels: pid-sweep failure at `warn`
+   * Log levels (wenshao W35 fold-in): pid-sweep failure at `warn`
    * (operator should investigate orphan-process pressure);
    * disconnect failure at `error` (a stuck disconnect is rarer and
-   * usually indicates a transport bug worth surfacing). Pre-
+   * usually indicates a transport bug worth surfacing). Pre-W35
    * `doRestart` had logged both at `debug` — production
    * observability gap that masked PID exhaustion.
    *
-   * now returns a `SweepResult` so the
+   * F2 (#4175 follow-up — W134): now returns a `SweepResult` so the
    * silent-drop fire-and-forget caller (which `void`-discards the
    * promise and would otherwise lose the orphan-process-pressure
    * signal entirely) can chain a structured warn log when either pid
@@ -851,8 +844,8 @@ export class PoolEntry {
       // SweepResult field captures this — the silent-drop chain
       // doesn't gate the outer warn on it (the inner error log
       // already gives operators the signal), and forceShutdown /
-      // doRestart callers ignore the return entirely.
-      // Note: was previously stored on `SweepResult.disconnectError`
+      // doRestart callers ignore the return entirely. Per wenshao
+      // review #4460: was previously stored on `SweepResult.disconnectError`
       // but had no reader — removed as dead data.
       debugLogger.error(
         `client.disconnect failed for ${this.id} (${reason}): ${String(err)}`,
@@ -864,7 +857,7 @@ export class PoolEntry {
   /**
    * Manual restart: disconnect + reconnect + re-discover. Coalesces
    * concurrent calls into a single in-flight promise so the restart
-   * route and a parallel health-monitor reconnect can't race.
+   * route (§13.2) and a parallel health-monitor reconnect can't race.
    */
   async restart(): Promise<void> {
     if (this.restartInFlight) return this.restartInFlight;
@@ -880,16 +873,16 @@ export class PoolEntry {
         `Cannot restart PoolEntry ${this.id} in state ${this.state}`,
       );
     }
-    // set
+    // F2 (#4175 commit 6 review fix — claude-opus-4-7 W120 gate): set
     // the in-progress flag SYNCHRONOUSLY at the top of doRestart so
-    // the listener (which fires synchronously inside the
+    // the W120 listener (which fires synchronously inside the
     // upcoming `client.disconnect()` → `updateMCPServerStatus` chain)
     // skips its 'failed' transition for this entry's intentional
     // mid-restart disconnect. `restartInFlight` is set by the outer
     // `restart()` wrapper AFTER doRestart returns its Promise — too
     // late to gate the synchronous listener fire. Cleared by the
-    // `finally` wrapper around `doRestartInner` (pre-fix
-    // this comment said "Cleared in the success-path tail
+    // `finally` wrapper around `doRestartInner` (W126 doc fix:
+    // pre-fix this comment said "Cleared in the success-path tail
     // AND every throw path below", but the actual mechanism is
     // try/finally — there are no per-path manual clears).
     this.restartInProgress = true;
@@ -901,15 +894,15 @@ export class PoolEntry {
   }
 
   private async doRestartInner(): Promise<void> {
-    // restart
+    // F2 (#4175 commit 6 review fix — wenshao W4 + W31): restart
     // supersedes drain. Pre-fix the entry could be in `'draining'`
     // state (refs=0, both `drainTimer` AND `maxIdleTimer` running)
     // when `restartByName` arrived; either timer firing during
     // `doRestart`'s awaits would call `forceShutdown` → entry
     // removed from `pool.entries`, subscribers detached. Then
     // `doRestart` resumes with `client.connect()` spawning a fresh
-    // subprocess the pool no longer tracks. The drain fix cancelled
-    // `drainTimer` but missed the `maxIdleTimer` sibling —
+    // subprocess the pool no longer tracks. W4 cancelled
+    // `drainTimer`; W31 caught the `maxIdleTimer` sibling miss —
     // its fire-action's `refs.size > 0` check still fails when refs
     // are 0 mid-restart. Cancel BOTH timers + reset `firstIdleAt`
     // so a future detach starts a fresh idle window, and transition
@@ -931,15 +924,15 @@ export class PoolEntry {
       generation: oldGen,
       reason: 'restart',
     });
-    // sweep +
+    // F2 (#4175 commit 6 review fix — wenshao W3 + W37): sweep +
     // disconnect via the shared `sweepAndDisconnect` helper. Pre-fix
-    // `client.disconnect` alone killed only the wrapper (npx /
+    // (W3) `client.disconnect` alone killed only the wrapper (npx /
     // uvx / pnpm dlx), letting the actual MCP server grandchild
     // survive as an orphan. The helper mirrors `forceShutdown`'s
     // sweep + disconnect with identical log levels (warn for sweep
-    // failures, error for disconnect failures).
+    // failures, error for disconnect failures — W35 fold-in).
     await this.sweepAndDisconnect('restart');
-    // wrap connect +
+    // F2 (#4175 commit 4 review fix — wenshao C3): wrap connect +
     // discover in try/catch. Pre-fix a thrown `client.connect()` or
     // `client.discoverAndReturn()` propagated up to `restartByName`
     // but left the entry in zombie state: `localStatus` still
@@ -952,23 +945,22 @@ export class PoolEntry {
     let snap: {
       tools: DiscoveredMCPTool[];
       prompts: DiscoveredMCPPrompt[];
-      resources: DiscoveredMCPResource[];
     };
     try {
-      // bound the
+      // F2 (#4175 commit 6 review fix — wenshao W44): bound the
       // restart's connect+discover with the same wall-clock timeout
-      // `spawnEntry` uses. Pre-fix a hung server during a
+      // `spawnEntry` uses (W25). Pre-fix a hung server during a
       // restart blocked `restartInFlight` indefinitely; because
       // `restart()` coalesces concurrent callers onto the same
       // promise, every subsequent restart attempt also hung forever
       // and the HTTP restart-route handler never returned. The
       // timeout falls through to the existing catch (which sweeps
-      // descendants and transitions to `'failed'`).
+      // descendants per W32 + transitions to `'failed'` per C3).
       const timeoutMs = discoveryTimeoutFor(this.cfg);
       snap = await runWithTimeout(
         (async () => {
           await this.client.connect();
-          // pool
+          // F2 (#4175 commit 6 review fix — wenshao R23 T1): pool
           // restart path opts out of applyConfigFilters; per-session
           // SessionMcpView is the authoritative filter (mirrors the
           // pool spawn path in mcp-transport-pool.ts).
@@ -983,7 +975,7 @@ export class PoolEntry {
       debugLogger.error(
         `Restart of ${this.id} failed at connect/discover: ${String(err)}. Transitioning to 'failed'.`,
       );
-      // the failure
+      // F2 (#4175 commit 6 review fix — wenshao W32): the failure
       // catch previously skipped the descendant pid sweep, leaving
       // grandchildren of the partially-spawned new transport (npx /
       // uvx wrappers that finished the prelude before connect or
@@ -1018,17 +1010,17 @@ export class PoolEntry {
     }
     // Generation guard: if a second restart raced in, drop our results.
     //
-    // also sweep the
+    // F2 (#4175 commit 6 review fix — wenshao W45): also sweep the
     // newly-spawned transport before returning. `client.connect()`
     // above already spawned the new subprocess (npx/uvx/pnpm dlx
     // wrapper + MCP server grandchild); the OLD transport was
     // disconnected via `sweepAndDisconnect('restart')` pre-attempt,
     // so the new spawn would otherwise leak as net-new orphans. Same
-    // class of leak that prior fixes were designed to prevent;
+    // class of leak that W3, W32, and W37 were designed to prevent —
     // applying their pattern here closes the gap on the
     // generation-superseded path.
     if (oldGen + 1 !== this._generation) {
-      // throw rather
+      // F2 (#4175 commit 6 review fix — wenshao W52): throw rather
       // than return silently. `restartByName`'s try/catch translates
       // the throw into `{restarted: false, reason: <message>}` on the
       // HTTP response. Pre-fix the void return resolved `restart()`
@@ -1037,14 +1029,14 @@ export class PoolEntry {
       // guard path) the entry was force-shut-down mid-restart.
       // Operators saw "restart succeeded" while sessions silently
       // lost the server. Sweep the new transport before throwing so
-      // the leak fix still holds.
+      // the W45 leak fix still holds.
       await this.sweepAndDisconnect('restart_superseded');
       throw new Error(
         `Restart of ${this.id} superseded by newer generation; ` +
           `discarded stale snapshot + swept new transport.`,
       );
     }
-    // state guard
+    // F2 (#4175 commit 6 review fix — wenshao W34): state guard
     // after the generation guard. If `forceShutdown` ran during any
     // of `doRestart`'s awaits (e.g., a `drainAll` mid-restart on
     // shutdown, or a sibling restart that triggered a transient
@@ -1052,11 +1044,11 @@ export class PoolEntry {
     // CONNECTED + emitting `reconnected` on a pool-evicted zombie
     // entry would leave subscribers thinking they're attached to a
     // healthy connection. Drop the snapshot AND sweep the new
-    // transport (`client.connect()` already spawned
+    // transport (W45 fold-in: `client.connect()` already spawned
     // the new subprocess by the time we got here, so a silent
     // return would leak grandchildren).
     //
-    // Fix: read `this.state` into a `currentState: PoolEntryState`
+    // W42 fix: read `this.state` into a `currentState: PoolEntryState`
     // local. TypeScript's CFA narrows `this.state` along the
     // non-throwing path of the `try { connect; discover } catch`
     // (the catch sets `state='failed'` and throws) — so by the time
@@ -1071,11 +1063,11 @@ export class PoolEntry {
     // cast is required to defeat CFA explicitly.
     const currentState = this.state as PoolEntryState;
     if (currentState === 'closed' || currentState === 'failed') {
-      // Same rationale as the generation-guard branch
+      // W52 fold-in (same rationale as the generation-guard branch
       // above): throw so `restartByName` reports
       // `{restarted: false, reason: <message>}` to the HTTP caller
       // instead of falsely reporting success on an aborted restart.
-      // Sweep the new transport first so the leak fix still
+      // Sweep the new transport first so the W45 leak fix still
       // covers the throw path.
       await this.sweepAndDisconnect('restart_superseded');
       throw new Error(
@@ -1086,32 +1078,20 @@ export class PoolEntry {
     }
     this.toolsSnapshot = snap.tools;
     this.promptsSnapshot = snap.prompts;
-    // Only overwrite the resource snapshot when the re-read returned
-    // something: `discoverAndReturn` / `listMcpResources` swallow a transient
-    // `resources/list` failure to [], so storing that empty snapshot would
-    // make every session that attaches AFTER the restart receive zero
-    // resources (the `SessionMcpView.applyResources` no-op only protects
-    // already-attached sessions). Keeping the prior snapshot preserves
-    // resources for new and existing subscribers alike. (Trade-off, as in
-    // `McpClient.discover()`: a legitimate drop-to-zero keeps the stale set
-    // until a non-empty re-read. Tools/prompts keep their existing behavior.)
-    if (snap.resources.length > 0) {
-      this.resourcesSnapshot = snap.resources;
-    }
-    // subscribers don't
+    // F2 (#4175 commit 5 review fix — wenshao R3): subscribers don't
     // listen on the entry's EventEmitter, so emitting toolsChanged /
     // promptsChanged alone leaves session ToolRegistry instances
     // holding stale pre-restart registrations. Latent until commit 5
     // landed the restart HTTP route — now it's a correctness bug.
     // Iterate `this.subscribers` directly and re-apply the fresh
-    // snapshots so each session's registry gets the new tools/prompts/
-    // resources (SessionMcpView.applyTools handles the
-    // remove-old-then-register-new contract internally).
+    // snapshots so each session's registry gets the new tools/prompts
+    // (SessionMcpView.applyTools handles the
+    // remove-old-then-register-new contract internally per its
+    // commit-2 docstring).
     for (const [sid, view] of this.subscribers) {
       try {
         view.applyTools(this.toolsSnapshot);
         view.applyPrompts(this.promptsSnapshot);
-        view.applyResources(this.resourcesSnapshot);
       } catch (err) {
         debugLogger.error(
           `Restart fan-out to view ${sid}/${this.serverName} failed: ${String(
@@ -1140,13 +1120,7 @@ export class PoolEntry {
       snapshot: this.promptsSnapshot,
       generation: this._generation,
     });
-    this.emit({
-      kind: 'resourcesChanged',
-      serverName: this.serverName,
-      snapshot: this.resourcesSnapshot,
-      generation: this._generation,
-    });
-    // the
+    // F2 (#4175 commit 6 review fix — qwen-latest W85 / W106): the
     // caller (pool's `restartByName`) is responsible for re-arming
     // the drain timer when `refs.size === 0` after restart. The
     // re-arm lives at the pool level rather than here so it uses the
@@ -1161,7 +1135,7 @@ export class PoolEntry {
    * EventEmitter so `PooledConnection.on('event', cb)` and
    * `removeListener` work correctly.
    *
-   * iterate listeners
+   * F2 (#4175 commit 6 review fix — wenshao W70): iterate listeners
    * with per-listener try/catch instead of delegating to
    * `EventEmitter.emit` directly. Pre-fix a synchronous throw from
    * one session's listener (e.g. session A's view triggered an
@@ -1200,7 +1174,7 @@ export class PoolEntry {
 
   /**
    * Write the aggregated status (`any-CONNECTED-wins` across entries
-   * with same `serverName`) into the process-global
+   * with same `serverName`, per §8.1) into the process-global
    * `serverStatuses` Map. Pool delegates the aggregation function
    * because only the pool can see sibling entries.
    */
@@ -1227,7 +1201,7 @@ class PooledConnectionImpl implements PooledConnection {
   constructor(
     private readonly entry: PoolEntry,
     readonly sessionId: string,
-    // the `_view`
+    // F2 (#4175 commit 6 review fix — wenshao R23 T6): the `_view`
     // parameter was accepted but never stored or referenced. The
     // underscore prefix signaled intent ("kept for parity / future
     // use") but the deferred-need never materialized; per-subscriber
@@ -1238,7 +1212,7 @@ class PooledConnectionImpl implements PooledConnection {
     // the entry's subscriber map at line ~410).
     // Pool-supplied release callback. Wired by `pool.acquire` to call
     // `pool.release(id, sessionId)` so subscribers can `handle.release()`
-    // without needing a pool reference.
+    // without needing a pool reference (commit-2 review P1 #1 fix).
     private readonly releaseCallback?: () => void,
   ) {}
 
@@ -1260,13 +1234,10 @@ class PooledConnectionImpl implements PooledConnection {
   get promptsSnapshot(): readonly DiscoveredMCPPrompt[] {
     return this.entry.promptsSnapshot;
   }
-  get resourcesSnapshot(): readonly DiscoveredMCPResource[] {
-    return this.entry.resourcesSnapshot;
-  }
 
   on(event: 'event', listener: (e: PoolEvent) => void): this {
     if (event !== 'event') return this;
-    // the local
+    // F2 (#4175 commit 6 review fix — wenshao R23 T2): the local
     // `Set<>` deduplicates the public-API listener registration, but
     // `entry.internalOn` (a thin wrapper over `EventEmitter.on`)
     // does NOT dedup — calling `on(cb)` twice with the same listener
