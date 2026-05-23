@@ -5,7 +5,7 @@ set -euo pipefail
 # Resets upstream-mirror to a clean snapshot of upstream/main and commits
 # the removal of any Windows-only artifacts (.bat files).
 #
-# This is the low-level step called by the orchestrator. Running it standalone
+# This is the low-level step called by the ingest pipeline. Running it standalone
 # is safe — it only modifies the upstream-mirror branch.
 #
 # Usage:

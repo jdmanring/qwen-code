@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Verification Gate — standalone runner for the three quality gates.
-# Mirrors the gate logic in orchestrator.py for use outside the full pipeline.
+# Mirrors the gate logic in upstream_ingest_pipeline.py for use outside the full pipeline.
 #
 # Usage:
 #   ./tooling/sync-upstreams/verification-gate.sh
@@ -18,7 +18,7 @@ log_info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
 log_error()   { echo -e "${RED}[FAIL]${NC} $1" >&2; }
 
-# Resolves ruff using the same priority as orchestrator.py:
+# Resolves ruff using the same priority as upstream_ingest_pipeline.py:
 #   1. uv run ruff  (project-pinned version — preferred)
 #   2. $RUFF_BIN    (explicit CI override)
 #   3. PATH ruff    (last resort)

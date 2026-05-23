@@ -45,10 +45,10 @@ integration
 
 ```bash
 # Full sync: fetch upstream, merge, run gates, promote if green
-python3 tooling/sync-upstreams/orchestrator.py
+python3 tooling/sync-upstreams/upstream_ingest_pipeline.py
 
 # Dry run: run gates against current state, no commits or tags
-python3 tooling/sync-upstreams/orchestrator.py --dry-run
+python3 tooling/sync-upstreams/upstream_ingest_pipeline.py --dry-run
 ```
 
 ### Last Known Good (LKG) tags
@@ -90,12 +90,12 @@ git remote add mirror https://github.com/YOUR_FORK/qwen-code.git
 
 | Script | Purpose |
 | :--- | :--- |
-| `orchestrator.py` | Full pipeline entry point. Use this for all syncs. |
+| `upstream_ingest_pipeline.py` | Full pipeline entry point. Use this for all syncs. |
 | `verification-gate.sh` | Standalone gate runner (lint + symmetry + boot). |
 | `raw-inline.sh` | Low-level: resets `upstream-mirror` to `upstream/main`. |
 | `integrate.sh` | Low-level: merges `upstream-mirror` into current branch. |
 | `contribute-upstream.sh` | Prepares a fix for upstream PR submission. |
-| `merge-upstream.sh` | **Deprecated.** Exits with error and redirects to orchestrator. |
+| `merge-upstream.sh` | **Deprecated.** Exits with error and redirects to ingest pipeline. |
 
 ---
 

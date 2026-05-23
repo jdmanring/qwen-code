@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent))
-from orchestrator import IntegrationOrchestrator, SyncManager, _GitRunner, REPO_ROOT
+from upstream_ingest_pipeline import IntegrationOrchestrator, SyncManager, _GitRunner, REPO_ROOT
 
 
 class Colors:

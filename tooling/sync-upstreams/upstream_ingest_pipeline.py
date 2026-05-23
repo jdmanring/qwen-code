@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Integration Orchestrator
+Upstream Ingest Pipeline
 Propagates changes from upstream-mirror to integration through a hardened
 verification pipeline: Sync → Gate(Boot/Lint/Symmetry) → Promote.
 
 Usage:
-    python3 tooling/sync-upstreams/orchestrator.py           # full sync
-    python3 tooling/sync-upstreams/orchestrator.py --dry-run # run gates only
+    python3 tooling/sync-upstreams/upstream_ingest_pipeline.py           # full sync
+    python3 tooling/sync-upstreams/upstream_ingest_pipeline.py --dry-run # gates only
 """
 
 import argparse
@@ -365,7 +365,7 @@ class IntegrationOrchestrator:
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
-            "Integration Orchestrator — ingests upstream-mirror into integration "
+            "Upstream Ingest Pipeline — ingests upstream-mirror into integration "
             "through a three-gate verification pipeline."
         )
     )
