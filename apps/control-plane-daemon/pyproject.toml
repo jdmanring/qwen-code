@@ -5,7 +5,16 @@ requires-python = ">=3.12"
 dependencies = [
     "agent-memory",
     "agent-infra",
+    "litellm",
+    "mcp",
+    "python-dotenv",
+    "pyyaml",
+    "requests",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.uv.sources]
 agent-memory = { workspace = true }

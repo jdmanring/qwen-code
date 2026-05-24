@@ -6,6 +6,8 @@ dependencies = [
     "qdrant-client",
     "sentence-transformers",
     "anyio",
+    "mcp",
+    "requests",
     "agent-infra",
 ]
 
