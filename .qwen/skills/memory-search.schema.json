@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MemorySearchResponse",
+  "type": "object",
+  "properties": {
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "metadata": { "type": "object" }
+        },
+        "required": ["text", "score"]
+      }
+    },
+    "query_latency": { "type": "number" }
+  },
+  "required": ["results"]
+}

@@ -1,0 +1,18 @@
+{
+  "description": "Master catalog of model-specific optimization recipes for the Qwen Code stack.",
+  "last_updated": "2026-05-18",
+  "models": {
+    "google/gemma-4-31B-it": {
+      "recipe_file": "gemma-4-31B-it.md",
+      "status": "optimizing",
+      "version": "0.1.0",
+      "primary_role": "orchestrator"
+    },
+    "google/gemma-4-26B-A4B-it": {
+      "recipe_file": "gemma-4-26B-A4B-it.md",
+      "status": "optimizing",
+      "version": "0.1.0",
+      "primary_role": "orchestrator"
+    }
+  }
+}

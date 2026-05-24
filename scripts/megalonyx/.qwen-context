@@ -1,0 +1,17 @@
+# 🧠 .qwen-context: Automation and Stack Management
+# 🏛️ Scope: ./scripts
+
+[M-LAWS]:
+  - ⚙️ [S-EXECUTABLE]:
+      desc: "Script Executability and Help"
+      axiom: "New script => chmod +x AND implement -h/--help usage section"
+  - ⚙️ [S-ERROR]:
+      desc: "Error Handling"
+      axiom: "Failure => Exit with non-zero code and clear stderr message"
+
+[M-METADATA]:
+  critical_files:
+    - memory_manager.py
+    - symmetry_check.py
+    - validate-config.sh
+  symmetry_path: "docs/scripts/"

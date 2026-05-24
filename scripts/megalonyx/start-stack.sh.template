@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+STACK_ROOT="${STACK_ROOT:-$HOME/.local/share/megalonyx}"
+
+QDRANT_BIN="$HOME/.local/bin/mega-db"
+QDRANT_CONFIG="$STACK_ROOT/config/qdrant_config.yaml"
+QDRANT_LOG="$STACK_ROOT/logs/qdrant.log"
+MEMORY_LOG="$STACK_ROOT/logs/memory.log"
+
+echo "[stack] starting services..."
+
+# --------------------
+# mega-db
+# --------------------
+if ! pgrep -f mega-db > /dev/null; then
+    echo "[stack] starting mega-db..."
+    mkdir -p "$(dirname "$QDRANT_LOG")"
+    "$QDRANT_BIN" --config-path "$QDRANT_CONFIG" > "$QDRANT_LOG" 2>&1 &
+    sleep 2
+fi
+
+# --------------------
+# MEMORY DAEMON (NEW CRITICAL COMPONENT)
+# --------------------
+if ! pgrep -f memory_daemon.py > /dev/null; then
+    echo "[stack] starting memory daemon..."
+    mkdir -p "$(dirname "$MEMORY_LOG")"
+    # Use the wrapper which handles venv
+    nohup "$HOME/.local/bin/mega-memory-manager" > "$MEMORY_LOG" 2>&1 &
+fi
+
+echo "[stack] started"

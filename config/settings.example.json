@@ -1,0 +1,512 @@
+{
+  "memory": {
+    "enableManagedAutoMemory": false
+  },
+  "tools": {
+    "approvalMode": "default"
+  },
+  "general": {
+    "language": "en",
+    "outputLanguage": "English"
+  },
+  "ui": {
+    "accessibility": {
+      "enableLoadingPhrases": false
+    }
+  },
+  "logging": {
+    "log_level": "DEBUG",
+    "log_path": "~/.qwen/logs/system.log",
+    "enable_trace": true
+  },
+  "env": {
+    "VLLM_API_KEY": "$VLLM_API_KEY",
+    "QDRANT_LOCAL_URL": "$QDRANT_LOCAL_URL",
+    "QDRANT_CLOUD_URL": "$QDRANT_CLOUD_URL",
+    "QDRANT_API_KEY": "$QDRANT_API_KEY",
+    "TAVILY_API_KEY": "$TAVILY_API_KEY",
+    "OPENAI_API_KEY": "$OPENAI_API_KEY",
+    "GITHUB_TOKEN": "$GITHUB_TOKEN",
+    "GEMINI_API_KEY": "$GEMINI_API_KEY",
+    "GROQ_API_KEY": "$GROQ_API_KEY",
+    "OPENROUTER_API_KEY": "$OPENROUTER_API_KEY",
+    "NVIDIA_API_KEY": "$NVIDIA_API_KEY",
+    "QUODER_API_KEY": "$QUODER_API_KEY",
+    "POLLINATIONS_API_KEY": "$POLLINATIONS_API_KEY",
+    "LONGCAT_API_KEY": "$LONGCAT_API_KEY",
+    "CEREBRUS_API_KEY": "$CEREBRUS_API_KEY",
+    "MISTRAL_API_KEY": "$MISTRAL_API_KEY"
+  },
+  "modelProviders": {
+    "openai": [
+      {
+        "id": "LongCat-Flash-Lite",
+        "name": "LongCat * Flash Lite",
+        "description": "Ultra-high throughput MoE model optimized for low-cost, high-volume agent workloads. Best used for bulk generation, lightweight reasoning, and fallback execution in distributed systems. Not suitable for critical reasoning chains requiring strict reliability or deterministic tool execution.",
+        "envKey": "LONGCAT_API_KEY",
+        "provider": "LongCat",
+        "baseUrl": "https://api.longcat.chat/openai/v1",
+        "capabilities": {
+          "reasoning": true,
+          "coding": true,
+          "toolCalling": true
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 256000,
+          "samplingParams": {
+            "temperature": 0.2,
+            "top_p": 0.95,
+            "max_tokens": 4096
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "LongCat-Flash-Chat",
+        "name": "LongCat * Flash Chat",
+        "description": "General-purpose large MoE chat model with strong coding, reasoning, and agent-style tool usage. Recommended default LongCat model for balanced performance and throughput. Suitable for production-adjacent workloads but should be paired with fallback routing due to serverless variability.",
+        "envKey": "LONGCAT_API_KEY",
+        "provider": "LongCat",
+        "baseUrl": "https://api.longcat.chat/openai/v1",
+        "capabilities": {
+          "reasoning": true,
+          "coding": true,
+          "toolCalling": true
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 256000,
+          "samplingParams": {
+            "temperature": 0.3,
+            "top_p": 0.95,
+            "max_tokens": 4096
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "LongCat-Flash-Thinking-2601",
+        "name": "LongCat * Flash Thinking 2601",
+        "description": "Advanced reasoning-focused MoE model optimized for deep multi-step logic, tool-integrated reasoning, and agentic workflows. Best suited for planning, decomposition, and hard problem solving. Higher latency but stronger reasoning depth; not optimized for high-throughput tasks.",
+        "envKey": "LONGCAT_API_KEY",
+        "provider": "LongCat",
+        "baseUrl": "https://api.longcat.chat/openai/v1",
+        "capabilities": {
+          "reasoning": true,
+          "coding": true,
+          "toolCalling": true
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 256000,
+          "samplingParams": {
+            "temperature": 0.3,
+            "top_p": 0.95,
+            "max_tokens": 4096
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "LongCat-Flash-Omni-2603",
+        "name": "LongCat * Flash Omni 2603",
+        "description": "Multimodal MoE model supporting vision, audio, and text reasoning. Designed for real-time cross-modal agent systems, perception pipelines, and interactive multimodal workflows. Requires structured multimodal input handling and is less stable for pure text-only workloads.",
+        "envKey": "LONGCAT_API_KEY",
+        "provider": "LongCat",
+        "baseUrl": "https://api.longcat.chat/openai/v1",
+        "capabilities": {
+          "reasoning": true,
+          "coding": true,
+          "vision": true,
+          "audio": true,
+          "toolCalling": true
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 128000,
+          "samplingParams": {
+            "temperature": 0.2,
+            "top_p": 0.95,
+            "max_tokens": 2048
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "LongCat-Flash-Chat-2602-Exp",
+        "name": "LongCat * Flash Chat 2602 Exp",
+        "description": "High-performance general-purpose chat model.",
+        "envKey": "LONGCAT_API_KEY",
+        "provider": "LongCat",
+        "baseUrl": "https://api.longcat.chat/openai/v1",
+        "capabilities": {
+          "reasoning": true,
+          "coding": true,
+          "vision": true,
+          "audio": true,
+          "toolCalling": true
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 256000,
+          "samplingParams": {
+            "temperature": 0.2,
+            "top_p": 0.95,
+            "max_tokens": 2048
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "LongCat-2.0-Preview",
+        "name": "LongCat * 2.0 Preview",
+        "description": "Experimental next-generation agentic model for long-horizon planning, tool orchestration, and structured reasoning workflows. Intended for research and advanced agent experimentation. Not production-stable; expected behavior may change across versions.",
+        "envKey": "LONGCAT_API_KEY",
+        "provider": "LongCat",
+        "baseUrl": "https://api.longcat.chat/openai/v1",
+        "capabilities": {
+          "reasoning": true,
+          "coding": true,
+          "toolCalling": true
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 1000000,
+          "samplingParams": {
+            "temperature": 0.3,
+            "top_p": 0.95,
+            "max_tokens": 65536
+          }
+        },
+        "stream": false
+      }
+    ],
+    "gemini": [
+      {
+        "id": "gemma-4-26b-a4b-it",
+        "name": "Google * Gemma 4 26B",
+        "description": "Open-weight instruction-tuned model for local or hybrid inference workflows.",
+        "envKey": "GEMINI_API_KEY",
+        "capabilities": {
+          "toolCalling": false,
+          "vision": false
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 262144,
+          "samplingParams": {
+            "temperature": 0.7,
+            "top_p": 0.95,
+            "repetition_penalty": 1.4,
+            "max_tokens": 16000
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "gemma-4-31b-it",
+        "name": "Google * Gemma 4 31B",
+        "description": "Largest high-quality Gemma instruction model for advanced local reasoning tasks.",
+        "envKey": "GEMINI_API_KEY",
+        "capabilities": {
+          "toolCalling": false,
+          "vision": false
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 262144,
+          "samplingParams": {
+            "temperature": 0.7,
+            "top_p": 0.95,
+            "repetition_penalty": 1.18,
+            "max_tokens": 16000
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "gemini-3.1-pro-preview",
+        "name": "Google * Gemini 3.1 Pro Preview",
+        "description": "Advanced preview reasoning model for research, orchestration, and difficult engineering tasks.",
+        "envKey": "GEMINI_API_KEY",
+        "capabilities": {
+          "toolCalling": true,
+          "vision": false
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 1048576,
+          "samplingParams": {
+            "temperature": 0.5,
+            "top_p": 0.95,
+            "max_tokens": 65536
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "gemini-3.1-pro-preview-customtools",
+        "name": "Google * Gemini 3.1 Pro Preview Custom Tools",
+        "description": "Optimized for structured tool calling, agent orchestration, and external MCP integrations.",
+        "envKey": "GEMINI_API_KEY",
+        "capabilities": {
+          "toolCalling": true,
+          "vision": false
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 1048576,
+          "samplingParams": {
+            "temperature": 0.5,
+            "top_p": 0.95,
+            "max_tokens": 65536
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "gemini-3.5-flash",
+        "name": "Google * Gemini 3.5 Stable",
+        "description": "Next-generation flash model with stronger reasoning and tool behavior.",
+        "envKey": "GEMINI_API_KEY",
+        "capabilities": {
+          "toolCalling": true,
+          "vision": false
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 1048576,
+          "samplingParams": {
+            "temperature": 0.5,
+            "top_p": 0.95,
+            "max_tokens": 65536
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "gemini-3-flash-preview",
+        "name": "Google * Gemini 3.5 Preview",
+        "description": "Experimental next-generation flash model with stronger reasoning and tool behavior.",
+        "envKey": "GEMINI_API_KEY",
+        "capabilities": {
+          "toolCalling": true,
+          "vision": false
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 1048576,
+          "samplingParams": {
+            "temperature": 0.5,
+            "top_p": 0.95,
+            "max_tokens": 65536
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "gemini-3.1-flash-lite",
+        "name": "Google * Gemini 3.1 Flash Lite",
+        "description": "Ultra-efficient lightweight model for high-concurrency background agent workloads.",
+        "envKey": "GEMINI_API_KEY",
+        "capabilities": {
+          "toolCalling": true,
+          "vision": false
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 1048576,
+          "samplingParams": {
+            "temperature": 0.4,
+            "top_p": 0.95,
+            "max_tokens": 65536
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "gemini-3.1-flash-lite-preview",
+        "name": "Google * Gemini 3.1 Flash Lite Preview",
+        "description": "Low-cost lightweight experimental next-generation flash model with stronger reasoning and tool behavior.",
+        "envKey": "GEMINI_API_KEY",
+        "capabilities": {
+          "toolCalling": true,
+          "vision": false
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 1048576,
+          "samplingParams": {
+            "temperature": 0.7,
+            "top_p": 0.95,
+            "max_tokens": 65536
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "gemini-2.5-flash",
+        "name": "Google * Gemini 2.5 Flash",
+        "description": "Fast multimodal model for tool use, summarization, and general chat.",
+        "envKey": "GEMINI_API_KEY",
+        "provider": "Google",
+        "capabilities": {
+          "toolCalling": true,
+          "vision": true
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 1048576,
+          "samplingParams": {
+            "temperature": 0.7,
+            "top_p": 0.95,
+            "max_tokens": 65536
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "gemini-2.5-flash-lite",
+        "name": "Google * Gemini 2.5 Flash-Lite",
+        "description": "Low-cost routing model for summarization, classification, and lightweight agent steps.",
+        "envKey": "GEMINI_API_KEY",
+        "provider": "Google",
+        "capabilities": {
+          "toolCalling": true,
+          "vision": false
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 1048576,
+          "samplingParams": {
+            "temperature": 0.4,
+            "top_p": 0.95,
+            "max_tokens": 65536
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "gemini-2.5-pro",
+        "name": "Google * Gemini 2.5 Pro",
+        "description": "General-purpose multimodal model for coding, planning, and reasoning tasks.",
+        "envKey": "GEMINI_API_KEY",
+        "provider": "Google",
+        "capabilities": {
+          "toolCalling": true,
+          "vision": true
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 1048576,
+          "samplingParams": {
+            "temperature": 0.6,
+            "top_p": 0.95,
+            "max_tokens": 65536
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "gemini-flash-latest",
+        "name": "Google * Gemini Flash Latest",
+        "description": "Rolling alias for the newest stable Gemini Flash release.",
+        "envKey": "GEMINI_API_KEY",
+        "capabilities": {
+          "toolCalling": true,
+          "vision": true
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 1048576,
+          "samplingParams": {
+            "temperature": 0.7,
+            "top_p": 0.95,
+            "max_tokens": 65536
+          }
+        },
+        "stream": false
+      },
+      {
+        "id": "gemini-pro-latest",
+        "name": "Google * Gemini Pro Latest",
+        "description": "Rolling alias for the newest stable Gemini Pro reasoning release.",
+        "envKey": "GEMINI_API_KEY",
+        "capabilities": {
+          "toolCalling": true,
+          "vision": true
+        },
+        "generationConfig": {
+          "timeout": 600000,
+          "contextWindowSize": 1048576,
+          "samplingParams": {
+            "temperature": 0.6,
+            "top_p": 0.95,
+            "max_tokens": 65536
+          }
+        },
+        "stream": false
+      }
+    ]
+  },
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "."
+      ]
+    },
+    "memory": {
+      "command": "mega-run-py",
+      "args": [
+        "packages/core/src/memory_bridge.py"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "$GITHUB_TOKEN"
+      }
+    },
+    "internet-search": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "tavily-mcp"
+      ],
+      "env": {
+        "TAVILY_API_KEY": "$TAVILY_API_KEY"
+      }
+    },
+    "code-index": {
+      "command": "uvx",
+      "args": [
+        "code-index-mcp"
+      ]
+    }
+  },
+  "security": {
+    "auth": {
+      "selectedType": "gemini"
+    }
+  },
+  "model": {
+    "name": "gemma-4-31b-it",
+    "maxSessionTurns": -1,
+    "chatCompression": {
+      "contextPercentageThreshold": 0.6
+    }
+  },
+  "$version": 4,
+  "mcp": {
+    "excluded": []
+  },
+  "fastModel": "LongCat-2.0-Preview"
+}
