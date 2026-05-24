@@ -1072,7 +1072,7 @@ export function convertOpenAIResponseToGemini(
     // Handle tool calls
     if (choice.message.tool_calls) {
       for (const toolCall of choice.message.tool_calls) {
-        if (toolCall.function) {
+        if (toolCall.type === 'function' && toolCall.function) {
           let args: Record<string, unknown> = {};
           if (toolCall.function.arguments) {
             args = safeJsonParse(toolCall.function.arguments, {});
