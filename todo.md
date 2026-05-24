@@ -49,6 +49,14 @@
 - [x] Naming review — 9 files renamed, classes/functions updated
 - [x] Final verification — zero errors
 
+### Step 4: Config, docs, and scripts migration — Complete
+- [x] .qwen/agents/: 19 execution profile .md files migrated
+- [x] .qwen/skills/: 21 missing skill definitions migrated
+- [x] docs/megalonyx/: 213-file documentation tree migrated
+- [x] scripts/megalonyx/: 18 utility scripts migrated, ruff-clean
+- [x] config/settings.example.json created (env var references, no secrets)
+- [x] qwen_code_stack can now be archived
+
 ### Step 2: Migration into monorepo — Complete
 - [x] Three uv workspace members created: `apps/control-plane-daemon`, `packages/agent-memory`, `packages/agent-infra`
 - [x] All source files copied from `qwen_code_stack`, imports rewritten as package-relative
@@ -65,9 +73,9 @@
 
 ## Phase 3: Integration and Boot
 
-### Step 1: Branch promotion
-- [ ] Promote `integration` → `develop` (fast-forward merge)
-- [ ] Decide and document updated branch usage rules
+### Step 1: Branch promotion — Complete
+- [x] Promote `integration` → `develop` (fast-forward merge)
+- [ ] Update CLAUDE.md branch usage rules (integration = upstream syncs only; develop = active work)
 
 ### Step 2: First boot test
 - [ ] Verify `uv sync` resolves all three workspace members cleanly
