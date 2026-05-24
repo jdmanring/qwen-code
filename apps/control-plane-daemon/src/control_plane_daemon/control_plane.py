@@ -3,11 +3,11 @@ import re
 from typing import Any
 
 import yaml
+from agent_infra.system_logger import SystemLogger
 
 from .intent_classifier import IntentClassifier
 from .job_state_manager import JobStateManager
 from .status_manager import StatusManager
-from .system_logger import SystemLogger
 from .task_decomposer import TaskDecomposer
 
 
@@ -27,10 +27,10 @@ class ControlPlane:
 
         # Initialize Workflow & Skill Management
         from .command_manager import CommandManager
-        from .skill_selector import SkillSelector
+        from .execution_profile_selector import ExecutionProfileSelector
 
         self.command_manager = CommandManager()
-        self.skill_orchestrator = SkillSelector()
+        self.execution_profile_selector = ExecutionProfileSelector()
 
         # Initialize Verification Engine
         from .verification_contracts import (
@@ -161,7 +161,7 @@ class ControlPlane:
         task_prompt: str,
         model_id: str,
         settings: dict,
-        rag_tool: Any,
+        search_tool: Any,
         root_context: Any,
     ) -> str:
         """
@@ -200,7 +200,7 @@ class ControlPlane:
             "verification_criteria": "Structured report provided",
         }
 
-        from .skill_bridge import run_job_execution
+        from .tool_executor import run_job_execution
 
         response = run_job_execution(
             temp_job,
@@ -209,7 +209,7 @@ class ControlPlane:
             model_id,
             settings,
             self.jsm,
-            rag_tool,
+            search_tool,
             self.policy_engine,
             "specialist",
             context=root_context.clone(),
@@ -224,7 +224,7 @@ class ControlPlane:
         prompt: str,
         model_id: str,
         settings: dict,
-        rag_tool: Any,
+        search_tool: Any,
         root_context: Any,
     ) -> str:
         """
@@ -293,7 +293,7 @@ class ControlPlane:
 
                 self.status_manager.update_agent(agent_id, step[:50])
                 agent_report = self._spawn_agent(
-                    agent_id, task_prompt, model_id, settings, rag_tool, root_context
+                    agent_id, task_prompt, model_id, settings, search_tool, root_context
                 )
 
                 full_execution_log += f"## Step {i + 1} (Agent: {agent_id})\n{agent_report}\n\n"
@@ -312,7 +312,7 @@ class ControlPlane:
                     "verification_criteria": "Step completion",
                 }
 
-                from .skill_bridge import run_job_execution
+                from .tool_executor import run_job_execution
 
                 res = run_job_execution(
                     job,
@@ -321,7 +321,7 @@ class ControlPlane:
                     model_id,
                     settings,
                     self.jsm,
-                    rag_tool,
+                    search_tool,
                     self.policy_engine,
                     "general",
                     context=root_context.clone(),
@@ -340,14 +340,14 @@ class ControlPlane:
         prompt: str,
         model_id: str,
         settings: dict,
-        rag_tool: Any,
+        search_tool: Any,
         root_context: Any,
     ) -> str:
         """
         Executes the decomposed job set using a deterministic loop:
         Act -> Observe -> Verify -> Correct.
         """
-        from .skill_bridge import run_job_execution
+        from .tool_executor import run_job_execution
 
         final_aggregated_response = ""
         global_retry_count = 0
@@ -376,7 +376,7 @@ class ControlPlane:
                 cmd_id = intent.replace("command:", "") if "command:" in intent else intent
 
                 workflow_result = self.execute_workflow(
-                    cmd_id, prompt, model_id, settings, rag_tool, root_context
+                    cmd_id, prompt, model_id, settings, search_tool, root_context
                 )
 
                 self.update_job(job_id, "completed", result=workflow_result)
@@ -427,7 +427,7 @@ class ControlPlane:
                 model_id,
                 settings,
                 self.jsm,
-                rag_tool,
+                search_tool,
                 self.policy_engine,
                 job["job_type"],
                 context=root_context.clone(),
@@ -483,7 +483,7 @@ class ControlPlane:
 
                     # Execute the correction job immediately
                     corr_response = self._execute_single_job(
-                        corr_job, model_id, settings, rag_tool, root_context
+                        corr_job, model_id, settings, search_tool, root_context
                     )
 
                     # Feed the correction result back into the original job's history
@@ -533,11 +533,11 @@ class ControlPlane:
         job: dict[str, Any],
         model_id: str,
         settings: dict[str, Any],
-        rag_tool: Any,
+        search_tool: Any,
         root_context: Any,
     ) -> str:
         """Helper to execute a single job (used for pivots) without updating the main loop state."""
-        from .skill_bridge import run_job_execution
+        from .tool_executor import run_job_execution
 
         skill_config = None
         runtime_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -561,7 +561,7 @@ class ControlPlane:
             model_id,
             settings,
             self.jsm,
-            rag_tool,
+            search_tool,
             self.policy_engine,
             job["job_type"],
             context=root_context.clone(),

@@ -35,7 +35,7 @@ class StatusManager:
         """Renders the current state into the layout."""
         # Header: System Identity & Active Agent
         header_content = (
-            f"[bold cyan]Qwen Code Orchestrator[/bold cyan] | "
+            f"[bold cyan]Megalonyx Control Plane[/bold cyan] | "
             f"[bold magenta]Agent: {self._active_agent or 'Idle'}[/bold magenta] | "
             f"[bold yellow]Task: {self._active_task or 'None'}[/bold yellow]"
         )

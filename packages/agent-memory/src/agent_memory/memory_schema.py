@@ -12,7 +12,7 @@ SCHEMA_VERSION = "1.0"
 class MemoryRecord:
     text: str
     tier: str
-    source: str = "qwen-code"
+    source: str = "megalonyx"
     importance: int = 5
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -55,7 +55,7 @@ def deserialize(data: dict[str, Any]) -> MemoryRecord:
         record = MemoryRecord(
             text=data["text"],
             tier=data["tier"],
-            source=data.get("source", "qwen-code"),
+            source=data.get("source", "megalonyx"),
             importance=data.get("importance", 5),
             metadata=data.get("metadata", {}),
             id=data.get("id", str(uuid.uuid4())),

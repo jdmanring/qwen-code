@@ -5,23 +5,18 @@ import subprocess
 import sys
 from typing import Any, cast
 
+from agent_infra.system_logger import SystemLogger
 from dotenv import load_dotenv
 from litellm import completion
 
-from .rag_tool import RAGTool
-from .runtime_context import RuntimeContext
-from .system_logger import SystemLogger
+from .execution_context import ExecutionContext
 from .system_watchdog import SystemWatchdog
+from .vector_search_tool import VectorSearchTool
 
-# Path to settings and routing
-
-# Path to settings and routing
 SETTINGS_PATH = os.path.expanduser("~/.qwen/settings.json")
-# Resolve paths relative to the script's location to ensure runtime portability
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-ROUTE_SCRIPT = os.path.join(SCRIPT_DIR, "skill_router.py")
-# RUNTIME_ROOT is the base directory of the installed stack (e.g., ~/.local/share/megalonyx)
-RUNTIME_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_DIR)))
+ROUTE_SCRIPT = os.path.join(SCRIPT_DIR, "model_router.py")
+STACK_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_DIR)))
 
 # Load environment variables from ~/.qwen/.env
 load_dotenv(os.path.expanduser("~/.qwen/.env"))
@@ -60,7 +55,7 @@ def get_route(prompt: str) -> dict[str, Any]:
 
     if result.returncode != 0:
         print(
-            f"Routing Error: skill_router.py failed with exit code {result.returncode}. "
+            f"Routing Error: model_router.py failed with exit code {result.returncode}. "
             f"Stderr: {result.stderr}"
         )
         sys.exit(1)
@@ -68,7 +63,7 @@ def get_route(prompt: str) -> dict[str, Any]:
     try:
         return cast(dict[str, Any], json.loads(result.stdout))
     except json.JSONDecodeError:
-        print(f"Routing Error: Could not parse JSON from skill_router.py. Stdout: {result.stdout}")
+        print(f"Routing Error: Could not parse JSON from model_router.py. Stdout: {result.stdout}")
         sys.exit(1)
 
 
@@ -102,7 +97,7 @@ def call_model(
 
         # FIX: Use config/agents/{agent_name}/persona.md
         prompt_path = os.path.join(
-            RUNTIME_ROOT, "config", "agents", agent_name.upper(), "persona.md"
+            STACK_ROOT, "config", "agents", agent_name.upper(), "persona.md"
         )
         if os.path.exists(prompt_path):
             with open(prompt_path) as f:
@@ -183,7 +178,7 @@ def call_memory_server(method: str, args: dict[str, Any]) -> Any:
     from .mcp_manager import MCPManager
 
     socket_path = os.path.join(
-        os.path.expanduser("~"), ".local/share/megalonyx/tmp/qwen_memory.sock"
+        os.path.expanduser("~"), ".local/share/megalonyx/tmp/megalonyx_memory.sock"
     )
 
     async def _call() -> Any:
@@ -200,9 +195,9 @@ def call_memory_server(method: str, args: dict[str, Any]) -> Any:
 def execute_tool(
     tool_name: str,
     args: dict[str, Any],
-    rag_tool: Any,
+    search_tool: Any,
     current_policy: dict[str, Any] | None = None,
-    context: RuntimeContext | None = None,
+    context: ExecutionContext | None = None,
     state_manager_inst: Any | None = None,
 ) -> Any:
     """Executes a specialized tool and returns the result.
@@ -244,7 +239,7 @@ def execute_tool(
             return None
         if os.path.isabs(path):
             return path
-        return os.path.join(RUNTIME_ROOT, path)
+        return os.path.join(STACK_ROOT, path)
 
     try:
         if tool_name == "read_file":
@@ -323,7 +318,7 @@ def execute_tool(
         if tool_name == "semantic_search":
             query = args.get("query", "")
             limit = args.get("limit", 5)
-            result = rag_tool.semantic_search(query, limit)
+            result = search_tool.semantic_search(query, limit)
             return result
 
         if tool_name == "memory_ingest":
@@ -481,7 +476,7 @@ def execute_tool(
             from agent_infra.git_worktree_manager import GitWorktreeManager
 
             async def run_git_op() -> Any:
-                mgr = GitWorktreeManager(RUNTIME_ROOT)
+                mgr = GitWorktreeManager(STACK_ROOT)
                 if tool_name == "git_worktree_list":
                     return await mgr.list_worktrees()
                 elif tool_name == "git_worktree_add":
@@ -590,10 +585,10 @@ def run_job_execution(
     model_id: str,
     settings: dict[str, Any],
     state_manager_inst: Any,
-    rag_tool: Any,
+    search_tool: Any,
     policy_engine_inst: Any,
     intent_name: str,
-    context: RuntimeContext,
+    context: ExecutionContext,
     history: list[dict[str, str]] | None = None,
 ) -> str:
     """Helper to execute a job and handle tool calls with isolated context and surgical history."""
@@ -628,7 +623,7 @@ def run_job_execution(
             result = execute_tool(
                 tool_name,
                 tool_args,
-                rag_tool,
+                search_tool,
                 current_policy=current_policy,
                 context=context,
                 state_manager_inst=state_manager_inst,
@@ -649,7 +644,7 @@ def main() -> None:
 
     settings = load_settings()
     control_plane = ControlPlane()
-    rag_tool_inst = RAGTool()
+    search_tool_inst = VectorSearchTool()
     # Watchdog monitors the JobStateManager within the Control Plane
     _watchdog = SystemWatchdog(control_plane.jsm)
     logger = SystemLogger()
@@ -672,12 +667,12 @@ def main() -> None:
     )
 
     # --- STRATEGIC EXECUTION LOOP ---
-    root_context = RuntimeContext()
+    root_context = ExecutionContext()
     final_response = control_plane.execute(
         prompt=args.prompt,
         model_id=model_id,
         settings=settings,
-        rag_tool=rag_tool_inst,
+        search_tool=search_tool_inst,
         root_context=root_context,
     )
 

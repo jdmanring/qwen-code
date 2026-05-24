@@ -12,8 +12,8 @@ QDRANT_LOCAL_URL = os.getenv("QDRANT_LOCAL_URL", "http://localhost:6333")
 QDRANT_CLOUD_URL = os.getenv("QDRANT_CLOUD_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 
-LOCAL_COLLECTION = "qwen_local_memory"
-CLOUD_COLLECTION = "qwen_cloud_memory"
+LOCAL_COLLECTION = "agent_memory_local"
+CLOUD_COLLECTION = "agent_memory_cloud"
 
 LOCAL_DIM = 384
 CLOUD_DIM = 3072

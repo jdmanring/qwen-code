@@ -40,7 +40,7 @@ class FileReadCache:
         self._cache.clear()
 
 
-class RuntimeContext:
+class ExecutionContext:
     """
     A container for ephemeral state that can be delegated to subagents.
     Implements the Prototype pattern to ensure strict isolation.
@@ -50,19 +50,18 @@ class RuntimeContext:
         self.file_cache = FileReadCache()
         self.config = config_overrides or {}
 
-    def clone(self) -> "RuntimeContext":
+    def clone(self) -> "ExecutionContext":
         """
         Creates a shallow copy of the context.
         Crucially, the file_cache is NOT copied to ensure subagents
         start with a clean slate (Prototype Isolation).
         """
-        new_ctx = RuntimeContext(config_overrides=copy.deepcopy(self.config))
-        # We explicitly do NOT copy the file_cache to prevent 'Self-Grading' bias.
+        new_ctx = ExecutionContext(config_overrides=copy.deepcopy(self.config))
         # Subagents must perform their own reads to verify the actual state of the disk.
         return new_ctx
 
     def __repr__(self) -> str:
         return (
-            f"RuntimeContext(cache_size={len(self.file_cache._cache)}, "
+            f"ExecutionContext(cache_size={len(self.file_cache._cache)}, "
             f"config_keys={list(self.config.keys())})"
         )

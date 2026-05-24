@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 from typing import Any
 
+from agent_infra.system_logger import SystemLogger
 from qdrant_client.http.models import FieldCondition, Filter, Range
 
 from .memory_ingest import cloud_qdrant, local_qdrant
 from .memory_search import CLOUD_COLLECTION, LOCAL_COLLECTION, check_connection
-from .system_logger import SystemLogger
 
 logger = SystemLogger()
 

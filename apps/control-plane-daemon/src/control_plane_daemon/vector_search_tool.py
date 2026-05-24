@@ -22,7 +22,7 @@ MCP_SERVER_PARAMS = StdioServerParameters(
 )
 
 
-class RAGTool:
+class VectorSearchTool:
     def __init__(self) -> None:
         # Ensure an event loop exists for the synchronous wrapper
         try:
@@ -81,13 +81,13 @@ class RAGTool:
         try:
             return self.loop.run_until_complete(self._async_semantic_search(query, limit))
         except RuntimeError as e:
-            return {"error": f"RAGTool execution failed: {str(e)}"}
+            return {"error": f"VectorSearchTool execution failed: {str(e)}"}
 
 
 if __name__ == "__main__":
     # Simple test
-    rag = RAGTool()
+    tool = VectorSearchTool()
     query = "How is the state managed in the orchestrator?"
     print(f"Searching for: {query}")
-    results = rag.semantic_search(query)
+    results = tool.semantic_search(query)
     print(f"Results: {results}")

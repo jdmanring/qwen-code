@@ -10,15 +10,17 @@ from .memory_compact import compact
 from .memory_embeddings import embed
 from .memory_ingest import cloud_qdrant, ingest, local_qdrant
 from .memory_ingest_filter import MemoryIngestFilter
+from .memory_mcp_server import run_socket_server, run_stdio_server
 from .memory_search import (
     CLOUD_COLLECTION,
     LOCAL_COLLECTION,
     ensure_collections_exist,
 )
-from .memory_transport import run_socket_server, run_stdio_server
 
 # Define the socket path
-SOCKET_PATH = os.path.join(os.path.expanduser("~"), ".local/share/megalonyx/tmp/qwen_memory.sock")
+SOCKET_PATH = os.path.join(
+    os.path.expanduser("~"), ".local/share/megalonyx/tmp/megalonyx_memory.sock"
+)
 
 
 class MemoryDaemon:

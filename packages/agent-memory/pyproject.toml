@@ -6,4 +6,8 @@ dependencies = [
     "qdrant-client",
     "sentence-transformers",
     "anyio",
+    "agent-infra",
 ]
+
+[tool.uv.sources]
+agent-infra = { workspace = true }

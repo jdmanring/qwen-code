@@ -37,7 +37,9 @@ class SystemLogger:
         if log_file:
             self.log_file = log_file
         else:
-            default_log = os.path.join(os.path.expanduser("~/.qwen/logs"), "qwen_system.log")
+            default_log = os.path.join(
+                os.path.expanduser("~/.local/share/megalonyx/logs"), "megalonyx_system.log"
+            )
             self.log_file = self.settings.get("logging", {}).get("log_path", default_log)
 
         # Ensure absolute path
@@ -117,7 +119,7 @@ class SystemLogger:
         # Trace files are timestamped per session to prevent massive file growth
         # We use a daily rotation for trace logs
         date_str = datetime.now().strftime("%Y-%m-%d")
-        trace_dir = os.path.expanduser("~/.qwen/tmp")
+        trace_dir = os.path.expanduser("~/.local/share/megalonyx/tmp")
         os.makedirs(trace_dir, exist_ok=True)
 
         trace_file = os.path.join(trace_dir, f"trace_{date_str}.log")
