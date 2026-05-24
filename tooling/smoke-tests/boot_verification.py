@@ -19,6 +19,7 @@ Usage:
 import argparse
 import sys
 import time
+from collections.abc import Callable
 
 PASS = "\033[32mPASS\033[0m"
 FAIL = "\033[31mFAIL\033[0m"
@@ -27,7 +28,7 @@ SKIP = "\033[33mSKIP\033[0m"
 failures: list[str] = []
 
 
-def check(label: str, fn: "callable[[], None]", required: bool = True) -> bool:
+def check(label: str, fn: Callable[[], None], required: bool = True) -> bool:
     try:
         fn()
         print(f"  {PASS}  {label}")

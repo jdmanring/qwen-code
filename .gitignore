@@ -85,3 +85,11 @@ __pycache__/
 .idea/
 .nx/
 *.tsbuildinfo
+
+# Runtime artifacts
+.qdrant-initialized
+ruff_output.txt
+storage/
+
+# Python build artifacts
+*.egg-info/

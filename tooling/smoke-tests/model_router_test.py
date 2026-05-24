@@ -18,6 +18,7 @@ Usage:
 """
 
 import sys
+from collections.abc import Callable
 
 PASS = "\033[32mPASS\033[0m"
 FAIL = "\033[31mFAIL\033[0m"
@@ -25,7 +26,7 @@ FAIL = "\033[31mFAIL\033[0m"
 failures: list[str] = []
 
 
-def check(label: str, fn: "callable[[], None]") -> bool:
+def check(label: str, fn: Callable[[], None]) -> bool:
     try:
         fn()
         print(f"  {PASS}  {label}")
@@ -100,7 +101,7 @@ ROUTING_CASES: list[tuple[str, str, str | set[str]]] = [
 ]
 
 
-def _make_routing_check(intent: str, prompt: str, expected: str | set[str]) -> "callable[[], None]":
+def _make_routing_check(intent: str, prompt: str, expected: str | set[str]) -> Callable[[], None]:
     def _check() -> None:
         from control_plane_daemon.execution_profile_selector import ExecutionProfileSelector
 
