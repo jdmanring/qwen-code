@@ -96,9 +96,7 @@ def call_model(
                 break
 
         # FIX: Use config/agents/{agent_name}/persona.md
-        prompt_path = os.path.join(
-            STACK_ROOT, "config", "agents", agent_name.upper(), "persona.md"
-        )
+        prompt_path = os.path.join(STACK_ROOT, "config", "agents", agent_name.upper(), "persona.md")
         if os.path.exists(prompt_path):
             with open(prompt_path) as f:
                 sys_prompt = f.read()
