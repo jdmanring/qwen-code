@@ -5,7 +5,7 @@ project_standards_linter: static analysis enforcing the project's engineering st
 Rules enforced:
 - DOC-02: Conversational tone in mandate/axiom documents
 - CONFIG-01: Symmetry break between config/ and docs/
-- CONFIG-02: Missing .qwen-context file in critical directory
+- CONFIG-02: Missing README.md in critical directory
 - CONFIG-03: Executable logic in config/ directory
 - CODE-01: Missing PEP 484 type hints
 - CODE-02: Excessive nesting depth or function length
@@ -85,7 +85,7 @@ class ProjectStandardsLinter:
                 "CONFIG-02",
                 Severity.WARNING,
                 self._check_qwen_context_files,
-                "Missing .qwen-context file in critical directory.",
+                "Missing README.md in critical directory.",
             )
         )
         self.rules.append(
@@ -262,14 +262,14 @@ class ProjectStandardsLinter:
         violations = []
         for d_name in critical_dirs:
             d_path = self.root_dir / d_name
-            if d_path.exists() and d_path.is_dir() and not (d_path / ".qwen-context").exists():
+            if d_path.exists() and d_path.is_dir() and not (d_path / "README.md").exists():
                 violations.append(
                     Issue(
                         d_path,
                         None,
                         "CONFIG-02",
                         Severity.WARNING,
-                        f"Missing .qwen-context in critical directory: {d_name}",
+                        f"Missing README.md in critical directory: {d_name}",
                     )
                 )
         return violations

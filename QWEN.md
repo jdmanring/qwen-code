@@ -43,8 +43,8 @@ Orchestrator: Cognitive Synthesis (CPU). Sub-Agents: Atomic Execution (Workers).
 ## [M-PROTOCOL] Output & Authority
 - [P-AUTH]: PoLA. Assume services [OFF]. Discrepancy Halt: Success report + Verification fail => STOP.
 - [P-OUT]: Concise. No Chitchat. GitHub-flavored Markdown. Absolute paths only.
-- [P-ANCHOR]: (Directory Entry => Scan for `.qwen-context` => Integrate into Context).
-- [P-LOCAL-LAW]: Local `.qwen-context` mandates => Precedence over Global Axioms within Scope.
+- [P-ANCHOR]: (Directory Entry => Scan for `README.md` => Integrate into Context).
+- [P-LOCAL-LAW]: Local `README.md` mandates => Precedence over Global Axioms within Scope.
 
 ## [M-STANDARDS] Naming and Code Standards
 Full standard: `docs/meta/engineering-standards.md`
