@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Agentic Service Definition",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The unique name of the service (e.g., 'researcher')"
+    },
+    "description": {
+      "type": "string",
+      "description": "A high-level description of what the service does"
+    },
+    "persona": {
+      "type": "object",
+      "properties": {
+        "role": { "type": "string" },
+        "system_prompt": { "type": "string" },
+        "reporting_schema": { "type": "string" }
+      },
+      "required": ["role", "system_prompt"]
+    },
+    "capabilities": {
+      "type": "object",
+      "properties": {
+        "triggers": {
+          "type": "object",
+          "properties": {
+            "keywords": { "type": "array", "items": { "type": "string" } },
+            "file_patterns": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "tools": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "model": {
+          "type": "string",
+          "default": "inherit"
+        }
+      },
+      "required": ["tools"]
+    },
+    "policies": {
+      "type": "object",
+      "properties": {
+        "risk_profile": { "enum": ["Low", "Med", "High", "Critical"] },
+        "verification_level": { "enum": ["Low", "Medium", "High", "Critical"] }
+      }
+    }
+  },
+  "required": ["name", "description", "persona", "capabilities"]
+}

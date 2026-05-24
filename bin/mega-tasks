@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+import sys
+from control_plane_daemon.job_state_manager import JobStateManager
+
+
+def print_usage() -> None:
+    print("Megalonyx Task Manager")
+    print("Usage:")
+    print("  mega-tasks list            - List all active jobs")
+    print('  mega-tasks add "<text>"    - Add a new task')
+    print("  mega-tasks done <id>       - Mark a task as completed")
+    print("  mega-tasks clear           - Clear the active job set")
+
+
+def main() -> None:
+    jsm = JobStateManager()
+
+    if len(sys.argv) < 2:
+        print_usage()
+        return
+
+    cmd = sys.argv[1].lower()
+
+    if cmd == "list":
+        tasks = jsm.list_tasks()
+        if not tasks:
+            print("No active tasks found.")
+            return
+        print(f"{'ID':<15} {'Status':<12} {'Description'}")
+        print("-" * 50)
+        for t in tasks:
+            print(f"{t['job_id']:<15} {t['status']:<12} {t['description']}")
+
+    elif cmd == "add":
+        if len(sys.argv) < 3:
+            print("Error: Please provide task content.")
+            print('Example: mega-tasks add "Fix the logger path"')
+            return
+        task_id = jsm.add_task(sys.argv[2])
+        print(f"Task added: {task_id}")
+
+    elif cmd == "done":
+        if len(sys.argv) < 3:
+            print("Error: Please provide a task ID.")
+            return
+        task_id = sys.argv[2]
+        if jsm.complete_task(task_id):
+            print(f"Task {task_id} marked as completed.")
+        else:
+            print(f"Error: Task {task_id} not found.")
+
+    elif cmd == "clear":
+        jsm.clear_jobs()
+        print("Active job set cleared.")
+
+    else:
+        print(f"Unknown command: {cmd}")
+        print_usage()
+
+
+if __name__ == "__main__":
+    main()

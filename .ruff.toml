@@ -25,6 +25,8 @@ ignore = [
 "apps/control-plane-daemon/src/control_plane_daemon/agent_generator.py" = ["E501"]
 "apps/control-plane-daemon/src/control_plane_daemon/intent_classifier.py" = ["E501"]
 "apps/control-plane-daemon/src/control_plane_daemon/task_decomposer.py" = ["E501"]
+"apps/control-plane-daemon/tests/**" = ["E501"]
+"packages/agent-memory/tests/**" = ["E501"]
 
 [format]
 quote-style = "double"

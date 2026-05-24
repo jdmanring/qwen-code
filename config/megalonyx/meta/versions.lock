@@ -1,0 +1,4 @@
+project_version=0.2.1
+qwen_code_ref=main
+node_min=18
+npm_min=9

@@ -1,0 +1,28 @@
+{
+  "ai_config": {
+    "destination": "~/.qwen",
+    "mappings": [
+      { "src": "config/agents", "dest": "agents" },
+      { "src": "config/skills", "dest": "skills" },
+      { "src": "config/settings.json", "dest": "settings.json" },
+      { "src": "config/.env", "dest": ".env" },
+      { "src": "config/QWEN.md", "dest": "QWEN.md" }
+    ]
+  },
+  "stack_runtime": {
+    "destination": "~/.local/share/megalonyx",
+    "mappings": [
+      { "src": "packages", "dest": "packages" },
+      { "src": "scripts", "dest": "scripts" },
+      { "src": "docs", "dest": "docs" },
+      { "src": "tests/validators", "dest": "validators" }
+    ]
+  },
+  "binaries": {
+    "destination": "~/.local/bin",
+    "mappings": [
+      { "src": "bin/mega-status", "dest": "mega-status" },
+      { "src": "bin/mega-memory-manager", "dest": "mega-memory-manager" }
+    ]
+  }
+}

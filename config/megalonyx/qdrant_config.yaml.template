@@ -1,0 +1,2 @@
+storage:
+  path: "$STACK_ROOT/data/qdrant"

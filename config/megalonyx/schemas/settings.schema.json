@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Megalonyx Settings Schema",
+  "description": "Configuration schema for the qwen_code_stack orchestrator",
+  "type": "object",
+  "properties": {
+    "memory": {
+      "type": "object",
+      "properties": {
+        "enableManagedAutoMemory": {
+          "type": "boolean",
+          "description": "Automatically commit context to long-term memory"
+        },
+        "policy": {
+          "type": "object",
+          "description": "Rules for memory routing and retention",
+          "properties": {
+            "cloud_signals": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Keywords that trigger cloud-tier storage"
+            },
+            "noise_words": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Words that should be ignored by the memory system"
+            },
+            "dedup_window_size": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1000,
+              "description": "Maximum number of recent hashes to keep for deduplication"
+            }
+          }
+        }
+      }
+    },
+    "tools": {
+      "type": "object",
+      "properties": {
+        "approvalMode": {
+          "type": "string",
+          "enum": ["default", "yolo", "strict"],
+          "description": "Tool execution approval requirements"
+        }
+      }
+    },
+    "general": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string",
+          "description": "System and UI language code (e.g., 'en')"
+        }
+      }
+    },
+    "ui": {
+      "type": "object",
+      "properties": {
+        "accessibility": {
+          "type": "object",
+          "properties": {
+            "enableLoadingPhrases": {
+              "type": "boolean",
+              "description": "Display status phrases during model streaming"
+            }
+          }
+        }
+      }
+    },
+    "logging": {
+      "type": "object",
+      "properties": {
+        "log_level": {
+          "type": "string",
+          "enum": ["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"],
+          "default": "INFO",
+          "description": "Global logging verbosity level"
+        },
+        "log_path": {
+          "type": "string",
+          "description": "Absolute path to the system JSONL log file"
+        },
+        "enable_trace": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable high-verbosity trace logging of raw MCP I/O to ~/.qwen/tmp/"
+        }
+      }
+    },
+    "env": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Mapping of settings keys to environment variables"
+    },
+    "modelProviders": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["id", "name"],
+          "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "description": { "type": "string" },
+            "envKey": { "type": "string" },
+            "provider": { "type": "string" },
+            "baseUrl": { "type": "string", "format": "uri" },
+            "capabilities": {
+              "type": "object",
+              "properties": {
+                "toolCalling": { "type": "boolean" },
+                "vision": { "type": "boolean" },
+                "reasoning": { "type": "boolean" },
+                "ocr": { "type": "boolean" }
+              }
+            },
+            "generationConfig": {
+              "type": "object",
+              "properties": {
+                "contextWindowSize": { "type": "integer" },,
+                "samplingParams": {
+                  "type": "object",
+                  "properties": {
+                      "temperature": { "type": "number", "minimum": 0, "maximum": 2 },
+                      "top_p": { "type": "number", "minimum": 0, "maximum": 1 },\
+                      "max_tokens": { "type": "integer" }
+                  }
+                }
+              }
+            },
+            "stream": { "type": "boolean" }
+          }
+        }
+      }
+    }
+  }
+}

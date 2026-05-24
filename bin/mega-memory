@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PYTHONUNBUFFERED=1
+export MCP_TRANSPORT=stdio
+
+# Load .env if it exists
+if [[ -f "$HOME/.local/share/megalonyx/.env" ]]; then
+    set -a
+    source "$HOME/.local/share/megalonyx/.env"
+    set +a
+fi
+
+exec uv run python -m agent_memory.memory_daemon
