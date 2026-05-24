@@ -97,7 +97,7 @@ importers:
         version: 0.14.1(zod@3.25.76)
       '@qwen-code/qwen-code-core':
         specifier: file:../core
-        version: link:../core
+        version: file:packages/core
     devDependencies:
       typescript:
         specifier: 5.3.3
@@ -202,7 +202,7 @@ importers:
         version: link:../channels/weixin
       '@qwen-code/qwen-code-core':
         specifier: file:../core
-        version: link:../core
+        version: file:packages/core
       '@qwen-code/web-templates':
         specifier: file:../web-templates
         version: link:../web-templates
@@ -455,8 +455,8 @@ importers:
         specifier: ^9.0.4
         version: 9.0.4
       '@xterm/headless':
-        specifier: 5.5.0
-        version: 5.5.0
+        specifier: 6.0.0
+        version: 6.0.0
       ajv:
         specifier: ^8.17.1
         version: 8.20.0
@@ -2113,6 +2113,10 @@ packages:
   '@protobufjs/utf8@1.1.1':
     resolution: {integrity: sha512-oOAWABowe8EAbMyWKM0tYDKi8Yaox52D+HWZhAIJqQXbqe0xI/GV7FhLWqlEKreMkfDjshR5FKgi3mnle0h6Eg==}
 
+  '@qwen-code/qwen-code-core@file:packages/core':
+    resolution: {directory: packages/core, type: directory}
+    engines: {node: '>=22'}
+
   '@qwen-code/sdk@0.1.7':
     resolution: {integrity: sha512-aNy5pSmgt1RZR7hlHsE719kmFuaqIv1a3la4qiuMA9Wk6gjGnE0anoDJw8rcp0G22KgKmFG3TTGXWu9vcgnBMA==}
     engines: {node: '>=18.0.0'}
@@ -2843,6 +2847,9 @@ packages:
 
   '@xterm/headless@5.5.0':
     resolution: {integrity: sha512-5xXB7kdQlFBP82ViMJTwwEc3gKCLGKR/eoxQm4zge7GPBl86tCdI0IdPJjoKd8mUSFXz5V7i/25sfsEkP4j46g==}
+
+  '@xterm/headless@6.0.0':
+    resolution: {integrity: sha512-5Yj1QINYCyzrZtf8OFIHi47iQtI+0qYFPHmouEfG8dHNxbZ9Tb9YGSuLcsEwj9Z+OL75GJqPyJbyoFer80a2Hw==}
 
   '@yarnpkg/lockfile@1.1.0':
     resolution: {integrity: sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==}
@@ -7568,6 +7575,79 @@ snapshots:
 
   '@protobufjs/utf8@1.1.1': {}
 
+  '@qwen-code/qwen-code-core@file:packages/core':
+    dependencies:
+      '@anthropic-ai/sdk': 0.36.3
+      '@google/genai': 1.30.0(@modelcontextprotocol/sdk@1.29.0(zod@3.25.76))
+      '@iarna/toml': 2.2.5
+      '@modelcontextprotocol/sdk': 1.29.0(zod@3.25.76)
+      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/api-logs': 0.218.0
+      '@opentelemetry/core': 2.7.1(@opentelemetry/api@1.9.1)
+      '@opentelemetry/exporter-logs-otlp-grpc': 0.218.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/exporter-logs-otlp-http': 0.218.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/exporter-metrics-otlp-grpc': 0.218.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/exporter-metrics-otlp-http': 0.218.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/exporter-trace-otlp-grpc': 0.218.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/exporter-trace-otlp-http': 0.218.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation-http': 0.218.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-logs': 0.218.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-metrics': 2.7.1(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-node': 0.218.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-trace-base': 2.7.1(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-trace-node': 2.7.1(@opentelemetry/api@1.9.1)
+      '@types/html-to-text': 9.0.4
+      '@xterm/headless': 5.5.0
+      ajv: 8.20.0
+      ajv-formats: 3.0.1(ajv@8.20.0)
+      async-mutex: 0.5.0
+      chardet: 2.1.1
+      chokidar: 5.0.0
+      diff: 7.0.0
+      dotenv: 17.4.2
+      extract-zip: 2.0.1
+      fast-levenshtein: 2.0.6
+      fast-uri: 3.1.2
+      fdir: 6.5.0(picomatch@4.0.4)
+      fzf: 0.5.2
+      glob: 10.5.0
+      google-auth-library: 10.6.2
+      html-to-text: 9.0.5
+      https-proxy-agent: 7.0.6
+      iconv-lite: 0.7.2
+      ignore: 7.0.5
+      jsonrepair: 3.14.0
+      marked: 15.0.12
+      mime: 4.1.0
+      mnemonist: 0.40.4
+      open: 10.2.0
+      openai: 5.11.0(ws@8.21.0)(zod@3.25.76)
+      picomatch: 4.0.4
+      prompts: 2.4.2
+      shell-quote: 1.8.4
+      simple-git: 3.36.0
+      strip-ansi: 7.2.0
+      tar: 7.5.15
+      undici: 6.25.0
+      uuid: 9.0.1
+      web-tree-sitter: 0.24.7
+      ws: 8.21.0
+      yaml: 2.9.0
+      zod: 3.25.76
+    optionalDependencies:
+      '@lydell/node-pty': 1.2.0-beta.12
+      '@lydell/node-pty-darwin-arm64': 1.2.0-beta.12
+      '@lydell/node-pty-darwin-x64': 1.2.0-beta.12
+      '@lydell/node-pty-linux-x64': 1.2.0-beta.12
+      '@lydell/node-pty-win32-arm64': 1.2.0-beta.12
+      '@lydell/node-pty-win32-x64': 1.2.0-beta.12
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+
   '@qwen-code/sdk@0.1.7(typescript@5.3.3)':
     dependencies:
       '@modelcontextprotocol/sdk': 1.29.0(zod@3.25.76)
@@ -8348,6 +8428,8 @@ snapshots:
   '@webcontainer/env@1.1.1': {}
 
   '@xterm/headless@5.5.0': {}
+
+  '@xterm/headless@6.0.0': {}
 
   '@yarnpkg/lockfile@1.1.0': {}
 
