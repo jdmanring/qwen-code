@@ -44,7 +44,7 @@ sync/staging-TIMESTAMP
     |
     v  Gate 1: uv lock --check         (boot — runs FIRST, before uv run can recreate lockfile)
     v  Gate 2: uv run ruff check .     (lint — project-pinned ruff version)
-    v  Gate 3: python3 tooling/symmetry-check.py  (config/ ↔ docs/ 1:1 mirror)
+    v  Gate 3: python3 tooling/symmetry_check.py  (config/ ↔ docs/ 1:1 mirror)
     |
     |  all gates pass →
     v  git merge --ff-only  (into integration)
@@ -120,7 +120,7 @@ git remote add mirror https://github.com/YOUR_FORK/qwen-code.git
 | `tooling/sync-upstreams/verification-gate.sh` | Standalone gate runner. Mirrors pipeline gate logic for manual use. |
 | `tooling/sync-upstreams/raw-inline.sh` | Low-level: resets `upstream-mirror` to `upstream/main` only. |
 | `tooling/sync-upstreams/merge-upstream.sh` | **Deprecated.** Exits with error pointing to `upstream_ingest_pipeline.py`. |
-| `tooling/symmetry-check.py` | Checks that every file in `.qwen/config/` has a matching `.md` in `docs/`. |
+| `tooling/symmetry_check.py` | Checks that every file in `.qwen/config/` has a matching `.md` in `docs/`. |
 
 ---
 

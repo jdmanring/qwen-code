@@ -22,7 +22,7 @@ Orchestrator: Cognitive Synthesis (CPU). Sub-Agents: Atomic Execution (Workers).
 - [A-INGEST]: (External Repo => CSF-Ingestion Protocol => Cognitively Integrated Asset).
 
 ## [CSF-AXIOM] Cognitive-Symmetry Framework
-- [CSF-SYNC]: (Change in `config/` => Mirror in `docs/` => Run `symmetry-check.py` => Exit 0).
+- [CSF-SYNC]: (Change in `config/` => Mirror in `docs/` => Run `symmetry_check.py` => Exit 0).
 - [CSF-ANCHOR]: (New Directory => Create `.qwen-context` => Define Local Law => Map to `docs/`).
 - [CSF-SSOT]: (Technical Fact => Designated Truth File => Absolute Link).
 

@@ -123,7 +123,7 @@ class PreFlight:
             if missing:
                 raise RuntimeError(f"Missing required remotes: {missing}")
 
-            symmetry_check = self._git.root / "tooling" / "symmetry-check.py"
+            symmetry_check = self._git.root / "tooling" / "symmetry_check.py"
             if not symmetry_check.exists():
                 raise RuntimeError(f"Missing {symmetry_check.relative_to(self._git.root)}")
 
@@ -141,7 +141,7 @@ class PreFlight:
 
             log_success("Pre-flight passed.")
             return True
-        except Exception as e:
+        except (RuntimeError, subprocess.CalledProcessError, OSError) as e:
             log_error(f"Pre-flight failed: {e}")
             return False
 
@@ -262,7 +262,7 @@ class GateKeeper:
     def _gate_symmetry(self) -> bool:
         logger.info("Gate 3/3: Symmetry check (config ↔ docs)...")
         result = subprocess.run(
-            ["python3", "tooling/symmetry-check.py"],
+            ["python3", "tooling/symmetry_check.py"],
             cwd=self._git.root,
         )
         if result.returncode != 0:
@@ -347,7 +347,7 @@ class UpstreamIngestPipeline:
             tag = self.promotion.promote(self.sync.staging_branch)
             return SyncResult(True, "PROMOTION", "Sync complete.", lkg_tag=tag)
 
-        except Exception as e:
+        except (RuntimeError, subprocess.CalledProcessError, OSError) as e:
             log_error(str(e))
             return SyncResult(False, "PIPELINE_ERROR", str(e))
         finally:

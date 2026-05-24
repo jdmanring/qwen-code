@@ -46,7 +46,7 @@ gate_lint() {
 
 gate_symmetry() {
     log_info "Gate 2/3: Symmetry check (config ↔ docs)..."
-    if ! python3 tooling/symmetry-check.py; then
+    if ! python3 tooling/symmetry_check.py; then
         log_error "Symmetry gate failed. config/ and docs/ are out of sync."
         return 1
     fi

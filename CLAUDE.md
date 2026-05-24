@@ -52,7 +52,7 @@ See `docs/meta/pipeline-runbook.md` for failure recovery.
 | Ruff lint | `uv run ruff check .` | Style, imports, bugs |
 | Ruff format | `uv run ruff format .` | Formatting |
 | Mypy | `uv run mypy tooling/ packages/sdk-python/src/` | Type safety |
-| Symmetry | `python3 tooling/symmetry-check.py` | `.qwen/config/` ↔ `docs/` mirror |
+| Symmetry | `python3 tooling/symmetry_check.py` | `.qwen/config/` ↔ `docs/` mirror |
 
 All four run in CI (`python-quality.yml`) and in the pre-commit hook. Run `uv run ruff check --fix .` before committing Python changes.
 
@@ -75,7 +75,7 @@ Full standard: `docs/meta/engineering-standards.md`
 | :--- | :--- |
 | `tooling/sync-upstreams/upstream_ingest_pipeline.py` | Upstream sync pipeline — fetch → gate → promote |
 | `tooling/sync-upstreams/gate_failure_tests.py` | Tests that each pipeline gate correctly blocks failures |
-| `tooling/symmetry-check.py` | Verifies `.qwen/config/` ↔ `docs/` 1:1 mirror |
+| `tooling/symmetry_check.py` | Verifies `.qwen/config/` ↔ `docs/` 1:1 mirror |
 | `docs/meta/pipeline-runbook.md` | Operations guide — what to do when gates fail |
 | `docs/meta/git-strategy.md` | Branch architecture and pipeline flow diagram |
 | `docs/meta/engineering-standards.md` | Code quality and naming requirements |

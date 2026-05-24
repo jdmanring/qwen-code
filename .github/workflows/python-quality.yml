@@ -36,4 +36,7 @@ jobs:
         run: uv run mypy tooling/ packages/sdk-python/src/
 
       - name: Symmetry check
-        run: uv run python3 tooling/symmetry-check.py
+        run: uv run python3 tooling/symmetry_check.py
+
+      - name: Project standards lint
+        run: uv run python3 tooling/project_standards_linter.py --strict tooling/ docs/meta/

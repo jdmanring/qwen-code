@@ -19,12 +19,16 @@ This document defines the mandatory requirements for any code entering the monor
 
 Names must be immediately descriptive. An AI or engineer reading a name should be able to predict what it contains or does without opening it.
 
-- **What this means in practice**: prefer `gate_failure_tests.py` over `chaos_tests.py`, `intake_normalization` over `sovereign_scrub`, `upstream_sync_pipeline` over `orchestrator`.
+- **What this means in practice**: prefer `gate_failure_tests.py` over `chaos_tests.py`, `intake_normalization` over `sovereign_scrub`, `upstream_sync_pipeline` over `orchestrator`. An AI reading the name alone should predict the contents or behavior correctly at least 95% of the time.
 - **Case conventions**
-    - Python: `snake_case` for files and functions.
+    - Python files: `snake_case.py` — never `kebab-case.py`.
+    - Python classes: `PascalCase`. Shell scripts: `kebab-case.sh`. Bin/CLI entrypoints: `kebab-case` (no extension).
     - JS/TS: `camelCase` for functions, `PascalCase` for classes/components.
-    - Docs/Config: `kebab-case` for all files.
-- **Prohibited**: project-specific metaphors, dramatic labels, abbreviations without expansion, names that require context to interpret.
+    - Docs/Config files: `kebab-case`.
+- **File-class alignment**: A Python file containing exactly one public class must use the `snake_case` form of that class name (e.g., `SystemLogger` => `system_logger.py`).
+- **No version suffixes in file names**: `v2`, `_new`, `_old` are prohibited. Use git history for versions.
+- **Prohibited**: project-specific metaphors, dramatic labels, abbreviations without expansion, names that require context to interpret, `DEBUG` print statements in committed code.
+- **Enforcement**: Ruff `N` rules catch mechanical casing violations. `project_standards_linter.py` (`CODE-04`, `CODE-05`) catches debug prints and file/class mismatches.
 
 ## 3. Structure Requirements
 

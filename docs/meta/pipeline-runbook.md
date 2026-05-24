@@ -23,7 +23,7 @@ Before the pipeline will run, all of these must be true:
 - Current branch is `integration`
 - Remotes `upstream` and `origin` both exist (`git remote`)
 - `uv` is installed and on PATH
-- `tooling/symmetry-check.py` exists
+- `tooling/symmetry_check.py` exists
 - No uncommitted changes to tracked files on `integration`
 
 The pipeline checks these automatically at startup (pre-flight). If pre-flight fails, fix the stated condition and re-run.
