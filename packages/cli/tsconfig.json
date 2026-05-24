@@ -19,12 +19,13 @@
     "src/**/*.tsx",
     "src/**/*.json",
     "./package.json",
-    "../core/src/utils/toml-to-markdown-converter.test.ts",
     "../core/src/utils/toml-to-markdown-converter.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
+    "**/*.test.ts",
+    "**/*.test.tsx",
     // TODO(5691): Fix type errors and remove excludes.
     "src/commands/mcp.test.ts",
     "src/commands/mcp/add.test.ts",

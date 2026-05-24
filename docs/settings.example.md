@@ -7,8 +7,9 @@ credentials.
 ## Setup
 
 ```bash
-cp config/settings.example.json config/settings.json
-# Edit config/settings.json and replace all "$VARIABLE_NAME" placeholders with real values.
+cp config/settings.example.json ~/.config/qwen/settings.json
+# Edit ~/.config/qwen/settings.json — review model providers, set auth type.
+# The $VARNAME values in the env block are references, not placeholders — they read from your shell environment.
 ```
 
 ## Sections
@@ -77,5 +78,5 @@ defined in `modelProviders`.
 
 ## What not to commit
 
-`config/settings.json` (the live file) must never be committed. It contains real API keys.
-The `.gitignore` excludes it. Only `config/settings.example.json` is tracked.
+`~/.config/qwen/settings.json` (the live file) must never be committed — it lives outside the repo tree.
+Only `config/settings.example.json` is tracked. The live file is deployed by the installer.

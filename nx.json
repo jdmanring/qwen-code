@@ -1,4 +1,14 @@
 {
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "{workspaceRoot}/shared/**/*"],
+    "production": [
+      "default",
+      "!{projectRoot}/**/*.spec.ts",
+      "!{projectRoot}/**/*.test.ts",
+      "!{projectRoot}/tests/**/*",
+      "!{projectRoot}/__tests__/**/*"
+    ]
+  },
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"],

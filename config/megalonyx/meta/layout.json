@@ -1,6 +1,6 @@
 {
   "ai_config": {
-    "destination": "~/.qwen",
+    "destination": "~/.config/qwen",
     "mappings": [
       { "src": "config/agents", "dest": "agents" },
       { "src": "config/skills", "dest": "skills" },

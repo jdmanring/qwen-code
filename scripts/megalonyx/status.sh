@@ -41,7 +41,7 @@ else
 fi
 
 # Memory WAL
-WAL_PATH="$HOME/.qwen/memory/wal.jsonl"
+WAL_PATH="$HOME/.local/share/megalonyx/memory/wal.jsonl"
 if [ -f "$WAL_PATH" ]; then
     LINE_COUNT=$(wc -l < "$WAL_PATH")
     echo "[OK] WAL exists ($LINE_COUNT pending entries)"

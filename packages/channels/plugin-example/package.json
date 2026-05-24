@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build": "tsc --build",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
     "@qwen-code/channel-base": "file:../base",

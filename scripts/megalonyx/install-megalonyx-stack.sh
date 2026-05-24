@@ -39,11 +39,13 @@ done
 # Derive repo root from script location — no hard-coded paths
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)"
 
-STACK_ROOT="$HOME/.local/share/megalonyx"
+STACK_ROOT="$HOME/.local/share/megalonyx"       # XDG_DATA_HOME: application data
+CONFIG_ROOT="$HOME/.config/megalonyx"          # XDG_CONFIG_HOME: Megalonyx config + secrets
+QWEN_CONFIG_ROOT="$HOME/.config/qwen"          # XDG_CONFIG_HOME: Qwen Code CLI config
 DATA_ROOT="$STACK_ROOT/data"
 BIN_DIR="$HOME/.local/bin"
 QDRANT_DIR="$STACK_ROOT/packages/infra/qdrant"
-QDRANT_CONFIG="$STACK_ROOT/config/qdrant_config.yaml"
+QDRANT_CONFIG="$CONFIG_ROOT/qdrant_config.yaml"
 
 # ===
 # PREREQUISITES
@@ -63,7 +65,8 @@ echo "[OK] Prerequisites satisfied."
 echo "[2/7] Preparing directory structure..."
 
 mkdir -p \
-  "$STACK_ROOT/config" \
+  "$CONFIG_ROOT" \
+  "$QWEN_CONFIG_ROOT" \
   "$DATA_ROOT/qdrant" \
   "$STACK_ROOT/logs" \
   "$STACK_ROOT/memory" \
@@ -71,7 +74,7 @@ mkdir -p \
   "$STACK_ROOT/packages" \
   "$BIN_DIR"
 
-echo "[OK] Directory structure ready at $STACK_ROOT"
+echo "[OK] Directory structure ready ($STACK_ROOT, $CONFIG_ROOT)"
 
 # ===
 # PYTHON WORKSPACE SYNC
@@ -95,9 +98,8 @@ fi
 
 echo "[4/7] Deploying config templates..."
 
-# qdrant_config.yaml — rendered from template with actual path
+# qdrant_config.yaml — rendered from template with actual data path
 if [ ! -f "$QDRANT_CONFIG" ] || [ "$FORCE_CONFIG" = true ]; then
-    mkdir -p "$(dirname "$QDRANT_CONFIG")"
     cat > "$QDRANT_CONFIG" <<YAML
 storage:
   path: "$DATA_ROOT/qdrant"
@@ -107,8 +109,8 @@ else
     echo "[OK] $QDRANT_CONFIG already exists."
 fi
 
-# .env — deployed to STACK_ROOT (loaded at runtime by bin/mega-memory)
-ENV_DEST="$STACK_ROOT/.env"
+# .env — deployed to XDG_CONFIG_HOME/megalonyx/ (loaded at runtime by bin/mega-memory)
+ENV_DEST="$CONFIG_ROOT/.env"
 ENV_EXAMPLE="$REPO_ROOT/config/megalonyx/.env.example"
 if [ ! -f "$ENV_DEST" ] || [ "$FORCE_CONFIG" = true ]; then
     if [ -f "$ENV_EXAMPLE" ]; then
@@ -121,12 +123,11 @@ else
     echo "[OK] $ENV_DEST already exists."
 fi
 
-# settings.json — deployed to ~/.qwen/ (read by Qwen Code CLI)
-SETTINGS_DEST="$HOME/.qwen/settings.json"
+# settings.json — deployed to XDG_CONFIG_HOME/qwen/ (read by Qwen Code CLI via QWEN_HOME)
+SETTINGS_DEST="$QWEN_CONFIG_ROOT/settings.json"
 SETTINGS_EXAMPLE="$REPO_ROOT/config/settings.example.json"
 if [ ! -f "$SETTINGS_DEST" ] || [ "$FORCE_CONFIG" = true ]; then
     if [ -f "$SETTINGS_EXAMPLE" ]; then
-        mkdir -p "$HOME/.qwen"
         cp "$SETTINGS_EXAMPLE" "$SETTINGS_DEST"
         echo "[OK] Copied settings.example.json to $SETTINGS_DEST — review model providers before running."
     else
@@ -134,6 +135,37 @@ if [ ! -f "$SETTINGS_DEST" ] || [ "$FORCE_CONFIG" = true ]; then
     fi
 else
     echo "[OK] $SETTINGS_DEST already exists."
+fi
+
+# Shell profile — export QWEN_HOME so the CLI finds config in ~/.config/qwen/
+QWEN_HOME_EXPORT="export QWEN_HOME=\"\$HOME/.config/qwen\""
+SHELL_RC=""
+FISH_RC=""
+case "${SHELL:-}" in
+    */zsh)  SHELL_RC="$HOME/.zshrc" ;;
+    */bash) SHELL_RC="$HOME/.bashrc" ;;
+    */fish) FISH_RC="$HOME/.config/fish/conf.d/megalonyx.fish" ;;
+esac
+if [ -n "$FISH_RC" ]; then
+    mkdir -p "$(dirname "$FISH_RC")"
+    if ! grep -qF 'QWEN_HOME' "$FISH_RC" 2>/dev/null; then
+        echo "# Qwen Code CLI: use XDG config dir instead of ~/.qwen" >> "$FISH_RC"
+        echo "set -Ux QWEN_HOME \$HOME/.config/qwen" >> "$FISH_RC"
+        echo "[OK] Added QWEN_HOME to $FISH_RC — restart your shell"
+    else
+        echo "[OK] QWEN_HOME already set in $FISH_RC"
+    fi
+elif [ -n "$SHELL_RC" ]; then
+    if ! grep -qF 'QWEN_HOME' "$SHELL_RC" 2>/dev/null; then
+        echo "" >> "$SHELL_RC"
+        echo "# Qwen Code CLI: use XDG config dir instead of ~/.qwen" >> "$SHELL_RC"
+        echo "$QWEN_HOME_EXPORT" >> "$SHELL_RC"
+        echo "[OK] Added QWEN_HOME to $SHELL_RC — restart your shell or: source $SHELL_RC"
+    else
+        echo "[OK] QWEN_HOME already set in $SHELL_RC"
+    fi
+else
+    echo "[ACTION REQUIRED] Add to your shell profile: $QWEN_HOME_EXPORT"
 fi
 
 # ===
@@ -173,12 +205,18 @@ EOF
 chmod +x "$BIN_DIR/mega-db"
 echo "[OK] mega-db"
 
-# mega-reboot — restart all services and print status
+# mega-reboot — kill and restart all services, then print status
 cat > "$BIN_DIR/mega-reboot" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
-echo "[reboot] Restarting stack services..."
-"$BIN_DIR/mega-memory" restart
+echo "[reboot] Stopping stack services..."
+pkill -f "agent_memory.memory_daemon" 2>/dev/null || true
+pkill -f "qdrant" 2>/dev/null || true
+sleep 1
+echo "[reboot] Starting stack services..."
+"$BIN_DIR/mega-db" &
+"$BIN_DIR/mega-memory" &
+sleep 2
 echo "[reboot] Verifying health..."
 "$BIN_DIR/mega-status"
 EOF
@@ -252,7 +290,7 @@ echo "[OK] Deployment is ready."
 
 if [ "$VERIFY_RUNTIME" = true ]; then
     echo "[Validation] Running full boot verification..."
-    uv run --project "$REPO_ROOT" python3 tooling/smoke-tests/boot_verification.py --skip-memory
+    uv run --project "$REPO_ROOT" python3 "$REPO_ROOT/tooling/smoke-tests/boot_verification.py" --skip-memory
 fi
 
 # ===
@@ -264,8 +302,9 @@ echo "=========================================="
 echo " INSTALLATION COMPLETE"
 echo "=========================================="
 echo ""
-echo "STACK DATA:   $STACK_ROOT"
-echo "BIN WRAPPERS: $BIN_DIR"
+echo "CONFIG:       $CONFIG_ROOT"
+echo "DATA:         $STACK_ROOT"
+echo "BIN:          $BIN_DIR"
 echo ""
 echo "COMMANDS:"
 echo "  mega-memory          start the memory daemon"
@@ -275,8 +314,9 @@ echo "  mega-tasks           manage active tasks"
 echo "  mega-reboot          restart all services"
 echo ""
 echo "Next steps:"
-echo "  1. Fill in $STACK_ROOT/.env (API keys)"
+echo "  1. Fill in $ENV_DEST (API keys)"
 echo "  2. Review $SETTINGS_DEST (model providers)"
-echo "  3. Start Qdrant:  mega-db"
-echo "  4. Start memory:  mega-memory"
+echo "  3. Restart your shell (or: source your shell RC) so QWEN_HOME takes effect"
+echo "  4. Start Qdrant:  mega-db"
+echo "  5. Start memory:  mega-memory"
 echo "=========================================="

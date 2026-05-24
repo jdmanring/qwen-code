@@ -6,10 +6,10 @@ The Megalonyx stack has two components that install independently:
 
 | Component | What it is | Installed by |
 |---|---|---|
-| Qwen Code CLI | Node.js terminal AI agent (upstream) | `install-qwen-standalone.sh` |
+| Qwen Code CLI | Node.js terminal AI agent (built from `packages/cli/`) | `install-megalonyx-full.sh` |
 | Megalonyx stack | Python services: memory daemon, control plane, infra | `install-megalonyx-stack.sh` |
 
-Both together: `install-megalonyx-full.sh`.
+Both together: `install-megalonyx-full.sh` (recommended for new installs).
 
 ---
 
@@ -21,11 +21,11 @@ git clone <repo-url> megalonyx-monorepo
 cd megalonyx-monorepo
 git checkout develop
 
-# Install everything
+# Install everything (builds CLI from source + Python stack)
 bash scripts/megalonyx/install-megalonyx-full.sh
 ```
 
-This runs the upstream Qwen Code installer first, then the Megalonyx stack installer.
+This builds the Qwen Code CLI from `packages/cli/` (requires Node.js 22+), then installs the Megalonyx Python stack.
 
 ---
 
@@ -50,11 +50,12 @@ Options:
 ## What the stack installer does
 
 1. Checks prerequisites: `uv`, `curl`
-2. Creates `~/.local/share/megalonyx/` with `config/`, `data/`, `logs/`, `memory/`, `tmp/`
+2. Creates `~/.local/share/megalonyx/` (data) and `~/.config/megalonyx/` + `~/.config/qwen/` (config)
 3. Runs `uv sync --all-packages` — installs `agent-memory`, `control-plane-daemon`, `agent-infra` as editable packages
-4. Writes `~/.local/share/megalonyx/config/qdrant_config.yaml` (points at local data dir)
-5. Copies `config/megalonyx/.env.example` → `~/.local/share/megalonyx/.env` (if missing)
-6. Copies `config/settings.example.json` → `~/.qwen/settings.json` (if missing)
+4. Writes `~/.config/megalonyx/qdrant_config.yaml` (points at `~/.local/share/megalonyx/data/qdrant`)
+5. Copies `config/megalonyx/.env.example` → `~/.config/megalonyx/.env` (if missing)
+6. Copies `config/settings.example.json` → `~/.config/qwen/settings.json` (if missing)
+6a. Adds `export QWEN_HOME="$HOME/.config/qwen"` to your shell RC so the CLI finds its config dir
 7. Creates symlinks: `mega-memory`, `mega-status`, `mega-tasks` → `~/.local/bin/`
 8. Writes wrappers: `mega-db`, `mega-run-py`, `mega-reboot` in `~/.local/bin/`
 9. Downloads the Qdrant binary to `~/.local/share/megalonyx/packages/infra/qdrant/bin/qdrant`
@@ -66,14 +67,14 @@ Options:
 
 After install, two files need to be filled in before running the stack:
 
-**`~/.local/share/megalonyx/.env`** — API keys and runtime paths:
+**`~/.config/megalonyx/.env`** — API keys and runtime paths for the Python stack:
 - `QDRANT_LOCAL_URL` — default `http://localhost:6333`, change if Qdrant is remote
 - `QDRANT_CLOUD_URL` and `QDRANT_API_KEY` — only if using Qdrant Cloud
 - `GEMINI_API_KEY` — for Google Gemini embeddings
 - `OPENAI_API_KEY` — for OpenAI-compatible LLM providers
 - `GITHUB_TOKEN` — for GitHub Models / Copilot
 
-**`~/.qwen/settings.json`** — model provider selection. Review the providers section and set your preferred LLM backend.
+**`~/.config/qwen/settings.json`** — Qwen Code CLI config: model provider selection, MCP servers. Review the providers section and set your preferred LLM backend.
 
 ---
 
@@ -120,6 +121,13 @@ uv sync --all-packages
 
 ---
 
-## Legacy installer
+## Rebuilding the CLI after source changes
 
-`scripts/megalonyx/install-megalonyx-stack-legacy.sh` preserves the original `qwen_code_stack/install.sh` from before the monorepo migration. It is kept as a reference for the standalone (non-uv-workspace) install path. Do not use it for new installations.
+The `qwen` wrapper in `~/.local/bin/qwen` runs directly from `packages/cli/dist/`. After modifying TypeScript source, rebuild with:
+
+```bash
+npm run build --prefix packages/core
+npm run build --prefix packages/cli
+```
+
+No reinstall needed — the wrapper picks up the new build automatically.

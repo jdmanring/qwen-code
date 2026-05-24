@@ -5,9 +5,9 @@ export PYTHONUNBUFFERED=1
 export MCP_TRANSPORT=stdio
 
 # Load .env if it exists
-if [[ -f "$HOME/.local/share/megalonyx/.env" ]]; then
+if [[ -f "$HOME/.config/megalonyx/.env" ]]; then
     set -a
-    source "$HOME/.local/share/megalonyx/.env"
+    source "$HOME/.config/megalonyx/.env"
     set +a
 fi
 

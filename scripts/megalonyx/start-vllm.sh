@@ -3,7 +3,7 @@ set -euo pipefail
 
 VENV="$HOME/.local/share/megalonyx/py/venv"
 # Log file located in persistent logs dir to avoid /tmp space limits
-LOG="$HOME/.qwen/logs/vllm.log"
+LOG="$HOME/.local/share/megalonyx/logs/vllm.log"
 
 source "$VENV/bin/activate"
 

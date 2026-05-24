@@ -58,17 +58,17 @@ bash tooling/install-hooks.sh
 
 Set up runtime configuration (lives outside the repo — never committed):
 ```bash
-# Qwen Code model provider settings: API keys, which models to use, MCP server list
-cp config/settings.example.json ~/.qwen/settings.json
+# Qwen Code CLI settings: model providers, MCP server list (no secrets)
+cp config/settings.example.json ~/.config/qwen/settings.json
 
-# Megalonyx service environment: Qdrant URL, embedding provider keys, stack paths
-cp config/megalonyx/.env.example ~/.local/share/megalonyx/.env
+# Megalonyx Python stack: API keys, Qdrant URL, runtime paths
+cp config/megalonyx/.env.example ~/.config/megalonyx/.env
 ```
 
-At minimum, open `~/.qwen/settings.json` and set an API key for at least one model provider
-(OpenAI, Gemini, or a local Ollama endpoint). Without this, the CLI and control-plane-daemon
-cannot make model calls. The `.env` file only needs changes if your Qdrant instance runs on a
-non-default URL or you want cloud memory tier (Qdrant Cloud keys).
+The installer (`scripts/megalonyx/install-megalonyx-stack.sh`) does both copies automatically and
+adds `export QWEN_HOME="$HOME/.config/qwen"` to your shell profile so the CLI finds the config dir.
+If you're setting up manually: `~/.config/qwen/settings.json` needs at least one model provider API key.
+`~/.config/megalonyx/.env` only needs changes for non-default Qdrant URLs or Qdrant Cloud keys.
 
 See `docs/megalonyx/installation.md` for the full setup walkthrough.
 

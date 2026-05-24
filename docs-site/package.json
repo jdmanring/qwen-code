@@ -9,7 +9,7 @@
   "scripts": {
     "link": "ln -s ../docs content",
     "clean": "rm -rf .next",
-    "dev": "npm run clean && next --turbopack",
+    "dev": "pnpm run clean && next --turbopack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
