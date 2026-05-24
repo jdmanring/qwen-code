@@ -21,7 +21,7 @@ try {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const require = createRequire(import.meta.url);
-const pkg = require(path.resolve(__dirname, 'package.json'));
+const pkg = require(path.resolve(__dirname, 'packages/cli/package.json'));
 
 // Clean dist directory (cross-platform)
 rmSync(path.resolve(__dirname, 'dist'), { recursive: true, force: true });
@@ -58,6 +58,7 @@ const wasmBinaryPlugin = {
 const external = [
   '@lydell/node-pty',
   'node-pty',
+  'react-devtools-core',
   '@lydell/node-pty-darwin-arm64',
   '@lydell/node-pty-darwin-x64',
   '@lydell/node-pty-linux-x64',
