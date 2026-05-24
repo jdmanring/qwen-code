@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Mirrors the python-quality CI workflow. Run tooling/install-hooks.sh to install.
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+echo "pre-commit: ruff lint..."
+uv run ruff check .
+
+echo "pre-commit: ruff format check..."
+uv run ruff format --check .
+
+echo "pre-commit: project standards lint..."
+uv run python3 tooling/project_standards_linter.py --strict tooling/ docs/meta/
+
+echo "pre-commit: all checks passed."

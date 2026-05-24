@@ -18,11 +18,11 @@ A private monorepo that:
 | Branch | Purpose |
 | :--- | :--- |
 | `upstream-mirror` | Reset to `upstream/main` on every sync. Never commit here. |
-| `integration` | Normalization layer. All upstream changes pass three gates before landing here. Active development branch. |
-| `develop` | Feature development on the verified integration base. |
+| `integration` | Upstream sync target only. Changes come in via the pipeline, not direct commits. |
+| `develop` | Active development branch. All Megalonyx work happens here. |
 | `main` | Stable release branch. |
 
-**Active work happens on `integration`.** When in doubt, check out `integration`.
+**Active work happens on `develop`.** When in doubt, check out `develop`.
 
 ---
 
@@ -52,9 +52,14 @@ See `docs/meta/pipeline-runbook.md` for failure recovery.
 | Ruff lint | `uv run ruff check .` | Style, imports, bugs |
 | Ruff format | `uv run ruff format .` | Formatting |
 | Mypy | `uv run mypy tooling/ packages/sdk-python/src/` | Type safety |
-| Symmetry | `python3 tooling/symmetry_check.py` | `.qwen/config/` ↔ `docs/` mirror |
+| Symmetry | `uv run python3 tooling/symmetry_check.py` | `.qwen/config/` ↔ `docs/` mirror |
+| Standards lint | `uv run python3 tooling/project_standards_linter.py --strict tooling/ docs/meta/` | Naming, config symmetry, debug prints |
 
-All four run in CI (`python-quality.yml`) and in the pre-commit hook. Run `uv run ruff check --fix .` before committing Python changes.
+All five run in CI (`python-quality.yml`). The pre-commit hook (`tooling/git-hooks/pre-commit`) runs ruff + standards lint locally. Install it once:
+
+```bash
+bash tooling/install-hooks.sh
+```
 
 ---
 
@@ -76,6 +81,8 @@ Full standard: `docs/meta/engineering-standards.md`
 | `tooling/sync-upstreams/upstream_ingest_pipeline.py` | Upstream sync pipeline — fetch → gate → promote |
 | `tooling/sync-upstreams/gate_failure_tests.py` | Tests that each pipeline gate correctly blocks failures |
 | `tooling/symmetry_check.py` | Verifies `.qwen/config/` ↔ `docs/` 1:1 mirror |
+| `tooling/project_standards_linter.py` | Enforces naming, config symmetry, and code standards |
+| `tooling/git-hooks/pre-commit` | Pre-commit hook source — install via `tooling/install-hooks.sh` |
 | `docs/meta/pipeline-runbook.md` | Operations guide — what to do when gates fail |
 | `docs/meta/git-strategy.md` | Branch architecture and pipeline flow diagram |
 | `docs/meta/engineering-standards.md` | Code quality and naming requirements |
