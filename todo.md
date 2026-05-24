@@ -128,6 +128,109 @@
 
 ---
 
+## Phase 5: Dependency Upgrades
+
+Full plan: `docs/megalonyx/dependency-upgrade-plan.md`
+
+### Phase A — Trivial housekeeping (no code changes)
+- [ ] nx 22.7.2 → 22.7.3 (`package.json`)
+- [ ] mime 4.0.7 → 4.1.0 (`packages/core/package.json`)
+- [ ] @lydell/node-pty* 1.2.0-beta.10 → beta.12 (`packages/core/package.json`)
+- [ ] @teddyzhu/clipboard* 0.0.5 → 0.0.10 (`packages/cli/package.json`)
+- [ ] @types/archiver ^6 → ^7 (`packages/cli/package.json`)
+- [ ] @types/supertest ^6 → ^7 (`packages/cli/package.json`)
+- [ ] @types/react + react-dom ^18 → ^19 (`packages/web-templates/package.json`)
+- [ ] Remove @types/diff from cli + core (deprecated — diff 7.x ships own types)
+- [ ] Remove @types/dotenv from cli + core (deprecated — dotenv 16.x ships own types)
+- [ ] Remove @types/minimatch from core (deprecated — minimatch 9.x ships own types)
+- [ ] Remove @types/tar from core (deprecated — tar 7.x ships own types)
+- [ ] `pnpm update semver yaml` — pick up 7.8.1 and 2.9.0 from lockfile
+- [ ] Verify: `node dist/cli.js --version` returns 0.16.1
+- [ ] Commit Phase A
+
+### Phase B — ESLint 9 + @typescript-eslint 8
+- [ ] eslint 8.57.1 → ^9.0.0 (`package.json` root + `packages/sdk-typescript`)
+- [ ] @typescript-eslint/* 7.18.0 → ^8.0.0 (same locations)
+- [ ] Verify all ESLint plugins support ESLint 9 (react, react-hooks, import, vitest, storybook)
+- [ ] `pnpm install` + `pnpm check`
+- [ ] Fix any new lint errors from stricter @typescript-eslint 8 rules
+- [ ] Commit Phase B
+
+### Phase C — OpenTelemetry suite
+- [ ] Bump all @opentelemetry/* OTLP packages: ^0.203.0 → ^0.218.0 (`packages/core/package.json`)
+- [ ] sdk-trace-node: ^2.0.0 → ^2.7.0
+- [ ] `pnpm install` + run core tests
+- [ ] Verify telemetry SDK initialization (sdk.ts)
+- [ ] Commit Phase C
+
+### Phase D — iconv-lite 0.6 → 0.7
+- [ ] Bump `packages/core/package.json`: ^0.6.3 → ^0.7.0
+- [ ] Verify iconvHelper.ts default import still works
+- [ ] Commit Phase D
+
+### Phase E — comment-json 4 → 5
+- [ ] Bump `packages/cli/package.json`: ^4.2.5 → ^5.0.0
+- [ ] Verify parse/stringify API unchanged
+- [ ] Commit Phase E
+
+### Phase F — chokidar 4 → 5
+- [ ] Bump `packages/core/package.json`: ^4.0.3 → ^5.0.0
+- [ ] Verify FSWatcher API unchanged in skill-manager.ts
+- [ ] Commit Phase F
+
+### Phase G — esbuild 0.25 → 0.28
+- [ ] Bump `package.json` root: "^0.25.0" → "^0.28.0"
+- [ ] `pnpm install` + `node esbuild.config.js`
+- [ ] Verify `node dist/cli.js --version` + `--help`
+- [ ] Commit Phase G
+
+### Phase H — vitest 3 → 4 + vite 5 → 6
+- [ ] Update overrides in `pnpm-workspace.yaml`: vitest + @vitest/coverage-v8 → ^4.0.0, vite → ^6.0.0
+- [ ] Bump @vitejs/plugin-react: ^4 → ^6 in webui + web-templates
+- [ ] `pnpm install` + `pnpm test-all`
+- [ ] Fix any vitest 4 API changes in test configs
+- [ ] Commit Phase H
+
+### Phase I — web-tree-sitter 0.24 → 0.26
+- [ ] Bump `packages/core/package.json`: ^0.24.7 → ^0.26.0
+- [ ] Verify shellAstParser.ts Parser.init() + WASM loading
+- [ ] Test both bundle and dev mode
+- [ ] Commit Phase I
+
+### Phase J — @xterm/headless 5 → 6
+- [ ] Bump `packages/core/package.json`: 5.5.0 → ^6.0.0
+- [ ] Update shellExecutionService.ts + terminalSerializer.ts for any API changes
+- [ ] Test PTY chain + ANSI color serialization
+- [ ] Commit Phase J
+
+### Phase K — @anthropic-ai/sdk 0.36 → 0.98
+- [ ] Bump `packages/core/package.json`: ^0.36.1 → ^0.98.0
+- [ ] Read CHANGELOG 0.37→0.98 for RawMessageStreamEvent, MessageCreateParams, Tool types
+- [ ] Update anthropicContentGenerator.ts streaming event switch (lines 771-968)
+- [ ] Update thinking config (lines 681-757) and beta headers (lines 356-394)
+- [ ] Test: streaming, tool calling, thinking, caching, DeepSeek proxy
+- [ ] Commit Phase K
+
+### Phase L — @google/genai 1 → 2
+- [ ] Bump `packages/core/package.json`: 1.30.0 → ^2.0.0
+- [ ] Read v2 migration guide
+- [ ] Update geminiContentGenerator.ts + geminiChat.ts
+- [ ] Run `tsc --noEmit` to find all 60+ type import breakages
+- [ ] Fix type imports across all affected files
+- [ ] Test: streaming, tool calling, thinking, token counting, embedding
+- [ ] Commit Phase L
+
+### Phase M — TypeScript 5.3.3 → 6.x
+- [ ] Investigate why packages/cli/tsconfig.json excludes 97 test files
+- [ ] Add strict: true to packages/vscode-ide-companion/tsconfig.json
+- [ ] Bump override in `pnpm-workspace.yaml`: "5.3.3" → "^6.0.0"
+- [ ] `pnpm install` + `tsc --noEmit` per package
+- [ ] Fix type errors package by package (core → cli → others)
+- [ ] Full test suite + rebuild + smoke test
+- [ ] Commit Phase M
+
+---
+
 ## Archive
 *Superseded approaches, kept for reference.*
 
