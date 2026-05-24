@@ -25,7 +25,9 @@ def main() -> None:
     intent_name = intent_data["intent"]
 
     active_profiles = profile_selector.get_active_profiles(
-        current_file_path=current_file, prompt_text=prompt_text
+        current_file_path=current_file,
+        prompt_text=prompt_text,
+        intent=intent_name,
     )
 
     if not active_profiles:

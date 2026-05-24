@@ -13,10 +13,18 @@ class AnalysisResult(TypedDict):
     needs_review: bool
 
 
+def _default_agents_dir() -> str:
+    """Returns .qwen/agents/ relative to CWD if it exists, else ~/.qwen/agents/."""
+    local = os.path.join(os.getcwd(), ".qwen", "agents")
+    if os.path.isdir(local):
+        return local
+    return os.path.expanduser("~/.qwen/agents")
+
+
 class ExecutionProfileSelector:
     def __init__(self, services_dir: str | None = None) -> None:
         if services_dir is None:
-            services_dir = os.path.expanduser("~/.qwen/skills")
+            services_dir = _default_agents_dir()
         self.services_dir = services_dir
         self.profiles: dict[str, dict[str, Any]] = {}
         self.state_manager = StateManager()
@@ -27,7 +35,8 @@ class ExecutionProfileSelector:
         from pathlib import Path
 
         yaml_files = list(Path(self.services_dir).rglob("*.yaml"))
-        md_files = list(Path(self.services_dir).rglob("**/SKILL.md"))
+        # Match any *.md file with YAML frontmatter, not just files named SKILL.md
+        md_files = list(Path(self.services_dir).rglob("*.md"))
 
         for file_path in yaml_files + md_files:
             try:
@@ -47,6 +56,8 @@ class ExecutionProfileSelector:
                         config = yaml.safe_load(content)
 
                     if config and "name" in config:
+                        # Support both flat format (used in .qwen/agents/*.md) and
+                        # nested format (capabilities/persona keys from legacy YAML profiles)
                         triggers = config.get("triggers", {})
                         if "capabilities" in config:
                             triggers.update(config["capabilities"].get("triggers", {}))
@@ -55,8 +66,15 @@ class ExecutionProfileSelector:
                             "name": config["name"],
                             "description": config.get("description", ""),
                             "triggers": triggers,
-                            "tools": config.get("capabilities", {}).get("tools", []),
-                            "model": config.get("capabilities", {}).get("model", "inherit"),
+                            "tools": (
+                                config.get("tools")
+                                or config.get("capabilities", {}).get("tools", [])
+                            ),
+                            "disallowed_tools": config.get("disallowedTools", []),
+                            "model": (
+                                config.get("model")
+                                or config.get("capabilities", {}).get("model", "inherit")
+                            ),
                             "system_prompt": config.get("persona", {}).get("system_prompt", ""),
                             "reporting_schema": config.get("persona", {}).get(
                                 "reporting_schema", ""
@@ -92,6 +110,7 @@ class ExecutionProfileSelector:
         config: dict[str, Any],
         prompt_text: str,
         current_file_path: str | None,
+        intent: str | None = None,
     ) -> float:
         """Scores an execution profile against current context using STRMAC-inspired logic."""
         score = 0.0
@@ -101,6 +120,16 @@ class ExecutionProfileSelector:
         if "keywords" in triggers:
             if any(kw.lower() in prompt_text.lower() for kw in triggers["keywords"]):
                 score += 2.0
+        elif prompt_text:
+            # Fallback: score by word overlap between prompt and profile name + first
+            # sentence of description only. Full description causes false positives from
+            # long profiles (e.g., test-engineer) that happen to mention many generic words.
+            first_sentence = config.get("description", "").split(".")[0]
+            searchable = (profile_name + " " + first_sentence).lower()
+            prompt_words = set(re.findall(r"\b\w{4,}\b", prompt_text.lower()))
+            profile_words = set(re.findall(r"\b\w{4,}\b", searchable))
+            overlap = prompt_words & profile_words
+            score += len(overlap) * 0.7
 
         if current_file_path:
             ext = os.path.splitext(current_file_path)[1]
@@ -114,12 +143,29 @@ class ExecutionProfileSelector:
             "OPTIMIZATION": ["system_optimizer"],
         }
         if profile_name in phase_map.get(phase, []):
-            score += 1.5
+            # Only give a full bonus when phase was explicitly set; the default
+            # "PLANNING" value is too broad and drowns out content-based scoring.
+            score += 0.3
 
         last_agent = self.state_manager.get("last_agent")
         if profile_name == "reviewer" and last_agent != "reviewer":
             if phase == "VERIFICATION":
                 score += 1.0
+
+        # Intent gives a strong, direct boost to the canonical profile for that intent type.
+        # This fires when model_router passes the classified intent in; otherwise scoring
+        # falls back to keyword/description matching above.
+        if intent:
+            intent_profile_map: dict[str, list[str]] = {
+                "Feature Synthesis": ["developer"],
+                "Surgical Correction": ["developer", "troubleshooter"],
+                "Structural Evolution": ["architect", "developer"],
+                "Adversarial Review": ["code-reviewer", "security-auditor", "reviewer"],
+                "Exploratory Analysis": ["scout", "Explore", "researcher"],
+                "Knowledge Sync": ["doc-expert", "documentation-writer"],
+            }
+            if profile_name in intent_profile_map.get(intent, []):
+                score += 2.5
 
         return score
 
@@ -128,12 +174,15 @@ class ExecutionProfileSelector:
         current_file_path: str | None = None,
         prompt_text: str = "",
         report_context: dict[str, Any] | None = None,
+        intent: str | None = None,
     ) -> list[dict[str, Any]]:
-        """Returns ranked execution profiles matching the current prompt and phase."""
+        """Returns ranked execution profiles matching the current prompt, intent, and phase."""
         scores = {}
 
         for name, config in self.profiles.items():
-            scores[name] = self._calculate_score(name, config, prompt_text, current_file_path)
+            scores[name] = self._calculate_score(
+                name, config, prompt_text, current_file_path, intent
+            )
 
         if report_context and report_context.get("next_step"):
             next_step = report_context["next_step"].lower()
