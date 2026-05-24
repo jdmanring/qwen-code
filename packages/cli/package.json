@@ -101,6 +101,7 @@
     "archiver": "^7.0.1",
     "ink-testing-library": "^4.0.0",
     "jsdom": "^26.1.0",
+    "msw": "^2.3.4",
     "pretty-format": "^30.0.2",
     "react-dom": "^19.1.0",
     "supertest": "^7.2.2",
