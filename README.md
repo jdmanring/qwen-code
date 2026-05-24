@@ -56,11 +56,19 @@ uv run python -c "import control_plane_daemon; import agent_memory; import agent
 bash tooling/install-hooks.sh
 ```
 
-Copy and fill in your configuration:
+Set up runtime configuration (lives outside the repo — never committed):
 ```bash
-cp config/settings.example.json config/settings.json   # Qwen Code settings (API keys, model providers, MCP servers)
-cp config/megalonyx/.env.example ~/.local/share/megalonyx/.env  # Megalonyx runtime environment
+# Qwen Code model provider settings: API keys, which models to use, MCP server list
+cp config/settings.example.json ~/.qwen/settings.json
+
+# Megalonyx service environment: Qdrant URL, embedding provider keys, stack paths
+cp config/megalonyx/.env.example ~/.local/share/megalonyx/.env
 ```
+
+At minimum, open `~/.qwen/settings.json` and set an API key for at least one model provider
+(OpenAI, Gemini, or a local Ollama endpoint). Without this, the CLI and control-plane-daemon
+cannot make model calls. The `.env` file only needs changes if your Qdrant instance runs on a
+non-default URL or you want cloud memory tier (Qdrant Cloud keys).
 
 See `docs/megalonyx/installation.md` for the full setup walkthrough.
 
