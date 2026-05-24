@@ -25,7 +25,7 @@ class LocalEmbeddingProvider(EmbeddingProvider):
             with redirect_stdout(sys.stderr):
                 self.model = SentenceTransformer(model_name)
         except (OSError, ImportError, RuntimeError) as e:
-            print(f"[memory:embeddings] Failed to load local model: {e}", file=sys.stderr)
+            sys.stderr.write(f"[memory:embeddings] Failed to load local model: {e}\n")
             raise
 
     def embed(self, texts: list[str]) -> list[list[float]]:
@@ -84,9 +84,8 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
                 r = requests.post(url, json=payload, timeout=30)
                 if r.status_code == 429:
                     wait = 2**attempt
-                    print(
-                        f"[memory:embeddings] Gemini rate limit (429). Retrying in {wait}s...",
-                        file=sys.stderr,
+                    sys.stderr.write(
+                        f"[memory:embeddings] Gemini rate limit (429). Retrying in {wait}s...\n"
                     )
                     time.sleep(wait)
                     continue
@@ -102,10 +101,9 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
 
             except requests.RequestException as e:
                 if attempt == self.retries - 1:
-                    print(
+                    sys.stderr.write(
                         f"[memory:embeddings] Gemini API call failed after "
-                        f"{self.retries} attempts: {e}",
-                        file=sys.stderr,
+                        f"{self.retries} attempts: {e}\n"
                     )
                     raise
                 time.sleep(2**attempt)

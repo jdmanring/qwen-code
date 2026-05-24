@@ -13,7 +13,7 @@ This architecture enables:
 - High-quality cloud semantic memory
 - Tool-based retrieval inside Qwen Code
 
-For a detailed explanation of how the agent cognitively interacts with this system, see [Memory Intelligence: From Tools to Cognition](memory-intelligence.md) and the [Memory Taxonomy](memory-taxonomy.md).
+For a detailed explanation of how the agent interacts with the memory system, see [Memory Retrieval Behavior](memory-retrieval-behavior.md) and the [Memory Taxonomy](memory-taxonomy.md).
 
 ---
 

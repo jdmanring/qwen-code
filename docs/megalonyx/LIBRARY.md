@@ -20,7 +20,7 @@ This document serves as the central index for all knowledge contained within the
 | :--- | :--- | :--- |
 | [System Layout](architecture/layout.md) | Blueprint vs Machine mapping. | `architecture/layout.md` |
 | [Memory Hierarchy](explanation/system-overview.md) | RAG architecture overview. | `explanation/system-overview.md` |
-| [Cognitive Efficiency](explanation/cognitive-efficiency.md) | Token optimization and semantic anchoring. | `explanation/cognitive-efficiency.md` |
+| [Context Window Optimization](explanation/context-window-optimization.md) | Token optimization and semantic anchoring. | `explanation/context-window-optimization.md` |
 | [Semantic Navigation](architecture/semantic-navigation.md) | AST and symbol mapping logic. | `architecture/semantic-navigation.md` |
 | [Tool Isolation](architecture/tool-isolation.md) | WASM sandboxing specification. | `architecture/tool-isolation.md` |
 

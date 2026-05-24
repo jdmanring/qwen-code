@@ -46,6 +46,13 @@ Orchestrator: Cognitive Synthesis (CPU). Sub-Agents: Atomic Execution (Workers).
 - [P-ANCHOR]: (Directory Entry => Scan for `.qwen-context` => Integrate into Context).
 - [P-LOCAL-LAW]: Local `.qwen-context` mandates => Precedence over Global Axioms within Scope.
 
+## [M-STANDARDS] Naming and Code Standards
+Full standard: `docs/meta/engineering-standards.md`
+- Names must be immediately descriptive. An AI reading a name should predict the contents without opening the file.
+- Good: `upstream_ingest_pipeline.py`, `gate_failure_tests.py`. Bad: `orchestrator.py`, `chaos_tests.py`.
+- No AI jargon, project metaphors, or dramatic labels in file names, function names, or identifiers.
+- No bare `print()` in production code — use `sys.stderr.write()` or `SystemLogger`.
+
 ## [M-REMINDER] Critical Check
 1. READ FULL FILES.
 2. NO DIRECT EXECUTION in Blueprint.

@@ -11,6 +11,6 @@ echo "pre-commit: ruff format check..."
 uv run ruff format --check .
 
 echo "pre-commit: project standards lint..."
-uv run python3 tooling/project_standards_linter.py --strict tooling/ docs/meta/
+uv run python3 tooling/project_standards_linter.py --strict tooling/ docs/ apps/control-plane-daemon/ packages/agent-infra/ packages/agent-memory/ scripts/
 
 echo "pre-commit: all checks passed."

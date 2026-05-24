@@ -218,6 +218,8 @@ class ProjectStandardsLinter:
             elif item.is_file():
                 if item.suffix in (".lock", ".template"):
                     continue
+                if item.name.startswith("."):
+                    continue
                 if not (docs_dir / relative_path.with_suffix(".md")).exists():
                     violations.append(
                         Issue(

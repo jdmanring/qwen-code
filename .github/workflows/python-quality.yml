@@ -39,4 +39,4 @@ jobs:
         run: uv run python3 tooling/symmetry_check.py
 
       - name: Project standards lint
-        run: uv run python3 tooling/project_standards_linter.py --strict tooling/ docs/meta/
+        run: uv run python3 tooling/project_standards_linter.py --strict tooling/ docs/ apps/control-plane-daemon/ packages/agent-infra/ packages/agent-memory/ scripts/
