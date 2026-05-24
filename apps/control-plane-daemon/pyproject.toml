@@ -1,0 +1,12 @@
+[project]
+name = "control-plane-daemon"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "agent-memory",
+    "agent-infra",
+]
+
+[tool.uv.sources]
+agent-memory = { workspace = true }
+agent-infra = { workspace = true }
