@@ -1,0 +1,45 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: ['integration', 'develop', 'main', 'release/**']
+  pull_request:
+    branches: ['integration', 'develop', 'main']
+
+concurrency:
+  group: '${{ github.workflow }}-${{ github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  smoke-tests:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+
+    services:
+      qdrant:
+        image: qdrant/qdrant:latest
+        ports:
+          - 6333:6333
+        options: >-
+          --health-cmd "curl -sf http://localhost:6333/readiness || exit 1"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install all workspace packages
+        run: uv sync --all-packages
+
+      - name: Boot verification
+        run: uv run python3 tooling/smoke-tests/boot_verification.py
+
+      - name: Model router integration test
+        run: uv run python3 tooling/smoke-tests/model_router_test.py

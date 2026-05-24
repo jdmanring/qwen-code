@@ -410,12 +410,16 @@ class ProjectStandardsLinter:
         except SyntaxError:
             return []
 
+        lines = content.splitlines()
         violations = []
         for node in ast.walk(tree):
             if isinstance(node, ast.ExceptHandler):
                 if node.type is None or (
                     isinstance(node.type, ast.Name) and node.type.id == "Exception"
                 ):
+                    line_idx = node.lineno - 1
+                    if line_idx < len(lines) and "# noqa" in lines[line_idx]:
+                        continue
                     violations.append(
                         Issue(
                             path,
