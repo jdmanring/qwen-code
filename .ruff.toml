@@ -23,6 +23,7 @@ ignore = [
 "tooling/sync-upstreams/gate_failure_tests.py" = ["ANN"]
 # Files containing long multi-line string constants — sentences cannot be split at 100 chars
 "apps/control-plane-daemon/src/control_plane_daemon/agent_generator.py" = ["E501"]
+"apps/control-plane-daemon/src/control_plane_daemon/control_plane.py" = ["E501"]
 "apps/control-plane-daemon/src/control_plane_daemon/intent_classifier.py" = ["E501"]
 "apps/control-plane-daemon/src/control_plane_daemon/task_decomposer.py" = ["E501"]
 "apps/control-plane-daemon/tests/**" = ["E501"]

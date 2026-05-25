@@ -1,0 +1,17 @@
+{
+  "Targeted Bugfix": {
+    "decomposition": 0.030307081574574114,
+    "execution": 0.0013195567764341832,
+    "total": 0.03162700696848333
+  },
+  "Feature Implementation": {
+    "decomposition": 0.0017419535899534822,
+    "execution": 0.003974768379703164,
+    "total": 0.005717004393227398
+  },
+  "Architectural Refactor": {
+    "decomposition": 0.0017082751961424946,
+    "execution": 0.0013095758389681579,
+    "total": 0.0030181089881807567
+  }
+}

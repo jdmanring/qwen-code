@@ -3,11 +3,26 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@11.2.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "packages/channels/*"
+  ],
   "scripts": {
     "nx": "nx",
     "dev": "nx run-many --target=serve",
     "check": "nx run-many --target=lint",
-    "test-all": "nx run-many --target=test"
+    "test-all": "nx run-many --target=test",
+    "build": "node scripts/generate-git-commit-info.js && nx run @qwen-code/qwen-code:build && node esbuild.config.js && node scripts/copy_bundle_assets.js",
+    "build:packages": "nx run @qwen-code/qwen-code:build",
+    "build:all": "node scripts/generate-git-commit-info.js && nx run-many --target=build && node esbuild.config.js && node scripts/copy_bundle_assets.js",
+    "bundle": "node scripts/generate-git-commit-info.js && node esbuild.config.js && node scripts/copy_bundle_assets.js",
+    "start": "node dist/cli.js",
+    "typecheck": "nx run-many --target=typecheck",
+    "format": "nx run-many --target=format",
+    "clean": "node scripts/clean.js",
+    "preflight": "pnpm install --frozen-lockfile && pnpm run build && pnpm run check && pnpm run typecheck && pnpm test-all"
   },
   "devDependencies": {
     "@opentelemetry/api-logs": "0.218.0",
@@ -31,6 +46,7 @@
     "typescript-eslint": "^8.0.0",
     "glob": "^13.0.0",
     "nx": "22.7.3",
+    "prettier": "^3.5.3",
     "punycode": "^2.3.0",
     "typescript": "5.3.3",
     "vite": "5.0.0",

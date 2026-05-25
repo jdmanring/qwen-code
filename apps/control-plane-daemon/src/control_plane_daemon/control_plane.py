@@ -104,8 +104,8 @@ class ControlPlane:
             "intent_classified",
             {
                 "intent": intent_name,
-                "reasoning": classification["reasoning"],
-                "risk": classification["risk_profile"],
+                "reasoning": classification.get("reasoning", "No reasoning provided"),
+                "risk": classification.get("risk_profile", "Unknown"),
             },
         )
 
@@ -357,9 +357,11 @@ class ControlPlane:
         while not self.is_complete():
             job = self.get_next_job()
             if not job:
+                print("DEBUG: No more jobs, breaking loop")
                 break
 
             job_id = job["job_id"]
+            print(f"DEBUG: Processing job {job_id}")
             self.status_manager.update_job_status(job_id, "running", 0.0, job["description"][:50])
 
             # HANDLE WORKFLOW JOBS
@@ -420,19 +422,55 @@ class ControlPlane:
 
             # 3. ACT: Execute the job
             # The current history includes the original prompt and any previous failure logs
-            job_response = run_job_execution(
-                job,
-                history[-1]["content"] if history else prompt,
-                skill_config,
-                model_id,
-                settings,
-                self.jsm,
-                search_tool,
-                self.policy_engine,
-                job["job_type"],
-                context=root_context.clone(),
-                history=history,
-            )
+            try:
+                job_response = run_job_execution(
+                    job,
+                    history[-1]["content"] if history else prompt,
+                    skill_config,
+                    model_id,
+                    settings,
+                    self.jsm,
+                    search_tool,
+                    self.policy_engine,
+                    job["job_type"],
+                    context=root_context.clone(),
+                    history=history,
+                )
+            except (BrokenPipeError, ConnectionResetError, OSError) as e:
+                self.logger.error(
+                    "job_execution_transport_failure", {"job_id": job_id, "error": str(e)}
+                )
+                # Treat transport failure as a verification failure to trigger the correction loop
+                job_response = f"Transport Error: {str(e)}"
+
+                # We create a mock-like result object instead of using MagicMock in production code
+                class VerificationResult:
+                    def __init__(self, success: bool, action: str, logs: str) -> None:
+                        self.is_success = success
+                        self.suggested_action = action
+                        self.logs = logs
+
+                v_result = VerificationResult(False, "RETRY", f"Transport failure: {str(e)}")
+
+                # Skip to correction logic
+                global_retry_count += 1
+                if global_retry_count >= GLOBAL_RETRY_LIMIT:
+                    self.update_job(job_id, "failed", result=job_response)
+                    self.status_manager.update_job_status(
+                        job_id, "failed", 0.0, "Failed: Limit reached"
+                    )
+                    self._fail_all_pending()
+                    break
+
+                correction_prompt = (
+                    f"TRANSPORT FAILURE for Job {job_id}:\\n{v_result.logs}\\n\\n"
+                    "Please check the service status and retry."
+                )
+                history.append({"role": "user", "content": correction_prompt})
+                self.update_job(job_id, "retrying", result=job_response)
+                self.status_manager.update_job_status(job_id, "retrying", 50.0, "Retrying...")
+                continue
+
             history.append({"role": "assistant", "content": job_response})
 
             # 4. OBSERVE & VERIFY: Check against contract

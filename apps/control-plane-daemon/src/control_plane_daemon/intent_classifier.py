@@ -15,28 +15,28 @@ INTENT_TAXONOMY = {
         "risk_profile": "Low",
         "verification": "Low",
     },
-    "Surgical Correction": {
+    "Targeted Bugfix": {
         "description": "Targeted fix for a known bug or a specific logic error in a localized area of the code.",
         "goal": "The bug is resolved; existing tests pass; no regressions introduced in the local scope.",
         "tool_chain": ["read_file", "edit", "test-coverage-max"],
         "risk_profile": "Low-Med",
         "verification": "Medium",
     },
-    "Feature Synthesis": {
+    "Feature Implementation": {
         "description": "Implementation of new functionality based on a design specification or user requirement.",
         "goal": "New logic is implemented and verified against the spec; new tests cover the happy path and edge cases.",
         "tool_chain": ["todo_write", "read_file", "edit", "test-coverage-max"],
         "risk_profile": "Med",
         "verification": "High",
     },
-    "Structural Evolution": {
+    "Architectural Refactor": {
         "description": "Systemic refactoring to improve maintainability, performance, or architecture without changing external behavior.",
         "goal": "Code is reorganized; architectural debt is reduced; behavior is identical (verified by regression tests).",
         "tool_chain": ["grep_search", "refactor-safe", "batch", "review"],
         "risk_profile": "High",
         "verification": "Critical",
     },
-    "Adversarial Review": {
+    "System Audit": {
         "description": "Proactive search for vulnerabilities, race conditions, memory leaks, or performance bottlenecks.",
         "goal": "A documented list of flaws with evidence; proposed remediation paths.",
         "tool_chain": ["review", "root-cause-hunter", "grep_search"],

@@ -139,7 +139,7 @@ class TaskDecomposer:
                         "type": "synthesis",
                     },
                 ],
-                "Surgical Correction": [
+                "Targeted Bugfix": [
                     {
                         "desc": "Isolate the exact line of failure",
                         "skill": "troubleshooter",
@@ -156,7 +156,7 @@ class TaskDecomposer:
                         "type": "verification",
                     },
                 ],
-                "Feature Synthesis": [
+                "Feature Implementation": [
                     {
                         "desc": "Investigate current implementation and requirements",
                         "skill": "researcher",
@@ -193,7 +193,7 @@ class TaskDecomposer:
                         "type": "verification",
                     },
                 ],
-                "Structural Evolution": [
+                "Architectural Refactor": [
                     {
                         "desc": "Map current structural dependencies",
                         "skill": "architect",
@@ -210,7 +210,7 @@ class TaskDecomposer:
                         "type": "verification",
                     },
                 ],
-                "Adversarial Review": [
+                "System Audit": [
                     {
                         "desc": "Scan for known vulnerability patterns",
                         "skill": "security_auditor",

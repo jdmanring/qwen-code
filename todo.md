@@ -213,6 +213,56 @@ All errors were in QwenLM upstream source. `tsc --build` now exits 0 for both co
 
 ---
 
+## Phase 4.8: pnpm Developer Experience Hardening (In Progress — 2026-05-25)
+
+### Completed
+- [x] `scripts/generate-git-commit-info.js`: removed `read-package-up` phantom dep — now reads
+      `packages/cli/package.json` directly via `readFileSync`. Previously would fail under pnpm
+      strict isolation and would read root version 0.1.0 instead of CLI version 0.16.1.
+- [x] Root `package.json`: added `workspaces` field for `scripts/clean.js` compatibility
+      (pnpm uses `pnpm-workspace.yaml`; `clean.js` reads `package.json#workspaces`)
+- [x] Root `package.json`: added scripts — `build`, `build:packages`, `build:all`, `bundle`,
+      `start`, `typecheck`, `format`, `clean`, `preflight`
+- [x] `packages/web-templates/package.json`: added `prettier: ^3.5.3` devDep — `build.mjs`
+      imports prettier at build time; pnpm strict isolation exposes this phantom dep
+- [x] Root `package.json`: added `prettier: ^3.5.3` devDep (upstream has it; we were missing it)
+- [x] `pnpm build` fixed: targets `nx run @qwen-code/qwen-code:build` (CLI + deps only);
+      `pnpm build:all` available for all packages. `node dist/cli.js --version` → 0.16.1
+
+- [x] Root `package.json`: added `"packageManager": "pnpm@11.2.2"` — enables Corepack to auto-install
+      correct pnpm version on clone; blocks accidental `npm install`
+- [x] `.npmrc`: added `strict-peer-dependencies=false` (upstream packages have unresolved peer deps)
+      and `link-workspace-packages=true` (explicit workspace symlink behavior)
+- [x] README: added Node.js/pnpm Getting Started section with command table and npm→pnpm comparison
+
+### Remaining
+- [ ] vscode-ide-companion TypeScript errors — see tracked issue below
+- [ ] **FUTURE: Migrate `overrides` → `pnpm catalog:`** — pnpm 9+ feature. Replace
+      `pnpm-workspace.yaml overrides` with `catalog:` entries; update each `package.json` to use
+      `"vitest": "catalog:"` etc. Makes version pinning visible and opt-in rather than silent global
+      override. Requires touching ~15 package.json files. Track as Phase 4.9.
+
+### Known Issue: vscode-ide-companion build (`pnpm build:all` only — does not block `pnpm build`)
+`qwen-code-vscode-ide-companion:build` has 20+ TypeScript errors exposed by pnpm strict isolation
+and upstream API changes. These do NOT affect the CLI build (`pnpm build` succeeds). Tracked here
+for future resolution:
+
+| Category | Error | Files affected |
+|---|---|---|
+| Phantom dep | `@qwen-code/qwen-code-core` not in devDeps or tsconfig paths | diff-manager, extension, ide-server, open-files-manager, qwenSessionManager/Reader, sessionExportService, settingsWriter, acpModelInfo, imageSupport (11+ files) |
+| ACP SDK rename | `unstable_listSessions` → unknown (v0.22.1) | acpConnection.ts:561–562 |
+| SDK API missing | `DaemonClient`, `DaemonSessionClient` not in `@qwen-code/sdk` | daemonIdeConnection.ts:21–22 |
+| webui API missing | `stripZeroWidthSpaces`, `AskUserQuestionDialog`, `InsightProgressCard`, `ImageMessageRenderer`, `ImagePreview`, `ZERO_WIDTH_SPACE` not in `@qwen-code/webui` | App.tsx:26–46, sessionExportService.ts:26 |
+| Type narrowing | `ContentBlock[] | {type,text}[]` not assignable | acpConnection.ts:475 |
+| Type narrowing | `UserMessageProps` type mismatch | App.tsx:194 |
+| Implicit any | parameter `m` | settingsWriter.test.ts:123 |
+
+Fix order when addressed: phantom dep first (tsconfig paths + devDeps), then API changes
+(check @agentclientprotocol/sdk v0.22.1 changelog for listSessions rename, check @qwen-code/sdk
+exports for Daemon types, check @qwen-code/webui exports for missing members).
+
+---
+
 ## Phase 5: Dependency Upgrades
 
 Full plan: `docs/megalonyx/dependency-upgrade-plan.md`

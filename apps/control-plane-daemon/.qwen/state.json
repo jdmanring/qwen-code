@@ -1,0 +1,56 @@
+{
+    "active_phase": "PLANNING",
+    "todo_list": [],
+    "rag_context": {},
+    "archive": [],
+    "last_agent": null,
+    "iteration_count": 0,
+    "global_constraints": [],
+    "metadata": {
+        "session_start": null,
+        "total_turns": 0
+    },
+    "active_job_set": {
+        "start_time": "2026-05-25T05:38:49.269863",
+        "jobs": {
+            "architectural_refactor_1": {
+                "job_id": "architectural_refactor_1",
+                "description": "Map current structural dependencies",
+                "assigned_skill": "architect",
+                "job_type": "discovery",
+                "status": "completed",
+                "dependencies": [],
+                "verification_criteria": "Standard verification for discovery",
+                "result": "Refactored architecture.",
+                "updated_at": "2026-05-25T05:38:49.270616"
+            },
+            "architectural_refactor_2": {
+                "job_id": "architectural_refactor_2",
+                "description": "Execute systemic refactoring",
+                "assigned_skill": "developer",
+                "job_type": "mutation",
+                "status": "completed",
+                "dependencies": [
+                    "architectural_refactor_1"
+                ],
+                "verification_criteria": "Standard verification for mutation",
+                "result": "Refactored architecture.",
+                "updated_at": "2026-05-25T05:38:49.271050"
+            },
+            "architectural_refactor_3": {
+                "job_id": "architectural_refactor_3",
+                "description": "Perform regression audit",
+                "assigned_skill": "reviewer",
+                "job_type": "verification",
+                "status": "completed",
+                "dependencies": [
+                    "architectural_refactor_1",
+                    "architectural_refactor_2"
+                ],
+                "verification_criteria": "Standard verification for verification",
+                "result": "Refactored architecture.",
+                "updated_at": "2026-05-25T05:38:49.271466"
+            }
+        }
+    }
+}

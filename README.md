@@ -43,7 +43,64 @@ To promote a verified state of `develop` to `integration` for a combined release
 
 ## Getting started
 
-**Prerequisites:** `uv` (Python package manager), `node` 22+, `curl`
+**Prerequisites:** `node` 22+, `pnpm` 11+, `uv` (Python package manager), `curl`
+
+### Node.js CLI (qwen)
+
+```bash
+# Install all Node.js dependencies
+pnpm install
+
+# Build the CLI and all its dependencies (core, acp-bridge, channels, web-templates)
+pnpm build
+
+# Verify the build
+node dist/cli.js --version   # → 0.16.1
+```
+
+Run the CLI directly from the build output:
+```bash
+node dist/cli.js             # interactive session
+node dist/cli.js "describe this repo"
+```
+
+Or install it globally from the repo:
+```bash
+npm install -g .
+qwen                         # same binary, on PATH
+```
+
+Common development commands:
+
+| Task | Command | Notes |
+|---|---|---|
+| Build CLI (+ deps) | `pnpm build` | Full compile + esbuild bundle |
+| Compile packages only | `pnpm build:packages` | No bundle step |
+| Build everything | `pnpm build:all` | Includes vscode extension |
+| Run all tests | `pnpm test-all` | 376/377 pass (1 pre-existing upstream skip) |
+| Lint | `pnpm run check` | ESLint via nx |
+| Type-check | `pnpm run typecheck` | tsc --noEmit per package |
+| Format | `pnpm run format` | Prettier via nx |
+| Clean dist + node_modules | `pnpm run clean` | Safe to re-run pnpm install after |
+| Full preflight | `pnpm run preflight` | install → build → lint → typecheck → test |
+
+**Coming from QwenLM/qwen-code?** The pnpm equivalents are:
+
+| npm (upstream) | pnpm (here) |
+|---|---|
+| `npm ci` | `pnpm install --frozen-lockfile` |
+| `npm run build` | `pnpm build` |
+| `npm test` | `pnpm test-all` |
+| `npm run lint:ci` | `pnpm run check` |
+| `npm run typecheck` | `pnpm run typecheck` |
+| `npm run preflight` | `pnpm run preflight` |
+
+**Why pnpm?** Strict package isolation — each package can only import what it explicitly declares.
+This catches phantom dependencies that slip through npm's flat hoisting and would cause runtime
+failures in environments without a matching global install. Installs are also significantly faster
+via a content-addressed store shared across projects.
+
+### Python services
 
 ```bash
 # Install all Python packages (all three workspace members)
