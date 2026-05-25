@@ -128,6 +128,45 @@
 
 ---
 
+## Phase 4.5: CI Hardening, Infrastructure, and Upstream PR Preparation (Complete — 2026-05-24/25)
+
+### Architecture: Fork-as-Filter — Complete
+- [x] Removed `upstream` remote pointing to QwenLM/qwen-code directly from megalonyx-monorepo
+- [x] Renamed `mirror` remote → `upstream` (now points to jdmanring/qwen-code fork)
+- [x] Pipeline fetches from the fork — human review gate before any upstream code enters
+- [x] Added `PROTECTED_FILES` enforcement to pipeline: ci.yml, e2e.yml, sdk-python/pyproject.toml restored after each merge
+- [x] Added `sync-fork-from-qwenlm.sh` — script to promote QwenLM commits into the fork after review
+- [x] Updated contribute-upstream.sh: all `mirror` refs → `upstream`
+- [x] Updated docs: sync-policy.md, git-strategy.md, CLAUDE.md, upstream-pr-guide.md
+
+### CI: Eliminate npm — Complete
+- [x] Rewrote ci.yml for pnpm: added pnpm/action-setup@v4, switched cache to pnpm, replaced npm ci → pnpm install --frozen-lockfile
+- [x] Removed scripts that don't exist in our package.json (check:lockfile, check-i18n, test:ci, generate:settings-schema)
+- [x] Confirmed release workflows (release.yml, release-sdk.yml, etc.) are guarded by `github.repository == 'QwenLM/qwen-code'` — won't run on our fork, no changes needed
+
+### Infrastructure Gaps — Complete
+- [x] Added .github/CODEOWNERS — @jdmanring on all paths
+- [x] Added .github/SECURITY.md — responsible disclosure policy, credential file list
+- [x] Fixed .github/dependabot.yml — corrected reviewer, re-enabled PRs, added ignore list for pinned packages, weekly Monday schedule targeting develop
+
+### Quality Gates — Complete (with one blocker)
+- [x] Created packages/webui/vitest.config.ts — 25 orphaned tests now reachable via pnpm test-all
+- [x] Added coverage thresholds to packages/core/vitest.config.ts — 75% statements/lines, 77% functions, 78% branches
+- [x] Added staged-file ESLint check to pre-commit hook (fast: only staged files)
+- [ ] CLI coverage thresholds — blocked: pre-existing TypeScript build errors (missing @types/shell-quote, AbortSignal.any) prevent clean build; resolve in Phase M (TypeScript upgrade)
+
+### Upstream PR Backlog — Not Yet Submitted
+All branches are prepared but NOT submitted. User must approve each before submission.
+See `docs/upstream/upstream-pr-guide.md` and `docs/upstream/upstream-pr-checklist.md`.
+
+| PR | Status |
+|---|---|
+| PR-1: fix(lint): extend node_modules ignore + yargs import | Pending approval |
+| PR-2: fix(openai): narrow toolCall union type | Pending approval |
+| PR-3–14: See upstream-pr-guide.md | Pending approval |
+
+---
+
 ## Phase 5: Dependency Upgrades
 
 Full plan: `docs/megalonyx/dependency-upgrade-plan.md`
