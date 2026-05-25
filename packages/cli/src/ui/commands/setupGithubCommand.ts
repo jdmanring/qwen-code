@@ -21,7 +21,7 @@ import type { SlashCommand, SlashCommandActionReturn } from './types.js';
 import { CommandKind } from './types.js';
 import { getUrlOpenCommand } from '../../ui/utils/commandUtils.js';
 import { t } from '../../i18n/index.js';
-import { createDebugLogger } from '@qwen-code/qwen-code-core';
+import { abortSignalAny, createDebugLogger } from '@qwen-code/qwen-code-core';
 
 const debugLogger = createDebugLogger('SETUP_GITHUB');
 
@@ -160,7 +160,7 @@ export const setupGithubCommand: SlashCommand = {
           const response = await fetch(endpoint, {
             method: 'GET',
             dispatcher: proxy ? new ProxyAgent(proxy) : undefined,
-            signal: AbortSignal.any([
+            signal: abortSignalAny([
               AbortSignal.timeout(30_000),
               abortController.signal,
             ]),
@@ -189,7 +189,7 @@ export const setupGithubCommand: SlashCommand = {
             flush: true,
           });
 
-          await body.pipeTo(Writable.toWeb(fileStream));
+          await body.pipeTo(Writable.toWeb(fileStream) as WritableStream<Uint8Array>);
         })(),
       );
     }

@@ -23,6 +23,7 @@
     "scripts/postinstall.js"
   ],
   "dependencies": {
+    "@agentclientprotocol/sdk": "^0.22.1",
     "@anthropic-ai/sdk": "^0.98.0",
     "@google/genai": "2.6.0",
     "@iarna/toml": "^2.2.5",
@@ -93,6 +94,7 @@
     "@types/fast-levenshtein": "^0.0.4",
     "@types/picomatch": "^4.0.1",
     "@types/prompts": "^2.4.9",
+    "@types/shell-quote": "^1.7.5",
     "@types/ws": "^8.5.10",
     "archiver": "^8.0.0",
     "mock-fs": "^5.5.0",

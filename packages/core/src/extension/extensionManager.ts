@@ -1351,7 +1351,7 @@ export class ExtensionManager {
             ),
           ),
       )
-    ).filter((updateInfo) => !!updateInfo);
+    ).filter((updateInfo): updateInfo is ExtensionUpdateInfo => !!updateInfo);
   }
 
   async refreshMemory(): Promise<void> {

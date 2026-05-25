@@ -8,6 +8,7 @@ import type { Content } from '@google/genai';
 import type { Config } from '../config/config.js';
 import { runSideQuery } from '../utils/sideQuery.js';
 import type { ScannedAutoMemoryDocument } from './scan.js';
+import { abortSignalAny } from '../utils/abortSignalAny.js';
 
 /**
  * System prompt for the selector side-query.
@@ -100,7 +101,7 @@ export async function selectRelevantAutoMemoryDocumentsByModel(
     // Without this ceiling, a callerless invocation would use an
     // unsignalled AbortController and run indefinitely.
     abortSignal: callerAbortSignal
-      ? AbortSignal.any([AbortSignal.timeout(30_000), callerAbortSignal])
+      ? abortSignalAny([AbortSignal.timeout(30_000), callerAbortSignal])
       : AbortSignal.timeout(30_000),
 
     // Uses runSideQuery's default side-query model policy: fast model first,

@@ -827,7 +827,7 @@ export class GitWorktreeService {
       }
 
       const patch = await this.withStagedChanges(worktreeGit, () =>
-        worktreeGit.diff(['--binary', '--cached', base]),
+        worktreeGit.diff(['--binary', '--cached', base!]),
       );
 
       if (!patch.trim()) {

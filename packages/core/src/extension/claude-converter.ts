@@ -119,12 +119,13 @@ const claudeBuildInToolsTransform = (tools: string[]): string[] => {
     if (!CLAUDE_TOOLS_MAPPING[tool]) {
       transformedTools.push(tool);
     } else {
-      if (CLAUDE_TOOLS_MAPPING[tool] === 'None') {
+      const mapping = CLAUDE_TOOLS_MAPPING[tool];
+      if (mapping === 'None') {
         return;
-      } else if (Array.isArray(CLAUDE_TOOLS_MAPPING[tool])) {
-        transformedTools.push(...CLAUDE_TOOLS_MAPPING[tool]);
+      } else if (Array.isArray(mapping)) {
+        transformedTools.push(...mapping);
       } else {
-        transformedTools.push(CLAUDE_TOOLS_MAPPING[tool]);
+        transformedTools.push(mapping);
       }
     }
   });

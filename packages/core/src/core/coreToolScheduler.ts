@@ -2521,7 +2521,7 @@ export class CoreToolScheduler {
     }
     try {
       await runInToolSpanContext(toolSpan, () =>
-        this._executeToolCallBody(scheduledCall, signal, toolSpan),
+        this._executeToolCallBody(scheduledCall, signal, toolSpan!),
       );
     } catch (error) {
       // _executeToolCallBody pre-sets span status (OK / FAILURE /

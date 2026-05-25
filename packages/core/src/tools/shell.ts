@@ -54,6 +54,7 @@ import {
 } from '../utils/shell-utils.js';
 import { parse } from 'shell-quote';
 import { createDebugLogger } from '../utils/debugLogger.js';
+import { abortSignalAny } from '../utils/abortSignalAny.js';
 import {
   isShellCommandReadOnlyAST,
   extractCommandRules,
@@ -1512,13 +1513,13 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // returns `result.promoted: true` instead of killing the child —
     // see #3842 / #3886 for the foundation.
     const promoteAbortController = new AbortController();
-    let combinedSignal = AbortSignal.any([
+    let combinedSignal = abortSignalAny([
       signal,
       promoteAbortController.signal,
     ]);
     if (effectiveTimeout) {
       const timeoutSignal = AbortSignal.timeout(effectiveTimeout);
-      combinedSignal = AbortSignal.any([
+      combinedSignal = abortSignalAny([
         signal,
         timeoutSignal,
         promoteAbortController.signal,

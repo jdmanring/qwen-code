@@ -306,7 +306,7 @@ function parseFlowEdges(line: string): FlowEdge[] {
     labels.push(
       stripMermaidPunctuation(operator[1] ?? operator[2] ?? '') || undefined,
     );
-    cursor = operator.index + operator[0].length;
+    cursor = (operator.index ?? cursor) + operator[0].length;
   }
   tokens.push(line.slice(cursor).trim());
   if (tokens.length !== operators.length + 1) {

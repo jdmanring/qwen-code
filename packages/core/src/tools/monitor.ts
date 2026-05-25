@@ -331,7 +331,7 @@ class MonitorToolInvocation extends BaseToolInvocation<
 
     // Spawn the process
     const { executable, argsPrefix } = getShellConfiguration();
-    let child;
+    let child: ReturnType<typeof spawn> | undefined;
     try {
       child = spawn(executable, [...argsPrefix, command], {
         cwd: this.params.directory || this.config.getTargetDir(),
@@ -425,34 +425,35 @@ class MonitorToolInvocation extends BaseToolInvocation<
     };
 
     const killChildProcessGroup = (): void => {
-      if (exited || !child.pid) return;
+      if (!child || exited || !child.pid) return;
+      const pid: number = child.pid;
 
       if (process.platform === 'win32') {
         const tk = spawn(
           'taskkill',
-          ['/pid', child.pid.toString(), '/f', '/t'],
+          ['/pid', pid.toString(), '/f', '/t'],
           { stdio: 'ignore' },
         );
         tk.on('error', (err) =>
           debugLogger.warn(
-            `Monitor taskkill failed for pid ${child.pid}: ${getErrorMessage(err)}`,
+            `Monitor taskkill failed for pid ${pid}: ${getErrorMessage(err)}`,
           ),
         );
       } else {
         try {
-          process.kill(-child.pid, 'SIGTERM');
+          process.kill(-pid, 'SIGTERM');
         } catch (err) {
           debugLogger.warn(
-            `Monitor ${monitorId} SIGTERM failed (pid=${child.pid}): ${getErrorMessage(err)}`,
+            `Monitor ${monitorId} SIGTERM failed (pid=${pid}): ${getErrorMessage(err)}`,
           );
         }
         setTimeout(() => {
-          if (!exited && child.pid) {
+          if (!exited) {
             try {
-              process.kill(-child.pid, 'SIGKILL');
+              process.kill(-pid, 'SIGKILL');
             } catch (err) {
               debugLogger.warn(
-                `Monitor ${monitorId} SIGKILL escalation failed (pid=${child.pid}): ${getErrorMessage(err)}`,
+                `Monitor ${monitorId} SIGKILL escalation failed (pid=${pid}): ${getErrorMessage(err)}`,
               );
             }
           }

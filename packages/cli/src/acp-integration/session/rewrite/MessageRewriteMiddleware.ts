@@ -6,7 +6,7 @@
 
 import type { SessionUpdate } from '@agentclientprotocol/sdk';
 import type { Config } from '@qwen-code/qwen-code-core';
-import { createDebugLogger } from '@qwen-code/qwen-code-core';
+import { abortSignalAny, createDebugLogger } from '@qwen-code/qwen-code-core';
 import type { MessageRewriteConfig } from './types.js';
 import { TurnBuffer } from './TurnBuffer.js';
 import { LlmRewriter } from './LlmRewriter.js';
@@ -116,7 +116,7 @@ export class MessageRewriteMiddleware {
     // Always enforce a timeout, combined with caller's signal if provided
     const timeoutSignal = AbortSignal.timeout(this.timeoutMs);
     const rewriteSignal = signal
-      ? AbortSignal.any([signal, timeoutSignal])
+      ? abortSignalAny([signal, timeoutSignal])
       : timeoutSignal;
 
     this.pendingRewrites.push(

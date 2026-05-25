@@ -896,7 +896,7 @@ export async function start_sandbox(
   });
 
   return new Promise<number>((resolve, reject) => {
-    sandboxProcess.on('error', (err) => {
+    sandboxProcess!.on('error', (err) => {
       writeStderrLine(`Sandbox process error: ${err}`);
       reject(err);
     });

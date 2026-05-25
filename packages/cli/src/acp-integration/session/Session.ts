@@ -589,7 +589,8 @@ export class Session implements SessionContext {
         // Check if the input contains a slash command
         // Extract text from the first text block if present
         const firstTextBlock = params.prompt.find(
-          (block) => block.type === 'text',
+          (block): block is ContentBlock & { type: 'text'; text: string } =>
+            block.type === 'text',
         );
         const inputText = firstTextBlock?.text || '';
 

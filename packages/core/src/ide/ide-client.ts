@@ -269,7 +269,8 @@ export class IdeClient {
         .then((parsedResultData) => {
           if (parsedResultData.isError) {
             const textPart = parsedResultData.content.find(
-              (part) => part.type === 'text',
+              (part): part is { type: 'text'; text: string } =>
+                part.type === 'text',
             );
             const errorMessage =
               textPart?.text ?? `Tool 'openDiff' reported an error.`;
@@ -350,7 +351,8 @@ export class IdeClient {
 
       if (resultData.isError) {
         const textPart = resultData.content.find(
-          (part) => part.type === 'text',
+          (part): part is { type: 'text'; text: string } =>
+            part.type === 'text',
         );
         const errorMessage =
           textPart?.text ?? `Tool 'closeDiff' reported an error.`;
@@ -361,7 +363,10 @@ export class IdeClient {
         return undefined;
       }
 
-      const textPart = resultData.content.find((part) => part.type === 'text');
+      const textPart = resultData.content.find(
+        (part): part is { type: 'text'; text: string } =>
+          part.type === 'text',
+      );
 
       if (textPart?.text) {
         try {

@@ -340,6 +340,7 @@ export {
   redactProxyCredentials,
 } from './utils/runtimeFetchOptions.js';
 export * from './utils/runtimeStatus.js';
+export * from './utils/abortSignalAny.js';
 export * from './utils/schemaValidator.js';
 export * from './utils/shell-utils.js';
 export * from './utils/subagentGenerator.js';

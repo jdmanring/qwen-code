@@ -1169,6 +1169,9 @@ export const useGeminiStream = (
         [FinishReason.IMAGE_PROHIBITED_CONTENT]:
           'Response stopped due to image prohibited content.',
         [FinishReason.NO_IMAGE]: 'Response stopped due to no image.',
+        [FinishReason.IMAGE_RECITATION]:
+          'Response stopped due to image recitation.',
+        [FinishReason.IMAGE_OTHER]: 'Response stopped due to image content.',
       };
 
       const message = finishReasonMessages[finishReason];
@@ -1789,7 +1792,7 @@ export const useGeminiStream = (
               config,
               new UserPromptEvent(
                 queryToSend.length,
-                prompt_id,
+                prompt_id!,
                 config.getContentGeneratorConfig()?.authType,
                 queryToSend,
               ),
@@ -1801,7 +1804,7 @@ export const useGeminiStream = (
         }
 
         if (submitType === SendMessageType.Retry) {
-          logUserRetry(config, new UserRetryEvent(prompt_id));
+          logUserRetry(config, new UserRetryEvent(prompt_id!));
         }
 
         setIsResponding(true);
@@ -2375,7 +2378,7 @@ export const useGeminiStream = (
         pendingRetryErrorItem,
         pendingRetryCountdownItem,
         pendingToolCallGroupDisplay,
-      ].filter((i) => i !== undefined && i !== null),
+      ].filter((i): i is HistoryItemWithoutId => i !== undefined && i !== null),
     [
       pendingHistoryItem,
       pendingRetryErrorItem,

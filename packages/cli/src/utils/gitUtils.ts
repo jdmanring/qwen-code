@@ -6,7 +6,7 @@
 
 import { execSync } from 'node:child_process';
 import { ProxyAgent } from 'undici';
-import { createDebugLogger } from '@qwen-code/qwen-code-core';
+import { abortSignalAny, createDebugLogger } from '@qwen-code/qwen-code-core';
 
 const debugLogger = createDebugLogger('GIT');
 
@@ -71,7 +71,7 @@ export const getLatestGitHubRelease = async (
         'X-GitHub-Api-Version': '2022-11-28',
       },
       dispatcher: proxy ? new ProxyAgent(proxy) : undefined,
-      signal: AbortSignal.any([AbortSignal.timeout(30_000), controller.signal]),
+      signal: abortSignalAny([AbortSignal.timeout(30_000), controller.signal]),
     } as RequestInit);
 
     if (!response.ok) {

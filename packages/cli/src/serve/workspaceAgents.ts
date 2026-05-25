@@ -658,7 +658,10 @@ function safeLogValue(raw: unknown): string {
  * sending its own 400 — caller must short-circuit on `null`.
  */
 function validateAgentType(req: Request, res: Response): string | null {
-  const raw = req.params['agentType'];
+  // Express 5 types params as string | string[]; named route params are always
+  // single strings at runtime.
+  const rawParam = req.params['agentType'];
+  const raw = Array.isArray(rawParam) ? (rawParam[0] ?? '') : rawParam;
   if (!raw || raw.length === 0) {
     res.status(400).json({
       error: '`agentType` path parameter is required',

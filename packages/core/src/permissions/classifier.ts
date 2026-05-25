@@ -27,6 +27,7 @@ import {
   STAGE2_SUFFIX,
 } from './classifier-prompts/system-prompt.js';
 import { buildClassifierContents } from './classifier-transcript.js';
+import { abortSignalAny } from '../utils/abortSignalAny.js';
 
 // Tag-scoped logger so an operator debugging "every AUTO call gets
 // unavailable=true" can grep for [CLASSIFIER] in the debug log and see
@@ -154,7 +155,7 @@ export async function classifyAction(
   const stage1SystemPrompt = baseSystemPrompt + STAGE1_SUFFIX;
 
   // Stage 1 ──────────────────────────────────────────────────────────────
-  const stage1Signal = AbortSignal.any([
+  const stage1Signal = abortSignalAny([
     input.signal,
     AbortSignal.timeout(STAGE1_TIMEOUT_MS),
   ]);
@@ -202,7 +203,7 @@ export async function classifyAction(
   }
 
   // Stage 2 ──────────────────────────────────────────────────────────────
-  const stage2Signal = AbortSignal.any([
+  const stage2Signal = abortSignalAny([
     input.signal,
     AbortSignal.timeout(STAGE2_TIMEOUT_MS),
   ]);

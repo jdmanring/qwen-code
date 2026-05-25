@@ -744,7 +744,7 @@ export function createServeApp(
     '/workspace/auth/device-flow/:id',
     mutate({ strict: true }),
     async (req, res) => {
-      const id = req.params['id'];
+      const id = routeParam(req.params['id']);
       if (!id) {
         res.status(404).json({
           error: 'Device-flow id required',
@@ -798,7 +798,7 @@ export function createServeApp(
     '/workspace/auth/device-flow/:id',
     mutate({ strict: true }),
     (req, res) => {
-      const id = req.params['id'];
+      const id = routeParam(req.params['id']);
       if (!id) {
         res.status(404).json({
           error: 'Device-flow id required',
@@ -992,7 +992,7 @@ export function createServeApp(
   const restoreSessionHandler =
     (action: 'load' | 'resume') =>
     async (req: express.Request, res: express.Response) => {
-      const sessionId = req.params['id'];
+      const sessionId = routeParam(req.params['id']);
       if (!sessionId) {
         res
           .status(400)
@@ -1054,7 +1054,7 @@ export function createServeApp(
   app.post('/session/:id/resume', mutate(), restoreSessionHandler('resume'));
 
   app.get('/session/:id/context', async (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = routeParam(req.params['id']);
     if (!sessionId) {
       res
         .status(400)
@@ -1072,7 +1072,7 @@ export function createServeApp(
   });
 
   app.get('/session/:id/supported-commands', async (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = routeParam(req.params['id']);
     if (!sessionId) {
       res
         .status(400)
@@ -1092,7 +1092,7 @@ export function createServeApp(
   });
 
   app.post('/session/:id/prompt', mutate(), async (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = routeParam(req.params['id']);
     const body = safeBody(req);
     const prompt = body['prompt'];
     if (!Array.isArray(prompt) || prompt.length === 0) {
@@ -1205,7 +1205,7 @@ export function createServeApp(
     // are routed through `sendBridgeError` so they share the same
     // typed shape (`404` and `400 invalid_client_id`) the rest of
     // the routes use.
-    const sessionId = req.params['id'];
+    const sessionId = routeParam(req.params['id']);
     if (!sessionId) {
       res
         .status(400)
@@ -1229,7 +1229,7 @@ export function createServeApp(
   });
 
   app.post('/session/:id/cancel', mutate(), async (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = routeParam(req.params['id']);
     const body = safeBody(req);
     const clientId = parseClientIdHeader(req, res);
     if (clientId === null) return;
@@ -1252,7 +1252,7 @@ export function createServeApp(
   });
 
   app.delete('/session/:id', async (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = routeParam(req.params['id']);
     const clientId = parseClientIdHeader(req, res);
     if (clientId === null) return;
     try {
@@ -1270,7 +1270,7 @@ export function createServeApp(
   });
 
   app.patch('/session/:id/metadata', (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = routeParam(req.params['id']);
     const body = safeBody(req);
     const clientId = parseClientIdHeader(req, res);
     if (clientId === null) return;
@@ -1302,7 +1302,7 @@ export function createServeApp(
     // Express decodes URL-encoded path params automatically; clients pass
     // the absolute workspace cwd encoded (e.g.
     // GET /workspace/%2Fwork%2Fa/sessions).
-    const workspaceCwd = req.params['id'] ?? '';
+    const workspaceCwd = routeParam(req.params['id']) ?? '';
     if (!path.isAbsolute(workspaceCwd)) {
       res
         .status(400)
@@ -1326,7 +1326,7 @@ export function createServeApp(
   });
 
   app.post('/session/:id/model', mutate(), async (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = routeParam(req.params['id']);
     const body = safeBody(req);
     const modelId = body['modelId'];
     if (typeof modelId !== 'string' || !modelId) {
@@ -1367,7 +1367,7 @@ export function createServeApp(
       // `Config` and (when `persist: true`) writes `tools.approvalMode`
       // to workspace settings via the `persistApprovalMode` hook wired
       // in `runQwenServe.ts`.
-      const sessionId = req.params['id'];
+      const sessionId = routeParam(req.params['id']);
       const body = safeBody(req);
       const mode = body['mode'];
       const persist = body['persist'];
@@ -1418,7 +1418,7 @@ export function createServeApp(
       // with `{restarted:false, skipped:true, reason}`; unknown server
       // names or no live ACP channel are hard errors mapped to 4xx/5xx
       // via sendBridgeError.
-      const serverName = req.params['server'];
+      const serverName = routeParam(req.params['server']);
       if (!serverName || typeof serverName !== 'string') {
         res.status(400).json({
           error: 'Server name path parameter is required',
@@ -1493,7 +1493,7 @@ export function createServeApp(
       // session SSE bus. Already-registered tools in live sessions
       // are NOT retroactively unregistered — toggling takes effect on
       // the next ACP child spawn or session refresh.
-      const rawToolName = req.params['name'];
+      const rawToolName = routeParam(req.params['name']);
       if (!rawToolName || typeof rawToolName !== 'string') {
         res.status(400).json({
           error: 'Tool name path parameter is required',
@@ -1559,8 +1559,8 @@ export function createServeApp(
   );
 
   app.post('/session/:id/permission/:requestId', mutate(), (req, res) => {
-    const sessionId = req.params['id'];
-    const requestId = req.params['requestId'];
+    const sessionId = routeParam(req.params['id']);
+    const requestId = routeParam(req.params['requestId']);
     const response = parsePermissionVoteBody(req, res);
     if (response === undefined) return;
     const clientId = parseClientIdHeader(req, res);
@@ -1592,7 +1592,7 @@ export function createServeApp(
   });
 
   app.post('/permission/:requestId', mutate(), (req, res) => {
-    const requestId = req.params['requestId'];
+    const requestId = routeParam(req.params['requestId']);
     const response = parsePermissionVoteBody(req, res);
     if (response === undefined) return;
     const clientId = parseClientIdHeader(req, res);
@@ -1622,7 +1622,7 @@ export function createServeApp(
   });
 
   app.get('/session/:id/events', (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = routeParam(req.params['id']);
     const lastEventId = parseLastEventId(req.headers['last-event-id']);
     const maxQueued = parseMaxQueuedQuery(req.query['maxQueued'], res);
     // `parseMaxQueuedQuery` sends its own 400 + JSON body on rejection
@@ -2104,6 +2104,12 @@ function toDeviceFlowStateBody(
     }
   }
   return body;
+}
+
+// Express 5 changed ParamsDictionary values to string | string[]; named route
+// params are always single strings at runtime so this cast is safe.
+function routeParam(v: string | string[]): string {
+  return Array.isArray(v) ? (v[0] ?? '') : v;
 }
 
 function parseClientIdHeader(

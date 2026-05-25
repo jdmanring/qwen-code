@@ -414,7 +414,7 @@ function runCommand(
     };
 
     let stderrBuf = '';
-    let child;
+    let child: ReturnType<typeof spawn> | undefined;
     try {
       child = spawn(command, args, {
         cwd,
@@ -454,7 +454,7 @@ function runCommand(
     }
 
     const stopProcess = (): void => {
-      if (child.killed) {
+      if (!child || child.killed) {
         return;
       }
       try {
@@ -486,13 +486,13 @@ function runCommand(
         yieldEvery !== undefined &&
         yieldEvery > 0 &&
         streamedLineCount % yieldEvery === 0 &&
-        child.stdout &&
+        child?.stdout &&
         typeof child.stdout.pause === 'function'
       ) {
         child.stdout.pause();
         setImmediate(() => {
           try {
-            child.stdout?.resume();
+            child?.stdout?.resume();
           } catch {
             // Stream may already be closed.
           }
@@ -551,8 +551,8 @@ function runCommand(
       }, timeoutMs);
     }
 
-    child.stdout.setEncoding('utf8');
-    child.stdout.on('data', (chunk: string) => {
+    child!.stdout!.setEncoding('utf8');
+    child!.stdout!.on('data', (chunk: string) => {
       processChunk(chunk);
     });
 
