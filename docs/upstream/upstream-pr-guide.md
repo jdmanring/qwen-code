@@ -120,29 +120,38 @@ Apply only the relevant lines manually. Commit with the same message.
 
 ### Step 4 — Verify isolation (mandatory)
 
-Run the isolation check before anything else:
+**Preferred: use the automated pipeline.** The isolation gates run automatically when you
+use `--contribute` mode, so for single-commit cherry-picks you can skip manual grep checks:
+
+```bash
+# Runs all isolation gates, then creates the branch and pushes if gates pass
+python3 tooling/sync-upstreams/fork_sync_pipeline.py --contribute <hash> <branch-name>
+
+# Gates only — no branch created (safe to run first)
+python3 tooling/sync-upstreams/fork_sync_pipeline.py --contribute <hash> <branch-name> --dry-run
+```
+
+The pipeline runs five gates and hard-blocks if any fail:
+- `GATE-MEGALONYX` — diff contains 'megalonyx'
+- `GATE-PNPM` — diff contains 'pnpm-workspace'
+- `GATE-JDMANRING` — diff contains 'jdmanring'
+- `GATE-CONFIG` — diff contains 'config/megalonyx'
+- `GATE-CIFILES` — diff touches any file in `PROTECTED_FILES`
+
+**For multi-commit or manual PRs**, run the checks by hand:
 
 ```bash
 git diff upstream/main HEAD -- .
-```
+# Read every line — does it make sense in a fresh QwenLM clone?
 
-Read every line of the diff. Ask for each changed line:
-- Does this line make sense in a fresh clone of QwenLM/qwen-code?
-- Does it reference anything Megalonyx-specific?
-- Would a QwenLM maintainer understand this change without context from our repo?
-
-Also check for these specific leaks:
-
-```bash
-# Should return nothing
+# Should each return nothing:
 git diff upstream/main HEAD | grep -i megalonyx
 git diff upstream/main HEAD | grep -i 'pnpm-workspace'
-git diff upstream/main HEAD | grep -i 'jdmanring'
 git diff upstream/main HEAD | grep -i 'jdmanring'
 git diff upstream/main HEAD | grep -i 'config/megalonyx'
 ```
 
-If any of these return output, the branch is not clean. Fix it before proceeding.
+If any check returns output, the branch is not clean. Fix it before proceeding.
 
 ### Step 5 — Verify the change works in their environment
 

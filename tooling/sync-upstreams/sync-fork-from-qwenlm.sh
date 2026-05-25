@@ -1,5 +1,16 @@
 #!/bin/bash
-# sync-fork-from-qwenlm.sh
+# DEPRECATED — use fork_sync_pipeline.py --sync instead.
+#
+# The Python pipeline runs from the monorepo (no separate fork checkout needed),
+# runs structured advisory gates before asking for confirmation, and handles
+# fast-forward safety checks automatically.
+#
+#   python3 tooling/sync-upstreams/fork_sync_pipeline.py --sync
+#
+# This script is kept for reference only.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# sync-fork-from-qwenlm.sh (original)
 #
 # Run this script INSIDE a local checkout of jdmanring/qwen-code (the fork).
 # It fetches the latest commits from QwenLM/qwen-code, shows you what's coming

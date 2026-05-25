@@ -1,4 +1,14 @@
 #!/bin/bash
+# DEPRECATED — use fork_sync_pipeline.py --contribute instead.
+#
+# The Python pipeline runs automated isolation gates (GATE-MEGALONYX, GATE-PNPM,
+# GATE-JDMANRING, GATE-CONFIG, GATE-CIFILES) before creating any branch.
+# The shell script required manual grep checks.
+#
+#   python3 tooling/sync-upstreams/fork_sync_pipeline.py --contribute <hash> <branch>
+#
+# This script is kept for reference only.
+# ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
 # Upstream Contribution Tool

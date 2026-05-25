@@ -21,6 +21,7 @@ ignore = [
 "**/tests/**" = ["ANN"]
 "**/test_*.py" = ["ANN"]
 "tooling/sync-upstreams/gate_failure_tests.py" = ["ANN"]
+"tooling/sync-upstreams/fork_sync_pipeline_tests.py" = ["ANN", "E501"]
 # Files containing long multi-line string constants — sentences cannot be split at 100 chars
 "apps/control-plane-daemon/src/control_plane_daemon/agent_generator.py" = ["E501"]
 "apps/control-plane-daemon/src/control_plane_daemon/control_plane.py" = ["E501"]

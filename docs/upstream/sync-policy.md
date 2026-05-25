@@ -32,9 +32,16 @@ it can enter our pipeline. The fork is the filter.
   enters the fork, giving you an opportunity to inspect it
 - Single remote: the fork handles both inbound sync (pipeline) and outbound PRs
 
-**To sync the fork from QwenLM:** run `tooling/sync-upstreams/sync-fork-from-qwenlm.sh`
-inside a local checkout of `jdmanring/qwen-code`. This script shows you what's coming in and
-asks for confirmation before merging.
+**To sync the fork from QwenLM:** run the fork sync pipeline from the monorepo root:
+
+```bash
+python3 tooling/sync-upstreams/fork_sync_pipeline.py --sync
+```
+
+The pipeline fetches QwenLM into a temporary ref (no persistent remote added), runs advisory
+gates to flag CI file changes, protected file changes, manifest updates, and new files, then
+asks for explicit confirmation before pushing to the fork. Use `--dry-run` to review gate
+output without pushing.
 
 ---
 
@@ -102,15 +109,18 @@ See `docs/meta/pipeline-runbook.md` for how to recover from each failure mode.
 ```
 QwenLM/qwen-code
         |
-        | [manual: run sync-fork-from-qwenlm.sh, review commits, confirm]
+        | fork_sync_pipeline.py --sync
+        | [GATE-CIFILES]   CI workflow files changed?
+        | [GATE-PROTECTED] PROTECTED_FILES changed?
+        | [GATE-MANIFESTS] package.json / lockfiles changed?
+        | [GATE-NEWFILES]  new files added?
+        | [human confirmation]
         v
 jdmanring/qwen-code  ← "upstream" remote in megalonyx-monorepo
         |
-        | git fetch upstream main
-        v
-upstream-mirror branch (reset --hard each run)
-        |
-        | git merge upstream-mirror into a staging branch off integration
+        | upstream_ingest_pipeline.py
+        | git fetch upstream main → reset upstream-mirror
+        | merge upstream-mirror into staging branch off integration
         | [PROTECTED_FILES restored to integration version post-merge]
         v
 [Boot gate] → [Lint gate] → [Symmetry gate]
@@ -124,8 +134,8 @@ integration branch (fast-forward merge from staging)
 developer manually merges integration → develop when ready
 ```
 
-The pipeline script: `tooling/sync-upstreams/upstream_ingest_pipeline.py`  
-Fork sync script: `tooling/sync-upstreams/sync-fork-from-qwenlm.sh`
+Ingest pipeline: `tooling/sync-upstreams/upstream_ingest_pipeline.py`  
+Fork sync pipeline: `tooling/sync-upstreams/fork_sync_pipeline.py`
 
 ---
 
@@ -159,13 +169,14 @@ The `upstream` remote is already set up (part of the standard monorepo setup):
 git remote -v  # should show upstream → https://github.com/jdmanring/qwen-code.git
 ```
 
-For single-commit cherry-picks, the helper script handles branch creation and push:
+For single-commit cherry-picks, the fork sync pipeline handles isolation gates, branch
+creation, and push automatically:
 ```bash
-tooling/sync-upstreams/contribute-upstream.sh <commit-hash> <branch-name>
+python3 tooling/sync-upstreams/fork_sync_pipeline.py --contribute <commit-hash> <branch-name>
 ```
 
 For multi-file dependency upgrades or PRs that require manual diff inspection, follow the
-manual procedure in `upstream-pr-guide.md` — the script is insufficient for those cases.
+manual procedure in `upstream-pr-guide.md`.
 
 ---
 
@@ -185,9 +196,9 @@ List tags: `git tag --list 'lkg/*' | sort`
 ## Checking sync status
 
 ```bash
-# Is integration up to date with upstream?
-python3 tooling/sync-upstreams/upstream_ingest_pipeline.py --dry-run
+# Full picture: fork lag vs QwenLM, pipeline lag vs fork, active PR branches
+python3 tooling/sync-upstreams/fork_sync_pipeline.py --status
 
-# How many commits behind are we?
-git rev-list --count upstream/main ^integration
+# Is integration up to date with the fork?
+python3 tooling/sync-upstreams/upstream_ingest_pipeline.py --dry-run
 ```
