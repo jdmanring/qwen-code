@@ -27,6 +27,12 @@ package-lock.json
 CLAUDE.md
 .codex
 
+# Credential files — never commit these
+config/settings.json
+config/megalonyx/secrets.json
+**/.env.local
+**/.env.production
+
 # Qwen Code Configs
 .qwen/*
 !.qwen/commands/
