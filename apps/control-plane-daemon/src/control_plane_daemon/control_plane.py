@@ -357,11 +357,11 @@ class ControlPlane:
         while not self.is_complete():
             job = self.get_next_job()
             if not job:
-                print("DEBUG: No more jobs, breaking loop")
+                self.logger.info("job_loop_exhausted", {})
                 break
 
             job_id = job["job_id"]
-            print(f"DEBUG: Processing job {job_id}")
+            self.logger.info("job_loop_processing", {"job_id": job_id})
             self.status_manager.update_job_status(job_id, "running", 0.0, job["description"][:50])
 
             # HANDLE WORKFLOW JOBS

@@ -88,7 +88,7 @@ class ResilienceStressTester:
                 with open(self.settings_path, "w") as f:
                     json.dump(data, f)
                 self.logger.warning(f"ResilienceStressTester: Corrupted config key '{target}'")
-        except Exception as e:
+        except (OSError, ValueError, KeyError) as e:
             self.logger.error(f"ResilienceStressTester: Failed to corrupt config: {e}")
 
     def _deny_permissions(self):
@@ -98,7 +98,7 @@ class ResilienceStressTester:
             self.logger.warning(
                 f"ResilienceStressTester: Denied all permissions to {self.settings_path}"
             )
-        except Exception as e:
+        except OSError as e:
             self.logger.error(f"ResilienceStressTester: Failed to deny permissions: {e}")
 
     def restore_environment(self):

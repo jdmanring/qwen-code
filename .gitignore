@@ -27,9 +27,10 @@ package-lock.json
 CLAUDE.md
 .codex
 
-# Credential files — never commit these
+# Credential files and local runtime config — never commit these
 config/settings.json
 config/megalonyx/secrets.json
+config/config.yaml
 **/.env.local
 **/.env.production
 
