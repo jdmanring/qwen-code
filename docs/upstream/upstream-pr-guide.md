@@ -56,8 +56,9 @@ is exclusively for submitting PRs.
 Add it once:
 
 ```bash
-git remote add mirror https://github.com/jdmanring/qwen-code.git
-git fetch mirror
+# upstream remote is already configured — verify:
+git remote -v  # should show: upstream → https://github.com/jdmanring/qwen-code.git
+git fetch upstream
 ```
 
 Verify the remotes are correctly separated:
@@ -65,7 +66,7 @@ Verify the remotes are correctly separated:
 ```bash
 git remote -v
 # upstream   https://github.com/QwenLM/qwen-code.git  (fetch and push — inbound only)
-# mirror     https://github.com/jdmanring/qwen-code.git  (fetch and push — outbound only)
+# upstream  https://github.com/jdmanring/qwen-code.git  (inbound filter + outbound PR channel)
 # origin     https://github.com/jdmanring/megalonyx-monorepo.git  (our private repo)
 ```
 
@@ -137,7 +138,7 @@ Also check for these specific leaks:
 git diff upstream/main HEAD | grep -i megalonyx
 git diff upstream/main HEAD | grep -i 'pnpm-workspace'
 git diff upstream/main HEAD | grep -i 'jdmanring'
-git diff upstream/main HEAD | grep -i 'mirror'
+git diff upstream/main HEAD | grep -i 'jdmanring'
 git diff upstream/main HEAD | grep -i 'config/megalonyx'
 ```
 
@@ -162,10 +163,10 @@ For dependency bumps only, verify the package resolves:
 npm install <package>@<version> --dry-run
 ```
 
-### Step 6 — Push to the mirror fork
+### Step 6 — Push to the fork
 
 ```bash
-git push mirror upstream-contrib/<branch-name>
+git push upstream upstream-contrib/<branch-name>
 ```
 
 ### Step 7 — Open the PR
@@ -282,7 +283,7 @@ Their CI runs automatically on every PR. It must be green before a PR will be me
 **If CI fails on your PR:**
 1. Read the failure log — do not guess
 2. Fix the issue on your local branch
-3. `git push mirror upstream-contrib/<branch-name>` — CI re-runs automatically
+3. `git push upstream upstream-contrib/<branch-name>` — CI re-runs automatically
 4. Do not close and re-open the PR; update the branch in place
 
 Their ESLint config runs `eslint-plugin-import` and `@typescript-eslint`. Their vitest

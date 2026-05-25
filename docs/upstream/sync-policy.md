@@ -15,6 +15,29 @@ The pipeline makes staying current a routine operation rather than a major proje
 
 ---
 
+## Inbound source: the fork, not QwenLM directly
+
+The pipeline fetches from **`jdmanring/qwen-code`** (our public fork), not from
+`QwenLM/qwen-code` directly. This means every QwenLM commit must pass through the fork before
+it can enter our pipeline. The fork is the filter.
+
+**How it works:**
+1. Periodically sync the fork from QwenLM (human review step)
+2. Run the ingest pipeline — it fetches from the fork's `main`
+3. Changes flow through our three gates into `integration`
+
+**Why fork-as-filter:**
+- Human review gate: you decide when to absorb QwenLM changes, not on their schedule
+- A bad QwenLM commit (breaking change, bad merge) cannot reach our pipeline unless it first
+  enters the fork, giving you an opportunity to inspect it
+- Single remote: the fork handles both inbound sync (pipeline) and outbound PRs
+
+**To sync the fork from QwenLM:** run `tooling/sync-upstreams/sync-fork-from-qwenlm.sh`
+inside a local checkout of `jdmanring/qwen-code`. This script shows you what's coming in and
+asks for confirmation before merging.
+
+---
+
 ## What we take from upstream
 
 Everything in the upstream repository flows into `integration` as-is, subject to the quality
@@ -34,11 +57,16 @@ We skip upstream content that would conflict with or overwrite Megalonyx additio
 
 | What | Why |
 |---|---|
-| `ci.yml` | Upstream CI is written for their repo structure. We have our own CI. Overwriting it would break our quality gates. |
-| `config/settings.json` | This file contains real credentials. It is not tracked at all. |
+| `.github/workflows/ci.yml` | Our CI is adapted for pnpm and our script names. Upstream's version would break our test runs. |
+| `.github/workflows/e2e.yml` | Patched to use pnpm instead of npm. Upstream's version reverts this. |
+| `packages/sdk-python/pyproject.toml` | We added `[project.optional-dependencies] dev` section. Upstream's version removes it. |
+| `config/settings.json` | Real credentials. Never tracked at all. |
 
-These exclusions are handled at the pipeline level. If upstream ever ships a file whose name
-matches something we deliberately protect, the gate will flag it for manual review.
+These exclusions are enforced in `tooling/sync-upstreams/upstream_ingest_pipeline.py` via the
+`PROTECTED_FILES` list. After each merge, those files are restored to their integration-branch
+version, so a non-conflicting upstream edit cannot silently overwrite our patches.
+
+To add a new protected file, add its path to `PROTECTED_FILES` in the pipeline script.
 
 ## Workflow files that need pnpm patches after sync
 
@@ -72,13 +100,18 @@ See `docs/meta/pipeline-runbook.md` for how to recover from each failure mode.
 ## The pipeline flow
 
 ```
-QwenLM/qwen-code (upstream remote)
+QwenLM/qwen-code
+        |
+        | [manual: run sync-fork-from-qwenlm.sh, review commits, confirm]
+        v
+jdmanring/qwen-code  ← "upstream" remote in megalonyx-monorepo
         |
         | git fetch upstream main
         v
 upstream-mirror branch (reset --hard each run)
         |
         | git merge upstream-mirror into a staging branch off integration
+        | [PROTECTED_FILES restored to integration version post-merge]
         v
 [Boot gate] → [Lint gate] → [Symmetry gate]
         |
@@ -91,7 +124,8 @@ integration branch (fast-forward merge from staging)
 developer manually merges integration → develop when ready
 ```
 
-The pipeline script: `tooling/sync-upstreams/upstream_ingest_pipeline.py`
+The pipeline script: `tooling/sync-upstreams/upstream_ingest_pipeline.py`  
+Fork sync script: `tooling/sync-upstreams/sync-fork-from-qwenlm.sh`
 
 ---
 
@@ -115,12 +149,14 @@ the upstream project, read the full procedure before doing anything:
 - **`docs/upstream/upstream-pr-guide.md`** — complete preparation and submission procedure
 - **`docs/upstream/upstream-pr-checklist.md`** — mandatory gate checklist to run before every submission
 
-The mirror remote (`jdmanring/qwen-code`) is used only for outbound contributions. Upstream
-code never flows through it — it flows inbound via the `upstream` remote directly.
+The `upstream` remote (`jdmanring/qwen-code`) serves dual purpose: it is both the inbound
+filter for the pipeline AND the outbound channel for upstream PRs. Topic branches for PRs are
+pushed to the fork, then opened as PRs against `QwenLM/qwen-code`.
 
-Set up the mirror remote once:
+The `upstream` remote is already set up (part of the standard monorepo setup):
 ```bash
-git remote add mirror https://github.com/jdmanring/qwen-code.git
+# Confirm:
+git remote -v  # should show upstream → https://github.com/jdmanring/qwen-code.git
 ```
 
 For single-commit cherry-picks, the helper script handles branch creation and push:

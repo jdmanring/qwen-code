@@ -13,7 +13,20 @@ A private monorepo that:
 
 ---
 
-## Branch architecture
+## Remotes and branch architecture
+
+**Remotes:**
+
+| Remote | URL | Purpose |
+| :--- | :--- | :--- |
+| `origin` | `jdmanring/megalonyx-monorepo` | Private monorepo |
+| `upstream` | `jdmanring/qwen-code` | Fork — inbound filter for pipeline AND outbound PR channel |
+
+The pipeline fetches from the **fork** (`jdmanring/qwen-code`), not from QwenLM directly.
+This means QwenLM commits must be reviewed and promoted into the fork before they can enter
+our pipeline. Run `tooling/sync-upstreams/sync-fork-from-qwenlm.sh` inside a fork checkout.
+
+**Branches:**
 
 | Branch | Purpose |
 | :--- | :--- |
@@ -93,6 +106,6 @@ Full standard: `docs/meta/engineering-standards.md`
 ## What to avoid
 
 - **Do not commit directly to `upstream-mirror`** — the pipeline resets it.
-- **Do not modify `ci.yml`** — it is upstream content and will be overwritten on sync.
+- **Do not modify protected files without updating `PROTECTED_FILES`** in `upstream_ingest_pipeline.py` — see `docs/upstream/sync-policy.md` for the full list.
 - **Do not use `git commit --no-verify`** unless debugging the hook itself.
 - **Do not name things with project metaphors** — use plain engineering terms.
