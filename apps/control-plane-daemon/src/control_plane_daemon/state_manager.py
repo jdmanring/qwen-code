@@ -93,8 +93,10 @@ class StateManager:
 
 
 if __name__ == "__main__":
-    # Simple test
+    from agent_infra.system_logger import SystemLogger
+
     sm = StateManager()
-    print(f"Current Phase: {sm.get('active_phase')}")
+    logger = SystemLogger()
+    logger.info("state_manager_test", {"active_phase": sm.get("active_phase")})
     sm.set("active_phase", "IMPLEMENTATION")
-    print(f"Updated Phase: {sm.get('active_phase')}")
+    logger.info("state_manager_updated", {"active_phase": sm.get("active_phase")})

@@ -73,11 +73,12 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         cmd_dir = sys.argv[1]
 
+    from agent_infra.system_logger import SystemLogger
+
     manager = CommandManager(commands_dir=cmd_dir)
-    print(f"Loaded commands: {manager.list_commands()}")
+    logger = SystemLogger()
+    logger.info("command_manager_loaded", {"commands": manager.list_commands()})
     for cmd in manager.list_commands():
         cmd_info = manager.get_command(cmd)
         if cmd_info:
-            print(f"\nCommand: {cmd}")
-            print(f"Description: {cmd_info['description']}")
-        # print(f"Workflow: {manager.get_command(cmd)['workflow'][:100]}...")
+            logger.info("command_entry", {"name": cmd, "description": cmd_info["description"]})

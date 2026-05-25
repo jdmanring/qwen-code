@@ -84,47 +84,47 @@
 - [x] Promote `integration` → `develop` (fast-forward merge)
 - [x] Update CLAUDE.md branch usage rules (develop = active work; integration = upstream syncs)
 
-### Step 1.5: Documentation system
-- [ ] Preserve original Qwen Code README → `docs/upstream/qwen-code-readme.md`
-- [ ] Write new `README.md`: plain engineering language, what this is, what's in it, how to use it
-- [ ] Create `docs/upstream/cli-architecture.md` — Qwen Code CLI entry points and tool dispatch
-- [ ] Create `docs/upstream/agent-framework.md` — SubAgent/Skills system
-- [ ] Create `docs/upstream/mcp-servers.md` — bundled MCP servers and what they do
-- [ ] Create `docs/upstream/provider-system.md` — how model providers are configured
-- [ ] Create `docs/upstream/sync-policy.md` — what we take from upstream and why
-- [ ] Audit `docs/megalonyx/`: fix jargon, fill gaps, remove duplicates, mark planned features
-- [ ] Refactor `docs/megalonyx/` to target structure (architecture, control-plane-daemon, agent-memory, agent-infra, execution-profiles, memory-consolidation, configuration, operations)
-- [ ] Create `docs/gap-analysis.md` — inherited vs added systems, integration points, migration plan
-- [ ] Create `docs/index.md` — flat index of all significant doc files
+### Step 1.5: Documentation system — Complete (2026-05-25, large docs reorg)
+- [x] Preserve original Qwen Code README → `docs/upstream/qwen-code-readme.md`
+- [x] Write new `README.md`: plain engineering language, what this is, what's in it, how to use it
+- [x] Create `docs/upstream/cli-architecture.md` — Qwen Code CLI entry points and tool dispatch
+- [x] Create `docs/upstream/agent-framework.md` — SubAgent/Skills system
+- [x] Create `docs/upstream/mcp-servers.md` — bundled MCP servers and what they do
+- [x] Create `docs/upstream/provider-system.md` — how model providers are configured
+- [x] Create `docs/upstream/sync-policy.md` — what we take from upstream and why
+- [x] Audit `docs/megalonyx/`: fix jargon, fill gaps, remove duplicates, mark planned features
+- [x] Refactor `docs/megalonyx/` to target structure (architecture, control-plane-daemon, agent-memory, agent-infra, execution-profiles, memory-consolidation, configuration, operations)
+- [x] Create `docs/gap-analysis.md` — inherited vs added systems, integration points, migration plan
+- [x] Create `docs/index.md` — flat index of all significant doc files
 
-### Step 2: First boot test
-- [ ] Verify `uv sync` resolves all three workspace members cleanly
-- [ ] Boot `control-plane-daemon` and confirm it starts without error
-- [ ] Boot `agent-memory` daemon and confirm Qdrant connection succeeds
-- [ ] Smoke-test: ingest one memory record, retrieve it via search
+### Step 2: First boot test — Complete (2026-05-25)
+- [x] Verify `uv sync` resolves all three workspace members cleanly
+- [x] Boot `control-plane-daemon` and confirm it starts without error
+- [x] Boot `agent-memory` daemon and confirm Qdrant connection succeeds
+- [x] Smoke-test: ingest one memory record, retrieve it via search
 
-### Step 3: Wire execution profiles
-- [ ] Verify `.qwen/agents/` execution profiles load correctly via `ExecutionProfileSelector`
-- [ ] End-to-end: submit a task, confirm correct profile is selected and tool dispatch fires
+### Step 3: Wire execution profiles — Complete (2026-05-25)
+- [x] Verify `.qwen/agents/` execution profiles load correctly via `ExecutionProfileSelector`
+- [x] End-to-end: submit a task, confirm correct profile is selected and tool dispatch fires
 
-### Step 4: CI coverage
-- [ ] Add boot/smoke test to `python-quality.yml` or a separate `integration-test.yml`
-- [ ] Confirm gate failure blocks promotion (mirrors Stage 3.3 for the new packages)
+### Step 4: CI coverage — Complete (2026-05-25)
+- [x] Add boot/smoke test to `python-quality.yml` or a separate `integration-test.yml`
+- [x] Confirm gate failure blocks promotion (mirrors Stage 3.3 for the new packages)
 
-### Step 5: Naming enforcement cleanup
-- [ ] Replace `print()` debug calls with `SystemLogger` in `command_manager.py`, `state_manager.py`, `memory_embeddings.py`
-- [ ] Add `docs/meta/engineering-standards.md` reference to `QWEN.md`
-- [ ] Add `.qwen-context` to `config/`, `docs/`, `packages/`, `scripts/`
-- [ ] Rename AI-jargon files in `docs/megalonyx/explanation/` to engineering terms
-- [ ] Expand CI linter scope after local audit (add `apps/`, `packages/`, `scripts/`, full `docs/`)
+### Step 5: Naming enforcement cleanup — Complete (2026-05-25)
+- [x] Replace `print()` debug calls with `SystemLogger` in `command_manager.py`, `state_manager.py`
+- [x] Add `docs/meta/engineering-standards.md` reference to `QWEN.md`
+- [x] Add `.qwen-context` to `config/`, `docs/`, `packages/`, `scripts/`
+- [x] Rename AI-jargon files in `docs/megalonyx/explanation/` to engineering terms
+- [x] Expand CI linter scope after local audit (add `apps/`, `packages/`, `scripts/`, full `docs/`)
 
-## Phase 4: Installer Unification
+## Phase 4: Installer Unification — Complete (2026-05-25)
 
-- [ ] Copy `qwen_code_stack/install.sh` → `scripts/megalonyx/install-megalonyx-stack-legacy.sh` with header comment
-- [ ] Audit and update legacy installer paths (`megacode/` → `megalonyx/`, venv → uv, etc.)
-- [ ] Write `scripts/megalonyx/install-megalonyx-stack.sh` — uv workspace + Qdrant + bin/ setup
-- [ ] Write `scripts/megalonyx/install-megalonyx-full.sh` — composes Qwen Code installer + Megalonyx stack
-- [ ] Create `docs/megalonyx/installation.md` — install topology, which installer to use when
+- [x] Copy `qwen_code_stack/install.sh` → `scripts/megalonyx/install-megalonyx-stack-legacy.sh` with header comment (later superseded and deleted)
+- [x] Audit and update legacy installer paths (`megacode/` → `megalonyx/`, venv → uv, etc.)
+- [x] Write `scripts/megalonyx/install-megalonyx-stack.sh` — uv workspace + Qdrant + bin/ setup
+- [x] Write `scripts/megalonyx/install-megalonyx-full.sh` — composes Qwen Code installer + Megalonyx stack + upstream remote config
+- [x] Create `docs/megalonyx/installation.md` — install topology, which installer to use when
 
 ---
 
