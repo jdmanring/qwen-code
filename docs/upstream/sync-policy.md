@@ -98,25 +98,26 @@ Resolution steps:
 ## Contributing a fix back to upstream
 
 When you fix a bug in the CLI code (in `packages/cli/` or `packages/core/`) that also affects
-the upstream project:
+the upstream project, read the full procedure before doing anything:
 
+- **`docs/upstream/upstream-pr-guide.md`** — complete preparation and submission procedure
+- **`docs/upstream/upstream-pr-checklist.md`** — mandatory gate checklist to run before every submission
+
+The mirror remote (`jdmanring/qwen-code`) is used only for outbound contributions. Upstream
+code never flows through it — it flows inbound via the `upstream` remote directly.
+
+Set up the mirror remote once:
+```bash
+git remote add mirror https://github.com/jdmanring/qwen-code.git
+```
+
+For single-commit cherry-picks, the helper script handles branch creation and push:
 ```bash
 tooling/sync-upstreams/contribute-upstream.sh <commit-hash> <branch-name>
 ```
 
-This script:
-1. Creates a branch starting from `upstream/main` — no monorepo history, no Megalonyx code
-2. Cherry-picks only the specified commit
-3. Pushes to your public fork (`mirror` remote)
-4. Prints the URL to open a PR against `QwenLM/qwen-code`
-
-The public fork (`mirror` remote) is used only for outbound contributions. Upstream code
-never flows through it — it flows through the `upstream` remote directly.
-
-Prerequisites:
-```bash
-git remote add mirror https://github.com/YOUR_FORK/qwen-code.git
-```
+For multi-file dependency upgrades or PRs that require manual diff inspection, follow the
+manual procedure in `upstream-pr-guide.md` — the script is insufficient for those cases.
 
 ---
 

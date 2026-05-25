@@ -41,6 +41,8 @@ this file should be able to predict the contents of any listed document without 
 | `docs/upstream/mcp-servers.md` | All bundled MCP servers: what they do, how to configure, how to add one |
 | `docs/upstream/provider-system.md` | Model provider configuration: structure, loading, Megalonyx additions |
 | `docs/upstream/sync-policy.md` | What we take from upstream, quality gates, contributing fixes back |
+| `docs/upstream/upstream-pr-guide.md` | Full procedure for preparing and submitting PRs to QwenLM/qwen-code |
+| `docs/upstream/upstream-pr-checklist.md` | Gate-by-gate pre-submission checklist for every upstream PR |
 | `docs/upstream/qwen-code-readme.md` | Preserved original Qwen Code README |
 
 ---
