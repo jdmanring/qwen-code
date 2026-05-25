@@ -500,9 +500,7 @@
   "model": {
     "name": "gemma-4-31b-it",
     "maxSessionTurns": -1,
-    "chatCompression": {
-      "contextPercentageThreshold": 0.6
-    }
+    "chatCompression": {}
   },
   "$version": 4,
   "mcp": {
