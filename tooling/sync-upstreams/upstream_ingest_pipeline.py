@@ -28,6 +28,16 @@ INTEGRATION_BRANCH = "integration"
 MIRROR_BRANCH = "upstream-mirror"
 REQUIRED_REMOTES = {"upstream", "origin"}
 
+# Files owned by Megalonyx that must not be overwritten by upstream merges.
+# After each merge, the pipeline restores these files to their integration-branch
+# state so that a non-conflicting upstream change cannot silently replace our patches.
+# Add any file here that we deliberately maintain differently from upstream.
+PROTECTED_FILES: list[str] = [
+    ".github/workflows/ci.yml",
+    ".github/workflows/e2e.yml",
+    "packages/sdk-python/pyproject.toml",
+]
+
 
 class Colors:
     BLUE = "\033[0;34m"
@@ -190,13 +200,16 @@ class SyncManager:
         """
         Merges upstream-mirror into the staging branch.
         On conflict, aborts immediately — conflicts must be resolved manually.
-        Auto-resolving only the .bat file was fragile; it is no longer needed
-        because _purge_upstream_artifacts() removes .bat files before the merge.
+        After a clean merge, restores PROTECTED_FILES to their integration state
+        so non-conflicting upstream changes cannot silently overwrite our patches.
         """
+        integration_ref = self._git.output(["git", "rev-parse", "HEAD"])
+
         log_info(f"Merging {MIRROR_BRANCH} into {self.staging_branch}...")
         result = self._git.run(["git", "merge", MIRROR_BRANCH, "--no-edit"], check=False)
         if result.returncode == 0:
             log_success("Merge clean.")
+            self._restore_protected_files(integration_ref)
             return
 
         conflict_files = self._git.output(["git", "diff", "--name-only", "--diff-filter=U"])
@@ -205,6 +218,33 @@ class SyncManager:
             f"Merge conflict — manual resolution required:\n{conflict_files}\n\n"
             "Resolve, commit, then re-run the ingest pipeline."
         )
+
+    def _restore_protected_files(self, integration_ref: str) -> None:
+        """
+        Restores Megalonyx-owned files to their integration-branch version after merge.
+
+        Prevents upstream changes to PROTECTED_FILES from silently overwriting
+        our patched versions even when the merge produces no conflict. Without this,
+        a non-conflicting upstream edit to (e.g.) ci.yml would replace our pnpm
+        patches on every sync.
+        """
+        for path in PROTECTED_FILES:
+            self._git.run(["git", "checkout", integration_ref, "--", path], check=False)
+
+        staged = self._git.output(["git", "diff", "--cached", "--name-only"])
+        restored = [f for f in staged.splitlines() if f in PROTECTED_FILES]
+        if restored:
+            log_info(f"Restored {len(restored)} protected file(s): {restored}")
+            self._git.run(
+                [
+                    "git",
+                    "commit",
+                    "-m",
+                    "chore(sync): restore Megalonyx-owned files after upstream merge",
+                ]
+            )
+        else:
+            log_success("Protected files unchanged by upstream — no restoration needed.")
 
     def cleanup_staging(self) -> None:
         if not self.staging_branch:

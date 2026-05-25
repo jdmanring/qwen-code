@@ -8,13 +8,12 @@ set -euo pipefail
 # How it works:
 #   1. Creates a clean branch from upstream/main (no monorepo changes)
 #   2. Cherry-picks your fix commit onto it (just the change, nothing else)
-#   3. Pushes the branch to your public fork (the 'mirror' remote)
-#   4. Prints a direct link to open the PR
+#   3. Pushes the branch to the fork (the 'upstream' remote = jdmanring/qwen-code)
+#   4. Prints a direct link to open the PR against QwenLM/qwen-code
 #
-# Requirements:
-#   A 'mirror' remote pointing to your public fork of qwen-code.
-#   If you haven't set this up yet:
-#     git remote add mirror https://github.com/YOUR_FORK/qwen-code.git
+# The 'upstream' remote serves dual purpose: inbound sync source for the
+# pipeline AND outbound PR channel. The fork is kept in sync with QwenLM
+# via tooling/sync-upstreams/sync-fork-from-qwenlm.sh before running this.
 #
 # Usage:
 #   ./tooling/sync-upstreams/contribute-upstream.sh <commit-hash> <branch-name>
@@ -48,23 +47,21 @@ usage() {
     echo "  $0 a1b2c3d fix/memory-leak-in-runner"
     echo "  $0 HEAD~1  fix/typo-in-install-script"
     echo ""
-    echo "Requires a 'mirror' remote (your public fork of qwen-code):"
-    echo "  git remote add mirror https://github.com/YOUR_FORK/qwen-code.git"
+    echo "Requires an 'upstream' remote pointing to your fork of qwen-code:"
+    echo "  git remote add upstream https://github.com/jdmanring/qwen-code.git"
     echo ""
     exit 1
 }
 
-check_mirror_remote() {
-    if ! git remote | grep -q "^mirror$"; then
-        log_error "'mirror' remote is not configured."
+check_upstream_remote() {
+    if ! git remote | grep -q "^upstream$"; then
+        log_error "'upstream' remote is not configured."
         echo ""
-        echo "  This tool needs a public fork of qwen-code to push the PR branch to."
-        echo "  Your private monorepo cannot push directly to upstream."
+        echo "  This tool needs the 'upstream' remote pointing to your fork of qwen-code."
+        echo "  Your private monorepo cannot push directly to QwenLM/qwen-code."
         echo ""
-        echo "  Step 1: Fork https://github.com/QwenLM/qwen-code on GitHub."
-        echo "  Step 2: Add it as the mirror remote:"
-        echo "            git remote add mirror https://github.com/YOUR_FORK/qwen-code.git"
-        echo "  Step 3: Re-run this script."
+        echo "  Set it up once:"
+        echo "    git remote add upstream https://github.com/jdmanring/qwen-code.git"
         echo ""
         exit 1
     fi
@@ -73,7 +70,7 @@ check_mirror_remote() {
 main() {
     [ -z "$COMMIT_HASH" ] || [ -z "$BRANCH_NAME" ] && usage
 
-    check_mirror_remote
+    check_upstream_remote
 
     # Resolve to full hash and validate
     if ! FULL_HASH=$(git rev-parse "${COMMIT_HASH}^{commit}" 2>/dev/null); then
@@ -86,7 +83,7 @@ main() {
     echo ""
     log_info "Commit : ${FULL_HASH:0:12} — ${COMMIT_MSG}"
     log_info "Branch : ${PR_BRANCH}"
-    log_info "Target : upstream/main → mirror/${PR_BRANCH} → PR to QwenLM/qwen-code"
+    log_info "Target : upstream/main → upstream/${PR_BRANCH} → PR to QwenLM/qwen-code"
     echo ""
 
     # Fetch the latest upstream so we branch from current main, not a stale ref
@@ -105,22 +102,22 @@ main() {
         echo ""
         log_warn "Cherry-pick conflict. Resolve manually, then run:"
         echo "  git cherry-pick --continue"
-        echo "  git push mirror ${PR_BRANCH}"
+        echo "  git push upstream ${PR_BRANCH}"
         echo ""
         log_info "When the branch is pushed, open a PR at:"
         echo "  https://github.com/QwenLM/qwen-code/compare/main...YOUR_FORK:${PR_BRANCH}"
         exit 1
     fi
 
-    # Push the clean branch to your public fork
-    log_info "Pushing ${PR_BRANCH} to mirror..."
-    git push mirror "$PR_BRANCH"
+    # Push the clean branch to the fork (upstream remote = jdmanring/qwen-code)
+    log_info "Pushing ${PR_BRANCH} to upstream fork..."
+    git push upstream "$PR_BRANCH"
 
-    # Build the PR URL from the mirror remote URL
-    MIRROR_URL=$(git remote get-url mirror)
+    # Build the PR URL from the upstream remote URL
+    UPSTREAM_URL=$(git remote get-url upstream)
     # Normalise SSH → HTTPS for display
-    MIRROR_URL=$(echo "$MIRROR_URL" | sed 's|git@github.com:|https://github.com/|; s|\.git$||')
-    FORK_OWNER=$(echo "$MIRROR_URL" | sed 's|https://github.com/\([^/]*\)/.*|\1|')
+    UPSTREAM_URL=$(echo "$UPSTREAM_URL" | sed 's|git@github.com:|https://github.com/|; s|\.git$||')
+    FORK_OWNER=$(echo "$UPSTREAM_URL" | sed 's|https://github.com/\([^/]*\)/.*|\1|')
 
     echo ""
     log_success "Branch pushed to your public fork."
