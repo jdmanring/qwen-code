@@ -20,6 +20,7 @@ import argparse
 import sys
 import time
 from collections.abc import Callable
+from pathlib import Path
 
 PASS = "\033[32mPASS\033[0m"
 FAIL = "\033[31mFAIL\033[0m"
@@ -124,12 +125,22 @@ def _check_cp_profile_selector() -> None:
     assert len(cp.execution_profile_selector.profiles) > 0, "no execution profiles loaded"
 
 
-check("ControlPlane() instantiates", _instantiate_control_plane)
-check("  └─ IntentClassifier", _check_cp_classifier)
-check("  └─ TaskDecomposer", _check_cp_decomposer)
-check("  └─ JobStateManager", _check_cp_jsm)
-check("  └─ CommandManager", _check_cp_command_manager)
-check("  └─ ExecutionProfileSelector (profiles loaded)", _check_cp_profile_selector)
+_settings_path = Path.home() / ".qwen" / "settings.json"
+
+if not _settings_path.exists():
+    print(f"  {SKIP}  ControlPlane() instantiates (no settings.json at {_settings_path})")
+    print(f"  {SKIP}    └─ IntentClassifier")
+    print(f"  {SKIP}    └─ TaskDecomposer")
+    print(f"  {SKIP}    └─ JobStateManager")
+    print(f"  {SKIP}    └─ CommandManager")
+    print(f"  {SKIP}    └─ ExecutionProfileSelector (profiles loaded)")
+else:
+    check("ControlPlane() instantiates", _instantiate_control_plane)
+    check("  └─ IntentClassifier", _check_cp_classifier)
+    check("  └─ TaskDecomposer", _check_cp_decomposer)
+    check("  └─ JobStateManager", _check_cp_jsm)
+    check("  └─ CommandManager", _check_cp_command_manager)
+    check("  └─ ExecutionProfileSelector (profiles loaded)", _check_cp_profile_selector)
 
 # ---------------------------------------------------------------------------
 # Step 3: ExecutionProfileSelector standalone
