@@ -12,6 +12,16 @@ export default defineConfig({
   resolve: {
     alias: {
       '@qwen-code/qwen-code-core': path.resolve(__dirname, '../core/index.ts'),
+      '@qwen-code/acp-bridge': path.resolve(__dirname, '../acp-bridge/src/index.ts'),
+      '@qwen-code/acp-bridge/eventBus': path.resolve(__dirname, '../acp-bridge/src/eventBus.ts'),
+      '@qwen-code/acp-bridge/inMemoryChannel': path.resolve(__dirname, '../acp-bridge/src/inMemoryChannel.ts'),
+      '@qwen-code/acp-bridge/channel': path.resolve(__dirname, '../acp-bridge/src/channel.ts'),
+      '@qwen-code/acp-bridge/permission': path.resolve(__dirname, '../acp-bridge/src/permission.ts'),
+      '@qwen-code/acp-bridge/status': path.resolve(__dirname, '../acp-bridge/src/status.ts'),
+      '@qwen-code/acp-bridge/workspacePaths': path.resolve(__dirname, '../acp-bridge/src/workspacePaths.ts'),
+      '@qwen-code/acp-bridge/bridgeErrors': path.resolve(__dirname, '../acp-bridge/src/bridgeErrors.ts'),
+      '@qwen-code/acp-bridge/bridgeTypes': path.resolve(__dirname, '../acp-bridge/src/bridgeTypes.ts'),
+      '@qwen-code/acp-bridge/bridgeOptions': path.resolve(__dirname, '../acp-bridge/src/bridgeOptions.ts'),
     },
   },
   test: {
@@ -41,7 +51,7 @@ export default defineConfig({
     },
     server: {
       deps: {
-        inline: [/@qwen-code\/qwen-code-core/],
+        inline: [/@qwen-code\/qwen-code-core/, /@qwen-code\/acp-bridge/],
       },
     },
   },

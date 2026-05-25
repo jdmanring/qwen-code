@@ -7,7 +7,7 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { randomBytes, randomInt } from 'node:crypto';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 import { simpleGit, CheckRepoActions } from 'simple-git';
 import type { SimpleGit } from 'simple-git';
 import { Storage } from '../config/storage.js';
@@ -1243,7 +1243,11 @@ export class GitWorktreeService {
     // — in both cases overwriting silently replaces the user's choice.
     // (PR #4174 review #3259975242.)
     if (existing === '') {
-      await worktreeGit.raw(['config', 'core.hooksPath', hooksPath]);
+      // simple-git 3.36+ blocks core.hooksPath writes via its unsafe-operations
+      // plugin. Bypass it with execFileSync since the path is our own known value.
+      execFileSync('git', ['config', 'core.hooksPath', hooksPath], {
+        cwd: worktreePath,
+      });
     } else if (existing !== hooksPath) {
       debugLogger.debug(
         `configureHooksPath: preserving existing core.hooksPath=${existing} ` +

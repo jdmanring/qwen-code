@@ -18,7 +18,7 @@ import * as fs from 'node:fs/promises';
 import * as fsSync from 'node:fs';
 import * as path from 'node:path';
 import * as tar from 'tar';
-import * as archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import {
   ExtensionUpdateState,
   type Extension,
@@ -497,7 +497,7 @@ describe('git extension helpers', () => {
 
       // Create the zip file
       const output = fsSync.createWriteStream(archivePath);
-      const archive = archiver.create('zip');
+      const archive = new ZipArchive();
 
       const streamFinished = new Promise((resolve, reject) => {
         output.on('close', () => resolve(null));

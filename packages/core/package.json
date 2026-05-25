@@ -94,6 +94,8 @@
     "@types/picomatch": "^4.0.1",
     "@types/prompts": "^2.4.9",
     "@types/ws": "^8.5.10",
+    "archiver": "^8.0.0",
+    "mock-fs": "^5.5.0",
     "msw": "^2.3.4",
     "tree-sitter-wasms": "^0.1.13",
     "typescript": "^5.3.3",

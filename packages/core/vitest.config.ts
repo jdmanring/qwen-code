@@ -5,8 +5,14 @@
  */
 
 import { defineConfig } from 'vitest/config';
+import path from 'node:path';
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@qwen-code/qwen-code-core': path.resolve(__dirname, './index.ts'),
+    },
+  },
   test: {
     reporters: ['default', 'junit'],
     silent: true,
@@ -27,6 +33,11 @@ export default defineConfig({
         'cobertura',
         ['json-summary', { outputFile: 'coverage-summary.json' }],
       ],
+    },
+    server: {
+      deps: {
+        inline: [/@qwen-code\/qwen-code-core/],
+      },
     },
   },
 });
