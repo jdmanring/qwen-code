@@ -167,6 +167,31 @@ See `docs/upstream/upstream-pr-guide.md` and `docs/upstream/upstream-pr-checklis
 
 ---
 
+## Phase 4.6: Fix TypeScript Build Errors in packages/core
+
+Full inventory and fix plan: `docs/meta/typescript-build-errors.md`
+
+All errors are in QwenLM upstream source (packages/core). `tsc --build` exits non-zero,
+blocking the nx build pipeline. Tests still pass because vitest uses source aliases.
+
+Fix order:
+- [ ] Group 1: `pnpm add -D @types/shell-quote --filter @qwen-code/qwen-code-core`
+- [ ] Group 2: Add `forceFlush(): Promise<void>` to `FileLogExporter` (`src/telemetry/file-exporters.ts:55`)
+- [ ] Group 3: Add `src/types/abort-signal.d.ts` shim for `AbortSignal.any`
+- [ ] Group 7: Investigate `@agentclientprotocol/sdk` import in `src/services/fileSystemService.ts:22`
+- [ ] Group 8: Replace `URL.parse()` with `new URL()` in `src/extension/github.ts:118`
+- [ ] Group 4: Narrow content union type in `src/ide/ide-client.ts` (5 locations)
+- [ ] Group 5: Fix `Span | undefined` in `src/core/coreToolScheduler.ts:2524`
+- [ ] Group 6: Filter nulls in `src/services/gitWorktreeService.ts:830`
+- [ ] Group 9: Fix `string | string[]` in `src/extension/claude-converter.ts:127`
+- [ ] Group 10: Filter undefined in `src/extension/extensionManager.ts:1337`
+- [ ] Group 11: Annotate `child` variable in `src/tools/monitor.ts` and `src/utils/filesearch/crawler.ts`
+- [ ] Verify: `cd packages/core && pnpm exec tsc --build` exits 0
+- [ ] Verify: `cd packages/cli && pnpm exec tsc --build` exits 0
+- [ ] Run `pnpm test-all` — confirm no regressions
+
+---
+
 ## Phase 5: Dependency Upgrades
 
 Full plan: `docs/megalonyx/dependency-upgrade-plan.md`
