@@ -153,7 +153,7 @@
 - [x] Created packages/webui/vitest.config.ts — 25 orphaned tests now reachable via pnpm test-all
 - [x] Added coverage thresholds to packages/core/vitest.config.ts — 75% statements/lines, 77% functions, 78% branches
 - [x] Added staged-file ESLint check to pre-commit hook (fast: only staged files)
-- [ ] CLI coverage thresholds — blocked: pre-existing TypeScript build errors (missing @types/shell-quote, AbortSignal.any) prevent clean build; resolve in Phase M (TypeScript upgrade)
+- [x] CLI coverage thresholds — added at statements/lines 73%, branches 76%, functions 76% (Phase 4.7, commit 1d98f2acb)
 
 ### Upstream PR Backlog — Not Yet Submitted
 All branches are prepared but NOT submitted. User must approve each before submission.
@@ -167,28 +167,49 @@ See `docs/upstream/upstream-pr-guide.md` and `docs/upstream/upstream-pr-checklis
 
 ---
 
-## Phase 4.6: Fix TypeScript Build Errors in packages/core
+## Phase 4.6: Fix TypeScript Build Errors in packages/core and packages/cli (Complete — 2026-05-25, commit d99a41a89)
 
 Full inventory and fix plan: `docs/meta/typescript-build-errors.md`
 
-All errors are in QwenLM upstream source (packages/core). `tsc --build` exits non-zero,
-blocking the nx build pipeline. Tests still pass because vitest uses source aliases.
+All errors were in QwenLM upstream source. `tsc --build` now exits 0 for both core and CLI.
 
-Fix order:
-- [ ] Group 1: `pnpm add -D @types/shell-quote --filter @qwen-code/qwen-code-core`
-- [ ] Group 2: Add `forceFlush(): Promise<void>` to `FileLogExporter` (`src/telemetry/file-exporters.ts:55`)
-- [ ] Group 3: Add `src/types/abort-signal.d.ts` shim for `AbortSignal.any`
-- [ ] Group 7: Investigate `@agentclientprotocol/sdk` import in `src/services/fileSystemService.ts:22`
-- [ ] Group 8: Replace `URL.parse()` with `new URL()` in `src/extension/github.ts:118`
-- [ ] Group 4: Narrow content union type in `src/ide/ide-client.ts` (5 locations)
-- [ ] Group 5: Fix `Span | undefined` in `src/core/coreToolScheduler.ts:2524`
-- [ ] Group 6: Filter nulls in `src/services/gitWorktreeService.ts:830`
-- [ ] Group 9: Fix `string | string[]` in `src/extension/claude-converter.ts:127`
-- [ ] Group 10: Filter undefined in `src/extension/extensionManager.ts:1337`
-- [ ] Group 11: Annotate `child` variable in `src/tools/monitor.ts` and `src/utils/filesearch/crawler.ts`
-- [ ] Verify: `cd packages/core && pnpm exec tsc --build` exits 0
-- [ ] Verify: `cd packages/cli && pnpm exec tsc --build` exits 0
-- [ ] Run `pnpm test-all` — confirm no regressions
+- [x] Group 1: `pnpm add -D @types/shell-quote --filter @qwen-code/qwen-code-core`
+- [x] Group 2: Add `forceFlush(): Promise<void>` to `FileLogExporter` (`src/telemetry/file-exporters.ts:55`)
+- [x] Group 3: Add `src/types/abort-signal.d.ts` shim for `AbortSignal.any`
+- [x] Group 7: Investigate `@agentclientprotocol/sdk` import in `src/services/fileSystemService.ts:22`
+- [x] Group 8: Replace `URL.parse()` with `new URL()` in `src/extension/github.ts:118`
+- [x] Group 4: Narrow content union type in `src/ide/ide-client.ts` (5 locations)
+- [x] Group 5: Fix `Span | undefined` in `src/core/coreToolScheduler.ts:2524`
+- [x] Group 6: Filter nulls in `src/services/gitWorktreeService.ts:830`
+- [x] Group 9: Fix `string | string[]` in `src/extension/claude-converter.ts:127`
+- [x] Group 10: Filter undefined in `src/extension/extensionManager.ts:1337`
+- [x] Group 11: Annotate `child` variable in `src/tools/monitor.ts` and `src/utils/filesearch/crawler.ts`
+- [x] Verify: `cd packages/core && pnpm exec tsc --build` exits 0
+- [x] Verify: `cd packages/cli && pnpm exec tsc --build` exits 0
+- [x] Run `pnpm test-all` — confirm no regressions
+
+---
+
+## Phase 4.7: Test Infrastructure and Coverage Gates (Complete — 2026-05-25)
+
+### Test Failures Resolved
+- [x] vitest.config.ts alias ordering: moved all `@qwen-code/acp-bridge` subpath aliases before the
+      base package alias — resolved 33 CLI test file failures caused by `@rollup/plugin-alias`
+      prefix-matching the base alias first (commit cee2e0f18)
+- [x] httpAcpBridge.test.ts: added `unstable_forkSession` to `FakeAgent` mock for ACP SDK v0.22.1
+      rename from `unstable_resumeSession`; updated 2 test cases to use `forkSessionImpl`/`forkSessionCalls`
+      (same commit)
+
+### Coverage Gates
+- [x] Both core and CLI vitest configs: added `reportOnFailure: true` — vitest 3.2.4 defaults to
+      `false`, silently skipping coverage writes when any test fails (commit 1d98f2acb)
+- [x] CLI coverage thresholds added: statements/lines 73%, branches 76%, functions 76%
+      (measured baseline: lines 76.9%, functions 79.9%, branches 80.1%; set ~4% below)
+- [x] Core `reportOnFailure` fixed (thresholds 75/78/77/75 were already in place)
+
+### Current test status
+- 376/377 CLI test files passing (1 file, 2 tests — pre-existing upstream issue in `useAtCompletion`
+  re: directory trailing slash in suggestions; verified pre-existing via git stash check)
 
 ---
 
