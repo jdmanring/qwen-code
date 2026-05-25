@@ -24,6 +24,7 @@ export default defineConfig({
       enabled: true,
       provider: 'v8',
       reportsDirectory: './coverage',
+      reportOnFailure: true,
       include: ['src/**/*.{ts,tsx,js,jsx,mts,cts,mjs,cjs}'],
       reporter: [
         ['text', { file: 'full-text-summary.txt' }],

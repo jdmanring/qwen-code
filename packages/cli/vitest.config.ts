@@ -42,6 +42,7 @@ export default defineConfig({
       enabled: true,
       provider: 'v8',
       reportsDirectory: './coverage',
+      reportOnFailure: true,
       include: ['src/**/*.{ts,tsx,js,jsx,mts,cts,mjs,cjs}'],
       reporter: [
         ['text', { file: 'full-text-summary.txt' }],
@@ -51,6 +52,12 @@ export default defineConfig({
         'cobertura',
         ['json-summary', { outputFile: 'coverage-summary.json' }],
       ],
+      thresholds: {
+        statements: 73,
+        branches: 76,
+        functions: 76,
+        lines: 73,
+      },
     },
     server: {
       deps: {
