@@ -33,6 +33,12 @@ export default defineConfig({
         'cobertura',
         ['json-summary', { outputFile: 'coverage-summary.json' }],
       ],
+      thresholds: {
+        statements: 75,
+        branches: 78,
+        functions: 77,
+        lines: 75,
+      },
     },
     server: {
       deps: {
