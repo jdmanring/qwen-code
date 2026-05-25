@@ -40,6 +40,18 @@ We skip upstream content that would conflict with or overwrite Megalonyx additio
 These exclusions are handled at the pipeline level. If upstream ever ships a file whose name
 matches something we deliberately protect, the gate will flag it for manual review.
 
+## Workflow files that need pnpm patches after sync
+
+These upstream workflow files have been modified to use pnpm instead of npm. If a future
+upstream sync overwrites them, re-apply the following changes before merging to `develop`:
+
+| File | What was changed |
+|---|---|
+| `.github/workflows/e2e.yml` | Added `pnpm/action-setup@v4` step; changed `cache: npm` → `cache: pnpm`; replaced `npm ci` with `pnpm install --frozen-lockfile`; removed npm rate-limit config step |
+| `packages/sdk-python/pyproject.toml` | Added `[project.optional-dependencies] dev = [ruff, mypy, pytest]` so `pip install -e '.[dev]'` installs required tools |
+
+After each upstream sync, run `git diff upstream/main HEAD -- .github/workflows/e2e.yml packages/sdk-python/pyproject.toml` to confirm our patches are still in place.
+
 ---
 
 ## The quality gates

@@ -2,3 +2,10 @@
 name = "sdk-python"
 version = "0.1.0"
 dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.4.0",
+    "mypy>=1.0.0",
+    "pytest>=8.0.0",
+]
