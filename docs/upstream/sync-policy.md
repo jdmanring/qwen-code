@@ -166,7 +166,7 @@ pushed to the fork, then opened as PRs against `QwenLM/qwen-code`.
 The `upstream` remote is already set up (part of the standard monorepo setup):
 ```bash
 # Confirm:
-git remote -v  # should show upstream → https://github.com/jdmanring/qwen-code.git
+git remote -v  # should show upstream → git@github.com:jdmanring/qwen-code.git
 ```
 
 For single-commit cherry-picks, the fork sync pipeline handles isolation gates, branch

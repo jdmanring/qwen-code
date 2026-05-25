@@ -57,21 +57,23 @@ Add it once:
 
 ```bash
 # upstream remote is already configured — verify:
-git remote -v  # should show: upstream → https://github.com/jdmanring/qwen-code.git
+git remote -v  # should show: upstream → git@github.com:jdmanring/qwen-code.git
 git fetch upstream
 ```
 
-Verify the remotes are correctly separated:
+If it shows HTTPS instead of SSH, fix it:
+
+```bash
+git remote set-url upstream git@github.com:jdmanring/qwen-code.git
+```
+
+Verify the remotes are correctly configured:
 
 ```bash
 git remote -v
-# upstream   https://github.com/QwenLM/qwen-code.git  (fetch and push — inbound only)
-# upstream  https://github.com/jdmanring/qwen-code.git  (inbound filter + outbound PR channel)
-# origin     https://github.com/jdmanring/megalonyx-monorepo.git  (our private repo)
+# upstream  git@github.com:jdmanring/qwen-code.git  (inbound filter + outbound PR channel)
+# origin    git@github.com:jdmanring/megalonyx-monorepo.git  (our private repo)
 ```
-
-**Never push to `upstream`**. The upstream remote is read-only by convention. Git will
-reject a push there since it is not your repo, but the distinction matters for clarity.
 
 ---
 
