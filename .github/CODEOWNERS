@@ -1,0 +1,27 @@
+# CODEOWNERS — GitHub requests review from these users on any PR touching the path.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything not matched below
+*                                   @jdmanring
+
+# CI and GitHub configuration — require explicit review before changes go out
+/.github/                           @jdmanring
+/.github/workflows/                 @jdmanring
+
+# Upstream sync tooling — high risk, changes affect all inbound code
+/tooling/sync-upstreams/            @jdmanring
+/tooling/                           @jdmanring
+
+# Documentation
+/docs/                              @jdmanring
+
+# Core packages
+/packages/core/                     @jdmanring
+/packages/cli/                      @jdmanring
+/packages/acp-bridge/               @jdmanring
+/packages/channels/                 @jdmanring
+
+# Megalonyx sovereign stack
+/packages/agent-infra/              @jdmanring
+/packages/agent-memory/             @jdmanring
+/packages/control-plane-daemon/     @jdmanring
