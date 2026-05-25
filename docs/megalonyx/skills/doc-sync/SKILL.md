@@ -23,5 +23,5 @@ The Doc-Sync skill provides:
 - **VERIFICATION**: Confirmation that all related symbols in the code were checked.
 - **CONFIDENCE**: A score from `0.0` to `1.0`.
 
-## Symmetry Link
+## Mirror Link
 Original configuration: [`config/skills/doc-sync/SKILL.md`](../../config/skills/doc-sync/SKILL.md)

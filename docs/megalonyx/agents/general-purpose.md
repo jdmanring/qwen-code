@@ -31,5 +31,5 @@ The General-Purpose agent is authorized to use the following tools:
 - `Monitor`
 - `Shell`
 
-## Symmetry Link
+## Mirror Link
 [Configuration File](../../config/agents/general-purpose.md)

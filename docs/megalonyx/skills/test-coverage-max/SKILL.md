@@ -26,5 +26,5 @@ The final report must include:
 - **UNREACHABLE PATHS**: A technical justification for any paths that could not be covered.
 - **CONFIDENCE**: A score from `0.0` to `1.0` regarding the completeness of the coverage.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 **Original Configuration**: [`../../../config/skills/test-coverage-max/SKILL.md`](../../../config/skills/test-coverage-max/SKILL.md)

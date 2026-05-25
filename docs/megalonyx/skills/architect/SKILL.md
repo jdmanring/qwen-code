@@ -26,5 +26,5 @@ The Architect must provide the following structured output:
 - **VERIFICATION CRITERIA**: Specific test cases and conditions for the QA Lead.
 - **CONFIDENCE**: A score from 0.0 to 1.0.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 Original Configuration: [`config/skills/architect/SKILL.md`](../../../config/skills/architect/SKILL.md)

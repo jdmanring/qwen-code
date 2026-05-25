@@ -29,5 +29,5 @@ The QA Lead is authorized to use the following tools:
 
 **Note**: This agent is explicitly prohibited from using `write_file`, `edit`, and `run_shell_command` to maintain the integrity of the verification process.
 
-## Symmetry Link
+## Mirror Link
 [Configuration File](../../config/agents/qa-lead.md)

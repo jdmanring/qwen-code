@@ -29,5 +29,5 @@ The output of a Security Audit must adhere to the following schema:
 - **ATTACK SURFACE ANALYSIS**: A high-level summary of the most exposed areas of the system.
 - **CONFIDENCE**: A score from `0.0` to `1.0` indicating the certainty of the findings.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 **Original Configuration**: [`../../../config/skills/security_auditor/SKILL.md`](../../../config/skills/security_auditor/SKILL.md)

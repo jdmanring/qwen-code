@@ -30,5 +30,5 @@ The Routing Plane selects the Troubleshooter when:
 - `Monitor`
 - `Shell`
 
-## Symmetry Link
+## Mirror Link
 [Config File](../../config/agents/troubleshooter.md)

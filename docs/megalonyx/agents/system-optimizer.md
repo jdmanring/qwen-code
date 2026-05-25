@@ -30,5 +30,5 @@ The Routing Plane selects the System Optimizer when:
 - `Monitor`
 - `Shell`
 
-## Symmetry Link
+## Mirror Link
 [Config File](../../config/agents/system-optimizer.md)

@@ -29,5 +29,5 @@ The Routing Plane selects the SCOUT when the system needs to:
 - `TodoWrite`
 - `WebFetch`
 
-## Symmetry Link
+## Mirror Link
 [Config File](../../config/agents/scout.md)

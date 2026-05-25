@@ -25,5 +25,5 @@ The Critic must provide the following structured output:
 - **PIVOT RECOMMENDATION**: A specific, actionable change in strategy to resume progress.
 - **CONFIDENCE**: A score from `0.0` to `1.0`.
 
-## Symmetry Link
+## Mirror Link
 Original configuration: [`config/skills/critic/SKILL.md`](../../config/skills/critic/SKILL.md)

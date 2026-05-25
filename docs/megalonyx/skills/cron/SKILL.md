@@ -20,5 +20,5 @@ The Cron skill adheres to the following output format:
 - **VERIFICATION**: Confirmation of the schedule as retrieved from `cron_list`.
 - **CONFIDENCE**: A score from `0.0` to `1.0`.
 
-## Symmetry Link
+## Mirror Link
 Original configuration: [`config/skills/cron/SKILL.md`](../../config/skills/cron/SKILL.md)

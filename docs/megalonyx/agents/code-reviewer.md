@@ -18,5 +18,5 @@ The Code Reviewer is selected when the task requires:
 - `read_file`
 - `read_many_files`
 
-## Symmetry Link
+## Mirror Link
 [Config File](../../config/agents/code-reviewer.md)

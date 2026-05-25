@@ -1,8 +1,8 @@
-# Integration Strategy: Megalonyx Sovereign Monorepo
+# Integration Strategy: Integrated Monorepo
 
 ## Objective
 
-Transition from an installer wrapper around external tools into a sovereign, integrated platform.
+Transition from an installer wrapper around external tools into a fully integrated platform.
 This means merging the Megalonyx agent stack, proprietary memory system, and the upstream
 QwenLM/qwen-code CLI into a single versioned repository with a controlled upstream sync pipeline.
 
@@ -17,10 +17,10 @@ remote and pulled through a quality-gated pipeline — not forked and abandoned.
 - A single commit updates both the agent stack and the memory system in sync
 - Shared libraries (agent-infra) are managed once, consumed by multiple packages
 - Refactoring a function and updating its call site happens atomically
-- Engineering standards (naming, type hints, symmetry rules) apply uniformly
+- Engineering standards (naming, type hints, config-doc mirroring rules) apply uniformly
 
 **Upstream sync is not a fork.** Changes from QwenLM/qwen-code flow through
-`tooling/sync-upstreams/upstream_ingest_pipeline.py` which gates on ruff, mypy, symmetry, and
+`tooling/sync-upstreams/upstream_ingest_pipeline.py` which gates on ruff, mypy, mirroring, and
 boot verification before promoting to `integration`. This means we receive upstream bug fixes and
 security updates without overwriting our own work.
 
@@ -75,7 +75,7 @@ Flow: `upstream/main` -> `upstream-mirror` -> pipeline gates -> `integration` ->
   - `packages/memory/` -> `packages/agent-memory/src/agent_memory/`
   - `packages/infra/` -> `packages/agent-infra/src/agent_infra/`
 - Naming standards enforced: no AI jargon, no project metaphors, plain engineering terms
-- Config/docs symmetry enforced by `project_standards_linter.py` and `symmetry_check.py`
+- Config/docs mirroring enforced by `project_standards_linter.py` and `symmetry_check.py`
 - Pre-commit hook and CI pipeline both run the full quality gate
 - All three packages importable via `uv sync --all-packages`
 
@@ -88,7 +88,7 @@ Flow: `upstream/main` -> `upstream-mirror` -> pipeline gates -> `integration` ->
 
 ### Phase 4 — Verification (planned)
 - Full end-to-end test suite passing against live services
-- Symmetry audit: all new config mirrored in docs
+- Mirroring audit: all new config mirrored in docs
 - Deployment validation: install-megalonyx-stack.sh verified on clean machine
 - T3 GUI integration
 - Public release repo preparation

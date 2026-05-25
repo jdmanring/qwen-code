@@ -24,5 +24,5 @@ The Python Expert is authorized to use the following tools:
 - `read_many_files`
 - `run_shell_command`
 
-## Symmetry Link
+## Mirror Link
 [Configuration File](../../config/agents/python-expert.md)

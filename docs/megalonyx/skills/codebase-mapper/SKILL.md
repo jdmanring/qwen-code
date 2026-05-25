@@ -26,5 +26,5 @@ The Mapper must deliver the following artifacts:
 - **SYMBOL TABLE**: A list of key classes/functions and their respective roles.
 - **CONFIDENCE**: A score from 0.0 to 1.0.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 Original Configuration: [`config/skills/codebase-mapper/SKILL.md`](../../../config/skills/codebase-mapper/SKILL.md)

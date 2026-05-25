@@ -1,10 +1,10 @@
 # Testing & Validation Strategy
 
-This document outlines the testing and validation framework for the Mega Code stack, ensuring stability across the Blueprint (source) and the Machine (deployment).
+This document outlines the testing and validation framework for the Qwen Code project, ensuring stability across the Source Repository and the Runtime Environment.
 
 ## 1. Validation Philosophy
 
-The Mega Code stack employs a **Production-First Validation** approach. Rather than relying solely on isolated unit tests, the system validates its health by performing a real deployment and executing "Smoke Tests" against the installed binaries.
+The Qwen Code project employs a **Production-First Validation** approach. Rather than relying solely on isolated unit tests, the system validates its health by performing a real deployment and executing "Smoke Tests" against the installed binaries.
 
 ### The Validation Pipeline
 The primary entry point for validation is the `install.sh` script. During the `[8/9] Verifying deployment` phase, the installer performs the following checks:

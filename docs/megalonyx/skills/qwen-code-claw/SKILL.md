@@ -27,5 +27,5 @@ The output format varies by invocation mode:
 - **Machine-Readable**: JSON format (`--format json`) for orchestration and automation.
 - **Quiet**: Minimal output for CI/CD integration.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 Original Configuration: [`config/skills/qwen-code-claw/SKILL.md`](../../../config/skills/qwen-code-claw/SKILL.md)

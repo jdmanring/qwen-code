@@ -22,5 +22,5 @@ The output must include:
 3. **VERIFICATION**: Confirmation of successful creation.
 4. **CONFIDENCE**: A numerical value (0.0 - 1.0).
 
-## Symmetry Link
+## Mirror Link
 Original configuration: [`config/skills/generate-agent/SKILL.md`](../../../config/skills/generate-agent/SKILL.md)

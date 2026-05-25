@@ -25,5 +25,5 @@ The debugging process concludes only when the root cause is proven. The final ou
 - **Evidence**: Specific log lines or data captures that confirm the root cause.
 - **Fix**: A description of the change being made and why it directly addresses the proven root cause.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 **Original Configuration**: [`../../../config/skills/structured-debugging/SKILL.md`](../../../config/skills/structured-debugging/SKILL.md)

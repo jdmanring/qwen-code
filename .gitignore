@@ -60,6 +60,7 @@ bundle
 
 # Test report files
 junit.xml
+coverage/
 packages/*/coverage/
 
 # PR body draft

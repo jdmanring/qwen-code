@@ -23,5 +23,5 @@ The output of a successful Bugfix operation includes:
 - **Updated Issue Artifact**: The `.qwen/issues/` file containing both the Reproduction and Verification reports.
 - **Regression Tests**: New or updated test cases confirming the fix.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 Original Configuration: [`config/skills/bugfix/SKILL.md`](../../../config/skills/bugfix/SKILL.md)

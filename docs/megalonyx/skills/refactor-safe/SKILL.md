@@ -25,5 +25,5 @@ The Refactor Safe skill adheres to the following output schema:
 - **Regression Log**: A detailed account of any issues encountered and resolved during the process.
 - **Verdict**: `[SUCCESS / FAILED]`
 
-## 5. Symmetry Link
+## 5. Mirror Link
 Original Configuration: [`config/skills/refactor-safe/SKILL.md`](../../../config/skills/refactor-safe/SKILL.md)

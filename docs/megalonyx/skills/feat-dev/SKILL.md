@@ -25,5 +25,5 @@ The workflow follows a strict linear progression where each phase produces a req
 - **Implementation**: TypeScript source code and corresponding unit tests.
 - **Verification Report**: E2E results appended to the test plan.
 
-## Symmetry Link
+## Mirror Link
 Original configuration: [`config/skills/feat-dev/SKILL.md`](../../../config/skills/feat-dev/SKILL.md)

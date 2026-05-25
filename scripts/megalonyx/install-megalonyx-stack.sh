@@ -199,6 +199,8 @@ echo "[OK] mega-run-py (uv-backed)"
 cat > "$BIN_DIR/mega-db" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
+cd "$DATA_ROOT"
+export QDRANT__STORAGE__PATH="."
 exec "$QDRANT_DIR/bin/qdrant" \\
   --config-path "$QDRANT_CONFIG"
 EOF

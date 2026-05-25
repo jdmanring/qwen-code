@@ -1,6 +1,6 @@
 # 🧠 Naming Standards: Engineering-First Clarity
 
-This document defines the standards for naming files and directories in the Megalonyx. The goal is to minimize **Cognitive Friction**—the mental overhead an agent or developer experiences when inferring the purpose of a file.
+This document defines the standards for naming files and directories in the Megalonyx project. The goal is to minimize **Developer Friction**—the mental overhead an agent or developer experiences when inferring the purpose of a file.
 
 ---
 
@@ -18,7 +18,7 @@ Tests and validators should be named as **processes**, not **objects**, to signa
 - **Ambiguous**: `config_check.py` (The "Check" is a noun).
 - **Actionable**: `validate_config.py` (The "Validate" is a verb).
 
-### 3. The Case Standard (Symmetry)
+### 3. The Case Standard (Mirroring)
 To reduce visual noise and maintain consistency, the project adheres to a strict casing policy:
 - **Source Code**: `snake_case.py` (Python PEP 8 standard).
 - **Documentation & Config**: `kebab-case.md` / `kebab-case.json` (Standard for web/CLI docs).
@@ -26,9 +26,9 @@ To reduce visual noise and maintain consistency, the project adheres to a strict
 
 ---
 
-## 🗺️ Cognitive Realignment Mapping
+## 🗺️ Naming Realignment Mapping
 
-The following table maps high-friction names to cognitive-optimal counterparts.
+The following table maps high-friction names to technical-optimal counterparts.
 
 ### Root Documentation
 | Current Name | Role | Proposed Name | Rationale |

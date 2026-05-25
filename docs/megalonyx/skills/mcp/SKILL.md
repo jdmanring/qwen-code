@@ -22,5 +22,5 @@ The output must include:
 2. **MCP RESULT**: The direct output returned by the MCP server.
 3. **CONFIDENCE**: A numerical value (0.0 - 1.0).
 
-## Symmetry Link
+## Mirror Link
 Original configuration: [`config/skills/mcp/SKILL.md`](../../../config/skills/mcp/SKILL.md)

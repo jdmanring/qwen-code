@@ -27,5 +27,5 @@ The output consists of a structured directory of images:
 - **Full-Flow Image**: A `full-flow.png` capturing the final state of the scrollback buffer.
 - **Animated GIF**: (Optional) An animated GIF generated from `streaming` captures using `ffmpeg`.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 **Original Configuration**: [`../../../config/skills/terminal-capture/SKILL.md`](../../../config/skills/terminal-capture/SKILL.md)

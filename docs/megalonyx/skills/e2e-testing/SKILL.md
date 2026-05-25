@@ -26,5 +26,5 @@ This skill is triggered by requests or mentions of:
 - **Interactive Output**: Rendered TUI frames captured via `tmux capture-pane`.
 - **API Logs**: JSON files containing `request.messages` and `response.choices`.
 
-## Symmetry Link
+## Mirror Link
 Original configuration: [`config/skills/e2e-testing/SKILL.md`](../../../config/skills/e2e-testing/SKILL.md)

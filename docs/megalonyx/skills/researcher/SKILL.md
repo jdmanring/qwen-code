@@ -24,5 +24,5 @@ The Researcher produces a standardized technical brief:
 - **CONTRADICTIONS**: Any conflicting information found between different sources.
 - **CONFIDENCE**: A numerical value `(0.0 - 1.0)` based on source authority and consensus.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 Original Configuration: [`config/skills/researcher/SKILL.md`](../../../config/skills/researcher/SKILL.md)

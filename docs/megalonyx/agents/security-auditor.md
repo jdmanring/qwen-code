@@ -27,5 +27,5 @@ The Routing Plane selects the Security Auditor for:
 - `WebFetch`
 - **Disallowed**: `write_file`, `edit`, `run_shell_command`
 
-## Symmetry Link
+## Mirror Link
 [Config File](../../config/agents/security-auditor.md)

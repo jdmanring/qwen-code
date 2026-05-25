@@ -25,5 +25,5 @@ The Root Cause Hunter provides a technical post-mortem:
 - **Fix Verification**: Evidence that the global fix works and tests pass.
 - **CONFIDENCE**: A numerical value `(0.0 - 1.0)`.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 Original Configuration: [`config/skills/root-cause-hunter/SKILL.md`](../../../config/skills/root-cause-hunter/SKILL.md)

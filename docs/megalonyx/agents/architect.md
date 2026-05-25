@@ -27,5 +27,5 @@ The Architect is selected when the task requires:
 - `TodoWrite`
 - `WebFetch`
 
-## Symmetry Link
+## Mirror Link
 [Config File](../../config/agents/architect.md)

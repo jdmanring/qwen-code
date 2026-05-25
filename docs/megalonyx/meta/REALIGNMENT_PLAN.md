@@ -5,7 +5,7 @@ This document defines the engineering path to bridge the implementation gaps ide
 ---
 
 ## 🎯 Objective
-**Eliminate the Persistence Gap.** Ensure that every "generation" or "discovery" made by the system is materialized into the Blueprint or Machine, and that every "mandate" is programmatically enforced.
+**Eliminate the Persistence Gap.** Ensure that every "generation" or "discovery" made by the system is materialized into the Source Repository or Runtime Environment, and that every "standard" is programmatically enforced.
 
 ---
 
@@ -22,15 +22,15 @@ This document defines the engineering path to bridge the implementation gaps ide
     4. Write the `description` to `config/agents/{name}/metadata.json`.
 - **Success Criteria**: After calling `create_agent`, a new folder and persona file exist in the filesystem, and the agent is immediately available for delegation.
 
-### 2. Symmetry Enforcement (The "Symmetry Loop")
-**Problem**: Symmetry check is a manual orphan.
+### 2. Mirroring Enforcement (The "Mirroring Loop")
+**Problem**: Mirroring check is a manual orphan.
 **Solution**: Integrate `symmetry-check.py` into the `S-VERIFY` pipeline.
-- **Action**: 
+- **Action**:
     1. Create a new tool `verify_symmetry` that wraps `scripts/symmetry-check.py`.
-    2. Update the `S-VERIFY` axiom in `config/QWEN.md` to mandate: `Change in config/ => run verify_symmetry => Fail => Correct`.
-- **Success Criteria**: Any edit to a configuration file is automatically followed by a symmetry check; the agent cannot mark the task as "completed" until the check passes.
+    2. Update the `S-VERIFY` rule in `config/QWEN.md` to mandate: `Change in config/ => run verify_symmetry => Fail => Correct`.
+- **Success Criteria**: Any edit to a configuration file is automatically followed by a mirroring check; the agent cannot mark the task as "completed" until the check passes.
 
-### 3. Memory Deep-Integration (The "Cognitive Mandate")
+### 3. Memory Deep-Integration (The "Memory Requirement")
 **Problem**: Tiered memory is a sidecar, not a core.
 **Solution**: Shift from "Available Tool" to "Operational Requirement."
 - **Action**:
@@ -38,10 +38,10 @@ This document defines the engineering path to bridge the implementation gaps ide
     2. **Health Monitoring**: Integrate a `memory_daemon` heartbeat check into the `ControlPlane` startup. If the daemon is offline, the system should attempt a restart via `mega-memory-manager` before proceeding.
 - **Success Criteria**: The agent proactively uses memory tools to resolve architectural ambiguities without being explicitly told to do so.
 
-### 4. Blueprint $\to$ Machine Synchronization
-**Problem**: Runtime is stale after Blueprint changes.
+### 4. Source $\to$ Runtime Synchronization
+**Problem**: Runtime is stale after Source changes.
 **Solution**: Implement a `sync-blueprint` utility.
-- **Action**: 
+- **Action**:
     1. Create a script `scripts/sync-blueprint.py` that uses `rsync` to mirror the `config/` and `docs/` directories from the Git root to `~/.local/share/megalonyx/`.
     2. Add `sync-blueprint` as a command in `mega-memory-manager`.
 - **Success Criteria**: Running `mega-memory-manager sync` updates the runtime environment to match the current Git state without requiring a full `install.sh` run.
@@ -53,8 +53,8 @@ This document defines the engineering path to bridge the implementation gaps ide
 | Priority | Task | Target File(s) | Impact |
 | :--- | :--- | :--- | :--- |
 | **P0** | Agent Persistence | `packages/core/src/skill_bridge.py` | 🔴 Critical (Core Functionality) |
-| **P1** | Symmetry Integration | `config/QWEN.md`, `skill_bridge.py` | 🟡 High (System Integrity) |
-| **P2** | Memory Mandates | `config/agents/*/persona.md` | 🟡 High (Cognitive Efficiency) |
+| **P1** | Mirroring Integration | `config/QWEN.md`, `skill_bridge.py` | 🟡 High (System Integrity) |
+| **P2** | Memory Mandates | `config/agents/*/persona.md` | 🟡 High (Memory Efficiency) |
 | **P3** | Infra Sync | `scripts/sync-blueprint.py` | 🟢 Medium (Developer UX) |
 
 ---
@@ -62,5 +62,5 @@ This document defines the engineering path to bridge the implementation gaps ide
 ## ✅ Verification Matrix (Proof of Life)
 A feature is only "Implemented" when it passes this test:
 - **Agent Gen**: `User Request` $\to$ `create_agent` $\to$ `ls config/agents/` $\to$ `Verify File Exists`.
-- **Symmetry**: `Edit config/settings.json` $\to$ `run symmetry-check` $\to$ `Expect Fail` $\to$ `Edit docs/settings.md` $\to$ `run symmetry-check` $\to$ `Expect Pass`.
+- **Mirroring**: `Edit config/settings.json` $\to$ `run symmetry-check` $\to$ `Expect Fail` $\to$ `Edit docs/settings.md` $\to$ `run symmetry-check` $\to$ `Expect Pass`.
 - **Memory**: `Ingest "Project X uses React"` $\to$ `Clear Context` $\to$ `Ask "What does Project X use?"` $\to$ `Verify memory_search call`.

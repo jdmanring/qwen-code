@@ -32,5 +32,5 @@ The `triggers` object can contain:
 - **Orchestrator**: The orchestrator uses this schema to validate and load skill files from `config/skills/`.
 - **Skill Implementations**: Every `.yaml` file in the skills directory must conform to this definition.
 
-## Symmetry Link
+## Mirror Link
 [Original Config: `config/schemas/schema.md`](../../config/schemas/schema.md)

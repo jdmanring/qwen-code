@@ -30,5 +30,5 @@ The Explore agent is selected when the task requires:
 - `TodoWrite`
 - `WebFetch`
 
-## Symmetry Link
+## Mirror Link
 [Config File](../../config/agents/explore.md)

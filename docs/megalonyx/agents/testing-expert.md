@@ -25,5 +25,5 @@ The Routing Plane selects the Testing Expert when:
 - `read_many_files`
 - `run_shell_command`
 
-## Symmetry Link
+## Mirror Link
 [Config File](../../config/agents/testing-expert.md)

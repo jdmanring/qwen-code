@@ -27,5 +27,5 @@ The skill must provide the following details for every commit:
 - **CONVENTIONAL TYPE**: The assigned type (e.g., `feat`).
 - **CONFIDENCE**: A score from 0.0 to 1.0.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 Original Configuration: [`config/skills/commit/SKILL.md`](../../../config/skills/commit/SKILL.md)

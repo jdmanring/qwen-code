@@ -35,5 +35,5 @@ The Developer is selected when the task requires:
 - `Monitor`
 - `Shell`
 
-## Symmetry Link
+## Mirror Link
 [Config File](../../config/agents/developer.md)

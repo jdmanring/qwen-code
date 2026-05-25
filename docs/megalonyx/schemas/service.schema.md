@@ -34,5 +34,5 @@ The schema defines a structured object with the following primary sections:
 - **Config Validator**: Used by the system to ensure `service.yaml` files are syntactically and structurally correct before deployment.
 - **Agent Loader**: Ensures that the agent has all required fields (like `system_prompt`) before being instantiated.
 
-## Symmetry Link
+## Mirror Link
 [Original Config: `config/schemas/service.schema.json`](../../config/schemas/service.schema.json)

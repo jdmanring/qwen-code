@@ -27,5 +27,5 @@ The output is a timestamped directory in `tmp/<scenario>-tmux-YYYYMMDD-HHMMSS/` 
 - **`current-pane.txt`**: A scratch file containing the last polled state.
 - **`report.md`**: A summary including the scenario scope, PASS/FAIL result, and pointers to the logs.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 **Original Configuration**: [`../../../config/skills/tmux-real-user-testing/SKILL.md`](../../../config/skills/tmux-real-user-testing/SKILL.md)

@@ -1,9 +1,9 @@
 # MCP UDS Bridge: Conceptual Model
 
 ## Overview
-The MCP UDS Bridge is a specialized transport layer that extends the Model Context Protocol (MCP) to support persistent, secure, and multi-client local daemons on Linux. 
+The MCP UDS Bridge is a specialized transport layer that extends the Model Context Protocol (MCP) to support persistent, secure, and multi-client local daemons on Linux.
 
-While the official MCP specification focuses on `stdio` (where a client spawns a server as a child process) and `SSE` (HTTP), the Sovereign Bridge implements a Unix Domain Socket (UDS) transport. This allows the memory system to exist as a standalone background service (the Daemon) that can be shared across multiple AI sessions and tools without the overhead of repeated process instantiation.
+While the official MCP specification focuses on `stdio` (where a client spawns a server as a child process) and `SSE` (HTTP), the UDS Bridge implements a Unix Domain Socket (UDS) transport. This allows the memory system to exist as a standalone background service (the Daemon) that can be shared across multiple AI sessions and tools without the overhead of repeated process instantiation.
 
 ## The "Double-Bridge" Architecture
 
@@ -27,7 +27,7 @@ The Daemon is the authoritative source of truth for the stack's memory.
 ## Why This Approach?
 
 ### Persistence vs. Ephemerality
-In a standard MCP `stdio` setup, the server dies when the client closes. By moving the logic to a UDS Daemon, the `MemoryCore` can perform background tasks (like the "Dreaming" pipeline for memory consolidation) independently of whether a user is currently chatting with the AI.
+In a standard MCP `stdio` setup, the server dies when the client closes. By moving the logic to a UDS Daemon, the `MemoryCore` can perform background tasks (like the "Memory Refinement" pipeline for memory consolidation) independently of whether a user is currently chatting with the AI.
 
 ### Multi-Tenancy
 A single UDS Daemon can handle multiple concurrent connections. This allows different agents (e.g., a `Researcher` and a `Developer`) to access and update the same semantic memory in real-time without conflicting process locks.
@@ -35,9 +35,9 @@ A single UDS Daemon can handle multiple concurrent connections. This allows diff
 ### Resource Efficiency
 Spawning a full Python environment and initializing Qdrant connections for every session is expensive. The UDS model initializes the environment once and provides near-instantaneous connectivity via sockets.
 
-## Comparison: Standard MCP vs. Sovereign Bridge
+## Comparison: Standard MCP vs. UDS Bridge
 
-| Feature | Standard MCP (`stdio`) | Sovereign Bridge (UDS) |
+| Feature | Standard MCP (`stdio`) | UDS Bridge (UDS) |
 | :--- | :--- | :--- |
 | **Lifecycle** | Ephemeral (tied to client) | Persistent (Background Daemon) |
 | **State** | Lost on session end | Preserved across sessions |

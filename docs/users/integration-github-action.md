@@ -208,7 +208,7 @@ The Qwen Code CLI can be extended with additional functionality through extensio
 These extensions are installed from source from their GitHub repositories.
 
 For detailed instructions on how to set up and configure extensions, go to the
-[Extensions documentation](../developers/extensions/extension).
+[Extensions documentation](../developers/extensions/developer-guide.md).
 
 ## Best Practices
 

@@ -30,5 +30,5 @@ Depending on the query, CodeGraph produces:
 - **Data**: Lists of candidates for bug root causes or PR risk levels (CRITICAL, HIGH, MEDIUM, LOW).
 - **Graph Data**: Raw Cypher query results.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 Original Configuration: [`config/skills/codegraph/SKILL.md`](../../../config/skills/codegraph/SKILL.md)

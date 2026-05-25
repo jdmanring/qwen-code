@@ -20,5 +20,5 @@ The Documentation Writer is selected when the task requires:
 - `write_file`
 - `read_many_files`
 
-## Symmetry Link
+## Mirror Link
 [Config File](../../config/agents/documentation-writer.md)

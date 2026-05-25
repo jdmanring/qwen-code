@@ -22,5 +22,5 @@ The deliverable for this skill is:
 - **Docs Edits**: Modifications under `docs/` that make local changes understandable to a reader who has not seen the diff.
 - **Summary**: A short report identifying exactly which pages were updated.
 
-## Symmetry Link
+## Mirror Link
 Original configuration: [`config/skills/docs-update-from-diff/SKILL.md`](../../config/skills/docs-update-from-diff/SKILL.md)

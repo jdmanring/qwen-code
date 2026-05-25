@@ -28,5 +28,5 @@ The Doc Expert is selected when the task requires:
 - `Edit`
 - `WriteFile`
 
-## Symmetry Link
+## Mirror Link
 [Config File](../../config/agents/doc-expert.md)

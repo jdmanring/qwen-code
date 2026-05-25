@@ -25,5 +25,5 @@ The QA Lead provides a structured certification report:
 - **REMAINING RISKS**: Documentation of any identified edge cases or unresolved risks.
 - **CONFIDENCE**: A numerical value `(0.0 - 1.0)` representing the certainty of the verdict.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 Original Configuration: [`config/skills/qa_lead/SKILL.md`](../../../config/skills/qa_lead/SKILL.md)

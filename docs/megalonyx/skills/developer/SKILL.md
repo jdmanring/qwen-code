@@ -24,5 +24,5 @@ The Developer skill must provide:
 - **PLAN STATUS**: An update on which tasks from the Architect's plan are completed or pending.
 - **CONFIDENCE**: A score from `0.0` to `1.0`.
 
-## Symmetry Link
+## Mirror Link
 Original configuration: [`config/skills/developer/SKILL.md`](../../config/skills/developer/SKILL.md)

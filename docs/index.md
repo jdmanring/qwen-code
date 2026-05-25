@@ -52,8 +52,8 @@ this file should be able to predict the contents of any listed document without 
 | File | What it covers |
 |---|---|
 | `docs/gap-analysis.md` | Inherited vs. added systems; integration points; planned work |
-| `docs/architecture/component-map.md` | Component dependency diagram |
-| `docs/architecture/layer-manifest.md` | Architectural layer definitions |
+| `docs/megalonyx/architecture/component-map.md` | Component dependency diagram |
+| `docs/megalonyx/architecture/layer-manifest.md` | Architectural layer definitions |
 
 ---
 
@@ -96,6 +96,14 @@ These describe the CLI for end users and contributors. Written by the upstream p
 |---|---|
 | `docs/users/` | End-user guides: configuration, IDE integration, common workflows |
 | `docs/developers/` | Extension development, API integration |
+| `docs/developers/extensions/developer-guide.md` | Implementation guide for creating and managing extensions |
+| `docs/developers/agents-and-skills-guide.md` | Implementation guide for creating Skills, SubAgents, and Execution Profiles |
+| `docs/developers/tools/developer-guide.md` | Implementation guide for implementing new built-in tools |
+| `docs/developers/tools/mcp-developer-guide.md` | Implementation guide for building MCP servers |
+| `docs/developers/config-sync-guide.md` | Implementation guide for maintaining Config $\leftrightarrow$ Docs mirroring |
+| `docs/developers/orchestration-guide.md` | Implementation guide for the Control Plane and Job Orchestration |
+| `docs/developers/memory-system-guide.md` | Implementation guide for the semantic memory system |
+| `docs/developers/prompt-architecture-guide.md` | Implementation guide for prompt construction and layering |
 
 ---
 

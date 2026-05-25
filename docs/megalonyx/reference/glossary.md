@@ -1,28 +1,28 @@
 # 📖 Project Glossary: Mega Code Stack
 
-This glossary defines the core technical terminology used across the Mega Code codebase, documentation, and operational axioms. To maintain **Cognitive Symmetry**, these terms must be used consistently by both human contributors and AI agents.
+This glossary defines the core technical terminology used across the Mega Code codebase, documentation, and operational rules. To maintain **Documentation Synchronization**, these terms must be used consistently by both human contributors and AI agents.
 
 ---
 
 ## 🏗️ Architectural Pillars
 
-### Blueprint
-The **Blueprint** refers to the authoritative source code repository (the project root). It contains the static definitions, templates, and logic required to build the system. All changes must be committed to the Blueprint before being deployed to the Machine.
+### Source Repository
+The **Source Repository** refers to the authoritative code repository (the project root). It contains the static definitions, templates, and logic required to build the system. All changes must be committed to the Source Repository before being deployed to the Runtime Environment.
 
-### Machine
-The **Machine** refers to the deployed, runtime instance of the stack (typically located in `~/.local/share/megalonyx/`). It contains the active binaries, stateful databases (Qdrant), and environment-specific configurations.
+### Runtime Environment
+The **Runtime Environment** refers to the deployed, runtime instance of the stack (typically located in `~/.local/share/megalonyx/`). It contains the active binaries, stateful databases (Qdrant), and environment-specific configurations.
 
-### Cognitive-Symmetry Framework (CSF)
-The **CSF** is the overarching design philosophy that ensures a 1:1 mapping between system configuration (`config/`) and technical documentation (`docs/`). It uses **Contextual Anchors** (`.qwen-context`) to provide directory-level operational laws, reducing context window saturation.
+### Config-Doc Sync Framework (CSF)
+The **CSF** is the design standard that ensures a 1:1 mapping between system configuration (`config/`) and technical documentation (`docs/`). It uses **Contextual Anchors** (`.qwen-context`) to provide directory-level operational rules, reducing context window saturation.
 
 ---
 
 ## 🧠 Intelligence & Orchestration
 
-### Dreaming Pipeline
-**Dreaming** is the system's internal background process for memory and reasoning refinement. It operates on two levels:
-1.  **Systemic Dreaming (GC)**: A periodic Garbage Collection cycle that prunes stale memories (e.g., the 90-Day Rule), removes redundant vectors, and optimizes the semantic index for retrieval speed.
-2.  **Agentic Dreaming (Synthesis)**: A process where the system autonomously generates code sketches, design alternatives, or synthesizes complex memories without direct user input to evolve the internal mental model.
+### Memory Refinement Pipeline
+**Memory Refinement** is the system's internal background process for memory and reasoning optimization. It operates on two levels:
+1.  **Systemic Refinement (GC)**: A periodic Garbage Collection cycle that prunes stale memories (e.g., the 90-Day Rule), removes redundant vectors, and optimizes the semantic index for retrieval speed.
+2.  **Agentic Refinement (Synthesis)**: A process where the system autonomously generates code sketches, design alternatives, or synthesizes complex memories without direct user input to evolve the internal knowledge model.
 
 ### MQA-Snapshot-Suite
 **MQA (Model Quality Assurance)** is the project's gold-standard verification framework. The **Snapshot-Suite** consists of high-entropy stress tests that capture the "state" of a request and verify that the system's output remains deterministic and high-quality across model updates or architectural changes.
@@ -32,10 +32,10 @@ A **Job Contract** is the strictly typed JSON object emitted by the Routing Plan
 
 ---
 
-## ⚙️ Operational Axioms
+## ⚙️ Operational Rules
 
 ### S-READ (Lossless Reading)
-The mandate that an agent must read the **entire** content of a file (using pagination/offsets if necessary) before attempting to edit it. "Peeking" or assuming content based on partial reads is forbidden.
+The rule that an agent must read the **entire** content of a file (using pagination/offsets if necessary) before attempting to edit it. "Peeking" or assuming content based on partial reads is forbidden.
 
 ### S-VERIFY (Deterministic Verification)
 The requirement that every code change must be verified by an independent tool (e.g., `pytest`, `mypy`, `ruff`) rather than the agent's own self-assessment. A task is only "Completed" when the verification tool returns a success code.

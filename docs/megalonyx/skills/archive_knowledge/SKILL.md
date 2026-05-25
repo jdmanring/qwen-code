@@ -21,5 +21,5 @@ The skill adheres to the following JSON response schema:
 - **Success**: `{"status": "success", "message": "Context archived successfully."}`
 - **Error**: `{"error": "Key not found in rag_context."}`
 
-## 5. Symmetry Link
+## 5. Mirror Link
 Original Configuration: [`config/skills/archive_knowledge/SKILL.md`](../../../config/skills/archive_knowledge/SKILL.md)

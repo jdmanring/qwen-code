@@ -22,5 +22,5 @@ The output must include:
 2. **SEMANTIC ANALYSIS**: A brief interpretation of the findings in the context of the codebase.
 3. **CONFIDENCE**: A numerical value (0.0 - 1.0).
 
-## Symmetry Link
+## Mirror Link
 Original configuration: [`config/skills/lsp/SKILL.md`](../../../config/skills/lsp/SKILL.md)

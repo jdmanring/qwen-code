@@ -33,5 +33,5 @@ This agent is selected by the Routing Plane when the task requires:
 - `edit`
 - `run_shell_command`
 
-## Symmetry Link
+## Mirror Link
 [View Configuration](../../config/agents/reviewer.md)

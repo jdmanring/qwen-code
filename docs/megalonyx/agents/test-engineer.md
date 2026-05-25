@@ -26,5 +26,5 @@ The Routing Plane selects the Test Engineer when:
 - `skill`
 - `web_fetch`
 
-## Symmetry Link
+## Mirror Link
 [Config File](../../config/agents/test-engineer.md)

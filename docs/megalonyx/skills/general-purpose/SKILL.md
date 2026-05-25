@@ -22,5 +22,5 @@ The output must follow this structure:
 2. **RESULT**: The final outcome or finding.
 3. **CONFIDENCE**: A numerical value (0.0 - 1.0) representing the certainty of the result.
 
-## Symmetry Link
+## Mirror Link
 Original configuration: [`config/skills/general-purpose/SKILL.md`](../../../config/skills/general-purpose/SKILL.md)

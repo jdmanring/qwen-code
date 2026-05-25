@@ -28,5 +28,5 @@ The React Specialist is authorized to use the following tools:
 - `read_many_files`
 - `run_shell_command`
 
-## Symmetry Link
+## Mirror Link
 [View Configuration](../../config/agents/react-specialist.md)

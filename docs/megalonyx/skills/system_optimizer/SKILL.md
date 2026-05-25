@@ -25,5 +25,5 @@ The System Optimizer must provide the following in its report:
 - **ACTION TAKEN**: Confirmation that `QWEN.md` has been updated.
 - **CONFIDENCE**: A score from `0.0` to `1.0` regarding the effectiveness of the new rule.
 
-## 5. Symmetry Link
+## 5. Mirror Link
 **Original Configuration**: [`../../../config/skills/system_optimizer/SKILL.md`](../../../config/skills/system_optimizer/SKILL.md)

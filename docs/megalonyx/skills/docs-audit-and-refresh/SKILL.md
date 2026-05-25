@@ -22,5 +22,5 @@ The deliverable for this skill is:
 - **Docs Refresh**: A set of edits under `docs/` that make the repository more accurate and complete.
 - **Summary**: A report of the audited surfaces and the specific pages updated.
 
-## Symmetry Link
+## Mirror Link
 Original configuration: [`config/skills/docs-audit-and-refresh/SKILL.md`](../../config/skills/docs-audit-and-refresh/SKILL.md)

@@ -1,6 +1,6 @@
 # Technical Specification: System Configuration
 
-This specification defines the configuration architecture of the `qwen_code_stack`. The system utilizes a dual-tier strategy to decouple sensitive infrastructure secrets from operational orchestration laws.
+This specification defines the configuration architecture of the Qwen Code project. The system utilizes a dual-tier strategy to decouple sensitive infrastructure secrets from operational orchestration rules.
 
 ## 1. Configuration Hierarchy
 
@@ -18,7 +18,7 @@ The system resolves configuration using the following strict precedence (Highest
 Environment variables are restricted to sensitive credentials and infrastructure connectivity.
 
 ### 2.1 API Credentials
-| Variable | Mandate | Default | Purpose |
+| Variable | Requirement | Default | Purpose |
 | :--- | :---: | :---: | :--- |
 | `GEMINI_API_KEY` | Recommended | - | Google Gemini Inference |
 | `OPENAI_API_KEY` | Optional | - | OpenAI Compatible Endpoints |
@@ -32,7 +32,7 @@ Environment variables are restricted to sensitive credentials and infrastructure
 | `HF_TOKEN` | Optional | - | HuggingFace Model Access |
 
 ### 2.2 Infrastructure
-| Variable | Mandate | Default | Purpose |
+| Variable | Requirement | Default | Purpose |
 | :--- | :---: | :---: | :--- |
 | `QDRANT_LOCAL_URL` | Local Only | `http://localhost:6333` | Local Vector Store |
 | `QDRANT_CLOUD_URL` | Cloud Only | - | Managed Vector Store |
@@ -67,7 +67,7 @@ The `settings.json` file governs the runtime behavior of the Orchestrator.
 
 Each provider definition must adhere to the following property matrix:
 
-| Property | Type | Mandate | Description |
+| Property | Type | Requirement | Description |
 | :--- | :--- | :---: | :--- |
 | `id` | string | **Required** | Unique routing identifier. |
 | `name` | string | **Required** | UI Display Label. |
@@ -84,6 +84,6 @@ Each provider definition must adhere to the following property matrix:
 
 ---
 
-## 🔗 Symmetry Link
+## 🔗 Mirror Link
 This specification mirrors the runtime configuration in:
 `../../config/settings.json` $\leftrightarrow$ `configuration.md`

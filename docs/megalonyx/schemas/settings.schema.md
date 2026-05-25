@@ -32,5 +32,5 @@ The `modelProviders` object allows dynamic keys (provider names), where each val
 - **Settings Validator**: The system uses this schema to validate `settings.json` on startup. If validation fails, the system may halt or revert to defaults.
 - **UI/Config Editor**: Can be used by IDEs or configuration tools to provide autocomplete and validation for `settings.json`.
 
-## Symmetry Link
+## Mirror Link
 [Original Config: `config/settings.schema.json`](../../config/settings.schema.json)

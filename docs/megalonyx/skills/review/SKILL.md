@@ -30,5 +30,5 @@ The Review skill produces a structured audit report:
 - **CONFIDENCE**: A numerical value `(0.0 - 1.0)`.
 - **VERDICT**: `[APPROVED / REJECTED]`
 
-## 5. Symmetry Link
+## 5. Mirror Link
 Original Configuration: [`config/skills/review/SKILL.md`](../../../config/skills/review/SKILL.md)
