@@ -20,6 +20,8 @@ import type {
   AuthenticateRequest,
   AuthenticateResponse,
   CancelNotification,
+  ForkSessionRequest,
+  ForkSessionResponse,
   InitializeRequest,
   InitializeResponse,
   LoadSessionRequest,
@@ -120,6 +122,10 @@ interface FakeAgentOpts {
     p: ResumeSessionRequest,
     self: FakeAgent,
   ) => Promise<ResumeSessionResponse> | ResumeSessionResponse;
+  forkSessionImpl?: (
+    p: ForkSessionRequest,
+    self: FakeAgent,
+  ) => Promise<ForkSessionResponse> | ForkSessionResponse;
   extMethodImpl?: (
     method: string,
     params: Record<string, unknown>,
@@ -131,6 +137,7 @@ class FakeAgent implements Agent {
   newSessionCalls: NewSessionRequest[] = [];
   loadSessionCalls: LoadSessionRequest[] = [];
   resumeSessionCalls: ResumeSessionRequest[] = [];
+  forkSessionCalls: ForkSessionRequest[] = [];
   promptCalls: PromptRequest[] = [];
   cancelCalls: CancelNotification[] = [];
   extMethodCalls: Array<{ method: string; params: Record<string, unknown> }> =
@@ -178,6 +185,15 @@ class FakeAgent implements Agent {
     this.resumeSessionCalls.push(p);
     if (this.opts.resumeSessionImpl) {
       return this.opts.resumeSessionImpl(p, this);
+    }
+    return {};
+  }
+  async unstable_forkSession(
+    p: ForkSessionRequest,
+  ): Promise<ForkSessionResponse> {
+    this.forkSessionCalls.push(p);
+    if (this.opts.forkSessionImpl) {
+      return this.opts.forkSessionImpl(p, this);
     }
     return {};
   }
@@ -1178,7 +1194,7 @@ describe('createHttpAcpBridge', () => {
     const handles: ChannelHandle[] = [];
     const factory: ChannelFactory = async () => {
       const h = makeChannel({
-        resumeSessionImpl: () => ({ modes: null }),
+        forkSessionImpl: () => ({ modes: null }),
       });
       handles.push(h);
       return h.channel;
@@ -1199,7 +1215,7 @@ describe('createHttpAcpBridge', () => {
       state: { modes: null },
     });
     expect(handles[0]?.agent.loadSessionCalls).toHaveLength(0);
-    expect(handles[0]?.agent.resumeSessionCalls).toEqual([
+    expect(handles[0]?.agent.forkSessionCalls).toEqual([
       { sessionId: 'persisted-2', cwd: WS_A, mcpServers: [] },
     ]);
 
@@ -1243,7 +1259,7 @@ describe('createHttpAcpBridge', () => {
     });
     expect(attached.clientId).not.toBe(loaded.clientId);
     expect(handles[0]?.agent.loadSessionCalls).toHaveLength(1);
-    expect(handles[0]?.agent.resumeSessionCalls).toHaveLength(0);
+    expect(handles[0]?.agent.forkSessionCalls).toHaveLength(0);
 
     await bridge.shutdown();
   });
@@ -1443,8 +1459,8 @@ describe('createHttpAcpBridge', () => {
     let releaseResume: (() => void) | undefined;
     const factory: ChannelFactory = async () =>
       makeChannel({
-        resumeSessionImpl: () =>
-          new Promise<ResumeSessionResponse>((resolve) => {
+        forkSessionImpl: () =>
+          new Promise<ForkSessionResponse>((resolve) => {
             releaseResume = () => resolve({});
           }),
       }).channel;

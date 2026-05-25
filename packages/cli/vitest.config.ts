@@ -12,7 +12,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@qwen-code/qwen-code-core': path.resolve(__dirname, '../core/index.ts'),
-      '@qwen-code/acp-bridge': path.resolve(__dirname, '../acp-bridge/src/index.ts'),
+      // Subpath exports must come BEFORE the base package alias.
+      // @rollup/plugin-alias matches string aliases as prefixes, so
+      // '@qwen-code/acp-bridge' would shadow all subpath imports if listed first.
       '@qwen-code/acp-bridge/eventBus': path.resolve(__dirname, '../acp-bridge/src/eventBus.ts'),
       '@qwen-code/acp-bridge/inMemoryChannel': path.resolve(__dirname, '../acp-bridge/src/inMemoryChannel.ts'),
       '@qwen-code/acp-bridge/channel': path.resolve(__dirname, '../acp-bridge/src/channel.ts'),
@@ -22,6 +24,7 @@ export default defineConfig({
       '@qwen-code/acp-bridge/bridgeErrors': path.resolve(__dirname, '../acp-bridge/src/bridgeErrors.ts'),
       '@qwen-code/acp-bridge/bridgeTypes': path.resolve(__dirname, '../acp-bridge/src/bridgeTypes.ts'),
       '@qwen-code/acp-bridge/bridgeOptions': path.resolve(__dirname, '../acp-bridge/src/bridgeOptions.ts'),
+      '@qwen-code/acp-bridge': path.resolve(__dirname, '../acp-bridge/src/index.ts'),
     },
   },
   test: {
