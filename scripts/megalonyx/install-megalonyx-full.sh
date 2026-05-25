@@ -186,6 +186,29 @@ echo "[2/2] Installing Megalonyx stack..."
 bash "$STACK_INSTALLER" "${STACK_ARGS[@]+"${STACK_ARGS[@]}"}"
 
 # ===
+# STEP 3: GIT REMOTES
+# ===
+
+echo ""
+echo "[3/3] Configuring git remotes..."
+
+UPSTREAM_SSH="git@github.com:jdmanring/qwen-code.git"
+UPSTREAM_HTTPS="https://github.com/jdmanring/qwen-code.git"
+
+if git -C "$REPO_ROOT" remote get-url upstream >/dev/null 2>&1; then
+    CURRENT_URL="$(git -C "$REPO_ROOT" remote get-url upstream)"
+    if [ "$CURRENT_URL" = "$UPSTREAM_HTTPS" ]; then
+        git -C "$REPO_ROOT" remote set-url upstream "$UPSTREAM_SSH"
+        echo "  [OK] upstream remote corrected: HTTPS → SSH"
+    else
+        echo "  [OK] upstream remote already configured: $CURRENT_URL"
+    fi
+else
+    git -C "$REPO_ROOT" remote add upstream "$UPSTREAM_SSH"
+    echo "  [OK] upstream remote added: $UPSTREAM_SSH"
+fi
+
+# ===
 # DONE
 # ===
 
