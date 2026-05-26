@@ -51,11 +51,10 @@ describe('SessionService', () => {
 
     readdirSyncSpy = vi.spyOn(fs, 'readdirSync').mockReturnValue([]);
     statSyncSpy = vi.spyOn(fs, 'statSync').mockImplementation(
-      () =>
-        ({
+      function() { return {
           mtimeMs: Date.now(),
           isFile: () => true,
-        }) as fs.Stats,
+        }; } as fs.Stats,
     );
     unlinkSyncSpy = vi
       .spyOn(fs, 'unlinkSync')
@@ -743,8 +742,7 @@ describe('SessionService', () => {
       vi.mocked(jsonl.readLines).mockResolvedValue([otherProjectRecord]);
       // Make the projectHash mock context-sensitive so the cwd check
       // actually distinguishes projects.
-      vi.mocked(getProjectHash).mockImplementation((cwd) =>
-        cwd === '/test/project/root' ? 'test-project-hash' : 'other-hash',
+      vi.mocked(getProjectHash).mockImplementation((cwd) => cwd === '/test/project/root' ? 'test-project-hash' : 'other-hash',
       );
       const createReadStreamSpy = vi.spyOn(fs, 'createReadStream');
 

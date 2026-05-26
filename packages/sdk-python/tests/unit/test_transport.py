@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+
 from qwen_code_sdk.transport import build_cli_arguments, prepare_spawn_info
 from qwen_code_sdk.types import QueryOptions, TimeoutOptions
 

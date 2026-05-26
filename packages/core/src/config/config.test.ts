@@ -793,8 +793,7 @@ describe('Server Config (config.ts)', () => {
       const config = new Config(baseParams);
 
       vi.mocked(createContentGeneratorConfig).mockImplementation(
-        (_: Config, authType: AuthType | undefined) =>
-          ({ authType }) as unknown as ContentGeneratorConfig,
+        function(_: Config, authType: AuthType | undefined) { return { authType }; } as unknown as ContentGeneratorConfig,
       );
 
       await config.refreshAuth(AuthType.USE_VERTEX_AI);
@@ -2691,8 +2690,7 @@ describe('setApprovalMode with folder trust', () => {
         );
         expect(fs.unlinkSync).toHaveBeenCalledWith(filePath);
       } finally {
-        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) =>
-          pathToResolve.toString(),
+        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) => pathToResolve.toString(),
         );
       }
     });
@@ -2729,8 +2727,7 @@ describe('setApprovalMode with folder trust', () => {
         );
         expect(fs.readFileSync).not.toHaveBeenCalled();
       } finally {
-        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) =>
-          pathToResolve.toString(),
+        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) => pathToResolve.toString(),
         );
       }
     });
@@ -2868,8 +2865,7 @@ describe('setApprovalMode with folder trust', () => {
         expect(fs.mkdirSync).not.toHaveBeenCalled();
         expect(fs.readFileSync).not.toHaveBeenCalled();
       } finally {
-        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) =>
-          pathToResolve.toString(),
+        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) => pathToResolve.toString(),
         );
       }
     });

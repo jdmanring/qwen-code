@@ -193,8 +193,7 @@ describe('QwenAgent loadSession — Phase C worktree context restore', () => {
       getWorktreeSessionPath: vi.fn().mockReturnValue(SIDECAR_PATH),
     };
     vi.mocked(SessionService).mockImplementation(
-      () =>
-        mockSessionService as unknown as InstanceType<typeof SessionService>,
+      () => mockSessionService as unknown as InstanceType<typeof SessionService>,
     );
 
     return {

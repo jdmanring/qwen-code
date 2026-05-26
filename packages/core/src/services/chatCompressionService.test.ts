@@ -392,8 +392,7 @@ describe('ChatCompressionService', () => {
     service = new ChatCompressionService();
     mockChat = {
       getHistory: vi.fn(),
-      getHistoryShallow: vi.fn((curated?: boolean) =>
-        mockChat.getHistory(curated),
+      getHistoryShallow: vi.fn((curated?: boolean) => mockChat.getHistory(curated),
       ),
       appendSystemInstruction: vi.fn(),
     } as unknown as GeminiChat;

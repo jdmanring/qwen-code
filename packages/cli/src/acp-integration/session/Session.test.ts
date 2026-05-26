@@ -2794,8 +2794,7 @@ describe('Session', () => {
           }),
         };
 
-        mockToolRegistry.getTool.mockImplementation((name: string) =>
-          name === core.ToolNames.AGENT ? agentTool : undefined,
+        mockToolRegistry.getTool.mockImplementation((name: string) => name === core.ToolNames.AGENT ? agentTool : undefined,
         );
         mockConfig.getApprovalMode = vi
           .fn()

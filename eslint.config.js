@@ -8,12 +8,15 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
+import { fixupConfigRules, fixupPluginRules } from '@eslint/compat';
 import prettierConfig from 'eslint-config-prettier';
 import importPlugin from 'eslint-plugin-import';
 import vitest from '@vitest/eslint-plugin';
 import globals from 'globals';
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import storybook from 'eslint-plugin-storybook';
+
+const fixedImportPlugin = fixupPluginRules(importPlugin);
 
 export default tseslint.config(
   {
@@ -33,9 +36,35 @@ export default tseslint.config(
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
-  reactHooks.configs['recommended-latest'],
-  reactPlugin.configs.flat.recommended,
-  reactPlugin.configs.flat['jsx-runtime'], // Add this if you are using React 17+
+  reactHooks.configs.flat['recommended-latest'],
+  {
+    // react-hooks v7 introduced many new rules at 'error' level. The rules below require
+    // intentional code changes in upstream files and are downgraded to 'warn' until a
+    // dedicated pass addresses them. rules-of-hooks and exhaustive-deps stay as-is.
+    rules: {
+      'react-hooks/static-components': 'warn',
+      'react-hooks/use-memo': 'warn',
+      'react-hooks/void-use-memo': 'warn',
+      'react-hooks/preserve-manual-memoization': 'warn',
+      'react-hooks/immutability': 'warn',
+      'react-hooks/globals': 'warn',
+      'react-hooks/refs': 'warn',
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/error-boundaries': 'warn',
+      'react-hooks/purity': 'warn',
+      'react-hooks/set-state-in-render': 'warn',
+      'react-hooks/config': 'warn',
+      'react-hooks/gating': 'warn',
+      // New ESLint 10 core rules (added to eslint:recommended in v10).
+      // Downgraded to 'warn' until upstream code is updated.
+      // preserve-caught-error: re-throws must include { cause: e }
+      // no-useless-assignment: flags assignments whose values are never read afterward
+      'preserve-caught-error': 'warn',
+      'no-useless-assignment': 'warn',
+    },
+  },
+  ...fixupConfigRules(reactPlugin.configs.flat.recommended),
+  ...fixupConfigRules(reactPlugin.configs.flat['jsx-runtime']), // Add this if you are using React 17+
   {
     // Settings for eslint-plugin-react
     settings: {
@@ -48,7 +77,7 @@ export default tseslint.config(
     // Import specific config
     files: ['packages/cli/src/**/*.{ts,tsx}'], // Target only TS/TSX in the cli package
     plugins: {
-      import: importPlugin,
+      import: fixedImportPlugin,
     },
     settings: {
       'import/resolver': {
@@ -67,7 +96,7 @@ export default tseslint.config(
     // General overrides and rules for the project (TS/TSX files)
     files: ['packages/**/src/**/*.{ts,tsx}'], // Target TS/TSX in all packages (including nested)
     plugins: {
-      import: importPlugin,
+      import: fixedImportPlugin,
     },
     settings: {
       'import/resolver': {

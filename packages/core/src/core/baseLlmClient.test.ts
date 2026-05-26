@@ -138,8 +138,7 @@ describe('BaseLlmClient', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Reset the mocked implementation for getErrorMessage for accurate error message assertions
-    vi.mocked(getErrorMessage).mockImplementation((e) =>
-      e instanceof Error ? e.message : String(e),
+    vi.mocked(getErrorMessage).mockImplementation((e) => e instanceof Error ? e.message : String(e),
     );
     client = new BaseLlmClient(mockContentGenerator, mockConfig);
     abortController = new AbortController();

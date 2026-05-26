@@ -737,8 +737,7 @@ Skill 3 content`);
 
     it('should return a stable alphabetical order regardless of priority (priority only affects the /skills display layer)', async () => {
       vi.mocked(fs.readdir).mockReset();
-      mockParseYaml.mockImplementation((yamlString: string) =>
-        yaml.parse(yamlString),
+      mockParseYaml.mockImplementation((yamlString: string) => yaml.parse(yamlString),
       );
       const projectQwenSkillsDir = path.join(
         '/test/project',
@@ -1150,8 +1149,7 @@ Review content`);
       // into the same Promise pipeline, but it's worth pinning explicitly
       // because a refactor that special-cases sync throws could
       // accidentally regress the async branch.
-      const asyncRejector = vi.fn(() =>
-        Promise.reject(new Error('async fail')),
+      const asyncRejector = vi.fn(() => Promise.reject(new Error('async fail')),
       );
       const sibling = vi.fn();
       manager.addChangeListener(asyncRejector);
@@ -1600,8 +1598,7 @@ Symlink skill content`);
         },
       ] as unknown as Awaited<ReturnType<typeof fs.readdir>>);
 
-      vi.mocked(fs.realpath).mockImplementation((p) =>
-        Promise.resolve(String(p)),
+      vi.mocked(fs.realpath).mockImplementation((p) => Promise.resolve(String(p)),
       );
       // Mock fs.stat to return directory stats for the symlink
       vi.mocked(fs.stat).mockResolvedValue({

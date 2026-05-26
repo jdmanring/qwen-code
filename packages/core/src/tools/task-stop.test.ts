@@ -301,8 +301,7 @@ describe('TaskStopTool', () => {
         updatedAt: '2026-05-04T12:00:00.000Z',
       };
       const memoryManager = {
-        getTask: vi.fn((id: string) =>
-          id === 'dream-running-1' ? dreamRecord : undefined,
+        getTask: vi.fn((id: string) => id === 'dream-running-1' ? dreamRecord : undefined,
         ),
         cancelTask,
       };

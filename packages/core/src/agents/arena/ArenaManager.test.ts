@@ -477,8 +477,7 @@ index 111..222 100644
         string,
         ReturnType<typeof createMockInteractive>
       >();
-      mockBackend.getAgent.mockImplementation((agentId: string) =>
-        agentInteractives.get(agentId),
+      mockBackend.getAgent.mockImplementation((agentId: string) => agentInteractives.get(agentId),
       );
       mockBackend.spawnAgent.mockImplementation(
         async (config: { agentId: string }) => {

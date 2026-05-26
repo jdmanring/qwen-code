@@ -141,8 +141,7 @@ function createMockToolSpan(
 
 vi.mock('../telemetry/session-tracing.js', () => ({
   startToolSpan: vi.fn(
-    (name: string, attrs?: Record<string, string | number | boolean>) =>
-      createMockToolSpan(`tool.${name}`, { tool_name: name, ...attrs }),
+    (name: string, attrs?: Record<string, string | number | boolean>) => createMockToolSpan(`tool.${name}`, { tool_name: name, ...attrs }),
   ),
   endToolSpan: vi.fn(
     (

@@ -66,6 +66,7 @@ describe('IdeClient', () => {
   let mockStdioTransport: Mocked<StdioClientTransport>;
 
   beforeEach(async () => {
+    vi.resetAllMocks();
     // Reset singleton instance and cached host for test isolation
     (
       IdeClient as unknown as {
@@ -109,9 +110,9 @@ describe('IdeClient', () => {
       close: vi.fn(),
     } as unknown as Mocked<StdioClientTransport>;
 
-    vi.mocked(Client).mockReturnValue(mockClient);
-    vi.mocked(StreamableHTTPClientTransport).mockReturnValue(mockHttpTransport);
-    vi.mocked(StdioClientTransport).mockReturnValue(mockStdioTransport);
+    vi.mocked(Client).mockImplementation(() => mockClient);
+    vi.mocked(StreamableHTTPClientTransport).mockImplementation(() => mockHttpTransport);
+    vi.mocked(StdioClientTransport).mockImplementation(() => mockStdioTransport);
 
     await IdeClient.getInstance();
   });

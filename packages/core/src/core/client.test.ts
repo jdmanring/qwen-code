@@ -205,11 +205,15 @@ vi.mock('../ide/ideContext.js');
 vi.mock('../telemetry/uiTelemetry.js', () => ({
   uiTelemetryService: mockUiTelemetryService,
 }));
-vi.mock('../telemetry/loggers.js', () => ({
-  logChatCompression: vi.fn(),
-  logNextSpeakerCheck: vi.fn(),
-  logApiRequest: vi.fn(),
-}));
+vi.mock('../telemetry/loggers.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../telemetry/loggers.js')>();
+  return {
+    ...actual,
+    logChatCompression: vi.fn(),
+    logNextSpeakerCheck: vi.fn(),
+    logApiRequest: vi.fn(),
+  };
+});
 
 // Mock RequestTokenizer to use simple character-based estimation
 vi.mock('../utils/request-tokenizer/requestTokenizer.js', () => ({
@@ -743,8 +747,7 @@ describe('Gemini Client (client.ts)', () => {
         { name: 'cron_list', description: 'list' },
       ]);
       // ToolSearch is available so we DON'T enter the eager-reveal branch.
-      reg.getTool.mockImplementation((n: string) =>
-        n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation((n: string) => n === 'tool_search' ? ({} as never) : null,
       );
       reg.revealDeferredTool.mockClear();
 
@@ -793,8 +796,7 @@ describe('Gemini Client (client.ts)', () => {
       reg.getDeferredToolSummary.mockReturnValue([
         { name: 'cron_create', description: 'schedule' },
       ]);
-      reg.getTool.mockImplementation((n: string) =>
-        n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation((n: string) => n === 'tool_search' ? ({} as never) : null,
       );
       reg.revealDeferredTool.mockClear();
 
@@ -1120,8 +1122,7 @@ describe('Gemini Client (client.ts)', () => {
       // ToolSearch IS available — this is the standard case (the only
       // path that fails before this fix). MCP discovery has now finished,
       // so a freshly-arrived MCP tool appears in the deferred summary.
-      reg.getTool.mockImplementation((n: string) =>
-        n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation((n: string) => n === 'tool_search' ? ({} as never) : null,
       );
       reg.getDeferredToolSummary.mockReturnValue([
         { name: 'mcp__addition-server__add', description: 'Add two numbers' },
@@ -1147,8 +1148,7 @@ describe('Gemini Client (client.ts)', () => {
       // declaration list; advertising them again as "reachable via
       // ToolSearch" would invite redundant lookup calls.
       const reg = getRegistryMock();
-      reg.getTool.mockImplementation((n: string) =>
-        n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation((n: string) => n === 'tool_search' ? ({} as never) : null,
       );
       reg.getDeferredToolSummary.mockReturnValue([
         { name: 'mcp__server__alpha', description: 'a' },

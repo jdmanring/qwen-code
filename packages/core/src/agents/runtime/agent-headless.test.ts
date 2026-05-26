@@ -277,11 +277,10 @@ describe('subagent.ts', () => {
 
       mockSendMessageStream = vi.fn();
       vi.mocked(GeminiChat).mockImplementation(
-        () =>
-          ({
+        function() { return {
             sendMessageStream: mockSendMessageStream,
             setLastPromptTokenCount: vi.fn(),
-          }) as unknown as GeminiChat,
+          }; } as unknown as GeminiChat,
       );
 
       // Default mock for executeToolCall
@@ -998,8 +997,7 @@ describe('subagent.ts', () => {
         } as unknown as AnyDeclarativeTool;
         vi.mocked(
           (config.getToolRegistry() as unknown as ToolRegistry).getTool,
-        ).mockImplementation((name: string) =>
-          name === 'list_files' ? listFilesTool : undefined,
+        ).mockImplementation((name: string) => name === 'list_files' ? listFilesTool : undefined,
         );
 
         const scope = await AgentHeadless.create(
@@ -1165,11 +1163,10 @@ describe('subagent.ts', () => {
           { text: 'Here is the answer.' as string },
         ]);
         vi.mocked(GeminiChat).mockImplementation(
-          () =>
-            ({
+          function() { return {
               sendMessageStream: mockSendMessageStream,
               setLastPromptTokenCount: vi.fn(),
-            }) as unknown as GeminiChat,
+            }; } as unknown as GeminiChat,
         );
 
         const eventEmitter = new AgentEventEmitter();
@@ -1205,11 +1202,10 @@ describe('subagent.ts', () => {
           { text: 'The final answer.' as string },
         ]);
         vi.mocked(GeminiChat).mockImplementation(
-          () =>
-            ({
+          function() { return {
               sendMessageStream: mockSendMessageStream,
               setLastPromptTokenCount: vi.fn(),
-            }) as unknown as GeminiChat,
+            }; } as unknown as GeminiChat,
         );
 
         const scope = await AgentHeadless.create(
@@ -1270,11 +1266,10 @@ describe('subagent.ts', () => {
           })();
         });
         vi.mocked(GeminiChat).mockImplementation(
-          () =>
-            ({
+          function() { return {
               sendMessageStream: mockSendMessageStream,
               setLastPromptTokenCount: vi.fn(),
-            }) as unknown as GeminiChat,
+            }; } as unknown as GeminiChat,
         );
 
         const scope = await AgentHeadless.create(

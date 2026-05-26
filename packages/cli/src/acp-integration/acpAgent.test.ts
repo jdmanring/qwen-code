@@ -165,9 +165,7 @@ vi.mock('../utils/acpModelUtils.js', () => ({
   formatAcpModelId: vi.fn(
     (modelId: string, authType: string) => `${modelId}(${authType})`,
   ),
-  parseAcpBaseModelId: vi.fn((modelId: string) =>
-    modelId.replace(/\([^)]+\)$/, ''),
-  ),
+  parseAcpBaseModelId: vi.fn((modelId: string) => modelId.replace(/\([^)]+\)$/, '')),
 }));
 
 import {
@@ -2354,14 +2352,13 @@ describe('QwenAgent extMethod renameSession routing', () => {
       innerConfig as unknown as Config,
     );
     vi.mocked(Session).mockImplementation(
-      () =>
-        ({
+      function() { return {
           getId: vi.fn().mockReturnValue(liveSessionId),
           getConfig: vi.fn().mockReturnValue(innerConfig),
           sendAvailableCommandsUpdate: vi.fn().mockResolvedValue(undefined),
           replayHistory: vi.fn().mockResolvedValue(undefined),
           installRewriter: vi.fn(),
-        }) as unknown as InstanceType<typeof Session>,
+        }; } as unknown as InstanceType<typeof Session>,
     );
 
     const agentPromise = runAcpAgent(
@@ -2418,10 +2415,9 @@ describe('QwenAgent extMethod renameSession routing', () => {
 
     const renameSpy = vi.fn().mockResolvedValue(true);
     vi.mocked(SessionService).mockImplementation(
-      () =>
-        ({
+      function() { return {
           renameSession: renameSpy,
-        }) as unknown as InstanceType<typeof SessionService>,
+        }; } as unknown as InstanceType<typeof SessionService>,
     );
 
     const deadSessionId = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
@@ -2604,10 +2600,9 @@ describe('QwenAgent loadSession / unstable_resumeSession', () => {
       innerConfig as unknown as Config,
     );
     vi.mocked(SessionService).mockImplementation(
-      () =>
-        ({
+      function() { return {
           sessionExists: vi.fn().mockResolvedValue(opts.sessionExists),
-        }) as unknown as InstanceType<typeof SessionService>,
+        }; } as unknown as InstanceType<typeof SessionService>,
     );
     vi.mocked(Session).mockImplementation(() => {
       const sessionMock = {
