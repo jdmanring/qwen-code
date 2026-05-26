@@ -49,17 +49,19 @@ Options:
 
 ## What the stack installer does
 
-1. Checks prerequisites: `uv`, `curl`
-2. Creates `~/.local/share/megalonyx/` (data) and `~/.config/megalonyx/` + `~/.config/qwen/` (config)
-3. Runs `uv sync --all-packages` — installs `agent-memory`, `control-plane-daemon`, `agent-infra` as editable packages
-4. Writes `~/.config/megalonyx/qdrant_config.yaml` (points at `~/.local/share/megalonyx/data/qdrant`)
-5. Copies `config/megalonyx/.env.example` → `~/.config/megalonyx/.env` (if missing)
-6. Copies `config/settings.example.json` → `~/.config/qwen/settings.json` (if missing)
-6a. Adds `export QWEN_HOME="$HOME/.config/qwen"` to your shell RC so the CLI finds its config dir
-7. Creates symlinks: `mega-memory`, `mega-status`, `mega-tasks` → `~/.local/bin/`
-8. Writes wrappers: `mega-db`, `mega-run-py`, `mega-reboot` in `~/.local/bin/`
-9. Downloads the Qdrant binary to `~/.local/share/megalonyx/packages/infra/qdrant/bin/qdrant`
-10. Verifies Python packages are importable
+The installer transforms the monorepo Blueprint into a standalone **Runtime Stack** on your machine, ensuring that the services can function independently of the source code repository.
+
+1. **Prerequisite Check**: Verifies `uv` and `curl` are installed.
+2. **Infrastructure Setup**: Creates the stack root at `~/.local/share/megalonyx/`, including dedicated directories for `sockets/`, `packages/`, `logs/`, and `data/`.
+3. **Physical Deployment**: Performs a physical copy of all core packages, apps, and scripts from the monorepo to the stack root. This eliminates reliance on symlinks.
+4. **Workspace Initialization**: Creates a minimal `pyproject.toml` at the stack root to define a UV workspace, allowing internal packages to resolve each other.
+5. **Isolated Environment**: Creates a dedicated Python virtual environment at `~/.local/share/megalonyx/py/venv`.
+6. **Local Installation**: Installs `agent-infra`, `agent-memory`, and `control-plane-daemon` into the venv using the physical copies deployed in step 3.
+7. **Configuration**: Deploys `.env`, `settings.json`, and `qdrant_config.yaml` templates to their respective config directories.
+8. **Environment Integration**: Adds `QWEN_HOME` to your shell profile (bash/zsh/fish) so the CLI can locate its configuration.
+9. **Runtime Wrappers**: Installs essential wrappers in `~/.local/bin/` (e.g., `mega-run-py`, `mega-db`) that resolve paths against the stack root.
+10. **Qdrant Deployment**: Downloads and installs the correct Qdrant binary for your architecture.
+11. **Verification**: Performs a final import check to ensure the isolated environment is fully functional.
 
 ---
 
@@ -84,7 +86,8 @@ After install, two files need to be filled in before running the stack:
 # Start Qdrant (required for memory)
 mega-db &
 
-# Start the memory daemon
+# Start the memory daemon (via stack manager or direct module execution)
+# The daemon listens on ~/.local/share/megalonyx/sockets/megalonyx_memory.sock
 mega-memory &
 
 # Check status
@@ -101,7 +104,7 @@ mega-status
 | `mega-db` | Start Qdrant with the installed config |
 | `mega-status` | Show service health (Qdrant, memory daemon, WAL) |
 | `mega-tasks` | Manage active tasks in the job state manager |
-| `mega-run-py` | Run a Python script in the uv workspace context |
+| `mega-run-py` | Run a Python script in the isolated UV workspace context |
 | `mega-reboot` | Restart all services and print status |
 
 ---
