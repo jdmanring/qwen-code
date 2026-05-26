@@ -18,6 +18,7 @@ members = [
     "control-plane-daemon",
     "core",
     "megalonyx-monorepo",
+    "memory",
     "sdk-java",
     "sdk-python",
     "sdk-typescript",
@@ -1264,6 +1265,11 @@ dev = [
     { name = "mypy", specifier = ">=2.1.0" },
     { name = "ruff", specifier = ">=0.15.14" },
 ]
+
+[[package]]
+name = "memory"
+version = "0.1.0"
+source = { virtual = "packages/memory" }
 
 [[package]]
 name = "mpmath"
