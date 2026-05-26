@@ -1,7 +1,7 @@
 # MCP Bridge Proxy Mechanics
 
 ## Overview
-The `memory_bridge.py` is a high-performance proxy designed to translate `stdio` (Standard Input/Output) traffic into Unix Domain Socket (UDS) traffic. This allows the system to present a standard MCP server interface to clients while delegating the actual logic to a persistent background daemon.
+The `stdio_socket_relay.py` is a high-performance proxy designed to translate `stdio` (Standard Input/Output) traffic into Unix Domain Socket (UDS) traffic. This allows the system to present a standard MCP server interface to clients while delegating the actual logic to a persistent background daemon.
 
 ## Non-Blocking Stdin Handling
 A primary challenge in `stdio` proxies is that `sys.stdin.read()` is a blocking operation. If the bridge simply waited for input, it would freeze the entire `asyncio` event loop, preventing the bridge from piping responses from the UDS socket back to the client.

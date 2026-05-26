@@ -33,7 +33,7 @@ time.sleep(5)
     # Find the bridge PID
     try:
         bridge_pid_str = (
-            subprocess.check_output(["pgrep", "-f", "memory_bridge.py"], text=True)
+            subprocess.check_output(["pgrep", "-f", "stdio_socket_relay.py"], text=True)
             .decode()
             .strip()
             .split("\n")[0]

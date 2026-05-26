@@ -44,7 +44,7 @@ relevant records by semantic similarity.
 **Implementation:** `packages/agent-memory/src/agent_memory/memory_mcp_server.py`  
 **Bin script:** `bin/mega-memory`
 
-This replaces the original `memory_bridge.py` stub that referenced a non-existent path
+This replaces the original `stdio_socket_relay.py` stub that referenced a non-existent path
 in the qwen_code_stack layout. The Megalonyx version is a full implementation.
 
 ---

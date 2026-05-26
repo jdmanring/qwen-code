@@ -462,7 +462,7 @@
     "memory": {
       "command": "mega-run-py",
       "args": [
-        "packages/core/src/memory_bridge.py"
+        "packages/core/src/stdio_socket_relay.py"
       ]
     },
     "github": {

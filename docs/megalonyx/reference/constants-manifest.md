@@ -43,7 +43,7 @@ These are implicit requirements for the system to function, often involving file
 | :--- | :--- | :--- | :--- |
 | `state.json` | Persistence of global state | `.qwen/state.json` | `state_manager.py` |
 | `settings.json` | Job manager configuration | `~/.qwen/settings.json` | `job_state_manager.py` |
-| `megalonyx_memory.sock` | IPC for memory server | `~/.local/share/megalonyx/tmp/megalonyx_memory.sock` | `memory_bridge.py` |
+| `megalonyx_memory.sock` | IPC for memory server | `~/.local/share/megalonyx/tmp/megalonyx_memory.sock` | `stdio_socket_relay.py` |
 
 ## 4. Scoring & Thresholds
 Critical constants that determine the behavior of the AI's verification and retry loops.

@@ -28,7 +28,7 @@ These systems exist in upstream but we override or extend them.
 
 | System | What it does | What we replace/extend | Why | Status |
 |---|---|---|---|---|
-| Memory bridge (original `packages/core/src/memory_bridge.py` reference) | Stub for a memory MCP server | Replaced by `agent-memory` — a full Python MCP server with Qdrant | The upstream stub references a path that doesn't exist; we provide a working implementation | Complete |
+| Memory bridge (original `packages/core/src/stdio_socket_relay.py` reference) | Stub for a memory MCP server | Replaced by `agent-memory` — a full Python MCP server with Qdrant | The upstream stub references a path that doesn't exist; we provide a working implementation | Complete |
 | Model provider list | Default set of Qwen-series and compatible models | Extended with LongCat and additional Gemini models in `config/settings.json` | We use providers not in the upstream defaults | Complete |
 | `ci.yml` (upstream CI) | Runs upstream test suite | Replaced by `python-quality.yml` | Upstream CI is for their repo structure, not ours | Complete |
 

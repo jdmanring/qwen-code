@@ -24,7 +24,7 @@ import time
 # ======================================
 # These must match exactly what is in settings.json
 COMMAND = "mega-run-py"
-ARGS = ["packages/core/src/memory_bridge.py"]
+ARGS = ["packages/core/src/stdio_socket_relay.py"]
 # We need the absolute path to the wrapper for tests that use 'env -i' or different CWDs
 WRAPPER_PATH = "mega-memory"
 # The bridge script absolute path (for verification)
