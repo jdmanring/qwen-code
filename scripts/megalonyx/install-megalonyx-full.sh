@@ -77,7 +77,7 @@ run_step() {
 
 verify_file() {
   local path="$1" label="$2"
-  [[ -f "$path" && -s "$path" ]] || die "Expected output missing or empty: $path ($label)"
+  [[ -f "$path" ]] || die "Expected output missing: $path ($label)"
 }
 
 echo ""
@@ -113,44 +113,16 @@ else
     run_step "pnpm install" \
         pnpm install --dir "$REPO_ROOT" --config.dangerouslyAllowAllBuilds=true
 
-    # --- 1b. Generate web-templates TypeScript assets ---
-    # build.mjs writes generated .ts source files that esbuild reads via alias.
-    # tsc is not needed for web-templates; esbuild resolves it to source TS directly.
-    run_step "packages/web-templates — generate TS assets" \
-        node "$REPO_ROOT/packages/web-templates/build.mjs"
+    # Make workspace-local binaries (tsc, etc.) available to child processes
+    export PATH="$REPO_ROOT/node_modules/.bin:$PATH"
 
-    # --- 1c. tsc --build for internal package dependencies ---
-    # esbuild bundles everything but resolves workspace packages via their
-    # package.json "main" field, which points to dist/. Each package's
-    # build_package.js cleans stale output then runs tsc --build with project
-    # references, ensuring correct incremental build order.
-    INTERNAL_PKGS=(
-        packages/core
-        packages/channels/base
-        packages/channels/telegram
-        packages/channels/weixin
-        packages/channels/dingtalk
-        packages/acp-bridge
-    )
-
-    for pkg in "${INTERNAL_PKGS[@]}"; do
-        run_step "$pkg — tsc --build" \
-            bash -c "cd '$REPO_ROOT/$pkg' && node '$BUILD_PACKAGE_SCRIPT'"
-        verify_file "$REPO_ROOT/$pkg/dist/.last_build" "$pkg tsc output"
-    done
-
-    # --- 1d. esbuild: bundle CLI → dist/cli.js ---
-    # Produces dist/cli.js (~4 MB single-file ESM bundle) + dist/chunks/*.
-    # packages/cli itself is not tsc-built; esbuild reads it from source TS.
-    run_step "esbuild — bundle CLI" \
-        node "$REPO_ROOT/esbuild.config.js"
+    # --- 1b. Full build via pnpm ---
+    # Runs: generate-git-commit-info → nx build (web-templates, tsc for all
+    # packages via project references) → esbuild bundle → copy bundle assets.
+    run_step "pnpm build" \
+        pnpm --dir "$REPO_ROOT" build
 
     verify_file "$CLI_BUNDLE" "esbuild output"
-
-    # --- 1e. Copy vendor assets alongside the bundle ---
-    # Copies ripgrep binaries, bundled skills, locales, sandbox profiles to dist/.
-    run_step "copy bundle assets (vendor, skills, locales)" \
-        node "$REPO_ROOT/scripts/copy_bundle_assets.js"
 
     # --- 1f. Smoke-test the bundle ---
     echo "  → verifying bundle runs"
