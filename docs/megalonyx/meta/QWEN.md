@@ -6,8 +6,8 @@ Orchestrator: Integrated Analysis (CPU). Sub-Agents: Atomic Execution (Workers).
 ## [M-RULE] Operational Rules
 - [A-DELEGATE]: (Analysis | Planning) => Orchestrator; (Extraction | Search | Atomic Edit) => Worker.
 - [A-PLAN]: Mode == PlanMode => Forbidden(edit, write_file_code, run_shell); Permitted(todo_write, write_file_roadmap).
-- [A-DISCOVER]: Discovery => Glob => Grep => Read.
-- [A-VERIFY]: Change => Verification Tool => Pass/Fail. Fail => S-CORRECT Loop.
+- [A-DISCOVER]: Iterative Discovery Protocol (Breadth => Semantic => Depth). See docs/megalonyx/process/iterative-discovery.md.
+- [A-VERIFY]: Change => Hard Evidence Verification (Must provide exact exit code and stdout) => Pass/Fail. Fail => S-CORRECT Loop.
 - [A-CORRECT]: Fail => Observe => Analyze => Isolate => Correct => Re-Verify.
 - [A-SURGERY]: Existing File => edit; New File => write_file.
 - [A-REALITY]: System-Dependent => Pre-Flight Check (Independent Tool) => Action => Independent Verification.
@@ -21,7 +21,7 @@ Orchestrator: Integrated Analysis (CPU). Sub-Agents: Atomic Execution (Workers).
 - [CSF-SSOT]: (Technical Fact => Designated Truth File => Absolute Link).
 
 ## [M-MANDATE] Core Mandates
-- [S-READ]: No Truncation. No Peeking. Pagination (offset/limit) until full capture.
+- [S-READ]: Mandatory Data Exhaustion. (Detect (truncated) => Trigger Pagination (offset/limit) => Aggregate => Verify EOF => Proceed). Proceeding with truncated data is a Critical Behavioral Failure.
 - [S-SNAP]: # STATE headers. Recency Bias. Proactive Knowledge Eviction.
 - [S-MEM]: Instructional (QWEN.md) > Semantic (mega-memory-manager) > Ephemeral.
 - [S-PILL]: Static Guide vs Runtime Machine. No implementation in config/.

@@ -1,14 +1,23 @@
-# 🧠 Token Efficiency and Architectural Precision
+# 🧠 Session-Level Resource Optimization and Architectural Precision
 
-This document outlines the theoretical foundation and practical implementation of the "Token Optimization" strategy used within the Megalonyx project. The goal is to maximize the **Signal-to-Noise Ratio (SNR)** of the LLM's context window, ensuring that architectural rules are followed with deterministic precision.
+This document outlines the theoretical foundation and practical implementation of the "Session-Level Resource Optimization" strategy used within the Megalonyx project. The goal is to maximize the **Signal-to-Noise Ratio (SNR)** of the LLM's context window, ensuring that architectural rules are followed with deterministic precision while minimizing total session cost.
 
 ---
 
-## 1. The Token Economy: BPE Optimization
+## 1. The Resource Economy: Cognitive Integrity
 
-The Qwen Code project prioritizes **Token Efficiency** to maximize the usable space in the model's context window and reduce compute latency.
+The Qwen Code project prioritizes **Cognitive Integrity**—the assurance that every decision is based on complete, verified information—over per-turn token savings.
 
-### 1.1 Unicode vs. ASCII Logic
+### 1.1 The Incomplete-Information Waste (The Redo Loop Tax)
+Attempting to save tokens by accepting truncated data or avoiding pagination creates a "Redo Loop Tax." This is the systemic waste of tokens and time that occurs when an agent:
+1.  Makes a hypothesis based on incomplete data.
+2.  Implements a change that fails or introduces a bug.
+3.  Spends multiple turns diagnosing the failure.
+4.  Eventually discovers the root cause was visible in the truncated text.
+
+**The Rule**: The cost of pagination (reading a file multiple times) is negligible compared to the cost of a single failed implementation loop. **Over-reading is a high-ROI investment in session efficiency.**
+
+### 1.2 Unicode vs. ASCII Logic
 Modern LLMs use Byte-Pair Encoding (BPE) tokenizers. While Unicode symbols (e.g., $\to, \leftrightarrow$) appear a single character to humans, they are often decomposed into 2-3 byte-tokens by the model.
 
 To eliminate this "token fragmentation," we employ **Standardized ASCII Logic Notation**:
@@ -73,10 +82,11 @@ Mirroring provides a built-in consistency check. If a configuration exists witho
 
 ## 🛠️ Practical Guide for Contributors
 
-When adding new rules or personas, adhere to the following **Token Efficiency Checklist**:
+When adding new rules or personas, adhere to the following **Cognitive Integrity Checklist**:
 
 1. [ ] **ASCII Only**: Did you use `=>` instead of $\to$?
 2. [ ] **Anchor the Domain**: Did you use the correct category emoji (🏛️, 🧠, ⚙️)?
 3. [ ] **Rule-Based**: Did you replace narrative suggestions with a formal `[S-MANDATE]` or `[A-RULE]`?
 4. [ ] **Mirror**: Is there a 1:1 mirror between the new config and the new doc?
 5. [ ] **Prime for Rigor**: Is the tone "Institutional" and "Formal" rather than "Conversational"?
+6. [ ] **Data Exhaustion**: Do you always paginate truncated outputs before forming a hypothesis?

@@ -372,3 +372,13 @@ Full plan: `docs/megalonyx/dependency-upgrade-plan.md`
 - [x] Initial file migration (moved to apps/qwen-orchestrator)
 - [x] Initial branching strategy (documented)
 - [x] Initial config relocation (moved to .qwen/config)
+
+## Phase 6: Operational Rigor & Data Completeness (In Progress)
+
+- [ ] Implement Data Completeness Standard: transform [S-READ] into mandatory pagination loop
+- [ ] Update [A-VERIFY] to require hard evidence (exit codes/stdout)
+- [ ] Overhaul context-window-optimization.md: replace Token Efficiency with Session-Level Resource Optimization
+- [ ] Document 'Incomplete-Information Waste' in optimization docs
+- [ ] Formalize Iterative Discovery Protocol (Breadth -> Semantic -> Depth)
+- [ ] Add mandatory 'Data Exhaustion Check' to discovery process
+- [ ] Audit and align all specialized agent prompts with new standards
