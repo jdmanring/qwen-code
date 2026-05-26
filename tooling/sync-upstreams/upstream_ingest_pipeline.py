@@ -219,7 +219,10 @@ class SyncManager:
             self._git.run(["git", "checkout", "--ours", f], check=True)
             self._git.run(["git", "add", f], check=True)
 
-        self._git.run(["git", "merge", "--continue", "--no-edit"], check=True)
+        self._git.run(
+            ["git", "-c", "core.editor=true", "merge", "--continue"],
+            check=True,
+        )
         resolved = ", ".join(sorted(conflict_set & self._AUTO_RESOLVE_OURS))
         log_success(f"Merge clean (auto-resolved: {resolved}).")
 
