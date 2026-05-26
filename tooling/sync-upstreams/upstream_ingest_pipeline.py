@@ -186,12 +186,15 @@ class SyncManager:
         log_info(f"Creating staging branch: {self.staging_branch}")
         self._git.run(["git", "checkout", "-b", self.staging_branch])
 
+    # Files that are always resolved by keeping ours. package-lock.json is
+    # upstream's npm lockfile; this repo uses pnpm-lock.yaml instead.
+    _AUTO_RESOLVE_OURS: frozenset[str] = frozenset({"package-lock.json"})
+
     def merge_mirror_to_stage(self) -> None:
         """
         Merges upstream-mirror into the staging branch.
-        On conflict, aborts immediately — conflicts must be resolved manually.
-        Auto-resolving only the .bat file was fragile; it is no longer needed
-        because _purge_upstream_artifacts() removes .bat files before the merge.
+        Files in _AUTO_RESOLVE_OURS are resolved automatically (keep ours).
+        Any other conflict aborts and requires manual resolution.
         """
         log_info(f"Merging {MIRROR_BRANCH} into {self.staging_branch}...")
         result = self._git.run(["git", "merge", MIRROR_BRANCH, "--no-edit"], check=False)
@@ -200,11 +203,25 @@ class SyncManager:
             return
 
         conflict_files = self._git.output(["git", "diff", "--name-only", "--diff-filter=U"])
-        self._git.run(["git", "merge", "--abort"], check=False)
-        raise RuntimeError(
-            f"Merge conflict — manual resolution required:\n{conflict_files}\n\n"
-            "Resolve, commit, then re-run the ingest pipeline."
-        )
+        conflict_set = {f.strip() for f in conflict_files.splitlines() if f.strip()}
+        unresolvable = conflict_set - self._AUTO_RESOLVE_OURS
+
+        if unresolvable:
+            self._git.run(["git", "merge", "--abort"], check=False)
+            files = "\n".join(sorted(unresolvable))
+            raise RuntimeError(
+                f"Merge conflict — manual resolution required:\n{files}\n\n"
+                "Resolve, commit, then re-run the ingest pipeline."
+            )
+
+        for f in conflict_set & self._AUTO_RESOLVE_OURS:
+            log_info(f"Auto-resolving {f} (keeping ours)")
+            self._git.run(["git", "checkout", "--ours", f], check=True)
+            self._git.run(["git", "add", f], check=True)
+
+        self._git.run(["git", "merge", "--continue", "--no-edit"], check=True)
+        resolved = ", ".join(sorted(conflict_set & self._AUTO_RESOLVE_OURS))
+        log_success(f"Merge clean (auto-resolved: {resolved}).")
 
     def cleanup_staging(self) -> None:
         if not self.staging_branch:
