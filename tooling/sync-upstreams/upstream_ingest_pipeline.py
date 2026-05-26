@@ -196,12 +196,17 @@ class SyncManager:
         log_info(f"Creating staging branch: {self.staging_branch}")
         self._git.run(["git", "checkout", "-b", self.staging_branch])
 
+    # Files that are always resolved by keeping ours. package-lock.json is
+    # upstream's npm lockfile; this repo uses pnpm-lock.yaml instead.
+    _AUTO_RESOLVE_OURS: frozenset[str] = frozenset({"package-lock.json"})
+
     def merge_mirror_to_stage(self) -> None:
         """
         Merges upstream-mirror into the staging branch.
-        On conflict, aborts immediately — conflicts must be resolved manually.
-        After a clean merge, restores PROTECTED_FILES to their integration state
-        so non-conflicting upstream changes cannot silently overwrite our patches.
+        Files in _AUTO_RESOLVE_OURS are auto-resolved (keep ours); any other
+        conflict aborts and requires manual resolution. After a clean merge,
+        restores PROTECTED_FILES so non-conflicting upstream changes cannot
+        silently overwrite our patches.
         """
         integration_ref = self._git.output(["git", "rev-parse", "HEAD"])
 
@@ -213,11 +218,28 @@ class SyncManager:
             return
 
         conflict_files = self._git.output(["git", "diff", "--name-only", "--diff-filter=U"])
-        self._git.run(["git", "merge", "--abort"], check=False)
-        raise RuntimeError(
-            f"Merge conflict — manual resolution required:\n{conflict_files}\n\n"
-            "Resolve, commit, then re-run the ingest pipeline."
+        conflict_set = {f.strip() for f in conflict_files.splitlines() if f.strip()}
+        unresolvable = conflict_set - self._AUTO_RESOLVE_OURS
+
+        if unresolvable:
+            self._git.run(["git", "merge", "--abort"], check=False)
+            files = "\n".join(sorted(unresolvable))
+            raise RuntimeError(
+                f"Merge conflict — manual resolution required:\n{files}\n\n"
+                "Resolve, commit, then re-run the ingest pipeline."
+            )
+
+        for f in conflict_set & self._AUTO_RESOLVE_OURS:
+            log_info(f"Auto-resolving {f} (keeping ours)")
+            self._git.run(["git", "checkout", "--ours", f], check=True)
+            self._git.run(["git", "add", f], check=True)
+
+        self._git.run(
+            ["git", "-c", "core.editor=true", "merge", "--continue"],
+            check=True,
         )
+        resolved = ", ".join(sorted(conflict_set & self._AUTO_RESOLVE_OURS))
+        log_success(f"Merge clean (auto-resolved: {resolved}).")
 
     def _restore_protected_files(self, integration_ref: str) -> None:
         """
