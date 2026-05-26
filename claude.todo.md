@@ -29,15 +29,15 @@ Last updated: 2026-05-26
 
 ---
 
-## Upstream fork branches (awaiting user PR approval)
+## Upstream fork branches (reference only — PRs to QwenLM will NOT be opened)
 
-| Branch | Description | PR target |
-|---|---|---|
-| `contribute/phase-h-vitest-vite` | vitest 3→4, vite 5→6 | QwenLM/qwen-code main |
-| `contribute/phase-i-web-tree-sitter` | web-tree-sitter 0.24→0.26 | QwenLM/qwen-code main |
-| `contribute/phase-m-typescript-6` | TypeScript 5.3→6.0 | QwenLM/qwen-code main |
+| Branch | Description |
+|---|---|
+| `contribute/phase-h-vitest-vite` | vitest 3→4, vite 5→6 |
+| `contribute/phase-i-web-tree-sitter` | web-tree-sitter 0.24→0.26 |
+| `contribute/phase-m-typescript-6` | TypeScript 5.3→6.0 |
 
-Do NOT open PRs against QwenLM/qwen-code without explicit user approval.
+Policy: prepare contribution branches and push to fork, but never open PRs against QwenLM/qwen-code.
 
 ---
 
