@@ -10,8 +10,12 @@ uv run ruff check .
 echo "pre-commit: ruff format check..."
 uv run ruff format --check .
 
-echo "pre-commit: project standards lint..."
-uv run python3 tooling/project_standards_linter.py --strict tooling/ docs/ apps/control-plane-daemon/ packages/agent-infra/ packages/agent-memory/ scripts/
+if [ -f "tooling/project_standards_linter.py" ]; then
+  echo "pre-commit: project standards lint..."
+  uv run python3 tooling/project_standards_linter.py --strict tooling/ docs/ apps/control-plane-daemon/ packages/agent-infra/ packages/agent-memory/ scripts/
+else
+  echo "pre-commit: project standards lint... (skipped — tooling not present on this branch)"
+fi
 
 # ESLint on staged TypeScript/JavaScript files only — avoids full nx pipeline overhead.
 STAGED_TS=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(ts|tsx|js|mjs)$' || true)

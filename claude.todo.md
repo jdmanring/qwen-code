@@ -2,7 +2,7 @@
 
 _Separate from todo.md (Qwen upstream). This tracks Claude's work on monorepo maintenance._
 
-Last updated: 2026-05-26 (ESLint 10 upgrade complete)
+Last updated: 2026-05-26 (Phase 54 contributed to fork; QwenLM commit 641a1a73 synced, LKG-20260526-0324)
 
 ---
 
@@ -23,10 +23,11 @@ Last updated: 2026-05-26 (ESLint 10 upgrade complete)
 | Phase H: vitest 3→4 + vite 5→6 | ✅ Committed, contributed to fork |
 | Phase I: web-tree-sitter 0.24→0.26 | ✅ Committed, contributed to fork |
 | Phase M: TypeScript 5.3→6.0 | ✅ Committed, contributed to fork |
-| Phase 54: ESLint 9→10 | ✅ Committed cc8d5b575 — `pnpm -w run check` is 0 errors |
-| QwenLM sync (11 commits) | ✅ LKG-20260526-0211 — integration → develop |
+| Phase 54: ESLint 9→10 | ✅ Committed cc8d5b575; contributed to fork (`contribute/phase-54-eslint-10`) |
+| QwenLM sync (12 commits) | ✅ LKG-20260526-0324 — integration → develop |
 | GitHub notifications | ✅ Cleared 2026-05-26 |
 | Pipeline: package-lock.json auto-resolve | ✅ Fixed in upstream_ingest_pipeline.py |
+| Pre-commit hook: branch safety | ✅ Hook gracefully skips standards linter on contribution branches |
 
 ---
 
@@ -37,6 +38,7 @@ Last updated: 2026-05-26 (ESLint 10 upgrade complete)
 | `contribute/phase-h-vitest-vite` | vitest 3→4, vite 5→6 |
 | `contribute/phase-i-web-tree-sitter` | web-tree-sitter 0.24→0.26 |
 | `contribute/phase-m-typescript-6` | TypeScript 5.3→6.0 |
+| `contribute/phase-54-eslint-10` | ESLint 9→10, react-hooks v5→v7, @eslint/compat bridge |
 
 Policy: prepare contribution branches and push to fork, but never open PRs against QwenLM/qwen-code.
 
@@ -108,4 +110,5 @@ These are tracked — see `docs/meta/engineering-standards.md` Section 5 for the
 - `vscode-ide-companion` has 20+ TypeScript errors (phantom deps + upstream API changes)
   — does NOT block `pnpm build`; tracked in todo.md Phase 4.8
 - `test_socket_resp.py` at repo root is an ad-hoc debug script (untracked, not committed)
-- `integration-tests/concurrent-runner/runner.py` ruff fixes applied 2026-05-26 (unstaged)
+- `integration-tests/concurrent-runner/runner.py` ruff fixes committed to fork contribute branch 2026-05-26
+- E2E Tests CI failures on `jdmanring/qwen-code` fork are persistent infrastructure issue (missing OPENAI_API_KEY secret on fork runners). Same commit passes on QwenLM. Not fixable without adding fork secrets.
