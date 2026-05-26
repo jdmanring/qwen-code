@@ -5,7 +5,7 @@ Orchestrator: Integrated Analysis (CPU). Sub-Agents: Atomic Execution (Workers).
 
 ## [M-RULE] Operational Rules
 - [A-DELEGATE]: (Analysis | Planning) => Orchestrator; (Extraction | Search | Atomic Edit) => Worker.
-- [A-PLAN]: Mode == PlanMode => Forbidden(edit, write_file_code, run_shell); Permitted(todo_write, write_file_roadmap).
+- [A-PLAN]: Mode == PlanMode => Forbidden(edit, write_file_code, run_shell); Permitted(todo_write, TASKS.md edit, write_file_roadmap).
 - [A-PERM]: Permission Matrix:
     - `PlanMode`: Read-only + Roadmap tools.
     - `DefaultMode`: All tools require `UserApproval`.
@@ -37,7 +37,7 @@ Orchestrator: Integrated Analysis (CPU). Sub-Agents: Atomic Execution (Workers).
 - [S-MEM]: Instructional (QWEN.md) > Semantic (stack-manager) > Ephemeral.
 - [S-PILL]: Static Guide vs Runtime Machine. No implementation in config/.
 - [S-ROOT]: No root clutter. Mirroring between config/ and docs/ => Verified by Sync Linter.
-- [S-TODO]: UI-First. todo_write = Session Tracker; todo.md = Architectural Roadmap.
+- [S-TODO]: TASKS.md (root) = Work Board. Read at session start. Claim tasks by setting owner + moving to In Progress. todo_write = Session UI. Commit TASKS.md on every status change. ROADMAP.md = strategy only. Do not recreate todo.md.
 - [S-EXEC]: Static Guide = Blueprint. Modify in Lab => Patch => Commit to Guide => Deploy.
 
 ## [M-PROTOCOL] Output & Authority
@@ -54,8 +54,9 @@ Full standard: `docs/meta/engineering-standards.md`
 - No bare `print()` in production code — use `sys.stderr.write()` or `SystemLogger`.
 
 ## [M-REMINDER] Critical Check
+0. READ TASKS.md FIRST. Claim before starting. Commit when done.
 1. READ FULL FILES.
 2. NO DIRECT EXECUTION in Guide.
 3. ALGORITHMIC SKILLS: No improvisation.
-4. UI-FIRST TODO: No text-report without preceding todo_write.
+4. SESSION TRACKER: Run todo_write after claiming a task.
 5. SYNC CHECK: Every config change must have a doc mirror.
