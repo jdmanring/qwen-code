@@ -11,7 +11,7 @@ Last updated: 2026-05-26
 - Never commit: `config/settings.json`, `config/megalonyx/secrets.json`, `config/config.yaml`
 - Push to `origin` (jdmanring/megalonyx-monorepo) for dev work
 - Push contribution branches to `upstream` (jdmanring/qwen-code fork)
-- No PRs to QwenLM until user explicitly approves each one
+- No PRs to QwenLM — ever (permanent policy)
 
 ---
 
@@ -23,7 +23,7 @@ Last updated: 2026-05-26
 | Phase H: vitest 3→4 + vite 5→6 | ✅ Committed, contributed to fork |
 | Phase I: web-tree-sitter 0.24→0.26 | ✅ Committed, contributed to fork |
 | Phase M: TypeScript 5.3→6.0 | ✅ Committed, contributed to fork |
-| QwenLM sync (10 commits) | ✅ LKG-20260526-0117 — integration → develop |
+| QwenLM sync (11 commits) | ✅ LKG-20260526-0211 — integration → develop |
 | GitHub notifications | ✅ Cleared 2026-05-26 |
 | Pipeline: package-lock.json auto-resolve | ✅ Fixed in upstream_ingest_pipeline.py |
 
