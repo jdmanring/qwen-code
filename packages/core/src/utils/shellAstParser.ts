@@ -14,7 +14,7 @@
  *   4. `extractCommandRules()`  – extract minimum-scope wildcard permission rules
  */
 
-import Parser from 'web-tree-sitter';
+import { Parser, Language, type Tree, type Node as TreeSitterNode } from 'web-tree-sitter';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -601,7 +601,7 @@ const DOCKER_COMPOSE_SUBCOMMANDS = new Set([
 // ---------------------------------------------------------------------------
 
 let parserInstance: Parser | null = null;
-let bashLanguage: Parser.Language | null = null;
+let bashLanguage: Language | null = null;
 let initPromise: Promise<void> | null = null;
 /** Set to true permanently once WASM initialisation fails. */
 let parserInitFailed = false;
@@ -621,17 +621,17 @@ export async function initParser(): Promise<void> {
 
   initPromise = (async () => {
     const treeSitterWasm = await loadWasmBinary(
-      () => import('web-tree-sitter/tree-sitter.wasm?binary' as string),
-      'web-tree-sitter/tree-sitter.wasm',
+      () => import('web-tree-sitter/web-tree-sitter.wasm?binary' as string),
+      'web-tree-sitter/web-tree-sitter.wasm',
     );
     await Parser.init({ wasmBinary: treeSitterWasm });
     parserInstance = new Parser();
     const bashWasm = await loadWasmBinary(
       () =>
-        import('tree-sitter-wasms/out/tree-sitter-bash.wasm?binary' as string),
-      'tree-sitter-wasms/out/tree-sitter-bash.wasm',
+        import('tree-sitter-bash/tree-sitter-bash.wasm?binary' as string),
+      'tree-sitter-bash/tree-sitter-bash.wasm',
     );
-    bashLanguage = await Parser.Language.load(bashWasm);
+    bashLanguage = await Language.load(bashWasm);
     parserInstance.setLanguage(bashLanguage);
   })().catch((err: unknown) => {
     // Mark as permanently failed so callers can use the regex fallback
@@ -648,7 +648,7 @@ export async function initParser(): Promise<void> {
  * Parse a shell command string into a tree-sitter Tree.
  * Initialises the parser lazily if needed.
  */
-export async function parseShellCommand(command: string): Promise<Parser.Tree> {
+export async function parseShellCommand(command: string): Promise<Tree> {
   await initParser();
   return parserInstance!.parse(command);
 }
@@ -657,7 +657,7 @@ export async function parseShellCommand(command: string): Promise<Parser.Tree> {
 // AST Helpers
 // ---------------------------------------------------------------------------
 
-type SyntaxNode = Parser.SyntaxNode;
+type SyntaxNode = TreeSitterNode;
 
 /** Collect all descendant nodes of given types. */
 function collectDescendants(
