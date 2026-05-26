@@ -16,12 +16,12 @@ FORCE_CONFIG=false
 FORCE_SYNC=false
 VERIFY_RUNTIME=false
 for arg in "$@"; do
-    case "$arg" in
-        --force-config)   FORCE_CONFIG=true ;;
-        --sync-deps)      FORCE_SYNC=true ;;
-        --verify-runtime) VERIFY_RUNTIME=true ;;
-        *)                ;;
-    esac
+  case "$arg" in
+    --force-config)   FORCE_CONFIG=true ;;
+    --sync-deps)      FORCE_SYNC=true ;;
+    --verify-runtime) VERIFY_RUNTIME=true ;;
+    *)                ;;
+  esac
 done
 
 # ===
@@ -34,13 +34,15 @@ QWEN_CONFIG_ROOT="$HOME/.config/qwen"
 DATA_ROOT="$STACK_ROOT/data"
 BIN_DIR="$HOME/.local/bin"
 VENV_DIR="$STACK_ROOT/py/venv"
+BIN_STACK_DIR="$STACK_ROOT/bin"
+APPS_STACK_DIR="$STACK_ROOT/apps"
 QDRANT_DIR="$STACK_ROOT/packages/infra/qdrant"
 QDRANT_CONFIG="$CONFIG_ROOT/qdrant_config.yaml"
 
 # ===
 # PREREQUISITES
 # ===
-echo "[1/8] Checking prerequisites..."
+echo "[1/9] Checking prerequisites..."
 command -v uv    >/dev/null || { echo "Missing uv"; exit 1; }
 command -v curl  >/dev/null || { echo "Missing curl"; exit 1; }
 echo "[OK] Prerequisites satisfied."
@@ -48,7 +50,7 @@ echo "[OK] Prerequisites satisfied."
 # ===
 # DIRECTORY STRUCTURE
 # ===
-echo "[2/8] Preparing directory structure..."
+echo "[2/9] Preparing directory structure..."
 mkdir -p \
   "$CONFIG_ROOT" \
   "$QWEN_CONFIG_ROOT" \
@@ -57,33 +59,15 @@ mkdir -p \
   "$STACK_ROOT/memory" \
   "$STACK_ROOT/tmp" \
   "$STACK_ROOT/packages" \
+  "$BIN_STACK_DIR" \
+  "$APPS_STACK_DIR" \
   "$BIN_DIR"
 echo "[OK] Directory structure ready ($STACK_ROOT)"
 
 # ===
-# STANDALONE ENVIRONMENT (The Body)
+# PHYSICAL DEPLOYMENT (Blueprint -> Machine)
 # ===
-echo "[3/8] Creating standalone Python environment..."
-if [ "$FORCE_SYNC" = true ] || [ ! -d "$VENV_DIR" ]; then
-    echo "Creating venv at $VENV_DIR..."
-    uv venv --clear "$VENV_DIR"
-    
-    echo "Installing dependencies from Blueprint..."
-    # Install specific packages from the monorepo to avoid setuptools flat-layout errors
-    uv pip install --python "$VENV_DIR/bin/python" -r "$REPO_ROOT/requirements.txt" 2>/dev/null || true
-    uv pip install --python "$VENV_DIR/bin/python" "$REPO_ROOT/packages/agent-memory"
-    uv pip install --python "$VENV_DIR/bin/python" "$REPO_ROOT/apps/control-plane-daemon"
-    uv pip install --python "$VENV_DIR/bin/python" "$REPO_ROOT/packages/agent-infra"
-    echo "[OK] Standalone environment ready."
-else
-    echo "[OK] Existing venv found at $VENV_DIR."
-fi
-
-# ===
-# SCRIPT DEPLOYMENT (Blueprint -> Machine)
-# ===
-echo "[4/8] Deploying scripts to the Machine..."
-# Copy core packages to ensure the Machine is self-sufficient
+echo "[3/9] Physically deploying Blueprint to Machine..."
 if [ -d "$REPO_ROOT/packages" ]; then
     cp -r "$REPO_ROOT/packages/"* "$STACK_ROOT/packages/"
     echo "[OK] Core packages deployed to $STACK_ROOT/packages"
@@ -92,21 +76,45 @@ else
     exit 1
 fi
 
-# Explicitly deploy the bridge relay from apps/ to packages/ for runtime consistency
-BRIDGE_SRC="$REPO_ROOT/apps/control-plane-daemon/src/control_plane_daemon/stdio_socket_relay.py"
-BRIDGE_DEST="$STACK_ROOT/packages/core/src/stdio_socket_relay.py"
-if [ -f "$BRIDGE_SRC" ]; then
-    mkdir -p "$(dirname "$BRIDGE_DEST")"
-    cp "$BRIDGE_SRC" "$BRIDGE_DEST"
-    echo "[OK] Bridge relay deployed to $BRIDGE_DEST"
+if [ -d "$REPO_ROOT/apps" ]; then
+    cp -r "$REPO_ROOT/apps/"* "$APPS_STACK_DIR/"
+    echo "[OK] Apps deployed to $APPS_STACK_DIR"
 else
-    echo "WARNING: Bridge relay not found at $BRIDGE_SRC"
+    echo "WARNING: Blueprint apps directory not found at $REPO_ROOT/apps"
+fi
+
+if [ -d "$REPO_ROOT/bin" ]; then
+    cp -r "$REPO_ROOT/bin/"* "$BIN_STACK_DIR/"
+    echo "[OK] Binaries deployed to $BIN_STACK_DIR"
+else
+    echo "WARNING: Blueprint bin directory not found at $REPO_ROOT/bin"
+fi
+
+# ===
+# STANDALONE ENVIRONMENT (The Body)
+# ===
+echo "[4/9] Creating standalone Python environment..."
+if [ "$FORCE_SYNC" = true ] || [ ! -d "$VENV_DIR" ]; then
+    echo "Creating venv at $VENV_DIR..."
+    uv venv --clear "$VENV_DIR"
+    
+    echo "Installing dependencies from Blueprint..."
+    # Install from requirements first
+    uv pip install --python "$VENV_DIR/bin/python" -r "$REPO_ROOT/requirements.txt" 2>/dev/null || true
+    
+    # Install specific packages from the monorepo to the local venv
+    uv pip install --python "$VENV_DIR/bin/python" "$REPO_ROOT/packages/agent-infra"
+    uv pip install --python "$VENV_DIR/bin/python" "$REPO_ROOT/packages/agent-memory"
+    uv pip install --python "$VENV_DIR/bin/python" "$REPO_ROOT/apps/control-plane-daemon"
+    echo "[OK] Standalone environment ready."
+else
+    echo "[OK] Existing venv found at $VENV_DIR."
 fi
 
 # ===
 # CONFIG TEMPLATES
 # ===
-echo "[5/8] Deploying config templates..."
+echo "[5/9] Deploying config templates..."
 if [ ! -f "$QDRANT_CONFIG" ] || [ "$FORCE_CONFIG" = true ]; then
     cat > "$QDRANT_CONFIG" <<YAML
 storage:
@@ -145,21 +153,29 @@ fi
 # ===
 # BIN WRAPPERS
 # ===
-echo "[6/8] Configuring runtime wrappers in $BIN_DIR..."
+echo "[6/9] Configuring runtime wrappers in $BIN_DIR..."
 
 # mega-memory, mega-status, mega-tasks
 for script in mega-memory mega-status mega-tasks; do
-    target="$REPO_ROOT/bin/$script"
     link="$BIN_DIR/$script"
-    chmod +x "$target"
-    ln -sf "$target" "$link"
+    cat > "$link" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+export VIRTUAL_ENV="$VENV_DIR"
+export PATH="$VENV_DIR/bin:\$PATH"
+exec "$BIN_STACK_DIR/$script" "\$@"
+EOF
+    chmod +x "$link"
+    echo "[OK] $script wrapper created"
 done
 
-# mega-run-py — NOW SOVEREIGN: uses local venv, not monorepo project
+# mega-run-py — SOVEREIGN: resolves relative paths against the Machine root
 cat > "$BIN_DIR/mega-run-py" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
-exec "$VENV_DIR/bin/python" "\$@"
+S_ROOT="$HOME/.local/share/megalonyx"
+cd "\$S_ROOT"
+exec "\$S_ROOT/py/venv/bin/python" "\$@"
 EOF
 chmod +x "$BIN_DIR/mega-run-py"
 echo "[OK] mega-run-py (standalone)"
@@ -193,7 +209,7 @@ chmod +x "$BIN_DIR/mega-reboot"
 # ===
 # QDRANT
 # ===
-echo "[7/8] Installing Qdrant..."
+echo "[7/9] Installing Qdrant..."
 if [ ! -f "$QDRANT_DIR/bin/qdrant" ]; then
     ARCH="$(uname -m)"; OS="$(uname -s)"
     case "$OS-$ARCH" in
@@ -212,7 +228,7 @@ fi
 # ===
 # VERIFICATION
 # ===
-echo "[8/8] Verifying deployment readiness..."
+echo "[8/9] Verifying deployment readiness..."
 if ! "$VENV_DIR/bin/python" -c "import agent_memory; import control_plane_daemon; import agent_infra" 2>/dev/null; then
     echo "ERROR: Packages not importable in standalone venv."
     exit 1
