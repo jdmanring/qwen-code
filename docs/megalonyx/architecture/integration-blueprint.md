@@ -1,9 +1,9 @@
-# 🏛️ Sovereign Integration Blueprint: The Unified Engineering Engine (v2.0 - Enterprise Grade)
+# 🏛️ Runtime Integration Blueprint: The Unified Engineering Engine (v2.0 - Enterprise Grade)
 
 ## 1. Executive Summary
-The objective is to transition from a wrapper-based architecture to a **Sovereign Monorepo**. This involves merging the core capabilities of Qwen Code with specialized features from Aider, Cline, OpenHands, OpenCode, OmniRoute, Claw Code, and T3.
+The objective is to transition from a wrapper-based architecture to an **Independent Monorepo**. This involves merging the core capabilities of Qwen Code with specialized features from Aider, Cline, OpenHands, OpenCode, OmniRoute, Claw Code, and T3.
 
-To eliminate technical debt and ensure scalability for hundreds of contributors, the project adopts a **"Cellular" architecture**. Each integrated project is treated as an isolated cell with its own dependency graph, wrapped in a standardized **Sovereign Bridge**.
+To eliminate technical debt and ensure scalability for hundreds of contributors, the project adopts a **"Cellular" architecture**. Each integrated project is treated as an isolated cell with its own dependency graph, wrapped in a standardized **UDS Bridge**.
 
 ---
 

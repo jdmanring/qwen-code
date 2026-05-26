@@ -5,7 +5,7 @@
 The project is transitioning from a **Chat-based interaction** (linear conversation) to an **Orchestration-based interaction** (system management). 
 
 ### The Limitations of CLI Chat
-While the Qwen Code CLI is effective for atomic tasks, it is insufficient for managing a sovereign monorepo due to:
+While the Qwen Code CLI is effective for atomic tasks, it is insufficient for managing an independent monorepo due to:
 - **State Opacity**: The user cannot visually monitor the status of background services, agentic loops, or package health.
 - **Review Friction**: Reviewing large-scale code changes (diffs) in a terminal is inefficient and increases the risk of overlooking errors.
 - **Manual Overhead**: High-level orchestration (e.g., "Run all integration tests for the Memory package") requires manual command entry rather than a single dashboard action.
@@ -18,13 +18,13 @@ An Orchestration Interface transforms the interaction into a **Control Center**.
 
 ---
 
-## 2. Integration Philosophy: The "Face" vs. "Standalone"
+## 2. Integration Philosophy: The "Face" vs. "Runtime Stack"
 
-A critical architectural decision is that interfaces like **T3** and **OpenCode** are not treated as standalone tools, but as the **Interaction Plane (The Face)** of the Sovereign Stack.
+A critical architectural decision is that interfaces like **T3** and **OpenCode** are not treated as independent tools, but as the **Interaction Plane (The Face)** of the Runtime Stack.
 
 ### Why Integrated Interfaces?
-Using a standalone tool creates a "Blind Interface" that is unaware of the project's internal logic. By integrating the interface into the monorepo, the dashboard gains direct access to:
-- **The Sovereign Bridge**: The UI can trigger actions through the standardized Bridge contracts.
+Using an independent tool creates a "Blind Interface" that is unaware of the project's internal logic. By integrating the interface into the monorepo, the dashboard gains direct access to:
+- **The UDS Bridge**: The UI can trigger actions through the standardized Bridge contracts.
 - **The Memory System**: The UI can visualize the semantic map and architectural graph.
 - **Symmetry Standards**: The UI can enforce documentation and token efficiency rules in real-time.
 

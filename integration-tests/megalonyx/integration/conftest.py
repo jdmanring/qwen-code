@@ -75,7 +75,7 @@ async def memory_server(setup_sandbox):
     )
 
     # Wait for socket to be created
-    _socket_path = "/tmp/qwen_memory_test.sock"  # Use a test-specific socket
+    _socket_path = "/tmp/megalonyx_memory_test.sock"  # Use a test-specific socket
     # Note: We'd need to modify memory_daemon.py to accept a socket path via env
     # For now, we assume it uses the default or we override it.
 

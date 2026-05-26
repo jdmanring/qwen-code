@@ -17,9 +17,17 @@ check_service() {
     fi
 }
 
+check_memory_health() {
+    if mega-stack status | grep -q "Memory: \[OK\]"; then
+        echo -e "[\033[0;32m OK \033[0m] Memory Daemon"
+    else
+        echo -e "[\033[0;31m -- \033[0m] Memory Daemon"
+    fi
+}
+
 check_service "Qdrant"         "qdrant"
 check_service "vLLM"           "vllm"
-check_service "Memory Daemon"  "memory_daemon"
+check_memory_health
 
 echo ""
 echo "--- Health Checks ---"

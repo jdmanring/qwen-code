@@ -1,6 +1,6 @@
 # 🕹️ Operational Modes: Policy & Constraints
 
-This document describes the different operating modes of the Sovereign stack and how they are enforced via the `PolicyEngine`.
+This document describes the different operating modes of the Runtime Stack and how they are enforced via the `PolicyEngine`.
 
 ## 🛡️ The Policy Engine
 
@@ -41,7 +41,7 @@ The system supports several modes that alter the behavior of the `PolicyEngine`.
 
 ## 📝 Planning & Task Tracking
 
-Planning is a first-class operational state in the Sovereign stack.
+Planning is a first-class operational state in the Runtime Stack.
 
 ### The Todo System
 The `todo_write` tool is the primary mechanism for state tracking.

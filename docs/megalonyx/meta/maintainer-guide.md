@@ -1,6 +1,6 @@
 # 🛠️ Maintainer's Guide: Tooling & Harnesses
 
-This document provides the recommended toolset for managing the Sovereign Monorepo. While the core logic is handled by scripts and Git, these "harnesses" are used to reduce cognitive load, prevent manual errors, and provide visual clarity for the maintainer.
+This document provides the recommended toolset for managing the Independent Monorepo. While the core logic is handled by scripts and Git, these "harnesses" are used to reduce cognitive load, prevent manual errors, and provide visual clarity for the maintainer.
 
 ## 1. Git Visualization (The Map)
 Managing multiple upstream remotes and complex branching strategies in a terminal is error-prone. A visual Git client is mandatory for maintaining the "Inside" and "Outside" branch model.

@@ -1,7 +1,7 @@
 # MCP UDS Transport Specification
 
 ## Overview
-The UDS Transport layer implements the MCP `BaseSession` interface over Unix Domain Sockets. Since the MCP SDK expects a stream-like interface for reading and writing `SessionMessage` objects, the Sovereign Bridge implements custom stream wrappers that handle the translation between raw socket bytes and structured MCP messages.
+The UDS Transport layer implements the MCP `BaseSession` interface over Unix Domain Sockets. Since the MCP SDK expects a stream-like interface for reading and writing `SessionMessage` objects, the UDS Bridge implements custom stream wrappers that handle the translation between raw socket bytes and structured MCP messages.
 
 ## UDSReadStream
 The `UDSReadStream` is responsible for converting a raw `asyncio.StreamReader` into an asynchronous iterator of `SessionMessage` objects.

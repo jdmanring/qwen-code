@@ -4,7 +4,7 @@ This document describes the tool system, the interface between the LLM's reasoni
 
 ## 🛠️ Tool Definition & Registry
 
-The Sovereign stack uses a centralized dispatch model for tool execution.
+The Runtime Stack uses a centralized dispatch model for tool execution.
 
 ### 1. The Dispatcher
 Tool logic is implemented in a hardcoded dispatch block within the `execute_tool` function in `packages/core/src/skill_bridge.py`. This ensures that every tool call passes through a single, auditable point of execution.
@@ -33,7 +33,7 @@ Every tool call follows a strict security and verification pipeline:
 
 ## 🌐 MCP (Model Context Protocol) Integration
 
-To extend capabilities beyond the hardcoded Python tools, the Sovereign stack implements the **Model Context Protocol (MCP)**.
+To extend capabilities beyond the hardcoded Python tools, the Runtime Stack implements the **Model Context Protocol (MCP)**.
 
 ### The MCP Manager
 The `MCPManager` (`packages/core/src/mcp_manager.py`) allows the system to connect to external MCP servers via:

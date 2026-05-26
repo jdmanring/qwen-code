@@ -17,7 +17,7 @@ The Bridge is a lean CLI wrapper that acts as a translator.
 
 ### 2. The Memory Daemon (Server)
 The Daemon is the authoritative source of truth for the stack's memory.
-- **Input**: It listens on a UDS socket (`~/.local/share/megalonyx/tmp/qwen_memory.sock`).
+- **Input**: It listens on a UDS socket (`~/.local/share/megalonyx/tmp/megalonyx_memory.sock`).
 - **Output**: It processes MCP requests and returns responses via the same socket.
 - **Role**: It manages the `MemoryCore` logic, handles Qdrant connectivity, and maintains state across different AI sessions.
 

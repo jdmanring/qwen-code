@@ -1,6 +1,6 @@
-# ⚠️ Sovereign Failure Mode Analysis (SFMA)
+# ⚠️ System Failure Analysis (SFMA)
 
-This document mirrors the SFMA in the Sovereign Monorepo. It documents critical failures encountered during the realignment of the blueprint to prevent the same mistakes during future iterations.
+This document mirrors the SFMA in the Independent Monorepo. It documents critical failures encountered during the realignment of the blueprint to prevent the same mistakes during future iterations.
 
 ## 🛑 High-Severity Failure Modes
 
@@ -21,4 +21,4 @@ This document mirrors the SFMA in the Sovereign Monorepo. It documents critical 
 
 ## 🛠️ Updated Operational Guardrails
 - **Dry-Run Requirement**: Verify target file lists before executing bulk changes.
-- **Linter-First**: Zero-error baseline is the only acceptable state for "Sovereign" assets.
+- **Linter-First**: Zero-error baseline is the only acceptable state for "Runtime" assets.

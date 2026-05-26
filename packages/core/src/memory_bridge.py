@@ -115,7 +115,7 @@ async def main() -> None:
     set_pdeathsig()
 
     socket_path = os.path.join(
-        os.path.expanduser("~"), ".local/share/megalonyx/tmp/qwen_memory.sock"
+        os.path.expanduser("~"), ".local/share/megalonyx/tmp/megalonyx_memory.sock"
     )
 
     logger.info("Initializing Memory Bridge (Event-Driven Mode)...")

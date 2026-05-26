@@ -1,4 +1,4 @@
-# 🏛️ Layer Manifest: The Sovereign Zoning Law
+# 🏛️ Layer Manifest: The Runtime Zoning Law
 
 This document defines the architectural boundaries and "zoning laws" for the Megacode monorepo. All code migration and new development must adhere to these constraints to ensure modularity and prevent circular dependencies.
 
@@ -48,7 +48,7 @@ The package layer is further divided into functional tiers to enforce a strict h
 
 #### C. SDK Packages (`packages/sdk-*`)
 **Purpose**: Programmatic Bridges and Language Wrappers.
-- **Role**: Provides a clean API for external systems or other languages to interact with the Sovereign stack.
+- **Role**: Provides a clean API for external systems or other languages to interact with the Runtime Stack.
 - **Allowed Contents**: 
     - Language-specific wrappers (TypeScript, Python, Java).
     - API definitions.

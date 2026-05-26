@@ -3,7 +3,7 @@ import socket
 import time
 
 path = os.path.join(
-    os.path.expanduser("~"), ".local/share/megalonyx/tmp/qwen_memory.sock"
+    os.path.expanduser("~"), ".local/share/megalonyx/tmp/megalonyx_memory.sock"
 )
 print(f"Attempting to bind to: {os.path.abspath(path)}")
 

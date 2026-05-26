@@ -4,7 +4,7 @@
 Since the Memory Daemon opens a Unix Domain Socket (UDS) that can be accessed by any process on the local system, a robust security model is required to prevent unauthorized access to the semantic memory.
 
 ## Identity Verification via `SO_PEERCRED`
-The Sovereign Bridge does not rely on passwords or API keys for local communication. Instead, it uses **Kernel-Level Identity Verification**.
+The UDS Bridge does not rely on passwords or API keys for local communication. Instead, it uses **Kernel-Level Identity Verification**.
 
 ### The Mechanism
 When a client connects to the UDS socket, the daemon uses the `getsockopt` system call with the `SO_PEERCRED` option:
@@ -24,7 +24,7 @@ This ensures that only processes running under the same user account as the daem
 In addition to identity verification, the bridge employs the "Principle of Least Privilege" at the file system level.
 
 ### Socket Hardening
-Upon creating the socket file at `~/.local/share/megalonyx/tmp/qwen_memory.sock`, the daemon immediately applies strict permissions:
+Upon creating the socket file at `~/.local/share/megalonyx/tmp/megalonyx_memory.sock`, the daemon immediately applies strict permissions:
 - **Command**: `os.chmod(socket_path, 0o600)`
 - **Effect**: This sets the permissions to `rw-------`.
 - **Result**: Only the owner of the file (the user) can read from or write to the socket. Any attempt by another user to even *attempt* a connection will be blocked by the OS kernel before the `SO_PEERCRED` check is even reached.

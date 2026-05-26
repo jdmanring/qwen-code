@@ -16,7 +16,7 @@ try:
     core.start()
     print("Calling run_socket_server()...")
     # Use the standard socket path
-    socket_path = Path.home() / ".local/share/megalonyx/tmp/qwen_memory.sock"
+    socket_path = Path.home() / ".local/share/megalonyx/tmp/megalonyx_memory.sock"
     run_socket_server(core, str(socket_path))
 except (ImportError, OSError, RuntimeError, ValueError, TypeError, AttributeError) as e:
     print(f"CRITICAL ERROR: {e}")

@@ -1,4 +1,4 @@
-# 📉 Dependency Graph: Sovereign Flow
+# 📉 Dependency Graph: Independent Flow
 
 This document provides a high-level visualization of the data and control flow within the Megacode monorepo.
 

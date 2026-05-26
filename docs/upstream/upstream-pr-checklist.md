@@ -41,7 +41,7 @@ If any item above fails, stop. This fix stays private.
   git diff upstream/main HEAD | grep -i 'mirror'
   git diff upstream/main HEAD | grep -i 'config/megalonyx'
   git diff upstream/main HEAD | grep -i 'lkg'
-  git diff upstream/main HEAD | grep -i 'sovereign'
+  git diff upstream/main HEAD | grep -i 'standalone'
   ```
 
 - [ ] Read the full diff manually — `git diff upstream/main HEAD -- .` — and confirmed

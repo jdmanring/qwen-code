@@ -1,13 +1,13 @@
-# ⚠️ Sovereign Failure Mode Analysis (SFMA)
+# ⚠️ Standalone Failure Mode Analysis (SFMA)
 
-This document serves as the institutional memory of technical failures encountered during the transition to the Sovereign Integration Pipeline. Its purpose is to prevent the recurrence of "sloppiness-driven" regressions.
+This document serves as the institutional memory of technical failures encountered during the transition to the Standalone Integration Pipeline. Its purpose is to prevent the recurrence of "sloppiness-driven" regressions.
 
 ## 🛑 High-Severity Failure Modes
 
 ### 1. The LaTeX Leak (Rendering Violation)
 - **Symptom**: Porting operational laws (`QWEN.md`) from the blueprint to the monorepo while retaining LaTeX symbols (e.g., `$\to$`).
 - **Root Cause**: Assumption that existing files were already compliant.
-- **Corrective Action**: **S-SCRUB Mandate**. Every file ported from an external source MUST undergo a regex-based rendering scrub for LaTeX before being committed to the Sovereign root.
+- **Corrective Action**: **S-SCRUB Mandate**. Every file ported from an external source MUST undergo a regex-based rendering scrub for LaTeX before being committed to the Standalone root.
 
 ### 2. The TOML Corruption (Shell Misuse)
 - **Symptom**: `pyproject.toml` files created with literal `\n` characters instead of actual newlines.
@@ -26,5 +26,5 @@ This document serves as the institutional memory of technical failures encounter
 
 ## 🛠️ Updated Operational Guardrails
 - [ ] **Dry-Run Requirement**: All `find` or `sed` operations affecting $>10$ files must be preceded by a `ls` or `grep` to verify the target list.
-- [ ] **Sovereign-Sieve**: Use a dedicated exclusion list for all codebase-wide audits.
-- [ ] **Linter-First**: No "Sovereign" claim is valid until `ruff check .` and `npm run check` return zero errors.
+- [ ] **Standalone-Sieve**: Use a dedicated exclusion list for all codebase-wide audits.
+- [ ] **Linter-First**: No "Standalone" claim is valid until `ruff check .` and `npm run check` return zero errors.

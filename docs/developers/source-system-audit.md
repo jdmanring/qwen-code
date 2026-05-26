@@ -1,6 +1,6 @@
-# 🛠️ Source System Audit: The Sovereign Plumbing
+# 🛠️ Source System Audit: The Standalone Plumbing
 
-This document provides a detailed technical audit of how the Sovereign stack operates from input to output. This serves as the primary reference for the migration to the monorepo structure.
+This document provides a detailed technical audit of how the Standalone stack operates from input to output. This serves as the primary reference for the migration to the monorepo structure.
 
 ## 🔄 The Execution Lifecycle
 
@@ -37,7 +37,7 @@ The system does not assume a tool call was successful just because it didn't cra
         1. **Observe**: Capture the failure logs and the current state of the file system.
         2. **Analyze**: Identify the root cause (e.g., logic error, missing dependency, path mismatch).
         3. **Isolate**: Determine the minimum set of files that need modification to fix the error.
-        4. **Correct**: Implement the fix following the `Sovereign Code Standard`.
+        4. **Correct**: Implement the fix following the `Project Standard Code Standard`.
         5. **Re-Verify**: Run the verification suite again. If it fails, return to Step 1.
 
 ---

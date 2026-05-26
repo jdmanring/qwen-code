@@ -1,6 +1,6 @@
 # 🧪 Testing Framework: Verification and Validation
 
-This document describes the current testing infrastructure of the Sovereign stack.
+This document describes the current testing infrastructure of the Runtime Stack.
 
 ## 🏗️ The Testing Pyramid
 

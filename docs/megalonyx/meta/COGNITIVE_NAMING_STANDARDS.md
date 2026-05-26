@@ -34,7 +34,7 @@ The following table maps high-friction names to technical-optimal counterparts.
 | Current Name | Role | Proposed Name | Rationale |
 | :--- | :--- | :--- | :--- |
 | `MAINTAINER_GUIDE.md` | Maintainer instructions | `maintainer-guide.md` | Case normalization. |
-| `SOVEREIGN_INTEGRATION_BLUEPRINT.md` | Integration architecture | `integration-blueprint.md` | Case normalization. |
+| `Standalone_INTEGRATION_BLUEPRINT.md` | Integration architecture | `integration-blueprint.md` | Case normalization. |
 | `MASTER_PLAN.md` | Strategic roadmap | `master-plan.md` | Case normalization. |
 | `MAINTENANCE_AUTOMATION.md` | Tooling specifications | `maintenance-automation.md` | Case normalization. |
 | `GIT_STRATEGY.md` | Version control protocol | `git-strategy.md` | Case normalization. |

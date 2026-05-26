@@ -1,6 +1,6 @@
 # 🛠️ The Skill System: Persona-Based Orchestration
 
-This document describes the Skill System, a declarative orchestration layer that allows the Sovereign stack to dynamically switch between specialized agent behaviors based on the current task context.
+This document describes the Skill System, a declarative orchestration layer that allows the Runtime Stack to dynamically switch between specialized agent behaviors based on the current task context.
 
 ## 🧩 Skill Definition & Registration
 
@@ -54,7 +54,7 @@ It is critical to distinguish between these two layers of the system:
 
 ## 🛠️ Skill Creation Workflow
 
-To add a new capability to the Sovereign stack:
+To add a new capability to the Runtime Stack:
 1. **Define the Trigger**: Identify the keywords or file types that should activate the skill.
 2. **Create the File**: Add a new `.md` file to `config/skills/` with the required YAML frontmatter.
 3. **Define the Persona**: Link the skill to an existing persona in `config/agents/` or provide a specialized system prompt.

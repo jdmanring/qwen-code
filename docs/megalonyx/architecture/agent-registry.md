@@ -1,6 +1,6 @@
 # 🎭 Agent Registry: Persona-as-Code
 
-This document catalogs the specialized agent personas used by the Sovereign stack. Agent behaviors are decoupled from the execution engine and defined as "Persona-as-Code" via Markdown files.
+This document catalogs the specialized agent personas used by the Runtime Stack. Agent behaviors are decoupled from the execution engine and defined as "Persona-as-Code" via Markdown files.
 
 ## 📂 Persona Storage
 All agent personas are stored as standalone Markdown files in the configuration directory:

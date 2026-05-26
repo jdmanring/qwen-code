@@ -1,6 +1,6 @@
 # 🗺️ Component Map: The Golden Features
 
-This document maps the core architectural pillars of the Sovereign stack to their primary implementation files. This map serves as the reference for the migration to the monorepo structure.
+This document maps the core architectural pillars of the Runtime Stack to their primary implementation files. This map serves as the reference for the migration to the monorepo structure.
 
 ## 🛡️ Permission Classifier
 **Purpose**: The central authority for evaluating if a tool call is safe to execute based on the current approval mode.

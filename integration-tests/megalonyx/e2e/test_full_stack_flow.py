@@ -60,7 +60,7 @@ async def test_full_stack_flow():
     # 3. Perform a Memory Turn
     # Derive the socket path from the user's home directory to remain location-agnostic
     stack_root = Path(os.path.expanduser("~/.local/share/megalonyx"))
-    socket_path = stack_root / "tmp" / "qwen_memory.sock"
+    socket_path = stack_root / "tmp" / "megalonyx_memory.sock"
     print(f"Using derived socket path: {socket_path}")
 
     mgr = MCPManager()

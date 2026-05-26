@@ -10,7 +10,7 @@ When writing for humans (READMEs, guides, status reports), use the **Human-Speak
 
 | AI-Speak (Avoid) | Human-Speak (Use) | Why? |
 | :--- | :--- | :--- |
-| "Sovereign Alignment" | "Following the project rules" | "Sovereign" is grandiosity; "Rules" is clear. |
+| "Project Standard Alignment" | "Following the project rules" | Technical terms can be opaque; "Rules" is clear. |
 | "Cognitive Friction" | "Confusing names" or "Hard to find" | "Friction" is abstract; "Confusing" is a feeling. |
 | "Materialize the Blueprint" | "Install the code" or "Deploy" | "Materialize" is poetic; "Install" is an action. |
 | "Semantic Entropy" | "Loss of focus" or "Forgetfulness" | "Entropy" is physics; "Forgetfulness" is human. |

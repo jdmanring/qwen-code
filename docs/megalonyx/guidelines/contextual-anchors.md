@@ -81,7 +81,7 @@ Used to enforce specific implementation patterns or mathematical/logical approac
 Upon entering any directory, an agent **MUST**:
 1.  Check for the existence of a `.qwen-context` file.
 2.  If present, parse the file and integrate the `[M-LAWS]` into its active reasoning context.
-3.  Treat these local laws as **Sovereign Mandates** that take precedence over general guidelines within the scope of that directory.
+3.  Treat these local laws as **Project Standard Mandates** that take precedence over general guidelines within the scope of that directory.
 
 ---
 

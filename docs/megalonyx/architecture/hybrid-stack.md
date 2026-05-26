@@ -1,10 +1,10 @@
 # 🏗️ The Hybrid Stack: Cognitive & Interface Layers
 
-This document describes the architectural split between the cognitive engine and the user interface in the Sovereign stack.
+This document describes the architectural split between the cognitive engine and the user interface in the Runtime Stack.
 
 ## 🧩 The Architectural Split
 
-The Sovereign stack is implemented as a hybrid system to separate deep cognitive reasoning from high-performance UI rendering.
+The Runtime Stack is implemented as a hybrid system to separate deep cognitive reasoning from high-performance UI rendering.
 
 ### 1. The Cognitive Engine (Python Core)
 **Role**: The "Brain."

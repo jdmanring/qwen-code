@@ -5,7 +5,7 @@ The `persona-blueprint.md` file provides the standardized structure for creating
 ## Blueprint Structure
 
 ### 1. Persona Identity
-Defines the agent's **Role**, **Cognitive Bias**, and **Authority Level** (Sovereign, Delegate, or Worker).
+Defines the agent's **Role**, **Cognitive Bias**, and **Authority Level** (Standalone, Delegate, or Worker).
 
 ### 2. Operational Axioms `[M-AXIOM]`
 Deterministic laws governing the agent's internal logic. These use ASCII logic symbols (`=>`, `<=>`) to define trigger-action pairs and verification contracts.

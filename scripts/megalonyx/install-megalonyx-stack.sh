@@ -2,10 +2,10 @@
 set -euo pipefail
 
 # ======================================
-# MEGALONYX STACK INSTALLER (SOVEREIGN)
+# MEGALONYX STACK INSTALLER (RUNTIME STACK)
 # ======================================
 #
-# Sets up the Megalonyx Python stack as a standalone entity on the Machine.
+# Sets up the Megalonyx Python stack as a Runtime Stack on the Machine.
 # Decouples the runtime from the monorepo Blueprint.
 # ======================================
 
@@ -91,22 +91,22 @@ else
 fi
 
 # ===
-# STANDALONE ENVIRONMENT (The Body)
+# RUNTIME ENVIRONMENT (The Body)
 # ===
-echo "[4/9] Creating standalone Python environment..."
+echo "[4/9] Creating Runtime Python environment..."
 if [ "$FORCE_SYNC" = true ] || [ ! -d "$VENV_DIR" ]; then
     echo "Creating venv at $VENV_DIR..."
     uv venv --clear "$VENV_DIR"
-    
+
     echo "Installing dependencies from Blueprint..."
     # Install from requirements first
     uv pip install --python "$VENV_DIR/bin/python" -r "$REPO_ROOT/requirements.txt" 2>/dev/null || true
-    
+
     # Install specific packages from the monorepo to the local venv
     uv pip install --python "$VENV_DIR/bin/python" "$REPO_ROOT/packages/agent-infra"
     uv pip install --python "$VENV_DIR/bin/python" "$REPO_ROOT/packages/agent-memory"
     uv pip install --python "$VENV_DIR/bin/python" "$REPO_ROOT/apps/control-plane-daemon"
-    echo "[OK] Standalone environment ready."
+    echo "[OK] Runtime environment ready."
 else
     echo "[OK] Existing venv found at $VENV_DIR."
 fi
@@ -169,7 +169,7 @@ EOF
     echo "[OK] $script wrapper created"
 done
 
-# mega-run-py — SOVEREIGN: resolves relative paths against the Machine root
+# mega-run-py — RUNTIME: resolves relative paths against the Machine root
 cat > "$BIN_DIR/mega-run-py" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
@@ -178,7 +178,7 @@ cd "\$S_ROOT"
 exec "\$S_ROOT/py/venv/bin/python" "\$@"
 EOF
 chmod +x "$BIN_DIR/mega-run-py"
-echo "[OK] mega-run-py (standalone)"
+echo "[OK] mega-run-py (runtime)"
 
 # mega-db
 cat > "$BIN_DIR/mega-db" <<EOF
@@ -230,8 +230,8 @@ fi
 # ===
 echo "[8/9] Verifying deployment readiness..."
 if ! "$VENV_DIR/bin/python" -c "import agent_memory; import control_plane_daemon; import agent_infra" 2>/dev/null; then
-    echo "ERROR: Packages not importable in standalone venv."
+    echo "ERROR: Packages not importable in Runtime venv."
     exit 1
 fi
-echo "[OK] Deployment is ready and sovereign."
+echo "[OK] Deployment is ready and functional."
 echo "=========================================="

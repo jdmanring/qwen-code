@@ -137,7 +137,7 @@ these. Every product claims them. They carry no information.
 | Autonomous | Sounds like it's out of control |
 | Cognitive / cognitive architecture | AI-speak |
 | Orchestration layer | Infrastructure jargon |
-| Sovereign | Sounds grandiose and unclear |
+| Standalone | Sounds grandiose and unclear |
 | Synergy, seamless, revolutionary | Marketing filler |
 | "AI-native" | Meaningless descriptor |
 | "at scale" | What scale? |

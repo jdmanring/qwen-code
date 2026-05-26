@@ -1,6 +1,6 @@
 # 🔌 MCP Implementation: The Connection Layer
 
-This document describes the current implementation of the Model Context Protocol (MCP) in the Sovereign stack.
+This document describes the current implementation of the Model Context Protocol (MCP) in the Runtime Stack.
 
 ## 🛠️ The MCP Client
 

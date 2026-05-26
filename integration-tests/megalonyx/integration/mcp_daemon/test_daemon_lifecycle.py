@@ -19,7 +19,7 @@ def test_daemon_lifecycle() -> None:
     async def _run_test():
         mgr = None
         # 1. Setup: Use a fixed path in /tmp/ to avoid tmpdir permission issues
-        socket_path = Path("/tmp/test_qwen_memory.sock")
+        socket_path = Path("/tmp/test_megalonyx_memory.sock")
         if socket_path.exists():
             os.remove(socket_path)
 

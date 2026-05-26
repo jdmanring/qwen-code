@@ -19,6 +19,20 @@ This document defines the mandatory requirements for any code entering the monor
 
 Names must be immediately descriptive. An AI or engineer reading a name should be able to predict what it contains or does without opening it.
 
+### 🚫 Anti-Buzzword Rule
+The use of "status adjectives" or "branding labels" to describe technical components is strictly forbidden. These terms provide no functional information and create semantic noise.
+
+- **Forbidden Buzzwords**: `Sovereign`, `Standalone`, `Runtime` (as a status label), `Frontier`, `Omni`, `Ultra`, `Hyper`, `Core` (unless referring to a specific `core/` directory).
+- **The Noun-First Principle**: Name components by **what they are** or **what they do**, not by their "tier" or "status".
+
+| ❌ Bad (Buzzword/Status) | ✅ Good (Technical/Descriptive) | Reason |
+| :--- | :--- | :--- |
+| `standalone_scrub.py` | `intake_normalization.py` | "Standalone" is a status; "Normalization" is the function. |
+| `sovereign_bridge.py` | `uds_bridge.py` | "Sovereign" is branding; "UDS" is the technical protocol. |
+| `runtime_search_stack` | `external_search_retrieval_system` | "Runtime" is generic; "External Search Retrieval" is the specific function. |
+| `frontier_verification` | `retrieval_verification` | "Frontier" is dramatic; "Retrieval" is the technical domain. |
+| `orchestrator.py` | `upstream_sync_pipeline.py` | "Orchestrator" is too broad; "Sync Pipeline" describes the actual data flow. |
+
 - **What this means in practice**: prefer `gate_failure_tests.py` over `chaos_tests.py`, `intake_normalization` over `standalone_scrub`, `upstream_sync_pipeline` over `orchestrator`. An AI reading the name alone should predict the contents or behavior correctly at least 95% of the time.
 - **Case conventions**
     - Python files: `snake_case.py` — never `kebab-case.py`.

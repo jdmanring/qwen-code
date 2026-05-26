@@ -1,6 +1,6 @@
 # 🌐 Agent Orchestration: Multi-Agent Patterns
 
-This document describes the advanced orchestration patterns used by the Sovereign stack to handle complex tasks through delegation, competition, and iterative loops.
+This document describes the advanced orchestration patterns used by the Runtime Stack to handle complex tasks through delegation, competition, and iterative loops.
 
 ## 🧩 Orchestration Patterns
 
@@ -26,7 +26,7 @@ The system employs three primary patterns to move beyond single-agent execution.
 - **Benefit**: Eliminates "Model Bias" and ensures the highest quality implementation.
 
 ### 3. The Loop Taxonomy
-The Sovereign stack utilizes three distinct types of loops to ensure correctness and automation.
+The Runtime Stack utilizes three distinct types of loops to ensure correctness and automation.
 
 #### A. The S-CORRECT Loop (The Quality Gate)
 The fundamental state machine for all tool execution:

@@ -72,7 +72,7 @@ The bridge manages a tiered memory system:
 
 ## 🛠️ Component Mapping & Migration Path
 
-| Legacy Component (`qwen_code_stack`) | Target Destination (`megacode-sovereign-stack`) | Migration Action |
+| Legacy Component (`qwen_code_stack`) | Target Destination (`megacode-runtime-stack`) | Migration Action |
 | :--- | :--- | :--- |
 | `skill_bridge.py` & Orchestration | `packages/core/src/core/` | Implement the Verified Execution Loop in TypeScript. |
 | CLI implementation | `packages/cli/` | Port to monorepo CLI structure; unify command handlers. |

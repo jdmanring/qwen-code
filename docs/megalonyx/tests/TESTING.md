@@ -11,7 +11,7 @@ The primary entry point for validation is the `install.sh` script. During the `[
 
 1.  **Environment Sanity**: Verifies core files (e.g., `memory_daemon.py`) and critical Python dependencies (`qdrant_client`, `sentence_transformers`) are present in the isolated virtual environment.
 2.  **Service Orchestration**: Launches the background services (Qdrant and Memory Daemon) via `mega-memory-manager`.
-3.  **Transport Verification**: Explicitly checks for the existence of the Unix Domain Socket (`/tmp/qwen_memory.sock`) to ensure the production transport layer is operational.
+3.  **Transport Verification**: Explicitly checks for the existence of the Unix Domain Socket (`/tmp/megalonyx_memory.sock`) to ensure the production transport layer is operational.
 4.  **End-to-End Smoke Tests**: Executes the `tests/integration_test_memory.py` suite to verify the functional path from the orchestrator to the vector store.
 
 ---

@@ -102,7 +102,7 @@ class SocketMCPManager(MCPManager):
 
 
 async def main():
-    socket_path = os.path.expanduser("~/.local/share/megalonyx/tmp/qwen_memory.sock")
+    socket_path = os.path.expanduser("~/.local/share/megalonyx/tmp/megalonyx_memory.sock")
     verification_string = f"VERIFY_MEMORY_LOOP_{os.getpid()}_{int(asyncio.get_event_loop().time())}"
     server_name = "memory_daemon"
 

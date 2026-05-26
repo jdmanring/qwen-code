@@ -1,6 +1,6 @@
 # 📜 Compliance & Quality Standards
 
-This document describes the linting, formatting, and compliance systems currently enforced in the Sovereign stack.
+This document describes the linting, formatting, and compliance systems currently enforced in the Runtime Stack.
 
 ## 🎨 Formatting & Linting
 

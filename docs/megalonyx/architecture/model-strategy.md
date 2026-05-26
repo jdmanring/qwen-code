@@ -1,6 +1,6 @@
 # 🧠 Model Strategy: The Tiered Reasoning Engine
 
-This document describes the model hierarchy and routing strategy used by the Sovereign stack to balance deep architectural reasoning with high-throughput execution.
+This document describes the model hierarchy and routing strategy used by the Runtime Stack to balance deep architectural reasoning with high-throughput execution.
 
 ## ⚖️ Tiered Model Architecture
 
