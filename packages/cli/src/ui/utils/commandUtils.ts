@@ -146,6 +146,7 @@ export const copyToClipboard = async (text: string): Promise<void> => {
           if (xclipNotFound && xselNotFound) {
             throw new Error(
               'Please ensure xclip or xsel is installed and configured.',
+              { cause: fallbackError },
             );
           }
 
@@ -166,6 +167,7 @@ export const copyToClipboard = async (text: string): Promise<void> => {
 
           throw new Error(
             `All copy commands failed. "${primaryMsg}", "${fallbackMsg}". `,
+            { cause: fallbackError },
           );
         }
       }

@@ -138,7 +138,7 @@ function validateOptions(options: QueryOptions): SpawnInfo | undefined {
     const errors = validationResult.error.errors
       .map((err) => `${err.path.join('.')}: ${err.message}`)
       .join('; ');
-    throw new Error(`Invalid QueryOptions: ${errors}`);
+    throw new Error(`Invalid QueryOptions: ${errors}`, { cause: validationResult.error });
   }
 
   // Validate sessionId format if provided

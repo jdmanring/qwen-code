@@ -92,6 +92,7 @@ export const getLatestGitHubRelease = async (
     );
     throw new Error(
       `Unable to determine the latest qwen-code-action release on GitHub.`,
+      { cause: _error },
     );
   }
 };

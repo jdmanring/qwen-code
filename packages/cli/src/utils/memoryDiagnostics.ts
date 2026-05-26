@@ -167,6 +167,7 @@ function getAvailableBytes(outputDir: string): number {
       `Unable to check available disk space for heap snapshot: ${formatErrorMessage(
         error,
       )}`,
+      { cause: error },
     );
   }
 }

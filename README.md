@@ -21,6 +21,28 @@ code — it was written here and has no relation to the qwen-code project.
 | agent-infra | Python library | Shared logging and infrastructure utilities used by the two services above | `packages/agent-infra/` |
 | Upstream sync pipeline | Python script | Fetches upstream qwen-code, runs quality gates, promotes to integration if gates pass | `tooling/sync-upstreams/` |
 
+```mermaid
+graph TD
+    User([User]) --> CLI[Qwen Code CLI]
+    CLI --> CP[Control Plane Daemon]
+    
+    subgraph "Control Plane"
+        CP --> IC[Intent Classifier]
+        CP --> TD[Task Decomposer]
+        CP --> JE[Job Executor]
+    end
+    
+    IC --> LLM1[LLM: Classification]
+    TD --> LLM2[LLM: Decomposition]
+    JE --> LLM3[LLM: Execution]
+    
+    JE --> CLI_Tools[Qwen CLI Tools]
+    JE --> Memory[Agent Memory MCP]
+    
+    Memory --> Qdrant[(Qdrant Vector DB)]
+    CLI_Tools --> FS[File System / Shell]
+```
+
 The three Python packages form a dependency chain: `agent-infra` ← `agent-memory` ← `control-plane-daemon`. They are members of a `uv` workspace rooted at the monorepo root.
 
 ---

@@ -63,6 +63,10 @@ Read at session start. Commit every status change.
 
 | ID | Subject | Commit |
 | :--- | :--- | :--- |
+| #69 | Runtime Pathing Standards | — |
+| #68 | Onboarding Narrative | — |
+| #67 | Interface Specification | — |
+| #66 | Architecture Visuals | — |
 | #54 | ESLint 9→10 + react-hooks v7 + @eslint/compat | cc8d5b575 |
 | #56 | esbuild — already at latest (0.28.0) | — |
 | #33 | Fork contribution branches (H, I, M, 54) | — |

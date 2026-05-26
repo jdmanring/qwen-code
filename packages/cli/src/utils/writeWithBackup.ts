@@ -107,6 +107,7 @@ export function writeWithBackupSync(
         }
         throw new Error(
           `Failed to backup existing file: ${backupError instanceof Error ? backupError.message : String(backupError)}`,
+          { cause: backupError },
         );
       }
     }

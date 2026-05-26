@@ -140,3 +140,22 @@ reactHooks.configs.flat['recommended-latest']
 // Wrong — throws "plugins must be object format" in ESLint 10:
 reactHooks.configs['recommended-latest']
 ```
+
+## 6. Runtime Independence & Pathing
+
+To ensure the Megalonyx stack can be deployed and run independently of the monorepo source code, all components must adhere to strict pathing standards.
+
+### 🚫 Forbidden Pathing Patterns
+The use of relative paths that assume the project is running from the monorepo root is strictly forbidden.
+- **No `__file__` relative jumps**: Do not use `os.path.dirname(__file__)` to climb up to the root (e.g., `../../config/`).
+- **No hardcoded monorepo paths**: Do not use paths like `/home/james/projects/megalonyx-monorepo/...`.
+
+### ✅ Mandatory Pathing Standards
+All paths must be resolved dynamically using the following hierarchy:
+1. **Environment Variables**: Use `QWEN_HOME` for CLI settings and `$STACK_ROOT` for daemon artifacts.
+2. **Configuration Files**: Paths must be read from the runtime configuration files located in the user's home directory.
+3. **Standard XDG Base Directory**:
+    - **Config**: `~/.config/qwen/` and `~/.config/megalonyx/`
+    - **Data/State**: `~/.local/share/megalonyx/`
+
+Any code that introduces a dependency on the monorepo's directory structure will be rejected during the intake normalization process.

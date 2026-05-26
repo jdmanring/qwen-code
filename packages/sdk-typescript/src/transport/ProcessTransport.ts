@@ -448,6 +448,7 @@ export class ProcessTransport implements Transport {
     if (this._exitError) {
       throw new Error(
         `Cannot write to process that exited with error: ${this._exitError.message}`,
+        { cause: this._exitError },
       );
     }
 
@@ -475,7 +476,7 @@ export class ProcessTransport implements Transport {
       if (isStreamClosedError) {
         this.inputClosed = true;
         logger.warn(`Stream closed, cannot write: ${errorMsg}`);
-        throw new Error('Input stream closed');
+        throw new Error('Input stream closed', { cause: error });
       }
 
       // For other errors, maintain original behavior

@@ -6,6 +6,7 @@ export function serializeJsonLine(message: unknown): string {
   } catch (error) {
     throw new Error(
       `Failed to serialize message to JSON: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
     );
   }
 }

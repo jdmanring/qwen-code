@@ -10,6 +10,44 @@
 | `main` | `develop` | Stable, production-ready release branch. | Architect |
 
 
+```mermaid
+graph LR
+    A[upstream/main] -- "fork_sync_pipeline.py" --> B[upstream-mirror]
+    B -- "upstream_ingest_pipeline.py (Gates)" --> C[integration]
+    C -- "Merge" --> D[develop]
+    D -- "Release Merge" --> E[main]
+    D -- "contribute-upstream.sh" --> A
+```
+
+```mermaid
+graph TD
+    subgraph "External"
+        QwenLM[QwenLM/qwen-code]
+    end
+
+    subgraph "The Middle Layer (Fork)"
+        Fork[jdmanring/qwen-code]
+    end
+
+    subgraph "The Monorepo"
+        Mirror[upstream-mirror]
+        Integration[integration]
+        Develop[develop]
+    end
+
+    %% Ingestion Path
+    QwenLM -- "fork_sync_pipeline.py --sync" --> Fork
+    Fork -- "upstream_ingest_pipeline.py" --> Mirror
+    Mirror -- "Quality Gates" --> Integration
+    Integration -- "Fast-Forward" --> Develop
+
+    %% Regurgitation Path
+    Develop -- "fork_sync_pipeline.py --contribute" --> Fork
+    Fork -. "Record Only (No PRs)" .-> QwenLM
+
+    style Fork fill:#f9f,stroke:#333,stroke-width:2px
+```
+
 ---
 
 ## Why Two Remotes?

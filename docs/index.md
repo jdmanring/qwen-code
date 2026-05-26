@@ -10,6 +10,7 @@ this file should be able to predict the contents of any listed document without 
 | File | What it covers |
 |---|---|
 | `README.md` | What this repo is, what's in it, how to get started, key files |
+| `docs/onboarding.md` | "Life of a Request" narrative and component mapping |
 | `todo.md` | Current work tracking — what's done and what's next |
 | `CLAUDE.md` | AI agent guide — how to operate in this repo without asking questions |
 | `QWEN.md` | Qwen Code agent guide — loaded by Qwen Code at session start |
@@ -20,6 +21,7 @@ this file should be able to predict the contents of any listed document without 
 
 | File | What it covers |
 |---|---|
+| `docs/interfaces.md` | Communication protocols and schemas (CLI $\leftrightarrow$ Daemon, MCP) |
 | `docs/megalonyx/architecture.md` | How the three Python services fit together; data flow; startup order |
 | `docs/megalonyx/control-plane-daemon.md` | Intent classification, task decomposition, job routing, module reference |
 | `docs/megalonyx/agent-memory.md` | Vector memory service: ingest, search, Qdrant config, WAL recovery |
@@ -63,6 +65,7 @@ this file should be able to predict the contents of any listed document without 
 |---|---|
 | `docs/meta/engineering-standards.md` | Naming requirements, code quality rules — the binding standard |
 | `docs/meta/git-strategy.md` | Branch architecture, pipeline flow, upstream contribution workflow |
+| `docs/meta/contribution-checklist.md` | Hardened verification protocol for upstream contributions |
 | `docs/meta/pipeline-runbook.md` | What to do when a pipeline gate fails |
 | `docs/meta/failure-mode-analysis.md` | Known failure modes and their mitigations |
 | `docs/meta/maintainer-guide.md` | Guide for repo maintainers |
