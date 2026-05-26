@@ -8,7 +8,13 @@ from pathlib import Path
 
 def parse_args():
     p = argparse.ArgumentParser(description="Show token stats from qwen request logs")
-    p.add_argument("count", nargs="?", type=int, default=10, help="Number of recent logs to show (default: 10)")
+    p.add_argument(
+        "count",
+        nargs="?",
+        type=int,
+        default=10,
+        help="Number of recent logs to show (default: 10)",
+    )
     p.add_argument("--log-dir", default=Path.home() / ".qwen" / "logs", type=Path)
     return p.parse_args()
 
@@ -63,7 +69,9 @@ def main():
     # Totals
     print(sep)
     overall_rate = (total_cached / total_input * 100) if total_input else 0
-    print(f"{'TOTAL':<28} {'':<16} {total_input:>8,} {total_cached:>8,} {total_output:>8,} {overall_rate:>6.1f}%")
+    print(
+        f"{'TOTAL':<28} {'':<16} {total_input:>8,} {total_cached:>8,} {total_output:>8,} {overall_rate:>6.1f}%"
+    )
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, cast
 
 import pytest
+
 from qwen_code_sdk.errors import ValidationError
 from qwen_code_sdk.types import QueryOptions, TimeoutOptions
 from qwen_code_sdk.validation import validate_query_options

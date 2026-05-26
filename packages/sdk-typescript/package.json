@@ -29,8 +29,8 @@
     "lint:fix": "eslint src test --fix",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
-    "prepublishOnly": "npm run clean && npm run build && npm run bundle:cli",
-    "prepack": "npm run build && npm run bundle:cli"
+    "prepublishOnly": "pnpm run clean && pnpm run build && pnpm run bundle:cli",
+    "prepack": "pnpm run build && pnpm run bundle:cli"
   },
   "keywords": [
     "qwen",
@@ -50,15 +50,14 @@
     "zod": "^3.25.0"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "@typescript-eslint/eslint-plugin": "^7.13.0",
-    "@typescript-eslint/parser": "^7.13.0",
+    "@types/node": "^25.0.0",
     "@vitest/coverage-v8": "^1.6.0",
     "dts-bundle-generator": "^9.5.1",
-    "esbuild": "^0.25.12",
-    "eslint": "^8.57.0",
+    "esbuild": "^0.28.0",
+    "eslint": "^10.4.0",
+    "typescript-eslint": "^8.0.0",
     "typescript": "^5.4.5",
-    "vitest": "^1.6.0"
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "typescript": ">=5.0.0"
