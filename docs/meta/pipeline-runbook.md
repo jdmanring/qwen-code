@@ -11,7 +11,8 @@ This document is the operational reference for the Upstream Ingest Pipeline. It 
 | Sync upstream into integration | `python3 tooling/sync-upstreams/upstream_ingest_pipeline.py` |
 | Check gates without syncing | `python3 tooling/sync-upstreams/upstream_ingest_pipeline.py --dry-run` |
 | Run gate failure tests | `python3 tooling/sync-upstreams/gate_failure_tests.py` |
-| Submit a fix to upstream | `./tooling/sync-upstreams/contribute-upstream.sh <commit> <branch-name>` |
+| Sync fork from QwenLM (step 1) | `python3 tooling/sync-upstreams/fork_sync_pipeline.py --sync` |
+| Contribute a commit to fork (step 2) | `python3 tooling/sync-upstreams/fork_sync_pipeline.py --contribute <hash> <name>` |
 | Roll back integration | `git reset --hard <LKG-tag>` |
 
 ---
@@ -75,8 +76,9 @@ git checkout integration
 
 **"Missing required remotes"**
 ```bash
-git remote add upstream https://github.com/QwenLM/qwen-code.git
-git remote add origin <your-private-monorepo-url>
+# upstream = jdmanring/qwen-code (our fork of QwenLM) — NOT QwenLM directly
+git remote add upstream https://github.com/jdmanring/qwen-code.git
+git remote add origin https://github.com/jdmanring/megalonyx-monorepo.git
 ```
 
 **"Integration branch has uncommitted changes"**
@@ -220,6 +222,75 @@ git reset --hard LKG-20260523-0426
 ```
 
 After a rollback, the pipeline can be re-run to attempt a fresh sync from the current upstream state.
+
+---
+
+## Two-Step Upstream Sync Process
+
+Absorbing new QwenLM commits requires two scripts, run in order:
+
+**Step 1 — sync the fork from QwenLM:**
+```bash
+# Sync jdmanring/qwen-code fork to match QwenLM/qwen-code main
+python3 tooling/sync-upstreams/fork_sync_pipeline.py --sync
+```
+This prompts `y/N` for confirmation. It fetches QwenLM commits and fast-forward pushes them to `upstream` (our fork). Must be run before the ingest pipeline, because the pipeline fetches from the fork, not from QwenLM directly.
+
+**Step 2 — ingest from the fork into integration:**
+```bash
+git checkout integration
+python3 tooling/sync-upstreams/upstream_ingest_pipeline.py
+```
+
+This is the normal pipeline run. It fetches from `upstream/main` (the fork, now up to date), runs the three gates, and promotes to `integration`.
+
+**Step 3 — fast-forward develop:**
+```bash
+git checkout develop
+git merge integration --ff-only
+```
+
+---
+
+## Contributing to the Fork
+
+When monorepo commits should also land on the `jdmanring/qwen-code` fork (as prepared contributions):
+
+```bash
+python3 tooling/sync-upstreams/fork_sync_pipeline.py --contribute <commit-hash> <branch-name>
+```
+
+This cherry-picks the commit onto a clean branch from `upstream/main` and pushes it to the fork.
+
+**Policy: PRs to QwenLM/qwen-code are never opened.** Branches are prepared and pushed to the fork as a record only.
+
+### Cherry-pick conflict patterns
+
+Contribution branches are based on `upstream/main`, which has a different working tree than `develop`. Expect these conflicts:
+
+| File | Conflict type | Resolution |
+| :--- | :--- | :--- |
+| `pnpm-lock.yaml` | DU (deleted-by-us) | `git rm pnpm-lock.yaml` — it doesn't exist on upstream/main |
+| `package.json` (root) | UU | `git checkout --ours` (take QwenLM's), then manually re-apply version bumps |
+| Test files (`.test.ts`) | UU | `git checkout --theirs` (take our version) — diffs are typically auto-fix formatting |
+
+After resolving: `git add` the resolved files, then `git cherry-pick --continue`.
+
+The pre-commit hook conditionally skips `project_standards_linter.py` when `tooling/` is absent (contribution branches based on `upstream/main` don't have it). This is expected — the hook will print `skipped — tooling not present on this branch`.
+
+---
+
+## Known Infrastructure Issues
+
+### E2E Tests CI failure on the fork
+
+The `E2E Tests` workflow on `jdmanring/qwen-code` fails persistently with:
+
+```
+Missing API key for openai auth
+```
+
+**This is not a code issue.** Fork runners do not have the `OPENAI_API_KEY` secret. The same commits pass on QwenLM's runners. Not fixable without adding fork secrets. Clear the GitHub notification; do not investigate as a regression.
 
 ---
 
