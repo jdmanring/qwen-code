@@ -70,7 +70,7 @@ async function withCapturedReadStream<T>(
   const originalCreateReadStream = fs.createReadStream.bind(fs);
   const spy = vi
     .spyOn(fs, 'createReadStream')
-    .mockImplementation((...args: Parameters<typeof fs.createReadStream>) => {
+    .mockImplementation(function(...args: Parameters<typeof fs.createReadStream>) {
       const stream = originalCreateReadStream(...args);
       capturedStream = stream;
       return stream;

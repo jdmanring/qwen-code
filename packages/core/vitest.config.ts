@@ -16,6 +16,7 @@ export default defineConfig({
   test: {
     reporters: ['default', 'junit'],
     silent: true,
+    clearMocks: true,
     setupFiles: ['./test-setup.ts'],
     outputFile: {
       junit: 'junit.xml',
@@ -41,9 +42,11 @@ export default defineConfig({
         lines: 75,
       },
     },
-    server: {
-      deps: {
-        inline: [/@qwen-code\/qwen-code-core/],
+    deps: {
+      optimizer: {
+        ssr: {
+          include: [/@qwen-code\/qwen-code-core/],
+        },
       },
     },
   },

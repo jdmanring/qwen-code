@@ -444,7 +444,7 @@ describe('workspace memory routes', () => {
       // — every call site of the discovery walk uses it.
       const failGlobal = vi
         .spyOn(Storage, 'getGlobalQwenDir')
-        .mockImplementation(() => {
+        .mockImplementation(function() {
           throw new Error('boom');
         });
       try {

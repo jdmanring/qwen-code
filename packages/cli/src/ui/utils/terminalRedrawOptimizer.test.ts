@@ -62,7 +62,7 @@ describe('installTerminalRedrawOptimizer', () => {
   });
 
   it('optimizes string writes and restores the original writer', () => {
-    const write = vi.fn(() => true);
+    const write = vi.fn(function() { return true; });
     const stdout = { write } as unknown as NodeJS.WriteStream;
     const restore = installTerminalRedrawOptimizer(stdout);
     const input = `${ERASE_LINE}${CURSOR_UP_ONE}${ERASE_LINE}${CURSOR_UP_ONE}${ERASE_LINE}${CURSOR_LEFT}`;
@@ -80,7 +80,7 @@ describe('installTerminalRedrawOptimizer', () => {
   });
 
   it('passes non-string writes through unchanged', () => {
-    const write = vi.fn(() => true);
+    const write = vi.fn(function() { return true; });
     const stdout = { write } as unknown as NodeJS.WriteStream;
     installTerminalRedrawOptimizer(stdout);
     const input = Buffer.from('hello');
@@ -91,7 +91,7 @@ describe('installTerminalRedrawOptimizer', () => {
   });
 
   it('tracks write, byte, clear, and erase optimization counters', () => {
-    const write = vi.fn(() => true);
+    const write = vi.fn(function() { return true; });
     const stdout = { write } as unknown as NodeJS.WriteStream;
     installTerminalRedrawOptimizer(stdout);
 
@@ -116,7 +116,7 @@ describe('installTerminalRedrawOptimizer', () => {
 
   it('can be disabled for terminal compatibility fallback', () => {
     vi.stubEnv('QWEN_CODE_LEGACY_ERASE_LINES', '1');
-    const write = vi.fn(() => true);
+    const write = vi.fn(function() { return true; });
     const stdout = { write } as unknown as NodeJS.WriteStream;
     const restore = installTerminalRedrawOptimizer(stdout);
 

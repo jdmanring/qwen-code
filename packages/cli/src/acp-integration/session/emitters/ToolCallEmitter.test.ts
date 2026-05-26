@@ -132,7 +132,7 @@ describe('ToolCallEmitter', () => {
 
     it('should fall back gracefully when tool build fails', async () => {
       const mockTool = createMockTool();
-      vi.mocked(mockTool.build).mockImplementation(() => {
+      vi.mocked(mockTool.build).mockImplementation(function() {
         throw new Error('Build failed');
       });
       vi.mocked(mockToolRegistry.getTool).mockReturnValue(mockTool);

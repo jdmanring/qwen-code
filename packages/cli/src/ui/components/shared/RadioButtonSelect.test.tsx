@@ -19,7 +19,7 @@ import {
 } from './BaseSelectionList.js';
 
 vi.mock('./BaseSelectionList.js', () => ({
-  BaseSelectionList: vi.fn(() => null),
+  BaseSelectionList: vi.fn(function() { return null; }),
 }));
 
 vi.mock('../../semantic-colors.js', () => ({

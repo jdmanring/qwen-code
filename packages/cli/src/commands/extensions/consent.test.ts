@@ -17,7 +17,7 @@ import type {
 import prompts from 'prompts';
 
 vi.mock('../../i18n/index.js', () => ({
-  t: vi.fn((str: string, params?: Record<string, string>) => {
+  t: vi.fn(function(str: string, params?: Record<string, string>) {
     if (params) {
       return Object.entries(params).reduce(
         (acc, [key, value]) => acc.replace(`{{${key}}}`, value),

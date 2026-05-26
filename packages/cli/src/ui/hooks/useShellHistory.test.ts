@@ -11,13 +11,29 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import * as crypto from 'node:crypto';
 
-vi.mock('fs/promises', () => ({
-  readFile: vi.fn(),
-  writeFile: vi.fn(),
-  mkdir: vi.fn(),
-}));
-vi.mock('os');
-vi.mock('crypto');
+vi.mock('node:fs/promises', () => {
+  const readFile = vi.fn();
+  const writeFile = vi.fn();
+  const mkdir = vi.fn();
+  const mod = { readFile, writeFile, mkdir };
+  return { ...mod, default: mod };
+});
+vi.mock('node:os', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:os')>();
+  const homedir = vi.fn().mockReturnValue('/home/user');
+  const platform = vi.fn().mockReturnValue('linux');
+  const tmpdir = vi.fn().mockReturnValue('/tmp');
+  const mod = { ...actual, homedir, platform, tmpdir };
+  return { ...mod, default: mod };
+});
+vi.mock('node:crypto', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:crypto')>();
+  const randomUUID = vi.fn();
+  const randomBytes = vi.fn();
+  const createHash = vi.fn();
+  const mod = { ...actual, randomUUID, randomBytes, createHash };
+  return { ...mod, default: mod };
+});
 vi.mock('fs', async (importOriginal) => {
   const actualFs = await importOriginal<typeof import('fs')>();
   return {

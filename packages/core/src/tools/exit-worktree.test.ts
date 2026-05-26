@@ -25,8 +25,8 @@ function makeMockConfig(targetDir = process.cwd()): Config {
   // need a real isolated repo create their own temp dir and pass it
   // explicitly.
   return {
-    getTargetDir: vi.fn(() => targetDir),
-    getSessionId: vi.fn(() => 'mock-session-id'),
+    getTargetDir: vi.fn(function() { return targetDir; }),
+    getSessionId: vi.fn(function() { return 'mock-session-id'; }),
   } as unknown as Config;
 }
 

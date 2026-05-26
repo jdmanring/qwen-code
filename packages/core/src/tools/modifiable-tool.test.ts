@@ -68,11 +68,11 @@ describe('modifyWithEditor', () => {
       getProposedContent: vi.fn().mockResolvedValue(proposedContent),
       createUpdatedParams: vi
         .fn()
-        .mockImplementation((oldContent, modifiedContent, originalParams) => ({
+        .mockImplementation(function(oldContent, modifiedContent, originalParams) { return {
           ...originalParams,
           modifiedContent,
           oldContent,
-        })),
+        }; }),
     };
 
     mockOpenDiff.mockImplementation(async (_oldPath, newPath) => {
@@ -263,7 +263,7 @@ describe('modifyWithEditor', () => {
   });
 
   it('should handle temp file cleanup errors gracefully', async () => {
-    const unlinkSpy = vi.spyOn(fs, 'unlinkSync').mockImplementation(() => {
+    const unlinkSpy = vi.spyOn(fs, 'unlinkSync').mockImplementation(function() {
       throw new Error('Failed to delete file');
     });
 

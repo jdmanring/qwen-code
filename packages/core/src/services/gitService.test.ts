@@ -33,14 +33,14 @@ const hoistedMockRaw = vi.hoisted(() => vi.fn());
 const hoistedMockAdd = vi.hoisted(() => vi.fn());
 const hoistedMockCommit = vi.hoisted(() => vi.fn());
 vi.mock('simple-git', () => ({
-  simpleGit: hoistedMockSimpleGit.mockImplementation(() => ({
+  simpleGit: hoistedMockSimpleGit.mockImplementation(function() { return {
     checkIsRepo: hoistedMockCheckIsRepo,
     init: hoistedMockInit,
     raw: hoistedMockRaw,
     add: hoistedMockAdd,
     commit: hoistedMockCommit,
     env: hoistedMockEnv,
-  })),
+  }; }),
   CheckRepoActions: { IS_REPO_ROOT: 'is-repo-root' },
 }));
 
@@ -50,7 +50,7 @@ vi.mock('../utils/gitUtils.js', () => ({
 }));
 
 const hoistedMockHomedir = vi.hoisted(() => vi.fn());
-vi.mock('os', async (importOriginal) => {
+vi.mock('node:os', async (importOriginal) => {
   const actual = await importOriginal<typeof os>();
   return {
     ...actual,
@@ -80,21 +80,21 @@ describe('GitService', () => {
 
     hoistedMockHomedir.mockReturnValue(homedir);
 
-    hoistedMockEnv.mockImplementation(() => ({
+    hoistedMockEnv.mockImplementation(function() { return {
       checkIsRepo: hoistedMockCheckIsRepo,
       init: hoistedMockInit,
       raw: hoistedMockRaw,
       add: hoistedMockAdd,
       commit: hoistedMockCommit,
-    }));
-    hoistedMockSimpleGit.mockImplementation(() => ({
+    }; });
+    hoistedMockSimpleGit.mockImplementation(function() { return {
       checkIsRepo: hoistedMockCheckIsRepo,
       init: hoistedMockInit,
       raw: hoistedMockRaw,
       add: hoistedMockAdd,
       commit: hoistedMockCommit,
       env: hoistedMockEnv,
-    }));
+    }; });
     hoistedMockCheckIsRepo.mockResolvedValue(false);
     hoistedMockInit.mockResolvedValue(undefined);
     hoistedMockRaw.mockResolvedValue('');

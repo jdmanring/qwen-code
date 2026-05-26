@@ -53,7 +53,7 @@ const server = (name: string): MCPServerDisplayInfo => ({
 describe('ServerListStep', () => {
   beforeEach(() => {
     activeKeypressHandler = null;
-    vi.mocked(useKeypress).mockImplementation((handler, { isActive }) => {
+    vi.mocked(useKeypress).mockImplementation(function(handler, { isActive }) {
       if (isActive) {
         activeKeypressHandler = handler;
       }

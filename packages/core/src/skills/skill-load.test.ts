@@ -31,7 +31,7 @@ describe('skill-load', () => {
     vi.clearAllMocks();
 
     // Setup yaml parser mocks with sophisticated behavior
-    mockParseYaml.mockImplementation((yamlString: string) => {
+    mockParseYaml.mockImplementation(function(yamlString: string) {
       if (yamlString.includes('name: context7-docs')) {
         return {
           name: 'context7-docs',

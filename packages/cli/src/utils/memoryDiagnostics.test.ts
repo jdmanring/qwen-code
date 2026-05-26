@@ -469,7 +469,7 @@ describe('memoryDiagnostics', () => {
     );
     fs.rmSync(outputDir, { recursive: true, force: true });
     vi.resetModules();
-    const statfsSync = vi.fn(() => {
+    const statfsSync = vi.fn(function() {
       throw new Error('statfs unavailable');
     });
     vi.doMock('node:fs', async (importOriginal) => {
@@ -506,7 +506,7 @@ describe('memoryDiagnostics', () => {
     );
     fs.rmSync(outputDir, { recursive: true, force: true });
     vi.resetModules();
-    const getHeapStatistics = vi.fn(() => {
+    const getHeapStatistics = vi.fn(function() {
       throw new Error('heap statistics unavailable');
     });
     vi.doMock('node:v8', async (importOriginal) => {

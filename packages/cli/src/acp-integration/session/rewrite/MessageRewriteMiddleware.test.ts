@@ -20,9 +20,9 @@ vi.mock('@qwen-code/qwen-code-core', () => ({
 
 // Mock LlmRewriter to avoid real LLM calls
 vi.mock('./LlmRewriter.js', () => ({
-  LlmRewriter: vi.fn().mockImplementation(() => ({
+  LlmRewriter: vi.fn().mockImplementation(function() { return {
     rewrite: vi.fn().mockResolvedValue('rewritten text'),
-  })),
+  }; }),
 }));
 
 // Import after mocks are set up
@@ -214,8 +214,8 @@ describe('MessageRewriteMiddleware', () => {
           LlmRewriter as unknown as {
             mockImplementation: (fn: unknown) => void;
           }
-        ).mockImplementation(() => ({
-          rewrite: vi.fn((_content: unknown, signal: AbortSignal) => {
+        ).mockImplementation(function() { return {
+          rewrite: vi.fn(function(_content: unknown, signal: AbortSignal) {
             capturedSignals.push(signal);
             return new Promise((_resolve, reject) => {
               signal.addEventListener('abort', () =>
@@ -223,7 +223,7 @@ describe('MessageRewriteMiddleware', () => {
               );
             });
           }),
-        }));
+        }; });
 
         const mockSendUpdate = vi.fn().mockResolvedValue(undefined);
         const middleware = new MessageRewriteMiddleware(
@@ -265,8 +265,8 @@ describe('MessageRewriteMiddleware', () => {
           LlmRewriter as unknown as {
             mockImplementation: (fn: unknown) => void;
           }
-        ).mockImplementation(() => ({
-          rewrite: vi.fn((_content: unknown, signal: AbortSignal) => {
+        ).mockImplementation(function() { return {
+          rewrite: vi.fn(function(_content: unknown, signal: AbortSignal) {
             capturedSignals.push(signal);
             return new Promise((_resolve, reject) => {
               signal.addEventListener('abort', () =>
@@ -274,7 +274,7 @@ describe('MessageRewriteMiddleware', () => {
               );
             });
           }),
-        }));
+        }; });
 
         const mockSendUpdate = vi.fn().mockResolvedValue(undefined);
         const middleware = new MessageRewriteMiddleware(

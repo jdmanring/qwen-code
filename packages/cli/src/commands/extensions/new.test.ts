@@ -10,7 +10,16 @@ import yargs from 'yargs';
 import * as fsPromises from 'node:fs/promises';
 import path from 'node:path';
 
-vi.mock('node:fs/promises');
+vi.mock('node:fs/promises', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs/promises')>();
+  const readdir = vi.fn();
+  const access = vi.fn();
+  const mkdir = vi.fn();
+  const cp = vi.fn();
+  const writeFile = vi.fn();
+  const mod = { ...actual, readdir, access, mkdir, cp, writeFile };
+  return { ...mod, default: mod };
+});
 
 const mockedFs = vi.mocked(fsPromises);
 

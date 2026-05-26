@@ -38,7 +38,7 @@ describe('telemetry', () => {
       start: vi.fn(),
       shutdown: vi.fn().mockResolvedValue(undefined),
     } as unknown as NodeSDK;
-    vi.mocked(NodeSDK).mockImplementation(() => mockNodeSdk);
+    vi.mocked(NodeSDK).mockImplementation(function() { return mockNodeSdk; });
   });
 
   afterEach(async () => {

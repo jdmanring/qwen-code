@@ -47,9 +47,9 @@ describe('FileCommandLoader - Extension Commands Support', () => {
     });
 
     const mockConfig = {
-      getFolderTrustFeature: vi.fn(() => false),
-      getFolderTrust: vi.fn(() => true),
-      getProjectRoot: vi.fn(() => projectRoot),
+      getFolderTrustFeature: vi.fn(function() { return false; }),
+      getFolderTrust: vi.fn(function() { return true; }),
+      getProjectRoot: vi.fn(function() { return projectRoot; }),
       storage: new Storage(projectRoot),
       getExtensions: vi.fn(() => [
         {
@@ -106,9 +106,9 @@ describe('FileCommandLoader - Extension Commands Support', () => {
     });
 
     const mockConfig = {
-      getFolderTrustFeature: vi.fn(() => false),
-      getFolderTrust: vi.fn(() => true),
-      getProjectRoot: vi.fn(() => projectRoot),
+      getFolderTrustFeature: vi.fn(function() { return false; }),
+      getFolderTrust: vi.fn(function() { return true; }),
+      getProjectRoot: vi.fn(function() { return projectRoot; }),
       storage: new Storage(projectRoot),
       getExtensions: vi.fn(() => [
         {
@@ -157,9 +157,9 @@ describe('FileCommandLoader - Extension Commands Support', () => {
     });
 
     const mockConfig = {
-      getFolderTrustFeature: vi.fn(() => false),
-      getFolderTrust: vi.fn(() => true),
-      getProjectRoot: vi.fn(() => projectRoot),
+      getFolderTrustFeature: vi.fn(function() { return false; }),
+      getFolderTrust: vi.fn(function() { return true; }),
+      getProjectRoot: vi.fn(function() { return projectRoot; }),
       storage: new Storage(projectRoot),
       getExtensions: vi.fn(() => [
         {
@@ -205,9 +205,9 @@ describe('FileCommandLoader - Extension Commands Support', () => {
     });
 
     const mockConfig = {
-      getFolderTrustFeature: vi.fn(() => false),
-      getFolderTrust: vi.fn(() => true),
-      getProjectRoot: vi.fn(() => projectRoot),
+      getFolderTrustFeature: vi.fn(function() { return false; }),
+      getFolderTrust: vi.fn(function() { return true; }),
+      getProjectRoot: vi.fn(function() { return projectRoot; }),
       storage: new Storage(projectRoot),
       getExtensions: vi.fn(() => [
         {
@@ -254,9 +254,9 @@ describe('FileCommandLoader - Extension Commands Support', () => {
     });
 
     const mockConfig = {
-      getFolderTrustFeature: vi.fn(() => false),
-      getFolderTrust: vi.fn(() => true),
-      getProjectRoot: vi.fn(() => projectRoot),
+      getFolderTrustFeature: vi.fn(function() { return false; }),
+      getFolderTrust: vi.fn(function() { return true; }),
+      getProjectRoot: vi.fn(function() { return projectRoot; }),
       storage: new Storage(projectRoot),
       getExtensions: vi.fn(() => [
         {
@@ -308,9 +308,9 @@ describe('FileCommandLoader - Extension Commands Support', () => {
     });
 
     const mockConfig = {
-      getFolderTrustFeature: vi.fn(() => false),
-      getFolderTrust: vi.fn(() => true),
-      getProjectRoot: vi.fn(() => projectRoot),
+      getFolderTrustFeature: vi.fn(function() { return false; }),
+      getFolderTrust: vi.fn(function() { return true; }),
+      getProjectRoot: vi.fn(function() { return projectRoot; }),
       storage: new Storage(projectRoot),
       getExtensions: vi.fn(() => [
         {

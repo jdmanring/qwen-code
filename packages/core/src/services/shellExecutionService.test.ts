@@ -73,7 +73,7 @@ const mockGetShellConfiguration = vi.hoisted(() =>
 vi.mock('@lydell/node-pty', () => ({
   spawn: mockPtySpawn,
 }));
-vi.mock('child_process', () => ({
+vi.mock('node:child_process', () => ({
   spawn: mockCpSpawn,
 }));
 vi.mock('../utils/textUtils.js', () => ({
@@ -114,7 +114,7 @@ vi.mock('../utils/systemEncoding.js', () => ({
 
 const mockProcessKill = vi
   .spyOn(process, 'kill')
-  .mockImplementation(() => true);
+  .mockImplementation(function() { return true; });
 
 const shellExecutionConfig = {
   terminalWidth: 80,
@@ -525,7 +525,7 @@ describe('ShellExecutionService', () => {
     });
 
     it('should ignore ioctl EBADF message-only resize race errors', async () => {
-      mockPtyProcess.resize.mockImplementationOnce(() => {
+      mockPtyProcess.resize.mockImplementationOnce(function() {
         throw new Error('ioctl(2) failed, EBADF');
       });
 
@@ -539,7 +539,7 @@ describe('ShellExecutionService', () => {
     });
 
     it('should ignore exited-pty message-only resize race errors', async () => {
-      mockPtyProcess.resize.mockImplementationOnce(() => {
+      mockPtyProcess.resize.mockImplementationOnce(function() {
         throw new Error('Cannot resize a pty that has already exited');
       });
 
@@ -585,9 +585,9 @@ describe('ShellExecutionService', () => {
     });
 
     it('should handle a synchronous spawn error', async () => {
-      mockGetPty.mockImplementation(() => null);
+      mockGetPty.mockImplementation(function() { return null; });
 
-      mockCpSpawn.mockImplementation(() => {
+      mockCpSpawn.mockImplementation(function() {
         throw new Error('Simulated PTY spawn error');
       });
 
@@ -1034,7 +1034,7 @@ describe('ShellExecutionService', () => {
       // exit listener, miss the real exit status, and report
       // `promoted: true` for a dead PTY. Production guard:
       // process.kill(pid, 0); if it throws ESRCH, fall through.
-      mockProcessKill.mockImplementationOnce((pid, signal) => {
+      mockProcessKill.mockImplementationOnce(function(pid, signal) {
         // Only fail the very first liveness probe with signal 0 — let
         // any subsequent kill calls (e.g. cleanup() at process exit)
         // succeed so the test teardown stays clean.
@@ -1159,7 +1159,7 @@ describe('ShellExecutionService', () => {
     });
 
     it('should not emit data events after binary is detected', async () => {
-      mockIsBinary.mockImplementation((buffer) => buffer.includes(0x00));
+      mockIsBinary.mockImplementation(function(buffer) { return buffer.includes(0x00); });
 
       await simulateExecution('cat mixed_file', (pty) => {
         pty.onData.mock.calls[0][0](Buffer.from([0x00, 0x01, 0x02]));
@@ -1311,11 +1311,11 @@ describe('ShellExecutionService', () => {
       let rawRenderCount = 0;
 
       mockSerializeTerminalToObject.mockImplementation(
-        (
+        function(
           _terminal,
           _scrollOffset,
           options?: { unwrapWrappedLines?: boolean },
-        ) => {
+        ) {
           if (options?.unwrapWrappedLines) {
             return logicalOutput;
           }
@@ -2157,7 +2157,7 @@ describe('ShellExecutionService child_process fallback', () => {
     });
 
     it('should not emit data events after binary is detected', async () => {
-      mockIsBinary.mockImplementation((buffer) => buffer.includes(0x00));
+      mockIsBinary.mockImplementation(function(buffer) { return buffer.includes(0x00); });
 
       await simulateExecution('cat mixed_file', (cp) => {
         cp.stdout?.emit('data', Buffer.from('some text'));

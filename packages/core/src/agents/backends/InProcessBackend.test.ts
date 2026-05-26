@@ -27,7 +27,7 @@ vi.mock('../../core/contentGenerator.js', () => ({
 // liveOutputs, shellPids, pushMessage, etc.) — otherwise agent lifecycle
 // methods like abort() / addMessage() fail on missing prototype methods.
 vi.mock('../runtime/agent-core.js', () => ({
-  AgentCore: vi.fn().mockImplementation(() => {
+  AgentCore: vi.fn().mockImplementation(function() {
     const messages: Array<Record<string, unknown>> = [];
     const pendingApprovals = new Map<string, unknown>();
     const liveOutputs = new Map<string, unknown>();
@@ -331,7 +331,7 @@ describe('InProcessBackend', () => {
     };
     config.createToolRegistry = vi
       .fn()
-      .mockImplementation(() => Promise.resolve(createMockToolRegistry()));
+      .mockImplementation(function() { return Promise.resolve(createMockToolRegistry()); });
     const localBackend = new InProcessBackend(config as never);
     await localBackend.init();
     await localBackend.spawnAgent(createSpawnConfig('agent-1'));
@@ -493,7 +493,7 @@ describe('InProcessBackend', () => {
   it('should fire exit callback with code 1 when start() throws', async () => {
     // Make createChat throw for this test
     const MockAgentCore = AgentCore as unknown as ReturnType<typeof vi.fn>;
-    MockAgentCore.mockImplementationOnce(() => ({
+    MockAgentCore.mockImplementationOnce(function() { return {
       subagentId: 'mock-id',
       name: 'mock-agent',
       eventEmitter: {
@@ -513,7 +513,7 @@ describe('InProcessBackend', () => {
         emit: vi.fn(),
       }),
       getExecutionSummary: vi.fn().mockReturnValue({}),
-    }));
+    }; });
 
     await backend.init();
 

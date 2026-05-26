@@ -10,7 +10,7 @@ import { HooksDisabledStep } from './HooksDisabledStep.js';
 
 // Mock i18n module
 vi.mock('../../../i18n/index.js', () => ({
-  t: vi.fn((key: string, options?: { count?: string }) => {
+  t: vi.fn(function(key: string, options?: { count?: string }) {
     // Handle pluralization
     if (key === '{{count}} configured hook' && options?.count) {
       return `${options.count} configured hook`;

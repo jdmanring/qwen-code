@@ -37,6 +37,8 @@ export default defineConfig({
     outputFile: {
       junit: 'junit.xml',
     },
+    clearMocks: true,
+    resetMocks: true,
     setupFiles: ['./test-setup.ts'],
     coverage: {
       enabled: true,
@@ -59,9 +61,11 @@ export default defineConfig({
         lines: 73,
       },
     },
-    server: {
-      deps: {
-        inline: [/@qwen-code\/qwen-code-core/, /@qwen-code\/acp-bridge/],
+    deps: {
+      optimizer: {
+        ssr: {
+          include: [/@qwen-code\/qwen-code-core/, /@qwen-code\/acp-bridge/],
+        },
       },
     },
   },

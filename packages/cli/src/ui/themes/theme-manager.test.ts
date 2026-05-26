@@ -21,17 +21,26 @@ import * as os from 'node:os';
 import type * as osActual from 'node:os';
 import * as detectModule from './detect-terminal-theme.js';
 
-vi.mock('node:fs');
+vi.mock('node:fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs')>();
+  const realpathSync = vi.fn();
+  const existsSync = vi.fn();
+  const readFileSync = vi.fn();
+  const mkdirSync = vi.fn();
+  const writeFileSync = vi.fn();
+  const mod = { ...actual, realpathSync, existsSync, readFileSync, mkdirSync, writeFileSync };
+  return { ...mod, default: mod };
+});
 vi.mock('node:os', async (importOriginal) => {
   const actualOs = await importOriginal<typeof osActual>();
   return {
     ...actualOs,
     homedir: vi.fn(),
-    platform: vi.fn(() => 'linux'),
+    platform: vi.fn(function() { return 'linux'; }),
   };
 });
 vi.mock('./detect-terminal-theme.js', () => ({
-  detectTerminalTheme: vi.fn(() => 'dark'),
+  detectTerminalTheme: vi.fn(function() { return 'dark'; }),
   detectTerminalThemeAsync: vi.fn(async () => 'dark'),
 }));
 
@@ -194,12 +203,12 @@ describe('ThemeManager', () => {
 
     beforeEach(() => {
       vi.mocked(os.homedir).mockReturnValue('/home/user');
-      vi.spyOn(fs, 'realpathSync').mockImplementation((p) => p as string);
+      vi.mocked(fs.realpathSync).mockImplementation(function(p) { return p as string; });
     });
 
     it('should load a theme from a valid file path', () => {
-      vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-      vi.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(mockTheme));
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(mockTheme));
 
       const result = themeManager.setActiveTheme('/home/user/my-theme.json');
 
@@ -213,7 +222,7 @@ describe('ThemeManager', () => {
     });
 
     it('should not load a theme if the file does not exist', () => {
-      vi.spyOn(fs, 'existsSync').mockReturnValue(false);
+      vi.mocked(fs.existsSync).mockReturnValue(false);
 
       const result = themeManager.setActiveTheme(mockThemePath);
 
@@ -222,8 +231,8 @@ describe('ThemeManager', () => {
     });
 
     it('should not load a theme from a file with invalid JSON', () => {
-      vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-      vi.spyOn(fs, 'readFileSync').mockReturnValue('invalid json');
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readFileSync).mockReturnValue('invalid json');
 
       const result = themeManager.setActiveTheme(mockThemePath);
 
@@ -232,8 +241,8 @@ describe('ThemeManager', () => {
     });
 
     it('should not load a theme from an untrusted file path', () => {
-      vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-      vi.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(mockTheme));
+      vi.mocked(fs.existsSync).mockReturnValue(true);
+      vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(mockTheme));
 
       const result = themeManager.setActiveTheme('/untrusted/my-theme.json');
 

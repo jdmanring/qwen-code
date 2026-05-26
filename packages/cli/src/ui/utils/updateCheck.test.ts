@@ -135,7 +135,7 @@ describe('checkForUpdates', () => {
         version: '1.2.3-nightly.1',
       });
 
-      const fetchInfoMock = vi.fn().mockImplementation(({ distTag }) => {
+      const fetchInfoMock = vi.fn().mockImplementation(function({ distTag }) {
         if (distTag === 'nightly') {
           return Promise.resolve({
             latest: '1.2.3-nightly.2',
@@ -151,9 +151,9 @@ describe('checkForUpdates', () => {
         return Promise.resolve(null);
       });
 
-      updateNotifier.mockImplementation(({ pkg, distTag }) => ({
+      updateNotifier.mockImplementation(function({ pkg, distTag }) { return {
         fetchInfo: () => fetchInfoMock({ pkg, distTag }),
-      }));
+      }; });
 
       const result = await checkForUpdates();
       expect(result?.message).toContain('1.2.3-nightly.1 → 1.2.3-nightly.2');

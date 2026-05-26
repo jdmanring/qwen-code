@@ -150,7 +150,7 @@ describe('approvalModeCommand', () => {
     it('should return error when setApprovalMode throws (e.g., untrusted folder)', async () => {
       const errorMessage =
         'Cannot enable privileged approval modes in an untrusted folder.';
-      mockSetApprovalMode.mockImplementation(() => {
+      mockSetApprovalMode.mockImplementation(function() {
         throw new Error(errorMessage);
       });
 

@@ -18,9 +18,9 @@ const mockShellExecutionService = vi.hoisted(() => vi.fn());
 vi.mock('../services/shellExecutionService.js', () => ({
   ShellExecutionService: { execute: mockShellExecutionService },
 }));
-vi.mock('fs');
-vi.mock('os');
-vi.mock('crypto');
+vi.mock('node:fs');
+vi.mock('node:os');
+vi.mock('node:crypto');
 
 import { isCommandAllowed } from '../utils/shell-utils.js';
 import { ShellTool, type ShellToolInvocation } from './shell.js';
@@ -117,7 +117,7 @@ describe('ShellTool', () => {
     shellTool = new ShellTool(mockConfig);
 
     // Capture the output callback to simulate streaming events from the service
-    mockShellExecutionService.mockImplementation((_cmd, _cwd, callback) => {
+    mockShellExecutionService.mockImplementation(function(_cmd, _cwd, callback) {
       mockShellOutputCallback = callback;
       return {
         pid: 12345,
@@ -1092,7 +1092,7 @@ describe('ShellTool', () => {
         // verify here is that the abort listener is torn down — which we
         // observe indirectly via "no late update on subsequent abort".)
         const ac = new AbortController();
-        mockShellExecutionService.mockImplementationOnce(() => {
+        mockShellExecutionService.mockImplementationOnce(function() {
           throw new Error('pty-import-failed');
         });
 
@@ -3642,7 +3642,7 @@ describe('ShellTool', () => {
         vi.useFakeTimers();
         const processKillSpy = vi
           .spyOn(process, 'kill')
-          .mockImplementation(() => true);
+          .mockImplementation(function() { return true; });
         try {
           const writeFileSyncSpy = vi.mocked(fs.writeFileSync);
           writeFileSyncSpy.mockReturnValue(undefined);
@@ -3722,7 +3722,7 @@ describe('ShellTool', () => {
 
       it('survives a snapshot write failure — registry entry still registered', async () => {
         const writeFileSyncSpy = vi.mocked(fs.writeFileSync);
-        writeFileSyncSpy.mockImplementation(() => {
+        writeFileSyncSpy.mockImplementation(function() {
           throw new Error('ENOSPC: no space left on device');
         });
         const registry = mockConfig.getBackgroundShellRegistry();
@@ -3801,10 +3801,10 @@ describe('ShellTool', () => {
         // is re-raised AND the child gets SIGTERM right away.
         const processKillSpy = vi
           .spyOn(process, 'kill')
-          .mockImplementation(() => true);
+          .mockImplementation(function() { return true; });
         const mkdirSyncSpy = vi.mocked(fs.mkdirSync);
         try {
-          mkdirSyncSpy.mockImplementation(() => {
+          mkdirSyncSpy.mockImplementation(function() {
             throw new Error('EROFS: read-only file system');
           });
           const invocation = shellTool.build({
@@ -3891,12 +3891,12 @@ describe('ShellTool', () => {
         vi.useFakeTimers();
         const processKillSpy = vi
           .spyOn(process, 'kill')
-          .mockImplementation(() => true);
+          .mockImplementation(function() { return true; });
         try {
           const writeFileSyncSpy = vi.mocked(fs.writeFileSync);
           writeFileSyncSpy.mockReturnValue(undefined);
           const registry = mockConfig.getBackgroundShellRegistry();
-          (registry.register as Mock).mockImplementation(() => {
+          (registry.register as Mock).mockImplementation(function() {
             throw new Error('boom: registry borked');
           });
           const invocation = shellTool.build({
@@ -3944,7 +3944,7 @@ describe('ShellTool', () => {
           // Default impl: immediately invoke the handler so the test
           // doesn't hang waiting for an event the mocked stream
           // never emits naturally.
-          once: vi.fn((event: string, handler: () => void) => {
+          once: vi.fn(function(event: string, handler: () => void) {
             if (event === 'finish') handler();
           }),
         };
@@ -3996,7 +3996,7 @@ describe('ShellTool', () => {
           // Default impl: immediately invoke the handler so the test
           // doesn't hang waiting for an event the mocked stream
           // never emits naturally.
-          once: vi.fn((event: string, handler: () => void) => {
+          once: vi.fn(function(event: string, handler: () => void) {
             if (event === 'finish') handler();
           }),
         };
@@ -4124,7 +4124,7 @@ describe('ShellTool', () => {
           write: vi.fn(),
           end: vi.fn(),
           on: vi.fn(),
-          once: vi.fn((event: string, handler: () => void) => {
+          once: vi.fn(function(event: string, handler: () => void) {
             if (event === 'finish') handler();
           }),
         };
@@ -4147,7 +4147,7 @@ describe('ShellTool', () => {
             }
           | undefined;
         mockShellExecutionService.mockImplementationOnce(
-          (...args: unknown[]) => {
+          function(...args: unknown[]) {
             const opts = args[6] as {
               postPromote?: typeof capturedPostPromote;
             };
@@ -4204,7 +4204,7 @@ describe('ShellTool', () => {
           write: vi.fn(),
           end: vi.fn(),
           on: vi.fn(),
-          once: vi.fn((event: string, handler: () => void) => {
+          once: vi.fn(function(event: string, handler: () => void) {
             if (event === 'finish') handler();
           }),
         };
@@ -4224,7 +4224,7 @@ describe('ShellTool', () => {
             }
           | undefined;
         mockShellExecutionService.mockImplementationOnce(
-          (...args: unknown[]) => {
+          function(...args: unknown[]) {
             const opts = args[6] as {
               postPromote?: typeof capturedPostPromote;
             };
@@ -4293,7 +4293,7 @@ describe('ShellTool', () => {
           write: vi.fn(),
           end: vi.fn(),
           on: vi.fn(),
-          once: vi.fn((event: string, handler: () => void) => {
+          once: vi.fn(function(event: string, handler: () => void) {
             if (event === 'finish') capturedFinishHandler = handler;
           }),
         };
@@ -4313,7 +4313,7 @@ describe('ShellTool', () => {
             }
           | undefined;
         mockShellExecutionService.mockImplementationOnce(
-          (...args: unknown[]) => {
+          function(...args: unknown[]) {
             const opts = args[6] as {
               postPromote?: typeof capturedPostPromote;
             };
@@ -4386,10 +4386,10 @@ describe('ShellTool', () => {
         const writeStreamMock = {
           write: vi.fn(),
           end: vi.fn(),
-          on: vi.fn((event: string, handler: (err: Error) => void) => {
+          on: vi.fn(function(event: string, handler: (err: Error) => void) {
             if (event === 'error') errorListeners.push(handler);
           }),
-          once: vi.fn((event: string, handler: () => void) => {
+          once: vi.fn(function(event: string, handler: () => void) {
             // Production code attaches finish/error AFTER stream is
             // pulled into a local var; in the failure path it
             // shouldn't reach here at all because `stream` is null.
@@ -4459,7 +4459,7 @@ describe('ShellTool', () => {
         const writeStreamMock = {
           write: vi.fn(),
           end: vi.fn(),
-          on: vi.fn((event: string, handler: (err: Error) => void) => {
+          on: vi.fn(function(event: string, handler: (err: Error) => void) {
             if (event === 'error') errorListeners.push(handler);
           }),
           once: vi.fn(),
@@ -4593,7 +4593,7 @@ describe('ShellTool', () => {
             }
           | undefined;
         mockShellExecutionService.mockImplementationOnce(
-          (...args: unknown[]) => {
+          function(...args: unknown[]) {
             const opts = args[6] as {
               postPromote?: typeof capturedPostPromote;
             };
@@ -4683,7 +4683,7 @@ describe('ShellTool', () => {
         // (a) writeFileSync snapshot fallback runs, (b) the path
         // does not crash, (c) a post-buffer-drain settle still
         // transitions the registry.
-        vi.mocked(fs.createWriteStream).mockImplementationOnce(() => {
+        vi.mocked(fs.createWriteStream).mockImplementationOnce(function() {
           throw Object.assign(new Error('ENOENT no tmpdir'), {
             code: 'ENOENT',
           });
@@ -4692,7 +4692,7 @@ describe('ShellTool', () => {
         // implementation since the default mock would be no-op.
         const writeFileSyncSpy = vi
           .mocked(fs.writeFileSync)
-          .mockImplementationOnce(() => undefined);
+          .mockImplementationOnce(function() { return undefined; });
 
         const registry = mockConfig.getBackgroundShellRegistry();
         let capturedPostPromote:
@@ -4707,7 +4707,7 @@ describe('ShellTool', () => {
             }
           | undefined;
         mockShellExecutionService.mockImplementationOnce(
-          (...args: unknown[]) => {
+          function(...args: unknown[]) {
             const opts = args[6] as {
               postPromote?: typeof capturedPostPromote;
             };
@@ -4779,7 +4779,7 @@ describe('ShellTool', () => {
           write: vi.fn(),
           end: vi.fn(),
           on: vi.fn(),
-          once: vi.fn((event: string, handler: () => void) => {
+          once: vi.fn(function(event: string, handler: () => void) {
             if (event === 'finish') handler();
           }),
         };
@@ -4799,7 +4799,7 @@ describe('ShellTool', () => {
             }
           | undefined;
         mockShellExecutionService.mockImplementationOnce(
-          (...args: unknown[]) => {
+          function(...args: unknown[]) {
             const opts = args[6] as {
               postPromote?: typeof capturedPostPromote;
             };

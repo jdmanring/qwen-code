@@ -13,12 +13,12 @@ const { mockWarn } = vi.hoisted(() => ({
 
 vi.mock('node:child_process');
 vi.mock('./debugLogger.js', () => ({
-  createDebugLogger: vi.fn(() => ({
+  createDebugLogger: vi.fn(function() { return {
     debug: vi.fn(),
     info: vi.fn(),
     warn: mockWarn,
     error: vi.fn(),
-  })),
+  }; }),
 }));
 
 import { getRecentGitStatus } from './gitUtils.js';
@@ -30,7 +30,7 @@ describe('getRecentGitStatus', () => {
   });
 
   it('returns null and logs a warning when a git command fails', async () => {
-    vi.spyOn(childProcess, 'execSync').mockImplementation(() => {
+    vi.spyOn(childProcess, 'execSync').mockImplementation(function() {
       throw new Error('git missing from PATH');
     });
 

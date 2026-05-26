@@ -65,7 +65,7 @@ describe('useAutoAcceptIndicator', () => {
 
     (
       Config as unknown as MockedFunction<() => MockConfigInstanceShape>
-    ).mockImplementation(() => {
+    ).mockImplementation(function() {
       const instanceGetApprovalModeMock = vi.fn();
       const instanceSetApprovalModeMock = vi.fn();
 
@@ -105,7 +105,7 @@ describe('useAutoAcceptIndicator', () => {
           () => { discoverTools: Mock<() => void> }
         >,
       };
-      instanceSetApprovalModeMock.mockImplementation((value: ApprovalMode) => {
+      instanceSetApprovalModeMock.mockImplementation(function(value: ApprovalMode) {
         instanceGetApprovalModeMock.mockReturnValue(value);
       });
       return instance;
@@ -113,7 +113,7 @@ describe('useAutoAcceptIndicator', () => {
 
     mockedUseKeypress = useKeypress as MockedFunction<typeof useKeypress>;
     mockedUseKeypress.mockImplementation(
-      (handler: UseKeypressHandler, _options) => {
+      function(handler: UseKeypressHandler, _options) {
         capturedUseKeypressHandler = handler;
       },
     );
@@ -334,7 +334,7 @@ describe('useAutoAcceptIndicator', () => {
       const errorMessage =
         'Cannot enable privileged approval modes in an untrusted folder.';
       mockConfigInstance.getApprovalMode.mockReturnValue(ApprovalMode.DEFAULT);
-      mockConfigInstance.setApprovalMode.mockImplementation(() => {
+      mockConfigInstance.setApprovalMode.mockImplementation(function() {
         throw new Error(errorMessage);
       });
 
@@ -368,7 +368,7 @@ describe('useAutoAcceptIndicator', () => {
       mockConfigInstance.getApprovalMode.mockReturnValue(
         ApprovalMode.AUTO_EDIT,
       );
-      mockConfigInstance.setApprovalMode.mockImplementation(() => {
+      mockConfigInstance.setApprovalMode.mockImplementation(function() {
         throw new Error(errorMessage);
       });
 
@@ -501,7 +501,7 @@ describe('useAutoAcceptIndicator', () => {
     });
 
     mockConfigInstance.getApprovalMode.mockReturnValue(ApprovalMode.DEFAULT);
-    const mockShouldBlockTab = vi.fn(() => true);
+    const mockShouldBlockTab = vi.fn(function() { return true; });
 
     renderHook(() =>
       useAutoAcceptIndicator({
@@ -538,7 +538,7 @@ describe('useAutoAcceptIndicator', () => {
     });
 
     mockConfigInstance.getApprovalMode.mockReturnValue(ApprovalMode.DEFAULT);
-    const mockShouldBlockTab = vi.fn(() => false);
+    const mockShouldBlockTab = vi.fn(function() { return false; });
 
     renderHook(() =>
       useAutoAcceptIndicator({

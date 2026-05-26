@@ -29,7 +29,7 @@ vi.mock('../utils/errors.js', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../utils/errors.js')>();
   return {
     ...actual,
-    getErrorMessage: vi.fn((e) => (e instanceof Error ? e.message : String(e))),
+    getErrorMessage: vi.fn(function(e) { return (e instanceof Error ? e.message : String(e)); }),
   };
 });
 
@@ -39,7 +39,7 @@ vi.mock('../utils/generateContentResponseUtilities.js', () => ({
 
 vi.mock('../utils/retry.js', () => ({
   retryWithBackoff: vi.fn(async (fn) => await fn()),
-  isUnattendedMode: vi.fn(() => false),
+  isUnattendedMode: vi.fn(function() { return false; }),
 }));
 
 const mockCreateContentGenerator = vi.fn();
@@ -138,8 +138,7 @@ describe('BaseLlmClient', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Reset the mocked implementation for getErrorMessage for accurate error message assertions
-    vi.mocked(getErrorMessage).mockImplementation((e) =>
-      e instanceof Error ? e.message : String(e),
+    vi.mocked(getErrorMessage).mockImplementation(function(e) { return e instanceof Error ? e.message : String(e); },
     );
     client = new BaseLlmClient(mockContentGenerator, mockConfig);
     abortController = new AbortController();
@@ -405,7 +404,7 @@ describe('BaseLlmClient', () => {
       const abortError = new DOMException('Aborted', 'AbortError');
 
       // Simulate abortion happening during the API call
-      mockGenerateContent.mockImplementation(() => {
+      mockGenerateContent.mockImplementation(function() {
         abortController.abort(); // Ensure the signal is aborted when the service checks
         throw abortError;
       });
@@ -609,7 +608,7 @@ describe('BaseLlmClient', () => {
 
     it('builds a per-model generator when model differs and is registered under another authType', async () => {
       // Main authType is QWEN_OAUTH; fast model only resolves under USE_ANTHROPIC.
-      getResolvedModel.mockImplementation((authType: string, model: string) => {
+      getResolvedModel.mockImplementation(function(authType: string, model: string) {
         if (authType === AuthType.QWEN_OAUTH) return undefined;
         if (authType === AuthType.USE_ANTHROPIC && model === fastModel) {
           return {
@@ -759,7 +758,7 @@ describe('BaseLlmClient', () => {
     });
 
     it('generateJson accepts authType-qualified selectors and sends the bare model id', async () => {
-      getResolvedModel.mockImplementation((authType: string, model: string) => {
+      getResolvedModel.mockImplementation(function(authType: string, model: string) {
         if (authType === AuthType.USE_OPENAI && model === 'shared-model') {
           return {
             id: 'shared-model',
@@ -803,7 +802,7 @@ describe('BaseLlmClient', () => {
 
     it('generateJson resolves fast selectors through the configured fast model', async () => {
       crossProviderConfig.getFastModel.mockReturnValue('openai:shared-model');
-      getResolvedModel.mockImplementation((authType: string, model: string) => {
+      getResolvedModel.mockImplementation(function(authType: string, model: string) {
         if (authType === AuthType.USE_OPENAI && model === 'shared-model') {
           return {
             id: 'shared-model',

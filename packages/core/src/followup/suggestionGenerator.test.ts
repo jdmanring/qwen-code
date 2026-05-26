@@ -69,8 +69,8 @@ describe('generatePromptSuggestion', () => {
       usage: { inputTokens: 10, outputTokens: 3, cacheHitTokens: 5 },
     });
     const config = {
-      getFastModel: vi.fn(() => undefined),
-      getModel: vi.fn(() => 'main-model'),
+      getFastModel: vi.fn(function() { return undefined; }),
+      getModel: vi.fn(function() { return 'main-model'; }),
     } as unknown as Config;
 
     await generatePromptSuggestion(
@@ -98,8 +98,8 @@ describe('generatePromptSuggestion', () => {
       usage: { inputTokens: 10, outputTokens: 3, cacheHitTokens: 5 },
     });
     const config = {
-      getFastModel: vi.fn(() => 'openai:fast-model'),
-      getModel: vi.fn(() => 'main-model'),
+      getFastModel: vi.fn(function() { return 'openai:fast-model'; }),
+      getModel: vi.fn(function() { return 'main-model'; }),
     } as unknown as Config;
 
     await generatePromptSuggestion(

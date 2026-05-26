@@ -50,23 +50,23 @@ const { mockConnectionState } = vi.hoisted(() => {
 });
 
 vi.mock('@agentclientprotocol/sdk', () => ({
-  AgentSideConnection: vi.fn().mockImplementation(() => ({
+  AgentSideConnection: vi.fn().mockImplementation(function() { return {
     get closed() {
       return mockConnectionState.promise;
     },
-  })),
+  }; }),
   ndJsonStream: vi.fn().mockReturnValue({}),
   RequestError: class RequestError extends Error {
     static authRequired = vi
       .fn()
-      .mockImplementation((data: unknown, msg: string) => {
+      .mockImplementation(function(data: unknown, msg: string) {
         const err = new Error(msg);
         Object.assign(err, data);
         return err;
       });
     static invalidParams = vi
       .fn()
-      .mockImplementation((data: unknown, msg: string) => {
+      .mockImplementation(function(data: unknown, msg: string) {
         const err = new Error(msg);
         Object.assign(err, data);
         return err;
@@ -104,9 +104,9 @@ vi.mock('@qwen-code/qwen-code-core', () => ({
   clearCachedCredentialFile: vi.fn(),
   QwenOAuth2Event: {},
   qwenOAuth2Events: { on: vi.fn(), off: vi.fn() },
-  MCPServerConfig: vi.fn().mockImplementation((...args: unknown[]) => ({
+  MCPServerConfig: vi.fn().mockImplementation(function(...args: unknown[]) { return {
     _args: args,
-  })),
+  }; }),
   SessionService: vi.fn(),
   SESSION_TITLE_MAX_LENGTH: 200,
   tokenLimit: vi.fn(),
@@ -193,8 +193,7 @@ describe('QwenAgent loadSession — Phase C worktree context restore', () => {
       getWorktreeSessionPath: vi.fn().mockReturnValue(SIDECAR_PATH),
     };
     vi.mocked(SessionService).mockImplementation(
-      () =>
-        mockSessionService as unknown as InstanceType<typeof SessionService>,
+      function() { return mockSessionService as unknown as InstanceType<typeof SessionService>; },
     );
 
     return {
@@ -239,7 +238,7 @@ describe('QwenAgent loadSession — Phase C worktree context restore', () => {
     capturedAgentFactory = undefined;
     lastSessionMock = undefined;
 
-    vi.mocked(AgentSideConnection).mockImplementation((factory: unknown) => {
+    vi.mocked(AgentSideConnection).mockImplementation(function(factory: unknown) {
       capturedAgentFactory = factory as typeof capturedAgentFactory;
       return {
         get closed() {
@@ -266,10 +265,10 @@ describe('QwenAgent loadSession — Phase C worktree context restore', () => {
       .mockImplementation((() => undefined) as unknown as typeof process.exit);
     stdinDestroySpy = vi
       .spyOn(process.stdin, 'destroy')
-      .mockImplementation(() => process.stdin);
+      .mockImplementation(function() { return process.stdin; });
     stdoutDestroySpy = vi
       .spyOn(process.stdout, 'destroy')
-      .mockImplementation(() => process.stdout);
+      .mockImplementation(function() { return process.stdout; });
   });
 
   afterEach(() => {
@@ -291,7 +290,7 @@ describe('QwenAgent loadSession — Phase C worktree context restore', () => {
       innerConfig as unknown as Config,
     );
 
-    vi.mocked(Session).mockImplementation(() => {
+    vi.mocked(Session).mockImplementation(function() {
       const mock = {
         getId: vi.fn().mockReturnValue(SESSION_ID),
         getConfig: vi.fn().mockReturnValue(innerConfig),

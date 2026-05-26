@@ -32,7 +32,7 @@ vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
   return {
     ...actual,
     IdeClient: { getInstance: () => mockGetInstance() },
-    IdeConnectionEvent: vi.fn().mockImplementation((type) => ({ type })),
+    IdeConnectionEvent: vi.fn().mockImplementation(function(type) { return { type }; }),
     IdeConnectionType: { START: 'start' },
     logIdeConnection: (...args: unknown[]) => mockLogIdeConnection(...args),
   };

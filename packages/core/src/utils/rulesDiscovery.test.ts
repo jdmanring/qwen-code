@@ -15,7 +15,7 @@ import {
 } from './rulesDiscovery.js';
 import { QWEN_DIR, unescapePath } from './paths.js';
 
-vi.mock('os', async (importOriginal) => {
+vi.mock('node:os', async (importOriginal) => {
   const actualOs = await importOriginal<typeof os>();
   return {
     ...actualOs,

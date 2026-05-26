@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockSetGlobalDispatcher = vi.hoisted(() => vi.fn());
 const mockProxyAgent = vi.hoisted(() =>
-  vi.fn((url: string) => ({ proxyUrl: url })),
+  vi.fn(function(url: string) { return { proxyUrl: url }; }),
 );
 const mockLoadSettings = vi.hoisted(() => vi.fn());
 const mockGetExtensionManager = vi.hoisted(() => vi.fn());
@@ -24,11 +24,11 @@ const mockBridgeStart = vi.hoisted(() => vi.fn());
 const mockBridgeStop = vi.hoisted(() => vi.fn());
 const mockBridgeOn = vi.hoisted(() => vi.fn());
 const mockAcpBridge = vi.hoisted(() =>
-  vi.fn(() => ({
+  vi.fn(function() { return {
     on: mockBridgeOn,
     start: mockBridgeStart,
     stop: mockBridgeStop,
-  })),
+  }; }),
 );
 const mockRouterClearAll = vi.hoisted(() => vi.fn());
 const mockRouterGetTarget = vi.hoisted(() => vi.fn());
@@ -36,13 +36,13 @@ const mockRouterRestoreSessions = vi.hoisted(() => vi.fn());
 const mockRouterSetBridge = vi.hoisted(() => vi.fn());
 const mockRouterSetChannelScope = vi.hoisted(() => vi.fn());
 const mockSessionRouter = vi.hoisted(() =>
-  vi.fn(() => ({
+  vi.fn(function() { return {
     clearAll: mockRouterClearAll,
     getTarget: mockRouterGetTarget,
     restoreSessions: mockRouterRestoreSessions,
     setBridge: mockRouterSetBridge,
     setChannelScope: mockRouterSetChannelScope,
-  })),
+  }; }),
 );
 
 vi.mock('undici', () => ({
@@ -177,7 +177,7 @@ describe('startCommand.handler', () => {
       merged: { channels, proxy: settingsProxy },
     });
     process.env['HTTPS_PROXY'] = envProxy;
-    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(function(code) {
       throw new Error(`process.exit: ${String(code)}`);
     });
 

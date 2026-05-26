@@ -12,9 +12,9 @@ import type { Config } from '../../../config/config.js';
 
 // Mock OpenAI client to avoid real network calls
 vi.mock('openai', () => ({
-  default: vi.fn().mockImplementation((config) => ({
+  default: vi.fn().mockImplementation(function(config) { return {
     config,
-  })),
+  }; }),
 }));
 
 describe('DeepSeekOpenAICompatibleProvider', () => {

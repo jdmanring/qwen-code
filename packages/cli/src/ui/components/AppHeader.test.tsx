@@ -45,13 +45,13 @@ const createSettings = (options?: {
 };
 
 const createMockConfig = (overrides = {}) => ({
-  getContentGeneratorConfig: vi.fn(() => ({ authType: undefined })),
-  getModel: vi.fn(() => 'gemini-pro'),
-  getTargetDir: vi.fn(() => '/projects/qwen-code'),
-  getMcpServers: vi.fn(() => ({})),
-  getBlockedMcpServers: vi.fn(() => []),
-  getDebugMode: vi.fn(() => false),
-  getScreenReader: vi.fn(() => false),
+  getContentGeneratorConfig: vi.fn(function() { return { authType: undefined }; }),
+  getModel: vi.fn(function() { return 'gemini-pro'; }),
+  getTargetDir: vi.fn(function() { return '/projects/qwen-code'; }),
+  getMcpServers: vi.fn(function() { return {}; }),
+  getBlockedMcpServers: vi.fn(function() { return []; }),
+  getDebugMode: vi.fn(function() { return false; }),
+  getScreenReader: vi.fn(function() { return false; }),
   ...overrides,
 });
 
@@ -96,7 +96,7 @@ describe('<AppHeader />', () => {
     const { lastFrame } = renderWithProviders(
       createMockUIState(),
       createSettings(),
-      createMockConfig({ getScreenReader: vi.fn(() => true) }),
+      createMockConfig({ getScreenReader: vi.fn(function() { return true; }) }),
     );
     // When screen reader is enabled, header is not rendered
     expect(lastFrame()).not.toContain('/projects/qwen-code');

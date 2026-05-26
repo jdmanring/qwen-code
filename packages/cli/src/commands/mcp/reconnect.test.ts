@@ -71,8 +71,8 @@ describe('mcp reconnect command', () => {
       getLoadedExtensions: vi.fn().mockReturnValue([]),
     };
 
-    MockedConfig.mockImplementation(() => mockConfig);
-    MockedExtensionManager.mockImplementation(() => mockExtensionManager);
+    MockedConfig.mockImplementation(function() { return mockConfig; });
+    MockedExtensionManager.mockImplementation(function() { return mockExtensionManager; });
 
     Object.defineProperty(process, 'exit', {
       value: mockProcessExit,

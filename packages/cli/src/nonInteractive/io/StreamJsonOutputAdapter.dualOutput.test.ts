@@ -36,7 +36,7 @@ describe('StreamJsonOutputAdapter — dual-output extensions', () => {
     mockConfig = createMockConfig();
     stdoutWriteSpy = vi
       .spyOn(process.stdout, 'write')
-      .mockImplementation(() => true);
+      .mockImplementation(function() { return true; });
   });
 
   describe('custom outputStream injection', () => {

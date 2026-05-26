@@ -69,7 +69,7 @@ describe('QwenOAuthProgress', () => {
     keypressHandler = null;
 
     // Mock useKeypress to capture the handler
-    mockedUseKeypress.mockImplementation((handler) => {
+    mockedUseKeypress.mockImplementation(function(handler) {
       keypressHandler = handler;
     });
   });

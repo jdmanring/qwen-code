@@ -16,12 +16,12 @@ import type { HookEventDisplayInfo } from './types.js';
 
 // Mock i18n module
 vi.mock('../../../i18n/index.js', () => ({
-  t: vi.fn((key: string) => key),
+  t: vi.fn(function(key: string) { return key; }),
 }));
 
 // Mock useTerminalSize
 vi.mock('../../hooks/useTerminalSize.js', () => ({
-  useTerminalSize: vi.fn(() => ({ columns: 100, rows: 24 })),
+  useTerminalSize: vi.fn(function() { return { columns: 100, rows: 24 }; }),
 }));
 
 // Mock semantic-colors

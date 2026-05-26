@@ -81,7 +81,7 @@ vi.mock('./hooks/useSettingsCommand.js');
 vi.mock('./hooks/useModelCommand.js');
 vi.mock('./hooks/slashCommandProcessor.js');
 vi.mock('./hooks/useTerminalSize.js', () => ({
-  useTerminalSize: vi.fn(() => ({ columns: 80, rows: 24 })),
+  useTerminalSize: vi.fn(function() { return { columns: 80, rows: 24 }; }),
 }));
 vi.mock('./hooks/useGeminiStream.js');
 vi.mock('./hooks/vim.js');
@@ -97,19 +97,19 @@ vi.mock('./hooks/useGitBranchName.js');
 vi.mock('./hooks/usePreferredEditor.js');
 vi.mock('./hooks/useWorktreeSession.js');
 vi.mock('./hooks/useProviderUpdates.js', () => ({
-  useProviderUpdates: vi.fn(() => ({
+  useProviderUpdates: vi.fn(function() { return {
     providerUpdateRequest: undefined,
     dismissProviderUpdate: vi.fn(),
-  })),
+  }; }),
 }));
 vi.mock('./contexts/VimModeContext.js');
 vi.mock('./contexts/SessionContext.js');
 vi.mock('./contexts/AgentViewContext.js', () => ({
-  useAgentViewState: vi.fn(() => ({
+  useAgentViewState: vi.fn(function() { return {
     activeView: 'main',
     agents: new Map(),
-  })),
-  useAgentViewActions: vi.fn(() => ({
+  }; }),
+  useAgentViewActions: vi.fn(function() { return {
     switchToMain: vi.fn(),
     switchToAgent: vi.fn(),
     switchToNext: vi.fn(),
@@ -117,7 +117,7 @@ vi.mock('./contexts/AgentViewContext.js', () => ({
     registerAgent: vi.fn(),
     unregisterAgent: vi.fn(),
     unregisterAll: vi.fn(),
-  })),
+  }; }),
 }));
 vi.mock('./components/shared/text-buffer.js');
 vi.mock('./hooks/useLogger.js');
@@ -530,7 +530,7 @@ describe('AppContainer State Management', () => {
     });
 
     it('handleClearScreen avoids a second clearTerminal write', () => {
-      const clearSpy = vi.spyOn(console, 'clear').mockImplementation(() => {});
+      const clearSpy = vi.spyOn(console, 'clear').mockImplementation(function() {});
 
       render(
         <AppContainer
@@ -554,14 +554,14 @@ describe('AppContainer State Management', () => {
     it('passes a remount-only refresh callback to slash commands', () => {
       let slashRefreshStatic: (() => void) | undefined;
       mockedUseSlashCommandProcessor.mockImplementation(
-        (
+        function(
           _config,
           _settings,
           _addItem,
           _clearItems,
           _loadHistory,
           refreshStatic,
-        ) => {
+        ) {
           slashRefreshStatic = refreshStatic;
           return {
             handleSlashCommand: vi.fn(),
@@ -752,7 +752,7 @@ describe('AppContainer State Management', () => {
       streamReturnValue: Record<string, unknown>,
     ) => {
       capturedOnCancelSubmit = null;
-      mockedUseGeminiStream.mockImplementation((...args: unknown[]) => {
+      mockedUseGeminiStream.mockImplementation(function(...args: unknown[]) {
         const candidate = args[ON_CANCEL_SUBMIT_ARG_INDEX];
         if (typeof candidate === 'function') {
           capturedOnCancelSubmit = candidate as CapturedCancelSubmit;
@@ -1852,7 +1852,7 @@ describe('AppContainer State Management', () => {
   describe('Error Handling', () => {
     it('handles config methods that might throw', () => {
       const errorConfig = makeFakeConfig();
-      vi.spyOn(errorConfig, 'getModel').mockImplementation(() => {
+      vi.spyOn(errorConfig, 'getModel').mockImplementation(function() {
         throw new Error('Config error');
       });
 
@@ -2939,7 +2939,7 @@ describe('AppContainer State Management', () => {
         cb: (model: string) => void;
         active: boolean;
       }> = [];
-      const fakeOnModelChange = vi.fn((cb: (model: string) => void) => {
+      const fakeOnModelChange = vi.fn(function(cb: (model: string) => void) {
         const entry = { cb, active: true };
         subs.push(entry);
         return () => {

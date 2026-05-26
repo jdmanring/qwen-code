@@ -32,7 +32,7 @@ describe('JsonOutputAdapter', () => {
     adapter = new JsonOutputAdapter(mockConfig);
     stdoutWriteSpy = vi
       .spyOn(process.stdout, 'write')
-      .mockImplementation(() => true);
+      .mockImplementation(function() { return true; });
   });
 
   afterEach(() => {
@@ -434,7 +434,7 @@ describe('JsonOutputAdapter', () => {
     it('should emit error result to stderr in text mode', () => {
       const stderrWriteSpy = vi
         .spyOn(process.stderr, 'write')
-        .mockImplementation(() => true);
+        .mockImplementation(function() { return true; });
       vi.mocked(mockConfig.getOutputFormat).mockReturnValue(OutputFormat.TEXT);
 
       adapter.emitResult({
@@ -471,7 +471,7 @@ describe('JsonOutputAdapter', () => {
     it('should handle empty error message in text mode', () => {
       const stderrWriteSpy = vi
         .spyOn(process.stderr, 'write')
-        .mockImplementation(() => true);
+        .mockImplementation(function() { return true; });
       vi.mocked(mockConfig.getOutputFormat).mockReturnValue(OutputFormat.TEXT);
 
       adapter.emitResult({

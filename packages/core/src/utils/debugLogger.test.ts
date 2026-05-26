@@ -175,7 +175,7 @@ describe('debugLogger', () => {
     });
 
     it('omits trace context when reading the active span throws and telemetry context is unset', async () => {
-      vi.mocked(trace.getActiveSpan).mockImplementationOnce(() => {
+      vi.mocked(trace.getActiveSpan).mockImplementationOnce(function() {
         throw new Error('otel unavailable');
       });
 

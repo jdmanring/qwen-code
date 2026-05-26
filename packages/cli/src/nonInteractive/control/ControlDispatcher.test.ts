@@ -71,7 +71,7 @@ describe('ControlDispatcher', () => {
 
     // Mock SystemController constructor
     vi.doMock('./controllers/systemController.js', () => ({
-      SystemController: vi.fn().mockImplementation(() => mockSystemController),
+      SystemController: vi.fn().mockImplementation(function() { return mockSystemController; }),
     }));
 
     dispatcher = new ControlDispatcher(mockContext);
@@ -849,7 +849,7 @@ describe('ControlDispatcher', () => {
     });
 
     it('should cleanup all controllers', () => {
-      vi.mocked(mockSystemController.cleanup).mockImplementation(() => {});
+      vi.mocked(mockSystemController.cleanup).mockImplementation(function() {});
 
       dispatcher.shutdown();
 

@@ -10,7 +10,15 @@ import {
   resetStartupProfiler,
 } from './startupProfiler.js';
 
-vi.mock('node:fs');
+vi.mock('node:fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs')>();
+  const mkdirSync = vi.fn();
+  const writeFileSync = vi.fn();
+  const mkdtempSync = vi.fn();
+  const rmSync = vi.fn();
+  const mod = { ...actual, mkdirSync, writeFileSync, mkdtempSync, rmSync };
+  return { ...mod, default: mod };
+});
 
 describe('startupProfiler', () => {
   const savedEnv: Record<string, string | undefined> = {};
@@ -204,7 +212,7 @@ describe('startupProfiler', () => {
     });
 
     it('should not throw when file write fails', () => {
-      vi.mocked(fs.mkdirSync).mockImplementation(() => {
+      vi.mocked(fs.mkdirSync).mockImplementation(function() {
         throw new Error('Permission denied');
       });
       const stderrSpy = vi.spyOn(process.stderr, 'write').mockReturnValue(true);

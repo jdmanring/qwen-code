@@ -20,7 +20,7 @@ vi.mock('./utils.js', () => ({
 }));
 
 vi.mock('../../utils/errors.js', () => ({
-  getErrorMessage: vi.fn((error: Error) => error.message),
+  getErrorMessage: vi.fn(function(error: Error) { return error.message; }),
 }));
 
 vi.mock('../../utils/stdioHelpers.js', () => ({
@@ -67,7 +67,7 @@ describe('handleDisable', () => {
   it('should disable an extension with user scope', async () => {
     const processExitSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
     await handleDisable({
       name: 'test-extension',
@@ -88,7 +88,7 @@ describe('handleDisable', () => {
   it('should disable an extension with workspace scope', async () => {
     const processExitSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
     await handleDisable({
       name: 'test-extension',
@@ -109,7 +109,7 @@ describe('handleDisable', () => {
   it('should default to user scope when no scope is provided', async () => {
     const processExitSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
     await handleDisable({
       name: 'test-extension',
@@ -126,9 +126,9 @@ describe('handleDisable', () => {
   it('should handle errors and exit with code 1', async () => {
     const processExitSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
-    mockDisableExtension.mockImplementationOnce(() => {
+    mockDisableExtension.mockImplementationOnce(function() {
       throw new Error('Disable failed');
     });
 

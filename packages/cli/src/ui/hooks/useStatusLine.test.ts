@@ -16,7 +16,14 @@ const debugLogMock = vi.hoisted(() => ({
 }));
 
 // --- Mock child_process (auto-mock, then override exec in beforeEach) ---
-vi.mock('child_process');
+vi.mock('child_process', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('child_process')>();
+  const exec = vi.fn();
+  const spawn = vi.fn();
+  const execSync = vi.fn();
+  const mod = { ...actual, exec, spawn, execSync };
+  return { ...mod, default: mod };
+});
 
 // --- Mock context hooks ---
 
@@ -50,10 +57,10 @@ vi.mock('../contexts/UIStateContext.js', () => ({
 }));
 
 const mockConfig = {
-  getTargetDir: vi.fn(() => '/test/dir'),
-  getModel: vi.fn(() => 'test-model'),
-  getCliVersion: vi.fn(() => '1.0.0'),
-  getContentGeneratorConfig: vi.fn(() => ({ contextWindowSize: 131072 })),
+  getTargetDir: vi.fn(function() { return '/test/dir'; }),
+  getModel: vi.fn(function() { return 'test-model'; }),
+  getCliVersion: vi.fn(function() { return '1.0.0'; }),
+  getContentGeneratorConfig: vi.fn(function() { return { contextWindowSize: 131072 }; }),
 };
 vi.mock('../contexts/ConfigContext.js', () => ({
   useConfig: () => mockConfig,
@@ -123,10 +130,10 @@ describe('useStatusLine', () => {
       stdinErrorHandler = undefined;
       return {
         stdin: {
-          on: vi.fn((_event: string, handler: (err: Error) => void) => {
+          on: vi.fn(function(_event: string, handler: (err: Error) => void) {
             stdinErrorHandler = handler;
           }),
-          write: vi.fn((data: string) => {
+          write: vi.fn(function(data: string) {
             stdinWrittenData += data;
             return true;
           }),

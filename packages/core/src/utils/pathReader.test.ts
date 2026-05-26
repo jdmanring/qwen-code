@@ -63,7 +63,7 @@ describe('readPathFromWorkspace', () => {
       },
     });
     const mockFileService = {
-      filterFiles: vi.fn((files) => files),
+      filterFiles: vi.fn(function(files) { return files; }),
     } as unknown as FileDiscoveryService;
     const config = createMockConfig(CWD, [], mockFileService);
     const result = await readPathFromWorkspace('file.txt', config);
@@ -80,7 +80,7 @@ describe('readPathFromWorkspace', () => {
       },
     });
     const mockFileService = {
-      filterFiles: vi.fn((files) => files),
+      filterFiles: vi.fn(function(files) { return files; }),
     } as unknown as FileDiscoveryService;
     const config = createMockConfig(CWD, [OTHER_DIR], mockFileService);
     const result = await readPathFromWorkspace('file.txt', config);
@@ -97,7 +97,7 @@ describe('readPathFromWorkspace', () => {
       },
     });
     const mockFileService = {
-      filterFiles: vi.fn((files) => files),
+      filterFiles: vi.fn(function(files) { return files; }),
     } as unknown as FileDiscoveryService;
     const config = createMockConfig(CWD, [OTHER_DIR], mockFileService);
     const result = await readPathFromWorkspace('file.txt', config);
@@ -115,7 +115,7 @@ describe('readPathFromWorkspace', () => {
       },
     });
     const mockFileService = {
-      filterFiles: vi.fn((files) => files),
+      filterFiles: vi.fn(function(files) { return files; }),
     } as unknown as FileDiscoveryService;
     const config = createMockConfig(CWD, [], mockFileService);
     const result = await readPathFromWorkspace('image.png', config);
@@ -140,7 +140,7 @@ describe('readPathFromWorkspace', () => {
       },
     });
     const mockFileService = {
-      filterFiles: vi.fn((files) => files),
+      filterFiles: vi.fn(function(files) { return files; }),
     } as unknown as FileDiscoveryService;
     const config = createMockConfig(CWD, [], mockFileService);
     const result = await readPathFromWorkspace('data.bin', config);
@@ -157,7 +157,7 @@ describe('readPathFromWorkspace', () => {
       },
     });
     const mockFileService = {
-      filterFiles: vi.fn((files) => files),
+      filterFiles: vi.fn(function(files) { return files; }),
     } as unknown as FileDiscoveryService;
     const config = createMockConfig(CWD, [OTHER_DIR], mockFileService);
     const result = await readPathFromWorkspace(absPath, config);
@@ -175,7 +175,7 @@ describe('readPathFromWorkspace', () => {
         },
       });
       const mockFileService = {
-        filterFiles: vi.fn((files) => files),
+        filterFiles: vi.fn(function(files) { return files; }),
       } as unknown as FileDiscoveryService;
       const config = createMockConfig(CWD, [], mockFileService);
       const result = await readPathFromWorkspace('my-dir', config);
@@ -215,7 +215,7 @@ describe('readPathFromWorkspace', () => {
         },
       });
       const mockFileService = {
-        filterFiles: vi.fn((files) => files),
+        filterFiles: vi.fn(function(files) { return files; }),
       } as unknown as FileDiscoveryService;
       const config = createMockConfig(CWD, [], mockFileService);
       const result = await readPathFromWorkspace('my-dir', config);
@@ -252,7 +252,7 @@ describe('readPathFromWorkspace', () => {
         },
       });
       const mockFileService = {
-        filterFiles: vi.fn((files) => files),
+        filterFiles: vi.fn(function(files) { return files; }),
       } as unknown as FileDiscoveryService;
       const config = createMockConfig(CWD, [], mockFileService);
       const result = await readPathFromWorkspace('mixed-dir', config);
@@ -288,7 +288,7 @@ describe('readPathFromWorkspace', () => {
         },
       });
       const mockFileService = {
-        filterFiles: vi.fn((files) => files),
+        filterFiles: vi.fn(function(files) { return files; }),
       } as unknown as FileDiscoveryService;
       const config = createMockConfig(CWD, [], mockFileService);
       const result = await readPathFromWorkspace('empty-dir', config);
@@ -307,7 +307,7 @@ describe('readPathFromWorkspace', () => {
         },
       });
       const mockFileService = {
-        filterFiles: vi.fn(() => []), // Simulate the file being filtered out
+        filterFiles: vi.fn(function() { return []; }), // Simulate the file being filtered out
       } as unknown as FileDiscoveryService;
       const config = createMockConfig(CWD, [], mockFileService);
       const result = await readPathFromWorkspace('ignored.txt', config);
@@ -331,8 +331,7 @@ describe('readPathFromWorkspace', () => {
         },
       });
       const mockFileService = {
-        filterFiles: vi.fn((files: string[]) =>
-          files.filter((f) => !f.endsWith('ignored.log')),
+        filterFiles: vi.fn(function(files: string[]) { return files.filter((f) => !f.endsWith('ignored.log')); },
         ),
       } as unknown as FileDiscoveryService;
       const config = createMockConfig(CWD, [], mockFileService);
@@ -357,7 +356,7 @@ describe('readPathFromWorkspace', () => {
         },
       });
       const mockFileService = {
-        filterFiles: vi.fn((files) => files),
+        filterFiles: vi.fn(function(files) { return files; }),
       } as unknown as FileDiscoveryService;
       const config = createMockConfig(CWD, [], mockFileService, {
         respectGitIgnore: false,
@@ -415,7 +414,7 @@ describe('readPathFromWorkspace', () => {
         },
       });
       const mockFileService = {
-        filterFiles: vi.fn((files) => files),
+        filterFiles: vi.fn(function(files) { return files; }),
       } as unknown as FileDiscoveryService;
       const config = createMockConfig(CWD, [], mockFileService);
       // processSingleFileContent catches the error and returns an error string.
@@ -437,7 +436,7 @@ describe('readPathFromWorkspace', () => {
       },
     });
     const mockFileService = {
-      filterFiles: vi.fn((files) => files),
+      filterFiles: vi.fn(function(files) { return files; }),
     } as unknown as FileDiscoveryService;
     const config = createMockConfig(CWD, [], mockFileService);
     const result = await readPathFromWorkspace('large.txt', config);

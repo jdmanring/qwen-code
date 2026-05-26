@@ -66,7 +66,7 @@ describe('installSynchronizedOutput', () => {
   });
 
   it('does not install for non-TTY stdout', () => {
-    const write = vi.fn(() => true) as NodeJS.WriteStream['write'];
+    const write = vi.fn(function() { return true; }) as NodeJS.WriteStream['write'];
     const stdout = {
       isTTY: false,
       write,
@@ -82,7 +82,7 @@ describe('installSynchronizedOutput', () => {
 
   it('wraps one synchronous write burst in balanced BSU and ESU markers', async () => {
     const writes: string[] = [];
-    const write = vi.fn((chunk: string | Uint8Array) => {
+    const write = vi.fn(function(chunk: string | Uint8Array) {
       writes.push(typeof chunk === 'string' ? chunk : chunk.toString());
       return true;
     }) as NodeJS.WriteStream['write'];
@@ -115,10 +115,10 @@ describe('installSynchronizedOutput', () => {
   it('preserves write return values and callbacks', async () => {
     const callback = vi.fn();
     const write = vi.fn(
-      (
+      function(
         _chunk: string | Uint8Array,
         encodingOrCallback?: BufferEncoding | ((error?: Error | null) => void),
-      ) => {
+      ) {
         if (typeof encodingOrCallback === 'function') {
           encodingOrCallback();
         }
@@ -141,7 +141,7 @@ describe('installSynchronizedOutput', () => {
 
   it('composes after terminal redraw optimization without losing erase optimization', async () => {
     const writes: string[] = [];
-    const write = vi.fn((chunk: string | Uint8Array) => {
+    const write = vi.fn(function(chunk: string | Uint8Array) {
       writes.push(typeof chunk === 'string' ? chunk : chunk.toString());
       return true;
     }) as NodeJS.WriteStream['write'];
@@ -169,7 +169,7 @@ describe('installSynchronizedOutput', () => {
 
   it('closes an open frame before restore', () => {
     const writes: string[] = [];
-    const write = vi.fn((chunk: string | Uint8Array) => {
+    const write = vi.fn(function(chunk: string | Uint8Array) {
       writes.push(typeof chunk === 'string' ? chunk : chunk.toString());
       return true;
     }) as NodeJS.WriteStream['write'];

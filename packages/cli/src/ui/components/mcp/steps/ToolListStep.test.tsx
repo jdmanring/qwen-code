@@ -48,7 +48,7 @@ const tool = (name: string): MCPToolDisplayInfo => ({
 describe('ToolListStep', () => {
   beforeEach(() => {
     activeKeypressHandler = null;
-    vi.mocked(useKeypress).mockImplementation((handler, { isActive }) => {
+    vi.mocked(useKeypress).mockImplementation(function(handler, { isActive }) {
       if (isActive) {
         activeKeypressHandler = handler;
       }

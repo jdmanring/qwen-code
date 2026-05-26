@@ -25,10 +25,10 @@ vi.mock('./useAtCompletion', () => ({
 }));
 
 vi.mock('./useSlashCompletion', () => ({
-  useSlashCompletion: vi.fn(() => ({
+  useSlashCompletion: vi.fn(function() { return {
     completionStart: 0,
     completionEnd: 0,
-  })),
+  }; }),
 }));
 
 // Helper to set up mocks in a consistent way for both child hooks
@@ -47,11 +47,11 @@ const setupMocks = ({
 }) => {
   // Mock for @-completions
   (useAtCompletion as vi.Mock).mockImplementation(
-    ({
+    function({
       enabled,
       setSuggestions,
       setIsLoadingSuggestions,
-    }: UseAtCompletionProps) => {
+    }: UseAtCompletionProps) {
       useEffect(() => {
         if (enabled) {
           setIsLoadingSuggestions(isLoading);
@@ -63,12 +63,12 @@ const setupMocks = ({
 
   // Mock for /-completions
   (useSlashCompletion as vi.Mock).mockImplementation(
-    ({
+    function({
       enabled,
       setSuggestions,
       setIsLoadingSuggestions,
       setIsPerfectMatch,
-    }: UseSlashCompletionProps) => {
+    }: UseSlashCompletionProps) {
       useEffect(() => {
         if (enabled) {
           setIsLoadingSuggestions(isLoading);

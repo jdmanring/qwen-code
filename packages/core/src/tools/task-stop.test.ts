@@ -29,8 +29,8 @@ describe('TaskStopTool', () => {
     // dream gets an empty stub so the 4th-route lookup falls through to
     // the not-found branch instead of crashing on undefined.
     const memoryManager = {
-      getTask: vi.fn(() => undefined),
-      cancelTask: vi.fn(() => false),
+      getTask: vi.fn(function() { return undefined; }),
+      cancelTask: vi.fn(function() { return false; }),
     };
     config = {
       getBackgroundTaskRegistry: () => registry,
@@ -291,7 +291,7 @@ describe('TaskStopTool', () => {
 
   describe('dream task support', () => {
     it('cancels a running dream by routing through MemoryManager.cancelTask', async () => {
-      const cancelTask = vi.fn(() => true);
+      const cancelTask = vi.fn(function() { return true; });
       const dreamRecord = {
         id: 'dream-running-1',
         taskType: 'dream' as const,
@@ -301,8 +301,7 @@ describe('TaskStopTool', () => {
         updatedAt: '2026-05-04T12:00:00.000Z',
       };
       const memoryManager = {
-        getTask: vi.fn((id: string) =>
-          id === 'dream-running-1' ? dreamRecord : undefined,
+        getTask: vi.fn(function(id: string) { return id === 'dream-running-1' ? dreamRecord : undefined; },
         ),
         cancelTask,
       };
@@ -338,9 +337,9 @@ describe('TaskStopTool', () => {
         createdAt: '2026-05-04T12:00:00.000Z',
         updatedAt: '2026-05-04T12:01:00.000Z',
       };
-      const cancelTask = vi.fn(() => false);
+      const cancelTask = vi.fn(function() { return false; });
       const memoryManager = {
-        getTask: vi.fn(() => dreamRecord),
+        getTask: vi.fn(function() { return dreamRecord; }),
         cancelTask,
       };
       const localConfig = {
@@ -380,7 +379,7 @@ describe('TaskStopTool', () => {
       };
       const cancelTask = vi.fn();
       const memoryManager = {
-        getTask: vi.fn(() => extractRecord),
+        getTask: vi.fn(function() { return extractRecord; }),
         cancelTask,
       };
       const localConfig = {
@@ -419,8 +418,8 @@ describe('TaskStopTool', () => {
         updatedAt: '2026-05-04T12:00:00.000Z',
       };
       const memoryManager = {
-        getTask: vi.fn(() => dreamRecord),
-        cancelTask: vi.fn(() => false),
+        getTask: vi.fn(function() { return dreamRecord; }),
+        cancelTask: vi.fn(function() { return false; }),
       };
       const localConfig = {
         getBackgroundTaskRegistry: () => registry,

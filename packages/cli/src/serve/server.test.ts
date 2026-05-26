@@ -4633,7 +4633,7 @@ describe('createServeApp ServeAppDeps.fsFactory wiring (#4175 PR 18)', () => {
 
   it('uses the injected fsFactory verbatim when supplied', async () => {
     const { createServeApp } = await import('./server.js');
-    const sentinel = { forRequest: vi.fn(() => ({ marker: 'injected' })) };
+    const sentinel = { forRequest: vi.fn(function() { return { marker: 'injected' }; }) };
     const app = createServeApp(
       {
         port: 0,

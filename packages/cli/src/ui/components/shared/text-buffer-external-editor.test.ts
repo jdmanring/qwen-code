@@ -66,9 +66,9 @@ describe('openInExternalEditor', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     (fs.mkdtempSync as Mock).mockReturnValue('/tmp/qwen-edit-mock');
-    (fs.writeFileSync as Mock).mockImplementation(() => {});
+    (fs.writeFileSync as Mock).mockImplementation(function() {});
     (fs.readFileSync as Mock).mockReturnValue('edited text');
-    (fs.rmSync as Mock).mockImplementation(() => {});
+    (fs.rmSync as Mock).mockImplementation(function() {});
     mockSpawnSync.mockReturnValue({ status: 0, error: null });
     mockGetExternalEditorCommand.mockReturnValue(null);
   });
@@ -131,7 +131,7 @@ describe('openInExternalEditor', () => {
   });
 
   it('should clean up temp file when writeFileSync throws', async () => {
-    (fs.writeFileSync as Mock).mockImplementation(() => {
+    (fs.writeFileSync as Mock).mockImplementation(function() {
       throw new Error('disk full');
     });
 
@@ -547,7 +547,7 @@ describe('openInExternalEditor', () => {
   });
 
   it('should keep buffer unchanged when readFileSync throws', async () => {
-    (fs.readFileSync as Mock).mockImplementation(() => {
+    (fs.readFileSync as Mock).mockImplementation(function() {
       throw new Error('EACCES');
     });
 
@@ -568,7 +568,7 @@ describe('openInExternalEditor', () => {
   });
 
   it('should not propagate when rmSync cleanup throws (e.g. EPERM)', async () => {
-    (fs.rmSync as Mock).mockImplementation(() => {
+    (fs.rmSync as Mock).mockImplementation(function() {
       throw new Error('EPERM');
     });
 
@@ -592,7 +592,7 @@ describe('openInExternalEditor', () => {
   });
 
   it('should abort gracefully when mkdtempSync fails', async () => {
-    (fs.mkdtempSync as Mock).mockImplementation(() => {
+    (fs.mkdtempSync as Mock).mockImplementation(function() {
       throw new Error('ENOSPC');
     });
 

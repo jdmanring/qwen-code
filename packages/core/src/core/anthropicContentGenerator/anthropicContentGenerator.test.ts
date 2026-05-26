@@ -19,7 +19,7 @@ const mockTokenizer = {
 };
 
 vi.mock('../../utils/request-tokenizer/index.js', () => ({
-  RequestTokenEstimator: vi.fn(() => mockTokenizer),
+  RequestTokenEstimator: vi.fn(function() { return mockTokenizer; }),
 }));
 
 type AnthropicCreateArgs = [unknown, { signal?: AbortSignal }?];

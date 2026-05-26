@@ -466,7 +466,7 @@ describe('TodoWriteTool', () => {
       const mockHookSystem = {
         fireTodoCreatedEvent: vi
           .fn()
-          .mockImplementationOnce(() => slowValidation)
+          .mockImplementationOnce(function() { return slowValidation; })
           .mockResolvedValueOnce({
             success: true,
             allOutputs: [
@@ -580,7 +580,7 @@ describe('TodoWriteTool', () => {
       const mockHookSystem = {
         fireTodoCreatedEvent: vi
           .fn()
-          .mockImplementation((id, _content, _status, _allTodos, phase) => {
+          .mockImplementation(function(id, _content, _status, _allTodos, phase) {
             if (phase === HookPhase.Validation) {
               return Promise.resolve(validationAllow);
             }

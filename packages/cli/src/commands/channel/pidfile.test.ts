@@ -53,7 +53,7 @@ describe('writeServiceInfo + readServiceInfo', () => {
   it('writes and reads back service info for a live process', () => {
     // Mock process.kill(pid, 0) to indicate alive
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    process.kill = vi.fn(() => true) as any;
+    process.kill = vi.fn(function() { return true; }) as any;
 
     writeServiceInfo(['telegram', 'dingtalk']);
     const info = readServiceInfo();
@@ -82,12 +82,12 @@ describe('writeServiceInfo + readServiceInfo', () => {
   it('cleans up and returns null for stale PID (dead process)', () => {
     // First write with alive process
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    process.kill = vi.fn(() => true) as any;
+    process.kill = vi.fn(function() { return true; }) as any;
     writeServiceInfo(['telegram']);
 
     // Now simulate dead process
 
-    process.kill = vi.fn(() => {
+    process.kill = vi.fn(function() {
       throw new Error('ESRCH');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }) as any;
@@ -100,7 +100,7 @@ describe('writeServiceInfo + readServiceInfo', () => {
 describe('removeServiceInfo', () => {
   it('removes existing PID file', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    process.kill = vi.fn(() => true) as any;
+    process.kill = vi.fn(function() { return true; }) as any;
     writeServiceInfo(['test']);
     removeServiceInfo();
 
@@ -116,13 +116,13 @@ describe('removeServiceInfo', () => {
 describe('signalService', () => {
   it('returns true when signal is delivered', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    process.kill = vi.fn(() => true) as any;
+    process.kill = vi.fn(function() { return true; }) as any;
     expect(signalService(1234, 'SIGTERM')).toBe(true);
     expect(process.kill).toHaveBeenCalledWith(1234, 'SIGTERM');
   });
 
   it('returns false when process is not found', () => {
-    process.kill = vi.fn(() => {
+    process.kill = vi.fn(function() {
       throw new Error('ESRCH');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }) as any;
@@ -131,7 +131,7 @@ describe('signalService', () => {
 
   it('defaults to SIGTERM', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    process.kill = vi.fn(() => true) as any;
+    process.kill = vi.fn(function() { return true; }) as any;
     signalService(1234);
     expect(process.kill).toHaveBeenCalledWith(1234, 'SIGTERM');
   });
@@ -139,7 +139,7 @@ describe('signalService', () => {
 
 describe('waitForExit', () => {
   it('returns true immediately if process is already dead', async () => {
-    process.kill = vi.fn(() => {
+    process.kill = vi.fn(function() {
       throw new Error('ESRCH');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }) as any;
@@ -151,7 +151,7 @@ describe('waitForExit', () => {
   it('returns true when process dies within timeout', async () => {
     let alive = true;
 
-    process.kill = vi.fn(() => {
+    process.kill = vi.fn(function() {
       if (!alive) throw new Error('ESRCH');
       return true;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -168,7 +168,7 @@ describe('waitForExit', () => {
 
   it('returns false on timeout when process stays alive', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    process.kill = vi.fn(() => true) as any;
+    process.kill = vi.fn(function() { return true; }) as any;
 
     const result = await waitForExit(1234, 150, 50);
     expect(result).toBe(false);

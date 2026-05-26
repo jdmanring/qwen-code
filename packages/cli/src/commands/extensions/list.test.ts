@@ -22,7 +22,7 @@ vi.mock('./utils.js', () => ({
 }));
 
 vi.mock('../../utils/errors.js', () => ({
-  getErrorMessage: vi.fn((error: Error) => error.message),
+  getErrorMessage: vi.fn(function(error: Error) { return error.message; }),
 }));
 
 vi.mock('../../utils/stdioHelpers.js', () => ({
@@ -46,7 +46,7 @@ describe('handleList', () => {
   it('should display message when no extensions are installed', async () => {
     const processExitSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
     mockGetLoadedExtensions.mockReturnValueOnce([]);
 
@@ -62,7 +62,7 @@ describe('handleList', () => {
   it('should list installed extensions', async () => {
     const processExitSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
     const mockExtensions = [
       { name: 'extension-1', version: '1.0.0' },
@@ -70,7 +70,7 @@ describe('handleList', () => {
     ];
     mockGetLoadedExtensions.mockReturnValueOnce(mockExtensions);
     mockToOutputString.mockImplementation(
-      (ext) => `${ext.name} (${ext.version})`,
+      function(ext) { return `${ext.name} (${ext.version})`; },
     );
 
     await handleList();
@@ -87,9 +87,9 @@ describe('handleList', () => {
   it('should handle errors and exit with code 1', async () => {
     const processExitSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
-    mockGetLoadedExtensions.mockImplementationOnce(() => {
+    mockGetLoadedExtensions.mockImplementationOnce(function() {
       throw new Error('List failed');
     });
 

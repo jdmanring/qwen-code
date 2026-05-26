@@ -78,9 +78,9 @@ describe('mcp list command', () => {
       getLoadedExtensions: vi.fn().mockReturnValue([]),
     };
 
-    MockedClient.mockImplementation(() => mockClient);
+    MockedClient.mockImplementation(function() { return mockClient; });
     mockedCreateTransport.mockResolvedValue(mockTransport);
-    MockedExtensionManager.mockImplementation(() => mockExtensionManager);
+    MockedExtensionManager.mockImplementation(function() { return mockExtensionManager; });
     mockedIsWorkspaceTrusted.mockReturnValue(true);
   });
 

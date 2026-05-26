@@ -42,7 +42,7 @@ describe('LogToSpanProcessor', () => {
     exportedSpans = [];
     mockCurrentSessionId = undefined;
     mockExporter = {
-      export: vi.fn((spans, cb) => {
+      export: vi.fn(function(spans, cb) {
         exportedSpans.push(...spans);
         cb({ code: 0 });
       }),
@@ -374,7 +374,7 @@ describe('LogToSpanProcessor', () => {
     processor = new LogToSpanProcessor(mockExporter, 60000, 2);
     const stderrWrite = vi
       .spyOn(process.stderr, 'write')
-      .mockImplementation(() => true);
+      .mockImplementation(function() { return true; });
 
     try {
       processor.onEmit({
@@ -415,7 +415,7 @@ describe('LogToSpanProcessor', () => {
     processor = new LogToSpanProcessor(mockExporter, 60000, 0);
     const stderrWrite = vi
       .spyOn(process.stderr, 'write')
-      .mockImplementation(() => true);
+      .mockImplementation(function() { return true; });
 
     try {
       for (const body of ['event1', 'event2', 'event3']) {
@@ -446,7 +446,7 @@ describe('LogToSpanProcessor', () => {
     processor = new LogToSpanProcessor(mockExporter, 60000, 2.9);
     const stderrWrite = vi
       .spyOn(process.stderr, 'write')
-      .mockImplementation(() => true);
+      .mockImplementation(function() { return true; });
 
     try {
       for (const body of ['event1', 'event2', 'event3']) {
@@ -478,7 +478,7 @@ describe('LogToSpanProcessor', () => {
     processor = new LogToSpanProcessor(mockExporter, 60000, 2);
     const stderrWrite = vi
       .spyOn(process.stderr, 'write')
-      .mockImplementation(() => true);
+      .mockImplementation(function() { return true; });
     const dateNow = vi
       .spyOn(Date, 'now')
       .mockReturnValueOnce(1000)
@@ -516,7 +516,7 @@ describe('LogToSpanProcessor', () => {
     processor = new LogToSpanProcessor(mockExporter, 60000, 2);
     const stderrWrite = vi
       .spyOn(process.stderr, 'write')
-      .mockImplementation(() => true);
+      .mockImplementation(function() { return true; });
     const dateNow = vi.spyOn(Date, 'now').mockReturnValue(1000);
 
     try {
@@ -639,7 +639,7 @@ describe('LogToSpanProcessor', () => {
     const exportCallbacks: Array<(result: { code: number }) => void> = [];
     let exportCallCount = 0;
     mockExporter = {
-      export: vi.fn((spans, cb) => {
+      export: vi.fn(function(spans, cb) {
         exportCallCount += 1;
         exportedSpans.push(...spans);
         if (exportCallCount === 1) {

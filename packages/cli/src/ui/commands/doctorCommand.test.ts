@@ -402,7 +402,7 @@ describe('doctorCommand', () => {
   it('should render heap snapshot failures as error items in interactive mode', async () => {
     vi.mocked(
       memoryDiagnosticsModule.writeMemoryHeapSnapshot,
-    ).mockImplementation(() => {
+    ).mockImplementation(function() {
       throw new Error('disk full');
     });
 
@@ -422,7 +422,7 @@ describe('doctorCommand', () => {
     const abortController = new AbortController();
     vi.mocked(
       memoryDiagnosticsModule.formatMemoryDiagnostics,
-    ).mockImplementation(() => {
+    ).mockImplementation(function() {
       abortController.abort();
       return 'Memory diagnostics';
     });
@@ -450,7 +450,7 @@ describe('doctorCommand', () => {
   it('should report heap snapshot failures without dropping memory diagnostics', async () => {
     vi.mocked(
       memoryDiagnosticsModule.writeMemoryHeapSnapshot,
-    ).mockImplementation(() => {
+    ).mockImplementation(function() {
       throw new Error('disk full');
     });
     mockContext = createMockCommandContext({
@@ -607,7 +607,7 @@ describe('doctorCommand', () => {
   it('should not add memory diagnostics when aborted after collection', async () => {
     const abortController = new AbortController();
     vi.mocked(memoryDiagnosticsModule.getMemoryDiagnostics).mockImplementation(
-      () => {
+      function() {
         const diagnostics = {
           generatedAt: '2026-05-15T12:00:00.000Z',
           process: {
@@ -745,8 +745,8 @@ describe('doctorCommand', () => {
   });
 
   it('should pass session metadata to memory diagnostics', async () => {
-    const getSessionId = vi.fn(() => 'session-123');
-    const getCliVersion = vi.fn(() => '0.15.11');
+    const getSessionId = vi.fn(function() { return 'session-123'; });
+    const getCliVersion = vi.fn(function() { return '0.15.11'; });
     mockContext = createMockCommandContext({
       services: {
         config: {

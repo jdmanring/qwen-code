@@ -44,7 +44,7 @@ function makeSettings(initial: SettingsShape = {}) {
     path: '/tmp/qwen-test-settings.json',
   };
   const setValue = vi.fn(
-    (_scope: SettingScope, key: string, value: unknown) => {
+    function(_scope: SettingScope, key: string, value: unknown) {
       const parts = key.split('.');
       let current: Record<string, unknown> = file.settings as Record<
         string,
@@ -75,14 +75,14 @@ function makeSettings(initial: SettingsShape = {}) {
       file.originalSettings = structuredClone(file.settings);
     },
   );
-  const recomputeMerged = vi.fn(() => {
+  const recomputeMerged = vi.fn(function() {
     /* merged() is computed lazily via the getter below */
   });
   const settings = {
     get merged() {
       return file.settings;
     },
-    forScope: vi.fn(() => file),
+    forScope: vi.fn(function() { return file; }),
     setValue,
     recomputeMerged,
   };

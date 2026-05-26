@@ -68,7 +68,7 @@ describe('GitWorktreeService', () => {
     hoistedMockGetGlobalQwenDir.mockReturnValue('/mock-qwen');
     (isCommandAvailable as Mock).mockReturnValue({ available: true });
 
-    hoistedMockSimpleGit.mockImplementation(() => ({
+    hoistedMockSimpleGit.mockImplementation(function() { return {
       checkIsRepo: hoistedMockCheckIsRepo,
       init: hoistedMockInit,
       add: hoistedMockAdd,
@@ -79,7 +79,7 @@ describe('GitWorktreeService', () => {
       diff: hoistedMockDiff,
       merge: hoistedMockMerge,
       stash: hoistedMockStash,
-    }));
+    }; });
 
     hoistedMockCheckIsRepo.mockResolvedValue(true);
     hoistedMockInit.mockResolvedValue(undefined);

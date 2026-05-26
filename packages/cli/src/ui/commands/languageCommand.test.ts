@@ -15,7 +15,7 @@ vi.mock('../../i18n/index.js', () => ({
   setLanguageAsync: vi.fn().mockResolvedValue(undefined),
   getCurrentLanguage: vi.fn().mockReturnValue('en'),
   detectSystemLanguage: vi.fn().mockReturnValue('en'),
-  getLanguageNameFromLocale: vi.fn((locale: string) => {
+  getLanguageNameFromLocale: vi.fn(function(locale: string) {
     const map: Record<string, string> = {
       zh: 'Chinese',
       en: 'English',
@@ -26,7 +26,7 @@ vi.mock('../../i18n/index.js', () => ({
     };
     return map[locale] || 'English';
   }),
-  t: vi.fn((key: string) => key),
+  t: vi.fn(function(key: string) { return key; }),
 }));
 
 // Mock settings module to avoid Storage side effect
@@ -98,7 +98,7 @@ describe('languageCommand', () => {
     // Reset i18n mocks
     vi.mocked(i18n.getCurrentLanguage).mockReturnValue('en');
     vi.mocked(i18n.t).mockImplementation(
-      (key: string, params?: Record<string, string>) => {
+      function(key: string, params?: Record<string, string>) {
         if (!params) {
           return key;
         }
@@ -187,7 +187,7 @@ describe('languageCommand', () => {
 
       // Make t() function handle interpolation for this test
       vi.mocked(i18n.t).mockImplementation(
-        (key: string, params?: Record<string, string>) => {
+        function(key: string, params?: Record<string, string>) {
           if (params && key.includes('{{lang}}')) {
             return key.replace('{{lang}}', params['lang'] || '');
           }
@@ -224,7 +224,7 @@ describe('languageCommand', () => {
       vi.mocked(i18n.detectSystemLanguage).mockReturnValue('zh');
 
       vi.mocked(i18n.t).mockImplementation(
-        (key: string, params?: Record<string, string>) => {
+        function(key: string, params?: Record<string, string>) {
           if (params && key.includes('{{lang}}')) {
             return key.replace('{{lang}}', params['lang'] || '');
           }
@@ -785,9 +785,9 @@ describe('languageCommand', () => {
     beforeEach(() => {
       vi.clearAllMocks();
       vi.mocked(fs.existsSync).mockReturnValue(false);
-      vi.mocked(fs.mkdirSync).mockImplementation(() => undefined);
-      vi.mocked(fs.writeFileSync).mockImplementation(() => undefined);
-      vi.mocked(fs.readFileSync).mockImplementation(() => '');
+      vi.mocked(fs.mkdirSync).mockImplementation(function() { return undefined; });
+      vi.mocked(fs.writeFileSync).mockImplementation(function() { return undefined; });
+      vi.mocked(fs.readFileSync).mockImplementation(function() { return ''; });
     });
 
     it('should create file when it does not exist', () => {

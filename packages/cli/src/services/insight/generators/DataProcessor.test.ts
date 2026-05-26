@@ -20,12 +20,12 @@ vi.mock('@qwen-code/qwen-code-core', async () => {
   return {
     ...actual,
     read: vi.fn(),
-    createDebugLogger: vi.fn(() => ({
+    createDebugLogger: vi.fn(function() { return {
       info: vi.fn(),
       error: vi.fn(),
       warn: vi.fn(),
       debug: vi.fn(),
-    })),
+    }; }),
   };
 });
 
@@ -54,10 +54,10 @@ describe('DataProcessor', () => {
 
     mockGenerateJson = vi.fn();
     mockConfig = {
-      getBaseLlmClient: vi.fn(() => ({
+      getBaseLlmClient: vi.fn(function() { return {
         generateJson: mockGenerateJson,
-      })),
-      getModel: vi.fn(() => 'test-model'),
+      }; }),
+      getModel: vi.fn(function() { return 'test-model'; }),
     } as unknown as Config;
 
     dataProcessor = new DataProcessor(mockConfig);
@@ -711,7 +711,7 @@ describe('DataProcessor', () => {
         'project2',
       ] as unknown as Awaited<ReturnType<typeof fs.readdir>>);
 
-      mockedFs.stat.mockImplementation((path) => {
+      mockedFs.stat.mockImplementation(function(path) {
         const pathStr = String(path);
         if (pathStr.includes('project1') || pathStr.includes('project2')) {
           return Promise.resolve({
@@ -728,7 +728,7 @@ describe('DataProcessor', () => {
         throw new Error('Unexpected path');
       });
 
-      mockedFs.readdir.mockImplementation((path) => {
+      mockedFs.readdir.mockImplementation(function(path) {
         const pathStr = String(path);
         if (pathStr.endsWith('chats')) {
           if (pathStr.includes('project1')) {
@@ -769,7 +769,7 @@ describe('DataProcessor', () => {
         'project2',
       ] as unknown as Awaited<ReturnType<typeof fs.readdir>>);
 
-      mockedFs.stat.mockImplementation((path) => {
+      mockedFs.stat.mockImplementation(function(path) {
         const pathStr = String(path);
         if (pathStr.includes('project1') || pathStr.includes('project2')) {
           return Promise.resolve({ isDirectory: () => true } as Awaited<
@@ -788,7 +788,7 @@ describe('DataProcessor', () => {
       const error = new Error('No chats dir') as NodeJS.ErrnoException;
       error.code = 'ENOENT';
 
-      mockedFs.readdir.mockImplementation((path) => {
+      mockedFs.readdir.mockImplementation(function(path) {
         const pathStr = String(path);
         if (pathStr.endsWith('chats')) {
           if (pathStr.includes('project1')) {
@@ -822,7 +822,7 @@ describe('DataProcessor', () => {
         ReturnType<typeof fs.readdir>
       >);
 
-      mockedFs.stat.mockImplementation((path) => {
+      mockedFs.stat.mockImplementation(function(path) {
         const pathStr = String(path);
         if (pathStr.includes('project1') && !pathStr.includes('chats')) {
           return Promise.resolve({ isDirectory: () => true } as Awaited<
@@ -835,7 +835,7 @@ describe('DataProcessor', () => {
         throw new Error('Unexpected path: ' + pathStr);
       });
 
-      mockedFs.readdir.mockImplementation((path) => {
+      mockedFs.readdir.mockImplementation(function(path) {
         const pathStr = String(path);
         if (pathStr.endsWith('chats')) {
           return Promise.resolve(['chat1.jsonl'] as unknown as Awaited<
@@ -1173,7 +1173,7 @@ describe('DataProcessor', () => {
       // Schema validation rejects partial objects, so build a fully-populated
       // response — only the explicitly-rejected calls should land as undefined.
       let callIndex = 0;
-      mockGenerateJson.mockImplementation(() => {
+      mockGenerateJson.mockImplementation(function() {
         callIndex++;
         if (callIndex % 2 === 0) {
           return Promise.reject(new Error('LLM timeout'));

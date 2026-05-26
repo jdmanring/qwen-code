@@ -23,12 +23,12 @@ vi.mock('../hooks/useKeypress.js', () => ({
 const mockedUseKeypress = vi.mocked(useKeypress);
 
 vi.mock('./shared/DescriptiveRadioButtonSelect.js', () => ({
-  DescriptiveRadioButtonSelect: vi.fn(() => null),
+  DescriptiveRadioButtonSelect: vi.fn(function() { return null; }),
 }));
 
 // Helper to create getAvailableModelsForAuthType mock
 const createMockGetAvailableModelsForAuthType = () =>
-  vi.fn((t: AuthType) => {
+  vi.fn(function(t: AuthType) {
     if (t === AuthType.QWEN_OAUTH) {
       return getFilteredQwenModels().map((m) => ({
         id: m.id,
@@ -58,10 +58,10 @@ const renderComponent = (
 
   const mockConfig = {
     // --- Functions used by ModelDialog ---
-    getModel: vi.fn(() => DEFAULT_QWEN_MODEL),
+    getModel: vi.fn(function() { return DEFAULT_QWEN_MODEL; }),
     setModel: vi.fn().mockResolvedValue(undefined),
     switchModel: vi.fn().mockResolvedValue(undefined),
-    getAuthType: vi.fn(() => 'qwen-oauth'),
+    getAuthType: vi.fn(function() { return 'qwen-oauth'; }),
     getAllConfiguredModels: vi.fn(() =>
       getFilteredQwenModels().map((m) => ({
         id: m.id,
@@ -70,21 +70,21 @@ const renderComponent = (
         authType: AuthType.QWEN_OAUTH,
       })),
     ),
-    getModelsConfig: vi.fn(() => ({
-      getGenerationConfig: vi.fn(() => ({ baseUrl: undefined })),
-    })),
-    getActiveRuntimeModelSnapshot: vi.fn(() => undefined),
+    getModelsConfig: vi.fn(function() { return {
+      getGenerationConfig: vi.fn(function() { return { baseUrl: undefined }; }),
+    }; }),
+    getActiveRuntimeModelSnapshot: vi.fn(function() { return undefined; }),
 
     // --- Functions used by ClearcutLogger ---
-    getUsageStatisticsEnabled: vi.fn(() => true),
-    getSessionId: vi.fn(() => 'mock-session-id'),
-    getDebugMode: vi.fn(() => false),
-    getContentGeneratorConfig: vi.fn(() => ({
+    getUsageStatisticsEnabled: vi.fn(function() { return true; }),
+    getSessionId: vi.fn(function() { return 'mock-session-id'; }),
+    getDebugMode: vi.fn(function() { return false; }),
+    getContentGeneratorConfig: vi.fn(function() { return {
       authType: AuthType.QWEN_OAUTH,
       model: DEFAULT_QWEN_MODEL,
-    })),
-    getUseModelRouter: vi.fn(() => false),
-    getProxy: vi.fn(() => undefined),
+    }; }),
+    getUseModelRouter: vi.fn(function() { return false; }),
+    getProxy: vi.fn(function() { return undefined; }),
 
     // --- Spread test-specific overrides ---
     ...(contextValue ?? {}),
@@ -137,7 +137,7 @@ describe('<ModelDialog />', () => {
   });
 
   it('initializes with the model from ConfigContext', () => {
-    const mockGetModel = vi.fn(() => DEFAULT_QWEN_MODEL);
+    const mockGetModel = vi.fn(function() { return DEFAULT_QWEN_MODEL; });
     renderComponent(
       {},
       {
@@ -173,7 +173,7 @@ describe('<ModelDialog />', () => {
   });
 
   it('initializes with default coder model if getModel returns undefined', () => {
-    const mockGetModel = vi.fn(() => undefined as unknown as string);
+    const mockGetModel = vi.fn(function() { return undefined as unknown as string; });
     renderComponent(
       {},
       {
@@ -200,7 +200,7 @@ describe('<ModelDialog />', () => {
     const { props, mockConfig } = renderComponent(
       {},
       {
-        getAvailableModelsForAuthType: vi.fn((t: AuthType) => {
+        getAvailableModelsForAuthType: vi.fn(function(t: AuthType) {
           if (t === AuthType.QWEN_OAUTH) {
             return getFilteredQwenModels().map((m) => ({
               id: m.id,
@@ -226,8 +226,8 @@ describe('<ModelDialog />', () => {
 
   it('calls config.switchModel and onClose when selecting a non-OAuth model', async () => {
     const switchModel = vi.fn().mockResolvedValue(undefined);
-    const getAuthType = vi.fn(() => AuthType.USE_OPENAI);
-    const getAvailableModelsForAuthType = vi.fn((t: AuthType) => {
+    const getAuthType = vi.fn(function() { return AuthType.USE_OPENAI; });
+    const getAvailableModelsForAuthType = vi.fn(function(t: AuthType) {
       if (t === AuthType.USE_OPENAI) {
         return [{ id: 'gpt-4', label: 'GPT-4', authType: t }];
       }
@@ -242,7 +242,7 @@ describe('<ModelDialog />', () => {
     });
 
     const { props, mockSettings } = renderComponent({}, {
-      getModel: vi.fn(() => 'gpt-4'),
+      getModel: vi.fn(function() { return 'gpt-4'; }),
       getAuthType,
       switchModel,
       getAvailableModelsForAuthType,
@@ -260,10 +260,10 @@ describe('<ModelDialog />', () => {
           authType: AuthType.USE_OPENAI,
         },
       ]),
-      getContentGeneratorConfig: vi.fn(() => ({
+      getContentGeneratorConfig: vi.fn(function() { return {
         authType: AuthType.USE_OPENAI,
         model: 'gpt-4',
-      })),
+      }; }),
     } as unknown as Partial<Config>);
 
     const childOnSelect = mockedSelect.mock.calls[0][0].onSelect;
@@ -291,8 +291,8 @@ describe('<ModelDialog />', () => {
   it('stores authType-qualified selectors in fast model mode', async () => {
     const setFastModel = vi.fn();
     const { props, mockSettings } = renderComponent({ isFastModelMode: true }, {
-      getAuthType: vi.fn(() => AuthType.USE_ANTHROPIC),
-      getModel: vi.fn(() => 'claude-opus-4-7'),
+      getAuthType: vi.fn(function() { return AuthType.USE_ANTHROPIC; }),
+      getModel: vi.fn(function() { return 'claude-opus-4-7'; }),
       getAllConfiguredModels: vi.fn(() => [
         {
           id: 'deepseek-v4-flash',
@@ -305,10 +305,10 @@ describe('<ModelDialog />', () => {
           authType: AuthType.USE_ANTHROPIC,
         },
       ]),
-      getContentGeneratorConfig: vi.fn(() => ({
+      getContentGeneratorConfig: vi.fn(function() { return {
         authType: AuthType.USE_ANTHROPIC,
         model: 'claude-opus-4-7',
-      })),
+      }; }),
       setFastModel,
     } as unknown as Partial<Config>);
 
@@ -358,22 +358,22 @@ describe('<ModelDialog />', () => {
         <ConfigContext.Provider
           value={
             {
-              getModel: vi.fn(() => 'claude-opus-4-7'),
-              getAuthType: vi.fn(() => AuthType.USE_ANTHROPIC),
-              getAllConfiguredModels: vi.fn(() => allModels),
-              getContentGeneratorConfig: vi.fn(() => ({
+              getModel: vi.fn(function() { return 'claude-opus-4-7'; }),
+              getAuthType: vi.fn(function() { return AuthType.USE_ANTHROPIC; }),
+              getAllConfiguredModels: vi.fn(function() { return allModels; }),
+              getContentGeneratorConfig: vi.fn(function() { return {
                 authType: AuthType.USE_ANTHROPIC,
                 model: 'claude-opus-4-7',
-              })),
-              getModelsConfig: vi.fn(() => ({
-                getGenerationConfig: vi.fn(() => ({ baseUrl: undefined })),
-              })),
-              getActiveRuntimeModelSnapshot: vi.fn(() => undefined),
-              getUsageStatisticsEnabled: vi.fn(() => false),
-              getSessionId: vi.fn(() => 'session'),
-              getDebugMode: vi.fn(() => false),
-              getUseModelRouter: vi.fn(() => false),
-              getProxy: vi.fn(() => undefined),
+              }; }),
+              getModelsConfig: vi.fn(function() { return {
+                getGenerationConfig: vi.fn(function() { return { baseUrl: undefined }; }),
+              }; }),
+              getActiveRuntimeModelSnapshot: vi.fn(function() { return undefined; }),
+              getUsageStatisticsEnabled: vi.fn(function() { return false; }),
+              getSessionId: vi.fn(function() { return 'session'; }),
+              getDebugMode: vi.fn(function() { return false; }),
+              getUseModelRouter: vi.fn(function() { return false; }),
+              getProxy: vi.fn(function() { return undefined; }),
             } as unknown as Config
           }
         >
@@ -392,8 +392,8 @@ describe('<ModelDialog />', () => {
 
   it('blocks switching to qwen-oauth from another authType (discontinued)', async () => {
     const switchModel = vi.fn().mockResolvedValue(undefined);
-    const getAuthType = vi.fn(() => AuthType.USE_OPENAI);
-    const getAvailableModelsForAuthType = vi.fn((t: AuthType) => {
+    const getAuthType = vi.fn(function() { return AuthType.USE_OPENAI; });
+    const getAvailableModelsForAuthType = vi.fn(function(t: AuthType) {
       if (t === AuthType.USE_OPENAI) {
         return [{ id: 'gpt-4', label: 'GPT-4', authType: t }];
       }
@@ -409,11 +409,11 @@ describe('<ModelDialog />', () => {
 
     const mockConfigWithSwitchAuthType = {
       getAuthType,
-      getModel: vi.fn(() => 'gpt-4'),
-      getContentGeneratorConfig: vi.fn(() => ({
+      getModel: vi.fn(function() { return 'gpt-4'; }),
+      getContentGeneratorConfig: vi.fn(function() { return {
         authType: AuthType.USE_OPENAI,
         model: 'gpt-4',
-      })),
+      }; }),
       switchModel,
       getAvailableModelsForAuthType,
     };
@@ -472,12 +472,12 @@ describe('<ModelDialog />', () => {
   });
 
   it('updates initialIndex when config context changes', () => {
-    const mockGetModel = vi.fn(() => DEFAULT_QWEN_MODEL);
-    const mockGetAuthType = vi.fn(() => 'qwen-oauth');
-    const mockGetModelsConfig = vi.fn(() => ({
-      getGenerationConfig: vi.fn(() => ({ baseUrl: undefined })),
-    }));
-    const mockGetActiveRuntimeModelSnapshot = vi.fn(() => undefined);
+    const mockGetModel = vi.fn(function() { return DEFAULT_QWEN_MODEL; });
+    const mockGetAuthType = vi.fn(function() { return 'qwen-oauth'; });
+    const mockGetModelsConfig = vi.fn(function() { return {
+      getGenerationConfig: vi.fn(function() { return { baseUrl: undefined }; }),
+    }; });
+    const mockGetActiveRuntimeModelSnapshot = vi.fn(function() { return undefined; });
     const mockSettings = {
       isTrusted: true,
       user: { settings: {} },

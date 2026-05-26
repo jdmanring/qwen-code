@@ -10,7 +10,7 @@ import { SettingInputPrompt } from './SettingInputPrompt.js';
 import { TextInput } from './shared/TextInput.js';
 
 vi.mock('./shared/TextInput.js', () => ({
-  TextInput: vi.fn(() => null),
+  TextInput: vi.fn(function() { return null; }),
 }));
 
 vi.mock('../hooks/useKeypress.js', () => ({

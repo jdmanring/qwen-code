@@ -277,11 +277,10 @@ describe('subagent.ts', () => {
 
       mockSendMessageStream = vi.fn();
       vi.mocked(GeminiChat).mockImplementation(
-        () =>
-          ({
+        function() { return {
             sendMessageStream: mockSendMessageStream,
             setLastPromptTokenCount: vi.fn(),
-          }) as unknown as GeminiChat,
+          }; } as unknown as GeminiChat,
       );
 
       // Default mock for executeToolCall
@@ -992,14 +991,13 @@ describe('subagent.ts', () => {
           description: 'List files in directory',
           kind: 'READ' as const,
           schema: listFilesToolDef,
-          build: vi.fn().mockImplementation(() => listFilesInvocation),
+          build: vi.fn().mockImplementation(function() { return listFilesInvocation; }),
           canUpdateOutput: false,
           isOutputMarkdown: true,
         } as unknown as AnyDeclarativeTool;
         vi.mocked(
           (config.getToolRegistry() as unknown as ToolRegistry).getTool,
-        ).mockImplementation((name: string) =>
-          name === 'list_files' ? listFilesTool : undefined,
+        ).mockImplementation(function(name: string) { return name === 'list_files' ? listFilesTool : undefined; },
         );
 
         const scope = await AgentHeadless.create(
@@ -1165,11 +1163,10 @@ describe('subagent.ts', () => {
           { text: 'Here is the answer.' as string },
         ]);
         vi.mocked(GeminiChat).mockImplementation(
-          () =>
-            ({
+          function() { return {
               sendMessageStream: mockSendMessageStream,
               setLastPromptTokenCount: vi.fn(),
-            }) as unknown as GeminiChat,
+            }; } as unknown as GeminiChat,
         );
 
         const eventEmitter = new AgentEventEmitter();
@@ -1205,11 +1202,10 @@ describe('subagent.ts', () => {
           { text: 'The final answer.' as string },
         ]);
         vi.mocked(GeminiChat).mockImplementation(
-          () =>
-            ({
+          function() { return {
               sendMessageStream: mockSendMessageStream,
               setLastPromptTokenCount: vi.fn(),
-            }) as unknown as GeminiChat,
+            }; } as unknown as GeminiChat,
         );
 
         const scope = await AgentHeadless.create(
@@ -1270,11 +1266,10 @@ describe('subagent.ts', () => {
           })();
         });
         vi.mocked(GeminiChat).mockImplementation(
-          () =>
-            ({
+          function() { return {
               sendMessageStream: mockSendMessageStream,
               setLastPromptTokenCount: vi.fn(),
-            }) as unknown as GeminiChat,
+            }; } as unknown as GeminiChat,
         );
 
         const scope = await AgentHeadless.create(
@@ -1347,7 +1342,7 @@ describe('subagent.ts', () => {
           description: 'Read file contents',
           kind: 'READ' as const,
           schema: readFileToolDef,
-          build: vi.fn().mockImplementation(() => readFileInvocation),
+          build: vi.fn().mockImplementation(function() { return readFileInvocation; }),
           canUpdateOutput: false,
           isOutputMarkdown: true,
         } as unknown as AnyDeclarativeTool;
@@ -1358,7 +1353,7 @@ describe('subagent.ts', () => {
           description: 'Edit file contents',
           kind: 'WRITE' as const,
           schema: editFileToolDef,
-          build: vi.fn().mockImplementation(() => editFileInvocation),
+          build: vi.fn().mockImplementation(function() { return editFileInvocation; }),
           canUpdateOutput: false,
           isOutputMarkdown: true,
         } as unknown as AnyDeclarativeTool;
@@ -1372,7 +1367,7 @@ describe('subagent.ts', () => {
           getFunctionDeclarations: vi
             .fn()
             .mockReturnValue([readFileToolDef, editFileToolDef]),
-          getTool: vi.fn().mockImplementation((name: string) => {
+          getTool: vi.fn().mockImplementation(function(name: string) {
             if (name === 'read_file') return readFileTool;
             if (name === 'edit_file') return editFileTool;
             return undefined;
@@ -1464,7 +1459,7 @@ describe('subagent.ts', () => {
           getFunctionDeclarationsFiltered: vi
             .fn()
             .mockReturnValue([writeFileToolDef]),
-          getTool: vi.fn().mockImplementation((name: string) => {
+          getTool: vi.fn().mockImplementation(function(name: string) {
             if (name === WriteFileTool.Name) {
               return new WriteFileTool(config);
             }
@@ -1558,7 +1553,7 @@ describe('subagent.ts', () => {
           getFunctionDeclarationsFiltered: vi
             .fn()
             .mockReturnValue([writeFileToolDef]),
-          getTool: vi.fn().mockImplementation((name: string) => {
+          getTool: vi.fn().mockImplementation(function(name: string) {
             if (name === WriteFileTool.Name) {
               return new WriteFileTool(config);
             }

@@ -21,7 +21,7 @@ vi.mock('node:fs', async (importOriginal) => {
   } as typeof actual;
 });
 
-vi.mock('os', async (importOriginal) => {
+vi.mock('node:os', async (importOriginal) => {
   const os = await importOriginal<typeof import('os')>();
   return {
     ...os,
@@ -29,7 +29,7 @@ vi.mock('os', async (importOriginal) => {
   };
 });
 
-vi.mock('crypto', async (importOriginal) => {
+vi.mock('node:crypto', async (importOriginal) => {
   const crypto = await importOriginal<typeof import('crypto')>();
   return {
     ...crypto,
@@ -87,7 +87,7 @@ describe('InstallationManager', () => {
     it('should handle read errors and return a fallback ID', () => {
       vi.mocked(fs.existsSync).mockReturnValueOnce(true);
       const readSpy = vi.mocked(fs.readFileSync);
-      readSpy.mockImplementationOnce(() => {
+      readSpy.mockImplementationOnce(function() {
         throw new Error('Read error');
       });
 

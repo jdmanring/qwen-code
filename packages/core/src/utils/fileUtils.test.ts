@@ -49,12 +49,12 @@ vi.mock('node:child_process', async (importOriginal) => {
   return {
     ...actual,
     execFile: vi.fn(
-      (
+      function(
         _command: string,
         _args: string[],
         _optionsOrCallback: unknown,
         _callback?: unknown,
-      ) => {
+      ) {
         // Resolve the callback (supports both signatures of execFile)
         const cb =
           typeof _optionsOrCallback === 'function'
@@ -107,7 +107,7 @@ describe('fileUtils', () => {
     tempRootDir = actualNodeFs.mkdtempSync(
       path.join(os.tmpdir(), 'fileUtils-test-'),
     );
-    process.cwd = vi.fn(() => tempRootDir); // Mock cwd if necessary for relative path logic within tests
+    process.cwd = vi.fn(function() { return tempRootDir; }); // Mock cwd if necessary for relative path logic within tests
 
     testTextFilePath = path.join(tempRootDir, 'test.txt');
     testImageFilePath = path.join(tempRootDir, 'image.png');

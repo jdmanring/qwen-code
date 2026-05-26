@@ -36,10 +36,9 @@ describe('ExtensionStorage', () => {
   beforeEach(() => {
     vi.mocked(os.homedir).mockReturnValue(mockHomeDir);
     vi.mocked(Storage).mockImplementation(
-      () =>
-        ({
+      function() { return {
           getExtensionsDir: () => path.join(mockHomeDir, '.qwen', 'extensions'),
-        }) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        }; } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
     );
     vi.mocked(Storage.getUserExtensionsDir).mockReturnValue(
       path.join(mockHomeDir, '.qwen', 'extensions'),

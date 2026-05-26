@@ -89,8 +89,8 @@ const renderAuthDialog = (
   const uiActions = createMockUIActions(uiActionsOverrides);
 
   const mockConfig = {
-    getAuthType: vi.fn(() => configAuthType),
-    getContentGeneratorConfig: vi.fn(() => ({ apiKey: configApiKey })),
+    getAuthType: vi.fn(function() { return configAuthType; }),
+    getContentGeneratorConfig: vi.fn(function() { return { apiKey: configApiKey }; }),
   } as unknown as Config;
 
   return renderWithProviders(
@@ -1363,8 +1363,8 @@ describe('AuthDialog Custom API Key Wizard', { timeout: 15000 }, () => {
       const mockUIActions = createMockUIActions();
 
       const mockConfig = {
-        getAuthType: vi.fn(() => undefined),
-        getContentGeneratorConfig: vi.fn(() => ({})),
+        getAuthType: vi.fn(function() { return undefined; }),
+        getContentGeneratorConfig: vi.fn(function() { return {}; }),
       } as unknown as Config;
 
       const { stdin, lastFrame, unmount } = renderWithProviders(
@@ -1402,8 +1402,8 @@ describe('AuthDialog Custom API Key Wizard', { timeout: 15000 }, () => {
       const mockUIActions = createMockUIActions();
 
       const mockConfig = {
-        getAuthType: vi.fn(() => undefined),
-        getContentGeneratorConfig: vi.fn(() => ({})),
+        getAuthType: vi.fn(function() { return undefined; }),
+        getContentGeneratorConfig: vi.fn(function() { return {}; }),
       } as unknown as Config;
 
       const { stdin, lastFrame, unmount } = renderWithProviders(
@@ -1439,8 +1439,8 @@ describe('AuthDialog Custom API Key Wizard', { timeout: 15000 }, () => {
       const mockUIActions = createMockUIActions();
 
       const mockConfig = {
-        getAuthType: vi.fn(() => undefined),
-        getContentGeneratorConfig: vi.fn(() => ({})),
+        getAuthType: vi.fn(function() { return undefined; }),
+        getContentGeneratorConfig: vi.fn(function() { return {}; }),
       } as unknown as Config;
 
       const { stdin, lastFrame, unmount } = renderWithProviders(
@@ -1491,8 +1491,8 @@ describe('AuthDialog Custom API Key Wizard', { timeout: 15000 }, () => {
       const mockUIActions = createMockUIActions({ handleProviderSubmit });
 
       const mockConfig = {
-        getAuthType: vi.fn(() => undefined),
-        getContentGeneratorConfig: vi.fn(() => ({})),
+        getAuthType: vi.fn(function() { return undefined; }),
+        getContentGeneratorConfig: vi.fn(function() { return {}; }),
       } as unknown as Config;
 
       const { stdin, lastFrame, unmount } = renderWithProviders(
@@ -1553,8 +1553,8 @@ describe('AuthDialog Custom API Key Wizard', { timeout: 15000 }, () => {
       const mockUIActions = createMockUIActions();
 
       const mockConfig = {
-        getAuthType: vi.fn(() => undefined),
-        getContentGeneratorConfig: vi.fn(() => ({})),
+        getAuthType: vi.fn(function() { return undefined; }),
+        getContentGeneratorConfig: vi.fn(function() { return {}; }),
       } as unknown as Config;
 
       const { stdin, lastFrame, unmount } = renderWithProviders(
@@ -1598,8 +1598,8 @@ describe('AuthDialog Custom API Key Wizard', { timeout: 15000 }, () => {
       const mockUIActions = createMockUIActions({ handleProviderSubmit });
 
       const mockConfig = {
-        getAuthType: vi.fn(() => undefined),
-        getContentGeneratorConfig: vi.fn(() => ({})),
+        getAuthType: vi.fn(function() { return undefined; }),
+        getContentGeneratorConfig: vi.fn(function() { return {}; }),
       } as unknown as Config;
 
       const { stdin, lastFrame, unmount } = renderWithProviders(

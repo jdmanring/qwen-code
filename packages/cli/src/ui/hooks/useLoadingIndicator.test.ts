@@ -17,7 +17,7 @@ describe('useLoadingIndicator', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.spyOn(i18n, 'ta').mockReturnValue(MOCK_WITTY_PHRASES);
-    vi.spyOn(i18n, 't').mockImplementation((key) => key);
+    vi.spyOn(i18n, 't').mockImplementation(function(key) { return key; });
   });
 
   afterEach(() => {

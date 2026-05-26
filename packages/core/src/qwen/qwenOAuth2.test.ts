@@ -1542,7 +1542,7 @@ describe('Browser Launch and Error Handling', () => {
     // Mock open to return a child process that will emit error
     const open = await import('open');
     const mockChildProcess = {
-      on: vi.fn((event: string, callback: (error: Error) => void) => {
+      on: vi.fn(function(event: string, callback: (error: Error) => void) {
         if (event === 'error') {
           // Call the error handler immediately for testing
           setTimeout(() => callback(new Error('Process spawn failed')), 0);

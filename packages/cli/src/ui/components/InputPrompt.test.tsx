@@ -49,39 +49,39 @@ vi.mock('../hooks/useInputHistory.js');
 vi.mock('../hooks/useReverseSearchCompletion.js');
 vi.mock('../utils/clipboardUtils.js');
 vi.mock('../contexts/UIStateContext.js', () => ({
-  useUIState: vi.fn(() => ({ isFeedbackDialogOpen: false, messageQueue: [] })),
+  useUIState: vi.fn(function() { return { isFeedbackDialogOpen: false, messageQueue: [] }; }),
 }));
 vi.mock('../contexts/UIActionsContext.js', () => ({
-  useUIActions: vi.fn(() => ({
+  useUIActions: vi.fn(function() { return {
     handleRetryLastPrompt: vi.fn(),
     temporaryCloseFeedbackDialog: vi.fn(),
-    popAllQueuedMessages: vi.fn(() => null),
-  })),
+    popAllQueuedMessages: vi.fn(function() { return null; }),
+  }; }),
 }));
 vi.mock('../contexts/AgentViewContext.js', () => ({
-  useAgentViewState: vi.fn(() => ({
+  useAgentViewState: vi.fn(function() { return {
     activeView: 'main',
     agents: new Map(),
     agentShellFocused: false,
     agentInputBufferText: '',
     agentTabBarFocused: false,
     agentApprovalModes: new Map(),
-  })),
-  useAgentViewActions: vi.fn(() => ({
+  }; }),
+  useAgentViewActions: vi.fn(function() { return {
     setAgentTabBarFocused: mockViewActions.setAgentTabBarFocused,
-  })),
+  }; }),
 }));
 vi.mock('../contexts/BackgroundTaskViewContext.js', () => ({
-  useBackgroundTaskViewState: vi.fn(() => ({
+  useBackgroundTaskViewState: vi.fn(function() { return {
     entries: [],
     selectedIndex: 0,
     dialogMode: 'closed',
     dialogOpen: false,
     pillFocused: false,
-  })),
-  useBackgroundTaskViewActions: vi.fn(() => ({
+  }; }),
+  useBackgroundTaskViewActions: vi.fn(function() { return {
     setPillFocused: mockViewActions.setBgPillFocused,
-  })),
+  }; }),
 }));
 
 const mockSlashCommands: SlashCommand[] = [
@@ -189,7 +189,7 @@ describe('InputPrompt', () => {
     mockedUseUIActions.mockReturnValue({
       handleRetryLastPrompt: vi.fn(),
       temporaryCloseFeedbackDialog: vi.fn(),
-      popAllQueuedMessages: vi.fn(() => null),
+      popAllQueuedMessages: vi.fn(function() { return null; }),
     } as unknown as ReturnType<typeof useUIActions>);
     mockedUseAgentViewState.mockReturnValue({
       activeView: 'main',
@@ -219,7 +219,7 @@ describe('InputPrompt', () => {
       text: '',
       cursor: [0, 0],
       lines: [''],
-      setText: vi.fn((newText: string) => {
+      setText: vi.fn(function(newText: string) {
         mockBuffer.text = newText;
         mockBuffer.lines = [newText];
         mockBuffer.cursor = [0, newText.length];
@@ -236,7 +236,7 @@ describe('InputPrompt', () => {
       visualScrollRow: 0,
       handleInput: vi.fn(),
       move: vi.fn(),
-      moveToOffset: vi.fn((offset: number) => {
+      moveToOffset: vi.fn(function(offset: number) {
         mockBuffer.cursor = [0, offset];
       }),
       killLineRight: vi.fn(),
@@ -1213,7 +1213,7 @@ describe('InputPrompt', () => {
       { label: 'json', value: 'json' },
       { label: 'jsonl', value: 'jsonl' },
     ];
-    mockedUseCommandCompletion.mockImplementation((buffer) => {
+    mockedUseCommandCompletion.mockImplementation(function(buffer) {
       const isExportRoot = buffer.text.trim() === '/export';
       return {
         ...mockCommandCompletion,
@@ -1253,7 +1253,7 @@ describe('InputPrompt', () => {
     // Regression for PR #3701 review: exportCompletionSelectionIndexRef
     // leaked across buffer edits, so arrow keys would overwrite user-typed
     // text after the user moved away from an "/export <fmt>" input.
-    mockedUseCommandCompletion.mockImplementation((buffer) => {
+    mockedUseCommandCompletion.mockImplementation(function(buffer) {
       const isExportRoot = buffer.text.trim() === '/export';
       return {
         ...mockCommandCompletion,
@@ -1787,7 +1787,7 @@ describe('InputPrompt', () => {
     // If the popup persists across backspace+retype and the navigated flag
     // is not cleared on buffer.text changes, Enter would autocomplete the
     // first sub-command instead of submitting the perfect match.
-    mockedUseCommandCompletion.mockImplementation((buf) => {
+    mockedUseCommandCompletion.mockImplementation(function(buf) {
       const text = buf.text;
       const isMemory = text === '/memory';
       return {
@@ -3047,12 +3047,12 @@ describe('InputPrompt', () => {
 
     it('completes the highlighted entry on Tab and exits reverse-search', async () => {
       // Mock the reverse search completion
-      const mockHandleAutocomplete = vi.fn(() => {
+      const mockHandleAutocomplete = vi.fn(function() {
         props.buffer.setText('echo hello');
       });
 
       mockedUseReverseSearchCompletion.mockImplementation(
-        (buffer, shellHistory, reverseSearchActive) => ({
+        function(buffer, shellHistory, reverseSearchActive) { return {
           ...mockReverseSearchCompletion,
           suggestions: reverseSearchActive
             ? [
@@ -3064,7 +3064,7 @@ describe('InputPrompt', () => {
           showSuggestions: reverseSearchActive,
           activeSuggestionIndex: reverseSearchActive ? 0 : -1,
           handleAutocomplete: mockHandleAutocomplete,
-        }),
+        }; },
       );
 
       const { stdin, stdout, unmount } = renderWithProviders(
@@ -3241,7 +3241,7 @@ describe('InputPrompt', () => {
       props.shellModeActive = false;
 
       vi.mocked(useReverseSearchCompletion).mockImplementation(
-        (buffer, data, isActive) => ({
+        function(buffer, data, isActive) { return {
           ...mockReverseSearchCompletion,
           suggestions: isActive
             ? [
@@ -3251,7 +3251,7 @@ describe('InputPrompt', () => {
             : [],
           showSuggestions: !!isActive,
           activeSuggestionIndex: isActive ? 0 : -1,
-        }),
+        }; },
       );
 
       const { stdin, stdout, unmount } = renderWithProviders(
@@ -3280,7 +3280,7 @@ describe('InputPrompt', () => {
         { label: 'jsonl', value: 'jsonl' },
       ];
 
-      mockedUseCommandCompletion.mockImplementation((buffer) => {
+      mockedUseCommandCompletion.mockImplementation(function(buffer) {
         const isExportRoot = buffer.text.trim() === '/export';
         return {
           ...mockCommandCompletion,
@@ -3291,14 +3291,14 @@ describe('InputPrompt', () => {
         };
       });
       vi.mocked(useReverseSearchCompletion).mockImplementation(
-        (_buffer, _data, isActive) => ({
+        function(_buffer, _data, isActive) { return {
           ...mockReverseSearchCompletion,
           suggestions: isActive
             ? [{ label: 'git status', value: 'git status' }]
             : [],
           showSuggestions: !!isActive,
           activeSuggestionIndex: isActive ? 0 : -1,
-        }),
+        }; },
       );
 
       const TestHarness = () => {
@@ -3685,14 +3685,14 @@ describe('InputPrompt', () => {
 
     it('should reuse placeholder ID after deletion', async () => {
       // Set up mocks that actually update buffer state
-      vi.mocked(mockBuffer.insert).mockImplementation((text: string) => {
+      vi.mocked(mockBuffer.insert).mockImplementation(function(text: string) {
         mockBuffer.text += text;
         mockBuffer.lines = [mockBuffer.text];
         mockBuffer.cursor = [0, mockBuffer.text.length];
       });
 
       vi.mocked(mockBuffer.replaceRangeByOffset).mockImplementation(
-        (start: number, end: number, replacement: string) => {
+        function(start: number, end: number, replacement: string) {
           mockBuffer.text =
             mockBuffer.text.slice(0, start) +
             replacement +
@@ -3810,12 +3810,12 @@ describe('InputPrompt', () => {
       mockUIActions = {
         handleRetryLastPrompt: vi.fn(),
         temporaryCloseFeedbackDialog: vi.fn(),
-        popAllQueuedMessages: vi.fn(() => null),
+        popAllQueuedMessages: vi.fn(function() { return null; }),
       };
 
       // Override the mock for useUIActions
       vi.doMock('../contexts/UIActionsContext.js', () => ({
-        useUIActions: vi.fn(() => mockUIActions),
+        useUIActions: vi.fn(function() { return mockUIActions; }),
       }));
     });
 
@@ -3901,7 +3901,7 @@ describe('InputPrompt', () => {
       // Mock feedback dialog as open
       const mockUIState = { isFeedbackDialogOpen: true };
       vi.doMock('../contexts/UIStateContext.js', () => ({
-        useUIState: vi.fn(() => mockUIState),
+        useUIState: vi.fn(function() { return mockUIState; }),
       }));
 
       const { stdin, unmount } = renderWithProviders(
@@ -3931,12 +3931,12 @@ describe('InputPrompt', () => {
       vi.mocked(useUIActions).mockReturnValue({
         handleRetryLastPrompt: vi.fn(),
         temporaryCloseFeedbackDialog: vi.fn(),
-        popAllQueuedMessages: vi.fn(() => null),
+        popAllQueuedMessages: vi.fn(function() { return null; }),
       } as unknown as ReturnType<typeof useUIActions>);
     });
 
     it('should pop queued messages into input on Up arrow when queue is non-empty', async () => {
-      const mockPopAll = vi.fn(() => 'queued msg 1\n\nqueued msg 2');
+      const mockPopAll = vi.fn(function() { return 'queued msg 1\n\nqueued msg 2'; });
       vi.mocked(useUIState).mockReturnValue({
         isFeedbackDialogOpen: false,
         messageQueue: ['queued msg 1', 'queued msg 2'],
@@ -3963,7 +3963,7 @@ describe('InputPrompt', () => {
     });
 
     it('should prepend queued messages before existing input text', async () => {
-      const mockPopAll = vi.fn(() => 'queued msg');
+      const mockPopAll = vi.fn(function() { return 'queued msg'; });
       vi.mocked(useUIState).mockReturnValue({
         isFeedbackDialogOpen: false,
         messageQueue: ['queued msg'],
@@ -3996,7 +3996,7 @@ describe('InputPrompt', () => {
     });
 
     it('should pop queued messages on ESC when queue is non-empty', async () => {
-      const mockPopAll = vi.fn(() => 'queued msg');
+      const mockPopAll = vi.fn(function() { return 'queued msg'; });
       vi.mocked(useUIState).mockReturnValue({
         isFeedbackDialogOpen: false,
         messageQueue: ['queued msg'],
@@ -4023,7 +4023,7 @@ describe('InputPrompt', () => {
     it('should fall through to history when pop returns null (race condition)', async () => {
       // Simulate: React state says queue is non-empty, but queueRef was
       // already drained by another pop/drain — popAllQueuedMessages returns null.
-      const mockPopAll = vi.fn(() => null);
+      const mockPopAll = vi.fn(function() { return null; });
       vi.mocked(useUIState).mockReturnValue({
         isFeedbackDialogOpen: false,
         messageQueue: ['stale msg'],

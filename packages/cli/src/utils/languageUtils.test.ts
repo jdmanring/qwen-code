@@ -19,7 +19,7 @@ vi.mock('node:fs', () => ({
 // Mock i18n module
 vi.mock('../i18n/index.js', () => ({
   detectSystemLanguage: vi.fn(),
-  getLanguageNameFromLocale: vi.fn((locale: string) => {
+  getLanguageNameFromLocale: vi.fn(function(locale: string) {
     const map: Record<string, string> = {
       en: 'English',
       'zh-tw': 'Traditional Chinese',
@@ -38,7 +38,7 @@ vi.mock('../i18n/index.js', () => ({
 // Mock @qwen-code/qwen-code-core
 vi.mock('@qwen-code/qwen-code-core', () => ({
   Storage: {
-    getGlobalQwenDir: vi.fn(() => '/mock/home/.qwen'),
+    getGlobalQwenDir: vi.fn(function() { return '/mock/home/.qwen'; }),
   },
 }));
 
@@ -173,8 +173,8 @@ describe('languageUtils', () => {
 
   describe('writeOutputLanguageFile', () => {
     beforeEach(() => {
-      vi.mocked(fs.mkdirSync).mockImplementation(() => undefined);
-      vi.mocked(fs.writeFileSync).mockImplementation(() => undefined);
+      vi.mocked(fs.mkdirSync).mockImplementation(function() { return undefined; });
+      vi.mocked(fs.writeFileSync).mockImplementation(function() { return undefined; });
     });
 
     it('should create directory and write file', () => {
@@ -266,8 +266,8 @@ describe('languageUtils', () => {
 
   describe('updateOutputLanguageFile', () => {
     beforeEach(() => {
-      vi.mocked(fs.mkdirSync).mockImplementation(() => undefined);
-      vi.mocked(fs.writeFileSync).mockImplementation(() => undefined);
+      vi.mocked(fs.mkdirSync).mockImplementation(function() { return undefined; });
+      vi.mocked(fs.writeFileSync).mockImplementation(function() { return undefined; });
     });
 
     it('should resolve "auto" and write resolved language', () => {
@@ -297,8 +297,8 @@ describe('languageUtils', () => {
   describe('initializeLlmOutputLanguage', () => {
     beforeEach(() => {
       vi.mocked(fs.existsSync).mockReturnValue(false);
-      vi.mocked(fs.mkdirSync).mockImplementation(() => undefined);
-      vi.mocked(fs.writeFileSync).mockImplementation(() => undefined);
+      vi.mocked(fs.mkdirSync).mockImplementation(function() { return undefined; });
+      vi.mocked(fs.writeFileSync).mockImplementation(function() { return undefined; });
       vi.mocked(fs.readFileSync).mockReturnValue('');
     });
 
@@ -398,7 +398,7 @@ describe('languageUtils', () => {
 
     it('should handle file read errors gracefully', () => {
       vi.mocked(fs.existsSync).mockReturnValue(true);
-      vi.mocked(fs.readFileSync).mockImplementation(() => {
+      vi.mocked(fs.readFileSync).mockImplementation(function() {
         throw new Error('Read error');
       });
       vi.mocked(i18n.detectSystemLanguage).mockReturnValue('en');
@@ -427,7 +427,7 @@ describe('languageUtils', () => {
       const projectPath = '/project/.qwen/output-language.md';
       const globalPath = '/mock/home/.qwen/output-language.md';
 
-      vi.mocked(fs.existsSync).mockImplementation((p) => {
+      vi.mocked(fs.existsSync).mockImplementation(function(p) {
         if (p.toString() === projectPath) return true;
         if (p.toString() === globalPath) return true;
         return false;
@@ -447,7 +447,7 @@ describe('languageUtils', () => {
       const projectPath = '/project/.qwen/output-language.md';
       const globalPath = '/mock/home/.qwen/output-language.md';
 
-      vi.mocked(fs.existsSync).mockImplementation((p) => {
+      vi.mocked(fs.existsSync).mockImplementation(function(p) {
         if (p.toString() === projectPath) return false;
         if (p.toString() === globalPath) return true;
         return false;

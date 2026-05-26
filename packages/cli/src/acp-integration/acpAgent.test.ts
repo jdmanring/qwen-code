@@ -39,28 +39,28 @@ const { mockConnectionState } = vi.hoisted(() => {
 });
 
 vi.mock('@agentclientprotocol/sdk', () => ({
-  AgentSideConnection: vi.fn().mockImplementation(() => ({
+  AgentSideConnection: vi.fn().mockImplementation(function() { return {
     get closed() {
       return mockConnectionState.promise;
     },
-  })),
+  }; }),
   ndJsonStream: vi.fn().mockReturnValue({}),
   RequestError: class RequestError extends Error {
     static authRequired = vi
       .fn()
-      .mockImplementation((data: unknown, msg: string) => {
+      .mockImplementation(function(data: unknown, msg: string) {
         const err = new Error(msg);
         Object.assign(err, data);
         return err;
       });
     static invalidParams = vi
       .fn()
-      .mockImplementation((data: unknown, msg: string) => {
+      .mockImplementation(function(data: unknown, msg: string) {
         const err = new Error(msg);
         Object.assign(err, data);
         return err;
       });
-    static resourceNotFound = vi.fn().mockImplementation((uri: string) => {
+    static resourceNotFound = vi.fn().mockImplementation(function(uri: string) {
       const err = new Error(`Resource not found: ${uri}`);
       Object.assign(err, { code: -32002, data: { uri } });
       return err;
@@ -116,9 +116,9 @@ vi.mock('@qwen-code/qwen-code-core', () => ({
   },
   getMCPDiscoveryState: vi.fn().mockReturnValue('completed'),
   getMCPServerStatus: vi.fn().mockReturnValue('connected'),
-  MCPServerConfig: vi.fn().mockImplementation((...args: unknown[]) => ({
+  MCPServerConfig: vi.fn().mockImplementation(function(...args: unknown[]) { return {
     _args: args,
-  })),
+  }; }),
   SessionService: vi.fn(),
   SESSION_TITLE_MAX_LENGTH: 200,
   tokenLimit: vi.fn().mockReturnValue(128_000),
@@ -163,11 +163,9 @@ vi.mock('./session/Session.js', () => ({
 }));
 vi.mock('../utils/acpModelUtils.js', () => ({
   formatAcpModelId: vi.fn(
-    (modelId: string, authType: string) => `${modelId}(${authType})`,
+    function(modelId: string, authType: string) { return `${modelId}(${authType})`; },
   ),
-  parseAcpBaseModelId: vi.fn((modelId: string) =>
-    modelId.replace(/\([^)]+\)$/, ''),
-  ),
+  parseAcpBaseModelId: vi.fn(function(modelId: string) { return modelId.replace(/\([^)]+\)$/, ''); }),
 }));
 
 import {
@@ -259,10 +257,10 @@ describe('runAcpAgent shutdown cleanup', () => {
     // Mock stdin/stdout destroy
     stdinDestroySpy = vi
       .spyOn(process.stdin, 'destroy')
-      .mockImplementation(() => process.stdin);
+      .mockImplementation(function() { return process.stdin; });
     stdoutDestroySpy = vi
       .spyOn(process.stdout, 'destroy')
-      .mockImplementation(() => process.stdout);
+      .mockImplementation(function() { return process.stdout; });
   });
 
   afterEach(() => {
@@ -434,10 +432,10 @@ describe('runAcpAgent SessionEnd hooks', () => {
 
     stdinDestroySpy = vi
       .spyOn(process.stdin, 'destroy')
-      .mockImplementation(() => process.stdin);
+      .mockImplementation(function() { return process.stdin; });
     stdoutDestroySpy = vi
       .spyOn(process.stdout, 'destroy')
-      .mockImplementation(() => process.stdout);
+      .mockImplementation(function() { return process.stdout; });
   });
 
   afterEach(() => {
@@ -723,7 +721,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
     capturedAgentFactory = undefined;
 
     // Override AgentSideConnection mock to capture factory
-    vi.mocked(AgentSideConnection).mockImplementation((factory: unknown) => {
+    vi.mocked(AgentSideConnection).mockImplementation(function(factory: unknown) {
       capturedAgentFactory = factory as typeof capturedAgentFactory;
       return {
         get closed() {
@@ -750,10 +748,10 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
       .mockImplementation((() => undefined) as unknown as typeof process.exit);
     stdinDestroySpy = vi
       .spyOn(process.stdin, 'destroy')
-      .mockImplementation(() => process.stdin);
+      .mockImplementation(function() { return process.stdin; });
     stdoutDestroySpy = vi
       .spyOn(process.stdout, 'destroy')
-      .mockImplementation(() => process.stdout);
+      .mockImplementation(function() { return process.stdout; });
   });
 
   afterEach(() => {
@@ -837,7 +835,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
     vi.mocked(loadCliConfig).mockResolvedValue(
       innerConfig as unknown as Config,
     );
-    vi.mocked(Session).mockImplementation(() => {
+    vi.mocked(Session).mockImplementation(function() {
       const sessionMock = {
         getId: vi.fn().mockReturnValue(sessionId),
         getConfig: vi.fn().mockReturnValue(innerConfig),
@@ -907,7 +905,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
       }),
       isMcpServerDisabled: vi
         .fn()
-        .mockImplementation((name: string) => name === 'disabled'),
+        .mockImplementation(function(name: string) { return name === 'disabled'; }),
       getSkillManager: vi.fn().mockReturnValue({ listSkills }),
       getAuthType: vi.fn().mockReturnValue('qwen'),
       getAllConfiguredModels: vi.fn().mockReturnValue([
@@ -1053,13 +1051,13 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
     mockConfig = {
       ...mockConfig,
       getTargetDir: vi.fn().mockReturnValue('/work/status'),
-      getMcpServers: vi.fn(() => {
+      getMcpServers: vi.fn(function() {
         throw new Error('broken mcp config');
       }),
       getAuthType: vi.fn().mockReturnValue('qwen'),
       getActiveRuntimeModelSnapshot: vi.fn().mockReturnValue(undefined),
       getModel: vi.fn().mockReturnValue('qwen-plus'),
-      getAllConfiguredModels: vi.fn(() => {
+      getAllConfiguredModels: vi.fn(function() {
         throw new Error('broken provider config');
       }),
     } as unknown as Config;
@@ -1232,7 +1230,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
       getMcpServers: vi.fn().mockReturnValue({}),
       getAuthType: vi.fn().mockReturnValue('qwen'),
       getModel: vi.fn().mockReturnValue('qwen-plus'),
-      getSkillManager: vi.fn(() => {
+      getSkillManager: vi.fn(function() {
         throw new Error('config getter exploded mid-eval');
       }),
       getAllConfiguredModels: vi.fn().mockReturnValue([]),
@@ -1614,7 +1612,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
     mockConfig.getHookSystem = vi.fn().mockReturnValue(bootstrapHookSystem);
     mockConfig.hasHooksForEvent = vi
       .fn()
-      .mockImplementation((event: string) => event === 'SessionEnd');
+      .mockImplementation(function(event: string) { return event === 'SessionEnd'; });
 
     const innerConfigA = await setupSessionMocks('session-end-a');
     const sessionHookSystemA = {
@@ -1625,7 +1623,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
     innerConfigA.getDisableAllHooks = vi.fn().mockReturnValue(false);
     innerConfigA.hasHooksForEvent = vi
       .fn()
-      .mockImplementation((event: string) => event === 'SessionEnd');
+      .mockImplementation(function(event: string) { return event === 'SessionEnd'; });
     innerConfigA.getGeminiClient = vi.fn().mockReturnValue({
       isInitialized: vi.fn().mockReturnValue(false),
       initialize: vi.fn().mockResolvedValue(undefined),
@@ -1641,7 +1639,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
     innerConfigB.getDisableAllHooks = vi.fn().mockReturnValue(false);
     innerConfigB.hasHooksForEvent = vi
       .fn()
-      .mockImplementation((event: string) => event === 'SessionEnd');
+      .mockImplementation(function(event: string) { return event === 'SessionEnd'; });
     innerConfigB.getGeminiClient = vi.fn().mockReturnValue({
       isInitialized: vi.fn().mockReturnValue(false),
       initialize: vi.fn().mockResolvedValue(undefined),
@@ -1649,7 +1647,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
     vi.mocked(loadCliConfig)
       .mockResolvedValueOnce(innerConfigA as unknown as Config)
       .mockResolvedValueOnce(innerConfigB as unknown as Config);
-    vi.mocked(Session).mockImplementation((...args: unknown[]) => {
+    vi.mocked(Session).mockImplementation(function(...args: unknown[]) {
       const sessionId = args[0] as string;
       const cfg = sessionId === 'session-end-a' ? innerConfigA : innerConfigB;
       return {
@@ -1983,7 +1981,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
       .mockReturnValue(['broken-server-a', 'broken-server-b']);
     const stderrWrite = vi
       .spyOn(process.stderr, 'write')
-      .mockImplementation(() => true);
+      .mockImplementation(function() { return true; });
 
     const agentPromise = runAcpAgent(
       mockConfig,
@@ -2024,7 +2022,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
     await setupSessionMocks('session-stubbed-config');
     const stderrWrite = vi
       .spyOn(process.stderr, 'write')
-      .mockImplementation(() => true);
+      .mockImplementation(function() { return true; });
 
     const agentPromise = runAcpAgent(
       mockConfig,
@@ -2116,7 +2114,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
     const callOrder: string[] = [];
     (innerConfig as unknown as Record<string, unknown>)[
       'setMcpBudgetEventCallback'
-    ] = vi.fn((cb: (event: Record<string, unknown>) => void) => {
+    ] = vi.fn(function(cb: (event: Record<string, unknown>) => void) {
       callOrder.push('setMcpBudgetEventCallback');
       capturedCallback = cb;
     });
@@ -2276,7 +2274,7 @@ describe('QwenAgent extMethod renameSession routing', () => {
     mockConnectionState.reset();
     capturedAgentFactory = undefined;
 
-    vi.mocked(AgentSideConnection).mockImplementation((factory: unknown) => {
+    vi.mocked(AgentSideConnection).mockImplementation(function(factory: unknown) {
       capturedAgentFactory = factory as typeof capturedAgentFactory;
       return {
         get closed() {
@@ -2354,14 +2352,13 @@ describe('QwenAgent extMethod renameSession routing', () => {
       innerConfig as unknown as Config,
     );
     vi.mocked(Session).mockImplementation(
-      () =>
-        ({
+      function() { return {
           getId: vi.fn().mockReturnValue(liveSessionId),
           getConfig: vi.fn().mockReturnValue(innerConfig),
           sendAvailableCommandsUpdate: vi.fn().mockResolvedValue(undefined),
           replayHistory: vi.fn().mockResolvedValue(undefined),
           installRewriter: vi.fn(),
-        }) as unknown as InstanceType<typeof Session>,
+        }; } as unknown as InstanceType<typeof Session>,
     );
 
     const agentPromise = runAcpAgent(
@@ -2418,10 +2415,9 @@ describe('QwenAgent extMethod renameSession routing', () => {
 
     const renameSpy = vi.fn().mockResolvedValue(true);
     vi.mocked(SessionService).mockImplementation(
-      () =>
-        ({
+      function() { return {
           renameSession: renameSpy,
-        }) as unknown as InstanceType<typeof SessionService>,
+        }; } as unknown as InstanceType<typeof SessionService>,
     );
 
     const deadSessionId = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
@@ -2503,7 +2499,7 @@ describe('QwenAgent loadSession / unstable_resumeSession', () => {
     lastSessionMock = undefined;
     capturedAgentFactory = undefined;
 
-    vi.mocked(AgentSideConnection).mockImplementation((factory: unknown) => {
+    vi.mocked(AgentSideConnection).mockImplementation(function(factory: unknown) {
       capturedAgentFactory = factory as typeof capturedAgentFactory;
       return {
         get closed() {
@@ -2530,10 +2526,10 @@ describe('QwenAgent loadSession / unstable_resumeSession', () => {
       .mockImplementation((() => undefined) as unknown as typeof process.exit);
     stdinDestroySpy = vi
       .spyOn(process.stdin, 'destroy')
-      .mockImplementation(() => process.stdin);
+      .mockImplementation(function() { return process.stdin; });
     stdoutDestroySpy = vi
       .spyOn(process.stdout, 'destroy')
-      .mockImplementation(() => process.stdout);
+      .mockImplementation(function() { return process.stdout; });
   });
 
   afterEach(() => {
@@ -2604,12 +2600,11 @@ describe('QwenAgent loadSession / unstable_resumeSession', () => {
       innerConfig as unknown as Config,
     );
     vi.mocked(SessionService).mockImplementation(
-      () =>
-        ({
+      function() { return {
           sessionExists: vi.fn().mockResolvedValue(opts.sessionExists),
-        }) as unknown as InstanceType<typeof SessionService>,
+        }; } as unknown as InstanceType<typeof SessionService>,
     );
-    vi.mocked(Session).mockImplementation(() => {
+    vi.mocked(Session).mockImplementation(function() {
       const sessionMock = {
         getId: vi.fn().mockReturnValue('persisted-1'),
         getConfig: vi.fn().mockReturnValue(innerConfig),

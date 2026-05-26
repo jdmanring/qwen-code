@@ -95,7 +95,7 @@ function createFakeSession(events: EventQueue): FakeSession {
     workspaceCwd: '/repo',
     lastEventId: undefined,
     prompt: vi.fn().mockResolvedValue({ stopReason: 'end_turn' }),
-    events: vi.fn((opts?: { signal?: AbortSignal }) => {
+    events: vi.fn(function(opts?: { signal?: AbortSignal }) {
       opts?.signal?.addEventListener('abort', () => events.close(), {
         once: true,
       });
@@ -812,7 +812,7 @@ describe('DaemonTuiAdapter', () => {
     const events = new EventQueue();
     const session = createFakeSession(events);
     const hangingEvents: AsyncGenerator<DaemonTuiEvent> = {
-      next: vi.fn(() => new Promise<IteratorResult<DaemonTuiEvent>>(() => {})),
+      next: vi.fn(function() { return new Promise<IteratorResult<DaemonTuiEvent>>(() => {}); }),
       return: vi.fn(async () => ({ done: true as const, value: undefined })),
       throw: vi.fn(async (error?: unknown) => {
         throw error;

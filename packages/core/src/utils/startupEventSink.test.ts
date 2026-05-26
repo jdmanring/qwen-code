@@ -32,7 +32,7 @@ describe('startupEventSink', () => {
   });
 
   it('does not bubble sink exceptions into hot paths', () => {
-    const sink = vi.fn(() => {
+    const sink = vi.fn(function() {
       throw new Error('sink should not break callers');
     });
     setStartupEventSink(sink);

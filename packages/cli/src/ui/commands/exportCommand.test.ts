@@ -63,12 +63,14 @@ vi.mock('../utils/export/index.js', () => ({
   generateExportFilename: vi.fn(),
 }));
 
-vi.mock('node:fs/promises', () => ({
-  chmod: vi.fn(),
-  mkdir: vi.fn(),
-  realpath: vi.fn(),
-  writeFile: vi.fn(),
-}));
+vi.mock('node:fs/promises', () => {
+  const chmod = vi.fn();
+  const mkdir = vi.fn();
+  const realpath = vi.fn();
+  const writeFile = vi.fn();
+  const mod = { chmod, mkdir, realpath, writeFile };
+  return { ...mod, default: mod };
+});
 
 describe('exportCommand', () => {
   const mockSessionData = {
@@ -92,7 +94,7 @@ describe('exportCommand', () => {
   let mockContext: ReturnType<typeof createMockCommandContext>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
 
     mockSessionServiceMocks.loadSession.mockResolvedValue(mockSessionData);
 
@@ -111,7 +113,7 @@ describe('exportCommand', () => {
       startTime: '2025-01-01T00:00:00Z',
       messages: [],
     });
-    vi.mocked(normalizeSessionData).mockImplementation((data) => data);
+    vi.mocked(normalizeSessionData).mockImplementation(function(data) { return data; });
     vi.mocked(toMarkdown).mockReturnValue('# Test Markdown');
     vi.mocked(toHtml).mockReturnValue(
       '<html><script id="chat-data" type="application/json">{"data": "test"}</script></html>',
@@ -119,9 +121,11 @@ describe('exportCommand', () => {
     vi.mocked(toJson).mockReturnValue('{"messages":[]}');
     vi.mocked(toJsonl).mockReturnValue('{"type":"session_metadata"}');
     vi.mocked(generateExportFilename).mockImplementation(
-      (ext: string) => `export-2025-01-01T00-00-00-000Z.${ext}`,
+      function(ext: string) { return `export-2025-01-01T00-00-00-000Z.${ext}`; },
     );
     vi.mocked(fs.chmod).mockResolvedValue(undefined);
+    vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+    vi.mocked(fs.writeFile).mockResolvedValue(undefined);
     vi.mocked(fs.realpath).mockImplementation(async (p) => p.toString());
   });
 
@@ -309,7 +313,7 @@ describe('exportCommand', () => {
 
     it('should handle errors during markdown generation', async () => {
       const error = new Error('Failed to generate markdown');
-      vi.mocked(toMarkdown).mockImplementation(() => {
+      vi.mocked(toMarkdown).mockImplementation(function() {
         throw error;
       });
 
@@ -375,7 +379,7 @@ describe('exportCommand', () => {
     });
 
     it('should handle session normalization errors', async () => {
-      vi.mocked(normalizeSessionData).mockImplementation(() => {
+      vi.mocked(normalizeSessionData).mockImplementation(function() {
         throw new Error('Failed to normalize session data');
       });
 
@@ -590,7 +594,7 @@ describe('exportCommand', () => {
 
       const outputDir = path.resolve(mockWorkingDir, './logs');
       let contentFormatted = false;
-      vi.mocked(toMarkdown).mockImplementation(() => {
+      vi.mocked(toMarkdown).mockImplementation(function() {
         contentFormatted = true;
         return '# Test Markdown';
       });
@@ -627,7 +631,7 @@ describe('exportCommand', () => {
 
       const outputDir = path.resolve(mockWorkingDir, './logs');
       let contentFormatted = false;
-      vi.mocked(toMarkdown).mockImplementation(() => {
+      vi.mocked(toMarkdown).mockImplementation(function() {
         contentFormatted = true;
         return '# Test Markdown';
       });
@@ -661,7 +665,7 @@ describe('exportCommand', () => {
 
       const outputDir = path.resolve(mockWorkingDir, './logs');
       let contentFormatted = false;
-      vi.mocked(toMarkdown).mockImplementation(() => {
+      vi.mocked(toMarkdown).mockImplementation(function() {
         contentFormatted = true;
         return '# Test Markdown';
       });
@@ -940,7 +944,7 @@ describe('exportCommand', () => {
 
     it('should handle errors during HTML generation', async () => {
       const error = new Error('Failed to generate HTML');
-      vi.mocked(toHtml).mockImplementation(() => {
+      vi.mocked(toHtml).mockImplementation(function() {
         throw error;
       });
 
@@ -1058,7 +1062,7 @@ describe('exportCommand', () => {
 
     it('should handle errors during JSON generation', async () => {
       const error = new Error('Failed to generate JSON');
-      vi.mocked(toJson).mockImplementation(() => {
+      vi.mocked(toJson).mockImplementation(function() {
         throw error;
       });
 
@@ -1154,7 +1158,7 @@ describe('exportCommand', () => {
 
     it('should handle errors during JSONL generation', async () => {
       const error = new Error('Failed to generate JSONL');
-      vi.mocked(toJsonl).mockImplementation(() => {
+      vi.mocked(toJsonl).mockImplementation(function() {
         throw error;
       });
 

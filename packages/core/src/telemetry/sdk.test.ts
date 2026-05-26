@@ -56,7 +56,7 @@ vi.mock('./gcp-exporters.js');
 vi.mock('./log-to-span-processor.js');
 vi.mock('./session-context.js');
 vi.mock('./tracer.js', () => ({
-  createSessionRootContext: vi.fn((id: string) => ({ __sessionId: id })),
+  createSessionRootContext: vi.fn(function(id: string) { return { __sessionId: id }; }),
 }));
 
 import { LogToSpanProcessor } from './log-to-span-processor.js';
@@ -174,10 +174,10 @@ describe('Telemetry SDK', () => {
   it('should route OpenTelemetry diagnostics to debug log instead of console output', async () => {
     const consoleErrorSpy = vi
       .spyOn(console, 'error')
-      .mockImplementation(() => {});
+      .mockImplementation(function() {});
     const consoleWarnSpy = vi
       .spyOn(console, 'warn')
-      .mockImplementation(() => {});
+      .mockImplementation(function() {});
     const mkdirSpy = vi.spyOn(fs, 'mkdir').mockResolvedValue(undefined);
     const appendFileSpy = vi
       .spyOn(fs, 'appendFile')
@@ -363,7 +363,7 @@ describe('Telemetry SDK', () => {
   });
 
   it('should warn and skip startup for gRPC per-signal endpoints without base endpoint', () => {
-    const diagWarnSpy = vi.spyOn(diag, 'warn').mockImplementation(() => {});
+    const diagWarnSpy = vi.spyOn(diag, 'warn').mockImplementation(function() {});
     try {
       vi.spyOn(mockConfig, 'getTelemetryOtlpProtocol').mockReturnValue('grpc');
       vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue('');
@@ -447,7 +447,7 @@ describe('Telemetry SDK', () => {
     const shutdownSpy = vi
       .spyOn(NodeSDK.prototype, 'shutdown')
       .mockReturnValue(new Promise<void>(() => {}));
-    const diagWarnSpy = vi.spyOn(diag, 'warn').mockImplementation(() => {});
+    const diagWarnSpy = vi.spyOn(diag, 'warn').mockImplementation(function() {});
     try {
       initializeTelemetry(mockConfig);
 
@@ -488,7 +488,7 @@ describe('Telemetry SDK', () => {
     const shutdownSpy = vi
       .spyOn(NodeSDK.prototype, 'shutdown')
       .mockReturnValue(Promise.reject(new Error('shutdown failed')));
-    const diagErrorSpy = vi.spyOn(diag, 'error').mockImplementation(() => {});
+    const diagErrorSpy = vi.spyOn(diag, 'error').mockImplementation(function() {});
     try {
       initializeTelemetry(mockConfig);
 
@@ -506,7 +506,7 @@ describe('Telemetry SDK', () => {
   });
 
   it('should fall back to "unknown" when getCliVersion returns undefined', () => {
-    vi.spyOn(mockConfig, 'getCliVersion').mockImplementation(() => undefined);
+    vi.spyOn(mockConfig, 'getCliVersion').mockImplementation(function() { return undefined; });
     initializeTelemetry(mockConfig);
 
     const constructorCall = vi.mocked(NodeSDK).mock.calls[0]![0]!;
@@ -587,7 +587,7 @@ describe('Telemetry SDK', () => {
     it('emits a console summary when resource-attribute warnings are present', () => {
       const consoleWarnSpy = vi
         .spyOn(console, 'warn')
-        .mockImplementation(() => {});
+        .mockImplementation(function() {});
       try {
         vi.spyOn(
           mockConfig,
@@ -612,7 +612,7 @@ describe('Telemetry SDK', () => {
     it('no console output when warnings list is empty', () => {
       const consoleWarnSpy = vi
         .spyOn(console, 'warn')
-        .mockImplementation(() => {});
+        .mockImplementation(function() {});
       try {
         initializeTelemetry(mockConfig);
         expect(consoleWarnSpy).not.toHaveBeenCalled();
@@ -687,7 +687,7 @@ describe('refreshSessionContext', () => {
   it('should not throw when refreshing session context fails', () => {
     initializeTelemetry(mockConfig);
     vi.clearAllMocks();
-    vi.mocked(createSessionRootContext).mockImplementationOnce(() => {
+    vi.mocked(createSessionRootContext).mockImplementationOnce(function() {
       throw new Error('session context failed');
     });
 

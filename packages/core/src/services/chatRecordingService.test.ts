@@ -23,11 +23,11 @@ vi.mock('node:path');
 vi.mock('node:child_process');
 vi.mock('node:crypto', () => ({
   randomUUID: vi.fn(),
-  createHash: vi.fn(() => ({
-    update: vi.fn(() => ({
-      digest: vi.fn(() => 'mocked-hash'),
-    })),
-  })),
+  createHash: vi.fn(function() { return {
+    update: vi.fn(function() { return {
+      digest: vi.fn(function() { return 'mocked-hash'; }),
+    }; }),
+  }; }),
 }));
 vi.mock('../utils/jsonl-utils.js');
 
@@ -67,18 +67,17 @@ describe('ChatRecordingService', () => {
     } as unknown as Config;
 
     vi.mocked(randomUUID).mockImplementation(
-      () =>
-        `00000000-0000-0000-0000-00000000000${++uuidCounter}` as `${string}-${string}-${string}-${string}-${string}`,
+      function() { return `00000000-0000-0000-0000-00000000000${++uuidCounter}` as `${string}-${string}-${string}-${string}-${string}`; },
     );
-    vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
-    vi.mocked(path.dirname).mockImplementation((p) => {
+    vi.mocked(path.join).mockImplementation(function(...args) { return args.join('/'); });
+    vi.mocked(path.dirname).mockImplementation(function(p) {
       const parts = p.split('/');
       parts.pop();
       return parts.join('/');
     });
     vi.mocked(execSync).mockReturnValue('main\n');
-    vi.spyOn(fs, 'mkdirSync').mockImplementation(() => undefined);
-    vi.spyOn(fs, 'writeFileSync').mockImplementation(() => undefined);
+    vi.spyOn(fs, 'mkdirSync').mockImplementation(function() { return undefined; });
+    vi.spyOn(fs, 'writeFileSync').mockImplementation(function() { return undefined; });
     vi.spyOn(fs, 'existsSync').mockReturnValue(false);
 
     chatRecordingService = new ChatRecordingService(mockConfig);
@@ -583,16 +582,16 @@ describe('ChatRecordingService', () => {
       // both mkdir AND the wx-create, otherwise ensureConversationFile's
       // own cache short-circuits ensureChatsDir on the second call.
       const mkdirSpy = vi.spyOn(fs, 'mkdirSync');
-      mkdirSpy.mockImplementationOnce(() => {
+      mkdirSpy.mockImplementationOnce(function() {
         throw Object.assign(new Error('EACCES'), { code: 'EACCES' });
       });
-      mkdirSpy.mockImplementation(() => undefined);
+      mkdirSpy.mockImplementation(function() { return undefined; });
 
       const writeSpy = vi.spyOn(fs, 'writeFileSync');
-      writeSpy.mockImplementationOnce(() => {
+      writeSpy.mockImplementationOnce(function() {
         throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
       });
-      writeSpy.mockImplementation(() => undefined);
+      writeSpy.mockImplementation(function() { return undefined; });
 
       chatRecordingService.recordUserMessage([{ text: 'first' }]);
       await chatRecordingService.flush();
@@ -606,7 +605,7 @@ describe('ChatRecordingService', () => {
     it('caches after a successful mkdir so steady-state writes skip the syscall', async () => {
       const mkdirSpy = vi
         .spyOn(fs, 'mkdirSync')
-        .mockImplementation(() => undefined);
+        .mockImplementation(function() { return undefined; });
 
       chatRecordingService.recordUserMessage([{ text: 'first' }]);
       await chatRecordingService.flush();
@@ -730,7 +729,7 @@ describe('ChatRecordingService', () => {
       // ensureConversationFile rethrows that, which propagates through
       // appendRecord SYNCHRONOUSLY before any promise is returned.
       const writeFileSpy = vi.spyOn(fs, 'writeFileSync');
-      writeFileSpy.mockImplementationOnce(() => {
+      writeFileSpy.mockImplementationOnce(function() {
         const e = new Error(
           'EACCES: permission denied',
         ) as NodeJS.ErrnoException;

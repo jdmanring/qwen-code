@@ -48,7 +48,7 @@ describe('arenaCommand localization', () => {
       executionMode: 'interactive',
       services: {
         config: {
-          getArenaManager: vi.fn(() => null),
+          getArenaManager: vi.fn(function() { return null; }),
         } as never,
       },
     });
@@ -67,9 +67,9 @@ describe('arenaCommand localization', () => {
       executionMode: 'interactive',
       services: {
         config: {
-          getArenaManager: vi.fn(() => ({
-            getSessionStatus: vi.fn(() => ArenaSessionStatus.RUNNING),
-          })),
+          getArenaManager: vi.fn(function() { return {
+            getSessionStatus: vi.fn(function() { return ArenaSessionStatus.RUNNING; }),
+          }; }),
         } as never,
       },
     });
@@ -97,10 +97,10 @@ describe('arenaCommand stop subcommand', () => {
 
   beforeEach(() => {
     mockConfig = {
-      getArenaManager: vi.fn(() => null),
+      getArenaManager: vi.fn(function() { return null; }),
       setArenaManager: vi.fn(),
       cleanupArenaRuntime: vi.fn().mockResolvedValue(undefined),
-      getAgentsSettings: vi.fn(() => ({})),
+      getAgentsSettings: vi.fn(function() { return {}; }),
     };
 
     mockContext = createMockCommandContext({
@@ -129,9 +129,9 @@ describe('arenaCommand stop subcommand', () => {
 
   it('opens stop dialog when a running session exists', async () => {
     const mockManager = {
-      getSessionStatus: vi.fn(() => ArenaSessionStatus.RUNNING),
+      getSessionStatus: vi.fn(function() { return ArenaSessionStatus.RUNNING; }),
     } as unknown as ArenaManager;
-    mockConfig.getArenaManager = vi.fn(() => mockManager);
+    mockConfig.getArenaManager = vi.fn(function() { return mockManager; });
 
     const stopCommand = getArenaSubCommand('stop');
     const result = (await stopCommand.action!(
@@ -147,9 +147,9 @@ describe('arenaCommand stop subcommand', () => {
 
   it('opens stop dialog when a completed session exists', async () => {
     const mockManager = {
-      getSessionStatus: vi.fn(() => ArenaSessionStatus.COMPLETED),
+      getSessionStatus: vi.fn(function() { return ArenaSessionStatus.COMPLETED; }),
     } as unknown as ArenaManager;
-    mockConfig.getArenaManager = vi.fn(() => mockManager);
+    mockConfig.getArenaManager = vi.fn(function() { return mockManager; });
 
     const stopCommand = getArenaSubCommand('stop');
     const result = (await stopCommand.action!(
@@ -172,7 +172,7 @@ describe('arenaCommand status subcommand', () => {
 
   beforeEach(() => {
     mockConfig = {
-      getArenaManager: vi.fn(() => null),
+      getArenaManager: vi.fn(function() { return null; }),
     };
 
     mockContext = createMockCommandContext({
@@ -201,9 +201,9 @@ describe('arenaCommand status subcommand', () => {
 
   it('opens status dialog when a session exists', async () => {
     const mockManager = {
-      getSessionStatus: vi.fn(() => ArenaSessionStatus.RUNNING),
+      getSessionStatus: vi.fn(function() { return ArenaSessionStatus.RUNNING; }),
     } as unknown as ArenaManager;
-    mockConfig.getArenaManager = vi.fn(() => mockManager);
+    mockConfig.getArenaManager = vi.fn(function() { return mockManager; });
 
     const statusCommand = getArenaSubCommand('status');
     const result = (await statusCommand.action!(
@@ -219,9 +219,9 @@ describe('arenaCommand status subcommand', () => {
 
   it('opens status dialog for completed session', async () => {
     const mockManager = {
-      getSessionStatus: vi.fn(() => ArenaSessionStatus.COMPLETED),
+      getSessionStatus: vi.fn(function() { return ArenaSessionStatus.COMPLETED; }),
     } as unknown as ArenaManager;
-    mockConfig.getArenaManager = vi.fn(() => mockManager);
+    mockConfig.getArenaManager = vi.fn(function() { return mockManager; });
 
     const statusCommand = getArenaSubCommand('status');
     const result = (await statusCommand.action!(
@@ -247,10 +247,10 @@ describe('arenaCommand select subcommand', () => {
 
   beforeEach(() => {
     mockConfig = {
-      getArenaManager: vi.fn(() => null),
+      getArenaManager: vi.fn(function() { return null; }),
       setArenaManager: vi.fn(),
       cleanupArenaRuntime: vi.fn().mockResolvedValue(undefined),
-      getAgentsSettings: vi.fn(() => ({})),
+      getAgentsSettings: vi.fn(function() { return {}; }),
     };
 
     mockContext = createMockCommandContext({
@@ -279,9 +279,9 @@ describe('arenaCommand select subcommand', () => {
 
   it('returns error when arena is still running', async () => {
     const mockManager = {
-      getSessionStatus: vi.fn(() => ArenaSessionStatus.RUNNING),
+      getSessionStatus: vi.fn(function() { return ArenaSessionStatus.RUNNING; }),
     } as unknown as ArenaManager;
-    mockConfig.getArenaManager = vi.fn(() => mockManager);
+    mockConfig.getArenaManager = vi.fn(function() { return mockManager; });
 
     const selectCommand = getArenaSubCommand('select');
     const result = await selectCommand.action!(mockContext, '');
@@ -296,7 +296,7 @@ describe('arenaCommand select subcommand', () => {
 
   it('returns error when all agents failed', async () => {
     const mockManager = {
-      getSessionStatus: vi.fn(() => ArenaSessionStatus.COMPLETED),
+      getSessionStatus: vi.fn(function() { return ArenaSessionStatus.COMPLETED; }),
       getAgentStates: vi.fn(() => [
         {
           agentId: 'agent-1',
@@ -305,7 +305,7 @@ describe('arenaCommand select subcommand', () => {
         },
       ]),
     } as unknown as ArenaManager;
-    mockConfig.getArenaManager = vi.fn(() => mockManager);
+    mockConfig.getArenaManager = vi.fn(function() { return mockManager; });
 
     const selectCommand = getArenaSubCommand('select');
     const result = await selectCommand.action!(mockContext, '');
@@ -321,7 +321,7 @@ describe('arenaCommand select subcommand', () => {
 
   it('opens dialog when no args provided and agents have results', async () => {
     const mockManager = {
-      getSessionStatus: vi.fn(() => ArenaSessionStatus.COMPLETED),
+      getSessionStatus: vi.fn(function() { return ArenaSessionStatus.COMPLETED; }),
       getAgentStates: vi.fn(() => [
         {
           agentId: 'agent-1',
@@ -335,7 +335,7 @@ describe('arenaCommand select subcommand', () => {
         },
       ]),
     } as unknown as ArenaManager;
-    mockConfig.getArenaManager = vi.fn(() => mockManager);
+    mockConfig.getArenaManager = vi.fn(function() { return mockManager; });
 
     const selectCommand = getArenaSubCommand('select');
     const result = await selectCommand.action!(mockContext, '');
@@ -348,7 +348,7 @@ describe('arenaCommand select subcommand', () => {
 
   it('applies changes directly when model name is provided', async () => {
     const mockManager = {
-      getSessionStatus: vi.fn(() => ArenaSessionStatus.COMPLETED),
+      getSessionStatus: vi.fn(function() { return ArenaSessionStatus.COMPLETED; }),
       getAgentStates: vi.fn(() => [
         {
           agentId: 'agent-1',
@@ -364,7 +364,7 @@ describe('arenaCommand select subcommand', () => {
       applyAgentResult: vi.fn().mockResolvedValue({ success: true }),
       cleanup: vi.fn().mockResolvedValue(undefined),
     } as unknown as ArenaManager;
-    mockConfig.getArenaManager = vi.fn(() => mockManager);
+    mockConfig.getArenaManager = vi.fn(function() { return mockManager; });
 
     const selectCommand = getArenaSubCommand('select');
     const result = await selectCommand.action!(mockContext, 'gpt-4o');
@@ -381,7 +381,7 @@ describe('arenaCommand select subcommand', () => {
 
   it('returns error when specified model not found', async () => {
     const mockManager = {
-      getSessionStatus: vi.fn(() => ArenaSessionStatus.COMPLETED),
+      getSessionStatus: vi.fn(function() { return ArenaSessionStatus.COMPLETED; }),
       getAgentStates: vi.fn(() => [
         {
           agentId: 'agent-1',
@@ -390,7 +390,7 @@ describe('arenaCommand select subcommand', () => {
         },
       ]),
     } as unknown as ArenaManager;
-    mockConfig.getArenaManager = vi.fn(() => mockManager);
+    mockConfig.getArenaManager = vi.fn(function() { return mockManager; });
 
     const selectCommand = getArenaSubCommand('select');
     const result = await selectCommand.action!(mockContext, 'nonexistent');
@@ -404,7 +404,7 @@ describe('arenaCommand select subcommand', () => {
 
   it('asks for confirmation when --discard flag is used', async () => {
     const mockManager = {
-      getSessionStatus: vi.fn(() => ArenaSessionStatus.COMPLETED),
+      getSessionStatus: vi.fn(function() { return ArenaSessionStatus.COMPLETED; }),
       getAgentStates: vi.fn(() => [
         {
           agentId: 'agent-1',
@@ -413,7 +413,7 @@ describe('arenaCommand select subcommand', () => {
         },
       ]),
     } as unknown as ArenaManager;
-    mockConfig.getArenaManager = vi.fn(() => mockManager);
+    mockConfig.getArenaManager = vi.fn(function() { return mockManager; });
 
     const selectCommand = getArenaSubCommand('select');
     const result = await selectCommand.action!(mockContext, '--discard');
@@ -427,7 +427,7 @@ describe('arenaCommand select subcommand', () => {
 
   it('discards results after --discard confirmation', async () => {
     const mockManager = {
-      getSessionStatus: vi.fn(() => ArenaSessionStatus.COMPLETED),
+      getSessionStatus: vi.fn(function() { return ArenaSessionStatus.COMPLETED; }),
       getAgentStates: vi.fn(() => [
         {
           agentId: 'agent-1',
@@ -437,7 +437,7 @@ describe('arenaCommand select subcommand', () => {
       ]),
       cleanup: vi.fn().mockResolvedValue(undefined),
     } as unknown as ArenaManager;
-    mockConfig.getArenaManager = vi.fn(() => mockManager);
+    mockConfig.getArenaManager = vi.fn(function() { return mockManager; });
     mockContext.overwriteConfirmed = true;
 
     const selectCommand = getArenaSubCommand('select');

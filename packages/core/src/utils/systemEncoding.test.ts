@@ -10,8 +10,8 @@ import * as os from 'node:os';
 import { detect as chardetDetect } from 'chardet';
 
 // Mock dependencies
-vi.mock('child_process');
-vi.mock('os');
+vi.mock('node:child_process');
+vi.mock('node:os');
 vi.mock('chardet');
 
 // Import the functions we want to test after refactoring
@@ -98,7 +98,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
 
     it('should return null when chardet fails', () => {
       const buffer = Buffer.from('test content', 'utf8');
-      mockedChardetDetect.mockImplementation(() => {
+      mockedChardetDetect.mockImplementation(function() {
         throw new Error('Detection failed');
       });
 
@@ -154,7 +154,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
     });
 
     it('should return null when chcp command fails', () => {
-      mockedExecSync.mockImplementation(() => {
+      mockedExecSync.mockImplementation(function() {
         throw new Error('Command failed');
       });
 
@@ -228,7 +228,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
     });
 
     it('should return null when locale charmap fails', () => {
-      mockedExecSync.mockImplementation(() => {
+      mockedExecSync.mockImplementation(function() {
         throw new Error('Command failed');
       });
 
@@ -318,7 +318,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
 
     it('should fall back to buffer detection when system encoding fails', () => {
       // No environment variables set
-      mockedExecSync.mockImplementation(() => {
+      mockedExecSync.mockImplementation(function() {
         throw new Error('locale command failed');
       });
 
@@ -333,12 +333,12 @@ describe('Shell Command Processor - Encoding Functions', () => {
 
     it('should fall back to utf-8 when both system and buffer detection fail', () => {
       // System encoding fails
-      mockedExecSync.mockImplementation(() => {
+      mockedExecSync.mockImplementation(function() {
         throw new Error('locale command failed');
       });
 
       // Buffer detection fails
-      mockedChardetDetect.mockImplementation(() => {
+      mockedChardetDetect.mockImplementation(function() {
         throw new Error('chardet failed');
       });
 
@@ -349,7 +349,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
 
     it('should not cache buffer detection results', () => {
       // System encoding fails initially
-      mockedExecSync.mockImplementation(() => {
+      mockedExecSync.mockImplementation(function() {
         throw new Error('locale command failed');
       });
 
@@ -401,7 +401,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
       mockedOsPlatform.mockReturnValue('linux');
 
       // System encoding detection returns null
-      mockedExecSync.mockImplementation(() => {
+      mockedExecSync.mockImplementation(function() {
         throw new Error('locale command failed');
       });
 
@@ -483,7 +483,7 @@ describe('Shell Command Processor - Encoding Functions', () => {
       const unicodeText = '你好世界 🌍 ñoño';
 
       // System encoding fails
-      mockedExecSync.mockImplementation(() => {
+      mockedExecSync.mockImplementation(function() {
         throw new Error('locale command failed');
       });
 

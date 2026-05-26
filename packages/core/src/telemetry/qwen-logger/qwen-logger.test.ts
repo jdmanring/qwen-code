@@ -36,11 +36,11 @@ const debugLoggerSpy = vi.hoisted(() => ({
 
 // Mock dependencies
 vi.mock('../../utils/user_id.js', () => ({
-  getInstallationId: vi.fn(() => 'test-installation-id'),
+  getInstallationId: vi.fn(function() { return 'test-installation-id'; }),
 }));
 
 vi.mock('../../utils/safeJsonStringify.js', () => ({
-  safeJsonStringify: vi.fn((obj) => JSON.stringify(obj)),
+  safeJsonStringify: vi.fn(function(obj) { return JSON.stringify(obj); }),
 }));
 
 vi.mock('../../utils/debugLogger.js', async (importOriginal) => {
@@ -257,7 +257,7 @@ describe('QwenLogger', () => {
 
       // Mock the events deque to throw an error
       const originalPush = logger['events'].push;
-      logger['events'].push = vi.fn(() => {
+      logger['events'].push = vi.fn(function() {
         throw new Error('Test error');
       });
 

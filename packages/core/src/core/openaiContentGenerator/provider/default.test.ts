@@ -22,14 +22,14 @@ import type { OpenAIRuntimeFetchOptions } from '../../../utils/runtimeFetchOptio
 
 // Mock OpenAI
 vi.mock('openai', () => ({
-  default: vi.fn().mockImplementation((config) => ({
+  default: vi.fn().mockImplementation(function(config) { return {
     config,
     chat: {
       completions: {
         create: vi.fn(),
       },
     },
-  })),
+  }; }),
 }));
 
 vi.mock('../../../utils/runtimeFetchOptions.js', () => ({

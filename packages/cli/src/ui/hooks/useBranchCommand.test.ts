@@ -10,7 +10,7 @@ import { useBranchCommand } from './useBranchCommand.js';
 import { restoreGoalFromHistory } from '../utils/restoreGoal.js';
 
 vi.mock('../utils/restoreGoal.js', () => ({
-  restoreGoalFromHistory: vi.fn(() => ({ restored: false })),
+  restoreGoalFromHistory: vi.fn(function() { return { restored: false }; }),
 }));
 
 describe('useBranchCommand', () => {
@@ -97,7 +97,7 @@ describe('useBranchCommand', () => {
     // record's parentUuid to a record that's no longer the JSONL tail,
     // orphaning the custom_title record from the parent chain.
     const order: string[] = [];
-    finalize.mockImplementation(() => order.push('finalize'));
+    finalize.mockImplementation(function() { return order.push('finalize'); });
     forkSession.mockImplementation(async () => {
       order.push('fork');
       return { filePath: '/tmp/new.jsonl', copiedCount: 2 };
@@ -110,7 +110,7 @@ describe('useBranchCommand', () => {
         lastCompletedUuid: 'u',
       };
     });
-    startNewSessionConfig.mockImplementation(() => order.push('config.start'));
+    startNewSessionConfig.mockImplementation(function() { return order.push('config.start'); });
 
     const { result } = renderHook(() => useBranchCommand(makeOptions()));
     await act(async () => {
@@ -422,7 +422,7 @@ describe('useBranchCommand', () => {
     // throw, then assert: only ONE config.startNewSession call (to the
     // branch), no second call resetting it back to the parent.
     const oldSessionId = '12345678-aaaa-bbbb-cccc-dddddddddddd';
-    remount.mockImplementation(() => {
+    remount.mockImplementation(function() {
       throw new Error('remount boom');
     });
 
@@ -459,7 +459,7 @@ describe('useBranchCommand', () => {
     // Guards the "swap core first" invariant: if core swap fails after the
     // disk fork succeeds, the UI must stay on the parent — no cleared
     // history, no new UI sessionId — so the user is not stranded.
-    startNewSessionConfig.mockImplementation(() => {
+    startNewSessionConfig.mockImplementation(function() {
       throw new Error('core boom');
     });
 

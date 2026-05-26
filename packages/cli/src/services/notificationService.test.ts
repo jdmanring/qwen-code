@@ -12,8 +12,8 @@ vi.mock('../utils/osc.js', async (importOriginal) => {
   const original = await importOriginal<typeof import('../utils/osc.js')>();
   return {
     ...original,
-    detectTerminal: vi.fn(() => 'unknown'),
-    generateKittyId: vi.fn(() => 42),
+    detectTerminal: vi.fn(function() { return 'unknown'; }),
+    generateKittyId: vi.fn(function() { return 42; }),
   };
 });
 
@@ -125,7 +125,7 @@ describe('sendNotification', () => {
 
   it('returns error when notification method throws', () => {
     vi.mocked(mockedDetectTerminal).mockReturnValue('iTerm.app');
-    vi.mocked(terminal.notifyITerm2).mockImplementation(() => {
+    vi.mocked(terminal.notifyITerm2).mockImplementation(function() {
       throw new Error('write failed');
     });
     const result = sendNotification({ message: 'test' }, terminal, true);

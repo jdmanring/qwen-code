@@ -46,8 +46,8 @@ vi.mock('node:path', async (importOriginal) => {
     ...actual,
     default: {
       ...actual.default,
-      join: vi.fn((...args: string[]) => actual.default.join(...args)),
-      dirname: vi.fn((p: string) => actual.default.dirname(p)),
+      join: vi.fn(function(...args: string[]) { return actual.default.join(...args); }),
+      dirname: vi.fn(function(p: string) { return actual.default.dirname(p); }),
     },
   };
 });
@@ -82,10 +82,10 @@ function createMockQwenClient(
   };
 
   return {
-    setCredentials: vi.fn((creds: QwenCredentials) => {
+    setCredentials: vi.fn(function(creds: QwenCredentials) {
       credentials = { ...credentials, ...creds };
     }),
-    getCredentials: vi.fn(() => credentials),
+    getCredentials: vi.fn(function() { return credentials; }),
     getAccessToken: vi.fn(),
     requestDeviceAuthorization: vi.fn(),
     pollDeviceToken: vi.fn(),
@@ -178,8 +178,8 @@ describe('SharedTokenManager', () => {
 
     // Setup default mock implementations
     mockOs.homedir.mockReturnValue('/home/user');
-    mockPath.join.mockImplementation((...args) => args.join('/'));
-    mockPath.dirname.mockImplementation((filePath) => {
+    mockPath.join.mockImplementation(function(...args) { return args.join('/'); });
+    mockPath.dirname.mockImplementation(function(filePath) {
       // Handle undefined/null input gracefully
       if (!filePath || typeof filePath !== 'string') {
         return '/home/user/.qwen'; // Return the expected directory path
@@ -585,7 +585,7 @@ describe('SharedTokenManager', () => {
       const lockError = new Error('File exists') as NodeJS.ErrnoException;
       lockError.code = 'EEXIST';
 
-      mockFs.writeFile.mockImplementation((path, data, options) => {
+      mockFs.writeFile.mockImplementation(function(path, data, options) {
         if (typeof options === 'object' && options?.flag === 'wx') {
           return Promise.reject(lockError);
         }

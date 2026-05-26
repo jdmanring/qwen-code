@@ -28,14 +28,14 @@ function makeConfig(opts: MockOptions): {
   });
 
   const config = {
-    getFastModel: vi.fn(() => opts.fastModel ?? undefined),
-    getModel: vi.fn(() => 'qwen-plus'),
-    getGeminiClient: vi.fn(() => ({
+    getFastModel: vi.fn(function() { return opts.fastModel ?? undefined; }),
+    getModel: vi.fn(function() { return 'qwen-plus'; }),
+    getGeminiClient: vi.fn(function() { return {
       getChat: () => ({
         getHistory: () => opts.history ?? [],
       }),
-    })),
-    getBaseLlmClient: vi.fn(() => ({ generateJson })),
+    }; }),
+    getBaseLlmClient: vi.fn(function() { return { generateJson }; }),
   } as unknown as Config;
 
   return { config, generateJson };
@@ -199,12 +199,12 @@ describe('tryGenerateSessionTitle', () => {
       return { title: 'Audit auth middleware' };
     });
     const config = {
-      getFastModel: vi.fn(() => 'qwen-turbo'),
-      getModel: vi.fn(() => 'qwen-plus'),
-      getGeminiClient: vi.fn(() => ({
+      getFastModel: vi.fn(function() { return 'qwen-turbo'; }),
+      getModel: vi.fn(function() { return 'qwen-plus'; }),
+      getGeminiClient: vi.fn(function() { return {
         getChat: () => ({ getHistory: () => history }),
-      })),
-      getBaseLlmClient: vi.fn(() => ({ generateJson })),
+      }; }),
+      getBaseLlmClient: vi.fn(function() { return { generateJson }; }),
     } as unknown as Config;
 
     const outcome = await tryGenerateSessionTitle(
@@ -237,12 +237,12 @@ describe('tryGenerateSessionTitle', () => {
       return { title: 'Long session' };
     });
     const config = {
-      getFastModel: vi.fn(() => 'qwen-turbo'),
-      getModel: vi.fn(() => 'qwen-plus'),
-      getGeminiClient: vi.fn(() => ({
+      getFastModel: vi.fn(function() { return 'qwen-turbo'; }),
+      getModel: vi.fn(function() { return 'qwen-plus'; }),
+      getGeminiClient: vi.fn(function() { return {
         getChat: () => ({ getHistory: () => history }),
-      })),
-      getBaseLlmClient: vi.fn(() => ({ generateJson })),
+      }; }),
+      getBaseLlmClient: vi.fn(function() { return { generateJson }; }),
     } as unknown as Config;
 
     await tryGenerateSessionTitle(config, new AbortController().signal);

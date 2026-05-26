@@ -64,7 +64,7 @@ describe('useVim hook', () => {
         cursorState.pos = newPos;
       },
       text,
-      move: vi.fn().mockImplementation((direction: string) => {
+      move: vi.fn().mockImplementation(function(direction: string) {
         let [row, col] = cursorState.pos;
         const _line = lines[row] || '';
         if (direction === 'left') {
@@ -106,7 +106,7 @@ describe('useVim hook', () => {
       vimMoveWordEnd: vi.fn(),
       vimDeleteChar: vi.fn(),
       vimInsertAtCursor: vi.fn(),
-      vimAppendAtCursor: vi.fn().mockImplementation(() => {
+      vimAppendAtCursor: vi.fn().mockImplementation(function() {
         // Append moves cursor right (vim 'a' behavior - position after current char)
         const [row, col] = cursorState.pos;
         const _line = lines[row] || '';
@@ -124,7 +124,7 @@ describe('useVim hook', () => {
       vimMoveToFirstLine: vi.fn(),
       vimMoveToLastLine: vi.fn(),
       vimMoveToLine: vi.fn(),
-      vimEscapeInsertMode: vi.fn().mockImplementation(() => {
+      vimEscapeInsertMode: vi.fn().mockImplementation(function() {
         // Escape moves cursor left unless at beginning of line
         const [row, col] = cursorState.pos;
         if (col > 0) {

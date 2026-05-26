@@ -127,7 +127,7 @@ interface Harness {
 function setup(initial: readonly DialogEntry[]): Harness {
   const handlers: Array<(key: { name?: string; sequence?: string }) => void> =
     [];
-  mockedUseKeypress.mockImplementation((cb, opts) => {
+  mockedUseKeypress.mockImplementation(function(cb, opts) {
     if (opts?.isActive !== false) handlers.push(cb as never);
   });
 
@@ -175,7 +175,7 @@ function setup(initial: readonly DialogEntry[]): Harness {
   // The hook mock is bound to this wrapper via the closure below.
   function Harness() {
     const [entries, setEntries] = useState(initial);
-    mockedUseBackgroundTaskView.mockImplementation(() => ({ entries }));
+    mockedUseBackgroundTaskView.mockImplementation(function() { return { entries }; });
     return (
       <ConfigContext.Provider value={config}>
         <BackgroundTaskViewProvider config={config}>
