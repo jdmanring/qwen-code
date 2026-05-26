@@ -99,7 +99,34 @@ Full standard: `docs/meta/engineering-standards.md`
 | `docs/meta/pipeline-runbook.md` | Operations guide — what to do when gates fail |
 | `docs/meta/git-strategy.md` | Branch architecture and pipeline flow diagram |
 | `docs/meta/engineering-standards.md` | Code quality and naming requirements |
-| `todo.md` | Current work tracking — read this to understand project state |
+| `ROADMAP.md` | Strategic architecture, completed phases, and feature targets |
+
+---
+
+## Task tracking
+
+All executable work lives in the task board — use `TaskCreate`, `TaskList`, and `TaskUpdate`.
+
+- **Find work**: `TaskList` — pending tasks with no owner and no open blockers are available to claim.
+- **Claim work**: `TaskUpdate {taskId, owner: "<agent-id>", status: "in_progress"}` before starting.
+- **Complete work**: `TaskUpdate {taskId, status: "completed"}` — this unblocks any dependent tasks.
+- **Add work**: `TaskCreate` with a description rich enough to start cold (context, steps, verification).
+- **Model dependencies**: use `addBlockedBy`/`addBlocks` — independent tasks can be claimed in parallel.
+
+`ROADMAP.md` is the strategic reference (phases, architecture, feature targets). Do not add task-level items to it.
+
+`todo.md` and `claude.todo.md` have been deleted. Do not recreate them.
+
+---
+
+## Security constraints
+
+These are always in effect — no exceptions:
+
+- **Never commit**: `config/settings.json`, `config/megalonyx/secrets.json`, `config/config.yaml`
+- **Push to `origin` only** (`jdmanring/megalonyx-monorepo`) for all development work
+- **Push contribution branches to `upstream`** (`jdmanring/qwen-code` fork) only
+- **No PRs to QwenLM/qwen-code — ever** (permanent policy)
 
 ---
 

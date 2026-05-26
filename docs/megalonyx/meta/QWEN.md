@@ -5,7 +5,7 @@ Orchestrator: Integrated Analysis (CPU). Sub-Agents: Atomic Execution (Workers).
 
 ## [M-RULE] Operational Rules
 - [A-DELEGATE]: (Analysis | Planning) => Orchestrator; (Extraction | Search | Atomic Edit) => Worker.
-- [A-PLAN]: Mode == PlanMode => Forbidden(edit, write_file_code, run_shell); Permitted(todo_write, write_file_roadmap).
+- [A-PLAN]: Mode == PlanMode => Forbidden(edit, write_file_code, run_shell); Permitted(TaskCreate, TaskUpdate, write_file_roadmap).
 - [A-DISCOVER]: Iterative Discovery Protocol (Breadth => Semantic => Depth). See docs/megalonyx/process/iterative-discovery.md.
 - [A-VERIFY]: Change => Hard Evidence Verification (Must provide exact exit code and stdout) => Pass/Fail. Fail => S-CORRECT Loop.
 - [A-CORRECT]: Fail => Observe => Analyze => Isolate => Correct => Re-Verify.
@@ -26,7 +26,7 @@ Orchestrator: Integrated Analysis (CPU). Sub-Agents: Atomic Execution (Workers).
 - [S-MEM]: Instructional (QWEN.md) > Semantic (mega-memory-manager) > Ephemeral.
 - [S-PILL]: Static Guide vs Runtime Machine. No implementation in config/.
 - [S-ROOT]: No root clutter. Mirroring between config/ and docs/ => Verified by Sync Linter.
-- [S-TODO]: UI-First. todo_write = Session Tracker; todo.md = Architectural Roadmap.
+- [S-TODO]: Task Board. TaskCreate/TaskList/TaskUpdate = session work board; ROADMAP.md = strategic vision. todo.md and claude.todo.md deleted — do not recreate.
 - [S-EXEC]: Static Guide = Blueprint. Modify in Lab => Patch => Commit to Guide => Deploy.
 
 ## [M-PROTOCOL] Output & Authority
