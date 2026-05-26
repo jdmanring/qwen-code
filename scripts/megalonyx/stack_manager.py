@@ -17,6 +17,8 @@ from typing import Any
 STACK_ROOT = Path.home() / ".local/share/megalonyx"
 LOG_FILE = Path.home() / ".qwen/logs/mega-memory-manager.log"
 TMP_DIR = STACK_ROOT / "tmp"
+SOCKETS_DIR = STACK_ROOT / "sockets"
+
 
 # Qdrant Config
 QDRANT_BIN = STACK_ROOT / "packages/infra/qdrant/bin/qdrant"
@@ -24,11 +26,13 @@ QDRANT_CONFIG = STACK_ROOT / "config/qdrant_config.yaml"
 QDRANT_PID_FILE = TMP_DIR / "qdrant.pid"
 QDRANT_HEALTH_URL = "http://localhost:6333/health"
 
+
 # Memory Config
 MEMORY_BIN = STACK_ROOT / "py/venv/bin/python3"
-MEMORY_SCRIPT = STACK_ROOT / "packages/memory/memory_daemon.py"
+MEMORY_SCRIPT = STACK_ROOT / "packages/agent-memory/src/agent_memory/memory_daemon.py"
 MEMORY_PID_FILE = TMP_DIR / "memory.pid"
-MEMORY_SOCKET = TMP_DIR / "megalonyx_memory.sock"
+MEMORY_SOCKET = SOCKETS_DIR / "megalonyx_memory.sock"
+
 
 # ======================================
 # LOGGING
@@ -174,6 +178,8 @@ def start_process(
     pid_file: Path,
     health_fn: Any,
     timeout: int = 60,
+    cwd: Path = STACK_ROOT,
+    env: dict[str, str] | None = None,
 ) -> bool:
     log(f"Starting {name}...")
 
@@ -185,11 +191,19 @@ def start_process(
     try:
         # Redirect output to logs for debugging
         log_path = LOG_FILE.parent / f"{name.lower()}_daemon.log"
+
+        # Merge current env with provided env
+        full_env = os.environ.copy()
+        if env:
+            full_env.update(env)
+
         with open(log_path, "a") as log_file:
             proc = subprocess.Popen(
                 [str(bin_path)] + args,
                 stdout=log_file,
                 stderr=log_file,
+                cwd=str(cwd),
+                env=full_env,
                 start_new_session=True,
             )
 
@@ -220,26 +234,37 @@ def start_process(
 def cmd_start(strict: bool = False) -> None:
     scorched_earth()
 
-    services = [
+    # Define services with their specific requirements
+    # (Name, Bin, Args, PID, HealthFn, Env)
+    services_config = [
         (
             "Qdrant",
             QDRANT_BIN,
             ["--config-path", str(QDRANT_CONFIG)],
             QDRANT_PID_FILE,
             check_qdrant_health,
+            None,
         ),
         (
             "Memory",
             MEMORY_BIN,
-            [str(MEMORY_SCRIPT)],
+            ["-m", "agent_memory.memory_daemon"],
             MEMORY_PID_FILE,
             check_memory_health,
+            {"PYTHONPATH": str(STACK_ROOT / "packages/agent-memory/src")},
         ),
     ]
 
     results = []
-    for name, bin_path, args, pid_file, health_fn in services:
-        success = start_process(name, bin_path, args, pid_file, health_fn)
+    for name, bin_path, args, pid_file, health_fn, env in services_config:
+        success = start_process(
+            name=name,
+            bin_path=bin_path,
+            args=args,
+            pid_file=pid_file,
+            health_fn=health_fn,
+            env=env,
+        )
         results.append((name, success))
         if not success and strict:
             log(f"Strict mode: Critical failure starting {name}. Exiting.", "ERROR")

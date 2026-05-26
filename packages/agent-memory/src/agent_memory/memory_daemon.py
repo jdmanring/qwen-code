@@ -19,7 +19,7 @@ from .memory_search import (
 
 # Define the socket path
 SOCKET_PATH = os.path.join(
-    os.path.expanduser("~"), ".local/share/megalonyx/tmp/megalonyx_memory.sock"
+    os.path.expanduser("~"), ".local/share/megalonyx/sockets/megalonyx_memory.sock"
 )
 
 

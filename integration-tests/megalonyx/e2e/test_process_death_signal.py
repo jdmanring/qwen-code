@@ -62,7 +62,7 @@ time.sleep(5)
 async def test_daemon_crash():
     print("\nTesting Daemon Crash...")
     mgr = MCPManager()
-    socket_path = os.path.expanduser("~/.local/share/megalonyx/tmp/megalonyx_memory.sock")
+    socket_path = os.path.expanduser("~/.local/share/megalonyx/sockets/megalonyx_memory.sock")
 
     try:
         session = await mgr._get_session("memory", socket_path=socket_path)
@@ -87,7 +87,7 @@ async def test_daemon_crash():
 
 async def test_rapid_cycle():
     print("\nTesting Rapid Cycle (50x)...")
-    socket_path = os.path.expanduser("~/.local/share/megalonyx/tmp/megalonyx_memory.sock")
+    socket_path = os.path.expanduser("~/.local/share/megalonyx/sockets/megalonyx_memory.sock")
 
     # Ensure daemon is actually running
     subprocess.run(["mega-memory-manager", "start"])

@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-export VIRTUAL_ENV="/home/james/.local/share/megalonyx/py/venv"
-export PATH="/home/james/.local/share/megalonyx/py/venv/bin:$PATH"
-exec "/home/james/.local/share/megalonyx/bin/mega-status" "$@"

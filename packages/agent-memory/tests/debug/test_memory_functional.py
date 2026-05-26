@@ -9,7 +9,7 @@ async def run_data_loop_test():
     print("Starting Functional Data Loop Test...")
 
     socket_path = os.path.join(
-        os.path.expanduser("~"), ".local/share/megalonyx/tmp/megalonyx_memory.sock"
+        os.path.expanduser("~"), ".local/share/megalonyx/sockets/megalonyx_memory.sock"
     )
     server_name = "memory-daemon"
 

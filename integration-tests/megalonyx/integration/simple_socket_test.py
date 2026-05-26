@@ -4,7 +4,7 @@ import os
 
 
 async def test():
-    socket_path = os.path.expanduser("~/.local/share/megalonyx/tmp/megalonyx_memory.sock")
+    socket_path = os.path.expanduser("~/.local/share/megalonyx/sockets/megalonyx_memory.sock")
     print(f"Connecting to {socket_path}...")
     reader, writer = await asyncio.open_unix_connection(socket_path)
 

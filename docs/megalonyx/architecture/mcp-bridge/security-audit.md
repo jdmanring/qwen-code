@@ -24,7 +24,7 @@ This ensures that only processes running under the same user account as the daem
 In addition to identity verification, the bridge employs the "Principle of Least Privilege" at the file system level.
 
 ### Socket Hardening
-Upon creating the socket file at `~/.local/share/megalonyx/tmp/megalonyx_memory.sock`, the daemon immediately applies strict permissions:
+Upon creating the socket file at `~/.local/share/megalonyx/sockets/megalonyx_memory.sock`, the daemon immediately applies strict permissions:
 - **Command**: `os.chmod(socket_path, 0o600)`
 - **Effect**: This sets the permissions to `rw-------`.
 - **Result**: Only the owner of the file (the user) can read from or write to the socket. Any attempt by another user to even *attempt* a connection will be blocked by the OS kernel before the `SO_PEERCRED` check is even reached.

@@ -176,7 +176,7 @@ def call_memory_server(method: str, args: dict[str, Any]) -> Any:
     from .mcp_manager import MCPManager
 
     socket_path = os.path.join(
-        os.path.expanduser("~"), ".local/share/megalonyx/tmp/megalonyx_memory.sock"
+        os.path.expanduser("~"), ".local/share/megalonyx/sockets/megalonyx_memory.sock"
     )
 
     async def _call() -> Any:

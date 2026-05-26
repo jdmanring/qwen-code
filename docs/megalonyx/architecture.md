@@ -94,7 +94,7 @@ MCP tool registered in the session.
 The daemon calls the memory service via MCP. The transport is configurable via `MCP_TRANSPORT`
 in the `.env` file:
 - `stdio` — the daemon spawns the memory server as a subprocess and communicates via stdin/stdout
-- `socket` — the memory server runs as a background daemon; the control plane connects via Unix socket at `~/.local/share/megalonyx/megalonyx_memory.sock`
+- `socket` — the memory server runs as a background daemon; the control plane connects via Unix socket at `~/.local/share/megalonyx/sockets/megalonyx_memory.sock`
 
 The socket mode is preferred for production because it avoids spawning a new process per session.
 

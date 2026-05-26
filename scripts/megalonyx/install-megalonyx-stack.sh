@@ -58,10 +58,18 @@ mkdir -p \
   "$STACK_ROOT/logs" \
   "$STACK_ROOT/memory" \
   "$STACK_ROOT/tmp" \
+  "$STACK_ROOT/sockets" \
   "$STACK_ROOT/packages" \
   "$BIN_STACK_DIR" \
   "$APPS_STACK_DIR" \
   "$BIN_DIR"
+
+# Create a minimal UV workspace root to resolve internal dependencies
+cat > "$STACK_ROOT/pyproject.toml" <<EOF
+[tool.uv]
+workspace = { members = ["packages/agent-infra", "packages/agent-memory", "apps/control-plane-daemon"] }
+EOF
+
 echo "[OK] Directory structure ready ($STACK_ROOT)"
 
 # ===
@@ -90,6 +98,14 @@ else
     echo "WARNING: Blueprint bin directory not found at $REPO_ROOT/bin"
 fi
 
+if [ -d "$REPO_ROOT/scripts/megalonyx" ]; then
+    mkdir -p "$STACK_ROOT/scripts"
+    cp -r "$REPO_ROOT/scripts/megalonyx/"* "$STACK_ROOT/scripts/"
+    echo "[OK] Scripts deployed to $STACK_ROOT/scripts"
+else
+    echo "WARNING: Blueprint scripts directory not found at $REPO_ROOT/scripts/megalonyx"
+fi
+
 # ===
 # RUNTIME ENVIRONMENT (The Body)
 # ===
@@ -102,10 +118,10 @@ if [ "$FORCE_SYNC" = true ] || [ ! -d "$VENV_DIR" ]; then
     # Install from requirements first
     uv pip install --python "$VENV_DIR/bin/python" -r "$REPO_ROOT/requirements.txt" 2>/dev/null || true
 
-    # Install specific packages from the monorepo to the local venv
-    uv pip install --python "$VENV_DIR/bin/python" "$REPO_ROOT/packages/agent-infra"
-    uv pip install --python "$VENV_DIR/bin/python" "$REPO_ROOT/packages/agent-memory"
-    uv pip install --python "$VENV_DIR/bin/python" "$REPO_ROOT/apps/control-plane-daemon"
+    # Install specific packages from the Machine root to the local venv
+    uv pip install --python "$VENV_DIR/bin/python" "$STACK_ROOT/packages/agent-infra"
+    uv pip install --python "$VENV_DIR/bin/python" "$STACK_ROOT/packages/agent-memory"
+    uv pip install --python "$VENV_DIR/bin/python" "$APPS_STACK_DIR/control-plane-daemon"
     echo "[OK] Runtime environment ready."
 else
     echo "[OK] Existing venv found at $VENV_DIR."

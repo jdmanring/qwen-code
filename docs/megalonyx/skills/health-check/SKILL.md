@@ -3,7 +3,7 @@
 </skill_identity>
 
 <deterministic_algorithm>
-  1. **Socket Verification**: Check for the existence and accessibility of the memory server socket at `~/.local/share/megalonyx/tmp/megalonyx_memory.sock`.
+  1. **Socket Verification**: Check for the existence and accessibility of the memory server socket at `~/.local/share/megalonyx/sockets/megalonyx_memory.sock`.
   2. **Configuration Validation**: Verify that `~/.qwen/settings.json` exists and contains valid JSON syntax.
   3. **Status Aggregation**: Compile the results from both the socket and configuration checks.
   4. **Report Generation**: Output a structured health report indicating the status of each component.

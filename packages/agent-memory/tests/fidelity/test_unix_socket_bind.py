@@ -1,7 +1,7 @@
 import os
 import socket
 
-path = os.path.join(os.path.expanduser("~"), ".local/share/megalonyx/tmp/megalonyx_memory.sock")
+path = os.path.join(os.path.expanduser("~"), ".local/share/megalonyx/sockets/megalonyx_memory.sock")
 print(f"Attempting to bind to: {os.path.abspath(path)}")
 
 if os.path.exists(path):
