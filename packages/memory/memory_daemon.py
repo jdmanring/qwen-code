@@ -18,7 +18,9 @@ from memory_search import (
 from memory_transport import run_socket_server, run_stdio_server
 
 # Define the socket path
-SOCKET_PATH = os.path.join(os.path.expanduser("~"), ".local/share/megalonyx/tmp/qwen_memory.sock")
+SOCKET_PATH = os.path.join(
+    os.path.expanduser("~"), ".local/share/megalonyx/tmp/megalonyx_memory.sock"
+)
 
 
 class MemoryDaemon:

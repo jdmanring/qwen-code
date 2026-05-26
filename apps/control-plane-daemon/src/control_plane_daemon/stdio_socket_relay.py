@@ -5,6 +5,7 @@ import logging
 import os
 import signal
 import sys
+import threading
 from typing import BinaryIO
 
 # Configure logging to stderr
@@ -30,36 +31,42 @@ def set_pdeathsig() -> None:
 
 class StdioReader:
     """
-    A non-blocking reader for sys.stdin that integrates with the asyncio loop.
+    A reader for sys.stdin that uses a separate thread to avoid
+    PermissionError with asyncio.loop.add_reader on certain platforms/environments.
     """
 
     def __init__(self) -> None:
         self.queue: asyncio.Queue[bytes | None] = asyncio.Queue()
         self.loop = asyncio.get_event_loop()
+        self._stop_event = threading.Event()
+        self._thread: threading.Thread | None = None
 
-    def _handle_read(self) -> None:
+    def _read_loop(self) -> None:
         try:
-            # Read whatever is available without blocking
-            data = sys.stdin.buffer.read(4096)
-            if data:
-                self.loop.call_soon_threadsafe(self.queue.put_nowait, data)
-            else:
-                self.loop.call_soon_threadsafe(self.queue.put_nowait, None)
-        except OSError as e:
-            logger.error(f"Read error: {e}")
+            while not self._stop_event.is_set():
+                # Read from stdin buffer
+                data = sys.stdin.buffer.read(4096)
+                if data:
+                    self.loop.call_soon_threadsafe(self.queue.put_nowait, data)
+                elif not data:
+                    # EOF reached
+                    self.loop.call_soon_threadsafe(self.queue.put_nowait, None)
+                    break
+        except (OSError, ValueError) as e:
+            logger.error(f"Stdin read thread error: {e}")
             self.loop.call_soon_threadsafe(self.queue.put_nowait, None)
 
     async def read(self) -> bytes | None:
         return await self.queue.get()
 
     def start(self) -> None:
-        # Set stdin to non-blocking mode
-        os.set_blocking(sys.stdin.fileno(), False)
-        # Add reader to the event loop
-        self.loop.add_reader(sys.stdin.fileno(), self._handle_read)
+        self._thread = threading.Thread(target=self._read_loop, daemon=True)
+        self._thread.start()
 
     def stop(self) -> None:
-        self.loop.remove_reader(sys.stdin.fileno())
+        self._stop_event.set()
+        if self._thread:
+            pass
 
 
 async def pipe_stdio_to_uds(reader: "StdioReader", uds_writer: asyncio.StreamWriter) -> None:

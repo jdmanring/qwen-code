@@ -28,7 +28,7 @@ QDRANT_HEALTH_URL = "http://localhost:6333/healthz"
 MEMORY_BIN = STACK_ROOT / "py/venv/bin/python3"
 MEMORY_SCRIPT = STACK_ROOT / "packages/memory/memory_daemon.py"
 MEMORY_PID_FILE = TMP_DIR / "memory.pid"
-MEMORY_SOCKET = TMP_DIR / "qwen_memory.sock"
+MEMORY_SOCKET = TMP_DIR / "megalonyx_memory.sock"
 
 # ======================================
 # LOGGING
