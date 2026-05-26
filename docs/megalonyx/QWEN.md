@@ -12,7 +12,7 @@ The system operates as a **Cognitive Synthesis Engine**. The Orchestrator provid
 Axioms are deterministic laws. Deviation is a system failure.
 
 - **`[A-DELEGATE]`**: `(Synthesis | Analysis | Planning => Orchestrator)` AND `(Extraction | Search | Atomic Edit => Worker)`.
-- **`[A-PLAN]`**: `(Mode == PlanMode => Forbidden(edit, write_file, run_shell))` AND `(Permitted(TaskCreate, TaskUpdate, write_file_roadmap))`.
+- **`[A-PLAN]`**: `(Mode == PlanMode => Forbidden(edit, write_file, run_shell))` AND `(Permitted(todo_write, write_file_roadmap))`.
 - **`[A-DISCOVER]`**: `(Discovery => Glob => Grep => Read)`. No skipping steps.
 - **`[A-VERIFY]`**: `(Change => Verification Tool => Pass/Fail)`.
 - **`[A-CORRECT]`**: `(Fail => Observe => Analyze => Isolate => Correct => Re-Verify)`.
@@ -30,7 +30,7 @@ Mandates are absolute constraints on system behavior.
 - **`[S-PILL]`**: **Blueprint vs. Machine.** No implementation details in `config/`. Configuration is static; runtime is dynamic.
 - **`[S-ROOT]`**: **Symmetry.** Maintain strict structural parity between `config/` and `docs/`.
 - **`[S-CEAP]`**: **Cognitive Optimization.** All new axioms, personas, and documentation must pass the `cognitive-linter` check. Any "Cognitive Waste" is treated as a system bug.
-- **`[S-TODO]`**: **Task Board.** `TaskCreate`/`TaskList`/`TaskUpdate` is the session work board. `ROADMAP.md` is the strategic vision. `todo.md` and `claude.todo.md` have been deleted — do not recreate them.
+- **`[S-TODO]`**: **UI-First.** `todo_write` is the session tracker. `ROADMAP.md` is the strategic roadmap — do not recreate `todo.md`.
 - **`[S-EXEC]`**: **Lab-to-Blueprint.** Modify in Lab => Patch => Commit to Blueprint => Deploy.
 
 ---
