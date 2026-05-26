@@ -642,6 +642,7 @@ describe('gemini.tsx main function kitty protocol', () => {
   let initialSigtermListeners: NodeJS.SignalsListener[];
 
   beforeEach(() => {
+    vi.resetAllMocks(); // prevent loadSandboxConfig mock from leaking across describe blocks
     // Set no relaunch in tests since process spawning causing issues in tests
     originalEnvNoRelaunch = process.env['QWEN_CODE_NO_RELAUNCH'];
     process.env['QWEN_CODE_NO_RELAUNCH'] = 'true';

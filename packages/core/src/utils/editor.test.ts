@@ -517,6 +517,11 @@ describe('editor utils', () => {
     });
 
     describe('onEditorClose callback', () => {
+      beforeEach(() => {
+        (spawnSync as Mock).mockImplementation(function () {
+          return { error: null, status: 0 };
+        });
+      });
       const terminalEditors: EditorType[] = ['vim', 'neovim', 'emacs'];
       for (const editor of terminalEditors) {
         it(`should call onEditorClose for ${editor} on close`, async () => {

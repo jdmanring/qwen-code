@@ -650,7 +650,7 @@ export async function initParser(): Promise<void> {
  */
 export async function parseShellCommand(command: string): Promise<Parser.Tree> {
   await initParser();
-  return parserInstance!.parse(command);
+  return parserInstance!.parse(command)!;
 }
 
 // ---------------------------------------------------------------------------
