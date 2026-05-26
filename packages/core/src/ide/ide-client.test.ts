@@ -83,6 +83,7 @@ describe('IdeClient', () => {
   let mockStdioTransport: Mocked<StdioClientTransport>;
 
   beforeEach(async () => {
+    vi.resetAllMocks();
     // Reset singleton instance and cached host for test isolation
     (
       IdeClient as unknown as {
