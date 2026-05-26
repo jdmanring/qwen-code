@@ -18,7 +18,7 @@ interface FakeRegistry {
 function makeFakeRegistry(): FakeRegistry {
   let cb: (() => void) | undefined;
   return {
-    setStatusChangeCallback: vi.fn((next: (() => void) | undefined) => {
+    setStatusChangeCallback: vi.fn(function(next: (() => void) | undefined) {
       cb = next;
     }),
     fire: () => cb?.(),
@@ -40,11 +40,11 @@ function makeFakeMemoryManager(): FakeMemoryManager {
   const ref: { lastSubscribeOpts: FakeMemoryManager['lastSubscribeOpts'] } = {
     lastSubscribeOpts: undefined,
   };
-  const unsubscribe = vi.fn(() => {
+  const unsubscribe = vi.fn(function() {
     listener = undefined;
   });
   const subscribe = vi.fn(
-    (next: () => void, opts?: { taskType?: 'extract' | 'dream' }) => {
+    function(next: () => void, opts?: { taskType?: 'extract' | 'dream' }) {
       listener = next;
       ref.lastSubscribeOpts = opts;
       return unsubscribe;

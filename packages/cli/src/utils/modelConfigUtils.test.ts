@@ -1241,7 +1241,7 @@ describe('modelConfigUtils', () => {
 
       // Mock resolveModelConfig to simulate real behavior:
       // modelProvider.id > cli.model > env > settings.model
-      vi.mocked(resolveModelConfig).mockImplementation((input) => {
+      vi.mocked(resolveModelConfig).mockImplementation(function(input) {
         const model =
           input?.modelProvider?.id ||
           input?.cli?.model ||
@@ -1282,13 +1282,13 @@ describe('modelConfigUtils', () => {
         const env = { OPENAI_MODEL: 'env-model', OPENAI_API_KEY: 'key' };
 
         // Mock: settings.model.name should be used, not OPENAI_MODEL
-        vi.mocked(resolveModelConfig).mockImplementation(() => ({
+        vi.mocked(resolveModelConfig).mockImplementation(function() { return {
           config: { model: 'settings-model', apiKey: 'key', baseUrl: '' },
           sources: {
             model: { kind: 'settings' as const, path: 'model.name' },
           },
           warnings: [],
-        }));
+        }; });
 
         const result = resolveCliGenerationConfig({
           argv: {},
@@ -1308,13 +1308,13 @@ describe('modelConfigUtils', () => {
         const selectedAuthType = AuthType.USE_OPENAI;
         const env = { OPENAI_MODEL: 'env-model', OPENAI_API_KEY: 'key' };
 
-        vi.mocked(resolveModelConfig).mockImplementation(() => ({
+        vi.mocked(resolveModelConfig).mockImplementation(function() { return {
           config: { model: 'env-model', apiKey: 'key', baseUrl: '' },
           sources: {
             model: { kind: 'env' as const, envKey: 'OPENAI_MODEL' },
           },
           warnings: [],
-        }));
+        }; });
 
         resolveCliGenerationConfig({
           argv: {},
@@ -1336,11 +1336,11 @@ describe('modelConfigUtils', () => {
         const selectedAuthType = AuthType.USE_OPENAI;
         const env = { OPENAI_MODEL: 'env-model', OPENAI_API_KEY: 'key' };
 
-        vi.mocked(resolveModelConfig).mockImplementation(() => ({
+        vi.mocked(resolveModelConfig).mockImplementation(function() { return {
           config: { model: 'argv-model', apiKey: 'key', baseUrl: '' },
           sources: { model: { kind: 'cli' as const, detail: '--model' } },
           warnings: [],
-        }));
+        }; });
 
         const result = resolveCliGenerationConfig({
           argv,
@@ -1360,11 +1360,11 @@ describe('modelConfigUtils', () => {
         const selectedAuthType = AuthType.USE_OPENAI;
         const env = { QWEN_MODEL: 'qwen-model', OPENAI_API_KEY: 'key' };
 
-        vi.mocked(resolveModelConfig).mockImplementation(() => ({
+        vi.mocked(resolveModelConfig).mockImplementation(function() { return {
           config: { model: 'qwen-model', apiKey: 'key', baseUrl: '' },
           sources: { model: { kind: 'env' as const, envKey: 'QWEN_MODEL' } },
           warnings: [],
-        }));
+        }; });
 
         resolveCliGenerationConfig({
           argv: {},
@@ -1388,7 +1388,7 @@ describe('modelConfigUtils', () => {
           ANTHROPIC_BASE_URL: 'https://api.anthropic.com',
         };
 
-        vi.mocked(resolveModelConfig).mockImplementation(() => ({
+        vi.mocked(resolveModelConfig).mockImplementation(function() { return {
           config: {
             model: 'claude-3',
             apiKey: 'key',
@@ -1398,7 +1398,7 @@ describe('modelConfigUtils', () => {
             model: { kind: 'env' as const, envKey: 'ANTHROPIC_MODEL' },
           },
           warnings: [],
-        }));
+        }; });
 
         const result = resolveCliGenerationConfig({
           argv,

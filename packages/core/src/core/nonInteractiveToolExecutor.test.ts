@@ -173,7 +173,7 @@ describe('executeToolCall', () => {
       prompt_id: 'prompt-id-3',
     };
     vi.mocked(mockToolRegistry.getTool).mockReturnValue(mockTool);
-    vi.spyOn(mockTool, 'build').mockImplementation(() => {
+    vi.spyOn(mockTool, 'build').mockImplementation(function() {
       throw new Error('Invalid parameters');
     });
 

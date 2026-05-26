@@ -229,7 +229,7 @@ describe('passesAcceptEditsFastPath', () => {
   });
 
   it('calls workspace context isPathWithinWorkspace for the actual path check', () => {
-    const fn = vi.fn(() => true);
+    const fn = vi.fn(function() { return true; });
     const cfg = {
       getWorkspaceContext: () => ({ isPathWithinWorkspace: fn }),
     } as unknown as Config;

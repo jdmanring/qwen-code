@@ -159,7 +159,7 @@ describe('AgentTool', () => {
       listSubagents: vi.fn().mockResolvedValue(mockSubagents),
       loadSubagent: vi.fn(),
       createAgentHeadless: vi.fn(),
-      addChangeListener: vi.fn((listener: () => void) => {
+      addChangeListener: vi.fn(function(listener: () => void) {
         changeListeners.push(listener);
         return () => {
           const index = changeListeners.indexOf(listener);
@@ -170,7 +170,7 @@ describe('AgentTool', () => {
       }),
     } as unknown as SubagentManager;
 
-    MockedSubagentManager.mockImplementation(() => mockSubagentManager);
+    MockedSubagentManager.mockImplementation(function() { return mockSubagentManager; });
 
     // Make config return the mock SubagentManager
     vi.mocked(config.getSubagentManager).mockReturnValue(mockSubagentManager);
@@ -539,7 +539,7 @@ describe('AgentTool', () => {
         set: vi.fn(),
       } as unknown as ContextState;
 
-      MockedContextState.mockImplementation(() => mockContextState);
+      MockedContextState.mockImplementation(function() { return mockContextState; });
 
       vi.mocked(mockSubagentManager.loadSubagent).mockResolvedValue(
         mockSubagents[0],
@@ -769,7 +769,7 @@ describe('AgentTool', () => {
         set: vi.fn(),
       } as unknown as ContextState;
 
-      MockedContextState.mockImplementation(() => mockContextState);
+      MockedContextState.mockImplementation(function() { return mockContextState; });
 
       // Parent conversation history: empty (first-turn fork — falls back to
       // the fork agent's own systemPrompt + wildcard tools because no
@@ -1006,7 +1006,7 @@ describe('AgentTool', () => {
         set: vi.fn(),
       } as unknown as ContextState;
 
-      MockedContextState.mockImplementation(() => mockContextState);
+      MockedContextState.mockImplementation(function() { return mockContextState; });
 
       vi.mocked(mockSubagentManager.loadSubagent).mockResolvedValue(
         mockSubagents[0],
@@ -1188,7 +1188,7 @@ describe('AgentTool', () => {
         set: vi.fn(),
       } as unknown as ContextState;
 
-      MockedContextState.mockImplementation(() => mockContextState);
+      MockedContextState.mockImplementation(function() { return mockContextState; });
 
       vi.mocked(mockSubagentManager.loadSubagent).mockResolvedValue(
         mockSubagents[0],
@@ -1482,7 +1482,7 @@ describe('AgentTool', () => {
         set: vi.fn(),
       } as unknown as ContextState;
 
-      MockedContextState.mockImplementation(() => mockContextState);
+      MockedContextState.mockImplementation(function() { return mockContextState; });
 
       vi.mocked(mockSubagentManager.loadSubagent).mockResolvedValue(
         mockSubagents[0],
@@ -1802,7 +1802,7 @@ describe('AgentTool', () => {
       } as unknown as AgentHeadless;
 
       mockContextState = { set: vi.fn() } as unknown as ContextState;
-      MockedContextState.mockImplementation(() => mockContextState);
+      MockedContextState.mockImplementation(function() { return mockContextState; });
 
       mockRegistry = {
         assertCanStartBackgroundAgent: vi.fn(),
@@ -1997,7 +1997,7 @@ describe('AgentTool', () => {
       const errorMessage =
         'Cannot start background agent: maximum concurrent background agents ' +
         '(1) reached. Stop an existing agent first.';
-      mockRegistry.register.mockImplementation(() => {
+      mockRegistry.register.mockImplementation(function() {
         throw new Error(errorMessage);
       });
       const attachSpy = vi.spyOn(transcript, 'attachJsonlTranscriptWriter');
@@ -2031,7 +2031,7 @@ describe('AgentTool', () => {
       const errorMessage =
         'Cannot start background agent: maximum concurrent background agents ' +
         '(1) reached. Stop an existing agent first.';
-      mockRegistry.register.mockImplementation(() => {
+      mockRegistry.register.mockImplementation(function() {
         throw new Error(errorMessage);
       });
       const mockHookSystem = {
@@ -2073,7 +2073,7 @@ describe('AgentTool', () => {
       const errorMessage =
         'Cannot start background agent: maximum concurrent background agents ' +
         '(1) reached. Stop an existing agent first.';
-      mockRegistry.assertCanStartBackgroundAgent.mockImplementation(() => {
+      mockRegistry.assertCanStartBackgroundAgent.mockImplementation(function() {
         throw new Error(errorMessage);
       });
       const mockHookSystem = {

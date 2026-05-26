@@ -159,7 +159,7 @@ vi.mock('../../telemetry/index.js', () => {
       }),
     ),
     endLLMRequestSpan: vi.fn(
-      (
+      function(
         span: ReturnType<typeof createSpan>,
         metadata?: {
           success: boolean;
@@ -173,7 +173,7 @@ vi.mock('../../telemetry/index.js', () => {
           durationMs?: number;
           error?: string;
         },
-      ) => {
+      ) {
         // Capture metadata on the matching span record so tests can assert
         // token counts, durationMs, success, error are forwarded correctly.
         const record = loggingSpanRecords.find(
@@ -218,9 +218,9 @@ vi.mock('../../telemetry/loggers.js', async (importOriginal) => {
 });
 
 vi.mock('../../utils/openaiLogger.js', () => ({
-  OpenAILogger: vi.fn().mockImplementation(() => ({
+  OpenAILogger: vi.fn().mockImplementation(function() { return {
     logInteraction: vi.fn().mockResolvedValue(undefined),
-  })),
+  }; }),
 }));
 
 const realConvertGeminiRequestToOpenAI =
@@ -766,7 +766,7 @@ describe('LoggingContentGenerator', () => {
   });
 
   it('preserves non-stream success when response and OpenAI logging fail', async () => {
-    vi.mocked(logApiResponse).mockImplementationOnce(() => {
+    vi.mocked(logApiResponse).mockImplementationOnce(function() {
       throw new Error('response-log-fail');
     });
     const wrapped = createWrappedGenerator(
@@ -919,7 +919,7 @@ describe('LoggingContentGenerator', () => {
 
   it('sanitizes non-stream request logging errors in span status', async () => {
     const generateContent = vi.fn();
-    vi.mocked(logApiRequest).mockImplementationOnce(() => {
+    vi.mocked(logApiRequest).mockImplementationOnce(function() {
       throw new Error('request-log-secret');
     });
     const wrapped = createWrappedGenerator(generateContent, vi.fn());
@@ -1040,7 +1040,7 @@ describe('LoggingContentGenerator', () => {
   });
 
   it('preserves stream success when response and OpenAI logging fail', async () => {
-    vi.mocked(logApiResponse).mockImplementationOnce(() => {
+    vi.mocked(logApiResponse).mockImplementationOnce(function() {
       throw new Error('response-log-fail');
     });
     const response = createResponse('resp-safe-stream', 'model-stream', [
@@ -1161,7 +1161,7 @@ describe('LoggingContentGenerator', () => {
     const setupError = new Error('setup-fail');
     let activeContextDuringApiError = '';
     let spanEndedDuringApiError = true;
-    vi.mocked(logApiError).mockImplementationOnce(() => {
+    vi.mocked(logApiError).mockImplementationOnce(function() {
       activeContextDuringApiError = activeOtelContext.current;
       spanEndedDuringApiError = getStreamSpanRecord().ended;
     });
@@ -1428,7 +1428,7 @@ describe('LoggingContentGenerator', () => {
       { text: 'partial' },
     ]);
     const streamError = new Error('stream-fail');
-    vi.mocked(logApiError).mockImplementationOnce(() => {
+    vi.mocked(logApiError).mockImplementationOnce(function() {
       throw new Error('api-log-fail');
     });
     const wrapped = createWrappedGenerator(
@@ -1554,8 +1554,7 @@ describe('LoggingContentGenerator', () => {
 
   it('uses generator modalities when converting logged OpenAI requests', async () => {
     convertGeminiRequestToOpenAISpy.mockImplementationOnce(
-      (request, requestContext, options) =>
-        realConvertGeminiRequestToOpenAI(request, requestContext, options),
+      function(request, requestContext, options) { return realConvertGeminiRequestToOpenAI(request, requestContext, options); },
     );
 
     const wrapped = createWrappedGenerator(
@@ -1790,7 +1789,7 @@ describe('LoggingContentGenerator', () => {
 
     // No capture fires, so resolve() falls through to the synthetic builder.
     // Force the synthetic build to throw, then verify the API result still surfaces.
-    convertGeminiRequestToOpenAISpy.mockImplementationOnce(() => {
+    convertGeminiRequestToOpenAISpy.mockImplementationOnce(function() {
       throw new Error('synth-fail-success');
     });
 
@@ -1814,7 +1813,7 @@ describe('LoggingContentGenerator', () => {
       enableOpenAILogging: true,
       openAILoggingDir: 'logs',
     });
-    convertGeminiRequestToOpenAISpy.mockImplementationOnce(() => {
+    convertGeminiRequestToOpenAISpy.mockImplementationOnce(function() {
       throw new Error('synth-fail-error');
     });
 

@@ -197,7 +197,7 @@ describe('clearCommand', () => {
 
     const callOrder: string[] = [];
     (mockContext.ui.clear as ReturnType<typeof vi.fn>).mockImplementation(
-      () => {
+      function() {
         callOrder.push('ui.clear');
       },
     );

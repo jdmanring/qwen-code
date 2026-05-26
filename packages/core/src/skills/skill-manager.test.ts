@@ -634,7 +634,7 @@ You are a helpful assistant.
       const userQwenSkillsDir = path.join('/home/user', '.qwen', 'skills');
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(fs.readdir).mockImplementation((dirPath: any) => {
+      vi.mocked(fs.readdir).mockImplementation(function(dirPath: any) {
         const pathStr = String(dirPath);
         if (pathStr === projectQwenSkillsDir) {
           return Promise.resolve([
@@ -683,7 +683,7 @@ You are a helpful assistant.
       vi.mocked(fs.access).mockResolvedValue(undefined);
 
       // Mock file reading for valid skills
-      vi.mocked(fs.readFile).mockImplementation((filePath) => {
+      vi.mocked(fs.readFile).mockImplementation(function(filePath) {
         const pathStr = String(filePath);
         if (pathStr.includes('skill1')) {
           return Promise.resolve(`---
@@ -737,15 +737,14 @@ Skill 3 content`);
 
     it('should return a stable alphabetical order regardless of priority (priority only affects the /skills display layer)', async () => {
       vi.mocked(fs.readdir).mockReset();
-      mockParseYaml.mockImplementation((yamlString: string) =>
-        yaml.parse(yamlString),
+      mockParseYaml.mockImplementation(function(yamlString: string) { return yaml.parse(yamlString); },
       );
       const projectQwenSkillsDir = path.join(
         '/test/project',
         '.qwen',
         'skills',
       );
-      vi.mocked(fs.readdir).mockImplementation((dirPath) => {
+      vi.mocked(fs.readdir).mockImplementation(function(dirPath) {
         if (String(dirPath) === projectQwenSkillsDir) {
           return Promise.resolve(
             ['high', 'unset-beta', 'unset-alpha', 'negative'].map((name) => ({
@@ -760,7 +759,7 @@ Skill 3 content`);
           [] as unknown as Awaited<ReturnType<typeof fs.readdir>>,
         );
       });
-      vi.mocked(fs.readFile).mockImplementation((filePath) => {
+      vi.mocked(fs.readFile).mockImplementation(function(filePath) {
         const name = path.basename(path.dirname(String(filePath)));
         const priorityLine =
           name === 'high'
@@ -842,7 +841,7 @@ Body`);
       const projectAgentDir = path.join('/test/project', '.agents', 'skills');
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(fs.readdir).mockImplementation((dirPath: any) => {
+      vi.mocked(fs.readdir).mockImplementation(function(dirPath: any) {
         const pathStr = String(dirPath);
         if (pathStr === projectQwenDir) {
           return Promise.resolve([
@@ -869,7 +868,7 @@ Body`);
         );
       });
 
-      vi.mocked(fs.readFile).mockImplementation((filePath) => {
+      vi.mocked(fs.readFile).mockImplementation(function(filePath) {
         const pathStr = String(filePath);
         if (pathStr.includes('.qwen') && pathStr.includes('shared-skill')) {
           return Promise.resolve(
@@ -965,7 +964,7 @@ Body`);
     const emptyDir = [] as unknown as Awaited<ReturnType<typeof fs.readdir>>;
 
     function mockReaddirForLevels(levels: Set<string>) {
-      vi.mocked(fs.readdir).mockImplementation((dirPath) => {
+      vi.mocked(fs.readdir).mockImplementation(function(dirPath) {
         const pathStr = String(dirPath);
         const isBundled =
           pathStr.endsWith(bundledDirSegment) && !pathStr.includes('.qwen');
@@ -1128,7 +1127,7 @@ Review content`);
       // make refreshCache itself reject. allSettled preserves this; if
       // someone swaps it back to Promise.all the throw propagates and
       // every subsequent listener silently dies.
-      const throwing = vi.fn(() => {
+      const throwing = vi.fn(function() {
         throw new Error('listener exploded');
       });
       const sibling = vi.fn();
@@ -1150,8 +1149,7 @@ Review content`);
       // into the same Promise pipeline, but it's worth pinning explicitly
       // because a refactor that special-cases sync throws could
       // accidentally regress the async branch.
-      const asyncRejector = vi.fn(() =>
-        Promise.reject(new Error('async fail')),
+      const asyncRejector = vi.fn(function() { return Promise.reject(new Error('async fail')); },
       );
       const sibling = vi.fn();
       manager.addChangeListener(asyncRejector);
@@ -1175,7 +1173,7 @@ Review content`);
       const setSpy = vi.spyOn(global, 'setTimeout');
       const clearSpy = vi.spyOn(global, 'clearTimeout');
 
-      const fastListener = vi.fn(() => Promise.resolve());
+      const fastListener = vi.fn(function() { return Promise.resolve(); });
       manager.addChangeListener(fastListener);
 
       vi.mocked(fs.readdir).mockResolvedValue(
@@ -1386,7 +1384,7 @@ Body.
       );
       const userQwenSkillsDir = path.join('/home/user', '.qwen', 'skills');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(fs.readdir).mockImplementation((dirPath: any) => {
+      vi.mocked(fs.readdir).mockImplementation(function(dirPath: any) {
         const pathStr = String(dirPath);
         if (pathStr === projectQwenSkillsDir || pathStr === userQwenSkillsDir) {
           return Promise.resolve([
@@ -1403,7 +1401,7 @@ Body.
         );
       });
       vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(fs.readFile).mockImplementation((filePath) => {
+      vi.mocked(fs.readFile).mockImplementation(function(filePath) {
         const pathStr = String(filePath);
         if (pathStr.startsWith(projectQwenSkillsDir)) {
           return Promise.resolve(`---
@@ -1600,8 +1598,7 @@ Symlink skill content`);
         },
       ] as unknown as Awaited<ReturnType<typeof fs.readdir>>);
 
-      vi.mocked(fs.realpath).mockImplementation((p) =>
-        Promise.resolve(String(p)),
+      vi.mocked(fs.realpath).mockImplementation(function(p) { return Promise.resolve(String(p)); },
       );
       // Mock fs.stat to return directory stats for the symlink
       vi.mocked(fs.stat).mockResolvedValue({
@@ -1609,7 +1606,7 @@ Symlink skill content`);
       } as Awaited<ReturnType<typeof fs.stat>>);
 
       vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(fs.readFile).mockImplementation((filePath) => {
+      vi.mocked(fs.readFile).mockImplementation(function(filePath) {
         const pathStr = String(filePath);
         if (pathStr.includes('regular-skill')) {
           return Promise.resolve(`---
@@ -1641,7 +1638,7 @@ Symlinked skill content`);
     it('should pass ignored function and shallow depth to chokidar', async () => {
       const projectSkillsDir = path.join('/test/project', '.qwen', 'skills');
       vi.mocked(fsSync.existsSync).mockImplementation(
-        (p) => String(p) === projectSkillsDir,
+        function(p) { return String(p) === projectSkillsDir; },
       );
 
       vi.mocked(fs.readdir).mockResolvedValue(

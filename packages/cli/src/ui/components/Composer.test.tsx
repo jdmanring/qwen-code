@@ -16,10 +16,10 @@ import {
 import { ConfigContext } from '../contexts/ConfigContext.js';
 // Mock VimModeContext hook
 vi.mock('../contexts/VimModeContext.js', () => ({
-  useVimMode: vi.fn(() => ({
+  useVimMode: vi.fn(function() { return {
     vimEnabled: false,
     vimMode: 'NORMAL',
-  })),
+  }; }),
 }));
 import { ApprovalMode } from '@qwen-code/qwen-code-core';
 import { StreamingState } from '../types.js';
@@ -45,11 +45,11 @@ vi.mock('./ShellModeIndicator.js', () => ({
 
 vi.mock('./InputPrompt.js', () => ({
   InputPrompt: () => <Text>InputPrompt</Text>,
-  calculatePromptWidths: vi.fn(() => ({
+  calculatePromptWidths: vi.fn(function() { return {
     inputWidth: 80,
     suggestionsWidth: 40,
     containerWidth: 84,
-  })),
+  }; }),
 }));
 
 vi.mock('./Footer.js', () => ({
@@ -131,12 +131,12 @@ const createMockUIActions = (): UIActions =>
   }) as any;
 
 const createMockConfig = (overrides = {}) => ({
-  getModel: vi.fn(() => 'gemini-1.5-pro'),
-  getTargetDir: vi.fn(() => '/test/dir'),
-  getDebugMode: vi.fn(() => false),
-  getAccessibility: vi.fn(() => ({})),
-  getMcpServers: vi.fn(() => ({})),
-  getBlockedMcpServers: vi.fn(() => []),
+  getModel: vi.fn(function() { return 'gemini-1.5-pro'; }),
+  getTargetDir: vi.fn(function() { return '/test/dir'; }),
+  getDebugMode: vi.fn(function() { return false; }),
+  getAccessibility: vi.fn(function() { return {}; }),
+  getMcpServers: vi.fn(function() { return {}; }),
+  getBlockedMcpServers: vi.fn(function() { return []; }),
   ...overrides,
 });
 
@@ -193,7 +193,7 @@ describe('Composer', () => {
         thought: { subject: 'Hidden', description: 'Should not show' },
       });
       const config = createMockConfig({
-        getAccessibility: vi.fn(() => ({ disableLoadingPhrases: true })),
+        getAccessibility: vi.fn(function() { return { disableLoadingPhrases: true }; }),
       });
 
       const { lastFrame } = renderComposer(uiState, config);

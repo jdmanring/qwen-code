@@ -24,7 +24,7 @@ vi.mock('./consent.js', () => ({
 }));
 
 vi.mock('../../utils/errors.js', () => ({
-  getErrorMessage: vi.fn((error: Error) => error.message),
+  getErrorMessage: vi.fn(function(error: Error) { return error.message; }),
 }));
 
 vi.mock('../../utils/stdioHelpers.js', () => ({
@@ -58,7 +58,7 @@ describe('handleLink', () => {
   it('should link an extension from a local path', async () => {
     const processExitSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
     mockInstallExtension.mockResolvedValueOnce({ name: 'linked-extension' });
 
@@ -83,7 +83,7 @@ describe('handleLink', () => {
   it('should handle errors and exit with code 1', async () => {
     const processExitSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
     mockInstallExtension.mockRejectedValueOnce(new Error('Link failed'));
 

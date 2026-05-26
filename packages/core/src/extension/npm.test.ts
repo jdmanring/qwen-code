@@ -148,7 +148,7 @@ describe('resolveNpmRegistry', () => {
   });
 
   it('should return npmjs.org as fallback', () => {
-    vi.mocked(fs.readFileSync).mockImplementation(() => {
+    vi.mocked(fs.readFileSync).mockImplementation(function() {
       throw new Error('ENOENT');
     });
 
@@ -171,10 +171,10 @@ const https = await import('node:https');
 
 function mockNpmRegistryResponse(data: object) {
   vi.mocked(https.get).mockImplementation(
-    (_url: unknown, _options: unknown, callback: unknown) => {
+    function(_url: unknown, _options: unknown, callback: unknown) {
       const mockRes = {
         statusCode: 200,
-        on: vi.fn((event: string, handler: (data?: Buffer) => void) => {
+        on: vi.fn(function(event: string, handler: (data?: Buffer) => void) {
           if (event === 'data') {
             handler(Buffer.from(JSON.stringify(data)));
           }
@@ -193,7 +193,7 @@ function mockNpmRegistryResponse(data: object) {
 
 function mockNpmRegistryStatus(statusCode: number) {
   vi.mocked(https.get).mockImplementation(
-    (_url: unknown, _options: unknown, callback: unknown) => {
+    function(_url: unknown, _options: unknown, callback: unknown) {
       const mockRes = {
         statusCode,
         headers: {},
@@ -233,7 +233,7 @@ describe('downloadFromNpmRegistry', () => {
 describe('checkNpmUpdate', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(fs.readFileSync).mockImplementation(() => {
+    vi.mocked(fs.readFileSync).mockImplementation(function() {
       throw new Error('ENOENT');
     });
   });

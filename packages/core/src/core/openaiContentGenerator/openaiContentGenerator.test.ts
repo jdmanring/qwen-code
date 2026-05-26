@@ -22,7 +22,7 @@ const mockTokenizer = {
 };
 
 vi.mock('../../../utils/request-tokenizer/index.js', () => ({
-  RequestTokenEstimator: vi.fn(() => mockTokenizer),
+  RequestTokenEstimator: vi.fn(function() { return mockTokenizer; }),
 }));
 
 // Now import the modules that depend on the mocked modules
@@ -88,7 +88,7 @@ describe('OpenAIContentGenerator (Refactored)', () => {
           create: vi.fn(),
         },
       } as unknown as OpenAI),
-      buildRequest: vi.fn().mockImplementation((req) => req),
+      buildRequest: vi.fn().mockImplementation(function(req) { return req; }),
       getDefaultGenerationConfig: vi.fn().mockReturnValue({}),
     };
 
@@ -228,7 +228,7 @@ describe('OpenAIContentGenerator (Refactored)', () => {
             create: vi.fn(),
           },
         } as unknown as OpenAI),
-        buildRequest: vi.fn().mockImplementation((req) => req),
+        buildRequest: vi.fn().mockImplementation(function(req) { return req; }),
         getDefaultGenerationConfig: vi.fn().mockReturnValue({}),
       };
 
@@ -403,7 +403,7 @@ describe('OpenAIContentGenerator (Refactored)', () => {
             create: vi.fn(),
           },
         } as unknown as OpenAI),
-        buildRequest: vi.fn().mockImplementation((req) => req),
+        buildRequest: vi.fn().mockImplementation(function(req) { return req; }),
         getDefaultGenerationConfig: vi.fn().mockReturnValue({}),
       };
 

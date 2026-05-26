@@ -10,6 +10,7 @@ export default defineConfig({
   test: {
     reporters: ['default', 'junit'],
     silent: true,
+    clearMocks: true,
     setupFiles: ['./test-setup.ts'],
     outputFile: {
       junit: 'junit.xml',
@@ -32,6 +33,13 @@ export default defineConfig({
       threads: {
         minThreads: 8,
         maxThreads: 16,
+      },
+    },
+    deps: {
+      optimizer: {
+        ssr: {
+          include: [/@qwen-code\/qwen-code-core/],
+        },
       },
     },
   },

@@ -22,7 +22,7 @@ vi.mock('child_process', async (importOriginal) => {
   const actual = await importOriginal<typeof import('child_process')>();
   return {
     ...actual,
-    spawn: vi.fn(() => {
+    spawn: vi.fn(function() {
       // Create a proper mock EventEmitter-like child process
       const listeners: Map<
         string,
@@ -30,13 +30,13 @@ vi.mock('child_process', async (importOriginal) => {
       > = new Map();
 
       const createStream = () => ({
-        on: vi.fn((event: string, cb: (...args: unknown[]) => void) => {
+        on: vi.fn(function(event: string, cb: (...args: unknown[]) => void) {
           const key = `stream:${event}`;
           if (!listeners.has(key)) listeners.set(key, new Set());
           listeners.get(key)!.add(cb);
         }),
         removeListener: vi.fn(
-          (event: string, cb: (...args: unknown[]) => void) => {
+          function(event: string, cb: (...args: unknown[]) => void) {
             const key = `stream:${event}`;
             listeners.get(key)?.delete(cb);
           },
@@ -44,7 +44,7 @@ vi.mock('child_process', async (importOriginal) => {
       });
 
       return {
-        on: vi.fn((event: string, cb: (...args: unknown[]) => void) => {
+        on: vi.fn(function(event: string, cb: (...args: unknown[]) => void) {
           const key = `child:${event}`;
           if (!listeners.has(key)) listeners.set(key, new Set());
           listeners.get(key)!.add(cb);
@@ -58,7 +58,7 @@ vi.mock('child_process', async (importOriginal) => {
           }
         }),
         removeListener: vi.fn(
-          (event: string, cb: (...args: unknown[]) => void) => {
+          function(event: string, cb: (...args: unknown[]) => void) {
             const key = `child:${event}`;
             listeners.get(key)?.delete(cb);
           },
@@ -70,10 +70,10 @@ vi.mock('child_process', async (importOriginal) => {
       };
     }),
     exec: vi.fn(
-      (
+      function(
         cmd: string,
         callback: (error: Error | null, stdout: string, stderr: string) => void,
-      ) => {
+      ) {
         // Mock exec to fail for git grep commands
         callback(new Error('Command not found'), '', '');
       },

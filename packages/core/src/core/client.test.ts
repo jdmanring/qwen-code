@@ -48,7 +48,7 @@ import {
 
 vi.mock('../utils/retry.js', () => ({
   retryWithBackoff: vi.fn(async (fn) => await fn()),
-  isUnattendedMode: vi.fn(() => false),
+  isUnattendedMode: vi.fn(function() { return false; }),
 }));
 import { getCoreSystemPrompt, getCustomSystemPrompt } from './prompts.js';
 import { DEFAULT_QWEN_FLASH_MODEL } from '../config/models.js';
@@ -69,10 +69,10 @@ const mockFileSystem = new Map<string, string>();
 vi.mock('node:fs', () => {
   const fsModule = {
     mkdirSync: vi.fn(),
-    writeFileSync: vi.fn((path: string, data: string) => {
+    writeFileSync: vi.fn(function(path: string, data: string) {
       mockFileSystem.set(path, data);
     }),
-    readFileSync: vi.fn((path: string) => {
+    readFileSync: vi.fn(function(path: string) {
       if (mockFileSystem.has(path)) {
         return mockFileSystem.get(path);
       }
@@ -80,7 +80,7 @@ vi.mock('node:fs', () => {
         code: 'ENOENT',
       });
     }),
-    existsSync: vi.fn((path: string) => mockFileSystem.has(path)),
+    existsSync: vi.fn(function(path: string) { return mockFileSystem.has(path); }),
     appendFileSync: vi.fn(),
   };
 
@@ -664,8 +664,7 @@ describe('Gemini Client (client.ts)', () => {
         { name: 'cron_list', description: 'list' },
       ]);
       // ToolSearch is available so we DON'T enter the eager-reveal branch.
-      reg.getTool.mockImplementation((n: string) =>
-        n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation(function(n: string) { return n === 'tool_search' ? ({} as never) : null; },
       );
       reg.revealDeferredTool.mockClear();
 
@@ -714,8 +713,7 @@ describe('Gemini Client (client.ts)', () => {
       reg.getDeferredToolSummary.mockReturnValue([
         { name: 'cron_create', description: 'schedule' },
       ]);
-      reg.getTool.mockImplementation((n: string) =>
-        n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation(function(n: string) { return n === 'tool_search' ? ({} as never) : null; },
       );
       reg.revealDeferredTool.mockClear();
 
@@ -1041,8 +1039,7 @@ describe('Gemini Client (client.ts)', () => {
       // ToolSearch IS available — this is the standard case (the only
       // path that fails before this fix). MCP discovery has now finished,
       // so a freshly-arrived MCP tool appears in the deferred summary.
-      reg.getTool.mockImplementation((n: string) =>
-        n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation(function(n: string) { return n === 'tool_search' ? ({} as never) : null; },
       );
       reg.getDeferredToolSummary.mockReturnValue([
         { name: 'mcp__addition-server__add', description: 'Add two numbers' },
@@ -1050,8 +1047,8 @@ describe('Gemini Client (client.ts)', () => {
 
       const setSystemInstructionSpy = vi
         .spyOn(client.getChat(), 'setSystemInstruction')
-        .mockImplementation(() => {});
-      vi.spyOn(client.getChat(), 'setTools').mockImplementation(() => {});
+        .mockImplementation(function() {});
+      vi.spyOn(client.getChat(), 'setTools').mockImplementation(function() {});
       vi.mocked(getCoreSystemPrompt).mockClear();
 
       await client.setTools();
@@ -1068,21 +1065,20 @@ describe('Gemini Client (client.ts)', () => {
       // declaration list; advertising them again as "reachable via
       // ToolSearch" would invite redundant lookup calls.
       const reg = getRegistryMock();
-      reg.getTool.mockImplementation((n: string) =>
-        n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation(function(n: string) { return n === 'tool_search' ? ({} as never) : null; },
       );
       reg.getDeferredToolSummary.mockReturnValue([
         { name: 'mcp__server__alpha', description: 'a' },
         { name: 'mcp__server__beta', description: 'b' },
       ]);
       reg.isDeferredToolRevealed.mockImplementation(
-        (n: string) => n === 'mcp__server__alpha',
+        function(n: string) { return n === 'mcp__server__alpha'; },
       );
 
       vi.spyOn(client.getChat(), 'setSystemInstruction').mockImplementation(
-        () => {},
+        function() {},
       );
-      vi.spyOn(client.getChat(), 'setTools').mockImplementation(() => {});
+      vi.spyOn(client.getChat(), 'setTools').mockImplementation(function() {});
       vi.mocked(getCoreSystemPrompt).mockClear();
 
       await client.setTools();
@@ -1109,9 +1105,9 @@ describe('Gemini Client (client.ts)', () => {
       reg.revealDeferredTool.mockClear();
 
       vi.spyOn(client.getChat(), 'setSystemInstruction').mockImplementation(
-        () => {},
+        function() {},
       );
-      vi.spyOn(client.getChat(), 'setTools').mockImplementation(() => {});
+      vi.spyOn(client.getChat(), 'setTools').mockImplementation(function() {});
       vi.mocked(getCoreSystemPrompt).mockClear();
 
       await client.setTools();
@@ -1288,7 +1284,7 @@ describe('Gemini Client (client.ts)', () => {
     it('exposes the new chat while the Clear SessionStart hook is running', async () => {
       const previousChat = client.getChat();
       const hookSystem = {
-        fireSessionStartEvent: vi.fn().mockImplementation(() => {
+        fireSessionStartEvent: vi.fn().mockImplementation(function() {
           expect(client.getChat()).not.toBe(previousChat);
           return Promise.resolve(undefined);
         }),
@@ -2902,7 +2898,7 @@ hello
 
     it('should abort the pending prefetch when the caller signal aborts', async () => {
       let abortHandlerInvoked = false;
-      mockMemoryManager.recall.mockImplementation((_root, _query, opts) => {
+      mockMemoryManager.recall.mockImplementation(function(_root, _query, opts) {
         opts.abortSignal?.addEventListener('abort', () => {
           abortHandlerInvoked = true;
         });
@@ -2939,7 +2935,7 @@ hello
     it('should abort the previous prefetch when a new UserQuery arrives mid-flight', async () => {
       // Pending recall on first UserQuery — never resolves on its own.
       const abortSignals: AbortSignal[] = [];
-      mockMemoryManager.recall.mockImplementation((_root, _query, opts) => {
+      mockMemoryManager.recall.mockImplementation(function(_root, _query, opts) {
         abortSignals.push(opts.abortSignal as AbortSignal);
         return new Promise(() => {});
       });
@@ -2991,7 +2987,7 @@ hello
 
     it('should abort the pending prefetch on resetChat', async () => {
       let abortHandlerInvoked = false;
-      mockMemoryManager.recall.mockImplementation((_root, _query, opts) => {
+      mockMemoryManager.recall.mockImplementation(function(_root, _query, opts) {
         opts.abortSignal?.addEventListener('abort', () => {
           abortHandlerInvoked = true;
         });
@@ -3027,7 +3023,7 @@ hello
 
     it('should abort the pending prefetch when LoopDetected fires mid-stream', async () => {
       let abortHandlerInvoked = false;
-      mockMemoryManager.recall.mockImplementation((_root, _query, opts) => {
+      mockMemoryManager.recall.mockImplementation(function(_root, _query, opts) {
         opts.abortSignal?.addEventListener('abort', () => {
           abortHandlerInvoked = true;
         });
@@ -3076,7 +3072,7 @@ hello
       // the still-pending prefetch — meaning a subsequent ToolResult turn
       // would have no memory to consume.
       let abortHandlerInvoked = false;
-      mockMemoryManager.recall.mockImplementation((_root, _query, opts) => {
+      mockMemoryManager.recall.mockImplementation(function(_root, _query, opts) {
         opts.abortSignal?.addEventListener('abort', () => {
           abortHandlerInvoked = true;
         });
@@ -3666,7 +3662,7 @@ Other open files:
       client['sessionTurnCount'] = 1; // already at limit; next call exceeds it
 
       const abortHandler = vi.fn();
-      mockMemoryManager.recall.mockImplementation((_root, _query, opts) => {
+      mockMemoryManager.recall.mockImplementation(function(_root, _query, opts) {
         opts.abortSignal?.addEventListener('abort', abortHandler);
         return new Promise(() => {}); // never resolves
       });
@@ -3706,7 +3702,7 @@ Other open files:
       );
 
       const abortHandler = vi.fn();
-      mockMemoryManager.recall.mockImplementation((_root, _query, opts) => {
+      mockMemoryManager.recall.mockImplementation(function(_root, _query, opts) {
         opts.abortSignal?.addEventListener('abort', abortHandler);
         return new Promise(() => {}); // never resolves
       });
@@ -4900,7 +4896,7 @@ Other open files:
           mockMessageBus as unknown as ReturnType<Config['getMessageBus']>,
         );
         vi.mocked(mockConfig.hasHooksForEvent).mockImplementation(
-          (event: string) => event === 'Stop',
+          function(event: string) { return event === 'Stop'; },
         );
         client['chat'] = {
           addHistory: vi.fn(),
@@ -4954,7 +4950,7 @@ Other open files:
           mockMessageBus as unknown as ReturnType<Config['getMessageBus']>,
         );
         vi.mocked(mockConfig.hasHooksForEvent).mockImplementation(
-          (event: string) => event === 'Stop',
+          function(event: string) { return event === 'Stop'; },
         );
         client['chat'] = {
           addHistory: vi.fn(),
@@ -5035,7 +5031,7 @@ Other open files:
           mockMessageBus as unknown as ReturnType<Config['getMessageBus']>,
         );
         vi.mocked(mockConfig.hasHooksForEvent).mockImplementation(
-          (event: string) => event === 'Stop',
+          function(event: string) { return event === 'Stop'; },
         );
         client['chat'] = {
           addHistory: vi.fn(),
@@ -5152,7 +5148,7 @@ Other open files:
           mockMessageBus as unknown as ReturnType<Config['getMessageBus']>,
         );
         vi.mocked(mockConfig.hasHooksForEvent).mockImplementation(
-          (event: string) => event === 'Stop',
+          function(event: string) { return event === 'Stop'; },
         );
         vi.mocked(mockConfig.getStopHookBlockingCap).mockReturnValue(1);
 
@@ -5216,7 +5212,7 @@ Other open files:
           mockMessageBus as unknown as ReturnType<Config['getMessageBus']>,
         );
         vi.mocked(mockConfig.hasHooksForEvent).mockImplementation(
-          (event: string) => event === 'Stop',
+          function(event: string) { return event === 'Stop'; },
         );
         vi.mocked(mockConfig.getStopHookBlockingCap).mockReturnValue(1);
 
@@ -5270,7 +5266,7 @@ Other open files:
           mockMessageBus as unknown as ReturnType<Config['getMessageBus']>,
         );
         vi.mocked(mockConfig.hasHooksForEvent).mockImplementation(
-          (event: string) => event === 'UserPromptSubmit',
+          function(event: string) { return event === 'UserPromptSubmit'; },
         );
 
         const stream = client.sendMessageStream(

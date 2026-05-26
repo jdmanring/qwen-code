@@ -13,7 +13,7 @@ import { GitWorktreeService } from '../services/gitWorktreeService.js';
 
 function makeMockConfig(targetDir = '/tmp/mock-repo'): Config {
   return {
-    getTargetDir: vi.fn(() => targetDir),
+    getTargetDir: vi.fn(function() { return targetDir; }),
   } as unknown as Config;
 }
 

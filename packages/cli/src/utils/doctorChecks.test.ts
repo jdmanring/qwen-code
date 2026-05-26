@@ -187,7 +187,7 @@ describe('runDoctorChecks', () => {
   it('should fall back to config model when content generator config is missing', async () => {
     const config = mockContext.services.config;
     vi.mocked(config!.getContentGeneratorConfig).mockImplementationOnce(
-      () => undefined as never,
+      function() { return undefined as never; },
     );
 
     const results = await runDoctorChecks(mockContext);

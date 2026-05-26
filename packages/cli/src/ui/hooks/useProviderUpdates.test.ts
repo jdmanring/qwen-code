@@ -47,7 +47,7 @@ describe('useProviderUpdates', () => {
       [PROVIDER_METADATA_NS]: {} as Record<string, unknown>,
     } as Record<string, unknown>,
     setValue: vi.fn(),
-    forScope: vi.fn(() => ({ path: '/tmp/settings.json' })),
+    forScope: vi.fn(function() { return { path: '/tmp/settings.json' }; }),
     isTrusted: true,
     workspace: { settings: {} },
     user: { settings: {} },
@@ -61,7 +61,7 @@ describe('useProviderUpdates', () => {
     reloadModelProvidersConfig: vi.fn(),
     refreshAuth: vi.fn(),
     getModel: vi.fn().mockReturnValue('qwen3.5-plus'),
-    getModelsConfig: vi.fn(() => mockModelsConfig),
+    getModelsConfig: vi.fn(function() { return mockModelsConfig; }),
   };
 
   const mockAddItem = vi.fn();

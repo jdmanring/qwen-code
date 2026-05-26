@@ -59,14 +59,14 @@ describe('ContentGenerationPipeline', () => {
     // Mock provider
     mockProvider = {
       buildClient: vi.fn().mockReturnValue(mockClient),
-      buildRequest: vi.fn().mockImplementation((req) => req),
+      buildRequest: vi.fn().mockImplementation(function(req) { return req; }),
       buildHeaders: vi.fn().mockReturnValue({}),
       getDefaultGenerationConfig: vi.fn().mockReturnValue({}),
     };
 
     // Mock error handler
     mockErrorHandler = {
-      handle: vi.fn().mockImplementation((error: unknown) => {
+      handle: vi.fn().mockImplementation(function(error: unknown) {
         throw error;
       }),
       shouldSuppressErrorLogging: vi.fn().mockReturnValue(false),
@@ -465,10 +465,10 @@ describe('ContentGenerationPipeline', () => {
     it('should override enable_thinking when thinkingConfig disables it', async () => {
       // Arrange — provider injects enable_thinking: true via extra_body,
       // but request explicitly disables thinking
-      (mockProvider.buildRequest as Mock).mockImplementation((req) => ({
+      (mockProvider.buildRequest as Mock).mockImplementation(function(req) { return {
         ...req,
         enable_thinking: true, // Simulates extra_body injection
-      }));
+      }; });
 
       const request: GenerateContentParameters = {
         model: 'test-model',
@@ -512,10 +512,10 @@ describe('ContentGenerationPipeline', () => {
 
     it('should strip reasoning key from extra_body when thinking is disabled', async () => {
       // Arrange — provider injects reasoning via extra_body
-      (mockProvider.buildRequest as Mock).mockImplementation((req) => ({
+      (mockProvider.buildRequest as Mock).mockImplementation(function(req) { return {
         ...req,
         reasoning: { effort: 'high' },
-      }));
+      }; });
 
       const request: GenerateContentParameters = {
         model: 'test-model',
@@ -553,10 +553,10 @@ describe('ContentGenerationPipeline', () => {
 
     it('should preserve enable_thinking when thinking is not explicitly disabled', async () => {
       // Arrange — normal request (not forked query), enable_thinking should be preserved
-      (mockProvider.buildRequest as Mock).mockImplementation((req) => ({
+      (mockProvider.buildRequest as Mock).mockImplementation(function(req) { return {
         ...req,
         enable_thinking: true,
-      }));
+      }; });
 
       const request: GenerateContentParameters = {
         model: 'test-model',
@@ -1830,10 +1830,10 @@ describe('ContentGenerationPipeline', () => {
 
       // Mock provider enhancement
       (mockProvider.buildRequest as Mock).mockImplementation(
-        (req: OpenAI.Chat.ChatCompletionCreateParams, promptId: string) => ({
+        function(req: OpenAI.Chat.ChatCompletionCreateParams, promptId: string) { return {
           ...req,
           metadata: { promptId },
-        }),
+        }; },
       );
 
       (mockConverter.convertGeminiRequestToOpenAI as Mock).mockReturnValue(
@@ -2178,11 +2178,11 @@ describe('ContentGenerationPipeline', () => {
       } as unknown as OpenAI.Chat.ChatCompletion);
 
       // Provider injects extra_body and metadata, mimicking real DashScope behavior.
-      (mockProvider.buildRequest as Mock).mockImplementation((req) => ({
+      (mockProvider.buildRequest as Mock).mockImplementation(function(req) { return {
         ...req,
         extra_body: { thinking: { type: 'enabled' } },
         metadata: { user_id: 'abc' },
-      }));
+      }; });
 
       let captured: OpenAI.Chat.ChatCompletionCreateParams | undefined;
       await openaiRequestCaptureContext.run(
@@ -2231,10 +2231,10 @@ describe('ContentGenerationPipeline', () => {
         fakeStream,
       );
 
-      (mockProvider.buildRequest as Mock).mockImplementation((req) => ({
+      (mockProvider.buildRequest as Mock).mockImplementation(function(req) { return {
         ...req,
         extra_body: { enable_thinking: true },
-      }));
+      }; });
 
       let captured: OpenAI.Chat.ChatCompletionCreateParams | undefined;
       await openaiRequestCaptureContext.run(
@@ -2277,10 +2277,10 @@ describe('ContentGenerationPipeline', () => {
       } as unknown as OpenAI.Chat.ChatCompletion);
 
       let n = 0;
-      (mockProvider.buildRequest as Mock).mockImplementation((req) => ({
+      (mockProvider.buildRequest as Mock).mockImplementation(function(req) { return {
         ...req,
         extra_body: { call_index: ++n },
-      }));
+      }; });
 
       const runOne = async () => {
         let captured: OpenAI.Chat.ChatCompletionCreateParams | undefined;

@@ -20,7 +20,7 @@ const mockDebugLogger = vi.hoisted(() => ({
   error: vi.fn(),
 }));
 vi.mock('../utils/debugLogger.js', () => ({
-  createDebugLogger: vi.fn(() => mockDebugLogger),
+  createDebugLogger: vi.fn(function() { return mockDebugLogger; }),
 }));
 
 // Mock dependencies
@@ -53,7 +53,7 @@ const mockHybridTokenStorage = {
   getAllCredentials: vi.fn(),
 };
 vi.mock('./token-storage/hybrid-token-storage.js', () => ({
-  HybridTokenStorage: vi.fn(() => mockHybridTokenStorage),
+  HybridTokenStorage: vi.fn(function() { return mockHybridTokenStorage; }),
 }));
 
 const ONE_HR_MS = 3600000;

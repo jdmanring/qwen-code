@@ -12,11 +12,11 @@ vi.mock('node:child_process', async (importOriginal) => {
   return {
     ...actual,
     execSync: vi.fn(),
-    spawnSync: vi.fn(() => ({ status: 0 })),
+    spawnSync: vi.fn(function() { return { status: 0 }; }),
   };
 });
-vi.mock('fs');
-vi.mock('os');
+vi.mock('node:fs');
+vi.mock('node:os');
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { getIdeInstaller } from './ide-installer.js';

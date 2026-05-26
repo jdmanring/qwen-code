@@ -53,7 +53,7 @@ describe('AgentTabBar', () => {
     vi.clearAllMocks();
     activeKeypressHandler = null;
 
-    vi.mocked(useKeypress).mockImplementation((handler, { isActive }) => {
+    vi.mocked(useKeypress).mockImplementation(function(handler, { isActive }) {
       if (isActive) {
         activeKeypressHandler = handler;
       }

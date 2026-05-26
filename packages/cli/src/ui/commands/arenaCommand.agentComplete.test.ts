@@ -56,19 +56,19 @@ describe('arenaCommand agent completion history', () => {
       recordSlashCommand: vi.fn(),
     };
     const config = {
-      getArenaManager: vi.fn(() => null),
+      getArenaManager: vi.fn(function() { return null; }),
       setArenaManager: vi.fn(),
-      getContentGeneratorConfig: vi.fn(() => ({
+      getContentGeneratorConfig: vi.fn(function() { return {
         authType: AuthType.USE_OPENAI,
-      })),
-      getModelsConfig: vi.fn(() => ({
-        getAvailableModelsForAuthType: vi.fn(() => []),
-      })),
-      getApprovalMode: vi.fn(() => 'default'),
-      getGeminiClient: vi.fn(() => ({
-        getHistory: vi.fn(() => []),
-      })),
-      getChatRecordingService: vi.fn(() => chatRecorder),
+      }; }),
+      getModelsConfig: vi.fn(function() { return {
+        getAvailableModelsForAuthType: vi.fn(function() { return []; }),
+      }; }),
+      getApprovalMode: vi.fn(function() { return 'default'; }),
+      getGeminiClient: vi.fn(function() { return {
+        getHistory: vi.fn(function() { return []; }),
+      }; }),
+      getChatRecordingService: vi.fn(function() { return chatRecorder; }),
     };
     const context = createMockCommandContext({
       services: {

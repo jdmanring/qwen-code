@@ -16,7 +16,7 @@ import type { HookEventDisplayInfo } from './types.js';
 
 // Mock i18n module
 vi.mock('../../../i18n/index.js', () => ({
-  t: vi.fn((key: string, options?: { count?: string }) => {
+  t: vi.fn(function(key: string, options?: { count?: string }) {
     // Handle pluralization
     if (key === '{{count}} hook configured' && options?.count) {
       return `${options.count} hook configured`;
@@ -30,7 +30,7 @@ vi.mock('../../../i18n/index.js', () => ({
 
 // Mock useTerminalSize
 vi.mock('../../hooks/useTerminalSize.js', () => ({
-  useTerminalSize: vi.fn(() => ({ columns: 120, rows: 24 })),
+  useTerminalSize: vi.fn(function() { return { columns: 120, rows: 24 }; }),
 }));
 
 // Mock semantic-colors

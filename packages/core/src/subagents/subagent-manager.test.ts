@@ -120,10 +120,10 @@ describe('SubagentManager', () => {
       errors: [],
       warnings: [],
     });
-    mockValidateOrThrow.mockImplementation(() => {});
+    mockValidateOrThrow.mockImplementation(function() {});
 
     // Setup yaml parser mocks with sophisticated behavior
-    mockParseYaml.mockImplementation((yamlString: string) => {
+    mockParseYaml.mockImplementation(function(yamlString: string) {
       // Handle different test cases based on YAML content
       // Check disallowedTools before tools to avoid substring match
       if (yamlString.includes('disallowedTools: write_file')) {
@@ -200,7 +200,7 @@ describe('SubagentManager', () => {
       };
     });
 
-    mockStringifyYaml.mockImplementation((obj: Record<string, unknown>) => {
+    mockStringifyYaml.mockImplementation(function(obj: Record<string, unknown>) {
       let yaml = '';
       for (const [key, value] of Object.entries(obj)) {
         if (key === 'disallowedTools' && Array.isArray(value)) {
@@ -512,7 +512,7 @@ You are a helpful assistant.
     });
 
     it('should not warn when filename matches subagent name', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(function() {});
       const matchingPath = '/test/project/.qwen/agents/test-agent.md';
 
       const config = manager.parseSubagentContent(
@@ -1149,7 +1149,7 @@ Target content`,
         .mockResolvedValueOnce(['agent3.md', 'agent1.md'] as any); // user level
 
       // Mock file reading for valid agents
-      vi.mocked(fs.readFile).mockImplementation((filePath) => {
+      vi.mocked(fs.readFile).mockImplementation(function(filePath) {
         const pathStr = String(filePath);
         if (pathStr.includes('agent1.md')) {
           return Promise.resolve(`---

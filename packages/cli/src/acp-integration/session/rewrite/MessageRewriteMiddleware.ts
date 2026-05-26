@@ -113,8 +113,15 @@ export class MessageRewriteMiddleware {
     this.turnIndex++;
     const turnIdx = this.turnIndex;
 
-    // Always enforce a timeout, combined with caller's signal if provided
-    const timeoutSignal = AbortSignal.timeout(this.timeoutMs);
+    // Always enforce a timeout, combined with caller's signal if provided.
+    // Use AbortController + setTimeout instead of AbortSignal.timeout() so
+    // that vi.useFakeTimers() can control the timeout in tests.
+    const timeoutController = new AbortController();
+    const timeoutTimer = setTimeout(
+      () => timeoutController.abort(),
+      this.timeoutMs,
+    );
+    const timeoutSignal = timeoutController.signal;
     const rewriteSignal = signal
       ? AbortSignal.any([signal, timeoutSignal])
       : timeoutSignal;
@@ -145,6 +152,8 @@ export class MessageRewriteMiddleware {
           debugLogger.warn(
             `Turn ${turnIdx}: rewrite failed: ${error instanceof Error ? error.message : String(error)}`,
           );
+        } finally {
+          clearTimeout(timeoutTimer);
         }
       })(),
     );

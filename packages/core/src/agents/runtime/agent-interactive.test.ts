@@ -263,7 +263,7 @@ describe('AgentInteractive', () => {
 
     let callCount = 0;
     (core.runReasoningLoop as ReturnType<typeof vi.fn>).mockImplementation(
-      () => {
+      function() {
         callCount++;
         if (callCount === 1) {
           return Promise.reject(new Error('Model error'));
@@ -395,7 +395,7 @@ describe('AgentInteractive', () => {
     const { core, emitter } = createMockCore();
 
     (core.runReasoningLoop as ReturnType<typeof vi.fn>).mockImplementation(
-      () => {
+      function() {
         emitter.emit(AgentEventType.ROUND_TEXT, {
           subagentId: 'test',
           round: 1,
@@ -433,7 +433,7 @@ describe('AgentInteractive', () => {
 
     let runCount = 0;
     (core.runReasoningLoop as ReturnType<typeof vi.fn>).mockImplementation(
-      () => {
+      function() {
         runCount++;
         emitter.emit(AgentEventType.ROUND_TEXT, {
           subagentId: 'test',
@@ -481,7 +481,7 @@ describe('AgentInteractive', () => {
     const { core, emitter } = createMockCore();
 
     (core.runReasoningLoop as ReturnType<typeof vi.fn>).mockImplementation(
-      () => {
+      function() {
         emitter.emit(AgentEventType.ROUND_TEXT, {
           subagentId: 'test',
           round: 1,
@@ -523,7 +523,7 @@ describe('AgentInteractive', () => {
     const { core, emitter } = createMockCore();
 
     (core.runReasoningLoop as ReturnType<typeof vi.fn>).mockImplementation(
-      () => {
+      function() {
         emitter.emit(AgentEventType.ROUND_TEXT, {
           subagentId: 'test',
           round: 1,
@@ -582,7 +582,7 @@ describe('AgentInteractive', () => {
     const { core, emitter } = createMockCore();
 
     (core.runReasoningLoop as ReturnType<typeof vi.fn>).mockImplementation(
-      () => {
+      function() {
         emitter.emit(AgentEventType.ROUND_TEXT, {
           subagentId: 'test',
           round: 1,

@@ -76,15 +76,14 @@ const MockedGeminiClientClass = vi.hoisted(() =>
 );
 
 const MockedUserPromptEvent = vi.hoisted(() =>
-  vi.fn().mockImplementation(() => {}),
+  vi.fn().mockImplementation(function() {}),
 );
 const MockedApiCancelEvent = vi.hoisted(() =>
-  vi.fn().mockImplementation(() => {}),
+  vi.fn().mockImplementation(function() {}),
 );
 const mockParseAndFormatApiError = vi.hoisted(() =>
   vi.fn(
-    (msg: unknown) =>
-      `[API Error: ${typeof msg === 'string' ? msg : 'An unknown error occurred.'}]`,
+    function(msg: unknown) { return `[API Error: ${typeof msg === 'string' ? msg : 'An unknown error occurred.'}]`; },
   ),
 );
 const mockLogApiCancel = vi.hoisted(() => vi.fn());
@@ -128,7 +127,7 @@ vi.mock('./shellCommandProcessor.js', () => ({
 vi.mock('./atCommandProcessor.js');
 
 vi.mock('../utils/markdownUtilities.js', () => ({
-  findLastSafeSplitPoint: vi.fn((s: string) => s.length),
+  findLastSafeSplitPoint: vi.fn(function(s: string) { return s.length; }),
 }));
 
 vi.mock('./useLogger.js', () => ({
@@ -140,14 +139,14 @@ vi.mock('./useLogger.js', () => ({
 const mockStartNewPrompt = vi.fn();
 const mockAddUsage = vi.fn();
 vi.mock('../contexts/SessionContext.js', () => ({
-  useSessionStats: vi.fn(() => ({
+  useSessionStats: vi.fn(function() { return {
     startNewPrompt: mockStartNewPrompt,
     addUsage: mockAddUsage,
-    getPromptCount: vi.fn(() => 5),
+    getPromptCount: vi.fn(function() { return 5; }),
     stats: {
       sessionId: 'test-session-id',
     },
-  })),
+  }; }),
 }));
 
 vi.mock('./slashCommandProcessor.js', () => ({
@@ -172,15 +171,15 @@ describe('useGeminiStream', () => {
     mockGetActiveGoal.mockReturnValue(undefined);
     mockActiveGoalEquals.mockReturnValue(false);
     vi.mocked(findLastSafeSplitPoint).mockImplementation(
-      (s: string) => s.length,
+      function(s: string) { return s.length; },
     );
 
     // Match production addItem's contract of returning a monotonic id
     // (used by lastTurnUserItemRef's identity check).
     let nextItemId = 1000;
-    mockAddItem = vi.fn(() => nextItemId++);
+    mockAddItem = vi.fn(function() { return nextItemId++; });
     // Define the mock for getGeminiClient
-    const mockGetGeminiClient = vi.fn().mockImplementation(() => {
+    const mockGetGeminiClient = vi.fn().mockImplementation(function() {
       // MockedGeminiClientClass is defined in the module scope by the previous change.
       // It will use the mockStartChat and mockSendMessageStream that are managed within beforeEach.
       const clientInstance = new MockedGeminiClientClass(mockConfig);
@@ -214,10 +213,10 @@ describe('useGeminiStream', () => {
       vertexai: false,
       contextFileName: undefined,
       getToolRegistry: vi.fn(
-        () => ({ getToolSchemaList: vi.fn(() => []) }) as any,
+        function() { return { getToolSchemaList: vi.fn(function() { return []; }) }; } as any,
       ),
-      getProjectRoot: vi.fn(() => '/test/dir'),
-      getCheckpointingEnabled: vi.fn(() => false),
+      getProjectRoot: vi.fn(function() { return '/test/dir'; }),
+      getCheckpointingEnabled: vi.fn(function() { return false; }),
       getGeminiClient: mockGetGeminiClient,
       getApprovalMode: () => ApprovalMode.DEFAULT,
       getUsageStatisticsEnabled: () => true,
@@ -227,23 +226,23 @@ describe('useGeminiStream', () => {
         return 'test-session-id';
       },
       setQuotaErrorOccurred: vi.fn(),
-      getQuotaErrorOccurred: vi.fn(() => false),
-      getModel: vi.fn(() => 'gemini-2.5-pro'),
+      getQuotaErrorOccurred: vi.fn(function() { return false; }),
+      getModel: vi.fn(function() { return 'gemini-2.5-pro'; }),
       getContentGeneratorConfig: vi
         .fn()
         .mockReturnValue(contentGeneratorConfig),
-      getMaxSessionTurns: vi.fn(() => 50),
-      getArenaAgentClient: vi.fn(() => null),
-      isCronEnabled: vi.fn(() => false),
-      getCronScheduler: vi.fn(() => null),
-      getEmitToolUseSummaries: vi.fn(() => false),
-      getFastModel: vi.fn(() => undefined),
-      getBackgroundTaskRegistry: vi.fn(() => ({
+      getMaxSessionTurns: vi.fn(function() { return 50; }),
+      getArenaAgentClient: vi.fn(function() { return null; }),
+      isCronEnabled: vi.fn(function() { return false; }),
+      getCronScheduler: vi.fn(function() { return null; }),
+      getEmitToolUseSummaries: vi.fn(function() { return false; }),
+      getFastModel: vi.fn(function() { return undefined; }),
+      getBackgroundTaskRegistry: vi.fn(function() { return {
         setNotificationCallback: vi.fn(),
-      })),
-      getMonitorRegistry: vi.fn(() => ({
+      }; }),
+      getMonitorRegistry: vi.fn(function() { return {
         setNotificationCallback: vi.fn(),
-      })),
+      }; }),
     } as unknown as Config;
     mockOnDebugMessage = vi.fn();
     mockHandleSlashCommand = vi.fn().mockResolvedValue(false);
@@ -480,7 +479,7 @@ describe('useGeminiStream', () => {
       | ((completedTools: TrackedToolCall[]) => Promise<void>)
       | null = null;
 
-    mockUseReactToolScheduler.mockImplementation((onComplete) => {
+    mockUseReactToolScheduler.mockImplementation(function(onComplete) {
       capturedOnComplete = onComplete;
       return [[], mockScheduleToolCalls, mockMarkToolsAsSubmitted];
     });
@@ -579,7 +578,7 @@ describe('useGeminiStream', () => {
       | ((completedTools: TrackedToolCall[]) => Promise<void>)
       | null = null;
 
-    mockUseReactToolScheduler.mockImplementation((onComplete) => {
+    mockUseReactToolScheduler.mockImplementation(function(onComplete) {
       capturedOnComplete = onComplete;
       return [[], mockScheduleToolCalls, mockMarkToolsAsSubmitted];
     });
@@ -692,7 +691,7 @@ describe('useGeminiStream', () => {
       | ((completedTools: TrackedToolCall[]) => Promise<void>)
       | null = null;
 
-    mockUseReactToolScheduler.mockImplementation((onComplete) => {
+    mockUseReactToolScheduler.mockImplementation(function(onComplete) {
       capturedOnComplete = onComplete;
       return [[], mockScheduleToolCalls, mockMarkToolsAsSubmitted];
     });
@@ -780,7 +779,7 @@ describe('useGeminiStream', () => {
       | ((completedTools: TrackedToolCall[]) => Promise<void>)
       | null = null;
 
-    mockUseReactToolScheduler.mockImplementation((onComplete) => {
+    mockUseReactToolScheduler.mockImplementation(function(onComplete) {
       capturedOnComplete = onComplete;
       return [[], mockScheduleToolCalls, mockMarkToolsAsSubmitted];
     });
@@ -892,7 +891,7 @@ describe('useGeminiStream', () => {
       | ((completedTools: TrackedToolCall[]) => Promise<void>)
       | null = null;
 
-    mockUseReactToolScheduler.mockImplementation((onComplete) => {
+    mockUseReactToolScheduler.mockImplementation(function(onComplete) {
       capturedOnComplete = onComplete;
       return [[], mockScheduleToolCalls, mockMarkToolsAsSubmitted];
     });
@@ -1042,7 +1041,7 @@ describe('useGeminiStream', () => {
     let capturedOnComplete:
       | ((completedTools: TrackedToolCall[]) => Promise<void>)
       | null = null;
-    mockUseReactToolScheduler.mockImplementation((onComplete) => {
+    mockUseReactToolScheduler.mockImplementation(function(onComplete) {
       capturedOnComplete = onComplete;
       return [[], mockScheduleToolCalls, mockMarkToolsAsSubmitted];
     });
@@ -1180,7 +1179,7 @@ describe('useGeminiStream', () => {
     let capturedOnComplete:
       | ((completedTools: TrackedToolCall[]) => Promise<void>)
       | null = null;
-    mockUseReactToolScheduler.mockImplementation((onComplete) => {
+    mockUseReactToolScheduler.mockImplementation(function(onComplete) {
       capturedOnComplete = onComplete;
       return [[], mockScheduleToolCalls, mockMarkToolsAsSubmitted];
     });
@@ -1314,7 +1313,7 @@ describe('useGeminiStream', () => {
     let capturedOnComplete:
       | ((completedTools: TrackedToolCall[]) => Promise<void>)
       | null = null;
-    mockUseReactToolScheduler.mockImplementation((onComplete) => {
+    mockUseReactToolScheduler.mockImplementation(function(onComplete) {
       capturedOnComplete = onComplete;
       return [[], mockScheduleToolCalls, mockMarkToolsAsSubmitted];
     });
@@ -1533,7 +1532,7 @@ describe('useGeminiStream', () => {
     let capturedOnComplete:
       | ((completedTools: TrackedToolCall[]) => Promise<void>)
       | null = null;
-    mockUseReactToolScheduler.mockImplementation((onComplete) => {
+    mockUseReactToolScheduler.mockImplementation(function(onComplete) {
       capturedOnComplete = onComplete;
       return [[], mockScheduleToolCalls, mockMarkToolsAsSubmitted];
     });
@@ -1654,7 +1653,7 @@ describe('useGeminiStream', () => {
       | null = null;
     let currentToolCalls = initialToolCalls;
 
-    mockUseReactToolScheduler.mockImplementation((onComplete) => {
+    mockUseReactToolScheduler.mockImplementation(function(onComplete) {
       capturedOnComplete = onComplete;
       return [
         currentToolCalls,
@@ -1691,7 +1690,7 @@ describe('useGeminiStream', () => {
 
     // 2. Update the tool calls to completed state and rerender
     currentToolCalls = completedToolCalls;
-    mockUseReactToolScheduler.mockImplementation((onComplete) => {
+    mockUseReactToolScheduler.mockImplementation(function(onComplete) {
       capturedOnComplete = onComplete;
       return [
         completedToolCalls,
@@ -1773,7 +1772,7 @@ describe('useGeminiStream', () => {
         | ((completedTools: TrackedToolCall[]) => Promise<void>)
         | null = null;
 
-      mockUseReactToolScheduler.mockImplementation((onComplete) => {
+      mockUseReactToolScheduler.mockImplementation(function(onComplete) {
         capturedOnComplete = onComplete;
         return [
           completedTools,
@@ -1834,11 +1833,11 @@ describe('useGeminiStream', () => {
     it('skips summary generation when the feature is disabled', async () => {
       const config = {
         ...mockConfig,
-        getEmitToolUseSummaries: vi.fn(() => false),
-        getFastModel: vi.fn(() => 'qwen-fast'),
-        getGeminiClient: vi.fn(() => ({
+        getEmitToolUseSummaries: vi.fn(function() { return false; }),
+        getFastModel: vi.fn(function() { return 'qwen-fast'; }),
+        getGeminiClient: vi.fn(function() { return {
           generateContent: vi.fn(),
-        })),
+        }; }),
       } as unknown as Config;
 
       await runCompletion(config, [
@@ -1858,10 +1857,10 @@ describe('useGeminiStream', () => {
       const generateText = vi.fn();
       const config = {
         ...mockConfig,
-        getEmitToolUseSummaries: vi.fn(() => true),
-        getFastModel: vi.fn(() => undefined),
-        getGeminiClient: vi.fn(() => ({})),
-        getBaseLlmClient: vi.fn(() => ({ generateText })),
+        getEmitToolUseSummaries: vi.fn(function() { return true; }),
+        getFastModel: vi.fn(function() { return undefined; }),
+        getGeminiClient: vi.fn(function() { return {}; }),
+        getBaseLlmClient: vi.fn(function() { return { generateText }; }),
       } as unknown as Config;
 
       await runCompletion(config, [
@@ -1878,11 +1877,11 @@ describe('useGeminiStream', () => {
       });
       const config = {
         ...mockConfig,
-        getEmitToolUseSummaries: vi.fn(() => true),
-        getFastModel: vi.fn(() => 'qwen-fast'),
-        getModel: vi.fn(() => 'qwen-main'),
-        getGeminiClient: vi.fn(() => ({})),
-        getBaseLlmClient: vi.fn(() => ({ generateText })),
+        getEmitToolUseSummaries: vi.fn(function() { return true; }),
+        getFastModel: vi.fn(function() { return 'qwen-fast'; }),
+        getModel: vi.fn(function() { return 'qwen-main'; }),
+        getGeminiClient: vi.fn(function() { return {}; }),
+        getBaseLlmClient: vi.fn(function() { return { generateText }; }),
       } as unknown as Config;
 
       await runCompletion(config, [
@@ -1927,11 +1926,11 @@ describe('useGeminiStream', () => {
       );
       const config = {
         ...mockConfig,
-        getEmitToolUseSummaries: vi.fn(() => true),
-        getFastModel: vi.fn(() => 'qwen-fast'),
-        getModel: vi.fn(() => 'qwen-main'),
-        getGeminiClient: vi.fn(() => ({})),
-        getBaseLlmClient: vi.fn(() => ({ generateText })),
+        getEmitToolUseSummaries: vi.fn(function() { return true; }),
+        getFastModel: vi.fn(function() { return 'qwen-fast'; }),
+        getModel: vi.fn(function() { return 'qwen-main'; }),
+        getGeminiClient: vi.fn(function() { return {}; }),
+        getBaseLlmClient: vi.fn(function() { return { generateText }; }),
       } as unknown as Config;
 
       let capturedOnComplete:
@@ -1940,7 +1939,7 @@ describe('useGeminiStream', () => {
       const completedTools = [
         makeCompletedToolCall('c1', 'Read', { file: 'a.ts' }),
       ];
-      mockUseReactToolScheduler.mockImplementation((onComplete) => {
+      mockUseReactToolScheduler.mockImplementation(function(onComplete) {
         capturedOnComplete = onComplete;
         return [
           completedTools,
@@ -2030,11 +2029,11 @@ describe('useGeminiStream', () => {
       });
       const config = {
         ...mockConfig,
-        getEmitToolUseSummaries: vi.fn(() => true),
-        getFastModel: vi.fn(() => 'qwen-fast'),
-        getModel: vi.fn(() => 'qwen-main'),
-        getGeminiClient: vi.fn(() => ({})),
-        getBaseLlmClient: vi.fn(() => ({ generateText })),
+        getEmitToolUseSummaries: vi.fn(function() { return true; }),
+        getFastModel: vi.fn(function() { return 'qwen-fast'; }),
+        getModel: vi.fn(function() { return 'qwen-main'; }),
+        getGeminiClient: vi.fn(function() { return {}; }),
+        getBaseLlmClient: vi.fn(function() { return { generateText }; }),
       } as unknown as Config;
 
       await runCompletion(config, [
@@ -2120,8 +2119,7 @@ describe('useGeminiStream', () => {
       const holdStream = new Promise<void>((resolve) => {
         releaseStream = resolve;
       });
-      vi.mocked(findLastSafeSplitPoint).mockImplementation((s: string) =>
-        s.startsWith('\n\n') ? 2 : s.length,
+      vi.mocked(findLastSafeSplitPoint).mockImplementation(function(s: string) { return s.startsWith('\n\n') ? 2 : s.length; },
       );
 
       const mockStream = (async function* () {
@@ -2964,9 +2962,9 @@ describe('useGeminiStream', () => {
           tool: {
             name: 'tool1',
             description: 'desc1',
-            build: vi.fn().mockImplementation((_) => ({
+            build: vi.fn().mockImplementation(function(_) { return {
               getDescription: () => `Mock description`,
-            })),
+            }; }),
           } as any,
           invocation: {
             getDescription: () => `Mock description`,
@@ -3177,7 +3175,7 @@ describe('useGeminiStream', () => {
         | ((completedTools: TrackedToolCall[]) => Promise<void>)
         | null = null;
 
-      mockUseReactToolScheduler.mockImplementation((onComplete) => {
+      mockUseReactToolScheduler.mockImplementation(function(onComplete) {
         capturedOnComplete = onComplete;
         return [[], mockScheduleToolCalls, mockMarkToolsAsSubmitted];
       });
@@ -3233,10 +3231,10 @@ describe('useGeminiStream', () => {
 
       const testConfig = {
         ...mockConfig,
-        getContentGeneratorConfig: vi.fn(() => ({
+        getContentGeneratorConfig: vi.fn(function() { return {
           authType: mockAuthType,
-        })),
-        getModel: vi.fn(() => 'gemini-2.5-pro'),
+        }; }),
+        getModel: vi.fn(function() { return 'gemini-2.5-pro'; }),
       } as unknown as Config;
 
       const { result } = renderHook(() =>
@@ -4784,7 +4782,7 @@ describe('useGeminiStream', () => {
         await firstCallPromise;
       })();
 
-      mockSendMessageStream.mockImplementation(() => firstStream);
+      mockSendMessageStream.mockImplementation(function() { return firstStream; });
       mockHandleSlashCommand.mockImplementation(async (command) => {
         if (command === '/btw quick side question') {
           return { type: 'handled' };
@@ -4827,7 +4825,7 @@ describe('useGeminiStream', () => {
         resolveFirstCall = resolve;
       });
 
-      mockSendMessageStream.mockImplementation((_query, signal) => {
+      mockSendMessageStream.mockImplementation(function(_query, signal) {
         mainAbortSignal = signal;
         return (async function* () {
           yield {
@@ -4912,7 +4910,7 @@ describe('useGeminiStream', () => {
       })();
 
       let callCount = 0;
-      mockSendMessageStream.mockImplementation(() => {
+      mockSendMessageStream.mockImplementation(function() {
         callCount++;
         if (callCount === 1) {
           return firstStream;

@@ -178,7 +178,7 @@ describe('runForkedAgent (cache path)', () => {
     let capturedParams: unknown = null;
 
     const mockSendMessageStream = vi.fn(
-      (_model: string, params: unknown, _promptId: string) => {
+      function(_model: string, params: unknown, _promptId: string) {
         capturedParams = params;
         async function* generate() {
           yield {
@@ -205,10 +205,9 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
+      function() { return {
           sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+        }; } as unknown as GeminiChat,
     );
 
     const mockConfig = {} as unknown as Config;
@@ -275,7 +274,7 @@ describe('runForkedAgent (cache path)', () => {
     let capturedParams: unknown = null;
 
     const mockSendMessageStream = vi.fn(
-      (_model: string, params: unknown, _promptId: string) => {
+      function(_model: string, params: unknown, _promptId: string) {
         capturedParams = params;
         async function* generate() {
           yield {
@@ -301,10 +300,9 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
+      function() { return {
           sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+        }; } as unknown as GeminiChat,
     );
 
     const schema = {
@@ -349,7 +347,7 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     const mockSendMessageStream = vi.fn(
-      (_model: string, _params: unknown, _promptId: string) => {
+      function(_model: string, _params: unknown, _promptId: string) {
         async function* generate() {
           yield {
             type: StreamEventType.CHUNK,
@@ -370,10 +368,9 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
+      function() { return {
           sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+        }; } as unknown as GeminiChat,
     );
 
     const mockConfig = {
@@ -435,7 +432,7 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     const mockSendMessageStream = vi.fn(
-      (_model: string, _params: unknown, _promptId: string) => {
+      function(_model: string, _params: unknown, _promptId: string) {
         async function* generate() {
           yield {
             type: StreamEventType.CHUNK,
@@ -456,10 +453,9 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
+      function() { return {
           sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+        }; } as unknown as GeminiChat,
     );
 
     const mockConfig = {
@@ -525,7 +521,7 @@ describe('runForkedAgent (cache path)', () => {
 
     let capturedModel: string | undefined;
     const mockSendMessageStream = vi.fn(
-      (model: string, _params: unknown, _promptId: string) => {
+      function(model: string, _params: unknown, _promptId: string) {
         capturedModel = model;
         async function* generate() {
           yield {
@@ -547,10 +543,9 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
+      function() { return {
           sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+        }; } as unknown as GeminiChat,
     );
 
     const mockConfig = {
@@ -560,7 +555,7 @@ describe('runForkedAgent (cache path)', () => {
         authType: AuthType.QWEN_OAUTH,
       }),
       getFastModel: vi.fn().mockReturnValue(undefined),
-      getAllConfiguredModels: vi.fn(() => []),
+      getAllConfiguredModels: vi.fn(function() { return []; }),
     } as unknown as Config;
 
     await runForkedAgent({

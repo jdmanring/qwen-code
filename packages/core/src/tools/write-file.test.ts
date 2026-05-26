@@ -44,7 +44,7 @@ const mockFileHistoryService = { trackEdit: vi.fn() };
 const mockConfigInternal = {
   getTargetDir: () => rootDir,
   getProjectRoot: () => rootDir,
-  getApprovalMode: vi.fn(() => ApprovalMode.DEFAULT),
+  getApprovalMode: vi.fn(function() { return ApprovalMode.DEFAULT; }),
   setApprovalMode: vi.fn(),
   getGeminiClient: vi.fn(), // Initialize as a plain mock function
   getBaseLlmClient: vi.fn(), // Initialize as a plain mock function
@@ -108,7 +108,7 @@ describe('WriteFileTool', () => {
     mockGeminiClientInstance = new (vi.mocked(GeminiClient))(
       mockConfig,
     ) as Mocked<GeminiClient>;
-    vi.mocked(GeminiClient).mockImplementation(() => mockGeminiClientInstance);
+    vi.mocked(GeminiClient).mockImplementation(function() { return mockGeminiClientInstance; });
 
     // Now that mockGeminiClientInstance is initialized, set the mock implementation for getGeminiClient
     mockConfigInternal.getGeminiClient.mockReturnValue(
@@ -239,8 +239,7 @@ describe('WriteFileTool', () => {
       seedPriorRead(filePath);
 
       const readError = new Error('Simulated read error for confirmation');
-      vi.spyOn(fsService, 'readTextFile').mockImplementationOnce(() =>
-        Promise.reject(readError),
+      vi.spyOn(fsService, 'readTextFile').mockImplementationOnce(function() { return Promise.reject(readError); },
       );
 
       const invocation = tool.build(params);
@@ -311,7 +310,7 @@ describe('WriteFileTool', () => {
       fs.writeFileSync(filePath, 'original', { mode: 0o000 });
       seedPriorRead(filePath);
 
-      vi.spyOn(fsService, 'readTextFile').mockImplementationOnce(() => {
+      vi.spyOn(fsService, 'readTextFile').mockImplementationOnce(function() {
         const readError = new Error('Simulated read error for execute');
         return Promise.reject(readError);
       });
@@ -665,7 +664,7 @@ describe('WriteFileTool', () => {
       const content = 'test content';
 
       // Mock FileSystemService writeTextFile to throw EACCES error
-      vi.spyOn(fsService, 'writeTextFile').mockImplementationOnce(() => {
+      vi.spyOn(fsService, 'writeTextFile').mockImplementationOnce(function() {
         const error = new Error('Permission denied') as NodeJS.ErrnoException;
         error.code = 'EACCES';
         return Promise.reject(error);
@@ -689,7 +688,7 @@ describe('WriteFileTool', () => {
       const content = 'test content';
 
       // Mock FileSystemService writeTextFile to throw ENOSPC error
-      vi.spyOn(fsService, 'writeTextFile').mockImplementationOnce(() => {
+      vi.spyOn(fsService, 'writeTextFile').mockImplementationOnce(function() {
         const error = new Error(
           'No space left on device',
         ) as NodeJS.ErrnoException;
@@ -716,7 +715,7 @@ describe('WriteFileTool', () => {
 
       // Mock fs.existsSync to return false to bypass validation
       const originalExistsSync = fs.existsSync;
-      vi.spyOn(fs, 'existsSync').mockImplementation((path) => {
+      vi.spyOn(fs, 'existsSync').mockImplementation(function(path) {
         if (path === dirPath) {
           return false; // Pretend directory doesn't exist to bypass validation
         }
@@ -724,7 +723,7 @@ describe('WriteFileTool', () => {
       });
 
       // Mock FileSystemService writeTextFile to throw EISDIR error
-      vi.spyOn(fsService, 'writeTextFile').mockImplementationOnce(() => {
+      vi.spyOn(fsService, 'writeTextFile').mockImplementationOnce(function() {
         const error = new Error('Is a directory') as NodeJS.ErrnoException;
         error.code = 'EISDIR';
         return Promise.reject(error);
@@ -753,8 +752,7 @@ describe('WriteFileTool', () => {
       vi.restoreAllMocks();
 
       // Mock FileSystemService writeTextFile to throw generic error
-      vi.spyOn(fsService, 'writeTextFile').mockImplementationOnce(() =>
-        Promise.reject(new Error('Generic write error')),
+      vi.spyOn(fsService, 'writeTextFile').mockImplementationOnce(function() { return Promise.reject(new Error('Generic write error')); },
       );
 
       const params = { file_path: filePath, content };

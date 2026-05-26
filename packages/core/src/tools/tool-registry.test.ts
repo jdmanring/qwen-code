@@ -53,29 +53,29 @@ const mockStdioTransportClose = vi.fn();
 const mockSseTransportClose = vi.fn();
 
 vi.mock('@modelcontextprotocol/sdk/client/index.js', () => {
-  const MockClient = vi.fn().mockImplementation(() => ({
+  const MockClient = vi.fn().mockImplementation(function() { return {
     connect: mockMcpClientConnect,
     set onerror(handler: any) {
       mockMcpClientOnError(handler);
     },
-  }));
+  }; });
   return { Client: MockClient };
 });
 
 vi.mock('@modelcontextprotocol/sdk/client/stdio.js', () => {
-  const MockStdioClientTransport = vi.fn().mockImplementation(() => ({
+  const MockStdioClientTransport = vi.fn().mockImplementation(function() { return {
     stderr: {
       on: vi.fn(),
     },
     close: mockStdioTransportClose,
-  }));
+  }; });
   return { StdioClientTransport: MockStdioClientTransport };
 });
 
 vi.mock('@modelcontextprotocol/sdk/client/sse.js', () => {
-  const MockSSEClientTransport = vi.fn().mockImplementation(() => ({
+  const MockSSEClientTransport = vi.fn().mockImplementation(function() { return {
     close: mockSseTransportClose,
-  }));
+  }; });
   return { SSEClientTransport: MockSSEClientTransport };
 });
 
@@ -85,10 +85,10 @@ vi.mock('@google/genai', async () => {
     await vi.importActual<typeof import('@google/genai')>('@google/genai');
   return {
     ...actualGenai,
-    mcpToTool: vi.fn().mockImplementation(() => ({
+    mcpToTool: vi.fn().mockImplementation(function() { return {
       tool: vi.fn().mockResolvedValue({ functionDeclarations: [] }),
       callTool: vi.fn(),
-    })),
+    }; }),
   };
 });
 
@@ -546,7 +546,7 @@ describe('ToolRegistry', () => {
       mockSpawn.mockReturnValue(mockChildProcess as any);
 
       // Simulate stdout data
-      mockChildProcess.stdout.on.mockImplementation((event, callback) => {
+      mockChildProcess.stdout.on.mockImplementation(function(event, callback) {
         if (event === 'data') {
           callback(
             Buffer.from(
@@ -560,7 +560,7 @@ describe('ToolRegistry', () => {
       });
 
       // Simulate process close
-      mockChildProcess.on.mockImplementation((event, callback) => {
+      mockChildProcess.on.mockImplementation(function(event, callback) {
         if (event === 'close') {
           callback(0);
         }
@@ -608,7 +608,7 @@ describe('ToolRegistry', () => {
       };
       mockSpawn.mockReturnValueOnce(discoveryProcess as any);
 
-      discoveryProcess.stdout.on.mockImplementation((event, callback) => {
+      discoveryProcess.stdout.on.mockImplementation(function(event, callback) {
         if (event === 'data') {
           callback(
             Buffer.from(
@@ -617,7 +617,7 @@ describe('ToolRegistry', () => {
           );
         }
       });
-      discoveryProcess.on.mockImplementation((event, callback) => {
+      discoveryProcess.on.mockImplementation(function(event, callback) {
         if (event === 'close') {
           callback(0);
         }
@@ -639,12 +639,12 @@ describe('ToolRegistry', () => {
       };
       mockSpawn.mockReturnValueOnce(executionProcess as any);
 
-      executionProcess.stderr.on.mockImplementation((event, callback) => {
+      executionProcess.stderr.on.mockImplementation(function(event, callback) {
         if (event === 'data') {
           callback(Buffer.from('Something went wrong'));
         }
       });
-      executionProcess.on.mockImplementation((event, callback) => {
+      executionProcess.on.mockImplementation(function(event, callback) {
         if (event === 'close') {
           callback(1); // Non-zero exit code
         }
@@ -793,7 +793,7 @@ describe('ToolRegistry', () => {
       vi.spyOn(config, 'getExcludedMcpServers').mockReturnValue([]);
       const setExcludedSpy = vi
         .spyOn(config, 'setExcludedMcpServers')
-        .mockImplementation(() => {});
+        .mockImplementation(function() {});
       vi.spyOn(
         McpClientManager.prototype,
         'disconnectServer',
@@ -816,7 +816,7 @@ describe('ToolRegistry', () => {
       // health pill would keep a stale entry forever.
       updateMCPServerStatus('flaky-server', MCPServerStatus.DISCONNECTED);
       vi.spyOn(config, 'getExcludedMcpServers').mockReturnValue([]);
-      vi.spyOn(config, 'setExcludedMcpServers').mockImplementation(() => {
+      vi.spyOn(config, 'setExcludedMcpServers').mockImplementation(function() {
         throw new Error('config write failed');
       });
       vi.spyOn(
@@ -839,7 +839,7 @@ describe('ToolRegistry', () => {
 
       const setExcludedSpy = vi
         .spyOn(config, 'setExcludedMcpServers')
-        .mockImplementation(() => {});
+        .mockImplementation(function() {});
       vi.spyOn(config, 'getExcludedMcpServers').mockReturnValue([]);
       // disableMcpServer delegates the actual transport teardown to the
       // McpClientManager — stub it out so we can isolate the status-registry
@@ -869,7 +869,7 @@ describe('ToolRegistry', () => {
       ).mockResolvedValue(undefined);
 
       const callOrder: string[] = [];
-      vi.spyOn(config, 'setExcludedMcpServers').mockImplementation(() => {
+      vi.spyOn(config, 'setExcludedMcpServers').mockImplementation(function() {
         callOrder.push(
           `setExcludedMcpServers:hasStatus=${getAllMCPServerStatuses().has(
             'flaky-server',

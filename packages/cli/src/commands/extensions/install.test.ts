@@ -19,10 +19,10 @@ const mockWriteStdoutLine = vi.hoisted(() => vi.fn());
 const mockWriteStderrLine = vi.hoisted(() => vi.fn());
 
 vi.mock('@qwen-code/qwen-code-core', () => ({
-  ExtensionManager: vi.fn().mockImplementation(() => ({
+  ExtensionManager: vi.fn().mockImplementation(function() { return {
     installExtension: mockInstallExtension,
     refreshCache: mockRefreshCache,
-  })),
+  }; }),
   parseInstallSource: mockParseInstallSource,
 }));
 
@@ -41,7 +41,7 @@ vi.mock('../../config/settings.js', () => ({
 }));
 
 vi.mock('../../utils/errors.js', () => ({
-  getErrorMessage: vi.fn((error: Error) => error.message),
+  getErrorMessage: vi.fn(function(error: Error) { return error.message; }),
 }));
 
 vi.mock('../../utils/stdioHelpers.js', () => ({
@@ -76,7 +76,7 @@ describe('handleInstall', () => {
   it('should install an extension from a http source', async () => {
     const processSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
     mockParseInstallSource.mockResolvedValue({
       type: 'http',
@@ -98,7 +98,7 @@ describe('handleInstall', () => {
   it('should install an extension from a https source', async () => {
     const processSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
     mockParseInstallSource.mockResolvedValue({
       type: 'https',
@@ -120,7 +120,7 @@ describe('handleInstall', () => {
   it('should install an extension from a git source', async () => {
     const processSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
     mockParseInstallSource.mockResolvedValue({
       type: 'git',
@@ -142,7 +142,7 @@ describe('handleInstall', () => {
   it('throws an error from an unknown source', async () => {
     const processSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
     mockParseInstallSource.mockRejectedValue(
       new Error('Install source not found.'),
@@ -162,7 +162,7 @@ describe('handleInstall', () => {
   it('should install an extension from a sso source', async () => {
     const processSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
     mockParseInstallSource.mockResolvedValue({
       type: 'sso',
@@ -184,7 +184,7 @@ describe('handleInstall', () => {
   it('should install an extension from a local path', async () => {
     const processSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
     mockParseInstallSource.mockResolvedValue({
       type: 'local',
@@ -206,7 +206,7 @@ describe('handleInstall', () => {
   it('should throw an error if install extension fails', async () => {
     const processSpy = vi
       .spyOn(process, 'exit')
-      .mockImplementation(() => undefined as never);
+      .mockImplementation(function() { return undefined as never; });
 
     mockParseInstallSource.mockResolvedValue({
       type: 'git',

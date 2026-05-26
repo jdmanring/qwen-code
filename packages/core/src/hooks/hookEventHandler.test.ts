@@ -712,7 +712,7 @@ describe('HookEventHandler', () => {
 
   describe('error handling', () => {
     it('should return error result when hook execution throws', async () => {
-      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(() => {
+      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(function() {
         throw new Error('Planner error');
       });
 
@@ -744,7 +744,7 @@ describe('HookEventHandler', () => {
     });
 
     it('should handle errors for SessionStart event', async () => {
-      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(() => {
+      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(function() {
         throw new Error('SessionStart planner error');
       });
 
@@ -759,7 +759,7 @@ describe('HookEventHandler', () => {
     });
 
     it('should handle errors for SessionEnd event', async () => {
-      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(() => {
+      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(function() {
         throw new Error('SessionEnd planner error');
       });
 
@@ -1161,7 +1161,7 @@ describe('HookEventHandler', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(() => {
+      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(function() {
         throw new Error('PreToolUse planner error');
       });
 
@@ -1181,7 +1181,7 @@ describe('HookEventHandler', () => {
 
   describe('todo hook fail-closed behavior', () => {
     it('should block TodoCreated when hook execution setup fails', async () => {
-      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(() => {
+      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(function() {
         throw new Error('TodoCreated planner error');
       });
 
@@ -1204,7 +1204,7 @@ describe('HookEventHandler', () => {
     });
 
     it('should block TodoCompleted when hook execution setup fails', async () => {
-      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(() => {
+      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(function() {
         throw new Error('TodoCompleted planner error');
       });
 
@@ -1444,7 +1444,7 @@ describe('HookEventHandler', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(() => {
+      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(function() {
         throw new Error('PostToolUse planner error');
       });
 
@@ -1640,7 +1640,7 @@ describe('HookEventHandler', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(() => {
+      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(function() {
         throw new Error('PreCompact planner error');
       });
 
@@ -1869,7 +1869,7 @@ describe('HookEventHandler', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(() => {
+      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(function() {
         throw new Error('Notification planner error');
       });
 
@@ -2167,7 +2167,7 @@ describe('HookEventHandler', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(() => {
+      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(function() {
         throw new Error('PermissionRequest planner error');
       });
 
@@ -2443,7 +2443,7 @@ describe('HookEventHandler', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(() => {
+      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(function() {
         throw new Error('SubagentStart planner error');
       });
 
@@ -2622,7 +2622,7 @@ describe('HookEventHandler', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(() => {
+      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(function() {
         throw new Error('SubagentStop planner error');
       });
 
@@ -2829,7 +2829,7 @@ describe('HookEventHandler', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(() => {
+      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(function() {
         throw new Error('StopFailure planner error');
       });
 
@@ -2968,7 +2968,7 @@ describe('HookEventHandler', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(() => {
+      vi.mocked(mockHookPlanner.createExecutionPlan).mockImplementation(function() {
         throw new Error('PostCompact planner error');
       });
 

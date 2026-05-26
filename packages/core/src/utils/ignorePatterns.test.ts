@@ -14,7 +14,7 @@ import type { Config } from '../config/config.js';
 
 // Mock the memoryTool module
 vi.mock('../memory/const.js', () => ({
-  getAllGeminiMdFilenames: vi.fn(() => ['GEMINI.md', 'AGENTS.md']),
+  getAllGeminiMdFilenames: vi.fn(function() { return ['GEMINI.md', 'AGENTS.md']; }),
 }));
 
 describe('FileExclusions', () => {
@@ -153,7 +153,7 @@ describe('FileExclusions', () => {
   describe('with Config', () => {
     it('should use config custom excludes when available', () => {
       const mockConfig = {
-        getCustomExcludes: vi.fn(() => ['**/config-exclude/**']),
+        getCustomExcludes: vi.fn(function() { return ['**/config-exclude/**']; }),
       } as unknown as Config;
 
       const excluder = new FileExclusions(mockConfig);
@@ -176,7 +176,7 @@ describe('FileExclusions', () => {
 
     it('should include config custom excludes in glob patterns', () => {
       const mockConfig = {
-        getCustomExcludes: vi.fn(() => ['**/config-glob/**']),
+        getCustomExcludes: vi.fn(function() { return ['**/config-glob/**']; }),
       } as unknown as Config;
 
       const excluder = new FileExclusions(mockConfig);

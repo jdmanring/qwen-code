@@ -52,7 +52,7 @@ describe('RewindSelector', () => {
     activeKeypressHandler = null;
     fileHistoryService = new FileHistoryService('test-session', false, '/tmp');
     vi.mocked(useTerminalSize).mockReturnValue({ columns: 100, rows: 30 });
-    vi.mocked(useKeypress).mockImplementation((handler, { isActive }) => {
+    vi.mocked(useKeypress).mockImplementation(function(handler, { isActive }) {
       if (isActive) {
         activeKeypressHandler = handler;
       }

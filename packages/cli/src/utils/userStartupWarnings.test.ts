@@ -11,7 +11,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 // Mock os.homedir to control the home directory in tests
-vi.mock('os', async (importOriginal) => {
+vi.mock('node:os', async (importOriginal) => {
   const actualOs = await importOriginal<typeof os>();
   return {
     ...actualOs,

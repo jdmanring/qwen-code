@@ -25,7 +25,7 @@ import {
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { MessageType } from '../types.js';
 
-vi.mock('os', async (importOriginal) => {
+vi.mock('node:os', async (importOriginal) => {
   const mockedOs = await importOriginal<typeof os>();
   return {
     ...mockedOs,
@@ -62,7 +62,7 @@ function createMockExtensionManager(
   updateResult?: ExtensionUpdateInfo | undefined,
 ): ExtensionManager {
   return {
-    getLoadedExtensions: vi.fn(() => extensions),
+    getLoadedExtensions: vi.fn(function() { return extensions; }),
     checkForAllExtensionUpdates: vi.fn(
       async (
         callback: (extensionName: string, state: ExtensionUpdateState) => void,
@@ -388,7 +388,7 @@ describe('useExtensionUpdates', () => {
     let updateCallCount = 0;
 
     const extensionManager = {
-      getLoadedExtensions: vi.fn(() => [extension1, extension2]),
+      getLoadedExtensions: vi.fn(function() { return [extension1, extension2]; }),
       checkForAllExtensionUpdates: vi.fn(
         async (
           callback: (

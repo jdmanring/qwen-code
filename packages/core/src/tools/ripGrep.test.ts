@@ -30,7 +30,7 @@ vi.mock('../utils/ripgrepUtils.js', () => ({
 }));
 
 // Mock child_process for ripgrep calls
-vi.mock('child_process', () => ({
+vi.mock('node:child_process', () => ({
   spawn: vi.fn(),
 }));
 

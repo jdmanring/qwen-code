@@ -36,12 +36,12 @@ describe('relaunchOnExitCode', () => {
   let stdinResumeSpy: MockInstance;
 
   beforeEach(() => {
-    processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
+    processExitSpy = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('PROCESS_EXIT_CALLED');
     });
     stdinResumeSpy = vi
       .spyOn(process.stdin, 'resume')
-      .mockImplementation(() => process.stdin);
+      .mockImplementation(function() { return process.stdin; });
     vi.clearAllMocks();
   });
 
@@ -113,15 +113,15 @@ describe('relaunchAppInChildProcess', () => {
     process.argv = [...originalArgv];
     process.execPath = '/usr/bin/node';
 
-    processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
+    processExitSpy = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('PROCESS_EXIT_CALLED');
     });
     stdinPauseSpy = vi
       .spyOn(process.stdin, 'pause')
-      .mockImplementation(() => process.stdin);
+      .mockImplementation(function() { return process.stdin; });
     stdinResumeSpy = vi
       .spyOn(process.stdin, 'resume')
-      .mockImplementation(() => process.stdin);
+      .mockImplementation(function() { return process.stdin; });
   });
 
   afterEach(() => {
@@ -279,7 +279,7 @@ describe('relaunchAppInChildProcess', () => {
       process.argv = ['/usr/bin/node', '/app/cli.js'];
 
       const mockChild = createMockChildProcess(0, false); // Don't auto-close
-      mockedSpawn.mockImplementation(() => {
+      mockedSpawn.mockImplementation(function() {
         // Emit close with null code immediately
         setImmediate(() => {
           mockChild.emit('close', null);

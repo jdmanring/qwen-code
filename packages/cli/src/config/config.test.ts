@@ -28,7 +28,7 @@ const mockSessionServiceInstance = vi.hoisted(() => ({
   sessionExists: vi.fn(),
 }));
 const mockSessionServiceCtor = vi.hoisted(() =>
-  vi.fn(() => mockSessionServiceInstance),
+  vi.fn(function() { return mockSessionServiceInstance; }),
 );
 
 vi.mock('../utils/stdioHelpers.js', () => ({
@@ -88,7 +88,7 @@ const getLastLspInstance = () => {
   >;
 };
 
-vi.mock('fs', async (importOriginal) => {
+vi.mock('node:fs', async (importOriginal) => {
   const actualFs = await importOriginal<typeof import('fs')>();
   const pathMod = await import('node:path');
   const mockHome = '/mock/home/user';
@@ -109,22 +109,22 @@ vi.mock('fs', async (importOriginal) => {
     ...actualFs,
     mkdirSync: vi.fn(),
     writeFileSync: vi.fn(),
-    existsSync: vi.fn((p) => mockPaths.has(p.toString())),
-    statSync: vi.fn((p) => {
+    existsSync: vi.fn(function(p) { return mockPaths.has(p.toString()); }),
+    statSync: vi.fn(function(p) {
       if (mockPaths.has(p.toString())) {
         return { isDirectory: () => true } as unknown as import('fs').Stats;
       }
       return (actualFs as typeof import('fs')).statSync(p as unknown as string);
     }),
-    realpathSync: vi.fn((p) => p),
+    realpathSync: vi.fn(function(p) { return p; }),
   };
 });
 
-vi.mock('os', async (importOriginal) => {
+vi.mock('node:os', async (importOriginal) => {
   const actualOs = await importOriginal<typeof os>();
   return {
     ...actualOs,
-    homedir: vi.fn(() => '/mock/home/user'),
+    homedir: vi.fn(function() { return '/mock/home/user'; }),
   };
 });
 
@@ -145,7 +145,7 @@ vi.mock('read-package-up', () => ({
 
 vi.mock('command-exists', () => ({
   default: {
-    sync: vi.fn(() => true),
+    sync: vi.fn(function() { return true; }),
   },
 }));
 
@@ -163,7 +163,7 @@ vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
     ...actualServer,
     NativeLspService: vi
       .fn()
-      .mockImplementation(() => createNativeLspServiceInstance()),
+      .mockImplementation(function() { return createNativeLspServiceInstance(); }),
     SessionService: mockSessionServiceCtor,
     SkillManager: SkillManagerMock,
     IdeClient: {
@@ -212,7 +212,7 @@ describe('parseArguments', () => {
       'interactive prompt',
     ];
 
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -238,7 +238,7 @@ describe('parseArguments', () => {
       'interactive prompt',
     ];
 
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -293,7 +293,7 @@ describe('parseArguments', () => {
       '{"type":"object"}',
     ];
 
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -319,7 +319,7 @@ describe('parseArguments', () => {
       '{"type":"object"}',
     ];
 
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -348,7 +348,7 @@ describe('parseArguments', () => {
       '{"type":"object"}',
     ];
 
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -383,7 +383,7 @@ describe('parseArguments', () => {
       '{"type":"object"}',
     ];
 
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -462,7 +462,7 @@ describe('parseArguments', () => {
 
   it('should reject --fork-session without --resume or --continue', async () => {
     process.argv = ['node', 'script.js', '--fork-session'];
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -617,7 +617,7 @@ describe('parseArguments', () => {
       'default',
     ];
 
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -636,7 +636,7 @@ describe('parseArguments', () => {
   it('should throw an error when using short flags -y and --approval-mode together', async () => {
     process.argv = ['node', 'script.js', '-y', '--approval-mode', 'yolo'];
 
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -670,7 +670,7 @@ describe('parseArguments', () => {
   it('should throw an error when include-partial-messages is used without stream-json output', async () => {
     process.argv = ['node', 'script.js', '--include-partial-messages'];
 
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -692,7 +692,7 @@ describe('parseArguments', () => {
 
     const originalIsTTY = process.stdin.isTTY;
     process.stdin.isTTY = true;
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -744,7 +744,7 @@ describe('parseArguments', () => {
       '{"type":"object"}',
     ];
 
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -795,7 +795,7 @@ describe('parseArguments', () => {
   it('should reject invalid --approval-mode values', async () => {
     process.argv = ['node', 'script.js', '--approval-mode', 'invalid'];
 
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -851,9 +851,9 @@ describe('loadCliConfig', () => {
     vi.resetAllMocks();
     nativeLspServiceMock.mockReset();
     nativeLspServiceMock.mockImplementation(
-      () => createNativeLspServiceInstance() as unknown as NativeLspService,
+      function() { return createNativeLspServiceInstance() as unknown as NativeLspService; },
     );
-    mockSessionServiceCtor.mockImplementation(() => mockSessionServiceInstance);
+    mockSessionServiceCtor.mockImplementation(function() { return mockSessionServiceInstance; });
     mockSessionServiceInstance.loadLastSession.mockResolvedValue(undefined);
     mockSessionServiceInstance.loadSession.mockResolvedValue(undefined);
     mockSessionServiceInstance.forkSession.mockResolvedValue({
@@ -971,7 +971,7 @@ describe('loadCliConfig', () => {
     mockSessionServiceInstance.forkSession.mockRejectedValue(
       new Error('source session belongs to another project'),
     );
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
 
@@ -989,7 +989,7 @@ describe('loadCliConfig', () => {
   });
 
   it('should explain when --continue --fork-session has no saved session to fork', async () => {
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
 
@@ -1020,7 +1020,7 @@ describe('loadCliConfig', () => {
 
   it('should reject direct use of the internal sandbox session ID flag', async () => {
     const sessionId = '123e4567-e89b-12d3-a456-426614174000';
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
 
@@ -1457,7 +1457,7 @@ describe('loadCliConfig telemetry', () => {
       'invalid',
     ];
 
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -3035,7 +3035,7 @@ describe('Output format', () => {
 
   it('should error on invalid --output-format argument', async () => {
     process.argv = ['node', 'script.js', '--output-format', 'yaml'];
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();
@@ -3064,7 +3064,7 @@ describe('parseArguments with positional prompt', () => {
       'test prompt',
     ];
 
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(function() {
       throw new Error('process.exit called');
     });
     mockWriteStderrLine.mockClear();

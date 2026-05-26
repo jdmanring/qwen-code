@@ -777,10 +777,10 @@ describe('MonitorTool', () => {
       });
       const killSpy = vi
         .spyOn(process, 'kill')
-        .mockImplementation(() => true as never);
+        .mockImplementation(function() { return true as never; });
       const registerSpy = vi
         .spyOn(monitorRegistry, 'register')
-        .mockImplementation(() => {
+        .mockImplementation(function() {
           throw new Error('limit reached');
         });
 
@@ -815,10 +815,10 @@ describe('MonitorTool', () => {
       });
       const killSpy = vi
         .spyOn(process, 'kill')
-        .mockImplementation(() => true as never);
+        .mockImplementation(function() { return true as never; });
       const registerSpy = vi
         .spyOn(monitorRegistry, 'register')
-        .mockImplementation(() => {
+        .mockImplementation(function() {
           throw new Error('limit reached');
         });
 
@@ -849,10 +849,10 @@ describe('MonitorTool', () => {
       });
       const killSpy = vi
         .spyOn(process, 'kill')
-        .mockImplementation(() => true as never);
+        .mockImplementation(function() { return true as never; });
       const registerSpy = vi
         .spyOn(monitorRegistry, 'register')
-        .mockImplementation((entry) => {
+        .mockImplementation(function(entry) {
           entry.abortController.abort();
           return MonitorRegistry.prototype.register.call(
             monitorRegistry,
@@ -884,12 +884,12 @@ describe('MonitorTool', () => {
       });
       const registerCallback = vi.fn();
       monitorRegistry.setRegisterCallback(registerCallback);
-      mockSpawn.mockImplementation(() => {
+      mockSpawn.mockImplementation(function() {
         throw new Error('spawn failed');
       });
       const registerSpy = vi
         .spyOn(monitorRegistry, 'register')
-        .mockImplementation(() => {
+        .mockImplementation(function() {
           throw new Error('limit reached');
         });
 
@@ -1138,7 +1138,7 @@ describe('MonitorTool', () => {
     });
 
     it('returns failure when spawn throws', async () => {
-      mockSpawn.mockImplementation(() => {
+      mockSpawn.mockImplementation(function() {
         throw new Error('spawn failed');
       });
 

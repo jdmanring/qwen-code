@@ -243,7 +243,7 @@ describe('NativeLspService', () => {
     const events: string[] = [];
     const connection = {
       listen: vi.fn(),
-      send: vi.fn((message: { method?: string }) => {
+      send: vi.fn(function(message: { method?: string }) {
         events.push(`send:${message.method ?? 'unknown'}`);
       }),
       onNotification: vi.fn(),
@@ -334,7 +334,7 @@ describe('NativeLspService', () => {
     let opened = false;
     const connection = {
       listen: vi.fn(),
-      send: vi.fn((message: { method?: string }) => {
+      send: vi.fn(function(message: { method?: string }) {
         events.push(`send:${message.method ?? 'unknown'}`);
         if (message.method === 'textDocument/didOpen') {
           opened = true;
@@ -437,7 +437,7 @@ describe('NativeLspService', () => {
     let symbolCalls = 0;
     const connection = {
       listen: vi.fn(),
-      send: vi.fn((message: { method?: string }) => {
+      send: vi.fn(function(message: { method?: string }) {
         events.push(`send:${message.method ?? 'unknown'}`);
         if (message.method === 'textDocument/didOpen') {
           opened = true;
@@ -710,7 +710,7 @@ describe('NativeLspService', () => {
     const timeline: Array<{ event: string; time: number }> = [];
     const connection = {
       listen: vi.fn(),
-      send: vi.fn((message: { method?: string }) => {
+      send: vi.fn(function(message: { method?: string }) {
         if (message.method === 'textDocument/didOpen') {
           timeline.push({ event: 'didOpen', time: Date.now() });
         }
@@ -791,7 +791,7 @@ describe('NativeLspService', () => {
     let didOpenCount = 0;
     const connection = {
       listen: vi.fn(),
-      send: vi.fn((message: { method?: string }) => {
+      send: vi.fn(function(message: { method?: string }) {
         if (message.method === 'textDocument/didOpen') {
           didOpenCount += 1;
         }
@@ -873,10 +873,10 @@ describe('NativeLspService', () => {
     const connection = {
       listen: vi.fn(),
       send: vi.fn(
-        (message: {
+        function(message: {
           method?: string;
           params?: { textDocument?: { uri?: string } };
-        }) => {
+        }) {
           if (message.method === 'textDocument/didOpen') {
             didOpenUris.push(message.params?.textDocument?.uri ?? '');
           }

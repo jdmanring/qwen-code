@@ -865,7 +865,7 @@ describe('MonitorRegistry', () => {
     });
 
     it('callback failure does not poison the registry', () => {
-      const cb = vi.fn(() => {
+      const cb = vi.fn(function() {
         throw new Error('subscriber blew up');
       });
       registry.setStatusChangeCallback(cb);

@@ -16,7 +16,7 @@ const keypressState = vi.hoisted(() => ({
 }));
 
 vi.mock('./useKeypress.js', () => ({
-  useKeypress: vi.fn((handler: (key: Key) => void, options) => {
+  useKeypress: vi.fn(function(handler: (key: Key) => void, options) {
     if (options.isActive) {
       keypressState.handlers.push(handler);
     }

@@ -25,7 +25,7 @@ vi.mock('node:https', () => ({
 }));
 
 vi.mock('./github.js', () => ({
-  parseGitHubRepoForReleases: vi.fn((url: string) => {
+  parseGitHubRepoForReleases: vi.fn(function(url: string) {
     const match = url.match(/github\.com\/([^/]+)\/([^/]+)/);
     if (match) {
       return { owner: match[1], repo: match[2] };
@@ -38,7 +38,7 @@ describe('parseInstallSource', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default: HTTPS requests fail (no marketplace config)
-    vi.mocked(https.get).mockImplementation((_url, _options, callback) => {
+    vi.mocked(https.get).mockImplementation(function(_url, _options, callback) {
       const mockRes = {
         statusCode: 404,
         on: vi.fn(),
@@ -288,10 +288,10 @@ describe('parseInstallSource', () => {
       };
 
       // Mock successful API response
-      vi.mocked(https.get).mockImplementation((_url, _options, callback) => {
+      vi.mocked(https.get).mockImplementation(function(_url, _options, callback) {
         const mockRes = {
           statusCode: 200,
-          on: vi.fn((event, handler) => {
+          on: vi.fn(function(event, handler) {
             if (event === 'data') {
               handler(Buffer.from(JSON.stringify(mockMarketplaceConfig)));
             }

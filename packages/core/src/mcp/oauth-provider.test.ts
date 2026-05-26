@@ -14,7 +14,7 @@ const mockDebugLogger = vi.hoisted(() => ({
   error: vi.fn(),
 }));
 vi.mock('../utils/debugLogger.js', () => ({
-  createDebugLogger: vi.fn(() => mockDebugLogger),
+  createDebugLogger: vi.fn(function() { return mockDebugLogger; }),
 }));
 
 // Mock dependencies AT THE TOP
@@ -30,12 +30,12 @@ vi.mock('./oauth-token-storage.js', () => {
   const mockdeleteCredentials = vi.fn();
 
   return {
-    MCPOAuthTokenStorage: vi.fn(() => ({
+    MCPOAuthTokenStorage: vi.fn(function() { return {
       saveToken: mockSaveToken,
       getCredentials: mockGetCredentials,
       isTokenExpired: mockIsTokenExpired,
       deleteCredentials: mockdeleteCredentials,
-    })),
+    }; }),
   };
 });
 
@@ -115,7 +115,7 @@ const mockHttpServer = {
   on: vi.fn(),
 };
 vi.mock('node:http', () => ({
-  createServer: vi.fn(() => mockHttpServer),
+  createServer: vi.fn(function() { return mockHttpServer; }),
 }));
 
 describe('MCPOAuthProvider', () => {
@@ -149,12 +149,12 @@ describe('MCPOAuthProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockOpenBrowserSecurely.mockClear();
-    vi.spyOn(console, 'log').mockImplementation(() => {});
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(function() {});
+    vi.spyOn(console, 'warn').mockImplementation(function() {});
+    vi.spyOn(console, 'error').mockImplementation(function() {});
 
     // Mock crypto functions
-    vi.mocked(crypto.randomBytes).mockImplementation((size: number) => {
+    vi.mocked(crypto.randomBytes).mockImplementation(function(size: number) {
       if (size === 32) return Buffer.from('code_verifier_mock_32_bytes_long');
       if (size === 16) return Buffer.from('state_mock_16_by');
       return Buffer.alloc(size);
@@ -166,7 +166,7 @@ describe('MCPOAuthProvider', () => {
     } as unknown as crypto.Hash);
 
     // Mock randomBytes to return predictable values for state
-    vi.mocked(crypto.randomBytes).mockImplementation((size) => {
+    vi.mocked(crypto.randomBytes).mockImplementation(function(size) {
       if (size === 32) {
         return Buffer.from('mock_code_verifier_32_bytes_long_string');
       } else if (size === 16) {
@@ -189,12 +189,12 @@ describe('MCPOAuthProvider', () => {
     it('should perform complete OAuth flow with PKCE', async () => {
       // Mock HTTP server callback
       let callbackHandler: unknown;
-      vi.mocked(http.createServer).mockImplementation((handler) => {
+      vi.mocked(http.createServer).mockImplementation(function(handler) {
         callbackHandler = handler;
         return mockHttpServer as unknown as http.Server;
       });
 
-      mockHttpServer.listen.mockImplementation((port, callback) => {
+      mockHttpServer.listen.mockImplementation(function(port, callback) {
         callback?.();
         // Simulate OAuth callback
         setTimeout(() => {
@@ -293,12 +293,12 @@ describe('MCPOAuthProvider', () => {
 
       // Setup callback handler
       let callbackHandler: unknown;
-      vi.mocked(http.createServer).mockImplementation((handler) => {
+      vi.mocked(http.createServer).mockImplementation(function(handler) {
         callbackHandler = handler;
         return mockHttpServer as unknown as http.Server;
       });
 
-      mockHttpServer.listen.mockImplementation((port, callback) => {
+      mockHttpServer.listen.mockImplementation(function(port, callback) {
         callback?.();
         setTimeout(() => {
           const mockReq = {
@@ -371,12 +371,12 @@ describe('MCPOAuthProvider', () => {
 
       // Setup callback handler
       let callbackHandler: unknown;
-      vi.mocked(http.createServer).mockImplementation((handler) => {
+      vi.mocked(http.createServer).mockImplementation(function(handler) {
         callbackHandler = handler;
         return mockHttpServer as unknown as http.Server;
       });
 
-      mockHttpServer.listen.mockImplementation((port, callback) => {
+      mockHttpServer.listen.mockImplementation(function(port, callback) {
         callback?.();
         setTimeout(() => {
           const mockReq = {
@@ -459,12 +459,12 @@ describe('MCPOAuthProvider', () => {
 
       // Setup callback handler
       let callbackHandler: unknown;
-      vi.mocked(http.createServer).mockImplementation((handler) => {
+      vi.mocked(http.createServer).mockImplementation(function(handler) {
         callbackHandler = handler;
         return mockHttpServer as unknown as http.Server;
       });
 
-      mockHttpServer.listen.mockImplementation((port, callback) => {
+      mockHttpServer.listen.mockImplementation(function(port, callback) {
         callback?.();
         setTimeout(() => {
           const mockReq = {
@@ -569,12 +569,12 @@ describe('MCPOAuthProvider', () => {
 
       // Setup callback handler
       let callbackHandler: unknown;
-      vi.mocked(http.createServer).mockImplementation((handler) => {
+      vi.mocked(http.createServer).mockImplementation(function(handler) {
         callbackHandler = handler;
         return mockHttpServer as unknown as http.Server;
       });
 
-      mockHttpServer.listen.mockImplementation((port, callback) => {
+      mockHttpServer.listen.mockImplementation(function(port, callback) {
         callback?.();
         setTimeout(() => {
           const mockReq = {
@@ -620,12 +620,12 @@ describe('MCPOAuthProvider', () => {
 
     it('should handle OAuth callback errors', async () => {
       let callbackHandler: unknown;
-      vi.mocked(http.createServer).mockImplementation((handler) => {
+      vi.mocked(http.createServer).mockImplementation(function(handler) {
         callbackHandler = handler;
         return mockHttpServer as unknown as http.Server;
       });
 
-      mockHttpServer.listen.mockImplementation((port, callback) => {
+      mockHttpServer.listen.mockImplementation(function(port, callback) {
         callback?.();
         setTimeout(() => {
           const mockReq = {
@@ -650,12 +650,12 @@ describe('MCPOAuthProvider', () => {
 
     it('should handle state mismatch in callback', async () => {
       let callbackHandler: unknown;
-      vi.mocked(http.createServer).mockImplementation((handler) => {
+      vi.mocked(http.createServer).mockImplementation(function(handler) {
         callbackHandler = handler;
         return mockHttpServer as unknown as http.Server;
       });
 
-      mockHttpServer.listen.mockImplementation((port, callback) => {
+      mockHttpServer.listen.mockImplementation(function(port, callback) {
         callback?.();
         setTimeout(() => {
           const mockReq = {
@@ -680,12 +680,12 @@ describe('MCPOAuthProvider', () => {
 
     it('should handle token exchange failure', async () => {
       let callbackHandler: unknown;
-      vi.mocked(http.createServer).mockImplementation((handler) => {
+      vi.mocked(http.createServer).mockImplementation(function(handler) {
         callbackHandler = handler;
         return mockHttpServer as unknown as http.Server;
       });
 
-      mockHttpServer.listen.mockImplementation((port, callback) => {
+      mockHttpServer.listen.mockImplementation(function(port, callback) {
         callback?.();
         setTimeout(() => {
           const mockReq = {
@@ -719,7 +719,7 @@ describe('MCPOAuthProvider', () => {
 
     it('should handle callback timeout', async () => {
       vi.mocked(http.createServer).mockImplementation(
-        () => mockHttpServer as unknown as http.Server,
+        function() { return mockHttpServer as unknown as http.Server; },
       );
 
       mockHttpServer.listen.mockImplementation((port, callback) => {
@@ -729,7 +729,7 @@ describe('MCPOAuthProvider', () => {
 
       // Mock setTimeout to trigger timeout immediately
       const originalSetTimeout = global.setTimeout;
-      global.setTimeout = vi.fn((callback, delay) => {
+      global.setTimeout = vi.fn(function(callback, delay) {
         if (delay === 5 * 60 * 1000) {
           // 5 minute timeout
           callback();
@@ -988,12 +988,12 @@ describe('MCPOAuthProvider', () => {
       // Test is implicit in the authenticate flow tests, but we can verify
       // the crypto mocks are called correctly
       let callbackHandler: unknown;
-      vi.mocked(http.createServer).mockImplementation((handler) => {
+      vi.mocked(http.createServer).mockImplementation(function(handler) {
         callbackHandler = handler;
         return mockHttpServer as unknown as http.Server;
       });
 
-      mockHttpServer.listen.mockImplementation((port, callback) => {
+      mockHttpServer.listen.mockImplementation(function(port, callback) {
         callback?.();
         setTimeout(() => {
           const mockReq = {
@@ -1032,18 +1032,18 @@ describe('MCPOAuthProvider', () => {
     it('should build correct authorization URL with all parameters', async () => {
       // Mock to capture the URL that would be opened
       let capturedUrl: string | undefined;
-      mockOpenBrowserSecurely.mockImplementation((url: string) => {
+      mockOpenBrowserSecurely.mockImplementation(function(url: string) {
         capturedUrl = url;
         return Promise.resolve();
       });
 
       let callbackHandler: unknown;
-      vi.mocked(http.createServer).mockImplementation((handler) => {
+      vi.mocked(http.createServer).mockImplementation(function(handler) {
         callbackHandler = handler;
         return mockHttpServer as unknown as http.Server;
       });
 
-      mockHttpServer.listen.mockImplementation((port, callback) => {
+      mockHttpServer.listen.mockImplementation(function(port, callback) {
         callback?.();
         setTimeout(() => {
           const mockReq = {
@@ -1093,18 +1093,18 @@ describe('MCPOAuthProvider', () => {
     // full canonical URI "https://mcp.alibaba-inc.com/yuque/mcp", not just the host.
     it('should use full canonical URI as resource parameter (issue #1749)', async () => {
       let capturedAuthUrl: string | undefined;
-      mockOpenBrowserSecurely.mockImplementation((url: string) => {
+      mockOpenBrowserSecurely.mockImplementation(function(url: string) {
         capturedAuthUrl = url;
         return Promise.resolve();
       });
 
       let callbackHandler: unknown;
-      vi.mocked(http.createServer).mockImplementation((handler) => {
+      vi.mocked(http.createServer).mockImplementation(function(handler) {
         callbackHandler = handler;
         return mockHttpServer as unknown as http.Server;
       });
 
-      mockHttpServer.listen.mockImplementation((port, callback) => {
+      mockHttpServer.listen.mockImplementation(function(port, callback) {
         callback?.();
         setTimeout(() => {
           const mockReq = {
@@ -1124,7 +1124,7 @@ describe('MCPOAuthProvider', () => {
       // Capture the token exchange request to verify resource param there too
       let capturedTokenBody: string | undefined;
       mockFetch.mockImplementation(
-        (url: string, options?: { body?: string }) => {
+        function(url: string, options?: { body?: string }) {
           if (options?.body) {
             capturedTokenBody = options.body;
           }
@@ -1167,18 +1167,18 @@ describe('MCPOAuthProvider', () => {
     it('should correctly append parameters to an authorization URL that already has query params', async () => {
       // Mock to capture the URL that would be opened
       let capturedUrl: string;
-      mockOpenBrowserSecurely.mockImplementation((url: string) => {
+      mockOpenBrowserSecurely.mockImplementation(function(url: string) {
         capturedUrl = url;
         return Promise.resolve();
       });
 
       let callbackHandler: unknown;
-      vi.mocked(http.createServer).mockImplementation((handler) => {
+      vi.mocked(http.createServer).mockImplementation(function(handler) {
         callbackHandler = handler;
         return mockHttpServer as unknown as http.Server;
       });
 
-      mockHttpServer.listen.mockImplementation((port, callback) => {
+      mockHttpServer.listen.mockImplementation(function(port, callback) {
         callback?.();
         setTimeout(() => {
           const mockReq = {
@@ -1221,18 +1221,18 @@ describe('MCPOAuthProvider', () => {
     it('should correctly append parameters to a URL with a fragment', async () => {
       // Mock to capture the URL that would be opened
       let capturedUrl: string;
-      mockOpenBrowserSecurely.mockImplementation((url: string) => {
+      mockOpenBrowserSecurely.mockImplementation(function(url: string) {
         capturedUrl = url;
         return Promise.resolve();
       });
 
       let callbackHandler: unknown;
-      vi.mocked(http.createServer).mockImplementation((handler) => {
+      vi.mocked(http.createServer).mockImplementation(function(handler) {
         callbackHandler = handler;
         return mockHttpServer as unknown as http.Server;
       });
 
-      mockHttpServer.listen.mockImplementation((port, callback) => {
+      mockHttpServer.listen.mockImplementation(function(port, callback) {
         callback?.();
         setTimeout(() => {
           const mockReq = {

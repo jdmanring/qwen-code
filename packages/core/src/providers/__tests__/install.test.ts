@@ -24,7 +24,7 @@ function createAdapter(modelProviders: ModelProvidersConfig = {}) {
   } = {
     getValue: vi.fn(),
     setValue: vi.fn(),
-    getModelProviders: vi.fn(() => modelProviders),
+    getModelProviders: vi.fn(function() { return modelProviders; }),
     persist: vi.fn(),
     backup: vi.fn(),
     restore: vi.fn(),
@@ -430,7 +430,7 @@ describe('applyProviderInstallPlan', () => {
   it('still rolls back env vars when backup() throws before persist', async () => {
     process.env['TEST_API_KEY'] = 'old-value';
     const adapter = createAdapter();
-    adapter.backup.mockImplementation(() => {
+    adapter.backup.mockImplementation(function() {
       throw new Error('backup failed');
     });
     const plan: ProviderInstallPlan = {
@@ -453,7 +453,7 @@ describe('applyProviderInstallPlan', () => {
   it('continues env rollback even when settings.restore itself throws', async () => {
     process.env['TEST_API_KEY'] = 'before-install';
     const adapter = createAdapter();
-    adapter.restore.mockImplementation(() => {
+    adapter.restore.mockImplementation(function() {
       throw new Error('restore failed');
     });
     const refreshAuth = vi.fn(async () => {
@@ -519,7 +519,7 @@ describe('applyProviderInstallPlan', () => {
     };
     const adapter = createAdapter(previousProviders);
     let reloadCalls = 0;
-    const reloadModelProviders = vi.fn(() => {
+    const reloadModelProviders = vi.fn(function() {
       reloadCalls += 1;
       if (reloadCalls === 2) {
         // The rollback-time reload (the second call) explodes.

@@ -21,9 +21,9 @@ vi.mock('../../telemetry/loggers.js', () => ({
 }));
 
 vi.mock('../../utils/openaiLogger.js', () => ({
-  OpenAILogger: vi.fn().mockImplementation(() => ({
+  OpenAILogger: vi.fn().mockImplementation(function() { return {
     logInteraction: vi.fn(),
-  })),
+  }; }),
   openaiLogger: {
     logInteraction: vi.fn(),
   },
@@ -64,7 +64,7 @@ describe('OpenAIContentGenerator Timeout Handling', () => {
       },
     };
 
-    vi.mocked(OpenAI).mockImplementation(() => mockOpenAIClient);
+    vi.mocked(OpenAI).mockImplementation(function() { return mockOpenAIClient; });
 
     // Create mock provider
     mockProvider = {
@@ -72,7 +72,7 @@ describe('OpenAIContentGenerator Timeout Handling', () => {
         'User-Agent': 'QwenCode/1.0.0 (test; test)',
       }),
       buildClient: vi.fn().mockReturnValue(mockOpenAIClient),
-      buildRequest: vi.fn().mockImplementation((req) => req),
+      buildRequest: vi.fn().mockImplementation(function(req) { return req; }),
       getDefaultGenerationConfig: vi.fn().mockReturnValue({}),
     };
 
@@ -299,7 +299,7 @@ describe('OpenAIContentGenerator Timeout Handling', () => {
           'User-Agent': 'QwenCode/1.0.0 (test; test)',
         }),
         buildClient: vi.fn().mockReturnValue(mockOpenAIClient),
-        buildRequest: vi.fn().mockImplementation((req) => req),
+        buildRequest: vi.fn().mockImplementation(function(req) { return req; }),
         getDefaultGenerationConfig: vi.fn().mockReturnValue({}),
       };
 
@@ -334,7 +334,7 @@ describe('OpenAIContentGenerator Timeout Handling', () => {
           'User-Agent': 'QwenCode/1.0.0 (test; test)',
         }),
         buildClient: vi.fn().mockReturnValue(mockOpenAIClient),
-        buildRequest: vi.fn().mockImplementation((req) => req),
+        buildRequest: vi.fn().mockImplementation(function(req) { return req; }),
         getDefaultGenerationConfig: vi.fn().mockReturnValue({}),
       };
 

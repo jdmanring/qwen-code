@@ -35,7 +35,7 @@ const mockGit = {
 };
 
 vi.mock('simple-git', () => ({
-  simpleGit: vi.fn((path: string) => {
+  simpleGit: vi.fn(function(path: string) {
     mockGit.path.mockReturnValue(path);
     return mockGit;
   }),
@@ -52,7 +52,7 @@ vi.mock('./github.js', async (importOriginal) => {
 });
 
 const mockHomedir = vi.hoisted(() => vi.fn());
-vi.mock('os', async (importOriginal) => {
+vi.mock('node:os', async (importOriginal) => {
   const mockedOs = await importOriginal<typeof os>();
   return {
     ...mockedOs,

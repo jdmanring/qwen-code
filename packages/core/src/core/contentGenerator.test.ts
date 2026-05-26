@@ -29,7 +29,7 @@ describe('createContentGenerator', () => {
     const mockGenerator = {
       models: {},
     } as unknown as GoogleGenAI;
-    vi.mocked(GoogleGenAI).mockImplementation(() => mockGenerator as never);
+    vi.mocked(GoogleGenAI).mockImplementation(function() { return mockGenerator as never; });
     const generator = await createContentGenerator(
       {
         model: 'test-model',
@@ -65,7 +65,7 @@ describe('createContentGenerator', () => {
     const mockGenerator = {
       models: {},
     } as unknown as GoogleGenAI;
-    vi.mocked(GoogleGenAI).mockImplementation(() => mockGenerator as never);
+    vi.mocked(GoogleGenAI).mockImplementation(function() { return mockGenerator as never; });
     const generator = await createContentGenerator(
       {
         model: 'test-model',
@@ -105,7 +105,7 @@ describe('createContentGeneratorConfig', () => {
   it('should not warn or fallback for QWEN_OAUTH (resolution handled by ModelConfigResolver)', () => {
     const warnSpy = vi
       .spyOn(console, 'warn')
-      .mockImplementation(() => undefined);
+      .mockImplementation(function() { return undefined; });
     const cfg = createContentGeneratorConfig(mockConfig, AuthType.QWEN_OAUTH, {
       model: 'some-random-model',
     });

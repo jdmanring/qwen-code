@@ -233,7 +233,7 @@ describe('Session', () => {
       // that care override via `mockConfig.getApprovalMode = vi.fn()...`.
       getApprovalMode: vi.fn().mockReturnValue(ApprovalMode.DEFAULT),
       switchModel: switchModelSpy,
-      getModel: vi.fn().mockImplementation(() => currentModel),
+      getModel: vi.fn().mockImplementation(function() { return currentModel; }),
       getSessionId: vi.fn().mockReturnValue('test-session-id'),
       getWorkingDir: vi.fn().mockReturnValue(process.cwd()),
       getTelemetryLogPromptsEnabled: vi.fn().mockReturnValue(false),
@@ -254,7 +254,7 @@ describe('Session', () => {
       getEnableRecursiveFileSearch: vi.fn().mockReturnValue(false),
       getTargetDir: vi.fn().mockReturnValue(process.cwd()),
       getDebugMode: vi.fn().mockReturnValue(false),
-      getAuthType: vi.fn().mockImplementation(() => currentAuthType),
+      getAuthType: vi.fn().mockImplementation(function() { return currentAuthType; }),
       isCronEnabled: vi.fn().mockReturnValue(false),
       getSessionTokenLimit: vi.fn().mockReturnValue(0),
       getStopHookBlockingCap: vi.fn().mockReturnValue(8),
@@ -1517,7 +1517,7 @@ describe('Session', () => {
         mockConfig.getDisableAllHooks = vi.fn().mockReturnValue(false);
         mockConfig.hasHooksForEvent = vi
           .fn()
-          .mockImplementation((eventName: string) => eventName === 'Stop');
+          .mockImplementation(function(eventName: string) { return eventName === 'Stop'; });
         mockChat.getHistory = vi
           .fn()
           .mockReturnValue([
@@ -1578,7 +1578,7 @@ describe('Session', () => {
         mockConfig.getDisableAllHooks = vi.fn().mockReturnValue(false);
         mockConfig.hasHooksForEvent = vi
           .fn()
-          .mockImplementation((eventName: string) => eventName === 'Stop');
+          .mockImplementation(function(eventName: string) { return eventName === 'Stop'; });
         mockChat.getHistory = vi
           .fn()
           .mockReturnValue([
@@ -1637,7 +1637,7 @@ describe('Session', () => {
         mockConfig.getDisableAllHooks = vi.fn().mockReturnValue(false);
         mockConfig.hasHooksForEvent = vi
           .fn()
-          .mockImplementation((eventName: string) => eventName === 'Stop');
+          .mockImplementation(function(eventName: string) { return eventName === 'Stop'; });
         mockConfig.getSessionTokenLimit = vi.fn().mockReturnValue(100);
         mockGeminiClient.tryCompressChat
           .mockResolvedValueOnce({
@@ -1691,7 +1691,7 @@ describe('Session', () => {
       it('runs automatic compression before cron-fired ACP prompt sends', async () => {
         const scheduler = {
           size: 1,
-          start: vi.fn((callback: (job: { prompt: string }) => void) => {
+          start: vi.fn(function(callback: (job: { prompt: string }) => void) {
             callback({ prompt: 'scheduled prompt' });
           }),
           stop: vi.fn(),
@@ -1741,7 +1741,7 @@ describe('Session', () => {
         let cronCallback: ((job: { prompt: string }) => void) | undefined;
         const scheduler = {
           size: 1,
-          start: vi.fn((callback: (job: { prompt: string }) => void) => {
+          start: vi.fn(function(callback: (job: { prompt: string }) => void) {
             cronCallback = callback;
             callback({ prompt: 'scheduled prompt' });
           }),
@@ -2399,7 +2399,7 @@ describe('Session', () => {
           mockConfig.getDisableAllHooks = vi.fn().mockReturnValue(false);
           mockConfig.hasHooksForEvent = vi
             .fn()
-            .mockImplementation((eventName: string) => eventName === 'Stop');
+            .mockImplementation(function(eventName: string) { return eventName === 'Stop'; });
           mockChat.getHistory = vi
             .fn()
             .mockReturnValue([
@@ -2451,7 +2451,7 @@ describe('Session', () => {
           mockConfig.getDisableAllHooks = vi.fn().mockReturnValue(false);
           mockConfig.hasHooksForEvent = vi
             .fn()
-            .mockImplementation((eventName: string) => eventName === 'Stop');
+            .mockImplementation(function(eventName: string) { return eventName === 'Stop'; });
           mockConfig.getStopHookBlockingCap = vi.fn().mockReturnValue(2);
           mockChat.getHistory = vi
             .fn()
@@ -2496,7 +2496,7 @@ describe('Session', () => {
           mockConfig.getDisableAllHooks = vi.fn().mockReturnValue(false);
           mockConfig.hasHooksForEvent = vi
             .fn()
-            .mockImplementation((eventName: string) => eventName === 'Stop');
+            .mockImplementation(function(eventName: string) { return eventName === 'Stop'; });
           mockConfig.getStopHookBlockingCap = vi.fn().mockReturnValue(1);
           mockChat.getHistory = vi
             .fn()
@@ -2935,7 +2935,7 @@ describe('Session', () => {
         const agentTool = {
           name: core.ToolNames.AGENT,
           kind: core.Kind.Think,
-          build: vi.fn().mockImplementation((args: Record<string, unknown>) => {
+          build: vi.fn().mockImplementation(function(args: Record<string, unknown>) {
             const id = args['_test_id'] as string;
             return {
               params: args,
@@ -2943,7 +2943,7 @@ describe('Session', () => {
               getDefaultPermission: vi.fn().mockResolvedValue('allow'),
               getDescription: vi.fn().mockReturnValue(`agent ${id}`),
               toolLocations: vi.fn().mockReturnValue([]),
-              execute: vi.fn().mockImplementation(() => {
+              execute: vi.fn().mockImplementation(function() {
                 called[id].resolve();
                 return result[id].promise;
               }),
@@ -2951,8 +2951,7 @@ describe('Session', () => {
           }),
         };
 
-        mockToolRegistry.getTool.mockImplementation((name: string) =>
-          name === core.ToolNames.AGENT ? agentTool : undefined,
+        mockToolRegistry.getTool.mockImplementation(function(name: string) { return name === core.ToolNames.AGENT ? agentTool : undefined; },
         );
         mockConfig.getApprovalMode = vi
           .fn()

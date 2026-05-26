@@ -93,7 +93,7 @@ describe('getIdeProcessInfo', () => {
         },
       ];
 
-      mockedExec.mockImplementation((file: string, _args: string[]) => {
+      mockedExec.mockImplementation(function(file: string, _args: string[]) {
         if (file === 'powershell') {
           return Promise.resolve({ stdout: JSON.stringify(processes) });
         }
@@ -142,7 +142,7 @@ describe('getIdeProcessInfo', () => {
         },
       ];
 
-      mockedExec.mockImplementation((file: string, _args: string[]) => {
+      mockedExec.mockImplementation(function(file: string, _args: string[]) {
         if (file === 'powershell') {
           return Promise.resolve({ stdout: JSON.stringify(processes) });
         }
