@@ -154,6 +154,7 @@ describe('sessionStorageUtils', () => {
     });
 
     afterEach(() => {
+      vi.restoreAllMocks();
       fs.rmSync(tmpDir, { recursive: true, force: true });
     });
 
