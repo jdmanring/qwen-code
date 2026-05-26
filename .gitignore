@@ -101,3 +101,4 @@ storage/
 
 # Python build artifacts
 *.egg-info/
+packages/*/build/
