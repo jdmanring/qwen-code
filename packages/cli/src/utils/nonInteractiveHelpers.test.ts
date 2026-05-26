@@ -308,7 +308,7 @@ describe('extractUsageFromGeminiClient', () => {
 
   it('should handle errors gracefully', () => {
     const client = {
-      getChat: vi.fn().mockImplementation(() => {
+      getChat: vi.fn().mockImplementation(function() {
         throw new Error('Test error');
       }),
     };

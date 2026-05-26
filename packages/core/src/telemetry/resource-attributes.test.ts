@@ -18,7 +18,7 @@ describe('parseOtelResourceAttributes', () => {
   let warnSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    warnSpy = vi.spyOn(diag, 'warn').mockImplementation(() => {});
+    warnSpy = vi.spyOn(diag, 'warn').mockImplementation(function() {});
   });
 
   afterEach(() => {
@@ -81,7 +81,7 @@ describe('stripReservedResourceAttributes', () => {
   let warnSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    warnSpy = vi.spyOn(diag, 'warn').mockImplementation(() => {});
+    warnSpy = vi.spyOn(diag, 'warn').mockImplementation(function() {});
   });
 
   afterEach(() => {
@@ -146,7 +146,7 @@ describe('stripReservedResourceAttributes — session.id', () => {
   let warnSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    warnSpy = vi.spyOn(diag, 'warn').mockImplementation(() => {});
+    warnSpy = vi.spyOn(diag, 'warn').mockImplementation(function() {});
   });
 
   afterEach(() => {
@@ -179,7 +179,7 @@ describe('coerceStringResourceAttributes', () => {
   let warnSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    warnSpy = vi.spyOn(diag, 'warn').mockImplementation(() => {});
+    warnSpy = vi.spyOn(diag, 'warn').mockImplementation(function() {});
   });
 
   afterEach(() => {
@@ -225,7 +225,7 @@ describe('coerceStringResourceAttributes', () => {
 
 describe('warnings accumulator', () => {
   beforeEach(() => {
-    vi.spyOn(diag, 'warn').mockImplementation(() => {});
+    vi.spyOn(diag, 'warn').mockImplementation(function() {});
   });
 
   it('parseOtelResourceAttributes pushes diagnostic strings into the accumulator', () => {

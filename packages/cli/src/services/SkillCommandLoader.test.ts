@@ -69,8 +69,7 @@ describe('SkillCommandLoader', () => {
   it('should propagate argumentHint from skills to slash commands', async () => {
     const skill = makeSkill({ argumentHint: '[topic]' });
     mockSkillManager.listSkills.mockImplementation(
-      ({ level }: { level: string }) =>
-        Promise.resolve(level === 'user' ? [skill] : []),
+      function({ level }: { level: string }) { return Promise.resolve(level === 'user' ? [skill] : []); },
     );
 
     const loader = new SkillCommandLoader(mockConfig);
@@ -94,8 +93,7 @@ describe('SkillCommandLoader', () => {
   it('should load user skill as slash command with correct properties', async () => {
     const skill = makeSkill({ level: 'user' });
     mockSkillManager.listSkills.mockImplementation(
-      ({ level }: { level: string }) =>
-        Promise.resolve(level === 'user' ? [skill] : []),
+      function({ level }: { level: string }) { return Promise.resolve(level === 'user' ? [skill] : []); },
     );
 
     const loader = new SkillCommandLoader(mockConfig);
@@ -117,8 +115,7 @@ describe('SkillCommandLoader', () => {
     // `/help` ordering should be independent of any skill's priority value.
     const skill = makeSkill({ level: 'user', priority: 42 });
     mockSkillManager.listSkills.mockImplementation(
-      ({ level }: { level: string }) =>
-        Promise.resolve(level === 'user' ? [skill] : []),
+      function({ level }: { level: string }) { return Promise.resolve(level === 'user' ? [skill] : []); },
     );
 
     const loader = new SkillCommandLoader(mockConfig);
@@ -130,8 +127,7 @@ describe('SkillCommandLoader', () => {
   it('should load project skill with sourceLabel "Project"', async () => {
     const skill = makeSkill({ level: 'project' });
     mockSkillManager.listSkills.mockImplementation(
-      ({ level }: { level: string }) =>
-        Promise.resolve(level === 'project' ? [skill] : []),
+      function({ level }: { level: string }) { return Promise.resolve(level === 'project' ? [skill] : []); },
     );
 
     const loader = new SkillCommandLoader(mockConfig);
@@ -146,8 +142,7 @@ describe('SkillCommandLoader', () => {
   it('should submit skill body as prompt', async () => {
     const skill = makeSkill();
     mockSkillManager.listSkills.mockImplementation(
-      ({ level }: { level: string }) =>
-        Promise.resolve(level === 'user' ? [skill] : []),
+      function({ level }: { level: string }) { return Promise.resolve(level === 'user' ? [skill] : []); },
     );
 
     const loader = new SkillCommandLoader(mockConfig);
@@ -166,8 +161,7 @@ describe('SkillCommandLoader', () => {
   it('should append raw invocation when args are provided', async () => {
     const skill = makeSkill();
     mockSkillManager.listSkills.mockImplementation(
-      ({ level }: { level: string }) =>
-        Promise.resolve(level === 'user' ? [skill] : []),
+      function({ level }: { level: string }) { return Promise.resolve(level === 'user' ? [skill] : []); },
     );
 
     const loader = new SkillCommandLoader(mockConfig);
@@ -201,8 +195,7 @@ describe('SkillCommandLoader', () => {
         description: 'Use tmux for interactive commands',
       });
       mockSkillManager.listSkills.mockImplementation(
-        ({ level }: { level: string }) =>
-          Promise.resolve(level === 'extension' ? [skill] : []),
+        function({ level }: { level: string }) { return Promise.resolve(level === 'extension' ? [skill] : []); },
       );
 
       const loader = new SkillCommandLoader(mockConfig);
@@ -222,8 +215,7 @@ describe('SkillCommandLoader', () => {
         whenToUse: 'Use when you need tmux',
       });
       mockSkillManager.listSkills.mockImplementation(
-        ({ level }: { level: string }) =>
-          Promise.resolve(level === 'extension' ? [skill] : []),
+        function({ level }: { level: string }) { return Promise.resolve(level === 'extension' ? [skill] : []); },
       );
 
       const loader = new SkillCommandLoader(mockConfig);
@@ -240,8 +232,7 @@ describe('SkillCommandLoader', () => {
         whenToUse: undefined,
       });
       mockSkillManager.listSkills.mockImplementation(
-        ({ level }: { level: string }) =>
-          Promise.resolve(level === 'extension' ? [skill] : []),
+        function({ level }: { level: string }) { return Promise.resolve(level === 'extension' ? [skill] : []); },
       );
 
       const loader = new SkillCommandLoader(mockConfig);
@@ -258,8 +249,7 @@ describe('SkillCommandLoader', () => {
         disableModelInvocation: true,
       });
       mockSkillManager.listSkills.mockImplementation(
-        ({ level }: { level: string }) =>
-          Promise.resolve(level === 'extension' ? [skill] : []),
+        function({ level }: { level: string }) { return Promise.resolve(level === 'extension' ? [skill] : []); },
       );
 
       const loader = new SkillCommandLoader(mockConfig);
@@ -271,8 +261,7 @@ describe('SkillCommandLoader', () => {
     it('should use "Extension: unknown" as sourceLabel when extensionName is absent', async () => {
       const skill = makeSkill({ level: 'extension', description: 'foo' });
       mockSkillManager.listSkills.mockImplementation(
-        ({ level }: { level: string }) =>
-          Promise.resolve(level === 'extension' ? [skill] : []),
+        function({ level }: { level: string }) { return Promise.resolve(level === 'extension' ? [skill] : []); },
       );
 
       const loader = new SkillCommandLoader(mockConfig);
@@ -287,8 +276,7 @@ describe('SkillCommandLoader', () => {
     it('user skill with disableModelInvocation:true should NOT be modelInvocable', async () => {
       const skill = makeSkill({ level: 'user', disableModelInvocation: true });
       mockSkillManager.listSkills.mockImplementation(
-        ({ level }: { level: string }) =>
-          Promise.resolve(level === 'user' ? [skill] : []),
+        function({ level }: { level: string }) { return Promise.resolve(level === 'user' ? [skill] : []); },
       );
 
       const loader = new SkillCommandLoader(mockConfig);
@@ -300,7 +288,7 @@ describe('SkillCommandLoader', () => {
 
   it('should aggregate skills from all levels', async () => {
     mockSkillManager.listSkills.mockImplementation(
-      ({ level }: { level: string }) => {
+      function({ level }: { level: string }) {
         if (level === 'user')
           return Promise.resolve([
             makeSkill({ name: 'user-skill', level: 'user' }),

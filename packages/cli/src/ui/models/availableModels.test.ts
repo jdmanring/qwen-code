@@ -153,7 +153,7 @@ describe('availableModels', () => {
     it('should fallback to env var for openai when config throws', () => {
       process.env['OPENAI_MODEL'] = 'fallback-model';
       const mockConfig = {
-        getAvailableModelsForAuthType: vi.fn().mockImplementation(() => {
+        getAvailableModelsForAuthType: vi.fn().mockImplementation(function() {
           throw new Error('Registry not initialized');
         }),
       } as unknown as Config;

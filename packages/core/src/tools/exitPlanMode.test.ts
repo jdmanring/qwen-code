@@ -17,9 +17,9 @@ describe('ExitPlanModeTool', () => {
   beforeEach(() => {
     approvalMode = ApprovalMode.PLAN;
     mockConfig = {
-      getApprovalMode: vi.fn(() => approvalMode),
-      getPrePlanMode: vi.fn(() => ApprovalMode.DEFAULT),
-      setApprovalMode: vi.fn((mode: ApprovalMode) => {
+      getApprovalMode: vi.fn(function() { return approvalMode; }),
+      getPrePlanMode: vi.fn(function() { return ApprovalMode.DEFAULT; }),
+      setApprovalMode: vi.fn(function(mode: ApprovalMode) {
         approvalMode = mode;
       }),
       savePlan: vi.fn(),

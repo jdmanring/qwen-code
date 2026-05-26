@@ -25,12 +25,12 @@ function makeMockConfig(targetDir = process.cwd()): Config {
   // need a real isolated repo create their own temp dir and pass it
   // explicitly.
   return {
-    getTargetDir: vi.fn(() => targetDir),
-    getSessionId: vi.fn(() => 'mock-session-id'),
+    getTargetDir: vi.fn(function() { return targetDir; }),
+    getSessionId: vi.fn(function() { return 'mock-session-id'; }),
     // Phase D-2: EnterWorktreeTool (used here for setup) reads this
     // setting when creating a worktree. Return empty so the symlink
     // loop is a no-op in tests.
-    getWorktreeSymlinkDirectories: vi.fn(() => []),
+    getWorktreeSymlinkDirectories: vi.fn(function() { return []; }),
   } as unknown as Config;
 }
 

@@ -13,7 +13,14 @@ import {
   getGitHubRepoInfo,
 } from './gitUtils.js';
 
-vi.mock('child_process');
+vi.mock('node:child_process', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:child_process')>();
+  const execSync = vi.fn();
+  const exec = vi.fn();
+  const spawn = vi.fn();
+  const mod = { ...actual, execSync, exec, spawn };
+  return { ...mod, default: mod };
+});
 
 describe('isGitHubRepository', async () => {
   beforeEach(() => {
@@ -218,7 +225,7 @@ describe('getLatestRelease', async () => {
   });
 
   it('throws an error if the fetch fails', async () => {
-    global.fetch = vi.fn(() => Promise.reject('nope'));
+    global.fetch = vi.fn(function() { return Promise.reject('nope'); });
     await expect(getLatestGitHubRelease()).rejects.toThrowError(
       /Unable to determine the latest/,
     );

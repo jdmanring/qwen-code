@@ -71,7 +71,7 @@ vi.mock('node:fs', async (importOriginal) => {
     statSync: vi.fn().mockReturnValue({
       isDirectory: vi.fn().mockReturnValue(true),
     }),
-    realpathSync: vi.fn((path) => path),
+    realpathSync: vi.fn(function(path) { return path; }),
     mkdirSync: vi.fn(),
     writeFileSync: vi.fn(),
     renameSync: vi.fn(),
@@ -93,10 +93,10 @@ vi.mock('../tools/tool-registry', () => {
   ToolRegistryMock.prototype.ensureTool = vi.fn();
   ToolRegistryMock.prototype.warmAll = vi.fn();
   ToolRegistryMock.prototype.discoverAllTools = vi.fn();
-  ToolRegistryMock.prototype.getAllTools = vi.fn(() => []); // Mock methods if needed
-  ToolRegistryMock.prototype.getAllToolNames = vi.fn(() => []);
+  ToolRegistryMock.prototype.getAllTools = vi.fn(function() { return []; }); // Mock methods if needed
+  ToolRegistryMock.prototype.getAllToolNames = vi.fn(function() { return []; });
   ToolRegistryMock.prototype.getTool = vi.fn();
-  ToolRegistryMock.prototype.getFunctionDeclarations = vi.fn(() => []);
+  ToolRegistryMock.prototype.getFunctionDeclarations = vi.fn(function() { return []; });
   // PR 14b fix (codex round 4): per-instance manager stub so the
   // `setMcpBudgetEventCallback → createToolRegistry → manager.setOnBudgetEvent`
   // integration test can observe each instance's callback wiring.
@@ -189,14 +189,14 @@ vi.mock('../tools/read-many-files', () => ({
 }));
 vi.mock('../memory/const.js', () => ({
   setGeminiMdFilename: vi.fn(),
-  getCurrentGeminiMdFilename: vi.fn(() => 'QWEN.md'), // Mock the original filename
-  getAllGeminiMdFilenames: vi.fn(() => ['QWEN.md', 'AGENTS.md']),
+  getCurrentGeminiMdFilename: vi.fn(function() { return 'QWEN.md'; }), // Mock the original filename
+  getAllGeminiMdFilenames: vi.fn(function() { return ['QWEN.md', 'AGENTS.md']; }),
   DEFAULT_CONTEXT_FILENAME: 'QWEN.md',
 }));
 vi.mock('../tools/memory-config', () => ({
   setGeminiMdFilename: vi.fn(),
-  getCurrentGeminiMdFilename: vi.fn(() => 'QWEN.md'),
-  getAllGeminiMdFilenames: vi.fn(() => ['QWEN.md', 'AGENTS.md']),
+  getCurrentGeminiMdFilename: vi.fn(function() { return 'QWEN.md'; }),
+  getAllGeminiMdFilenames: vi.fn(function() { return ['QWEN.md', 'AGENTS.md']; }),
   DEFAULT_CONTEXT_FILENAME: 'QWEN.md',
   AGENT_CONTEXT_FILENAME: 'AGENTS.md',
   MEMORY_SECTION_HEADER: '## Qwen Added Memories',
@@ -205,11 +205,11 @@ vi.mock('../tools/memory-config', () => ({
 vi.mock('../core/contentGenerator.js');
 
 vi.mock('../core/client.js', () => ({
-  GeminiClient: vi.fn().mockImplementation(() => ({
+  GeminiClient: vi.fn().mockImplementation(function() { return {
     initialize: vi.fn().mockResolvedValue(undefined),
     isInitialized: vi.fn().mockReturnValue(true),
     setTools: vi.fn(),
-  })),
+  }; }),
 }));
 
 vi.mock('../telemetry/index.js', async (importOriginal) => {
@@ -217,7 +217,7 @@ vi.mock('../telemetry/index.js', async (importOriginal) => {
   return {
     ...actual,
     initializeTelemetry: vi.fn(),
-    isTelemetrySdkInitialized: vi.fn(() => false),
+    isTelemetrySdkInitialized: vi.fn(function() { return false; }),
     shutdownTelemetry: vi.fn().mockResolvedValue(undefined),
     refreshSessionContext: vi.fn(),
     uiTelemetryService: {
@@ -333,13 +333,13 @@ describe('Server Config (config.ts)', () => {
     (fs.statSync as Mock).mockReturnValue({
       isDirectory: vi.fn().mockReturnValue(true),
     });
-    vi.mocked(fs.realpathSync).mockImplementation((path) => path.toString());
-    (fs.mkdirSync as Mock).mockImplementation(() => undefined);
-    (fs.writeFileSync as Mock).mockImplementation(() => undefined);
-    (fs.renameSync as Mock).mockImplementation(() => undefined);
-    (fs.copyFileSync as Mock).mockImplementation(() => undefined);
-    (fs.unlinkSync as Mock).mockImplementation(() => undefined);
-    (fs.readFileSync as Mock).mockImplementation(() => undefined);
+    vi.mocked(fs.realpathSync).mockImplementation(function(path) { return path.toString(); });
+    (fs.mkdirSync as Mock).mockImplementation(function() { return undefined; });
+    (fs.writeFileSync as Mock).mockImplementation(function() { return undefined; });
+    (fs.renameSync as Mock).mockImplementation(function() { return undefined; });
+    (fs.copyFileSync as Mock).mockImplementation(function() { return undefined; });
+    (fs.unlinkSync as Mock).mockImplementation(function() { return undefined; });
+    (fs.readFileSync as Mock).mockImplementation(function() { return undefined; });
     vi.mocked(isTelemetrySdkInitialized).mockReturnValue(false);
     vi.spyOn(QwenLogger.prototype, 'logStartSessionEvent').mockImplementation(
       async () => undefined,
@@ -347,7 +347,7 @@ describe('Server Config (config.ts)', () => {
 
     // Setup default mock for resolveContentGeneratorConfigWithSources
     vi.mocked(resolveContentGeneratorConfigWithSources).mockImplementation(
-      (_config, authType, generationConfig) => ({
+      function(_config, authType, generationConfig) { return {
         config: {
           ...generationConfig,
           authType,
@@ -355,7 +355,7 @@ describe('Server Config (config.ts)', () => {
           apiKey: 'test-key',
         } as ContentGeneratorConfig,
         sources: {},
-      }),
+      }; },
     );
   });
 
@@ -789,8 +789,7 @@ describe('Server Config (config.ts)', () => {
       const config = new Config(baseParams);
 
       vi.mocked(createContentGeneratorConfig).mockImplementation(
-        (_: Config, authType: AuthType | undefined) =>
-          ({ authType }) as unknown as ContentGeneratorConfig,
+        function(_: Config, authType: AuthType | undefined) { return { authType }; } as unknown as ContentGeneratorConfig,
       );
 
       await config.refreshAuth(AuthType.USE_VERTEX_AI);
@@ -813,14 +812,14 @@ describe('Server Config (config.ts)', () => {
       } as ContentGeneratorConfig;
 
       vi.mocked(resolveContentGeneratorConfigWithSources).mockImplementation(
-        (_config, authType, generationConfig) => ({
+        function(_config, authType, generationConfig) { return {
           config: {
             ...mockContentConfig,
             authType,
             model: generationConfig?.model ?? mockContentConfig.model,
           } as ContentGeneratorConfig,
           sources: {},
-        }),
+        }; },
       );
       vi.mocked(createContentGenerator).mockResolvedValue({
         generateContent: vi.fn(),
@@ -859,14 +858,14 @@ describe('Server Config (config.ts)', () => {
       } as ContentGeneratorConfig;
 
       vi.mocked(resolveContentGeneratorConfigWithSources).mockImplementation(
-        (_config, authType, generationConfig) => ({
+        function(_config, authType, generationConfig) { return {
           config: {
             ...mockContentConfig,
             authType,
             model: generationConfig?.model ?? mockContentConfig.model,
           } as ContentGeneratorConfig,
           sources: {},
-        }),
+        }; },
       );
       vi.mocked(createContentGenerator).mockResolvedValue({
         generateContent: vi.fn(),
@@ -893,14 +892,14 @@ describe('Server Config (config.ts)', () => {
       } as ContentGeneratorConfig;
 
       vi.mocked(resolveContentGeneratorConfigWithSources).mockImplementation(
-        (_config, authType, generationConfig) => ({
+        function(_config, authType, generationConfig) { return {
           config: {
             ...mockContentConfig,
             authType,
             model: generationConfig?.model ?? mockContentConfig.model,
           } as ContentGeneratorConfig,
           sources: {},
-        }),
+        }; },
       );
       vi.mocked(createContentGenerator).mockResolvedValue({
         generateContent: vi.fn(),
@@ -1135,7 +1134,7 @@ describe('Server Config (config.ts)', () => {
       } as ContentGeneratorConfig;
 
       vi.mocked(resolveContentGeneratorConfigWithSources).mockImplementation(
-        (_config, _authType, generationConfig) => {
+        function(_config, _authType, generationConfig) {
           const model = generationConfig?.model;
           return {
             config:
@@ -2523,7 +2522,7 @@ describe('setApprovalMode with folder trust', () => {
       const config = new Config(baseParams);
       const enoentError = new Error('ENOENT') as NodeJS.ErrnoException;
       enoentError.code = 'ENOENT';
-      (fs.readFileSync as Mock).mockImplementation(() => {
+      (fs.readFileSync as Mock).mockImplementation(function() {
         throw enoentError;
       });
 
@@ -2535,7 +2534,7 @@ describe('setApprovalMode with folder trust', () => {
       const config = new Config(baseParams);
       const permError = new Error('EACCES') as NodeJS.ErrnoException;
       permError.code = 'EACCES';
-      (fs.readFileSync as Mock).mockImplementation(() => {
+      (fs.readFileSync as Mock).mockImplementation(function() {
         throw permError;
       });
 
@@ -2599,10 +2598,10 @@ describe('setApprovalMode with folder trust', () => {
       const filePath = path.join(plansDir, 'test-session-123.md');
       const tmpPath = `${filePath}.tmp`;
       const storedFiles = new Map<string, string>();
-      (fs.writeFileSync as Mock).mockImplementation((pathToWrite, contents) => {
+      (fs.writeFileSync as Mock).mockImplementation(function(pathToWrite, contents) {
         storedFiles.set(pathToWrite.toString(), contents.toString());
       });
-      (fs.renameSync as Mock).mockImplementation((fromPath, toPath) => {
+      (fs.renameSync as Mock).mockImplementation(function(fromPath, toPath) {
         const contents = storedFiles.get(fromPath.toString());
         if (contents === undefined) {
           throw new Error(`missing temp file: ${fromPath.toString()}`);
@@ -2610,7 +2609,7 @@ describe('setApprovalMode with folder trust', () => {
         storedFiles.set(toPath.toString(), contents);
         storedFiles.delete(fromPath.toString());
       });
-      (fs.readFileSync as Mock).mockImplementation((pathToRead) => {
+      (fs.readFileSync as Mock).mockImplementation(function(pathToRead) {
         const contents = storedFiles.get(pathToRead.toString());
         if (contents === undefined) {
           const enoent = new Error('ENOENT') as NodeJS.ErrnoException;
@@ -2641,7 +2640,7 @@ describe('setApprovalMode with folder trust', () => {
       });
       const exdevError = new Error('EXDEV') as NodeJS.ErrnoException;
       exdevError.code = 'EXDEV';
-      (fs.renameSync as Mock).mockImplementation(() => {
+      (fs.renameSync as Mock).mockImplementation(function() {
         throw exdevError;
       });
 
@@ -2670,7 +2669,7 @@ describe('setApprovalMode with folder trust', () => {
         'outside-plans',
         'test-session-123.md',
       );
-      vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) => {
+      vi.mocked(fs.realpathSync).mockImplementation(function(pathToResolve) {
         const resolvedPath = pathToResolve.toString();
         if (resolvedPath === targetDir || resolvedPath === plansDir) {
           return resolvedPath;
@@ -2687,8 +2686,7 @@ describe('setApprovalMode with folder trust', () => {
         );
         expect(fs.unlinkSync).toHaveBeenCalledWith(filePath);
       } finally {
-        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) =>
-          pathToResolve.toString(),
+        vi.mocked(fs.realpathSync).mockImplementation(function(pathToResolve) { return pathToResolve.toString(); },
         );
       }
     });
@@ -2708,7 +2706,7 @@ describe('setApprovalMode with folder trust', () => {
         'test-session-123.md',
       );
       vi.mocked(fs.readFileSync).mockClear();
-      vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) => {
+      vi.mocked(fs.realpathSync).mockImplementation(function(pathToResolve) {
         const resolvedPath = pathToResolve.toString();
         if (resolvedPath === targetDir || resolvedPath === plansDir) {
           return resolvedPath;
@@ -2725,8 +2723,7 @@ describe('setApprovalMode with folder trust', () => {
         );
         expect(fs.readFileSync).not.toHaveBeenCalled();
       } finally {
-        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) =>
-          pathToResolve.toString(),
+        vi.mocked(fs.realpathSync).mockImplementation(function(pathToResolve) { return pathToResolve.toString(); },
         );
       }
     });
@@ -2735,7 +2732,7 @@ describe('setApprovalMode with folder trust', () => {
       const targetDir = path.resolve(baseParams.targetDir);
       const currentPlansDir = path.join(targetDir, 'project-plans');
       const legacyPlansDir = Storage.getPlansDir();
-      (fs.readdirSync as Mock).mockImplementation((pathToCheck) => {
+      (fs.readdirSync as Mock).mockImplementation(function(pathToCheck) {
         const resolvedPath = pathToCheck.toString();
         if (resolvedPath === currentPlansDir) {
           return [];
@@ -2767,7 +2764,7 @@ describe('setApprovalMode with folder trust', () => {
       const targetDir = path.resolve(baseParams.targetDir);
       const currentPlansDir = path.join(targetDir, 'project-plans');
       const legacyPlansDir = Storage.getPlansDir();
-      (fs.readdirSync as Mock).mockImplementation((pathToCheck) => {
+      (fs.readdirSync as Mock).mockImplementation(function(pathToCheck) {
         const resolvedPath = pathToCheck.toString();
         if (resolvedPath === currentPlansDir) {
           return ['migrated-session.md'];
@@ -2795,7 +2792,7 @@ describe('setApprovalMode with folder trust', () => {
     it('should surface legacy plan directory read failures as warnings', () => {
       const legacyError = new Error('EACCES') as NodeJS.ErrnoException;
       legacyError.code = 'EACCES';
-      (fs.readdirSync as Mock).mockImplementation((pathToCheck) => {
+      (fs.readdirSync as Mock).mockImplementation(function(pathToCheck) {
         const resolvedPath = pathToCheck.toString();
         if (
           resolvedPath ===
@@ -2843,7 +2840,7 @@ describe('setApprovalMode with folder trust', () => {
         path.dirname(targetDir),
         'outside-plans',
       );
-      vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) => {
+      vi.mocked(fs.realpathSync).mockImplementation(function(pathToResolve) {
         const resolvedPath = pathToResolve.toString();
         if (resolvedPath === targetDir) {
           return targetDir;
@@ -2864,8 +2861,7 @@ describe('setApprovalMode with folder trust', () => {
         expect(fs.mkdirSync).not.toHaveBeenCalled();
         expect(fs.readFileSync).not.toHaveBeenCalled();
       } finally {
-        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) =>
-          pathToResolve.toString(),
+        vi.mocked(fs.realpathSync).mockImplementation(function(pathToResolve) { return pathToResolve.toString(); },
         );
       }
     });
@@ -3362,6 +3358,57 @@ describe('Model Switching and Config Updates', () => {
           expect(config.getModel()).toBe(baseParams.model);
         },
       );
+    });
+  });
+
+  describe('chatCompression.contextPercentageThreshold deprecation', () => {
+    // The proportional-threshold knob `contextPercentageThreshold` was
+    // removed in the auto-compaction threshold redesign (Task 8) — the
+    // value is now derived from `computeThresholds(...)` in the
+    // ChatCompressionService and is no longer user-tunable. Existing
+    // settings.json files that still set the field should keep working
+    // but get a one-time stderr warning so users know to remove it.
+    let warnSpy: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      warnSpy = vi.spyOn(console, 'warn').mockImplementation(function() {});
+    });
+
+    afterEach(() => {
+      warnSpy.mockRestore();
+    });
+
+    it('logs a stderr warning when the deprecated field is set', () => {
+      new Config({
+        ...baseParams,
+        chatCompression: {
+          contextPercentageThreshold: 0.5,
+        } as ChatCompressionSettings,
+      });
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'chatCompression.contextPercentageThreshold has been removed',
+        ),
+      );
+    });
+
+    it('does not warn when chatCompression is absent', () => {
+      new Config({ ...baseParams });
+      const warnCalls = warnSpy.mock.calls.map((c) => String(c[0]));
+      expect(
+        warnCalls.some((m) => m.includes('contextPercentageThreshold')),
+      ).toBe(false);
+    });
+
+    it('does not warn when chatCompression is set without the deprecated field', () => {
+      new Config({
+        ...baseParams,
+        chatCompression: { imageTokenEstimate: 1600 },
+      });
+      const warnCalls = warnSpy.mock.calls.map((c) => String(c[0]));
+      expect(
+        warnCalls.some((m) => m.includes('contextPercentageThreshold')),
+      ).toBe(false);
     });
   });
 });

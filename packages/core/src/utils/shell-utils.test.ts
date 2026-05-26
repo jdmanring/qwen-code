@@ -49,8 +49,7 @@ let config: Config;
 
 beforeEach(() => {
   mockPlatform.mockReturnValue('linux');
-  mockQuote.mockImplementation((args: string[]) =>
-    args.map((arg) => `'${arg}'`).join(' '),
+  mockQuote.mockImplementation(function(args: string[]) { return args.map((arg) => `'${arg}'`).join(' '); },
   );
   config = {
     getCoreTools: () => [],

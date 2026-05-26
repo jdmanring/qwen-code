@@ -37,10 +37,10 @@ const mockFileSystem = new Map<string, string>();
 vi.mock('node:fs', () => {
   const fsModule = {
     mkdirSync: vi.fn(),
-    writeFileSync: vi.fn((path: string, data: string) => {
+    writeFileSync: vi.fn(function(path: string, data: string) {
       mockFileSystem.set(path, data);
     }),
-    readFileSync: vi.fn((path: string) => {
+    readFileSync: vi.fn(function(path: string) {
       if (mockFileSystem.has(path)) {
         return mockFileSystem.get(path);
       }
@@ -48,7 +48,7 @@ vi.mock('node:fs', () => {
         code: 'ENOENT',
       });
     }),
-    existsSync: vi.fn((path: string) => mockFileSystem.has(path)),
+    existsSync: vi.fn(function(path: string) { return mockFileSystem.has(path); }),
     appendFileSync: vi.fn(),
   };
 
@@ -1416,7 +1416,7 @@ describe('GeminiChat', async () => {
       );
       const structuredCloneSpy = vi
         .spyOn(globalThis, 'structuredClone')
-        .mockImplementation(() => {
+        .mockImplementation(function() {
           throw new Error('structuredClone should not build request contents');
         });
 
@@ -1598,7 +1598,7 @@ describe('GeminiChat', async () => {
       vi.spyOn(
         chat as unknown as { getRequestHistory: () => Content[] },
         'getRequestHistory',
-      ).mockImplementationOnce(() => {
+      ).mockImplementationOnce(function() {
         throw new Error('history setup failed');
       });
 
@@ -2822,7 +2822,7 @@ describe('GeminiChat', async () => {
       chat.addHistory(content);
       const structuredCloneSpy = vi
         .spyOn(globalThis, 'structuredClone')
-        .mockImplementation(() => {
+        .mockImplementation(function() {
           throw new Error('unexpected deep clone');
         });
 
@@ -2850,7 +2850,7 @@ describe('GeminiChat', async () => {
       chat.addHistory(recentContent);
       const structuredCloneSpy = vi
         .spyOn(globalThis, 'structuredClone')
-        .mockImplementation(() => {
+        .mockImplementation(function() {
           throw new Error('unexpected deep clone');
         });
 
@@ -2891,7 +2891,7 @@ describe('GeminiChat', async () => {
       chat.addHistory(last);
       const structuredCloneSpy = vi
         .spyOn(globalThis, 'structuredClone')
-        .mockImplementation(() => {
+        .mockImplementation(function() {
           throw new Error('unexpected deep clone');
         });
 
@@ -2910,7 +2910,7 @@ describe('GeminiChat', async () => {
       });
       const structuredCloneSpy = vi
         .spyOn(globalThis, 'structuredClone')
-        .mockImplementation(() => {
+        .mockImplementation(function() {
           throw new Error('unexpected deep clone');
         });
 

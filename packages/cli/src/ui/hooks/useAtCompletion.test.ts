@@ -50,10 +50,10 @@ describe('useAtCompletion', () => {
 
   beforeEach(() => {
     mockConfig = {
-      getFileFilteringOptions: vi.fn(() => ({
+      getFileFilteringOptions: vi.fn(function() { return {
         respectGitIgnore: true,
         respectQwenIgnore: true,
-      })),
+      }; }),
       getEnableRecursiveFileSearch: () => true,
       getFileFilteringEnableFuzzySearch: () => true,
     } as unknown as Config;
@@ -127,7 +127,7 @@ describe('useAtCompletion', () => {
     it('should append a trailing slash to directory paths in suggestions', async () => {
       const structure: FileSystemStructure = {
         'file.txt': '',
-        dir: {},
+        dir: { 'inner.txt': '' },
       };
       testRootDir = await createTmpDir(structure);
 
@@ -141,6 +141,7 @@ describe('useAtCompletion', () => {
 
       expect(result.current.suggestions.map((s) => s.value)).toEqual([
         'dir/',
+        'dir/inner.txt',
         'file.txt',
       ]);
       // Verify isDirectory flag
@@ -393,7 +394,7 @@ describe('useAtCompletion', () => {
         '.gitignore': gitignoreContent,
         dist: {},
         'test.log': '',
-        src: {},
+        src: { 'index.js': '' },
       };
       testRootDir = await createTmpDir(structure);
 
@@ -408,6 +409,7 @@ describe('useAtCompletion', () => {
       expect(result.current.suggestions.map((s) => s.value)).toEqual([
         'src/',
         '.gitignore',
+        'src/index.js',
       ]);
     });
 
@@ -490,10 +492,10 @@ describe('useAtCompletion', () => {
 
       const nonRecursiveConfig = {
         getEnableRecursiveFileSearch: () => false,
-        getFileFilteringOptions: vi.fn(() => ({
+        getFileFilteringOptions: vi.fn(function() { return {
           respectGitIgnore: true,
           respectQwenIgnore: true,
-        })),
+        }; }),
         getFileFilteringEnableFuzzySearch: () => true,
       } as unknown as Config;
 

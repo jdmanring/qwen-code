@@ -132,20 +132,20 @@ describe('ContentGenerationPipeline — concurrent streams (issue #3516)', () =>
         completions: {
           // Each call returns a fresh stream. The real Pipeline will
           // invoke this twice — once per concurrent executeStream call.
-          create: vi.fn().mockImplementation(() => createStreamImpl()),
+          create: vi.fn().mockImplementation(function() { return createStreamImpl(); }),
         },
       },
     } as unknown as OpenAI;
 
     const mockProvider: OpenAICompatibleProvider = {
       buildClient: vi.fn().mockReturnValue(mockClient),
-      buildRequest: vi.fn().mockImplementation((req) => req),
+      buildRequest: vi.fn().mockImplementation(function(req) { return req; }),
       buildHeaders: vi.fn().mockReturnValue({}),
       getDefaultGenerationConfig: vi.fn().mockReturnValue({}),
     } as unknown as OpenAICompatibleProvider;
 
     const mockErrorHandler: ErrorHandler = {
-      handle: vi.fn().mockImplementation((error: unknown) => {
+      handle: vi.fn().mockImplementation(function(error: unknown) {
         throw error;
       }),
       shouldSuppressErrorLogging: vi.fn().mockReturnValue(false),

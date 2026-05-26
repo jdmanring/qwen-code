@@ -111,10 +111,10 @@ describe('createFollowupController', () => {
     const onStateChange = vi.fn();
     const consoleErrorSpy = vi
       .spyOn(console, 'error')
-      .mockImplementation(() => {});
+      .mockImplementation(function() {});
 
     let callCount = 0;
-    const onAccept = vi.fn().mockImplementation(() => {
+    const onAccept = vi.fn().mockImplementation(function() {
       callCount++;
       if (callCount === 1) {
         throw new Error('callback error');
@@ -215,8 +215,8 @@ describe('createFollowupController', () => {
     const onStateChange = vi.fn();
     const consoleErrorSpy = vi
       .spyOn(console, 'error')
-      .mockImplementation(() => {});
-    const onOutcome = vi.fn().mockImplementation(() => {
+      .mockImplementation(function() {});
+    const onOutcome = vi.fn().mockImplementation(function() {
       throw new Error('telemetry crash');
     });
     const ctrl = createFollowupController({ onStateChange, onOutcome });

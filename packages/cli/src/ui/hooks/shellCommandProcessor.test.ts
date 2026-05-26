@@ -26,9 +26,31 @@ vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
     isBinary: mockIsBinary,
   };
 });
-vi.mock('fs');
-vi.mock('os');
-vi.mock('crypto');
+vi.mock('node:fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs')>();
+  const existsSync = vi.fn();
+  const unlinkSync = vi.fn();
+  const readFileSync = vi.fn();
+  const writeFileSync = vi.fn();
+  const mkdirSync = vi.fn();
+  const mod = { ...actual, existsSync, unlinkSync, readFileSync, writeFileSync, mkdirSync };
+  return { ...mod, default: mod };
+});
+vi.mock('node:os', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:os')>();
+  const platform = vi.fn().mockReturnValue('linux');
+  const homedir = vi.fn().mockReturnValue('/home/user');
+  const tmpdir = vi.fn().mockReturnValue('/tmp');
+  const mod = { ...actual, platform, homedir, tmpdir };
+  return { ...mod, default: mod };
+});
+vi.mock('node:crypto', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:crypto')>();
+  const randomUUID = vi.fn();
+  const randomBytes = vi.fn();
+  const mod = { ...actual, randomUUID, randomBytes };
+  return { ...mod, default: mod };
+});
 vi.mock('../utils/textUtils.js');
 
 import {
@@ -86,7 +108,7 @@ describe('useShellCommandProcessor', () => {
     mockIsBinary.mockReturnValue(false);
     vi.mocked(fs.existsSync).mockReturnValue(false);
 
-    mockShellExecutionService.mockImplementation((_cmd, _cwd, callback) => {
+    mockShellExecutionService.mockImplementation(function(_cmd, _cwd, callback) {
       mockShellOutputCallback = callback;
       return Promise.resolve({
         pid: 12345,
@@ -446,10 +468,10 @@ describe('useShellCommandProcessor', () => {
   it('should handle promise rejection and show an error', async () => {
     const { result } = renderProcessorHook();
     const testError = new Error('Unexpected failure');
-    mockShellExecutionService.mockImplementation(() => ({
+    mockShellExecutionService.mockImplementation(function() { return {
       pid: 12345,
       result: Promise.reject(testError),
-    }));
+    }; });
 
     act(() => {
       result.current.handleShellCommand(
@@ -472,7 +494,7 @@ describe('useShellCommandProcessor', () => {
 
   it('should handle synchronous errors during execution and clean up resources', async () => {
     const testError = new Error('Synchronous spawn error');
-    mockShellExecutionService.mockImplementation(() => {
+    mockShellExecutionService.mockImplementation(function() {
       throw testError;
     });
     // Mock that the temp file was created before the error was thrown
@@ -552,7 +574,7 @@ describe('useShellCommandProcessor', () => {
   describe('ActiveShellPtyId management', () => {
     beforeEach(() => {
       // The real service returns a promise that resolves with the pid and result promise
-      mockShellExecutionService.mockImplementation((_cmd, _cwd, callback) => {
+      mockShellExecutionService.mockImplementation(function(_cmd, _cwd, callback) {
         mockShellOutputCallback = callback;
         return Promise.resolve({
           pid: 12345,
@@ -677,7 +699,7 @@ describe('useShellCommandProcessor', () => {
     });
 
     it('should not set activeShellPtyId on synchronous execution error and should remain null', async () => {
-      mockShellExecutionService.mockImplementation(() => {
+      mockShellExecutionService.mockImplementation(function() {
         throw new Error('Sync Error');
       });
       const { result } = renderProcessorHook();
@@ -699,7 +721,7 @@ describe('useShellCommandProcessor', () => {
     });
 
     it('should not set activeShellPtyId if service does not return a PID', async () => {
-      mockShellExecutionService.mockImplementation((_cmd, _cwd, callback) => {
+      mockShellExecutionService.mockImplementation(function(_cmd, _cwd, callback) {
         mockShellOutputCallback = callback;
         return Promise.resolve({
           pid: undefined, // No PID

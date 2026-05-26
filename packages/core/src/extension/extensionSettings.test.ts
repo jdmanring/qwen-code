@@ -19,7 +19,7 @@ import { KeychainTokenStorage } from '../mcp/token-storage/keychain-token-storag
 import { EXTENSION_SETTINGS_FILENAME } from './variables.js';
 
 vi.mock('prompts');
-vi.mock('os', async (importOriginal) => {
+vi.mock('node:os', async (importOriginal) => {
   const mockedOs = await importOriginal<typeof os>();
   return {
     ...mockedOs,
@@ -51,7 +51,7 @@ describe('extensionSettings', () => {
     vi.clearAllMocks();
     mockKeychainData = {};
     vi.mocked(KeychainTokenStorage).mockImplementation(
-      (serviceName: string) => {
+      function(serviceName: string) {
         if (!mockKeychainData[serviceName]) {
           mockKeychainData[serviceName] = {};
         }
@@ -403,14 +403,13 @@ describe('extensionSettings', () => {
       const mockListSecrets = vi.fn();
 
       vi.mocked(KeychainTokenStorage).mockImplementation(
-        () =>
-          ({
+        function() { return {
             isAvailable: mockIsAvailable,
             listSecrets: mockListSecrets,
             deleteSecret: vi.fn(),
             getSecret: vi.fn(),
             setSecret: vi.fn(),
-          }) as unknown as KeychainTokenStorage,
+          }; } as unknown as KeychainTokenStorage,
       );
 
       const config: ExtensionConfig = {

@@ -26,13 +26,13 @@ import {
 import { execSync, spawn, spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 
-vi.mock('child_process', () => ({
+vi.mock('node:child_process', () => ({
   execSync: vi.fn(),
   spawn: vi.fn(),
-  spawnSync: vi.fn(() => ({ error: null, status: 0 })),
+  spawnSync: vi.fn(function() { return { error: null, status: 0 }; }),
 }));
 
-vi.mock('fs', () => ({
+vi.mock('node:fs', () => ({
   existsSync: vi.fn(),
 }));
 
@@ -100,7 +100,7 @@ describe('editor utils', () => {
           it(`should return true if first command doesn't exist but second command "${commands[1]}" exists on non-windows`, () => {
             Object.defineProperty(process, 'platform', { value: 'linux' });
             (execSync as Mock)
-              .mockImplementationOnce(() => {
+              .mockImplementationOnce(function() {
                 throw new Error(); // first command not found
               })
               .mockReturnValueOnce(Buffer.from(`/usr/bin/${commands[1]}`)); // second command found
@@ -111,7 +111,7 @@ describe('editor utils', () => {
 
         it(`should return false if none of the commands exist on non-windows`, () => {
           Object.defineProperty(process, 'platform', { value: 'linux' });
-          (execSync as Mock).mockImplementation(() => {
+          (execSync as Mock).mockImplementation(function() {
             throw new Error(); // all commands not found
           });
           expect(checkHasEditorType(editor)).toBe(false);
@@ -137,7 +137,7 @@ describe('editor utils', () => {
           it(`should return true if first command doesn't exist but second command "${win32Commands[1]}" exists on windows`, () => {
             Object.defineProperty(process, 'platform', { value: 'win32' });
             (execSync as Mock)
-              .mockImplementationOnce(() => {
+              .mockImplementationOnce(function() {
                 throw new Error(); // first command not found
               })
               .mockReturnValueOnce(
@@ -150,7 +150,7 @@ describe('editor utils', () => {
 
         it(`should return false if none of the commands exist on windows`, () => {
           Object.defineProperty(process, 'platform', { value: 'win32' });
-          (execSync as Mock).mockImplementation(() => {
+          (execSync as Mock).mockImplementation(function() {
             throw new Error(); // all commands not found
           });
           expect(checkHasEditorType(editor)).toBe(false);
@@ -199,7 +199,7 @@ describe('editor utils', () => {
         it(`should use second command "${commands[1]}" when first doesn't exist on non-windows`, () => {
           Object.defineProperty(process, 'platform', { value: 'linux' });
           (execSync as Mock)
-            .mockImplementationOnce(() => {
+            .mockImplementationOnce(function() {
               throw new Error(); // first command not found
             })
             .mockReturnValueOnce(Buffer.from(`/usr/bin/${commands[1]}`)); // second command found
@@ -214,7 +214,7 @@ describe('editor utils', () => {
 
       it(`should fall back to last command "${commands[commands.length - 1]}" when none exist on non-windows`, () => {
         Object.defineProperty(process, 'platform', { value: 'linux' });
-        (execSync as Mock).mockImplementation(() => {
+        (execSync as Mock).mockImplementation(function() {
           throw new Error(); // all commands not found
         });
 
@@ -242,7 +242,7 @@ describe('editor utils', () => {
         it(`should use second command "${win32Commands[1]}" when first doesn't exist on windows`, () => {
           Object.defineProperty(process, 'platform', { value: 'win32' });
           (execSync as Mock)
-            .mockImplementationOnce(() => {
+            .mockImplementationOnce(function() {
               throw new Error(); // first command not found
             })
             .mockReturnValueOnce(
@@ -259,7 +259,7 @@ describe('editor utils', () => {
 
       it(`should fall back to last command "${win32Commands[win32Commands.length - 1]}" when none exist on windows`, () => {
         Object.defineProperty(process, 'platform', { value: 'win32' });
-        (execSync as Mock).mockImplementation(() => {
+        (execSync as Mock).mockImplementation(function() {
           throw new Error(); // all commands not found
         });
 
@@ -336,7 +336,7 @@ describe('editor utils', () => {
       it('should use CLI command "zeditor" when "zed" does not exist on Linux', () => {
         Object.defineProperty(process, 'platform', { value: 'linux' });
         (execSync as Mock)
-          .mockImplementationOnce(() => {
+          .mockImplementationOnce(function() {
             throw new Error(); // zed not found
           })
           .mockReturnValueOnce(Buffer.from('/usr/bin/zeditor')); // zeditor found
@@ -350,7 +350,7 @@ describe('editor utils', () => {
 
       it('should return null on Linux when no CLI commands exist', () => {
         Object.defineProperty(process, 'platform', { value: 'linux' });
-        (execSync as Mock).mockImplementation(() => {
+        (execSync as Mock).mockImplementation(function() {
           throw new Error(); // all commands not found
         });
         (existsSync as Mock).mockReturnValue(false);
@@ -384,7 +384,7 @@ describe('editor utils', () => {
 
     for (const editor of guiEditors) {
       it(`should call spawn for ${editor}`, async () => {
-        const mockSpawnOn = vi.fn((event, cb) => {
+        const mockSpawnOn = vi.fn(function(event, cb) {
           if (event === 'close') {
             cb(0);
           }
@@ -407,7 +407,7 @@ describe('editor utils', () => {
 
       it(`should reject if spawn for ${editor} fails`, async () => {
         const mockError = new Error('spawn error');
-        const mockSpawnOn = vi.fn((event, cb) => {
+        const mockSpawnOn = vi.fn(function(event, cb) {
           if (event === 'error') {
             cb(mockError);
           }
@@ -420,7 +420,7 @@ describe('editor utils', () => {
       });
 
       it(`should reject if ${editor} exits with non-zero code`, async () => {
-        const mockSpawnOn = vi.fn((event, cb) => {
+        const mockSpawnOn = vi.fn(function(event, cb) {
           if (event === 'close') {
             cb(1);
           }
@@ -440,7 +440,7 @@ describe('editor utils', () => {
         (execSync as Mock).mockReturnValue(Buffer.from('/usr/local/bin/zed'));
         (existsSync as Mock).mockReturnValue(false);
 
-        const mockSpawnOn = vi.fn((event, cb) => {
+        const mockSpawnOn = vi.fn(function(event, cb) {
           if (event === 'close') {
             cb(0);
           }
@@ -460,15 +460,14 @@ describe('editor utils', () => {
 
       it('should call spawn for zed on macOS with app bundle CLI', async () => {
         Object.defineProperty(process, 'platform', { value: 'darwin' });
-        (execSync as Mock).mockImplementation(() => {
+        (execSync as Mock).mockImplementation(function() {
           throw new Error(); // CLI not found
         });
         // Accept any path containing Zed.app
-        (existsSync as Mock).mockImplementation((path: string) =>
-          path.includes('Zed.app'),
+        (existsSync as Mock).mockImplementation(function(path: string) { return path.includes('Zed.app'); },
         );
 
-        const mockSpawnOn = vi.fn((event, cb) => {
+        const mockSpawnOn = vi.fn(function(event, cb) {
           if (event === 'close') {
             cb(0);
           }
@@ -484,7 +483,7 @@ describe('editor utils', () => {
 
       it('should reject if zed is not installed', async () => {
         Object.defineProperty(process, 'platform', { value: 'darwin' });
-        (execSync as Mock).mockImplementation(() => {
+        (execSync as Mock).mockImplementation(function() {
           throw new Error(); // CLI not found
         });
         (existsSync as Mock).mockReturnValue(false); // App not found
@@ -528,7 +527,7 @@ describe('editor utils', () => {
         it(`should call onEditorClose for ${editor} on error`, async () => {
           const onEditorClose = vi.fn();
           const mockError = new Error('spawn error');
-          (spawnSync as Mock).mockImplementation(() => {
+          (spawnSync as Mock).mockImplementation(function() {
             throw mockError;
           });
 
@@ -549,7 +548,7 @@ describe('editor utils', () => {
       for (const editor of guiEditors) {
         it(`should not call onEditorClose for ${editor}`, async () => {
           const onEditorClose = vi.fn();
-          const mockSpawnOn = vi.fn((event, cb) => {
+          const mockSpawnOn = vi.fn(function(event, cb) {
             if (event === 'close') {
               cb(0);
             }
@@ -567,7 +566,7 @@ describe('editor utils', () => {
         (existsSync as Mock).mockReturnValue(false);
 
         const onEditorClose = vi.fn();
-        const mockSpawnOn = vi.fn((event, cb) => {
+        const mockSpawnOn = vi.fn(function(event, cb) {
           if (event === 'close') {
             cb(0);
           }
@@ -646,7 +645,7 @@ describe('editor utils', () => {
     });
 
     it('should return false for vscode when not installed and not in sandbox mode', () => {
-      (execSync as Mock).mockImplementation(() => {
+      (execSync as Mock).mockImplementation(function() {
         throw new Error();
       });
       expect(isEditorAvailable('vscode')).toBe(false);
@@ -681,7 +680,7 @@ describe('editor utils', () => {
     describe('checkHasEditorType for Zed', () => {
       it('should return true on macOS when Zed.app exists even if CLI is not in PATH', () => {
         Object.defineProperty(process, 'platform', { value: 'darwin' });
-        (execSync as Mock).mockImplementation(() => {
+        (execSync as Mock).mockImplementation(function() {
           throw new Error(); // CLI not found
         });
         (existsSync as Mock).mockReturnValue(true); // Zed.app exists
@@ -690,7 +689,7 @@ describe('editor utils', () => {
 
       it('should return false on macOS when Zed.app does not exist and CLI is not in PATH', () => {
         Object.defineProperty(process, 'platform', { value: 'darwin' });
-        (execSync as Mock).mockImplementation(() => {
+        (execSync as Mock).mockImplementation(function() {
           throw new Error(); // CLI not found
         });
         (existsSync as Mock).mockReturnValue(false); // Zed.app does not exist
@@ -705,7 +704,7 @@ describe('editor utils', () => {
 
       it('should not check for Zed.app on non-macOS platforms', () => {
         Object.defineProperty(process, 'platform', { value: 'linux' });
-        (execSync as Mock).mockImplementation(() => {
+        (execSync as Mock).mockImplementation(function() {
           throw new Error(); // CLI not found
         });
         (existsSync as Mock).mockReturnValue(true); // This should be ignored on Linux
@@ -716,12 +715,11 @@ describe('editor utils', () => {
     describe('getDiffCommand for Zed on macOS', () => {
       it('should use app bundle CLI path when CLI is not in PATH', () => {
         Object.defineProperty(process, 'platform', { value: 'darwin' });
-        (execSync as Mock).mockImplementation(() => {
+        (execSync as Mock).mockImplementation(function() {
           throw new Error(); // CLI not found
         });
         // Accept any path containing Zed.app (the CLI check will be for Contents/MacOS/cli)
-        (existsSync as Mock).mockImplementation((path: string) =>
-          path.includes('Zed.app'),
+        (existsSync as Mock).mockImplementation(function(path: string) { return path.includes('Zed.app'); },
         );
 
         const diffCommand = getDiffCommand('old.txt', 'new.txt', 'zed');
@@ -750,7 +748,7 @@ describe('editor utils', () => {
 
       it('should return null when Zed is not installed at all', () => {
         Object.defineProperty(process, 'platform', { value: 'darwin' });
-        (execSync as Mock).mockImplementation(() => {
+        (execSync as Mock).mockImplementation(function() {
           throw new Error(); // CLI not found
         });
         (existsSync as Mock).mockReturnValue(false); // App not found
@@ -761,12 +759,11 @@ describe('editor utils', () => {
 
       it('should check user Applications folder as fallback', () => {
         Object.defineProperty(process, 'platform', { value: 'darwin' });
-        (execSync as Mock).mockImplementation(() => {
+        (execSync as Mock).mockImplementation(function() {
           throw new Error(); // CLI not found
         });
         // Accept any path containing Zed.app
-        (existsSync as Mock).mockImplementation((path: string) =>
-          path.includes('Zed.app'),
+        (existsSync as Mock).mockImplementation(function(path: string) { return path.includes('Zed.app'); },
         );
 
         const diffCommand = getDiffCommand('old.txt', 'new.txt', 'zed');
@@ -795,7 +792,7 @@ describe('editor utils', () => {
 
   describe('getExternalEditorCommand', () => {
     it('should return null when editor executable is not found', () => {
-      (execSync as Mock).mockImplementation(() => {
+      (execSync as Mock).mockImplementation(function() {
         throw new Error('not found');
       });
       (existsSync as unknown as Mock).mockReturnValue(false);

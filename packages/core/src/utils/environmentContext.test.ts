@@ -84,9 +84,9 @@ describe('getEnvironmentContext', () => {
     // Mock the locale to ensure consistent English date formatting
     vi.stubGlobal('Intl', {
       ...global.Intl,
-      DateTimeFormat: vi.fn().mockImplementation(() => ({
+      DateTimeFormat: vi.fn().mockImplementation(function() { return {
         format: vi.fn().mockReturnValue('Tuesday, August 5, 2025'),
-      })),
+      }; }),
     });
 
     mockConfig = {
@@ -192,7 +192,7 @@ describe('getInitialChatHistory', () => {
 
   it('returns only extra history when skipStartupContext is true', async () => {
     mockConfig.getSkipStartupContext = vi.fn().mockReturnValue(true);
-    mockConfig.getWorkspaceContext = vi.fn(() => {
+    mockConfig.getWorkspaceContext = vi.fn(function() {
       throw new Error(
         'getWorkspaceContext should not be called when skipping startup context',
       );
@@ -213,7 +213,7 @@ describe('getInitialChatHistory', () => {
 
   it('returns empty history when skipping startup context without extras', async () => {
     mockConfig.getSkipStartupContext = vi.fn().mockReturnValue(true);
-    mockConfig.getWorkspaceContext = vi.fn(() => {
+    mockConfig.getWorkspaceContext = vi.fn(function() {
       throw new Error(
         'getWorkspaceContext should not be called when skipping startup context',
       );

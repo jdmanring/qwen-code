@@ -36,13 +36,13 @@ describe('directoryCommand', () => {
       path.normalize('/home/user/project2'),
     ];
     mockWorkspaceContext = {
-      addDirectory: vi.fn((directory: string) => {
+      addDirectory: vi.fn(function(directory: string) {
         const normalizedDirectory = path.normalize(directory);
         if (!mockWorkspaceDirectories.includes(normalizedDirectory)) {
           mockWorkspaceDirectories.push(normalizedDirectory);
         }
       }),
-      getDirectories: vi.fn(() => [...mockWorkspaceDirectories]),
+      getDirectories: vi.fn(function() { return [...mockWorkspaceDirectories]; }),
     } as unknown as WorkspaceContext;
 
     mockConfig = {
@@ -165,7 +165,7 @@ describe('directoryCommand', () => {
     it('should not persist directories skipped by the workspace context', async () => {
       const skippedPath = path.normalize('/home/user/missing-project');
       vi.mocked(mockWorkspaceContext.addDirectory).mockImplementation(
-        () => undefined,
+        function() { return undefined; },
       );
 
       if (!addCommand?.action) throw new Error('No action');
@@ -230,7 +230,7 @@ describe('directoryCommand', () => {
     it('should persist the directory path accepted by the workspace context', async () => {
       const inputPath = 'linked-project';
       const acceptedPath = path.normalize('/home/user/real-project');
-      vi.mocked(mockWorkspaceContext.addDirectory).mockImplementation(() => {
+      vi.mocked(mockWorkspaceContext.addDirectory).mockImplementation(function() {
         mockWorkspaceDirectories.push(acceptedPath);
       });
 
@@ -269,7 +269,7 @@ describe('directoryCommand', () => {
 
     it('should show an error if addDirectory throws an exception', async () => {
       const error = new Error('Directory does not exist');
-      vi.mocked(mockWorkspaceContext.addDirectory).mockImplementation(() => {
+      vi.mocked(mockWorkspaceContext.addDirectory).mockImplementation(function() {
         throw error;
       });
       const newPath = path.normalize('/home/user/invalid-project');
@@ -289,7 +289,7 @@ describe('directoryCommand', () => {
       const invalidPath = path.normalize('/home/user/invalid-project');
       const error = new Error('Directory does not exist');
       vi.mocked(mockWorkspaceContext.addDirectory).mockImplementation(
-        (p: string) => {
+        function(p: string) {
           if (p === invalidPath) {
             throw error;
           }

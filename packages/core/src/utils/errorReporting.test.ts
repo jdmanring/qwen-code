@@ -87,7 +87,7 @@ describe('reportError', () => {
     // Simulate JSON.stringify throwing an error for the full report
     const originalJsonStringify = JSON.stringify;
     let callCount = 0;
-    vi.spyOn(JSON, 'stringify').mockImplementation((value, replacer, space) => {
+    vi.spyOn(JSON, 'stringify').mockImplementation(function(value, replacer, space) {
       callCount++;
       if (callCount === 1) {
         // First call is for the full report content

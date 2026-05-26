@@ -37,7 +37,7 @@ function mockRealpath(
   resolutions: Map<string, string>,
   missingPaths = new Set<string>(),
 ): void {
-  mockRealpathSync.mockImplementation((pathToResolve) => {
+  mockRealpathSync.mockImplementation(function(pathToResolve) {
     const resolvedPath = pathToResolve.toString();
     if (missingPaths.has(resolvedPath)) {
       throw createEnoent(resolvedPath);
@@ -198,8 +198,7 @@ describe('Storage – getPlansDir', () => {
   const projectRoot = path.resolve('workspace', 'project');
 
   beforeEach(() => {
-    mockRealpathSync.mockImplementation((pathToResolve) =>
-      actualFs.realpathSync(pathToResolve),
+    mockRealpathSync.mockImplementation(function(pathToResolve) { return actualFs.realpathSync(pathToResolve); },
     );
   });
 

@@ -11,7 +11,7 @@ import { FileTokenStorage } from './file-token-storage.js';
 import { type OAuthCredentials, TokenStorageType } from './types.js';
 
 vi.mock('./keychain-token-storage.js', () => ({
-  KeychainTokenStorage: vi.fn().mockImplementation(() => ({
+  KeychainTokenStorage: vi.fn().mockImplementation(function() { return {
     isAvailable: vi.fn(),
     getCredentials: vi.fn(),
     setCredentials: vi.fn(),
@@ -19,18 +19,18 @@ vi.mock('./keychain-token-storage.js', () => ({
     listServers: vi.fn(),
     getAllCredentials: vi.fn(),
     clearAll: vi.fn(),
-  })),
+  }; }),
 }));
 
 vi.mock('./file-token-storage.js', () => ({
-  FileTokenStorage: vi.fn().mockImplementation(() => ({
+  FileTokenStorage: vi.fn().mockImplementation(function() { return {
     getCredentials: vi.fn(),
     setCredentials: vi.fn(),
     deleteCredentials: vi.fn(),
     listServers: vi.fn(),
     getAllCredentials: vi.fn(),
     clearAll: vi.fn(),
-  })),
+  }; }),
 }));
 
 interface MockStorage {
@@ -75,10 +75,10 @@ describe('HybridTokenStorage', () => {
 
     (
       KeychainTokenStorage as unknown as ReturnType<typeof vi.fn>
-    ).mockImplementation(() => mockKeychainStorage);
+    ).mockImplementation(function() { return mockKeychainStorage; });
     (
       FileTokenStorage as unknown as ReturnType<typeof vi.fn>
-    ).mockImplementation(() => mockFileStorage);
+    ).mockImplementation(function() { return mockFileStorage; });
 
     storage = new HybridTokenStorage('test-service');
   });

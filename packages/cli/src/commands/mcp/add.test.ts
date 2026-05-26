@@ -30,7 +30,7 @@ vi.mock('fs/promises', async (importOriginal) => {
 });
 
 vi.mock('os', () => {
-  const homedir = vi.fn(() => '/home/user');
+  const homedir = vi.fn(function() { return '/home/user'; });
   return {
     default: {
       homedir,

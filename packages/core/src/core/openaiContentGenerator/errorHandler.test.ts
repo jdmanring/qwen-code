@@ -40,7 +40,7 @@ describe('EnhancedErrorHandler', () => {
     });
 
     it('should create instance with custom shouldSuppressLogging function', () => {
-      const customSuppressLogging = vi.fn(() => true);
+      const customSuppressLogging = vi.fn(function() { return true; });
       errorHandler = new EnhancedErrorHandler(customSuppressLogging);
       expect(errorHandler).toBeInstanceOf(EnhancedErrorHandler);
     });
@@ -68,7 +68,7 @@ describe('EnhancedErrorHandler', () => {
     });
 
     it('should use custom suppression function', () => {
-      const suppressLogging = vi.fn(() => true);
+      const suppressLogging = vi.fn(function() { return true; });
       errorHandler = new EnhancedErrorHandler(suppressLogging);
       const originalError = new Error('Test error');
 
@@ -130,7 +130,7 @@ describe('EnhancedErrorHandler', () => {
     });
 
     it('should use custom suppression function', () => {
-      const customSuppressLogging = vi.fn(() => true);
+      const customSuppressLogging = vi.fn(function() { return true; });
       errorHandler = new EnhancedErrorHandler(customSuppressLogging);
 
       const testError = new Error('test');

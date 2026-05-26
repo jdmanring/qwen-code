@@ -29,8 +29,8 @@ vi.mock('@qwen-code/qwen-code-core', async () => {
   const actual = await vi.importActual('@qwen-code/qwen-code-core');
   return {
     ...actual,
-    checkHasEditorType: vi.fn(() => true),
-    allowEditorTypeInSandbox: vi.fn(() => true),
+    checkHasEditorType: vi.fn(function() { return true; }),
+    allowEditorTypeInSandbox: vi.fn(function() { return true; }),
   };
 });
 
@@ -263,7 +263,7 @@ describe('useEditorSettings', () => {
       mockLoadedSettings.setValue as MockedFunction<
         typeof mockLoadedSettings.setValue
       >
-    ).mockImplementation(() => {
+    ).mockImplementation(function() {
       throw new Error(errorMessage);
     });
 

@@ -990,7 +990,7 @@ describe('crawler', () => {
     });
 
     it('should fall back to fdir when not in a git repo and ripgrep unavailable', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(function() {});
 
       __setCommandRunnerForTests(async (command) => {
         if (command === 'git' || command === 'rg') {
@@ -1283,7 +1283,7 @@ describe('crawler', () => {
 
     it('should fall back to ripgrep when git ls-files --cached fails inside a git repo', async () => {
       tmpDir = await createTmpDir({ 'via-rg.js': '' });
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(function() {});
 
       __setCommandRunnerForTests(async (command, args) => {
         if (command === 'git') {
@@ -1336,7 +1336,7 @@ describe('crawler', () => {
 
     it('should warn on git→rg→fdir degradation when git listing then rg fail', async () => {
       tmpDir = await createTmpDir({ 'only-fdir.js': '' });
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(function() {});
 
       __setCommandRunnerForTests(async (command, args) => {
         if (command === 'git') {

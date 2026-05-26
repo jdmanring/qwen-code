@@ -56,7 +56,7 @@ describe('DeclarativeTool', () => {
 
     it('should return INVALID_TOOL_PARAMS error if build fails', async () => {
       const buildError = new Error('Invalid build parameters');
-      const buildFn = vi.fn().mockImplementation(() => {
+      const buildFn = vi.fn().mockImplementation(function() {
         throw buildError;
       });
       const tool = new TestTool(buildFn);

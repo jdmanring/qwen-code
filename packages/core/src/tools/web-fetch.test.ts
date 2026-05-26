@@ -15,9 +15,9 @@ import * as fetchUtils from '../utils/fetch.js';
 // Mocks the underlying call BaseLlmClient.generateText makes; web-fetch's
 // `runSideQuery` text-mode path lands on this mock.
 const mockGenerateContent = vi.fn();
-const mockGetBaseLlmClient = vi.fn(() => ({
+const mockGetBaseLlmClient = vi.fn(function() { return {
   generateText: mockGenerateContent,
-}));
+}; });
 
 vi.mock('../utils/fetch.js', async (importOriginal) => {
   const actual = await importOriginal<typeof fetchUtils>();
@@ -38,9 +38,9 @@ describe('WebFetchTool', () => {
       setApprovalMode: vi.fn(),
       getProxy: vi.fn(),
       getBaseLlmClient: mockGetBaseLlmClient,
-      getFastModel: vi.fn(() => undefined),
-      getSessionId: vi.fn(() => 'test-session-id'),
-      getModel: vi.fn(() => 'qwen-coder'),
+      getFastModel: vi.fn(function() { return undefined; }),
+      getSessionId: vi.fn(function() { return 'test-session-id'; }),
+      getModel: vi.fn(function() { return 'qwen-coder'; }),
     } as unknown as Config;
   });
 
@@ -206,7 +206,7 @@ describe('WebFetchTool', () => {
           Promise.resolve('# Hello World\n\nThis is markdown content.'),
       } as Response);
 
-      mockGenerateContent.mockImplementation((options) => {
+      mockGenerateContent.mockImplementation(function(options) {
         receivedContent = options.contents[0].parts[0].text;
         return Promise.resolve({ text: 'Processed', usage: undefined });
       });
@@ -227,7 +227,7 @@ describe('WebFetchTool', () => {
         text: () => Promise.resolve('Plain text content here'),
       } as Response);
 
-      mockGenerateContent.mockImplementation((options) => {
+      mockGenerateContent.mockImplementation(function(options) {
         receivedContent = options.contents[0].parts[0].text;
         return Promise.resolve({ text: 'Processed', usage: undefined });
       });

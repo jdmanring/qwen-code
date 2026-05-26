@@ -37,8 +37,7 @@ describe('ChatCompressionService', () => {
     service = new ChatCompressionService();
     mockChat = {
       getHistory: vi.fn(),
-      getHistoryShallow: vi.fn((curated?: boolean) =>
-        mockChat.getHistory(curated),
+      getHistoryShallow: vi.fn(function(curated?: boolean) { return mockChat.getHistory(curated); },
       ),
       appendSystemInstruction: vi.fn(),
     } as unknown as GeminiChat;
@@ -627,7 +626,7 @@ describe('ChatCompressionService', () => {
       },
       { role: 'model', parts: [{ text: 'analysis' }] },
     ];
-    vi.mocked(mockChat.getHistory).mockImplementation(() => {
+    vi.mocked(mockChat.getHistory).mockImplementation(function() {
       throw new Error('getHistory should not be called by compression');
     });
     vi.mocked(mockChat.getHistoryShallow).mockReturnValue(history);

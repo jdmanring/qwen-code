@@ -17,15 +17,15 @@ const mockGetImageData = vi.fn();
 
 vi.mock('@teddyzhu/clipboard', () => ({
   default: {
-    ClipboardManager: vi.fn().mockImplementation(() => ({
+    ClipboardManager: vi.fn().mockImplementation(function() { return {
       hasFormat: mockHasFormat,
       getImageData: mockGetImageData,
-    })),
+    }; }),
   },
-  ClipboardManager: vi.fn().mockImplementation(() => ({
+  ClipboardManager: vi.fn().mockImplementation(function() { return {
     hasFormat: mockHasFormat,
     getImageData: mockGetImageData,
-  })),
+  }; }),
 }));
 
 describe('clipboardUtils', () => {
@@ -51,7 +51,7 @@ describe('clipboardUtils', () => {
     });
 
     it('should return false on error', async () => {
-      mockHasFormat.mockImplementation(() => {
+      mockHasFormat.mockImplementation(function() {
         throw new Error('Clipboard error');
       });
 
@@ -66,7 +66,7 @@ describe('clipboardUtils', () => {
         env: { ...originalEnv, DEBUG: '1' },
       });
 
-      mockHasFormat.mockImplementation(() => {
+      mockHasFormat.mockImplementation(function() {
         throw new Error('Test error');
       });
 
@@ -92,7 +92,7 @@ describe('clipboardUtils', () => {
     });
 
     it('should handle errors gracefully and return null', async () => {
-      mockHasFormat.mockImplementation(() => {
+      mockHasFormat.mockImplementation(function() {
         throw new Error('Clipboard error');
       });
 
@@ -107,7 +107,7 @@ describe('clipboardUtils', () => {
         env: { ...originalEnv, DEBUG: '1' },
       });
 
-      mockHasFormat.mockImplementation(() => {
+      mockHasFormat.mockImplementation(function() {
         throw new Error('Test error');
       });
 

@@ -19,7 +19,7 @@ import { ConfigContext } from '../contexts/ConfigContext.js';
 
 // Mock child components
 vi.mock('./messages/ToolGroupMessage.js', () => ({
-  ToolGroupMessage: vi.fn(() => <div />),
+  ToolGroupMessage: vi.fn(function() { return <div />; }),
 }));
 
 describe('<HistoryItemDisplay />', () => {

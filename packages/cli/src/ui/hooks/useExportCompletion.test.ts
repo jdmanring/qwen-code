@@ -45,7 +45,7 @@ function createTextBuffer(initialText: string): TextBuffer {
     get cursor() {
       return [0, text.length] as [number, number];
     },
-    setText: vi.fn((nextText: string) => {
+    setText: vi.fn(function(nextText: string) {
       text = nextText;
     }),
   };

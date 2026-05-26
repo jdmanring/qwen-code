@@ -39,11 +39,11 @@ describe('MemoryDialog', () => {
     vi.clearAllMocks();
 
     mockedUseConfig.mockReturnValue({
-      getWorkingDir: vi.fn(() => '/tmp/project'),
-      getProjectRoot: vi.fn(() => '/tmp/project'),
-      getManagedAutoMemoryEnabled: vi.fn(() => false),
-      getManagedAutoDreamEnabled: vi.fn(() => false),
-      getAutoSkillEnabled: vi.fn(() => false),
+      getWorkingDir: vi.fn(function() { return '/tmp/project'; }),
+      getProjectRoot: vi.fn(function() { return '/tmp/project'; }),
+      getManagedAutoMemoryEnabled: vi.fn(function() { return false; }),
+      getManagedAutoDreamEnabled: vi.fn(function() { return false; }),
+      getAutoSkillEnabled: vi.fn(function() { return false; }),
     } as never);
 
     mockedUseSettings.mockReturnValue({ setValue: vi.fn() } as never);

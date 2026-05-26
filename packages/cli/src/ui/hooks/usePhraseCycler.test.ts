@@ -18,7 +18,7 @@ describe('usePhraseCycler', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.spyOn(i18n, 'ta').mockReturnValue(MOCK_WITTY_PHRASES);
-    vi.spyOn(i18n, 't').mockImplementation((key) => key);
+    vi.spyOn(i18n, 't').mockImplementation(function(key) { return key; });
   });
 
   afterEach(() => {
@@ -70,7 +70,7 @@ describe('usePhraseCycler', () => {
   it('should reset to a witty phrase when isActive becomes true after being false (and not waiting)', () => {
     // Mock Math.random to make the test deterministic.
     let callCount = 0;
-    vi.spyOn(Math, 'random').mockImplementation(() => {
+    vi.spyOn(Math, 'random').mockImplementation(function() {
       // Cycle through 0, 1, 0, 1, ...
       const val = callCount % 2;
       callCount++;
@@ -119,7 +119,7 @@ describe('usePhraseCycler', () => {
   it('should use custom phrases when provided', () => {
     const customPhrases = ['Custom Phrase 1', 'Custom Phrase 2'];
     let callCount = 0;
-    vi.spyOn(Math, 'random').mockImplementation(() => {
+    vi.spyOn(Math, 'random').mockImplementation(function() {
       const val = callCount % 2;
       callCount++;
       return val / customPhrases.length;

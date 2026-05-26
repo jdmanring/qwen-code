@@ -201,7 +201,7 @@ describe('runNonInteractiveStreamJson', () => {
     };
     (
       StreamJsonOutputAdapter as unknown as ReturnType<typeof vi.fn>
-    ).mockImplementation(() => mockOutputAdapter);
+    ).mockImplementation(function() { return mockOutputAdapter; });
 
     mockDispatcher = {
       dispatch: vi.fn().mockResolvedValue(undefined),
@@ -217,12 +217,12 @@ describe('runNonInteractiveStreamJson', () => {
     };
     (
       ControlDispatcher as unknown as ReturnType<typeof vi.fn>
-    ).mockImplementation(() => mockDispatcher);
+    ).mockImplementation(function() { return mockDispatcher; });
     (ControlContext as unknown as ReturnType<typeof vi.fn>).mockImplementation(
-      () => ({}),
+      function() { return {}; },
     );
     (ControlService as unknown as ReturnType<typeof vi.fn>).mockImplementation(
-      () => ({}),
+      function() { return {}; },
     );
 
     mockInputReader = {
@@ -233,7 +233,7 @@ describe('runNonInteractiveStreamJson', () => {
     };
     (
       StreamJsonInputReader as unknown as ReturnType<typeof vi.fn>
-    ).mockImplementation(() => mockInputReader);
+    ).mockImplementation(function() { return mockInputReader; });
 
     runNonInteractiveMock.mockResolvedValue(undefined);
   });
@@ -315,10 +315,10 @@ describe('runNonInteractiveStreamJson', () => {
           },
         ) => void)
       | undefined;
-    mockMonitorRegistry.setRegisterCallback.mockImplementation((cb) => {
+    mockMonitorRegistry.setRegisterCallback.mockImplementation(function(cb) {
       registerCallback = cb;
     });
-    mockMonitorRegistry.setNotificationCallback.mockImplementation((cb) => {
+    mockMonitorRegistry.setNotificationCallback.mockImplementation(function(cb) {
       monitorCallback = cb;
     });
 
@@ -421,10 +421,10 @@ describe('runNonInteractiveStreamJson', () => {
         ) => void)
       | undefined;
 
-    mockMonitorRegistry.setRegisterCallback.mockImplementation((cb) => {
+    mockMonitorRegistry.setRegisterCallback.mockImplementation(function(cb) {
       registerCallback = cb;
     });
-    mockMonitorRegistry.setNotificationCallback.mockImplementation((cb) => {
+    mockMonitorRegistry.setNotificationCallback.mockImplementation(function(cb) {
       notificationCallback = cb;
     });
 
@@ -533,7 +533,7 @@ describe('runNonInteractiveStreamJson', () => {
 
     // Make runNonInteractive take some time to simulate processing
     runNonInteractiveMock.mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 10)),
+      function() { return new Promise((resolve) => setTimeout(resolve, 10)); },
     );
 
     mockInputReader.read = async function* () {
@@ -600,7 +600,7 @@ describe('runNonInteractiveStreamJson', () => {
     const controlRequest = createControlRequest('set_model');
 
     runNonInteractiveMock.mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 10)),
+      function() { return new Promise((resolve) => setTimeout(resolve, 10)); },
     );
 
     mockInputReader.read = async function* () {
@@ -620,7 +620,7 @@ describe('runNonInteractiveStreamJson', () => {
     const controlResponse = createControlResponse('req-1');
 
     runNonInteractiveMock.mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 10)),
+      function() { return new Promise((resolve) => setTimeout(resolve, 10)); },
     );
 
     mockInputReader.read = async function* () {
@@ -745,7 +745,7 @@ describe('runNonInteractiveStreamJson', () => {
     // Capture abort signal from ControlContext
     let abortSignal: AbortSignal | null = null;
     (ControlContext as unknown as ReturnType<typeof vi.fn>).mockImplementation(
-      (options: { abortSignal?: AbortSignal }) => {
+      function(options: { abortSignal?: AbortSignal }) {
         abortSignal = options.abortSignal ?? null;
         return {};
       },
@@ -870,13 +870,13 @@ describe('runNonInteractiveStreamJson', () => {
     let releaseProcessing: (() => void) | undefined;
     const callOrder: string[] = [];
 
-    mockMonitorRegistry.abortAll.mockImplementation(() => {
+    mockMonitorRegistry.abortAll.mockImplementation(function() {
       callOrder.push('monitor:abortAll');
     });
-    mockBackgroundShellRegistry.abortAll.mockImplementation(() => {
+    mockBackgroundShellRegistry.abortAll.mockImplementation(function() {
       callOrder.push('background:abortAll');
     });
-    mockBackgroundTaskRegistry.abortAll.mockImplementation(() => {
+    mockBackgroundTaskRegistry.abortAll.mockImplementation(function() {
       callOrder.push('agent:abortAll');
     });
 
@@ -930,13 +930,13 @@ describe('runNonInteractiveStreamJson', () => {
     const callOrder: string[] = [];
     const streamError = new Error('Stream error');
 
-    mockMonitorRegistry.abortAll.mockImplementation(() => {
+    mockMonitorRegistry.abortAll.mockImplementation(function() {
       callOrder.push('monitor:abortAll');
     });
-    mockBackgroundShellRegistry.abortAll.mockImplementation(() => {
+    mockBackgroundShellRegistry.abortAll.mockImplementation(function() {
       callOrder.push('background:abortAll');
     });
-    mockBackgroundTaskRegistry.abortAll.mockImplementation(() => {
+    mockBackgroundTaskRegistry.abortAll.mockImplementation(function() {
       callOrder.push('agent:abortAll');
     });
 

@@ -29,7 +29,7 @@ function mockExecResult(result: {
   code: number;
 }) {
   mockExecFile.mockImplementationOnce(
-    (_cmd: unknown, _args: unknown, _opts: unknown, cb: unknown) => {
+    function(_cmd: unknown, _args: unknown, _opts: unknown, cb: unknown) {
       const callback = cb as (
         err: Error | null,
         stdout: string,
@@ -52,7 +52,7 @@ function mockExecResult(result: {
  */
 function mockExecError() {
   mockExecFile.mockImplementationOnce(
-    (_cmd: unknown, _args: unknown, _opts: unknown, cb: unknown) => {
+    function(_cmd: unknown, _args: unknown, _opts: unknown, cb: unknown) {
       const callback = cb as (
         err: Error | null,
         stdout: string,
@@ -72,7 +72,7 @@ function mockExecError() {
  */
 function mockMaxBufferExceeded(partialStdout: string) {
   mockExecFile.mockImplementationOnce(
-    (_cmd: unknown, _args: unknown, _opts: unknown, cb: unknown) => {
+    function(_cmd: unknown, _args: unknown, _opts: unknown, cb: unknown) {
       const callback = cb as (
         err: Error | null,
         stdout: string,
@@ -221,7 +221,7 @@ describe('pdf utilities', () => {
       // the first resolves — without in-flight promise caching each one
       // would have spawned its own pdftotext -v probe.
       mockExecFile.mockImplementation(
-        (_cmd: unknown, _args: unknown, _opts: unknown, cb: unknown) => {
+        function(_cmd: unknown, _args: unknown, _opts: unknown, cb: unknown) {
           const callback = cb as (
             err: Error | null,
             stdout: string,
@@ -479,7 +479,7 @@ describe('pdf utilities', () => {
         code: 0,
       });
       mockExecFile.mockImplementationOnce(
-        (_cmd: unknown, _args: unknown, _opts: unknown, cb: unknown) => {
+        function(_cmd: unknown, _args: unknown, _opts: unknown, cb: unknown) {
           const callback = cb as (
             err: Error | null,
             stdout: string,
@@ -543,7 +543,7 @@ describe('pdf utilities', () => {
         code: 0,
       });
       mockExecFile.mockImplementationOnce(
-        (_cmd: unknown, _args: unknown, _opts: unknown, cb: unknown) => {
+        function(_cmd: unknown, _args: unknown, _opts: unknown, cb: unknown) {
           const callback = cb as (
             err: Error | null,
             stdout: string,

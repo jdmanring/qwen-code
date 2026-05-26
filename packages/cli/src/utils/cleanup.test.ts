@@ -52,7 +52,7 @@ describe('cleanup', () => {
   });
 
   it('should continue running cleanup functions even if one throws an error', async () => {
-    const errorFn = vi.fn(() => {
+    const errorFn = vi.fn(function() {
       throw new Error('Test Error');
     });
     const successFn = vi.fn();
@@ -71,7 +71,7 @@ describe('cleanup', () => {
     // disks / dead sockets — sync writes were inherently bounded, async aren't.
 
     it('caps a hung cleanup at the per-fn timeout and proceeds to the next one', async () => {
-      const hangFn = vi.fn(() => new Promise<void>(() => {}));
+      const hangFn = vi.fn(function() { return new Promise<void>(() => {}); });
       const nextFn = vi.fn();
 
       registerCleanup(hangFn);

@@ -21,7 +21,15 @@ import {
 import type { RecentSlashCommands } from '../hooks/useSlashCompletion.js';
 
 // Mock child_process
-vi.mock('child_process');
+vi.mock('node:child_process', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:child_process')>();
+  const spawn = vi.fn();
+  const exec = vi.fn();
+  const execSync = vi.fn();
+  const spawnSync = vi.fn();
+  const mod = { ...actual, spawn, exec, execSync, spawnSync };
+  return { ...mod, default: mod };
+});
 
 // Mock process.platform for platform-specific tests
 const mockProcess = vi.hoisted(() => ({
@@ -244,7 +252,7 @@ describe('commandUtils', () => {
           stdio: ['pipe', 'inherit', 'pipe'],
         };
 
-        mockSpawn.mockImplementation(() => {
+        mockSpawn.mockImplementation(function() {
           const child = Object.assign(new EventEmitter(), {
             stdin: Object.assign(new EventEmitter(), {
               write: vi.fn(),
@@ -294,7 +302,7 @@ describe('commandUtils', () => {
           stdio: ['pipe', 'inherit', 'pipe'],
         };
 
-        mockSpawn.mockImplementation(() => {
+        mockSpawn.mockImplementation(function() {
           const child = Object.assign(new EventEmitter(), {
             stdin: Object.assign(new EventEmitter(), {
               write: vi.fn(),
@@ -350,7 +358,7 @@ describe('commandUtils', () => {
         const errorMsg = "Error: Can't open display:";
         const exitCode = 1;
 
-        mockSpawn.mockImplementation(() => {
+        mockSpawn.mockImplementation(function() {
           const child = Object.assign(new EventEmitter(), {
             stdin: Object.assign(new EventEmitter(), {
               write: vi.fn(),

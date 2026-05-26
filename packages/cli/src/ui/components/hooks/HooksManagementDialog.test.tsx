@@ -19,7 +19,7 @@ const mockedUseKeypress = vi.mocked(useKeypress);
 
 // Mock i18n module
 vi.mock('../../../i18n/index.js', () => ({
-  t: vi.fn((key: string, options?: { count?: string }) => {
+  t: vi.fn(function(key: string, options?: { count?: string }) {
     // Handle pluralization
     if (key === '{{count}} hook configured' && options?.count) {
       return `${options.count} hook configured`;
@@ -47,7 +47,7 @@ vi.mock('../../../i18n/index.js', () => ({
 
 // Mock useTerminalSize
 vi.mock('../../hooks/useTerminalSize.js', () => ({
-  useTerminalSize: vi.fn(() => ({ columns: 120, rows: 24 })),
+  useTerminalSize: vi.fn(function() { return { columns: 120, rows: 24 }; }),
 }));
 
 // Mock useConfig
@@ -56,16 +56,16 @@ vi.mock('../../contexts/ConfigContext.js', async (importOriginal) => {
     await importOriginal<typeof import('../../contexts/ConfigContext.js')>();
   return {
     ...actual,
-    useConfig: vi.fn(() => ({
-      getExtensions: vi.fn(() => []),
-      getDisableAllHooks: vi.fn(() => false),
-      getHookSystem: vi.fn(() => ({
+    useConfig: vi.fn(function() { return {
+      getExtensions: vi.fn(function() { return []; }),
+      getDisableAllHooks: vi.fn(function() { return false; }),
+      getHookSystem: vi.fn(function() { return {
         getSessionHooksManager: vi.fn(() => ({
           getAllSessionHooks: vi.fn(() => []),
         })),
-      })),
-      getSessionId: vi.fn(() => 'test-session-id'),
-    })),
+      }; }),
+      getSessionId: vi.fn(function() { return 'test-session-id'; }),
+    }; }),
   };
 });
 
@@ -75,9 +75,9 @@ vi.mock('../../../config/settings.js', async (importOriginal) => {
     await importOriginal<typeof import('../../../config/settings.js')>();
   return {
     ...actual,
-    loadSettings: vi.fn(() => ({
-      forScope: vi.fn(() => ({ settings: {} })),
-    })),
+    loadSettings: vi.fn(function() { return {
+      forScope: vi.fn(function() { return { settings: {} }; }),
+    }; }),
   };
 });
 
@@ -106,10 +106,10 @@ vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
     await importOriginal<typeof import('@qwen-code/qwen-code-core')>();
   return {
     ...actual,
-    createDebugLogger: vi.fn(() => ({
+    createDebugLogger: vi.fn(function() { return {
       log: vi.fn(),
       error: vi.fn(),
-    })),
+    }; }),
   };
 });
 
@@ -134,7 +134,7 @@ describe('HooksManagementDialog', () => {
     keypressHandler = null;
 
     // Mock useKeypress to capture the handler
-    mockedUseKeypress.mockImplementation((handler) => {
+    mockedUseKeypress.mockImplementation(function(handler) {
       keypressHandler = handler;
     });
   });
@@ -211,8 +211,8 @@ describe('HooksManagementDialog', () => {
       // Override the mock for this test
       const configContext = await import('../../contexts/ConfigContext.js');
       vi.mocked(configContext.useConfig).mockReturnValue({
-        getExtensions: vi.fn(() => []),
-        getDisableAllHooks: vi.fn(() => true),
+        getExtensions: vi.fn(function() { return []; }),
+        getDisableAllHooks: vi.fn(function() { return true; }),
       } as unknown as ReturnType<typeof configContext.useConfig>);
 
       const { lastFrame, unmount } = renderWithProviders(
@@ -230,8 +230,8 @@ describe('HooksManagementDialog', () => {
     it('should close dialog on Escape key when hooks are disabled', async () => {
       const configContext = await import('../../contexts/ConfigContext.js');
       vi.mocked(configContext.useConfig).mockReturnValue({
-        getExtensions: vi.fn(() => []),
-        getDisableAllHooks: vi.fn(() => true),
+        getExtensions: vi.fn(function() { return []; }),
+        getDisableAllHooks: vi.fn(function() { return true; }),
       } as unknown as ReturnType<typeof configContext.useConfig>);
 
       renderWithProviders(<HooksManagementDialog onClose={mockOnClose} />);

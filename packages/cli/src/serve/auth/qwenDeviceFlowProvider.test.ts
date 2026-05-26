@@ -61,7 +61,7 @@ describe('QwenOAuthDeviceFlowProvider.poll() — stderr audit branches', () => {
   beforeEach(() => {
     stderrLines = [];
     originalWrite = process.stderr.write.bind(process.stderr);
-    stderrSpy = vi.fn((chunk: string | Uint8Array) => {
+    stderrSpy = vi.fn(function(chunk: string | Uint8Array) {
       stderrLines.push(typeof chunk === 'string' ? chunk : chunk.toString());
       return true;
     });

@@ -93,7 +93,7 @@ describe('useQwenAuth', () => {
   it('should handle device auth event', () => {
     let handleDeviceAuth: (deviceAuth: DeviceAuthorizationData) => void;
 
-    mockQwenOAuth2Events.on.mockImplementation((event, handler) => {
+    mockQwenOAuth2Events.on.mockImplementation(function(event, handler) {
       if (event === QwenOAuth2Event.AuthUri) {
         handleDeviceAuth = handler;
       }
@@ -116,7 +116,7 @@ describe('useQwenAuth', () => {
       message?: string,
     ) => void;
 
-    mockQwenOAuth2Events.on.mockImplementation((event, handler) => {
+    mockQwenOAuth2Events.on.mockImplementation(function(event, handler) {
       if (event === QwenOAuth2Event.AuthProgress) {
         handleAuthProgress = handler;
       }
@@ -141,7 +141,7 @@ describe('useQwenAuth', () => {
       message?: string,
     ) => void;
 
-    mockQwenOAuth2Events.on.mockImplementation((event, handler) => {
+    mockQwenOAuth2Events.on.mockImplementation(function(event, handler) {
       if (event === QwenOAuth2Event.AuthProgress) {
         handleAuthProgress = handler;
       }
@@ -166,7 +166,7 @@ describe('useQwenAuth', () => {
       message?: string,
     ) => void;
 
-    mockQwenOAuth2Events.on.mockImplementation((event, handler) => {
+    mockQwenOAuth2Events.on.mockImplementation(function(event, handler) {
       if (event === QwenOAuth2Event.AuthProgress) {
         handleAuthProgress = handler;
       }
@@ -191,7 +191,7 @@ describe('useQwenAuth', () => {
       message?: string,
     ) => void;
 
-    mockQwenOAuth2Events.on.mockImplementation((event, handler) => {
+    mockQwenOAuth2Events.on.mockImplementation(function(event, handler) {
       if (event === QwenOAuth2Event.AuthProgress) {
         handleAuthProgress = handler;
       }
@@ -219,7 +219,7 @@ describe('useQwenAuth', () => {
       message?: string,
     ) => void;
 
-    mockQwenOAuth2Events.on.mockImplementation((event, handler) => {
+    mockQwenOAuth2Events.on.mockImplementation(function(event, handler) {
       if (event === QwenOAuth2Event.AuthProgress) {
         handleAuthProgress = handler;
       }
@@ -301,7 +301,7 @@ describe('useQwenAuth', () => {
   it('should reset state when switching from Qwen auth to another auth type', () => {
     let handleDeviceAuth: (deviceAuth: DeviceAuthorizationData) => void;
 
-    mockQwenOAuth2Events.on.mockImplementation((event, handler) => {
+    mockQwenOAuth2Events.on.mockImplementation(function(event, handler) {
       if (event === QwenOAuth2Event.AuthUri) {
         handleDeviceAuth = handler;
       }
@@ -338,7 +338,7 @@ describe('useQwenAuth', () => {
   it('should reset state when authentication stops', () => {
     let handleDeviceAuth: (deviceAuth: DeviceAuthorizationData) => void;
 
-    mockQwenOAuth2Events.on.mockImplementation((event, handler) => {
+    mockQwenOAuth2Events.on.mockImplementation(function(event, handler) {
       if (event === QwenOAuth2Event.AuthUri) {
         handleDeviceAuth = handler;
       }
@@ -370,7 +370,7 @@ describe('useQwenAuth', () => {
   it('should handle cancelQwenAuth function', () => {
     let handleDeviceAuth: (deviceAuth: DeviceAuthorizationData) => void;
 
-    mockQwenOAuth2Events.on.mockImplementation((event, handler) => {
+    mockQwenOAuth2Events.on.mockImplementation(function(event, handler) {
       if (event === QwenOAuth2Event.AuthUri) {
         handleDeviceAuth = handler;
       }

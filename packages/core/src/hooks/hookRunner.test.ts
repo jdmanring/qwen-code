@@ -49,20 +49,20 @@ describe('HookRunner', () => {
         end: vi.fn(),
       },
       stdout: {
-        on: vi.fn((event: string, callback: (data: Buffer) => void) => {
+        on: vi.fn(function(event: string, callback: (data: Buffer) => void) {
           if (event === 'data' && stdout) {
             setTimeout(() => callback(Buffer.from(stdout)), 0);
           }
         }),
       },
       stderr: {
-        on: vi.fn((event: string, callback: (data: Buffer) => void) => {
+        on: vi.fn(function(event: string, callback: (data: Buffer) => void) {
           if (event === 'data' && stderr) {
             setTimeout(() => callback(Buffer.from(stderr)), 0);
           }
         }),
       },
-      on: vi.fn((event: string, callback: (code: number) => void) => {
+      on: vi.fn(function(event: string, callback: (code: number) => void) {
         if (event === 'close') {
           setTimeout(() => callback(exitCode), 0);
         }
@@ -93,7 +93,7 @@ describe('HookRunner', () => {
 
     it('should execute hook and return success for exit code 0', async () => {
       const mockProcess = createMockProcess(0, 'hello');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -115,7 +115,7 @@ describe('HookRunner', () => {
 
     it('should return failure for non-zero exit code', async () => {
       const mockProcess = createMockProcess(1, '', 'error');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -140,7 +140,7 @@ describe('HookRunner', () => {
         systemMessage: 'test',
       });
       const mockProcess = createMockProcess(0, output);
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -162,7 +162,7 @@ describe('HookRunner', () => {
 
     it('should convert plain text to allow output on success', async () => {
       const mockProcess = createMockProcess(0, 'some text output');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -184,7 +184,7 @@ describe('HookRunner', () => {
 
     it('should convert plain text to deny output on exit code 2', async () => {
       const mockProcess = createMockProcess(2, '', 'error message');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -211,7 +211,7 @@ describe('HookRunner', () => {
         'stdout should be ignored',
         'stderr error message',
       );
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -243,7 +243,7 @@ describe('HookRunner', () => {
         },
       });
       const mockProcess = createMockProcess(2, 'stdout ignored', jsonOutput);
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -269,7 +269,7 @@ describe('HookRunner', () => {
 
     it('should fall back to plain text when stderr JSON is invalid on exit code 2', async () => {
       const mockProcess = createMockProcess(2, '', 'plain blocking error');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -297,7 +297,7 @@ describe('HookRunner', () => {
         '{"decision":"allow"}',
         'blocking error',
       );
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -320,7 +320,7 @@ describe('HookRunner', () => {
 
     it('should handle exit code 1 as non-blocking warning', async () => {
       const mockProcess = createMockProcess(1, '', 'warning');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -342,7 +342,7 @@ describe('HookRunner', () => {
 
     it('should include duration in result', async () => {
       const mockProcess = createMockProcess(0, 'test');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -365,14 +365,14 @@ describe('HookRunner', () => {
         stdin: { on: vi.fn(), write: vi.fn(), end: vi.fn() },
         stdout: { on: vi.fn() },
         stderr: { on: vi.fn() },
-        on: vi.fn((event: string, callback: (error: Error) => void) => {
+        on: vi.fn(function(event: string, callback: (error: Error) => void) {
           if (event === 'error') {
             callback(new Error('spawn error'));
           }
         }),
         kill: vi.fn(),
       };
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -416,7 +416,7 @@ describe('HookRunner', () => {
   describe('executeHooksParallel', () => {
     it('should execute multiple hooks in parallel', async () => {
       const mockProcess = createMockProcess(0, 'result');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfigs: HookConfig[] = [
         {
@@ -445,7 +445,7 @@ describe('HookRunner', () => {
 
     it('should call onHookStart and onHookEnd callbacks', async () => {
       const mockProcess = createMockProcess(0, 'result');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfigs: HookConfig[] = [
         {
@@ -474,7 +474,7 @@ describe('HookRunner', () => {
   describe('executeHooksSequential', () => {
     it('should execute hooks sequentially', async () => {
       const mockProcess = createMockProcess(0, 'result');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfigs: HookConfig[] = [
         {
@@ -503,7 +503,7 @@ describe('HookRunner', () => {
 
     it('should call onHookStart and onHookEnd callbacks', async () => {
       const mockProcess = createMockProcess(0, 'result');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfigs: HookConfig[] = [
         {
@@ -534,7 +534,7 @@ describe('HookRunner', () => {
       // Create a process that outputs more than 1MB of data
       const largeOutput = 'x'.repeat(2 * 1024 * 1024); // 2MB
       const mockProcess = createMockProcess(0, largeOutput);
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -556,7 +556,7 @@ describe('HookRunner', () => {
     it('should truncate stderr when exceeding MAX_OUTPUT_LENGTH', async () => {
       const largeOutput = 'x'.repeat(2 * 1024 * 1024); // 2MB
       const mockProcess = createMockProcess(0, '', largeOutput);
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -579,7 +579,7 @@ describe('HookRunner', () => {
       // Output exactly at the limit
       const exactOutput = 'x'.repeat(1024 * 1024); // 1MB exactly
       const mockProcess = createMockProcess(0, exactOutput);
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -601,7 +601,7 @@ describe('HookRunner', () => {
   describe('expandCommand', () => {
     it('should expand GEMINI_PROJECT_DIR placeholder', async () => {
       const mockProcess = createMockProcess(0, 'result');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -620,7 +620,7 @@ describe('HookRunner', () => {
 
     it('should expand CLAUDE_PROJECT_DIR placeholder for compatibility', async () => {
       const mockProcess = createMockProcess(0, 'result');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -638,7 +638,7 @@ describe('HookRunner', () => {
 
     it('should not modify command without placeholders', async () => {
       const mockProcess = createMockProcess(0, 'result');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -658,7 +658,7 @@ describe('HookRunner', () => {
   describe('convertPlainTextToHookOutput', () => {
     it('should convert plain text to allow output on success', async () => {
       const mockProcess = createMockProcess(0, 'plain text response');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -680,7 +680,7 @@ describe('HookRunner', () => {
 
     it('should treat non-blocking non-zero exit codes as non-blocking warnings', async () => {
       const mockProcess = createMockProcess(3, '', 'error message');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -702,7 +702,7 @@ describe('HookRunner', () => {
 
     it('should use stderr when stdout is empty on success', async () => {
       const mockProcess = createMockProcess(0, '', 'stderr output');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -722,7 +722,7 @@ describe('HookRunner', () => {
 
     it('should handle empty output gracefully', async () => {
       const mockProcess = createMockProcess(0, '', '');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -743,7 +743,7 @@ describe('HookRunner', () => {
     it('should parse nested JSON strings', async () => {
       const nestedJson = JSON.stringify(JSON.stringify({ decision: 'allow' }));
       const mockProcess = createMockProcess(0, nestedJson);
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -765,7 +765,7 @@ describe('HookRunner', () => {
   describe('shell configuration', () => {
     it('should use global shell configuration when hookConfig.shell is not specified', async () => {
       const mockProcess = createMockProcess(0, '{"continue": true}');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -786,7 +786,7 @@ describe('HookRunner', () => {
 
     it('should use bash shell when hookConfig.shell is bash', async () => {
       const mockProcess = createMockProcess(0, '{"continue": true}');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,
@@ -809,7 +809,7 @@ describe('HookRunner', () => {
 
     it('should use powershell when hookConfig.shell is powershell', async () => {
       const mockProcess = createMockProcess(0, '{"continue": true}');
-      mockSpawn.mockImplementation(() => mockProcess);
+      mockSpawn.mockImplementation(function() { return mockProcess; });
 
       const hookConfig: HookConfig = {
         type: HookType.Command,

@@ -89,7 +89,7 @@ describe('SkillTool', () => {
       listSkills: vi.fn().mockResolvedValue(mockSkills),
       loadSkill: vi.fn(),
       loadSkillForRuntime: vi.fn(),
-      addChangeListener: vi.fn((listener: () => void) => {
+      addChangeListener: vi.fn(function(listener: () => void) {
         changeListeners.push(listener);
         return () => {
           const index = changeListeners.indexOf(listener);
@@ -105,7 +105,7 @@ describe('SkillTool', () => {
       isSkillActive: vi.fn().mockReturnValue(true),
     } as unknown as SkillManager;
 
-    MockedSkillManager.mockImplementation(() => mockSkillManager);
+    MockedSkillManager.mockImplementation(function() { return mockSkillManager; });
 
     // Make config return the mock SkillManager
     vi.mocked(config.getSkillManager).mockReturnValue(mockSkillManager);
@@ -355,7 +355,7 @@ describe('SkillTool', () => {
       ]);
       // Simulate the skill being registered on disk but not yet activated.
       vi.mocked(mockSkillManager.isSkillActive).mockImplementation(
-        (s: SkillConfig) => !s.paths || s.paths.length === 0,
+        function(s: SkillConfig) { return !s.paths || s.paths.length === 0; },
       );
 
       const gatedTool = new SkillTool(config);
@@ -384,7 +384,7 @@ describe('SkillTool', () => {
         conditionalSkill,
       ]);
       vi.mocked(mockSkillManager.isSkillActive).mockImplementation(
-        (s: SkillConfig) => !s.paths || s.paths.length === 0,
+        function(s: SkillConfig) { return !s.paths || s.paths.length === 0; },
       );
       // SkillCommandLoader would surface tsx-helper here even though it is
       // a path-gated file-based skill.
