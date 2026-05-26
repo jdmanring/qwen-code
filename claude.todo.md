@@ -2,7 +2,7 @@
 
 _Separate from todo.md (Qwen upstream). This tracks Claude's work on monorepo maintenance._
 
-Last updated: 2026-05-26
+Last updated: 2026-05-26 (ESLint 10 upgrade complete)
 
 ---
 
@@ -23,6 +23,7 @@ Last updated: 2026-05-26
 | Phase H: vitest 3→4 + vite 5→6 | ✅ Committed, contributed to fork |
 | Phase I: web-tree-sitter 0.24→0.26 | ✅ Committed, contributed to fork |
 | Phase M: TypeScript 5.3→6.0 | ✅ Committed, contributed to fork |
+| Phase 54: ESLint 9→10 | ✅ Committed cc8d5b575 — `pnpm -w run check` is 0 errors |
 | QwenLM sync (11 commits) | ✅ LKG-20260526-0211 — integration → develop |
 | GitHub notifications | ✅ Cleared 2026-05-26 |
 | Pipeline: package-lock.json auto-resolve | ✅ Fixed in upstream_ingest_pipeline.py |
@@ -47,12 +48,8 @@ Policy: prepare contribution branches and push to fork, but never open PRs again
 
 | Task | Package | From | To | Risk |
 |---|---|---|---|---|
-| #54 | `eslint` | 9.39.4 | 10.4.0 | Low-Medium |
-| #54 | `@eslint/js` | 9.x | 10.0.1 | Low-Medium |
-| #54 | `eslint-plugin-react-hooks` | 5.2.0 | 7.1.1 | Low (Dependabot PR open) |
 | #55 | `vite` | 6.x | 8.x | Medium |
 | #55 | `@vitejs/plugin-react` | 4.7.0 | 6.0.2 | Medium (Dependabot PR open) |
-| #56 | `esbuild` | ~0.25.x | latest | Low |
 
 ### Deferred (user decision needed)
 
@@ -60,10 +57,37 @@ Policy: prepare contribution branches and push to fork, but never open PRs again
 |---|---|---|---|---|
 | `tailwindcss` | 3.4.19 | 4.3.0 | High | Config format changed in v4 (CSS vs JS); Dependabot PR open |
 
-### Already absorbed via upstream merges
+### Already done
 
-`@xterm/headless` 6, `chokidar` 5, `iconv-lite` 0.7, `comment-json` 5,
-`@anthropic-ai/sdk` 0.98, `@google/genai` 2.6, `@opentelemetry/*` 0.218
+| Package | Version | Notes |
+|---|---|---|
+| `eslint` | 10.4.0 | Phase 54 — cc8d5b575 |
+| `@eslint/js` | 10.0.1 | Phase 54 |
+| `eslint-plugin-react-hooks` | 7.1.1 | Phase 54 — compat bridge required |
+| `@eslint/compat` | 2.1.0 | Phase 54 — NEW; wraps react + import plugins |
+| `jiti` | 2.4.2 | Phase 54 — ESLint 10 peer dep |
+| `esbuild` | 0.28.0 | Already at latest; task #56 closed |
+| `@xterm/headless` | 6 | Absorbed via upstream |
+| `chokidar` | 5 | Absorbed via upstream |
+| `iconv-lite` | 0.7 | Absorbed via upstream |
+| `comment-json` | 5 | Absorbed via upstream |
+| `@anthropic-ai/sdk` | 0.98 | Absorbed via upstream |
+| `@google/genai` | 2.6 | Absorbed via upstream |
+| `@opentelemetry/*` | 0.218 | Absorbed via upstream |
+
+### ESLint 10 maintenance note
+
+`eslint-plugin-react` and `eslint-plugin-import` are wrapped with `@eslint/compat`
+`fixupConfigRules`/`fixupPluginRules` because they use context APIs removed in ESLint 10.
+Upstream fixes are in progress:
+- eslint-plugin-react PR #3979
+- eslint-plugin-import PR #3230
+
+When both land and new versions are published: remove the compat wrappers and `@eslint/compat`.
+Until then, **do not remove the fixup* wrappers** — lint will error out.
+
+13 react-hooks v7 rules and 2 ESLint 10 core rules are downgraded to `'warn'` in `eslint.config.js`.
+These are tracked — see `docs/meta/engineering-standards.md` Section 5 for the full list.
 
 ---
 
