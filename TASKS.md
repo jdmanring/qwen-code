@@ -43,7 +43,6 @@ Read at session start. Commit every status change.
 | ID | Subject | Description | Blocked By |
 | :--- | :--- | :--- | :--- |
 | #55 | Vite 6→8 + @vitejs/plugin-react 4→6 | Bump `vite` in `pnpm-workspace.yaml` overrides to 8.x. Bump `@vitejs/plugin-react` to 6.0.2 in root `package.json`. Run: `pnpm install` → `pnpm build` → `pnpm exec vitest run` → `pnpm check`. Then create fork branch `contribute/phase-55-vite-8`. | — |
-| #62 | Runtime independence: installer overhaul | Replace symlinks with physical copies to `~/.local/share/megalonyx/`. Create venv at `$STACK_ROOT/py/venv` via `uv venv --clear`. Update all `mega-` wrappers. Unify all components on `megalonyx_memory.sock`. File: `scripts/megalonyx/install-megalonyx-stack.sh` | — |
 
 ---
 
@@ -63,6 +62,10 @@ Read at session start. Commit every status change.
 
 | ID | Subject | Commit |
 | :--- | :--- | :--- |
+| #65 | Final isolation validation | 3dae91c77 |
+| #64 | Status tool hardening | 3dae91c77 |
+| #63 | Memory MCP restoration | 3dae91c77 |
+| #62 | Runtime independence: installer overhaul | 3dae91c77 |
 | #69 | Runtime Pathing Standards | — |
 | #68 | Onboarding Narrative | — |
 | #67 | Interface Specification | — |
