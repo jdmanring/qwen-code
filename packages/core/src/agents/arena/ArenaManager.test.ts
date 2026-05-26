@@ -42,14 +42,14 @@ vi.mock('../../services/gitWorktreeService.js', async (importOriginal) => {
     await importOriginal<
       typeof import('../../services/gitWorktreeService.js')
     >();
-  const MockClass = vi.fn().mockImplementation(function() { return {
+  const MockClass = vi.fn().mockImplementation(() => ({
     checkGitAvailable: vi.fn().mockResolvedValue({ available: true }),
     isGitRepository: vi.fn().mockResolvedValue(true),
     setupWorktrees: hoistedMockSetupWorktrees,
     cleanupSession: hoistedMockCleanupSession,
     getWorktreeDiff: hoistedMockGetWorktreeDiff,
     applyWorktreeChanges: hoistedMockApplyWorktreeChanges,
-  }; });
+  }));
   // Static methods called by ArenaManager
   (MockClass as unknown as Record<string, unknown>)['getBaseDir'] = () =>
     path.join(os.tmpdir(), 'arena-mock');
@@ -477,7 +477,7 @@ index 111..222 100644
         string,
         ReturnType<typeof createMockInteractive>
       >();
-      mockBackend.getAgent.mockImplementation(function(agentId: string) { return agentInteractives.get(agentId); },
+      mockBackend.getAgent.mockImplementation((agentId: string) => agentInteractives.get(agentId),
       );
       mockBackend.spawnAgent.mockImplementation(
         async (config: { agentId: string }) => {
@@ -586,7 +586,7 @@ function createMockBackend() {
     stopAgent: vi.fn(),
     stopAll: vi.fn(),
     cleanup: vi.fn().mockResolvedValue(undefined),
-    setOnAgentExit: vi.fn(function(cb: ExitCb) {
+    setOnAgentExit: vi.fn((cb: ExitCb) => {
       onAgentExit = cb;
     }),
     waitForAll: vi.fn().mockResolvedValue(true),

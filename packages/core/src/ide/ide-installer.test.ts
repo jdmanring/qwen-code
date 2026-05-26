@@ -12,7 +12,7 @@ vi.mock('node:child_process', async (importOriginal) => {
   return {
     ...actual,
     execSync: vi.fn(),
-    spawnSync: vi.fn(function() { return { status: 0 }; }),
+    spawnSync: vi.fn(() => ({ status: 0 })),
   };
 });
 vi.mock('node:fs');

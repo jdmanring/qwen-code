@@ -1068,7 +1068,7 @@ describe('BackgroundAgentResumeService', () => {
       setExternalMessageProvider: vi.fn(),
       setExternalMessageWaiter: vi.fn(),
       setExternalMessageWaitPredicate: vi.fn(),
-      getCore: vi.fn(function() {
+      getCore: vi.fn(() => {
         throw new Error('setup failed');
       }),
       getExecutionSummary: () => ({ totalTokens: 0, totalDurationMs: 0 }),

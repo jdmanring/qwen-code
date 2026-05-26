@@ -87,7 +87,7 @@ describe('InstallationManager', () => {
     it('should handle read errors and return a fallback ID', () => {
       vi.mocked(fs.existsSync).mockReturnValueOnce(true);
       const readSpy = vi.mocked(fs.readFileSync);
-      readSpy.mockImplementationOnce(function() {
+      readSpy.mockImplementationOnce(() => {
         throw new Error('Read error');
       });
 

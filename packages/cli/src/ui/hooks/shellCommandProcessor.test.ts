@@ -108,7 +108,7 @@ describe('useShellCommandProcessor', () => {
     mockIsBinary.mockReturnValue(false);
     vi.mocked(fs.existsSync).mockReturnValue(false);
 
-    mockShellExecutionService.mockImplementation(function(_cmd, _cwd, callback) {
+    mockShellExecutionService.mockImplementation((_cmd, _cwd, callback) => {
       mockShellOutputCallback = callback;
       return Promise.resolve({
         pid: 12345,
@@ -468,10 +468,10 @@ describe('useShellCommandProcessor', () => {
   it('should handle promise rejection and show an error', async () => {
     const { result } = renderProcessorHook();
     const testError = new Error('Unexpected failure');
-    mockShellExecutionService.mockImplementation(function() { return {
+    mockShellExecutionService.mockImplementation(() => ({
       pid: 12345,
       result: Promise.reject(testError),
-    }; });
+    }));
 
     act(() => {
       result.current.handleShellCommand(
@@ -494,7 +494,7 @@ describe('useShellCommandProcessor', () => {
 
   it('should handle synchronous errors during execution and clean up resources', async () => {
     const testError = new Error('Synchronous spawn error');
-    mockShellExecutionService.mockImplementation(function() {
+    mockShellExecutionService.mockImplementation(() => {
       throw testError;
     });
     // Mock that the temp file was created before the error was thrown
@@ -574,7 +574,7 @@ describe('useShellCommandProcessor', () => {
   describe('ActiveShellPtyId management', () => {
     beforeEach(() => {
       // The real service returns a promise that resolves with the pid and result promise
-      mockShellExecutionService.mockImplementation(function(_cmd, _cwd, callback) {
+      mockShellExecutionService.mockImplementation((_cmd, _cwd, callback) => {
         mockShellOutputCallback = callback;
         return Promise.resolve({
           pid: 12345,
@@ -699,7 +699,7 @@ describe('useShellCommandProcessor', () => {
     });
 
     it('should not set activeShellPtyId on synchronous execution error and should remain null', async () => {
-      mockShellExecutionService.mockImplementation(function() {
+      mockShellExecutionService.mockImplementation(() => {
         throw new Error('Sync Error');
       });
       const { result } = renderProcessorHook();
@@ -721,7 +721,7 @@ describe('useShellCommandProcessor', () => {
     });
 
     it('should not set activeShellPtyId if service does not return a PID', async () => {
-      mockShellExecutionService.mockImplementation(function(_cmd, _cwd, callback) {
+      mockShellExecutionService.mockImplementation((_cmd, _cwd, callback) => {
         mockShellOutputCallback = callback;
         return Promise.resolve({
           pid: undefined, // No PID

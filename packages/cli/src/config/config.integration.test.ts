@@ -43,9 +43,9 @@ vi.mock('@qwen-code/qwen-code-core', async () => {
   const actual = await vi.importActual('@qwen-code/qwen-code-core');
   return {
     ...actual,
-    FileDiscoveryService: vi.fn().mockImplementation(function() { return {
+    FileDiscoveryService: vi.fn().mockImplementation(() => ({
       initialize: vi.fn(),
-    }; }),
+    })),
     createToolRegistry: vi.fn().mockResolvedValue({}),
   };
 });

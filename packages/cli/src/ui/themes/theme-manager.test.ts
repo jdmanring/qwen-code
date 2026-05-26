@@ -36,11 +36,11 @@ vi.mock('node:os', async (importOriginal) => {
   return {
     ...actualOs,
     homedir: vi.fn(),
-    platform: vi.fn(function() { return 'linux'; }),
+    platform: vi.fn(() => 'linux'),
   };
 });
 vi.mock('./detect-terminal-theme.js', () => ({
-  detectTerminalTheme: vi.fn(function() { return 'dark'; }),
+  detectTerminalTheme: vi.fn(() => 'dark'),
   detectTerminalThemeAsync: vi.fn(async () => 'dark'),
 }));
 
@@ -203,7 +203,7 @@ describe('ThemeManager', () => {
 
     beforeEach(() => {
       vi.mocked(os.homedir).mockReturnValue('/home/user');
-      vi.mocked(fs.realpathSync).mockImplementation(function(p) { return p as string; });
+      vi.mocked(fs.realpathSync).mockImplementation((p) => p as string);
     });
 
     it('should load a theme from a valid file path', () => {

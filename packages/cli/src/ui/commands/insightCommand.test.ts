@@ -15,9 +15,9 @@ import { createMockCommandContext } from '../../test-utils/mockCommandContext.js
 const mockGenerateStaticInsight = vi.fn();
 
 vi.mock('../../services/insight/generators/StaticInsightGenerator.js', () => ({
-  StaticInsightGenerator: vi.fn(function() { return {
+  StaticInsightGenerator: vi.fn(() => ({
     generateStaticInsight: mockGenerateStaticInsight,
-  }; }),
+  })),
 }));
 
 vi.mock('open', () => ({

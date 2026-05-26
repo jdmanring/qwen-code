@@ -20,7 +20,7 @@ const debugLoggerMock = vi.hoisted(() => ({
 }));
 
 vi.mock('../utils/debugLogger.js', () => ({
-  createDebugLogger: vi.fn(function() { return debugLoggerMock; }),
+  createDebugLogger: vi.fn(() => debugLoggerMock),
 }));
 
 const serverConfig: LspServerConfig = {

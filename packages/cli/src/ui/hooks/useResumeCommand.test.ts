@@ -41,11 +41,11 @@ const resumeMocks = vi.hoisted(() => {
 });
 
 vi.mock('../utils/resumeHistoryUtils.js', () => ({
-  buildResumedHistoryItems: vi.fn(function() { return [{ id: 1, type: 'user', text: 'hi' }]; }),
+  buildResumedHistoryItems: vi.fn(() => [{ id: 1, type: 'user', text: 'hi' }]),
 }));
 
 vi.mock('../utils/restoreGoal.js', () => ({
-  restoreGoalFromHistory: vi.fn(function() { return { restored: false }; }),
+  restoreGoalFromHistory: vi.fn(() => ({ restored: false })),
 }));
 
 vi.mock('@qwen-code/qwen-code-core', () => {

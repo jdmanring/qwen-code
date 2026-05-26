@@ -178,7 +178,7 @@ describe('runForkedAgent (cache path)', () => {
     let capturedParams: unknown = null;
 
     const mockSendMessageStream = vi.fn(
-      function(_model: string, params: unknown, _promptId: string) {
+      (_model: string, params: unknown, _promptId: string) => {
         capturedParams = params;
         async function* generate() {
           yield {
@@ -237,7 +237,10 @@ describe('runForkedAgent (cache path)', () => {
     expect(ctorArgs[4]).toBeUndefined(); // telemetryService
 
     // Verify sendMessageStream was called
-    expect(mockSendMessageStream).toHaveBeenCalledOnce();
+    expect(mockSendMessageStream).toHaveBeenCalledExactlyOnceWith('test-model', expect.objectContaining({
+        message: [{ text: 'suggest something' }],
+        config: expect.objectContaining({ tools: [] }),
+      }), 'forked_query');
     expect(capturedParams).not.toBeNull();
 
     // KEY ASSERTION: per-request config must have tools: [] to prevent
@@ -247,14 +250,6 @@ describe('runForkedAgent (cache path)', () => {
     expect(sendParams.config!.tools).toEqual([]);
 
     // Verify prompt_id is 'forked_query' and message is passed correctly
-    expect(mockSendMessageStream).toHaveBeenCalledWith(
-      'test-model',
-      expect.objectContaining({
-        message: [{ text: 'suggest something' }],
-        config: expect.objectContaining({ tools: [] }),
-      }),
-      'forked_query',
-    );
 
     // Verify result is correct
     expect(result.text).toBe('commit this');
@@ -274,7 +269,7 @@ describe('runForkedAgent (cache path)', () => {
     let capturedParams: unknown = null;
 
     const mockSendMessageStream = vi.fn(
-      function(_model: string, params: unknown, _promptId: string) {
+      (_model: string, params: unknown, _promptId: string) => {
         capturedParams = params;
         async function* generate() {
           yield {
@@ -347,7 +342,7 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     const mockSendMessageStream = vi.fn(
-      function(_model: string, _params: unknown, _promptId: string) {
+      (_model: string, _params: unknown, _promptId: string) => {
         async function* generate() {
           yield {
             type: StreamEventType.CHUNK,
@@ -432,7 +427,7 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     const mockSendMessageStream = vi.fn(
-      function(_model: string, _params: unknown, _promptId: string) {
+      (_model: string, _params: unknown, _promptId: string) => {
         async function* generate() {
           yield {
             type: StreamEventType.CHUNK,
@@ -521,7 +516,7 @@ describe('runForkedAgent (cache path)', () => {
 
     let capturedModel: string | undefined;
     const mockSendMessageStream = vi.fn(
-      function(model: string, _params: unknown, _promptId: string) {
+      (model: string, _params: unknown, _promptId: string) => {
         capturedModel = model;
         async function* generate() {
           yield {
@@ -555,7 +550,7 @@ describe('runForkedAgent (cache path)', () => {
         authType: AuthType.QWEN_OAUTH,
       }),
       getFastModel: vi.fn().mockReturnValue(undefined),
-      getAllConfiguredModels: vi.fn(function() { return []; }),
+      getAllConfiguredModels: vi.fn(() => []),
     } as unknown as Config;
 
     await runForkedAgent({

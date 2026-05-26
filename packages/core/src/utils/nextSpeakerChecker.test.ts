@@ -20,10 +20,10 @@ const mockFileSystem = new Map<string, string>();
 vi.mock('node:fs', () => {
   const fsModule = {
     mkdirSync: vi.fn(),
-    writeFileSync: vi.fn(function(path: string, data: string) {
+    writeFileSync: vi.fn((path: string, data: string) => {
       mockFileSystem.set(path, data);
     }),
-    readFileSync: vi.fn(function(path: string) {
+    readFileSync: vi.fn((path: string) => {
       if (mockFileSystem.has(path)) {
         return mockFileSystem.get(path);
       }
@@ -31,7 +31,7 @@ vi.mock('node:fs', () => {
         code: 'ENOENT',
       });
     }),
-    existsSync: vi.fn(function(path: string) { return mockFileSystem.has(path); }),
+    existsSync: vi.fn((path: string) => mockFileSystem.has(path)),
     appendFileSync: vi.fn(),
   };
 
@@ -193,7 +193,7 @@ describe('checkNextSpeaker', () => {
   it('should return null if baseLlmClient.generateJson throws an error', async () => {
     const consoleWarnSpy = vi
       .spyOn(console, 'warn')
-      .mockImplementation(function() {});
+      .mockImplementation(() => {});
     mockChatHistory([
       { role: 'model', parts: [{ text: 'Some model output.' }] },
     ] as Content[]);

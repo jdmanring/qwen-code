@@ -51,7 +51,7 @@ describe('extensionSettings', () => {
     vi.clearAllMocks();
     mockKeychainData = {};
     vi.mocked(KeychainTokenStorage).mockImplementation(
-      function(serviceName: string) {
+      (serviceName: string) => {
         if (!mockKeychainData[serviceName]) {
           mockKeychainData[serviceName] = {};
         }

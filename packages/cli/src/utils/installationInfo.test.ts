@@ -66,7 +66,7 @@ describe('getInstallationInfo', () => {
   it('should return UNKNOWN if realpathSync fails', () => {
     process.argv[1] = '/path/to/cli';
     const error = new Error('realpath failed');
-    mockedRealPathSync.mockImplementation(function() {
+    mockedRealPathSync.mockImplementation(() => {
       throw error;
     });
 
@@ -119,7 +119,7 @@ describe('getInstallationInfo', () => {
     const bunxPath = `/Users/test/.bun/install/cache/12345/bin/gemini`;
     process.argv[1] = bunxPath;
     mockedRealPathSync.mockReturnValue(bunxPath);
-    mockedExecSync.mockImplementation(function() {
+    mockedExecSync.mockImplementation(() => {
       throw new Error('Command failed');
     });
 
@@ -157,7 +157,7 @@ describe('getInstallationInfo', () => {
     const cliPath = '/usr/local/bin/gemini';
     process.argv[1] = cliPath;
     mockedRealPathSync.mockReturnValue(cliPath);
-    mockedExecSync.mockImplementation(function() {
+    mockedExecSync.mockImplementation(() => {
       throw new Error('Command failed');
     });
 
@@ -176,7 +176,7 @@ describe('getInstallationInfo', () => {
     const pnpmPath = `/Users/test/.pnpm/global/5/node_modules/.pnpm/some-hash/node_modules/@qwen-code/qwen-code/dist/index.js`;
     process.argv[1] = pnpmPath;
     mockedRealPathSync.mockReturnValue(pnpmPath);
-    mockedExecSync.mockImplementation(function() {
+    mockedExecSync.mockImplementation(() => {
       throw new Error('Command failed');
     });
 
@@ -196,7 +196,7 @@ describe('getInstallationInfo', () => {
     const yarnPath = `/Users/test/.yarn/global/node_modules/@qwen-code/qwen-code/dist/index.js`;
     process.argv[1] = yarnPath;
     mockedRealPathSync.mockReturnValue(yarnPath);
-    mockedExecSync.mockImplementation(function() {
+    mockedExecSync.mockImplementation(() => {
       throw new Error('Command failed');
     });
 
@@ -218,7 +218,7 @@ describe('getInstallationInfo', () => {
     const bunPath = `/Users/test/.bun/bin/gemini`;
     process.argv[1] = bunPath;
     mockedRealPathSync.mockReturnValue(bunPath);
-    mockedExecSync.mockImplementation(function() {
+    mockedExecSync.mockImplementation(() => {
       throw new Error('Command failed');
     });
 
@@ -238,11 +238,11 @@ describe('getInstallationInfo', () => {
     const localPath = `${projectRoot}/node_modules/.bin/gemini`;
     process.argv[1] = localPath;
     mockedRealPathSync.mockReturnValue(localPath);
-    mockedExecSync.mockImplementation(function() {
+    mockedExecSync.mockImplementation(() => {
       throw new Error('Command failed');
     });
     mockedExistsSync.mockImplementation(
-      function(p) { return p === path.join(projectRoot, 'yarn.lock'); },
+      (p) => p === path.join(projectRoot, 'yarn.lock'),
     );
 
     const info = getInstallationInfo(projectRoot, false);
@@ -256,11 +256,11 @@ describe('getInstallationInfo', () => {
     const localPath = `${projectRoot}/node_modules/.bin/gemini`;
     process.argv[1] = localPath;
     mockedRealPathSync.mockReturnValue(localPath);
-    mockedExecSync.mockImplementation(function() {
+    mockedExecSync.mockImplementation(() => {
       throw new Error('Command failed');
     });
     mockedExistsSync.mockImplementation(
-      function(p) { return p === path.join(projectRoot, 'pnpm-lock.yaml'); },
+      (p) => p === path.join(projectRoot, 'pnpm-lock.yaml'),
     );
 
     const info = getInstallationInfo(projectRoot, false);
@@ -273,11 +273,11 @@ describe('getInstallationInfo', () => {
     const localPath = `${projectRoot}/node_modules/.bin/gemini`;
     process.argv[1] = localPath;
     mockedRealPathSync.mockReturnValue(localPath);
-    mockedExecSync.mockImplementation(function() {
+    mockedExecSync.mockImplementation(() => {
       throw new Error('Command failed');
     });
     mockedExistsSync.mockImplementation(
-      function(p) { return p === path.join(projectRoot, 'bun.lockb'); },
+      (p) => p === path.join(projectRoot, 'bun.lockb'),
     );
 
     const info = getInstallationInfo(projectRoot, false);
@@ -290,7 +290,7 @@ describe('getInstallationInfo', () => {
     const localPath = `${projectRoot}/node_modules/.bin/gemini`;
     process.argv[1] = localPath;
     mockedRealPathSync.mockReturnValue(localPath);
-    mockedExecSync.mockImplementation(function() {
+    mockedExecSync.mockImplementation(() => {
       throw new Error('Command failed');
     });
     mockedExistsSync.mockReturnValue(false); // No lockfiles
@@ -305,7 +305,7 @@ describe('getInstallationInfo', () => {
     const globalPath = `/usr/local/bin/gemini`;
     process.argv[1] = globalPath;
     mockedRealPathSync.mockReturnValue(globalPath);
-    mockedExecSync.mockImplementation(function() {
+    mockedExecSync.mockImplementation(() => {
       throw new Error('Command failed');
     });
 

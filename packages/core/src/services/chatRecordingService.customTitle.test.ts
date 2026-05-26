@@ -20,11 +20,11 @@ vi.mock('node:path');
 vi.mock('node:child_process');
 vi.mock('node:crypto', () => ({
   randomUUID: vi.fn(),
-  createHash: vi.fn(function() { return {
-    update: vi.fn(function() { return {
-      digest: vi.fn(function() { return 'mocked-hash'; }),
-    }; }),
-  }; }),
+  createHash: vi.fn(() => ({
+    update: vi.fn(() => ({
+      digest: vi.fn(() => 'mocked-hash'),
+    })),
+  })),
 }));
 vi.mock('../utils/jsonl-utils.js');
 
@@ -64,17 +64,17 @@ describe('ChatRecordingService - recordCustomTitle', () => {
     } as unknown as Config;
 
     vi.mocked(randomUUID).mockImplementation(
-      function() { return `00000000-0000-0000-0000-00000000000${++uuidCounter}` as `${string}-${string}-${string}-${string}-${string}`; },
+      () => `00000000-0000-0000-0000-00000000000${++uuidCounter}` as `${string}-${string}-${string}-${string}-${string}`,
     );
-    vi.mocked(path.join).mockImplementation(function(...args) { return args.join('/'); });
-    vi.mocked(path.dirname).mockImplementation(function(p) {
+    vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
+    vi.mocked(path.dirname).mockImplementation((p) => {
       const parts = p.split('/');
       parts.pop();
       return parts.join('/');
     });
     vi.mocked(execSync).mockReturnValue('main\n');
-    vi.spyOn(fs, 'mkdirSync').mockImplementation(function() { return undefined; });
-    vi.spyOn(fs, 'writeFileSync').mockImplementation(function() { return undefined; });
+    vi.spyOn(fs, 'mkdirSync').mockImplementation(() => undefined);
+    vi.spyOn(fs, 'writeFileSync').mockImplementation(() => undefined);
     vi.spyOn(fs, 'existsSync').mockReturnValue(false);
 
     chatRecordingService = new ChatRecordingService(mockConfig);

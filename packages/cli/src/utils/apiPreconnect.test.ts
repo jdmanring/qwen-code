@@ -12,7 +12,7 @@ const { mockGetOrCreateSharedDispatcher, mockDebugLogger } = vi.hoisted(() => {
   const dispatcher = { fake: 'dispatcher' };
   const mockDebugLogger = { debug: vi.fn() };
   return {
-    mockGetOrCreateSharedDispatcher: vi.fn(function() { return dispatcher; }),
+    mockGetOrCreateSharedDispatcher: vi.fn(() => dispatcher),
     mockDebugLogger,
   };
 });
@@ -307,7 +307,7 @@ describe('apiPreconnect', () => {
     });
 
     it('should handle synchronous dispatcher errors gracefully', () => {
-      mockGetOrCreateSharedDispatcher.mockImplementation(function() {
+      mockGetOrCreateSharedDispatcher.mockImplementation(() => {
         throw new Error('Failed to create dispatcher');
       });
       expect(() =>
@@ -316,7 +316,7 @@ describe('apiPreconnect', () => {
     });
 
     it('should redact proxy credentials from synchronous dispatcher errors', () => {
-      mockGetOrCreateSharedDispatcher.mockImplementation(function() {
+      mockGetOrCreateSharedDispatcher.mockImplementation(() => {
         throw new Error('connect ECONNREFUSED user:pass@proxy.local:8080');
       });
 

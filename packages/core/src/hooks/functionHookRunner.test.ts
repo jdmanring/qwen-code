@@ -334,7 +334,7 @@ describe('FunctionHookRunner', () => {
 
     it('should handle onHookSuccess error gracefully', async () => {
       const mockCallback = vi.fn().mockResolvedValue(true);
-      const onSuccess = vi.fn().mockImplementation(function() {
+      const onSuccess = vi.fn().mockImplementation(() => {
         throw new Error('Success callback error');
       });
       const config = createMockConfig(mockCallback, {

@@ -60,8 +60,8 @@ describe('SessionService - rename and custom title', () => {
 
   beforeEach(() => {
     vi.mocked(getProjectHash).mockReturnValue('test-project-hash');
-    vi.mocked(path.join).mockImplementation(function(...args) { return args.join('/'); });
-    vi.mocked(path.dirname).mockImplementation(function(p) {
+    vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
+    vi.mocked(path.dirname).mockImplementation((p) => {
       const parts = p.split('/');
       parts.pop();
       return parts.join('/');
@@ -79,11 +79,11 @@ describe('SessionService - rename and custom title', () => {
     );
     vi.spyOn(fs, 'openSync').mockReturnValue(42);
     readSyncSpy = vi.spyOn(fs, 'readSync').mockReturnValue(0);
-    vi.spyOn(fs, 'closeSync').mockImplementation(function() { return undefined; });
+    vi.spyOn(fs, 'closeSync').mockImplementation(() => undefined);
 
     vi.mocked(jsonl.read).mockResolvedValue([]);
     vi.mocked(jsonl.readLines).mockResolvedValue([]);
-    vi.mocked(jsonl.writeLineSync).mockImplementation(function() { return undefined; });
+    vi.mocked(jsonl.writeLineSync).mockImplementation(() => undefined);
   });
 
   afterEach(() => {
@@ -175,7 +175,7 @@ describe('SessionService - rename and custom title', () => {
 
       readSyncSpy.mockImplementation(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function(_fd: number, buffer: any) {
+        (_fd: number, buffer: any) => {
           const data = Buffer.from(titleRecord + '\n');
           data.copy(buffer);
           return data.length;
@@ -206,7 +206,7 @@ describe('SessionService - rename and custom title', () => {
 
       readSyncSpy.mockImplementation(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function(_fd: number, buffer: any) {
+        (_fd: number, buffer: any) => {
           const data = Buffer.from(content);
           data.copy(buffer);
           return data.length;
@@ -230,7 +230,7 @@ describe('SessionService - rename and custom title', () => {
 
       readSyncSpy.mockImplementation(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function(_fd: number, buffer: any) {
+        (_fd: number, buffer: any) => {
           const data = Buffer.from(userRecord + '\n');
           data.copy(buffer);
           return data.length;
@@ -242,7 +242,7 @@ describe('SessionService - rename and custom title', () => {
     });
 
     it('should return undefined when file does not exist', () => {
-      statSyncSpy.mockImplementation(function() {
+      statSyncSpy.mockImplementation(() => {
         throw new Error('ENOENT');
       });
 
@@ -268,7 +268,7 @@ describe('SessionService - rename and custom title', () => {
         >,
       );
 
-      statSyncSpy.mockImplementation(function(filePath: fs.PathLike) {
+      statSyncSpy.mockImplementation((filePath: fs.PathLike) => {
         const p = filePath.toString();
         const session = sessions.find((s) => p.includes(s.id));
         return {
@@ -309,7 +309,7 @@ describe('SessionService - rename and custom title', () => {
       // Override readSync to return title for session A
       readSyncSpy.mockImplementation(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function(_fd: number, buffer: any) {
+        (_fd: number, buffer: any) => {
           const data = Buffer.from(titleContent);
           data.copy(buffer);
           return data.length;
@@ -342,7 +342,7 @@ describe('SessionService - rename and custom title', () => {
 
       readSyncSpy.mockImplementation(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function(_fd: number, buffer: any) {
+        (_fd: number, buffer: any) => {
           const data = Buffer.from(titleContent);
           data.copy(buffer);
           return data.length;
@@ -417,7 +417,7 @@ describe('SessionService - rename and custom title', () => {
 
       readSyncSpy.mockImplementation(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function(_fd: number, buffer: any) {
+        (_fd: number, buffer: any) => {
           const data = Buffer.from(titleContent);
           data.copy(buffer);
           return data.length;
@@ -444,7 +444,7 @@ describe('SessionService - rename and custom title', () => {
         `${sessionIdB}.jsonl`,
       ] as unknown as Array<fs.Dirent<Buffer>>);
 
-      statSyncSpy.mockImplementation(function(filePath: fs.PathLike) {
+      statSyncSpy.mockImplementation((filePath: fs.PathLike) => {
         const p = filePath.toString();
         return {
           mtimeMs: p.includes(sessionIdB) ? now : now - 1000,
@@ -462,7 +462,7 @@ describe('SessionService - rename and custom title', () => {
 
       readSyncSpy.mockImplementation(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function(_fd: number, buffer: any) {
+        (_fd: number, buffer: any) => {
           const data = Buffer.from(titleContent);
           data.copy(buffer);
           return data.length;
@@ -499,7 +499,7 @@ describe('SessionService - rename and custom title', () => {
 
       readSyncSpy.mockImplementation(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function(_fd: number, buffer: any) {
+        (_fd: number, buffer: any) => {
           const data = Buffer.from(titleContent);
           data.copy(buffer);
           return data.length;
@@ -529,7 +529,7 @@ describe('SessionService - rename and custom title', () => {
 
       readSyncSpy.mockImplementation(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function(_fd: number, _buffer: any) { return 0; },
+        (_fd: number, _buffer: any) => 0,
       );
 
       const result = await sessionService.listSessions();
@@ -565,7 +565,7 @@ describe('SessionService - rename and custom title', () => {
 
       readSyncSpy.mockImplementation(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function(_fd: number, buffer: any) {
+        (_fd: number, buffer: any) => {
           const data = Buffer.from(titleContent);
           data.copy(buffer);
           return data.length;
@@ -604,7 +604,7 @@ describe('SessionService - rename and custom title', () => {
 
       readSyncSpy.mockImplementation(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function(_fd: number, buffer: any) {
+        (_fd: number, buffer: any) => {
           const data = Buffer.from(titleContent);
           data.copy(buffer);
           return data.length;

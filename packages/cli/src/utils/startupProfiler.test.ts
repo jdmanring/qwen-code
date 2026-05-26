@@ -212,7 +212,7 @@ describe('startupProfiler', () => {
     });
 
     it('should not throw when file write fails', () => {
-      vi.mocked(fs.mkdirSync).mockImplementation(function() {
+      vi.mocked(fs.mkdirSync).mockImplementation(() => {
         throw new Error('Permission denied');
       });
       const stderrSpy = vi.spyOn(process.stderr, 'write').mockReturnValue(true);

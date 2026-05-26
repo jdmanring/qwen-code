@@ -991,13 +991,13 @@ describe('subagent.ts', () => {
           description: 'List files in directory',
           kind: 'READ' as const,
           schema: listFilesToolDef,
-          build: vi.fn().mockImplementation(function() { return listFilesInvocation; }),
+          build: vi.fn().mockImplementation(() => listFilesInvocation),
           canUpdateOutput: false,
           isOutputMarkdown: true,
         } as unknown as AnyDeclarativeTool;
         vi.mocked(
           (config.getToolRegistry() as unknown as ToolRegistry).getTool,
-        ).mockImplementation(function(name: string) { return name === 'list_files' ? listFilesTool : undefined; },
+        ).mockImplementation((name: string) => name === 'list_files' ? listFilesTool : undefined,
         );
 
         const scope = await AgentHeadless.create(
@@ -1342,7 +1342,7 @@ describe('subagent.ts', () => {
           description: 'Read file contents',
           kind: 'READ' as const,
           schema: readFileToolDef,
-          build: vi.fn().mockImplementation(function() { return readFileInvocation; }),
+          build: vi.fn().mockImplementation(() => readFileInvocation),
           canUpdateOutput: false,
           isOutputMarkdown: true,
         } as unknown as AnyDeclarativeTool;
@@ -1353,7 +1353,7 @@ describe('subagent.ts', () => {
           description: 'Edit file contents',
           kind: 'WRITE' as const,
           schema: editFileToolDef,
-          build: vi.fn().mockImplementation(function() { return editFileInvocation; }),
+          build: vi.fn().mockImplementation(() => editFileInvocation),
           canUpdateOutput: false,
           isOutputMarkdown: true,
         } as unknown as AnyDeclarativeTool;
@@ -1367,7 +1367,7 @@ describe('subagent.ts', () => {
           getFunctionDeclarations: vi
             .fn()
             .mockReturnValue([readFileToolDef, editFileToolDef]),
-          getTool: vi.fn().mockImplementation(function(name: string) {
+          getTool: vi.fn().mockImplementation((name: string) => {
             if (name === 'read_file') return readFileTool;
             if (name === 'edit_file') return editFileTool;
             return undefined;
@@ -1459,7 +1459,7 @@ describe('subagent.ts', () => {
           getFunctionDeclarationsFiltered: vi
             .fn()
             .mockReturnValue([writeFileToolDef]),
-          getTool: vi.fn().mockImplementation(function(name: string) {
+          getTool: vi.fn().mockImplementation((name: string) => {
             if (name === WriteFileTool.Name) {
               return new WriteFileTool(config);
             }
@@ -1553,7 +1553,7 @@ describe('subagent.ts', () => {
           getFunctionDeclarationsFiltered: vi
             .fn()
             .mockReturnValue([writeFileToolDef]),
-          getTool: vi.fn().mockImplementation(function(name: string) {
+          getTool: vi.fn().mockImplementation((name: string) => {
             if (name === WriteFileTool.Name) {
               return new WriteFileTool(config);
             }

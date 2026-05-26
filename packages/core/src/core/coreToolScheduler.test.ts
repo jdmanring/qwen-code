@@ -141,13 +141,13 @@ function createMockToolSpan(
 
 vi.mock('../telemetry/session-tracing.js', () => ({
   startToolSpan: vi.fn(
-    function(name: string, attrs?: Record<string, string | number | boolean>) { return createMockToolSpan(`tool.${name}`, { tool_name: name, ...attrs }); },
+    (name: string, attrs?: Record<string, string | number | boolean>) => createMockToolSpan(`tool.${name}`, { tool_name: name, ...attrs }),
   ),
   endToolSpan: vi.fn(
-    function(
+    (
       span: ToolSpanRecord & ReturnType<typeof createMockToolSpan>,
       metadata?: { success?: boolean; error?: string },
-    ) {
+    ) => {
       if (metadata) {
         span.endMetadata = metadata;
         const status =
@@ -160,12 +160,12 @@ vi.mock('../telemetry/session-tracing.js', () => ({
     },
   ),
   runInToolSpanContext: vi.fn(<T>(_span: unknown, fn: () => T): T => fn()),
-  startToolExecutionSpan: vi.fn(function() { return createMockToolSpan('tool.execution', {}); }),
+  startToolExecutionSpan: vi.fn(() => createMockToolSpan('tool.execution', {})),
   endToolExecutionSpan: vi.fn(
-    function(
+    (
       span: ToolSpanRecord & ReturnType<typeof createMockToolSpan>,
       metadata?: { success?: boolean; error?: string; cancelled?: boolean },
-    ) {
+    ) => {
       if (metadata) {
         span.endMetadata = metadata;
       }
@@ -173,7 +173,7 @@ vi.mock('../telemetry/session-tracing.js', () => ({
     },
   ),
   startToolBlockedOnUserSpan: vi.fn(
-    function(_toolSpan: unknown, attrs?: { tool_name?: string; call_id?: string }) {
+    (_toolSpan: unknown, attrs?: { tool_name?: string; call_id?: string }) => {
       const extra: Record<string, string | number | boolean> = {};
       if (attrs?.tool_name !== undefined) extra['tool.name'] = attrs.tool_name;
       if (attrs?.call_id !== undefined) extra['tool.call_id'] = attrs.call_id;
@@ -181,10 +181,10 @@ vi.mock('../telemetry/session-tracing.js', () => ({
     },
   ),
   endToolBlockedOnUserSpan: vi.fn(
-    function(
+    (
       span: ToolSpanRecord & ReturnType<typeof createMockToolSpan>,
       metadata?: { decision?: string; source?: string },
-    ) {
+    ) => {
       if (metadata) {
         span.blockedMetadata = metadata;
       }
@@ -192,12 +192,12 @@ vi.mock('../telemetry/session-tracing.js', () => ({
     },
   ),
   startHookSpan: vi.fn(
-    function(opts: {
+    (opts: {
       hookEvent: string;
       toolName: string;
       toolUseId?: string;
       isInterrupt?: boolean;
-    }) {
+    }) => {
       const attrs: Record<string, string | number | boolean> = {
         hook_event: opts.hookEvent,
         'tool.name': opts.toolName,
@@ -209,10 +209,10 @@ vi.mock('../telemetry/session-tracing.js', () => ({
     },
   ),
   endHookSpan: vi.fn(
-    function(
+    (
       span: ToolSpanRecord & ReturnType<typeof createMockToolSpan>,
       metadata?: ToolSpanRecord['hookMetadata'],
-    ) {
+    ) => {
       if (metadata) {
         span.hookMetadata = metadata;
       }
@@ -2070,7 +2070,7 @@ describe('CoreToolScheduler request queueing', () => {
       resolveFirstCall = resolve;
     });
 
-    const executeFn = vi.fn().mockImplementation(function() { return firstCallPromise; });
+    const executeFn = vi.fn().mockImplementation(() => firstCallPromise);
     const mockTool = new MockTool({ name: 'mockTool', execute: executeFn });
     const declarativeTool = mockTool;
 
@@ -3516,7 +3516,7 @@ describe('CoreToolScheduler telemetry spans', () => {
     // (review-6 wenshao).
     const sessionTracing = await import('../telemetry/session-tracing.js');
     const truncateSpy = vi.mocked(sessionTracing.truncateSpanError);
-    truncateSpy.mockImplementationOnce(function() { return '<<TRUNCATED-SENTINEL>>'; });
+    truncateSpy.mockImplementationOnce(() => '<<TRUNCATED-SENTINEL>>');
 
     const messageBus = {
       request: vi.fn().mockResolvedValue({
@@ -3546,7 +3546,7 @@ describe('CoreToolScheduler telemetry spans', () => {
 
     // Restore default identity behaviour so other tests aren't affected.
     truncateSpy.mockReset();
-    truncateSpy.mockImplementation(function(s) { return s; });
+    truncateSpy.mockImplementation((s) => s);
   });
 
   it('marks post-hook stop with a sanitized failure kind', async () => {
@@ -5090,7 +5090,7 @@ describe('CoreToolScheduler telemetry spans', () => {
       getUseModelRouter: () => false,
       getGeminiClient: () => null,
       getChatRecordingService: () => undefined,
-      getMessageBus: vi.fn(function() {
+      getMessageBus: vi.fn(() => {
         throw new Error('prelude boom — getMessageBus throws');
       }),
       getDisableAllHooks: vi.fn().mockReturnValue(false),

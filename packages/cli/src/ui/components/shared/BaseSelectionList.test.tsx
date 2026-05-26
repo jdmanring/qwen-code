@@ -57,10 +57,10 @@ describe('BaseSelectionList', () => {
     });
 
     mockRenderItem.mockImplementation(
-      function(
+      (
         item: { value: string; label: string; disabled?: boolean; key: string },
         context: RenderItemContext,
-      ) { return <Text color={context.titleColor}>{item.label}</Text>; },
+      ) => <Text color={context.titleColor}>{item.label}</Text>,
     );
 
     const defaultProps: BaseSelectionListProps<

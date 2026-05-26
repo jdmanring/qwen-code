@@ -139,7 +139,7 @@ describe('BackgroundTaskRegistry', () => {
   it('persists explicit cancellations as cancelled sidecar state', () => {
     const patchSpy = vi
       .spyOn(transcript, 'patchAgentMeta')
-      .mockImplementation(function() { return undefined; });
+      .mockImplementation(() => undefined);
     try {
       registry.register({
         agentId: 'test-1',
@@ -1217,7 +1217,7 @@ describe('BackgroundTaskRegistry', () => {
         get aborted() {
           return aborted;
         },
-        addEventListener: vi.fn(function() {
+        addEventListener: vi.fn(() => {
           aborted = true;
         }),
         removeEventListener: vi.fn(),

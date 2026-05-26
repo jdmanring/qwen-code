@@ -602,15 +602,10 @@ describe('MonitorTool', () => {
       const signal = new AbortController().signal;
       const result = await invocation.execute(signal);
 
-      expect(mockSpawn).toHaveBeenCalledOnce();
-      expect(mockSpawn).toHaveBeenCalledWith(
-        '/bin/bash',
-        ['-c', 'tail -f /var/log/app.log'],
-        expect.objectContaining({
+      expect(mockSpawn).toHaveBeenCalledExactlyOnceWith('/bin/bash', ['-c', 'tail -f /var/log/app.log'], expect.objectContaining({
           cwd: '/test/dir',
           detached: true,
-        }),
-      );
+        }));
       expect(result.llmContent).toContain('Monitor started');
       expect(result.llmContent).toContain('mon_');
       expect(result.returnDisplay).toContain('watch app logs');
@@ -761,10 +756,10 @@ describe('MonitorTool', () => {
       });
       const killSpy = vi
         .spyOn(process, 'kill')
-        .mockImplementation(function() { return true as never; });
+        .mockImplementation(() => true as never);
       const registerSpy = vi
         .spyOn(monitorRegistry, 'register')
-        .mockImplementation(function() {
+        .mockImplementation(() => {
           throw new Error('limit reached');
         });
 
@@ -799,10 +794,10 @@ describe('MonitorTool', () => {
       });
       const killSpy = vi
         .spyOn(process, 'kill')
-        .mockImplementation(function() { return true as never; });
+        .mockImplementation(() => true as never);
       const registerSpy = vi
         .spyOn(monitorRegistry, 'register')
-        .mockImplementation(function() {
+        .mockImplementation(() => {
           throw new Error('limit reached');
         });
 
@@ -833,10 +828,10 @@ describe('MonitorTool', () => {
       });
       const killSpy = vi
         .spyOn(process, 'kill')
-        .mockImplementation(function() { return true as never; });
+        .mockImplementation(() => true as never);
       const registerSpy = vi
         .spyOn(monitorRegistry, 'register')
-        .mockImplementation(function(entry) {
+        .mockImplementation((entry) => {
           entry.abortController.abort();
           return MonitorRegistry.prototype.register.call(
             monitorRegistry,
@@ -868,12 +863,12 @@ describe('MonitorTool', () => {
       });
       const registerCallback = vi.fn();
       monitorRegistry.setRegisterCallback(registerCallback);
-      mockSpawn.mockImplementation(function() {
+      mockSpawn.mockImplementation(() => {
         throw new Error('spawn failed');
       });
       const registerSpy = vi
         .spyOn(monitorRegistry, 'register')
-        .mockImplementation(function() {
+        .mockImplementation(() => {
           throw new Error('limit reached');
         });
 
@@ -1122,7 +1117,7 @@ describe('MonitorTool', () => {
     });
 
     it('returns failure when spawn throws', async () => {
-      mockSpawn.mockImplementation(function() {
+      mockSpawn.mockImplementation(() => {
         throw new Error('spawn failed');
       });
 

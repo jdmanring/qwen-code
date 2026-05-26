@@ -119,7 +119,7 @@ describe('handleEnable', () => {
   });
 
   it('should throw FatalConfigError when enable fails', async () => {
-    mockEnableExtension.mockImplementationOnce(function() {
+    mockEnableExtension.mockImplementationOnce(() => {
       throw new Error('Enable failed');
     });
 

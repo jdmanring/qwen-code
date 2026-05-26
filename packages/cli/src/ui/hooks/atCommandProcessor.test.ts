@@ -56,7 +56,7 @@ describe('handleAtCommand', () => {
         respectQwenIgnore: true,
       }),
       getFileSystemService: () => new StandardFileSystemService(),
-      getEnableRecursiveFileSearch: vi.fn(function() { return true; }),
+      getEnableRecursiveFileSearch: vi.fn(() => true),
       getWorkspaceContext: () => ({
         isPathWithinWorkspace: () => true,
         getDirectories: () => [testRootDir],

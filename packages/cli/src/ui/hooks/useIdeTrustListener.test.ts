@@ -28,9 +28,9 @@ vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
     removeTrustChangeListener: vi.fn(),
     addStatusChangeListener: vi.fn(),
     removeStatusChangeListener: vi.fn(),
-    getConnectionStatus: vi.fn(function() { return {
+    getConnectionStatus: vi.fn(() => ({
       status: IDEConnectionStatus.Disconnected,
-    }; }),
+    })),
   };
   return {
     ...original,
@@ -69,11 +69,11 @@ describe('useIdeTrustListener', () => {
 
     vi.mocked(useSettings).mockReturnValue(mockSettings);
 
-    vi.mocked(mockIdeClient.addTrustChangeListener).mockImplementation(function(cb) {
+    vi.mocked(mockIdeClient.addTrustChangeListener).mockImplementation((cb) => {
       trustChangeCallback = cb;
     });
     vi.mocked(mockIdeClient.addStatusChangeListener).mockImplementation(
-      function(cb) {
+      (cb) => {
         statusChangeCallback = cb;
       },
     );

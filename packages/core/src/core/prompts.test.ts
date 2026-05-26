@@ -724,7 +724,7 @@ describe('resolvePathFromEnv helper function', () => {
     });
 
     it('should handle os.homedir() errors gracefully', () => {
-      vi.spyOn(os, 'homedir').mockImplementation(function() {
+      vi.spyOn(os, 'homedir').mockImplementation(() => {
         throw new Error('Cannot resolve home directory');
       });
 

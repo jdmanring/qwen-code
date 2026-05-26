@@ -12,11 +12,11 @@ import { RadioButtonSelect } from './shared/RadioButtonSelect.js';
 import { MarkdownDisplay } from '../utils/MarkdownDisplay.js';
 
 vi.mock('./shared/RadioButtonSelect.js', () => ({
-  RadioButtonSelect: vi.fn(function() { return null; }),
+  RadioButtonSelect: vi.fn(() => null),
 }));
 
 vi.mock('../utils/MarkdownDisplay.js', () => ({
-  MarkdownDisplay: vi.fn(function() { return null; }),
+  MarkdownDisplay: vi.fn(() => null),
 }));
 
 const MockedRadioButtonSelect = vi.mocked(RadioButtonSelect);

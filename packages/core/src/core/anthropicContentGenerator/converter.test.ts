@@ -11,7 +11,7 @@ import type Anthropic from '@anthropic-ai/sdk';
 
 // Mock schema conversion so we can force edge-cases (e.g. missing `type`).
 vi.mock('../../utils/schemaConverter.js', () => ({
-  convertSchema: vi.fn(function(schema: unknown) { return schema; }),
+  convertSchema: vi.fn((schema: unknown) => schema),
 }));
 
 import { convertSchema } from '../../utils/schemaConverter.js';
@@ -1216,9 +1216,9 @@ describe('AnthropicContentConverter', () => {
     });
 
     it('forces input_schema.type to "object" when schema conversion yields no type', async () => {
-      vi.mocked(convertSchema).mockImplementationOnce(function() { return {
+      vi.mocked(convertSchema).mockImplementationOnce(() => ({
         properties: {},
-      }; });
+      }));
       const tools = [
         {
           functionDeclarations: [

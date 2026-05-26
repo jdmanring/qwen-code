@@ -11,7 +11,7 @@ import type { Config } from '../../config/config.js';
 import { AuthType } from '../contentGenerator.js';
 
 vi.mock('./geminiContentGenerator.js', () => ({
-  GeminiContentGenerator: vi.fn().mockImplementation(function() { return {}; }),
+  GeminiContentGenerator: vi.fn().mockImplementation(() => ({})),
 }));
 
 describe('createGeminiContentGenerator', () => {

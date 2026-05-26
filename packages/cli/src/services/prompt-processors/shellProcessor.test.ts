@@ -323,7 +323,7 @@ describe('ShellProcessor', () => {
     const prompt: PromptPipelineContent = createPromptPipelineContent(
       '!{cmd1} and !{cmd2}',
     );
-    mockCheckCommandPermissions.mockImplementation(function(cmd) {
+    mockCheckCommandPermissions.mockImplementation((cmd) => {
       if (cmd === 'cmd1') {
         return { allAllowed: false, disallowedCommands: ['cmd1'] };
       }
@@ -351,7 +351,7 @@ describe('ShellProcessor', () => {
       'First: !{echo "hello"}, Second: !{rm -rf /}',
     );
 
-    mockCheckCommandPermissions.mockImplementation(function(cmd) {
+    mockCheckCommandPermissions.mockImplementation((cmd) => {
       if (cmd.includes('rm')) {
         return { allAllowed: false, disallowedCommands: [cmd] };
       }
@@ -372,10 +372,10 @@ describe('ShellProcessor', () => {
       'Allowed: !{ls -l}, Disallowed: !{rm -rf /}',
     );
 
-    mockCheckCommandPermissions.mockImplementation(function(cmd) { return {
+    mockCheckCommandPermissions.mockImplementation((cmd) => ({
       allAllowed: !cmd.includes('rm'),
       disallowedCommands: cmd.includes('rm') ? [cmd] : [],
-    }; });
+    }));
 
     try {
       await processor.process(prompt, context);

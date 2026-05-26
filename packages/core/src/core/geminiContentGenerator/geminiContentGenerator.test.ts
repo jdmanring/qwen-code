@@ -15,14 +15,14 @@ vi.mock('@google/genai', () => {
   const mockEmbedContent = vi.fn();
 
   return {
-    GoogleGenAI: vi.fn().mockImplementation(function() { return {
+    GoogleGenAI: vi.fn().mockImplementation(() => ({
       models: {
         generateContent: mockGenerateContent,
         generateContentStream: mockGenerateContentStream,
         countTokens: mockCountTokens,
         embedContent: mockEmbedContent,
       },
-    }; }),
+    })),
   };
 });
 

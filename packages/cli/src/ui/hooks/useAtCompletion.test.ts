@@ -50,10 +50,10 @@ describe('useAtCompletion', () => {
 
   beforeEach(() => {
     mockConfig = {
-      getFileFilteringOptions: vi.fn(function() { return {
+      getFileFilteringOptions: vi.fn(() => ({
         respectGitIgnore: true,
         respectQwenIgnore: true,
-      }; }),
+      })),
       getEnableRecursiveFileSearch: () => true,
       getFileFilteringEnableFuzzySearch: () => true,
     } as unknown as Config;
@@ -492,10 +492,10 @@ describe('useAtCompletion', () => {
 
       const nonRecursiveConfig = {
         getEnableRecursiveFileSearch: () => false,
-        getFileFilteringOptions: vi.fn(function() { return {
+        getFileFilteringOptions: vi.fn(() => ({
           respectGitIgnore: true,
           respectQwenIgnore: true,
-        }; }),
+        })),
         getFileFilteringEnableFuzzySearch: () => true,
       } as unknown as Config;
 

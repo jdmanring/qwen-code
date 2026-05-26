@@ -31,7 +31,7 @@ vi.mock('@qwen-code/qwen-code-core', () => ({
 }));
 
 vi.mock('../../utils/errors.js', () => ({
-  getErrorMessage: vi.fn(function(error: Error) { return error.message; }),
+  getErrorMessage: vi.fn((error: Error) => error.message),
 }));
 
 vi.mock('../../ui/state/extensions.js', () => ({

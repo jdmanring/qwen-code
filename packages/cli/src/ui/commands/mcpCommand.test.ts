@@ -22,13 +22,13 @@ vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
     ...actual,
     getMCPServerStatus: vi.fn(),
     getMCPDiscoveryState: vi.fn(),
-    MCPOAuthProvider: vi.fn(function() { return {
+    MCPOAuthProvider: vi.fn(() => ({
       authenticate: mockAuthenticate,
-    }; }),
-    MCPOAuthTokenStorage: vi.fn(function() { return {
+    })),
+    MCPOAuthTokenStorage: vi.fn(() => ({
       getToken: vi.fn(),
       isTokenExpired: vi.fn(),
-    }; }),
+    })),
   };
 });
 

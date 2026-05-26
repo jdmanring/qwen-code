@@ -62,7 +62,7 @@ function createMockExtensionManager(
   updateResult?: ExtensionUpdateInfo | undefined,
 ): ExtensionManager {
   return {
-    getLoadedExtensions: vi.fn(function() { return extensions; }),
+    getLoadedExtensions: vi.fn(() => extensions),
     checkForAllExtensionUpdates: vi.fn(
       async (
         callback: (extensionName: string, state: ExtensionUpdateState) => void,
@@ -388,7 +388,7 @@ describe('useExtensionUpdates', () => {
     let updateCallCount = 0;
 
     const extensionManager = {
-      getLoadedExtensions: vi.fn(function() { return [extension1, extension2]; }),
+      getLoadedExtensions: vi.fn(() => [extension1, extension2]),
       checkForAllExtensionUpdates: vi.fn(
         async (
           callback: (

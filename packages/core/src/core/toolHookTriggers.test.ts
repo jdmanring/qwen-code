@@ -37,7 +37,7 @@ describe('toolHookTriggers', () => {
 
     it('should generate IDs with current timestamp', () => {
       const mockTime = Date.now();
-      vi.spyOn(global.Date, 'now').mockImplementation(function() { return mockTime; });
+      vi.spyOn(global.Date, 'now').mockImplementation(() => mockTime);
 
       const id = generateToolUseId();
 

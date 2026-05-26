@@ -160,7 +160,7 @@ function createDialogHarness(agents = [createAgentResult()]) {
 
   const applyAgentResult = vi.fn().mockResolvedValue({ success: true });
   const manager = {
-    getResult: vi.fn(function() { return result; }),
+    getResult: vi.fn(() => result),
     getAgentStates: vi.fn(() =>
       agents.map((agent) => ({
         agentId: agent.agentId,
@@ -169,7 +169,7 @@ function createDialogHarness(agents = [createAgentResult()]) {
         stats: agent.stats,
       })),
     ),
-    getAgentState: vi.fn(function(agentId: string) { return agents.find((agent) => agent.agentId === agentId); },
+    getAgentState: vi.fn((agentId: string) => agents.find((agent) => agent.agentId === agentId),
     ),
     applyAgentResult,
   } as unknown as ArenaManager;

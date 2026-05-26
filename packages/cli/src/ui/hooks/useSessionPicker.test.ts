@@ -43,7 +43,7 @@ describe('useSessionPicker', () => {
   beforeEach(() => {
     activeKeypressHandler = null;
     vi.mocked(useKeypress).mockImplementation(
-      function(handler: KeypressHandler, options?: UseKeypressMockOptions) {
+      (handler: KeypressHandler, options?: UseKeypressMockOptions) => {
         activeKeypressHandler = options?.isActive ? handler : null;
       },
     );

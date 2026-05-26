@@ -26,12 +26,12 @@ vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
   const actual =
     await importOriginal<typeof import('@qwen-code/qwen-code-core')>();
   const registry = {
-    list: vi.fn(function() { return []; }),
-    subscribe: vi.fn(function() { return () => {}; }),
+    list: vi.fn(() => []),
+    subscribe: vi.fn(() => () => {}),
   };
   return {
     ...actual,
-    getManagedAutoMemoryDreamTaskRegistry: vi.fn(function() { return registry; }),
+    getManagedAutoMemoryDreamTaskRegistry: vi.fn(() => registry),
   };
 });
 
@@ -40,18 +40,18 @@ const defaultProps = {
 };
 
 const createMockMemoryManager = () => ({
-  subscribe: vi.fn(function() { return () => {}; }),
-  listTasksByType: vi.fn(function() { return []; }),
+  subscribe: vi.fn(() => () => {}),
+  listTasksByType: vi.fn(() => []),
 });
 
 const createMockConfig = (overrides = {}) => ({
-  getModel: vi.fn(function() { return defaultProps.model; }),
-  getDebugMode: vi.fn(function() { return false; }),
-  getContentGeneratorConfig: vi.fn(function() { return { contextWindowSize: 131072 }; }),
-  getMcpServers: vi.fn(function() { return {}; }),
-  getBlockedMcpServers: vi.fn(function() { return []; }),
-  getProjectRoot: vi.fn(function() { return '/test/project'; }),
-  getSessionId: vi.fn(function() { return 'test-session'; }),
+  getModel: vi.fn(() => defaultProps.model),
+  getDebugMode: vi.fn(() => false),
+  getContentGeneratorConfig: vi.fn(() => ({ contextWindowSize: 131072 })),
+  getMcpServers: vi.fn(() => ({})),
+  getBlockedMcpServers: vi.fn(() => []),
+  getProjectRoot: vi.fn(() => '/test/project'),
+  getSessionId: vi.fn(() => 'test-session'),
   getMemoryManager: vi.fn(createMockMemoryManager),
   ...overrides,
 });

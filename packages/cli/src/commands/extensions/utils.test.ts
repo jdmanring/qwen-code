@@ -20,7 +20,7 @@ vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
     ...actual,
     ExtensionManager: vi
       .fn()
-      .mockImplementation(function() { return mockExtensionManagerInstance; }),
+      .mockImplementation(() => mockExtensionManagerInstance),
   };
 });
 

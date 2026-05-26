@@ -83,7 +83,7 @@ describe('IdeClient', () => {
 
     // Mock dependencies
     vi.spyOn(process, 'cwd').mockReturnValue('/test/workspace/sub-dir');
-    vi.mocked(fs.existsSync).mockImplementation(function(filePath: fs.PathLike) {
+    vi.mocked(fs.existsSync).mockImplementation((filePath: fs.PathLike) => {
       const file = String(filePath);
       return file !== '/.dockerenv' && file !== '/run/.containerenv';
     });
@@ -110,9 +110,9 @@ describe('IdeClient', () => {
       close: vi.fn(),
     } as unknown as Mocked<StdioClientTransport>;
 
-    vi.mocked(Client).mockImplementation(function() { return mockClient; });
-    vi.mocked(StreamableHTTPClientTransport).mockImplementation(function() { return mockHttpTransport; });
-    vi.mocked(StdioClientTransport).mockImplementation(function() { return mockStdioTransport; });
+    vi.mocked(Client).mockImplementation(() => mockClient);
+    vi.mocked(StreamableHTTPClientTransport).mockImplementation(() => mockHttpTransport);
+    vi.mocked(StdioClientTransport).mockImplementation(() => mockStdioTransport);
 
     await IdeClient.getInstance();
   });
@@ -219,17 +219,17 @@ describe('IdeClient', () => {
         >
       ).mockResolvedValue([]);
       vi.mocked(fs.existsSync).mockImplementation(
-        function(filePath: fs.PathLike) { return filePath === '/.dockerenv'; },
+        (filePath: fs.PathLike) => filePath === '/.dockerenv',
       );
       (dns.lookup as unknown as Mock).mockImplementation(
-        function(
+        (
           _hostname: string,
           callback: (
             err: Error | null,
             address?: string,
             family?: number,
           ) => void,
-        ) {
+        ) => {
           callback(null, '192.168.65.254', 4);
         },
       );
@@ -300,7 +300,7 @@ describe('IdeClient', () => {
         } as fs.Stats;
       });
       vi.mocked(fs.existsSync).mockImplementation(
-        function(filePath: fs.PathLike) { return String(filePath) === '/test/workspace'; },
+        (filePath: fs.PathLike) => String(filePath) === '/test/workspace',
       );
       mockClient.request.mockResolvedValue({ tools: [] });
       mockClient.connect
@@ -562,7 +562,7 @@ describe('IdeClient', () => {
           (path: fs.PathLike) => Promise<fs.Stats>
         >
       ).mockResolvedValue({ mtimeMs: oldTime } as fs.Stats);
-      vi.spyOn(process, 'kill').mockImplementation(function() { return true; });
+      vi.spyOn(process, 'kill').mockImplementation(() => true);
 
       const ideClient = await IdeClient.getInstance();
       const result = await (
@@ -614,7 +614,7 @@ describe('IdeClient', () => {
         } as fs.Stats;
       });
       vi.mocked(fs.existsSync).mockImplementation(
-        function(filePath: fs.PathLike) { return String(filePath) === '/test/workspace'; },
+        (filePath: fs.PathLike) => String(filePath) === '/test/workspace',
       );
 
       const ideClient = await IdeClient.getInstance();
@@ -857,7 +857,7 @@ describe('getIdeServerHost', () => {
 
   function mockDnsResolvable(reachable: boolean): void {
     dnsLookupMock.mockImplementation(
-      function(_hostname: string, callback: (err: Error | null) => void) {
+      (_hostname: string, callback: (err: Error | null) => void) => {
         if (reachable) {
           callback(null);
         } else {
@@ -885,7 +885,7 @@ describe('getIdeServerHost', () => {
 
   it('should return host.docker.internal when in a container and the host is reachable', async () => {
     vi.mocked(fs.existsSync).mockImplementation(
-      function(filePath: fs.PathLike) { return filePath === '/.dockerenv'; },
+      (filePath: fs.PathLike) => filePath === '/.dockerenv',
     );
     mockDnsResolvable(true);
 
@@ -900,7 +900,7 @@ describe('getIdeServerHost', () => {
 
   it('should fall back to 127.0.0.1 when in a container but host.docker.internal is not reachable', async () => {
     vi.mocked(fs.existsSync).mockImplementation(
-      function(filePath: fs.PathLike) { return filePath === '/.dockerenv'; },
+      (filePath: fs.PathLike) => filePath === '/.dockerenv',
     );
     mockDnsResolvable(false);
 
@@ -915,7 +915,7 @@ describe('getIdeServerHost', () => {
 
   it('should detect container via /run/.containerenv', async () => {
     vi.mocked(fs.existsSync).mockImplementation(
-      function(filePath: fs.PathLike) { return filePath === '/run/.containerenv'; },
+      (filePath: fs.PathLike) => filePath === '/run/.containerenv',
     );
     mockDnsResolvable(true);
 
@@ -926,7 +926,7 @@ describe('getIdeServerHost', () => {
 
   it('should cache the result and not perform DNS lookup again', async () => {
     vi.mocked(fs.existsSync).mockImplementation(
-      function(filePath: fs.PathLike) { return filePath === '/.dockerenv'; },
+      (filePath: fs.PathLike) => filePath === '/.dockerenv',
     );
     mockDnsResolvable(true);
 
@@ -941,9 +941,9 @@ describe('getIdeServerHost', () => {
   it('should fall back to 127.0.0.1 when DNS lookup times out in a container', async () => {
     vi.useFakeTimers();
     vi.mocked(fs.existsSync).mockImplementation(
-      function(filePath: fs.PathLike) { return filePath === '/.dockerenv'; },
+      (filePath: fs.PathLike) => filePath === '/.dockerenv',
     );
-    dnsLookupMock.mockImplementation(function() {
+    dnsLookupMock.mockImplementation(() => {
       // Never call the callback to simulate a hung lookup.
     });
 
@@ -961,12 +961,12 @@ describe('getIdeServerHost', () => {
   it('should perform only one DNS lookup when called concurrently', async () => {
     vi.useRealTimers();
     vi.mocked(fs.existsSync).mockImplementation(
-      function(filePath: fs.PathLike) { return filePath === '/.dockerenv'; },
+      (filePath: fs.PathLike) => filePath === '/.dockerenv',
     );
 
     // Simulate a slow DNS lookup
     dnsLookupMock.mockImplementation(
-      function(_hostname: string, callback: (err: Error | null) => void) {
+      (_hostname: string, callback: (err: Error | null) => void) => {
         setTimeout(() => callback(null), 50);
       },
     );

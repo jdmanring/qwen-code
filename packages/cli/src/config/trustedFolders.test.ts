@@ -32,8 +32,8 @@ vi.mock('node:os', async (importOriginal) => {
   const actualOs = await importOriginal<typeof osActual>();
   return {
     ...actualOs,
-    homedir: vi.fn(function() { return '/mock/home/user'; }),
-    platform: vi.fn(function() { return 'linux'; }),
+    homedir: vi.fn(() => '/mock/home/user'),
+    platform: vi.fn(() => 'linux'),
   };
 });
 vi.mock('node:fs', async (importOriginal) => {
@@ -47,7 +47,7 @@ vi.mock('node:fs', async (importOriginal) => {
   };
 });
 vi.mock('strip-json-comments', () => ({
-  default: vi.fn(function(content) { return content; }),
+  default: vi.fn((content) => content),
 }));
 
 describe('Trusted Folders Loading', () => {
@@ -63,7 +63,7 @@ describe('Trusted Folders Loading', () => {
     mockFsWriteFileSync = vi.mocked(fs.writeFileSync);
     vi.mocked(osActual.homedir).mockReturnValue('/mock/home/user');
     (mockStripJsonComments as unknown as Mock).mockImplementation(
-      function(jsonString: string) { return jsonString; },
+      (jsonString: string) => jsonString,
     );
     (mockFsExistsSync as Mock).mockReturnValue(false);
     (fs.readFileSync as Mock).mockReturnValue('{}');
@@ -82,9 +82,9 @@ describe('Trusted Folders Loading', () => {
   describe('isPathTrusted', () => {
     function setup({ config = {} as Record<string, TrustLevel> } = {}) {
       (mockFsExistsSync as Mock).mockImplementation(
-        function(p) { return p === getTrustedFoldersPath(); },
+        (p) => p === getTrustedFoldersPath(),
       );
-      (fs.readFileSync as Mock).mockImplementation(function(p) {
+      (fs.readFileSync as Mock).mockImplementation((p) => {
         if (p === getTrustedFoldersPath()) return JSON.stringify(config);
         return '{}';
       });
@@ -127,11 +127,11 @@ describe('Trusted Folders Loading', () => {
 
   it('should load user rules if only user file exists', () => {
     const userPath = getTrustedFoldersPath();
-    (mockFsExistsSync as Mock).mockImplementation(function(p) { return p === userPath; });
+    (mockFsExistsSync as Mock).mockImplementation((p) => p === userPath);
     const userContent = {
       '/user/folder': TrustLevel.TRUST_FOLDER,
     };
-    (fs.readFileSync as Mock).mockImplementation(function(p) {
+    (fs.readFileSync as Mock).mockImplementation((p) => {
       if (p === userPath) return JSON.stringify(userContent);
       return '{}';
     });
@@ -145,8 +145,8 @@ describe('Trusted Folders Loading', () => {
 
   it('should handle JSON parsing errors gracefully', () => {
     const userPath = getTrustedFoldersPath();
-    (mockFsExistsSync as Mock).mockImplementation(function(p) { return p === userPath; });
-    (fs.readFileSync as Mock).mockImplementation(function(p) {
+    (mockFsExistsSync as Mock).mockImplementation((p) => p === userPath);
+    (fs.readFileSync as Mock).mockImplementation((p) => {
       if (p === userPath) return 'invalid json';
       return '{}';
     });
@@ -162,11 +162,11 @@ describe('Trusted Folders Loading', () => {
     const customPath = '/custom/path/to/trusted_folders.json';
     process.env['QWEN_CODE_TRUSTED_FOLDERS_PATH'] = customPath;
 
-    (mockFsExistsSync as Mock).mockImplementation(function(p) { return p === customPath; });
+    (mockFsExistsSync as Mock).mockImplementation((p) => p === customPath);
     const userContent = {
       '/user/folder/from/env': TrustLevel.TRUST_FOLDER,
     };
-    (fs.readFileSync as Mock).mockImplementation(function(p) {
+    (fs.readFileSync as Mock).mockImplementation((p) => {
       if (p === customPath) return JSON.stringify(userContent);
       return '{}';
     });
@@ -211,15 +211,15 @@ describe('isWorkspaceTrusted', () => {
 
   beforeEach(() => {
     resetTrustedFoldersForTesting();
-    vi.spyOn(process, 'cwd').mockImplementation(function() { return mockCwd; });
-    vi.spyOn(fs, 'readFileSync').mockImplementation(function(p) {
+    vi.spyOn(process, 'cwd').mockImplementation(() => mockCwd);
+    vi.spyOn(fs, 'readFileSync').mockImplementation((p) => {
       if (p === getTrustedFoldersPath()) {
         return JSON.stringify(mockRules);
       }
       return '{}';
     });
     vi.spyOn(fs, 'existsSync').mockImplementation(
-      function(p) { return p === getTrustedFoldersPath(); },
+      (p) => p === getTrustedFoldersPath(),
     );
   });
 
@@ -232,7 +232,7 @@ describe('isWorkspaceTrusted', () => {
   it('should throw a fatal error if the config is malformed', () => {
     mockCwd = '/home/user/projectA';
     // This mock needs to be specific to this test to override the one in beforeEach
-    vi.spyOn(fs, 'readFileSync').mockImplementation(function(p) {
+    vi.spyOn(fs, 'readFileSync').mockImplementation((p) => {
       if (p === getTrustedFoldersPath()) {
         return '{"foo": "bar",}'; // Malformed JSON with trailing comma
       }
@@ -246,7 +246,7 @@ describe('isWorkspaceTrusted', () => {
 
   it('should throw a fatal error if the config is not a JSON object', () => {
     mockCwd = '/home/user/projectA';
-    vi.spyOn(fs, 'readFileSync').mockImplementation(function(p) {
+    vi.spyOn(fs, 'readFileSync').mockImplementation((p) => {
       if (p === getTrustedFoldersPath()) {
         return 'null';
       }

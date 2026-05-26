@@ -369,7 +369,7 @@ describe('systemInfo', () => {
       } as unknown as IdeClient);
       mockContext.services.config = {
         ...(mockContext.services.config ?? {}),
-        getLspStatusSnapshot: vi.fn(function() {
+        getLspStatusSnapshot: vi.fn(() => {
           throw new Error('snapshot failed');
         }),
         getDebugMode: vi.fn().mockReturnValue(false),

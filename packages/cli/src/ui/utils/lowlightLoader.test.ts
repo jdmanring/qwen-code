@@ -32,16 +32,16 @@ describe('lowlightLoader', () => {
 
   function makeLowlightInstance() {
     return {
-      registered: vi.fn(function() { return true; }),
-      highlight: vi.fn(function() { return { type: 'root', children: [] }; }),
-      highlightAuto: vi.fn(function() { return { type: 'root', children: [] }; }),
+      registered: vi.fn(() => true),
+      highlight: vi.fn(() => ({ type: 'root', children: [] })),
+      highlightAuto: vi.fn(() => ({ type: 'root', children: [] })),
     };
   }
 
   it('resolves with a Lowlight instance on first successful load', async () => {
     const instance = makeLowlightInstance();
     vi.doMock('lowlight', () => ({
-      createLowlight: vi.fn(function() { return instance; }),
+      createLowlight: vi.fn(() => instance),
       common: {},
     }));
 
@@ -56,7 +56,7 @@ describe('lowlightLoader', () => {
 
   it('dedupes concurrent in-flight loads to a single dynamic import', async () => {
     const instance = makeLowlightInstance();
-    const createLowlight = vi.fn(function() { return instance; });
+    const createLowlight = vi.fn(() => instance);
     vi.doMock('lowlight', () => ({ createLowlight, common: {} }));
 
     const mod = await import('./lowlightLoader.js');
@@ -77,12 +77,12 @@ describe('lowlightLoader', () => {
   it('rejects and latches on upstream API-shape mismatch', async () => {
     // Simulate a future lowlight release that renames `highlightAuto`.
     const brokenInstance = {
-      registered: vi.fn(function() { return true; }),
-      highlight: vi.fn(function() { return { type: 'root', children: [] }; }),
+      registered: vi.fn(() => true),
+      highlight: vi.fn(() => ({ type: 'root', children: [] })),
       // highlightAuto missing — shape check must fail
     };
     vi.doMock('lowlight', () => ({
-      createLowlight: vi.fn(function() { return brokenInstance; }),
+      createLowlight: vi.fn(() => brokenInstance),
       common: {},
     }));
 
@@ -98,7 +98,7 @@ describe('lowlightLoader', () => {
 
   it('caches rejection within the cooldown window and skips re-import', async () => {
     const importErr = new Error('chunk not found');
-    const createLowlight = vi.fn(function() {
+    const createLowlight = vi.fn(() => {
       throw importErr;
     });
     vi.doMock('lowlight', () => ({ createLowlight, common: {} }));
@@ -116,7 +116,7 @@ describe('lowlightLoader', () => {
   it('retries after the cooldown elapses and recovers on transient failure', async () => {
     const instance = makeLowlightInstance();
     let attempt = 0;
-    const createLowlight = vi.fn(function() {
+    const createLowlight = vi.fn(() => {
       attempt += 1;
       if (attempt === 1) {
         throw new Error('EMFILE: too many open files');

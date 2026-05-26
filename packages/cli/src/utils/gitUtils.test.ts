@@ -225,7 +225,7 @@ describe('getLatestRelease', async () => {
   });
 
   it('throws an error if the fetch fails', async () => {
-    global.fetch = vi.fn(function() { return Promise.reject('nope'); });
+    global.fetch = vi.fn(() => Promise.reject('nope'));
     await expect(getLatestGitHubRelease()).rejects.toThrowError(
       /Unable to determine the latest/,
     );

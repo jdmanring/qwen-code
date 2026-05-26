@@ -141,7 +141,7 @@ describe('detectTerminalTheme', () => {
       const restoreTTY = forceTTY();
       const writeSpy = vi
         .spyOn(process.stdout, 'write')
-        .mockImplementation(function() { return true; });
+        .mockImplementation(() => true);
       const baseline = process.stdin.listenerCount('data');
 
       try {
@@ -166,7 +166,7 @@ describe('detectTerminalTheme', () => {
     it('should resolve undefined on timeout and remove its data listener', async () => {
       vi.useFakeTimers();
       const restoreTTY = forceTTY();
-      vi.spyOn(process.stdout, 'write').mockImplementation(function() { return true; });
+      vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
       const baseline = process.stdin.listenerCount('data');
 
       try {
@@ -188,7 +188,7 @@ describe('detectTerminalTheme', () => {
 
     it('should reassemble OSC 11 responses split across multiple data events', async () => {
       const restoreTTY = forceTTY();
-      vi.spyOn(process.stdout, 'write').mockImplementation(function() { return true; });
+      vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
 
       try {
         const promise = detectOsc11Theme();
@@ -217,7 +217,7 @@ describe('detectTerminalTheme', () => {
 
     it('should return "light" when macOS light mode is active', async () => {
       Object.defineProperty(process, 'platform', { value: 'darwin' });
-      vi.mocked(childProcess.execSync).mockImplementation(function() {
+      vi.mocked(childProcess.execSync).mockImplementation(() => {
         throw new Error('The domain/default pair does not exist');
       });
 
@@ -226,7 +226,7 @@ describe('detectTerminalTheme', () => {
 
     it('should return "light" when the "does not exist" message is on stderr only', async () => {
       Object.defineProperty(process, 'platform', { value: 'darwin' });
-      vi.mocked(childProcess.execSync).mockImplementation(function() {
+      vi.mocked(childProcess.execSync).mockImplementation(() => {
         const err = new Error('Command failed') as Error & {
           stderr?: string;
         };
@@ -240,7 +240,7 @@ describe('detectTerminalTheme', () => {
 
     it('should return undefined on timeout (do not assume Light Mode)', async () => {
       Object.defineProperty(process, 'platform', { value: 'darwin' });
-      vi.mocked(childProcess.execSync).mockImplementation(function() {
+      vi.mocked(childProcess.execSync).mockImplementation(() => {
         throw new Error('Command failed: defaults read -g AppleInterfaceStyle');
       });
 
@@ -249,7 +249,7 @@ describe('detectTerminalTheme', () => {
 
     it('should return undefined when `defaults` is not on PATH', async () => {
       Object.defineProperty(process, 'platform', { value: 'darwin' });
-      vi.mocked(childProcess.execSync).mockImplementation(function() {
+      vi.mocked(childProcess.execSync).mockImplementation(() => {
         const err = new Error('spawnSync defaults ENOENT') as Error & {
           code?: string;
         };

@@ -30,7 +30,7 @@ describe('StreamJsonOutputAdapter', () => {
     mockConfig = createMockConfig();
     stdoutWriteSpy = vi
       .spyOn(process.stdout, 'write')
-      .mockImplementation(function() { return true; });
+      .mockImplementation(() => true);
   });
 
   afterEach(() => {

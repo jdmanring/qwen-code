@@ -43,13 +43,13 @@ vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
       warn: debugLoggerSpy.warn,
       error: debugLoggerSpy.error,
     }),
-    parseAndFormatApiError: vi.fn(function(error: unknown) {
+    parseAndFormatApiError: vi.fn((error: unknown) => {
       if (error instanceof Error) {
         return `API Error: ${error.message}`;
       }
       return `API Error: ${String(error)}`;
     }),
-    JsonFormatter: vi.fn().mockImplementation(function() { return {
+    JsonFormatter: vi.fn().mockImplementation(() => ({
       formatError: vi.fn((error: Error, code?: string | number) =>
         JSON.stringify(
           {
@@ -63,7 +63,7 @@ vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
           2,
         ),
       ),
-    }; }),
+    })),
     FatalToolExecutionError: class extends Error {
       constructor(message: string) {
         super(message);
@@ -108,10 +108,10 @@ describe('errors', () => {
     // Mock process.stderr.write
     processStderrWriteSpy = vi
       .spyOn(process.stderr, 'write')
-      .mockImplementation(function() { return true; });
+      .mockImplementation(() => true);
 
     // Mock process.exit to throw instead of actually exiting
-    processExitSpy = vi.spyOn(process, 'exit').mockImplementation(function(code) {
+    processExitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
       throw new Error(`process.exit called with code: ${code}`);
     });
 
@@ -784,7 +784,7 @@ describe('errors', () => {
       registerCleanup(() => {
         cleanupOrder.push('cleanup');
       });
-      processExitSpy.mockImplementation(function(code) {
+      processExitSpy.mockImplementation((code) => {
         cleanupOrder.push(`exit:${code}`);
         throw new Error(`process.exit called with code: ${code}`);
       });
@@ -801,7 +801,7 @@ describe('errors', () => {
       registerCleanup(() => {
         cleanupOrder.push('cleanup');
       });
-      processExitSpy.mockImplementation(function(code) {
+      processExitSpy.mockImplementation((code) => {
         cleanupOrder.push(`exit:${code}`);
         throw new Error(`process.exit called with code: ${code}`);
       });
@@ -821,7 +821,7 @@ describe('errors', () => {
       registerCleanup(() => {
         cleanupOrder.push('cleanup');
       });
-      processExitSpy.mockImplementation(function(code) {
+      processExitSpy.mockImplementation((code) => {
         cleanupOrder.push(`exit:${code}`);
         throw new Error(`process.exit called with code: ${code}`);
       });
@@ -845,7 +845,7 @@ describe('errors', () => {
       );
 
       let exitCalls = 0;
-      processExitSpy.mockImplementation(function(code) {
+      processExitSpy.mockImplementation((code) => {
         exitCalls += 1;
         throw new Error(`process.exit called with code: ${code}`);
       });

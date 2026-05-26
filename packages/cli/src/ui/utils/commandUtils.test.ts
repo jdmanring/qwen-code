@@ -252,7 +252,7 @@ describe('commandUtils', () => {
           stdio: ['pipe', 'inherit', 'pipe'],
         };
 
-        mockSpawn.mockImplementation(function() {
+        mockSpawn.mockImplementation(() => {
           const child = Object.assign(new EventEmitter(), {
             stdin: Object.assign(new EventEmitter(), {
               write: vi.fn(),
@@ -302,7 +302,7 @@ describe('commandUtils', () => {
           stdio: ['pipe', 'inherit', 'pipe'],
         };
 
-        mockSpawn.mockImplementation(function() {
+        mockSpawn.mockImplementation(() => {
           const child = Object.assign(new EventEmitter(), {
             stdin: Object.assign(new EventEmitter(), {
               write: vi.fn(),
@@ -358,7 +358,7 @@ describe('commandUtils', () => {
         const errorMsg = "Error: Can't open display:";
         const exitCode = 1;
 
-        mockSpawn.mockImplementation(function() {
+        mockSpawn.mockImplementation(() => {
           const child = Object.assign(new EventEmitter(), {
             stdin: Object.assign(new EventEmitter(), {
               write: vi.fn(),

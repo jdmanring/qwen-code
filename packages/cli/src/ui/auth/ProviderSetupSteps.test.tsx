@@ -22,7 +22,7 @@ describe('ProviderSetupSteps', () => {
   beforeEach(() => {
     activeKeypressHandler = null;
     vi.mocked(useKeypress).mockImplementation(
-      function(handler: KeypressHandler, options?: UseKeypressMockOptions) {
+      (handler: KeypressHandler, options?: UseKeypressMockOptions) => {
         if (options?.isActive) {
           activeKeypressHandler = handler;
         }

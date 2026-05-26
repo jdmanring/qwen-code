@@ -24,10 +24,10 @@ import {
 } from './useAuth.js';
 
 vi.mock('../hooks/useQwenAuth.js', () => ({
-  useQwenAuth: vi.fn(function() { return {
+  useQwenAuth: vi.fn(() => ({
     qwenAuthState: {},
     cancelQwenAuth: vi.fn(),
-  }; }),
+  })),
 }));
 
 vi.mock('../../utils/settingsUtils.js', () => ({
@@ -37,7 +37,7 @@ vi.mock('../../utils/settingsUtils.js', () => ({
 }));
 
 vi.mock('../../config/modelProvidersScope.js', () => ({
-  getPersistScopeForModelSelection: vi.fn(function() { return 'user'; }),
+  getPersistScopeForModelSelection: vi.fn(() => 'user'),
 }));
 
 const createSettings = () => ({
@@ -46,11 +46,11 @@ const createSettings = () => ({
   },
   setValue: vi.fn(),
   recomputeMerged: vi.fn(),
-  forScope: vi.fn(function() { return {
+  forScope: vi.fn(() => ({
     path: '/tmp/settings.json',
     settings: {},
     originalSettings: {},
-  }; }),
+  })),
 });
 
 const createConfig = () => {
@@ -58,11 +58,11 @@ const createConfig = () => {
     syncAfterAuthRefresh: vi.fn(),
   };
   return {
-    getAuthType: vi.fn(function() { return AuthType.USE_OPENAI; }),
-    getUsageStatisticsEnabled: vi.fn(function() { return false; }),
+    getAuthType: vi.fn(() => AuthType.USE_OPENAI),
+    getUsageStatisticsEnabled: vi.fn(() => false),
     reloadModelProvidersConfig: vi.fn(),
     refreshAuth: vi.fn(async () => undefined),
-    getModelsConfig: vi.fn(function() { return modelsConfig; }),
+    getModelsConfig: vi.fn(() => modelsConfig),
   };
 };
 

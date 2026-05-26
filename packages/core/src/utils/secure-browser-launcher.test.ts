@@ -205,7 +205,7 @@ describe('secure-browser-launcher', () => {
       setPlatform('darwin');
       mockExecFile.mockRejectedValueOnce(new Error('Command not found'));
 
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(function() {});
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       await expect(
         openBrowserSecurely('https://example.com'),

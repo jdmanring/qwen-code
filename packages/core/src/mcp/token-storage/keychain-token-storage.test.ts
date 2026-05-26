@@ -25,9 +25,9 @@ vi.mock('keytar', () => ({
 }));
 
 vi.mock('node:crypto', () => ({
-  randomBytes: vi.fn(function() { return {
-    toString: vi.fn(function() { return mockCryptoRandomBytesString; }),
-  }; }),
+  randomBytes: vi.fn(() => ({
+    toString: vi.fn(() => mockCryptoRandomBytesString),
+  })),
 }));
 
 describe('KeychainTokenStorage', () => {

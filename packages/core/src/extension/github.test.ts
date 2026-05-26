@@ -414,7 +414,7 @@ describe('git extension helpers', () => {
       });
 
       const mockManager = {
-        loadExtensionConfig: vi.fn().mockImplementation(function() {
+        loadExtensionConfig: vi.fn().mockImplementation(() => {
           throw new Error('Cannot load config');
         }),
       } as unknown as ExtensionManager;

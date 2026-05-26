@@ -19,13 +19,13 @@ describe('MigrationScheduler', () => {
     fromVersion,
     toVersion,
     shouldMigrate: vi.fn().mockReturnValue(shouldMigrateResult),
-    migrate: vi.fn(function(settings) { return {
+    migrate: vi.fn((settings) => ({
       settings: {
         ...(settings as Record<string, unknown>),
         $version: toVersion,
       },
       warnings: [],
-    }; }),
+    })),
   });
 
   it('should execute migrations in order when shouldMigrate returns true', () => {
@@ -76,17 +76,17 @@ describe('MigrationScheduler', () => {
     const migration1: SettingsMigration = {
       fromVersion: 1,
       toVersion: 2,
-      shouldMigrate: vi.fn(function(settings) {
+      shouldMigrate: vi.fn((settings) => {
         const s = settings as Record<string, unknown>;
         return s['$version'] !== 2;
       }),
-      migrate: vi.fn(function(settings) { return {
+      migrate: vi.fn((settings) => ({
         settings: {
           ...(settings as Record<string, unknown>),
           $version: 2,
         },
         warnings: [],
-      }; }),
+      })),
     };
 
     const scheduler = new MigrationScheduler([migration1], 'user');
@@ -105,17 +105,17 @@ describe('MigrationScheduler', () => {
       fromVersion: 1,
       toVersion: 2,
       shouldMigrate: vi.fn().mockReturnValue(true),
-      migrate: vi.fn(function() { return {
+      migrate: vi.fn(() => ({
         settings: { $version: 2, transformed: true },
         warnings: [],
-      }; }),
+      })),
     };
 
     const migration2: SettingsMigration = {
       fromVersion: 2,
       toVersion: 3,
       shouldMigrate: vi.fn().mockReturnValue(true),
-      migrate: vi.fn(function(s) { return { settings: s, warnings: [] }; }),
+      migrate: vi.fn((s) => ({ settings: s, warnings: [] })),
     };
 
     const scheduler = new MigrationScheduler([migration1, migration2], 'user');
@@ -140,7 +140,7 @@ describe('MigrationScheduler', () => {
       fromVersion: 1,
       toVersion: 2,
       shouldMigrate: vi.fn().mockReturnValue(true),
-      migrate: vi.fn().mockImplementation(function() {
+      migrate: vi.fn().mockImplementation(() => {
         throw new Error('Migration failed');
       }),
     };

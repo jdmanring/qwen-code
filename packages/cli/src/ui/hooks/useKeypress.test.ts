@@ -29,7 +29,7 @@ vi.mock('node:readline', () => {
     // The paste workaround involves replacing stdin with a PassThrough stream.
     // This mock ensures that when emitKeypressEvents is called on that
     // stream, we simulate the 'keypress' events that the hook expects.
-    emitKeypressEvents: vi.fn(function(stream: EventEmitter) {
+    emitKeypressEvents: vi.fn((stream: EventEmitter) => {
       if (stream instanceof PassThrough) {
         stream.on('data', (data) => {
           const str = data.toString();

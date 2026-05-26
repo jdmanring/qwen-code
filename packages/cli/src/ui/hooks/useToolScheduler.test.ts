@@ -46,12 +46,12 @@ vi.mock('@qwen-code/qwen-code-core', async () => {
 const mockToolRegistry = {
   getTool: vi.fn(),
   ensureTool: vi.fn(async (name: string) => mockToolRegistry.getTool(name)),
-  getAllToolNames: vi.fn(function() { return ['mockTool', 'anotherTool']; }),
+  getAllToolNames: vi.fn(() => ['mockTool', 'anotherTool']),
 };
 
 const mockConfig = {
-  getToolRegistry: vi.fn(function() { return mockToolRegistry as unknown as ToolRegistry; }),
-  getApprovalMode: vi.fn(function() { return ApprovalMode.DEFAULT; }),
+  getToolRegistry: vi.fn(() => mockToolRegistry as unknown as ToolRegistry),
+  getApprovalMode: vi.fn(() => ApprovalMode.DEFAULT),
   getSessionId: () => 'test-session-id',
   getUsageStatisticsEnabled: () => true,
   getDebugMode: () => false,
@@ -60,7 +60,7 @@ const mockConfig = {
   },
   getTruncateToolOutputThreshold: () => DEFAULT_TRUNCATE_TOOL_OUTPUT_THRESHOLD,
   getTruncateToolOutputLines: () => DEFAULT_TRUNCATE_TOOL_OUTPUT_LINES,
-  getPermissionsAllow: vi.fn(function() { return []; }),
+  getPermissionsAllow: vi.fn(() => []),
   getContentGeneratorConfig: () => ({
     model: 'test-model',
     authType: 'gemini',
@@ -435,7 +435,7 @@ describe('useReactToolScheduler', () => {
       } as ToolResult),
     });
 
-    mockToolRegistry.getTool.mockImplementation(function(name) {
+    mockToolRegistry.getTool.mockImplementation((name) => {
       if (name === 'tool1') return tool1;
       if (name === 'tool2') return tool2;
       return undefined;

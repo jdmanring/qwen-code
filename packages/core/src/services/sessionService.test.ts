@@ -40,8 +40,8 @@ describe('SessionService', () => {
 
   beforeEach(() => {
     vi.mocked(getProjectHash).mockReturnValue('test-project-hash');
-    vi.mocked(path.join).mockImplementation(function(...args) { return args.join('/'); });
-    vi.mocked(path.dirname).mockImplementation(function(p) {
+    vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
+    vi.mocked(path.dirname).mockImplementation((p) => {
       const parts = p.split('/');
       parts.pop();
       return parts.join('/');
@@ -58,7 +58,7 @@ describe('SessionService', () => {
     );
     unlinkSyncSpy = vi
       .spyOn(fs, 'unlinkSync')
-      .mockImplementation(function() { return undefined; });
+      .mockImplementation(() => undefined);
 
     // Mock jsonl-utils. `parseLineTolerant` defaults to a no-op so any code
     // path that streams lines through it (e.g. countSessionMessages,
@@ -128,7 +128,7 @@ describe('SessionService', () => {
     it('should return empty list when chats directory does not exist', async () => {
       const error = new Error('ENOENT') as NodeJS.ErrnoException;
       error.code = 'ENOENT';
-      readdirSyncSpy.mockImplementation(function() {
+      readdirSyncSpy.mockImplementation(() => {
         throw error;
       });
 
@@ -146,7 +146,7 @@ describe('SessionService', () => {
         `${sessionIdB}.jsonl`,
       ] as unknown as Array<fs.Dirent<Buffer>>);
 
-      statSyncSpy.mockImplementation(function(filePath: fs.PathLike) {
+      statSyncSpy.mockImplementation((filePath: fs.PathLike) => {
         const path = filePath.toString();
         return {
           mtimeMs: path.includes(sessionIdB) ? now : now - 10000,
@@ -244,7 +244,7 @@ describe('SessionService', () => {
         `${sessionIdC}.jsonl`,
       ] as unknown as Array<fs.Dirent<Buffer>>);
 
-      statSyncSpy.mockImplementation(function(filePath: fs.PathLike) {
+      statSyncSpy.mockImplementation((filePath: fs.PathLike) => {
         const path = filePath.toString();
         let mtime = now;
         if (path.includes(sessionIdB)) mtime = now - 1000;
@@ -287,7 +287,7 @@ describe('SessionService', () => {
         `${sessionIdC}.jsonl`,
       ] as unknown as Array<fs.Dirent<Buffer>>);
 
-      statSyncSpy.mockImplementation(function(filePath: fs.PathLike) {
+      statSyncSpy.mockImplementation((filePath: fs.PathLike) => {
         const path = filePath.toString();
         let mtime = now;
         if (path.includes(sessionIdB)) mtime = cursorMtime;
@@ -627,7 +627,7 @@ describe('SessionService', () => {
       );
 
       const failure = new Error('boom');
-      unlinkSyncSpy.mockImplementation(function(p: fs.PathLike) {
+      unlinkSyncSpy.mockImplementation((p: fs.PathLike) => {
         if (p.toString().includes(sessionIdA)) {
           throw failure;
         }
@@ -670,7 +670,7 @@ describe('SessionService', () => {
       vi
         .spyOn(fs, 'createReadStream')
         .mockImplementation(
-          function() { return Readable.from([lines.join('\n')]) as unknown as fs.ReadStream; },
+          () => Readable.from([lines.join('\n')]) as unknown as fs.ReadStream,
         );
 
     it('should count unique user/assistant uuids and ignore other record types', async () => {
@@ -680,7 +680,7 @@ describe('SessionService', () => {
       // Real countSessionMessagesFromPath routes each line through
       // parseLineTolerant. The default mock is a no-op; for this test we
       // need it to actually decode the JSON so the uuid set is populated.
-      vi.mocked(jsonl.parseLineTolerant).mockImplementation(function(line) {
+      vi.mocked(jsonl.parseLineTolerant).mockImplementation((line) => {
         try {
           const parsed = JSON.parse(line);
           return Array.isArray(parsed) ? parsed : [parsed];
@@ -742,7 +742,7 @@ describe('SessionService', () => {
       vi.mocked(jsonl.readLines).mockResolvedValue([otherProjectRecord]);
       // Make the projectHash mock context-sensitive so the cwd check
       // actually distinguishes projects.
-      vi.mocked(getProjectHash).mockImplementation(function(cwd) { return cwd === '/test/project/root' ? 'test-project-hash' : 'other-hash'; },
+      vi.mocked(getProjectHash).mockImplementation((cwd) => cwd === '/test/project/root' ? 'test-project-hash' : 'other-hash',
       );
       const createReadStreamSpy = vi.spyOn(fs, 'createReadStream');
 
@@ -774,7 +774,7 @@ describe('SessionService', () => {
         `${sessionIdB}.jsonl`,
       ] as unknown as Array<fs.Dirent<Buffer>>);
 
-      statSyncSpy.mockImplementation(function(filePath: fs.PathLike) {
+      statSyncSpy.mockImplementation((filePath: fs.PathLike) => {
         const path = filePath.toString();
         return {
           mtimeMs: path.includes(sessionIdB) ? now : now - 10000,
@@ -980,7 +980,7 @@ describe('SessionService', () => {
       };
       const structuredCloneSpy = vi
         .spyOn(globalThis, 'structuredClone')
-        .mockImplementation(function() {
+        .mockImplementation(() => {
           throw new Error('unexpected deep clone');
         });
 
