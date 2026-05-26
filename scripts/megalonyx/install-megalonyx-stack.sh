@@ -155,20 +155,6 @@ fi
 # ===
 echo "[6/9] Configuring runtime wrappers in $BIN_DIR..."
 
-# mega-memory, mega-status, mega-tasks
-for script in mega-memory mega-status mega-tasks; do
-    link="$BIN_DIR/$script"
-    cat > "$link" <<EOF
-#!/usr/bin/env bash
-set -euo pipefail
-export VIRTUAL_ENV="$VENV_DIR"
-export PATH="$VENV_DIR/bin:\$PATH"
-exec "$BIN_STACK_DIR/$script" "\$@"
-EOF
-    chmod +x "$link"
-    echo "[OK] $script wrapper created"
-done
-
 # mega-run-py — RUNTIME: resolves relative paths against the Machine root
 cat > "$BIN_DIR/mega-run-py" <<EOF
 #!/usr/bin/env bash
@@ -189,22 +175,6 @@ export QDRANT__STORAGE__PATH="."
 exec "$QDRANT_DIR/bin/qdrant" --config-path "$QDRANT_CONFIG"
 EOF
 chmod +x "$BIN_DIR/mega-db"
-
-# mega-reboot
-cat > "$BIN_DIR/mega-reboot" <<EOF
-#!/usr/bin/env bash
-set -euo pipefail
-echo "[reboot] Stopping stack services..."
-pkill -f "memory_daemon" 2>/dev/null || true
-pkill -f "qdrant" 2>/dev/null || true
-sleep 1
-echo "[reboot] Starting stack services..."
-"$BIN_DIR/mega-db" &
-"$BIN_DIR/mega-memory" &
-sleep 2
-"$BIN_DIR/mega-status"
-EOF
-chmod +x "$BIN_DIR/mega-reboot"
 
 # ===
 # QDRANT
