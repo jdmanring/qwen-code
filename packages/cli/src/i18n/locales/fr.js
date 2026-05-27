@@ -114,7 +114,7 @@ export default {
   'Invalid approval mode "{{arg}}". Valid modes: {{modes}}':
     'Mode d\'approbation invalide "{{arg}}". Modes valides : {{modes}}',
   'Approval mode set to "{{mode}}"':
-    'Mode d\'approbation dfini sur "{{mode}}"',
+    "Mode d\'approbation dfini sur \"{{mode}}\"",
   'View or change the language setting':
     'Voir ou modifier le paramtre de langue',
   'List background tasks (text dump -- interactive dialog opens via the footer pill)':
@@ -147,11 +147,11 @@ export default {
   'Cannot rewind conversation: no active model client.':
     'Impossible de revenir en arrire sur la conversation : aucun client de modle actif.',
   'Code restored, but conversation could not be rewound (no active client).':
-    'Code restaur, mais la conversation n'a pas pu tre ramene en arrire (aucun client actif).',
+    "Code restaur, mais la conversation n'a pas pu tre ramene en arrire (aucun client actif).",
   'Conversation rewound. Edit your prompt and press Enter to continue.':
     'Conversation ramene en arrire. Modifiez votre invite et appuyez sur Entre pour continuer.',
   'Rewinding does not affect files edited manually or via shell commands.':
-    'Le retour en arrire n'affecte pas les fichiers dits manuellement ou via des commandes shell.',
+    "Le retour en arrire n'affecte pas les fichiers dits manuellement ou via des commandes shell.",
   'Cannot rewind to a turn that was compressed. Try a more recent turn.':
     'Impossible de revenir  un tour qui a t compress. Essayez un tour plus rcent.',
   'File restore is unavailable for this turn (no captured file changes, or this turn predates the current session).':
@@ -249,7 +249,7 @@ export default {
   'Edit color': 'Modifier la couleur',
   ' Error:': ' Erreur :',
   'Are you sure you want to delete agent "{{name}}"?':
-    'tes-vous sr de vouloir supprimer l\'agent "{{name}}" ?',
+    "tes-vous sr de vouloir supprimer l\'agent \"{{name}}\" ?",
 
   // ============================================================================
   // Agents - Assistant de cration
@@ -357,7 +357,7 @@ export default {
   'Version:': 'Version :',
   'Status:': 'Statut :',
   'Are you sure you want to uninstall extension "{{name}}"?':
-    'tes-vous sr de vouloir dsinstaller l\'extension "{{name}}" ?',
+    "tes-vous sr de vouloir dsinstaller l\'extension \"{{name}}\" ?",
   'This action cannot be undone.': 'Cette action est irrversible.',
   'Extension "{{name}}" updated successfully.':
     'Extension "{{name}}" mise  jour avec succs.',
@@ -489,7 +489,7 @@ export default {
   'Usage: /extensions install <source>':
     'Utilisation : /extensions install <source>',
   'Installing extension from "{{source}}"...':
-    'Installation de l\'extension depuis "{{source}}"...',
+    "Installation de l\'extension depuis \"{{source}}\"...",
   'Extension "{{name}}" installed successfully.':
     'Extension "{{name}}" installe avec succs.',
   'Failed to install extension from "{{source}}": {{error}}':
@@ -497,7 +497,7 @@ export default {
   'Do you want to continue? [Y/n]: ': 'Voulez-vous continuer ? [O/n] : ',
   'Do you want to continue?': 'Voulez-vous continuer ?',
   'Installing extension "{{name}}".':
-    'Installation de l\'extension "{{name}}".',
+    "Installation de l\'extension \"{{name}}\".",
   '**Extensions may introduce unexpected behavior. Ensure you have investigated the extension source and trust the author.**':
     "**Les extensions peuvent introduire des comportements inattendus. Assurez-vous d'avoir examin la source de l'extension et de faire confiance  l'auteur.**",
   'This extension will run the following MCP servers:':
@@ -560,7 +560,7 @@ export default {
   'Unable to install extension "{{name}}" due to missing install metadata':
     "Impossible d'installer l'extension \"{{name}}\" en raison de mtadonnes d'installation manquantes",
   'Extension "{{name}}" is already up to date.':
-    'L\'extension "{{name}}" est dj  jour.',
+    "L\'extension \"{{name}}\" est dj  jour.",
   'Updates all extensions or a named extension to the latest version.':
     'Met  jour toutes les extensions ou une extension nomme vers la dernire version.',
   'Update all extensions.': 'Mettre  jour toutes les extensions.',
@@ -596,7 +596,7 @@ export default {
     "Lister tous les paramtres d'une extension.",
   'Name of the extension.': "Nom de l'extension.",
   'Extension "{{name}}" has no settings to configure.':
-    'L\'extension "{{name}}" n\'a aucun paramtre  configurer.',
+    "L\'extension \"{{name}}\" n\'a aucun paramtre  configurer.",
   'Settings for "{{name}}":': 'Paramtres pour "{{name}}" :',
   '(workspace)': '(espace de travail)',
   '(user)': '(utilisateur)',
@@ -826,7 +826,7 @@ export default {
   'Could not detect terminal type. Supported terminals: VS Code, Cursor, Windsurf, and Trae.':
     'Impossible de dtecter le type de terminal. Terminaux pris en charge : VS Code, Cursor, Windsurf et Trae.',
   'Terminal "{{terminal}}" is not supported yet.':
-    'Le terminal "{{terminal}}" n\'est pas encore pris en charge.',
+    "Le terminal \"{{terminal}}\" n\'est pas encore pris en charge.",
 
   // ============================================================================
   // Commandes - Langue
@@ -1098,7 +1098,7 @@ export default {
   'MCP Server: {{server}}': 'MCP Server : {{server}}',
   'Tool: {{tool}}': 'Outil : {{tool}}',
   'Allow execution of MCP tool "{{tool}}" from server "{{server}}"?':
-    'Autoriser l\'excution de MCP tool "{{tool}}" depuis MCP server "{{server}}" ?',
+    "Autoriser l\'excution de MCP tool \"{{tool}}\" depuis MCP server \"{{server}}\" ?",
   // ============================================================================
   // Botes de dialogue - Confirmation shell
   // ============================================================================
@@ -1775,11 +1775,11 @@ export default {
   'Already in plan mode. Use "/plan exit" to exit plan mode.':
     'Dj en mode plan. Utilisez "/plan exit" pour quitter le mode plan.',
   'Not in plan mode. Use "/plan" to enter plan mode first.':
-    'Pas en mode plan. Utilisez "/plan" pour entrer en mode plan d\'abord.',
+    "Pas en mode plan. Utilisez \"/plan\" pour entrer en mode plan d\'abord.",
   "Set up Qwen Code's status line UI":
     "Configurer l'interface de la barre de statut de Qwen Code",
   'Press  to edit queued messages':
-    'Appuyez sur  pour modifier les messages en file d'attente',
+    "Appuyez sur  pour modifier les messages en file d'attente",
   'Add a QWEN.md file to give Qwen Code persistent project context.':
     'Ajoutez un fichier QWEN.md pour donner  Qwen Code un contexte de projet persistant.',
   'Use /btw to ask a quick side question without disrupting the conversation.':
@@ -1787,10 +1787,10 @@ export default {
   'Context is almost full! Run /compress now or start /new to continue.':
     'Le contexte est presque plein ! Lancez /compress maintenant ou dmarrez /new pour continuer.',
   'Context is getting full. Use /compress to free up space.':
-    'Le contexte se remplit. Utilisez /compress pour librer de l'espace.',
+    "Le contexte se remplit. Utilisez /compress pour librer de l'espace.",
   'Long conversation? /compress summarizes history to free context.':
-    'Conversation longue ? /compress rsume l'historique pour librer du contexte.',
-  'Manage extension settings': 'Grer les paramtres de l'extension',
+    "Conversation longue ? /compress rsume l'historique pour librer du contexte.",
+  'Manage extension settings': "Grer les paramtres de l'extension",
   'Ask a quick side question without affecting the main conversation':
     'Poser rapidement une question annexe sans affecter la conversation principale',
   'Manage Arena sessions': 'Grer les sessions Arena',
@@ -1846,9 +1846,9 @@ export default {
   'Save a durable memory to the memory system.':
     'Enregistrer une mmoire durable dans le systme de mmoire.',
   'Show context window usage breakdown. Use "/context detail" for per-item breakdown.':
-    'Afficher le dtail de l'utilisation de la fentre de contexte. Utilisez "/context detail" pour le dtail par lment.',
+    "Afficher le dtail de l'utilisation de la fentre de contexte. Utilisez \"/context detail\" pour le dtail par lment.",
   'Show per-item context usage breakdown.':
-    'Afficher le dtail de l'utilisation du contexte par lment.',
+    "Afficher le dtail de l'utilisation du contexte par lment.",
 
   // === Missing key backfill ===
   'to toggle compact mode': 'basculer le mode compact',

@@ -14,9 +14,23 @@ Qwen Code does not send raw user queries to the LLM. Instead, it constructs a la
 | :--- | :--- | :--- |
 | **Identity Layer** | `config/agents/[agent].md` | Establishes the expert role, goals, and behavioral boundaries. |
 | **Global Constraints** | `QWEN.md` | Injects global rules (e.g., `S-READ`, `P-AUTH`) that override role-specific behavior. |
+| **Fast-Activation Anchor** | `QWEN.md` (Top) | High-density summary of critical mandates to combat "Lost in the Middle" effect. |
 | **State Context** | Dynamic (`packages/core`) | Provides real-time operational state: Current Phase, Todo List, and Runtime Variables. |
 | **Conversation History** | Session History | Provides a pruned window of previous turns for context. |
 | **Query Layer** | User Input | The specific task or question the user is asking. |
+
+### The Fast-Activation Pattern (Global Anchoring)
+
+To ensure strict adherence to the most critical mandates, Qwen Code employs a **Fast-Activation Anchor** at the top of `QWEN.md`.
+
+**Technical Rationale:**
+LLMs exhibit a U-shaped retrieval curve, known as the **"Lost in the Middle"** phenomenon (Liu et al., 2023). Information located at the very beginning (Primacy Effect) and very end (Recency Effect) of a prompt is recalled and followed with significantly higher fidelity than information in the center.
+
+**Implementation:**
+By condensing the project's non-negotiable "Operational Laws" into a high-density cheat sheet at the top of the global constraints file, we:
+1. **Set Global State**: Immediately activate the correct operational persona.
+2. **Prevent Drift**: Ensure that critical safety and quality rules (e.g., No Blind Iteration, ASCII-only) are not lost as the context window grows.
+3. **Optimize Token Attention**: Focus the model's initial attention on the "Hard Constraints" before it parses detailed documentation.
 
 ---
 

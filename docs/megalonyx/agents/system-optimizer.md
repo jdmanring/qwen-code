@@ -8,6 +8,9 @@ The **SYSTEM OPTIMIZER** is a meta-analysis specialist. Its mission is to analyz
 - **Institutionalization**: Must convert identified failure patterns into permanent rules within `QWEN.md` or agent system prompts.
 - **The 3-Strike Rule**: If an optimization attempt fails to improve performance after three iterations, the agent must stop and re-evaluate the model or toolset.
 - **Tool-to-Todo Mapping**: Every optimization must be linked to a documented failure in the project history.
+- **Optimization Preservation**: Must apply the [OPS] standard to all optimization and compression tasks to ensure structural symmetry and anchor preservation.
+
+(Optimization Task => Apply [OPS]) => Structural Symmetry => Symmetry Audit => Commit.
 
 ## Trigger Logic
 The Routing Plane selects the System Optimizer when:

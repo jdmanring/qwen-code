@@ -142,7 +142,8 @@ class PreFlight:
             if not shutil.which("uv"):
                 raise RuntimeError("uv not found. Install from https://docs.astral.sh/uv/")
 
-            # Only block on changes to tracked files -- untracked files can't pollute a merge.
+            # Only block on changes to tracked files -- untracked files
+            # can't pollute a merge.
             dirty = self._git.run(["git", "diff", "--quiet", "HEAD"], check=False).returncode != 0
             if dirty:
                 raise RuntimeError(
@@ -278,22 +279,28 @@ class SyncManager:
 
 
 class GateKeeper:
-    """Runs the three verification gates. All three must pass for promotion."""
+    """Runs the four verification gates. All four must pass for promotion."""
 
     def __init__(self, git: _GitRunner) -> None:
         self._git = git
         self._ruff = _resolve_ruff()
 
     def verify(self) -> bool:
-        # Boot runs first: fail before `uv run ruff` can recreate a missing lockfile.
-        return self._gate_boot() and self._gate_lint() and self._gate_symmetry()
+        # Boot runs first: fail before `uv run ruff` can recreate a missing
+        # lockfile.
+        return (
+            self._gate_boot()
+            and self._gate_lint()
+            and self._gate_typescript()
+            and self._gate_symmetry()
+        )
 
     def _gate_boot(self) -> bool:
         """
         Runs first -- verifies the Python workspace is bootable before any `uv run`
         command can silently recreate a stale or missing lockfile.
         """
-        logger.info("Gate 1/3: Boot test (uv lock --check)...")
+        logger.info("Gate 1/4: Boot test (uv lock --check)...")
         result = subprocess.run(
             ["uv", "lock", "--check"],
             cwd=self._git.root,
@@ -311,7 +318,7 @@ class GateKeeper:
         return True
 
     def _gate_lint(self) -> bool:
-        logger.info("Gate 2/3: Ruff lint...")
+        logger.info("Gate 2/4: Ruff lint...")
         cmd = self._ruff + ["check", "."]
         result = subprocess.run(cmd, cwd=self._git.root)
         if result.returncode != 0:
@@ -321,8 +328,18 @@ class GateKeeper:
         log_success("Lint gate passed.")
         return True
 
+    def _gate_typescript(self) -> bool:
+        logger.info("Gate 3/4: TypeScript build & test...")
+        cmd = "pnpm install --frozen-lockfile && pnpm build && pnpm run test-all"
+        result = subprocess.run(cmd, cwd=self._git.root, shell=True)
+        if result.returncode != 0:
+            log_error("TypeScript gate failed. Check pnpm build or test output.")
+            return False
+        log_success("TypeScript gate passed.")
+        return True
+
     def _gate_symmetry(self) -> bool:
-        logger.info("Gate 3/3: Symmetry check (config <-> docs)...")
+        logger.info("Gate 4/4: Symmetry check (config <-> docs)...")
         result = subprocess.run(
             ["python3", "tooling/symmetry_check.py"],
             cwd=self._git.root,
@@ -363,7 +380,8 @@ class UpstreamIngestPipeline:
         sync/staging-TIMESTAMP
               (Gate 1: uv lock --check)
               (Gate 2: ruff lint)
-              (Gate 3: symmetry check)
+              (Gate 3: typescript build & test)
+              (Gate 4: symmetry check)
         integration  [ff-only merge + LKG tag]
     """
 
@@ -424,7 +442,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Upstream Ingest Pipeline -- ingests upstream-mirror into integration "
-            "through a three-gate verification pipeline."
+            "through a four-gate verification pipeline."
         )
     )
     parser.add_argument(

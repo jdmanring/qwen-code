@@ -35,7 +35,7 @@ Read at session start. Commit every status change.
 
 | ID | Subject | Owner | Started |
 | :--- | :--- | :--- | :--- |
-| #81 | INFRA: Implement `.qwen-context` anchors | Qwen-Orchestrator | 2026-05-27 |
+| | | | |
 
 ---
 
@@ -49,9 +49,19 @@ Read at session start. Commit every status change.
 | #72 | Scheduled upstream watch workflow | Create `.github/workflows/upstream-watch.yml`. Cron: `'0 6 * * *'` (daily 06:00 UTC). Steps: checkout monorepo, install Python (uv), run `python3 tooling/sync-upstreams/fork_sync_pipeline.py --status`. If new commits detected, run `fork_sync_pipeline.py --sync --auto` (add `--auto` flag to skip interactive prompt in non-TTY). Then run `upstream_ingest_pipeline.py`. On failure, open a GitHub issue via `gh issue create` with the error output. This fully automates the QwenLM->fork->integration path. | -- |
 | #73 | LKG rollback script | Create `tooling/sync-upstreams/rollback_to_lkg.py`. Args: optional `--tag LKG-YYYYMMDD-HHMM` (defaults to most recent LKG tag). Steps: find tag via `git tag -l 'LKG-*' --sort=-version:refname | head -1`, confirm with user, `git checkout integration`, `git reset --hard <tag>`, `git push --force-with-lease origin integration`. Add rollback instructions to `docs/meta/pipeline-runbook.md`. | -- |
 | #74 | Automate integration->develop promotion | After successful LKG tag in `PromotionEngine.promote()`, automatically fast-forward merge `integration` into `develop` if CI is green, or create a PR if not. Simplest version: after tagging, run `git checkout develop && git merge --ff-only integration && git push origin develop && git checkout integration`. Add `--no-auto-promote` flag to skip for manual control. | -- |
-| #80 | S-REC: Fix MCP Stdio Race Condition | Root Cause: Aggressive `anyio` task group cancellation on `stdin` EOF. Path: Documentation $\to$ Analysis $\to$ Fix $\to$ Certification. | -- |
-| #82 | INFRA: Expand Operational Linter | Add `OPERATIONAL` domain to `tooling/project_standards_linter.py` to audit process markers (e.g., `TASKS.md` updates, commit message links). | #80 |
-| #83 | INFRA: Optimize `QWEN.md` for Fast-Activation | Add a high-density " Agent Quick-Start" cheat sheet to the top of `QWEN.md` for immediate constraint activation. | #80 |
+| CP-REF-01 | REFACTOR: Split `task_decomposer.py:decompose` | Decompose `decompose` function (256 lines) into smaller helper functions; ensure all functions $\le 50$ lines. | -- |
+| CP-REF-02 | REFACTOR: Split `tool_executor.py:call_model` | Decompose `call_model` function (97 lines) into smaller helper functions; ensure all functions $\le 50$ lines. | -- |
+| CP-REF-03 | REFACTOR: Split `control_plane.py:process_intent` | Decompose `process_intent` function (85 lines) into smaller helper functions; ensure all functions $\le 50$ lines. | -- |
+| CP-REF-04 | REFACTOR: Split `intent_classifier.py:classify` | Decompose `classify` function (65 lines) into smaller helper functions; ensure all functions $\le 50$ lines. | -- |
+| CP-REF-05 | REFACTOR: Flatten `command_manager.py` | Refactor deeply nested logic in `command_manager.py` to reduce max nesting depth to $\le 3$ using guard clauses. | -- |
+| CP-REF-06 | REFACTOR: Flatten `execution_profile_selector.py` | Refactor deeply nested logic in `execution_profile_selector.py` to reduce max nesting depth to $\le 3$ using guard clauses. | -- |
+| CP-REF-07 | REFACTOR: Flatten `handlers.py` | Refactor deeply nested logic in `handlers.py` to reduce max nesting depth to $\le 3$ using guard clauses. | -- |
+| CP-REF-08 | REFACTOR: Flatten `policy_engine.py` | Refactor deeply nested logic in `policy_engine.py` to reduce max nesting depth to $\le 3$ using guard clauses. | -- |
+| TEST-THR-01 | TEST: Establish baseline coverage report | Generate and document a comprehensive coverage report for the current state of the monorepo. | -- |
+| TEST-THR-02 | TEST: Set mandatory coverage minimum | Configure test runner to require a minimum coverage threshold (e.g., 80%) for all new/modified modules. | TEST-THR-01 |
+| TEST-THR-03 | TEST: Implement property-based testing | Add property-based tests (e.g., using Hypothesis) for the `policy_engine.py` to validate logical invariants. | -- |
+| TEST-THR-04 | TEST: Expand integration failure scenarios | Develop integration tests specifically targeting edge-case failure modes in the control plane daemon. | -- |
+| TEST-THR-05 | TEST: Implement CI coverage gate | Add a CI pipeline step that fails the build if the overall coverage percentage drops below the established baseline. | TEST-THR-02 |
 
 ---
 
@@ -68,6 +78,9 @@ Read at session start. Commit every status change.
 
 | ID | Subject | Commit |
 | :--- | :--- | :--- |
+| #83 | INFRA: Optimize `QWEN.md` for Fast-Activation | -- |
+| #82 | INFRA: Expand Operational Linter | -- |
+| #81 | INFRA: Implement `.mega-context` anchors | -- |
 | #80 | S-REC: Fix MCP Stdio Race Condition | 3f3b83d36 |
 | #65 | Final isolation validation | 3dae91c77 |
 | #64 | Status tool hardening | 3dae91c77 |

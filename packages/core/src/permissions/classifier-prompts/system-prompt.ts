@@ -44,7 +44,7 @@ export const BUILTIN_DENY: readonly string[] = Object.freeze([
 /** Built-in environment / context lines. */
 export const BUILTIN_ENVIRONMENT: readonly string[] = Object.freeze([
   'The user runs the agent in their development environment.',
-  'Actions consistent with the user's most recent message reflect user intent.',
+  "Actions consistent with the user's most recent message reflect user intent.",
   // QWEN.md / GEMINI.md / CLAUDE.md are checked-in repository files and
   // a hostile clone can ship arbitrary instructions in them. Scope the
   // "user intent" inference to project-scoped actions only -- anything

@@ -43,6 +43,9 @@ The requirement that every code change must be verified by an independent tool (
 ### S-CORRECT (Deterministic Loop)
 The operational loop used when verification fails: $\text{Observe} \to \text{Analyze} \to \text{Isolate} \to \text{Correct} \to \text{Re-Verify}$.
 
+### OPS (Optimization Preservation Standard)
+The **OPS** is the project's standard for lossless file optimization. It mandates **Structural Symmetry** (maintaining a 1:1 mapping of headers, tags, and sequence) and **Anchor Preservation** (protecting critical infrastructure like "Fast-Activate" sections) to prevent the "Lost in the Middle" effect during compression.
+
 ---
 
 ##  Component Mapping

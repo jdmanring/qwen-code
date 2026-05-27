@@ -236,7 +236,7 @@ function preTruncate(value: unknown, maxLength: number, depth = 0): unknown {
  * U+201C/U+201D (curly double), U+300C-F (CJK corner brackets). Bounded
  * quantifier keeps the regex linear (js/polynomial-redos).
  */
-const QUOTE_CHARS = '"\'`''""';
+const QUOTE_CHARS = '"\'`';
 const LEADING_QUOTES_RE = new RegExp(`^[${QUOTE_CHARS}]{1,10}`);
 const TRAILING_QUOTES_RE = new RegExp(`[${QUOTE_CHARS}]{1,10}$`);
 

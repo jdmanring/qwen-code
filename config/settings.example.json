@@ -219,7 +219,7 @@
           "samplingParams": {
             "temperature": 0.7,
             "top_p": 0.95,
-            "repetition_penalty": 1.22,
+            "repetition_penalty": 1.24,
             "max_tokens": 16384
           }
         },

@@ -22,28 +22,28 @@ export function AtAGlance({ qualitative }: { qualitative: QualitativeData }) {
           <strong>What&apos;s working:</strong>{' '}
           <MarkdownText>{atAGlance.whats_working}</MarkdownText>
           <a href="#section-wins" className="see-more">
-            Impressive Things You Did ->
+            Impressive Things You Did {'->'}
           </a>
         </div>
         <div className="glance-section">
           <strong>What&apos;s hindering you:</strong>{' '}
           <MarkdownText>{atAGlance.whats_hindering}</MarkdownText>
           <a href="#section-friction" className="see-more">
-            Where Things Go Wrong ->
+            Where Things Go Wrong {'->'}
           </a>
         </div>
         <div className="glance-section">
           <strong>Quick wins to try:</strong>{' '}
           <MarkdownText>{atAGlance.quick_wins}</MarkdownText>
           <a href="#section-features" className="see-more">
-            Features to Try ->
+            Features to Try {'->'}
           </a>
         </div>
         <div className="glance-section">
           <strong>Ambitious workflows:</strong>{' '}
           <MarkdownText>{atAGlance.ambitious_workflows}</MarkdownText>
           <a href="#section-horizon" className="see-more">
-            On the Horizon ->
+            On the Horizon {'->'}
           </a>
         </div>
       </div>

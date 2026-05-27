@@ -115,7 +115,7 @@ export default {
     "Veure o canviar el mode d'aprovaci per a l's d'eines",
   'Invalid approval mode "{{arg}}". Valid modes: {{modes}}':
     'Mode d\'aprovaci no vlid "{{arg}}". Modes vlids: {{modes}}',
-  'Approval mode set to "{{mode}}"': 'Mode d\'aprovaci establert a "{{mode}}"',
+  'Approval mode set to "{{mode}}"': "Mode d\'aprovaci establert a \"{{mode}}\"",
   'View or change the language setting':
     "Veure o canviar la configuraci d'idioma",
   'List background tasks (text dump -- interactive dialog opens via the footer pill)':
@@ -147,7 +147,7 @@ export default {
   'Cannot rewind conversation: no active model client.':
     'No es pot retrocedir la conversa: cap client de model actiu.',
   'Code restored, but conversation could not be rewound (no active client).':
-    'Codi restaurat, per la conversa no s'ha pogut retrocedir (cap client actiu).',
+    "Codi restaurat, per la conversa no s'ha pogut retrocedir (cap client actiu).",
   'Conversation rewound. Edit your prompt and press Enter to continue.':
     'Conversa retrocedida. Edita la teva indicaci i prem Retorn per continuar.',
   'Rewinding does not affect files edited manually or via shell commands.':
@@ -155,7 +155,7 @@ export default {
   'Cannot rewind to a turn that was compressed. Try a more recent turn.':
     'No es pot retrocedir a un torn que ha estat comprimit. Prova amb un torn ms recent.',
   'File restore is unavailable for this turn (no captured file changes, or this turn predates the current session).':
-    'La restauraci de fitxers no est disponible per a aquest torn (no s'han capturat canvis, o aquest torn s anterior a la sessi actual).',
+    "La restauraci de fitxers no est disponible per a aquest torn (no s'han capturat canvis, o aquest torn s anterior a la sessi actual).",
   '(+{{insertions}} -{{deletions}} in {{count}} file)':
     '(+{{insertions}} -{{deletions}} en {{count}} fitxer)',
   '(+{{insertions}} -{{deletions}} in {{count}} files)':
@@ -182,7 +182,7 @@ export default {
     "La configuraci del tema no est disponible degut a la variable d'entorn NO_COLOR.",
   'Theme "{{themeName}}" not found.': 'Tema "{{themeName}}" no trobat.',
   'Theme "{{themeName}}" not found in selected scope.':
-    'Tema "{{themeName}}" no trobat en l\'mbit seleccionat.',
+    "Tema \"{{themeName}}\" no trobat en l\'mbit seleccionat.",
   'Clear conversation history and free up context':
     "Esborrar l'historial de la conversa i alliberar context",
   'Compresses the context by replacing it with a summary.':
@@ -249,7 +249,7 @@ export default {
   'Edit color': 'Editar color',
   ' Error:': ' Error:',
   'Are you sure you want to delete agent "{{name}}"?':
-    'Esteu segur que voleu eliminar l\'agent "{{name}}"?',
+    "Esteu segur que voleu eliminar l\'agent \"{{name}}\"?",
 
   // ============================================================================
   // Agents - Assistent de creaci
@@ -258,7 +258,7 @@ export default {
   'User Level (~/.qwen/agents/)': "Nivell d'usuari (~/.qwen/agents/)",
   ' Subagent Created Successfully!': ' Subagent creat correctament!',
   'Subagent "{{name}}" has been saved to {{level}} level.':
-    'El subagent "{{name}}" s\'ha desat al nivell {{level}}.',
+    "El subagent \"{{name}}\" s\'ha desat al nivell {{level}}.",
   'Name: ': 'Nom: ',
   'Location: ': 'Ubicaci: ',
   ' Error saving subagent:': ' Error en desar el subagent:',
@@ -266,7 +266,7 @@ export default {
   'Name "{{name}}" already exists at {{level}} level - will overwrite existing subagent':
     'El nom "{{name}}" ja existeix al nivell {{level}} - sobreescriur el subagent existent',
   'Name "{{name}}" exists at user level - project level will take precedence':
-    'El nom "{{name}}" existeix al nivell d\'usuari - el nivell de projecte tindr prioritat',
+    "El nom \"{{name}}\" existeix al nivell d\'usuari - el nivell de projecte tindr prioritat",
   'Name "{{name}}" exists at project level - existing subagent will take precedence':
     'El nom "{{name}}" existeix al nivell de projecte - el subagent existent tindr prioritat',
   'Description is over {{length}} characters':
@@ -354,10 +354,10 @@ export default {
   'Version:': 'Versi:',
   'Status:': 'Estat:',
   'Are you sure you want to uninstall extension "{{name}}"?':
-    'Esteu segur que voleu desinstallar l\'extensi "{{name}}"?',
+    "Esteu segur que voleu desinstallar l\'extensi \"{{name}}\"?",
   'This action cannot be undone.': 'Aquesta acci no es pot desfer.',
   'Extension "{{name}}" updated successfully.':
-    'L\'extensi "{{name}}" s\'ha actualitzat correctament.',
+    "L\'extensi \"{{name}}\" s\'ha actualitzat correctament.",
   'Name:': 'Nom:',
   'MCP Servers:': 'MCP Servers:',
   'Settings:': 'Configuraci:',
@@ -486,12 +486,12 @@ export default {
   'Installing extension from "{{source}}"...':
     'Installant extensi des de "{{source}}"...',
   'Extension "{{name}}" installed successfully.':
-    'L\'extensi "{{name}}" s\'ha installat correctament.',
+    "L\'extensi \"{{name}}\" s\'ha installat correctament.",
   'Failed to install extension from "{{source}}": {{error}}':
     'Error en installar l\'extensi des de "{{source}}": {{error}}',
   'Do you want to continue? [Y/n]: ': 'Voleu continuar? [S/n]: ',
   'Do you want to continue?': 'Voleu continuar?',
-  'Installing extension "{{name}}".': 'Installant l\'extensi "{{name}}".',
+  'Installing extension "{{name}}".': "Installant l\'extensi \"{{name}}\".",
   '**Extensions may introduce unexpected behavior. Ensure you have investigated the extension source and trust the author.**':
     "**Les extensions poden introduir comportaments inesperats. Assegureu-vos d'haver investigat la font de l'extensi i de confiar en l'autor.**",
   'This extension will run the following MCP servers:':
@@ -513,7 +513,7 @@ export default {
   '--ref and --auto-update are not applicable for marketplace extensions.':
     "--ref i --auto-update no s'apliquen a les extensions del mercat.",
   'Extension "{{name}}" installed successfully and enabled.':
-    'L\'extensi "{{name}}" s\'ha installat i activat correctament.',
+    "L\'extensi \"{{name}}\" s\'ha installat i activat correctament.",
   'The github URL, local path, or marketplace source (marketplace-url:plugin-name) of the extension to install.':
     "La URL de GitHub, el cam local o la font del mercat (marketplace-url:nom-del-connector) de l'extensi a installar.",
   'The git ref to install from.':
@@ -526,7 +526,7 @@ export default {
     "Acceptar els riscos de seguretat d'installar una extensi i ometre el missatge de confirmaci.",
   'The source argument must be provided.': "Cal proporcionar l'argument font.",
   'Extension "{{name}}" successfully uninstalled.':
-    'L\'extensi "{{name}}" s\'ha desinstallat correctament.',
+    "L\'extensi \"{{name}}\" s\'ha desinstallat correctament.",
   'Uninstalls an extension.': 'Desinstalla una extensi.',
   'The name or source path of the extension to uninstall.':
     "El nom o cam font de l'extensi a desinstallar.",
@@ -537,9 +537,9 @@ export default {
   'The scope to enable the extenison in. If not set, will be enabled in all scopes.':
     "L'mbit en el qual activar l'extensi. Si no s'estableix, s'activar en tots els mbits.",
   'Extension "{{name}}" successfully enabled for scope "{{scope}}".':
-    'L\'extensi "{{name}}" s\'ha activat correctament per a l\'mbit "{{scope}}".',
+    "L\'extensi \"{{name}}\" s\'ha activat correctament per a l\'mbit \"{{scope}}\".",
   'Extension "{{name}}" successfully enabled in all scopes.':
-    'L\'extensi "{{name}}" s\'ha activat correctament en tots els mbits.',
+    "L\'extensi \"{{name}}\" s\'ha activat correctament en tots els mbits.",
   'Invalid scope: {{scope}}. Please use one of {{scopes}}.':
     'mbit no vlid: {{scope}}. Useu un dels segents: {{scopes}}.',
   'Disables an extension.': 'Desactiva una extensi.',
@@ -547,13 +547,13 @@ export default {
   'The scope to disable the extenison in.':
     "L'mbit en el qual desactivar l'extensi.",
   'Extension "{{name}}" successfully disabled for scope "{{scope}}".':
-    'L\'extensi "{{name}}" s\'ha desactivat correctament per a l\'mbit "{{scope}}".',
+    "L\'extensi \"{{name}}\" s\'ha desactivat correctament per a l\'mbit \"{{scope}}\".",
   'Extension "{{name}}" successfully updated: {{oldVersion}} -> {{newVersion}}.':
     'L\'extensi "{{name}}" s\'ha actualitzat correctament: {{oldVersion}} -> {{newVersion}}.',
   'Unable to install extension "{{name}}" due to missing install metadata':
-    'No es pot installar l\'extensi "{{name}}" per manca de metadades d\'installaci',
+    "No es pot installar l\'extensi \"{{name}}\" per manca de metadades d\'installaci",
   'Extension "{{name}}" is already up to date.':
-    'L\'extensi "{{name}}" ja s al dia.',
+    "L\'extensi \"{{name}}\" ja s al dia.",
   'Updates all extensions or a named extension to the latest version.':
     "Actualitza totes les extensions o una extensi especfica a l'ltima versi.",
   'Update all extensions.': 'Actualitzar totes les extensions.',
@@ -574,7 +574,7 @@ export default {
   'Link extension failed to install.':
     "No s'ha pogut installar l'extensi d'enlla.",
   'Extension "{{name}}" linked successfully and enabled.':
-    'L\'extensi "{{name}}" s\'ha enllaat i activat correctament.',
+    "L\'extensi \"{{name}}\" s\'ha enllaat i activat correctament.",
   'Links an extension from a local path. Updates made to the local path will always be reflected.':
     "Enllaa una extensi des d'un cam local. Els canvis al cam local sempre es reflectiran.",
   'The name of the extension to link.': "El nom de l'extensi a enllaar.",
@@ -588,7 +588,7 @@ export default {
     "Llistar tota la configuraci d'una extensi.",
   'Name of the extension.': "Nom de l'extensi.",
   'Extension "{{name}}" has no settings to configure.':
-    'L\'extensi "{{name}}" no t cap configuraci.',
+    "L\'extensi \"{{name}}\" no t cap configuraci.",
   'Settings for "{{name}}":': 'Configuraci per a "{{name}}":',
   '(workspace)': '(espai de treball)',
   '(user)': '(usuari)',
@@ -728,7 +728,7 @@ export default {
   'Input to command is JSON of tool call arguments.':
     "L'entrada a l'ordre s JSON dels arguments de la crida a l'eina.",
   'Input to command is JSON with fields "inputs" (tool call arguments) and "response" (tool call response).':
-    'L\'entrada a l\'ordre s JSON amb els camps "inputs" (arguments de la crida a l\'eina) i "response" (resposta de la crida a l\'eina).',
+    "L\'entrada a l\'ordre s JSON amb els camps \"inputs\" (arguments de la crida a l\'eina) i \"response\" (resposta de la crida a l\'eina).",
   'Input to command is JSON with tool_name, tool_input, tool_use_id, error, error_type, is_interrupt, and is_timeout.':
     "L'entrada a l'ordre s JSON amb tool_name, tool_input, tool_use_id, error, error_type, is_interrupt i is_timeout.",
   'Input to command is JSON with notification message and type.':
@@ -1090,7 +1090,7 @@ export default {
   'MCP Server: {{server}}': 'MCP Server: {{server}}',
   'Tool: {{tool}}': 'Eina: {{tool}}',
   'Allow execution of MCP tool "{{tool}}" from server "{{server}}"?':
-    'Permetre l\'execuci de MCP tool "{{tool}}" des de MCP server "{{server}}"?',
+    "Permetre l\'execuci de MCP tool \"{{tool}}\" des de MCP server \"{{server}}\"?",
   // ============================================================================
   // Dilegs - Confirmaci de shell
   // ============================================================================
@@ -1656,7 +1656,7 @@ export default {
   'New model configurations are available for {{region}}. Update now?':
     'Hi ha noves configuracions de model disponibles per a {{region}}. Actualitzeu ara?',
   '{{region}} configuration updated successfully. Model switched to "{{model}}".':
-    'La configuraci de {{region}} s\'ha actualitzat correctament. El model ha canviat a "{{model}}".',
+    "La configuraci de {{region}} s\'ha actualitzat correctament. El model ha canviat a \"{{model}}\".",
   // ============================================================================
   // Component d's del context
   // ============================================================================
@@ -1684,7 +1684,7 @@ export default {
   'Run /context detail for per-item breakdown.':
     'Executeu /context detail per a un desglossament per element.',
   'Show context window usage breakdown. Use "/context detail" for per-item breakdown.':
-    'Mostrar el desglossament de l\'s de la finestra de context. Useu "/context detail" per a un desglossament per element.',
+    "Mostrar el desglossament de l\'s de la finestra de context. Useu \"/context detail\" per a un desglossament per element.",
   'body loaded': 'cos carregat',
   memory: 'memria',
   '{{region}} configuration updated successfully.':
@@ -1815,7 +1815,7 @@ export default {
   'Use /arena stop to end the session.':
     'Utilitzeu /arena stop per finalitzar la sessi.',
   'No idle agent found matching "{{name}}".':
-    'No s\'ha trobat cap agent inactiu que coincideixi amb "{{name}}".',
+    "No s\'ha trobat cap agent inactiu que coincideixi amb \"{{name}}\".",
   'Failed to apply changes from {{label}}: {{error}}':
     "No s'han pogut aplicar els canvis de {{label}}: {{error}}",
   'Applied changes from {{label}} to workspace. Arena session complete.':

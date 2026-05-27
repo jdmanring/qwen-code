@@ -106,6 +106,22 @@ class ProjectStandardsLinter:
         )
         self.rules.append(
             Rule(
+                "OPERATIONAL-01",
+                Severity.CRITICAL,
+                self._check_tasks_structure,
+                "TASKS.md missing or malformed. Must contain mandatory sections.",
+            )
+        )
+        self.rules.append(
+            Rule(
+                "OPERATIONAL-02",
+                Severity.WARNING,
+                self._check_commit_links,
+                "Recent commits lack task links (e.g., task(#N)).",
+            )
+        )
+        self.rules.append(
+            Rule(
                 "CODE-01",
                 Severity.WARNING,
                 self._check_type_hints,
@@ -195,9 +211,95 @@ class ProjectStandardsLinter:
                 )
         return violations
 
+    # --- OPERATIONAL domain ---
+
+    def _check_tasks_structure(self, path: Path, content: str) -> list[Issue]:
+        if path != self.root_dir:
+            return []
+
+        tasks_file = self.root_dir / "TASKS.md"
+        if not tasks_file.exists():
+            return [
+                Issue(
+                    tasks_file,
+                    None,
+                    "OPERATIONAL-01",
+                    Severity.CRITICAL,
+                    "TASKS.md missing from root directory.",
+                )
+            ]
+
+        content = tasks_file.read_text(encoding="utf-8")
+        mandatory_sections = ["## In Progress", "## Queue", "## Done"]
+        missing = [s for s in mandatory_sections if s not in content]
+
+        if missing:
+            return [
+                Issue(
+                    tasks_file,
+                    None,
+                    "OPERATIONAL-01",
+                    Severity.CRITICAL,
+                    f"TASKS.md missing mandatory sections: {', '.join(missing)}",
+                )
+            ]
+        return []
+
+    def _check_commit_links(self, path: Path, content: str) -> list[Issue]:
+        if path != self.root_dir:
+            return []
+
+        import subprocess
+
+        try:
+            # Get last 20 commits: hash and subject
+            result = subprocess.run(
+                ["git", "log", "-n", "20", "--pretty=format:%H %s"],
+                capture_output=True,
+                text=True,
+                check=True,
+                cwd=self.root_dir,
+            )
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return []
+
+        commits = result.stdout.splitlines()
+        violations = []
+
+        # Pattern for task links: task(#123) or closes #123
+        task_pattern = re.compile(r"(task\(#\d+\)|closes\s+#\d+)")
+
+        for commit in commits:
+            if not commit.strip():
+                continue
+
+            # Separate hash and subject
+            parts = commit.split(" ", 1)
+            if len(parts) < 2:
+                continue
+
+            subject = parts[1]
+            if not task_pattern.search(subject):
+                # We only warn if the commit likely changes source code
+                # For simplicity, we check if it's a standard commit.
+                # In a real scenario, we'd check `git show --name-only`
+                violations.append(
+                    Issue(
+                        self.root_dir,
+                        None,
+                        "OPERATIONAL-02",
+                        Severity.WARNING,
+                        f"Commit {parts[0][:7]} lacks task link: '{subject}'",
+                    )
+                )
+
+        # To avoid spamming, we only report the most recent violation
+        return violations[:1] if violations else []
+
     # --- CONFIG domain ---
 
     def _check_config_docs_symmetry(self, path: Path, content: str) -> list[Issue]:
+
         if path != self.root_dir:
             return []
 
@@ -514,7 +616,7 @@ class ProjectStandardsLinter:
         all_issues: list[Issue] = []
 
         for rule in self.rules:
-            if rule.rule_id.startswith("CONFIG"):
+            if rule.rule_id.startswith("CONFIG") or rule.rule_id.startswith("OPERATIONAL"):
                 all_issues.extend(rule.check_func(self.root_dir, ""))
 
         for target in target_paths:

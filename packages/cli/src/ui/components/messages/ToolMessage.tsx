@@ -796,6 +796,6 @@ const ToolInfo: React.FC<ToolInfo> = ({
 const TrailingIndicator: React.FC = () => (
   <Text color={theme.text.primary} wrap="truncate">
     {' '}
-    <-
+    {'<-'}
   </Text>
 );
