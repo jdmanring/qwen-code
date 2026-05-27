@@ -8,10 +8,14 @@ on:
   push:
     branches:
       - 'main'
+      - 'develop'
+      - 'integration'
       - 'release/**'
   pull_request:
     branches:
       - 'main'
+      - 'develop'
+      - 'integration'
       - 'release/**'
   merge_group:
   workflow_dispatch:

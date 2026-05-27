@@ -1,0 +1,32 @@
+name: 'Upstream Watch'
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Every 6 hours
+  workflow_dispatch:
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v4'
+        with:
+          fetch-depth: 0
+
+      - name: 'Set up Python'
+        uses: 'actions/setup-python@v5'
+        with:
+          python-version: '3.11'
+
+      - name: 'Configure Upstream Remote'
+        run: |
+          git remote add upstream https://x-access-token:${{ secrets.SYNC_TOKEN }}@github.com/jdmanring/qwen-code.git
+          git fetch upstream main
+
+      - name: 'Sync Upstream'
+        run: |
+          python3 tooling/sync-upstreams/fork_sync_pipeline.py --sync --auto

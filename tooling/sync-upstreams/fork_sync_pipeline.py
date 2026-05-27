@@ -411,7 +411,7 @@ def cmd_status(git: _GitRunner) -> None:
         git.run(["git", "update-ref", "-d", QWENLM_TEMP_REF], check=False)
 
 
-def cmd_sync(git: _GitRunner, dry_run: bool = False) -> None:
+def cmd_sync(git: _GitRunner, dry_run: bool = False, auto: bool = False) -> None:
     """
     Inbound: fetches new QwenLM commits, runs advisory gates, and on confirmation
     fast-forward pushes them to the fork (upstream remote).
@@ -419,6 +419,8 @@ def cmd_sync(git: _GitRunner, dry_run: bool = False) -> None:
     Advisory gates are informational -- they display flagged items so the human
     can make an informed decision. After reviewing, an explicit 'y' is required
     to proceed. Any answer other than 'y' cancels the sync safely.
+
+    If --auto is provided, confirmation is skipped and sync proceeds automatically.
 
     After a successful sync, run upstream_ingest_pipeline.py to absorb the
     fork's new commits into integration.
@@ -540,7 +542,13 @@ def cmd_sync(git: _GitRunner, dry_run: bool = False) -> None:
             )
 
         print()
-        confirm = input(f"Absorb {qwenlm_ahead} commit(s) into the fork? [y/N] ").strip().lower()
+        if auto:
+            confirm = "y"
+            log_info("Auto-mode enabled: skipping confirmation.")
+        else:
+            prompt = f"Absorb {qwenlm_ahead} commit(s) into the fork? [y/N] "
+            confirm = input(prompt).strip().lower()
+
         if confirm != "y":
             log_warn("Sync cancelled.")
             return
@@ -705,6 +713,11 @@ def main() -> None:
         action="store_true",
         help=("Evaluate gates only; do not push anything. Valid with --sync and --contribute."),
     )
+    parser.add_argument(
+        "--auto",
+        action="store_true",
+        help="Skip confirmation for --sync and proceed automatically.",
+    )
     args = parser.parse_args()
 
     git = _GitRunner(REPO_ROOT)
@@ -715,7 +728,7 @@ def main() -> None:
         if args.status:
             cmd_status(git)
         elif args.sync:
-            cmd_sync(git, dry_run=args.dry_run)
+            cmd_sync(git, dry_run=args.dry_run, auto=args.auto)
         elif args.contribute:
             commit_hash, branch_name = args.contribute
             cmd_contribute(git, commit_hash, branch_name, dry_run=args.dry_run)

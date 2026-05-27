@@ -368,6 +368,24 @@ class PromotionEngine:
         log_success(f"Tagged as {tag}.")
         return tag
 
+    def promote_to_develop(self) -> bool:
+        """
+        Fast-forward merges 'integration' into 'develop' and pushes to origin.
+        Returns True if successful, False otherwise.
+        """
+        log_info("Auto-promoting integration -> develop...")
+        try:
+            self._git.run(["git", "checkout", "develop"])
+            self._git.run(["git", "merge", "--ff-only", INTEGRATION_BRANCH])
+            self._git.run(["git", "push", "origin", "develop"])
+            self._git.run(["git", "checkout", INTEGRATION_BRANCH])
+            log_success("Auto-promotion to develop successful.")
+            return True
+        except subprocess.CalledProcessError as e:
+            log_error(f"Auto-promotion to develop failed: {e.stderr}")
+            self._git.run(["git", "checkout", INTEGRATION_BRANCH], check=False)
+            return False
+
 
 class UpstreamIngestPipeline:
     """
@@ -385,9 +403,10 @@ class UpstreamIngestPipeline:
         integration  [ff-only merge + LKG tag]
     """
 
-    def __init__(self, dry_run: bool = False) -> None:
+    def __init__(self, dry_run: bool = False, auto_promote: bool = True) -> None:
         self._git = _GitRunner(REPO_ROOT)
         self._dry_run = dry_run
+        self._auto_promote = auto_promote
         self.preflight = PreFlight(self._git)
         self.sync = SyncManager(self._git)
         self.gates = GateKeeper(self._git)
@@ -425,6 +444,10 @@ class UpstreamIngestPipeline:
             if not self.sync.staging_branch:
                 raise RuntimeError("staging_branch is None after create_staging -- this is a bug")
             tag = self.promotion.promote(self.sync.staging_branch)
+
+            if self._auto_promote:
+                self.promotion.promote_to_develop()
+
             return SyncResult(True, "PROMOTION", "Sync complete.", lkg_tag=tag)
 
         except (RuntimeError, subprocess.CalledProcessError, OSError) as e:
@@ -450,9 +473,16 @@ def main() -> None:
         action="store_true",
         help="Run all gates against the current working state without syncing or promoting.",
     )
+    parser.add_argument(
+        "--no-auto-promote",
+        action="store_false",
+        dest="auto_promote",
+        help="Disable automatic promotion of integration to develop after successful sync.",
+    )
+    parser.set_defaults(auto_promote=True)
     args = parser.parse_args()
 
-    orch = UpstreamIngestPipeline(dry_run=args.dry_run)
+    orch = UpstreamIngestPipeline(dry_run=args.dry_run, auto_promote=args.auto_promote)
     result = orch.run()
 
     if result.success:

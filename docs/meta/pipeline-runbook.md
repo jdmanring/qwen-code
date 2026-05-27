@@ -13,7 +13,7 @@ This document is the operational reference for the Upstream Ingest Pipeline. It 
 | Run gate failure tests | `python3 tooling/sync-upstreams/gate_failure_tests.py` |
 | Sync fork from QwenLM (step 1) | `python3 tooling/sync-upstreams/fork_sync_pipeline.py --sync` |
 | Contribute a commit to fork (step 2) | `python3 tooling/sync-upstreams/fork_sync_pipeline.py --contribute <hash> <name>` |
-| Roll back integration | `git reset --hard <LKG-tag>` |
+| Roll back integration | `python3 tooling/sync-upstreams/rollback_to_lkg.py` |
 
 ---
 
@@ -209,6 +209,16 @@ PIPELINE GATE FAILURE TEST REPORT
 
 Every successful promotion is tagged `LKG-YYYYMMDD-HHMM` (Last Known Good).
 
+**Using the rollback utility (Recommended):**
+```bash
+# Roll back to the most recent LKG tag
+python3 tooling/sync-upstreams/rollback_to_lkg.py
+
+# Roll back to a specific LKG tag
+python3 tooling/sync-upstreams/rollback_to_lkg.py --tag LKG-20260523-0426
+```
+
+**Manual rollback (Destructive -- confirm first):**
 ```bash
 # List available LKG tags
 git tag -l "LKG-*" | sort -r | head -10
@@ -216,7 +226,7 @@ git tag -l "LKG-*" | sort -r | head -10
 # Inspect a tag without changing branch
 git show LKG-20260523-0426
 
-# Roll back integration to a prior LKG (destructive -- confirm first)
+# Roll back integration
 git checkout integration
 git reset --hard LKG-20260523-0426
 ```
