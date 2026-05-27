@@ -26,7 +26,7 @@ class MemoryRecord:
         """Validates the record integrity."""
         if not self.text:
             raise ValueError("Memory record text cannot be empty.")
-        if self.tier not in ["local", "cloud"]:
+        if self.tier not in ["local", "cloud", "sync"]:
             raise ValueError(f"Invalid tier: {self.tier}")
         if not (1 <= self.importance <= 10):
             raise ValueError(f"Importance must be between 1 and 10. Got: {self.importance}")

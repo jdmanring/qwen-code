@@ -1,27 +1,220 @@
 import asyncio
 import json
-import logging
 import os
 import socket
 import struct
 import sys
 import traceback
 from collections.abc import AsyncGenerator, AsyncIterator
-from contextlib import AsyncExitStack
 from typing import Any
 
 import anyio
 from mcp.server import Server
 from mcp.server.lowlevel.server import NotificationOptions
 from mcp.server.models import InitializationOptions
-from mcp.server.session import ServerSession
-from mcp.server.stdio import stdio_server
 from mcp.shared.message import SessionMessage
 from mcp.types import JSONRPCMessage, TextContent, Tool
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("mcp.transport.uds")
+
+class CloseShieldSendStream:
+    """
+    A proxy for a MemoryObjectSendStream that ignores close() calls.
+    This prevents the MCP SDK from prematurely closing the transport.
+    """
+
+    def __init__(self, stream: anyio.streams.memory.MemoryObjectSendStream) -> None:
+        self._stream = stream
+
+    async def send(self, value: Any) -> None:
+        await self._stream.send(value)
+
+    def close(self) -> None:
+        # Ignore close calls from the SDK.
+        # The ShutdownCoordinator will close the stream explicitly.
+        pass
+
+    def __await__(self) -> Any:
+        return self._stream.__await__()
+
+    async def __aenter__(self) -> "CloseShieldSendStream":
+        return self
+
+    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        pass
+
+
+class StdioReadStream:
+    """
+    A hybrid stream that acts as both an AsyncIterator (for MCP session reading)
+    and an AsyncContextManager (for MCP session cleanup).
+    """
+
+    def __init__(
+        self, receive_stream: anyio.streams.memory.MemoryObjectReceiveStream[SessionMessage]
+    ) -> None:
+        self._receive_stream = receive_stream
+
+    async def __aenter__(self) -> "StdioReadStream":
+        return self
+
+    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        # The SDK calls this during shutdown.
+        pass
+
+    def __aiter__(self) -> AsyncIterator[SessionMessage]:
+        return self._gen()
+
+    async def _gen(self) -> AsyncGenerator[SessionMessage, None]:
+        async with self._receive_stream:
+            async for message in self._receive_stream:
+                if message is SENTINEL_EOF:
+                    return
+                yield message
+
+
+SENTINEL_EOF = object()
+SENTINEL_SHUTDOWN = object()
+
+
+class RequestRegistry:
+    """
+    Tracks active requests by their IDs to ensure graceful shutdown.
+    """
+
+    def __init__(self) -> None:
+        self._active_ids: set[Any] = set()
+        self._condition = asyncio.Condition()
+        self._id = id(self)
+
+    async def __aenter__(self) -> "RequestRegistry":
+        # This is kept for compatibility but not used in the new ID-based flow.
+        return self
+
+    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        pass
+
+    def inc(self, request_id: Any) -> None:
+        """Synchronous increment for worker threads/readers."""
+        loop = asyncio.get_event_loop()
+        loop.call_soon_threadsafe(self._sync_inc, request_id)
+
+    def dec(self, request_id: Any) -> None:
+        """Synchronous decrement for worker threads/writers."""
+        loop = asyncio.get_event_loop()
+        loop.call_soon_threadsafe(self._sync_dec, request_id)
+
+    def _sync_inc(self, request_id: Any) -> None:
+        self._active_ids.add(request_id)
+        sys.stderr.write(f"[REGISTRY] INC: ID={request_id}, Active={len(self._active_ids)}\n")
+        sys.stderr.flush()
+
+    def _sync_dec(self, request_id: Any) -> None:
+        if request_id in self._active_ids:
+            self._active_ids.remove(request_id)
+            sys.stderr.write(f"[REGISTRY] DEC: ID={request_id}, Active={len(self._active_ids)}\n")
+            sys.stderr.flush()
+            asyncio.create_task(self._notify_condition())
+
+    async def _notify_condition(self) -> None:
+        async with self._condition:
+            self._condition.notify_all()
+
+    async def wait_until_empty(self, timeout: float = 5.0) -> bool:
+        """Blocks until there are no active requests or timeout is reached."""
+        sys.stderr.write(f"[REGISTRY] Waiting until empty... Active IDs={len(self._active_ids)}\n")
+        sys.stderr.flush()
+        try:
+            async with asyncio.timeout(timeout):
+                async with self._condition:
+                    while len(self._active_ids) > 0:
+                        await self._condition.wait()
+            sys.stderr.write("[REGISTRY] Registry is now empty. Proceeding with shutdown.\n")
+            sys.stderr.flush()
+            return True
+        except TimeoutError:
+            sys.stderr.write(f"[REGISTRY] TIMEOUT reached! Pending IDs: {self._active_ids}\n")
+            sys.stderr.flush()
+            return False
+
+
+async def stdin_reader(
+    send_stream: anyio.streams.memory.MemoryObjectSendStream[SessionMessage | Exception | object],
+    registry: RequestRegistry,
+) -> None:
+    """Reads from stdin and sends messages to the send stream."""
+    try:
+        while True:
+            # Use to_thread to avoid blocking the event loop with sys.stdin.readline
+            line = await anyio.to_thread.run_sync(sys.stdin.readline)
+            if not line:
+                await send_stream.send(SENTINEL_EOF)
+                break
+
+            try:
+                message = JSONRPCMessage.model_validate_json(line)
+                root = message.root
+                # Increment registry for every request that requires a response (has an ID)
+                if hasattr(root, "id") and root.id is not None:
+                    registry.inc(root.id)
+
+                session_message = SessionMessage(message=message)
+                await send_stream.send(session_message)
+            except Exception as exc:
+                await send_stream.send(exc)
+    except Exception as e:
+        sys.stderr.write(f"Error in stdin_reader: {e}\n")
+        sys.stderr.flush()
+    # No close() here. Stream closure is managed by the ShutdownCoordinator.
+
+
+async def stdout_writer(
+    receive_stream: anyio.streams.memory.MemoryObjectReceiveStream[SessionMessage | object],
+    registry: RequestRegistry,
+) -> None:
+    """Reads from the receive stream and writes messages to stdout."""
+    try:
+        while True:
+            try:
+                session_message = await receive_stream.receive()
+            except (anyio.ClosedResourceError, anyio.EndOfStream):
+                # Stream closed. This is expected during graceful shutdown.
+                break
+
+            if session_message is SENTINEL_SHUTDOWN:
+                break
+
+            # Extract the actual message payload
+            if hasattr(session_message, "message"):
+                payload_obj = session_message.message
+            elif isinstance(session_message, dict) and "message" in session_message:
+                payload_obj = session_message["message"]
+            else:
+                payload_obj = session_message
+
+            # Serialize to JSON
+            if hasattr(payload_obj, "model_dump_json"):
+                serialized = payload_obj.model_dump_json(by_alias=True, exclude_none=True)
+            else:
+                serialized = json.dumps(payload_obj)
+
+            sys.stderr.write(f"[WRITER] Sending: {serialized}\n")
+            sys.stderr.flush()
+
+            # Use print with flush=True to ensure the message is sent immediately
+            print(serialized, flush=True)
+
+            # Decrement registry ONLY if this was a response to a request
+            # The payload_obj is a JSONRPCMessage (RootModel), so we access
+            # the wrapped object via .root
+            if hasattr(payload_obj, "root"):
+                root = payload_obj.root
+                if hasattr(root, "id") and root.id is not None:
+                    registry.dec(root.id)
+            elif hasattr(payload_obj, "id") and payload_obj.id is not None:
+                registry.dec(payload_obj.id)
+    except Exception:
+        sys.stderr.write(f"[ERROR] stdout_writer failure: {traceback.format_exc()}\n")
+        sys.stderr.flush()
 
 
 class UDSReadStream:
@@ -36,48 +229,35 @@ class UDSReadStream:
         self._read_task: asyncio.Task | None = None
 
     async def __aenter__(self) -> "UDSReadStream":
-        """Start the background read loop upon entering the context, ensuring it only runs once."""
         if self._read_task is None or self._read_task.done():
             self._read_task = asyncio.create_task(self._read_loop())
         return self
 
-    async def __aexit__(self, exc_type: object, exc_val: object, exc_tb: object) -> None:
-        """Ensure the background task is cancelled and queue is closed."""
+    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         if self._read_task:
             self._read_task.cancel()
             try:
                 await self._read_task
             except asyncio.CancelledError:
                 pass
-        # Signal EOF to the consumer
         await self._queue.put(None)
 
     async def _read_loop(self) -> None:
-        """
-        Background loop that reads raw bytes from the UDS socket,
-        deserializes them into SessionMessages, and pushes them into the queue.
-        """
         try:
             buffer = bytearray()
             while True:
                 chunk = await self._reader.read(4096)
                 if not chunk:
-                    # Socket closed
                     break
 
                 buffer.extend(chunk)
 
-                # Attempt to extract complete JSON objects from the buffer
                 while True:
                     try:
-                        # Find the first '{' and last '}' to attempt to isolate a JSON object
-                        # This is a simplified approach; a robust one would track brace nesting
                         start = buffer.find(b"{")
                         if start == -1:
                             break
 
-                        # Try to find the matching closing brace
-                        # We use a simple brace counter to find the end of the object
                         brace_count = 0
                         end = -1
                         for i in range(start, len(buffer)):
@@ -90,10 +270,8 @@ class UDSReadStream:
                                     break
 
                         if end == -1:
-                            # Incomplete object, wait for more data
                             break
 
-                        # Extract the object and remove it from the buffer
                         line = buffer[start:end]
                         del buffer[:end]
 
@@ -102,28 +280,29 @@ class UDSReadStream:
                             rpc_message = JSONRPCMessage(**data) if isinstance(data, dict) else data
                             message = SessionMessage(message=rpc_message)
                             await self._queue.put(message)
-                        except (  # noqa: E501 - kept for readability
+                        except (
                             json.JSONDecodeError,
                             UnicodeDecodeError,
                             TypeError,
                             ValueError,
                         ) as e:
-                            logger.error(f"Failed to deserialize MCP message: {e}")
+                            sys.stderr.write(f"Failed to deserialize MCP message: {e}\n")
+                            sys.stderr.flush()
                             continue
 
                     except Exception as e:
-                        logger.error(f"Unexpected error during buffer parsing: {e}")
+                        sys.stderr.write(f"Unexpected error during buffer parsing: {e}\n")
+                        sys.stderr.flush()
                         break
         except asyncio.CancelledError:
             raise
         except (OSError, RuntimeError) as e:
-            logger.exception(f"Unexpected error in UDS read loop: {e}")
+            sys.stderr.write(f"Unexpected error in UDS read loop: {e}\n")
+            sys.stderr.flush()
         finally:
             await self._queue.put(None)
 
     def __aiter__(self) -> AsyncIterator[SessionMessage]:
-        """Returns an async generator that yields messages from the queue."""
-
         async def _gen() -> AsyncGenerator[SessionMessage, None]:
             while True:
                 item = await self._queue.get()
@@ -134,7 +313,6 @@ class UDSReadStream:
         return _gen()
 
     async def __anext__(self) -> SessionMessage:
-        """Implementation for compatibility with older async iterator patterns."""
         item = await self._queue.get()
         if item is None:
             raise StopAsyncIteration
@@ -151,24 +329,19 @@ class UDSWriteStream:
         self._writer = writer
 
     async def __aenter__(self) -> "UDSWriteStream":
-        """Enter context; essentially a no-op but required for symmetry."""
         return self
 
-    async def __aexit__(self, exc_type: object, exc_val: object, exc_tb: object) -> None:
-        """Ensure the writer is properly closed."""
+    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         try:
             if self._writer:
                 self._writer.close()
                 await self._writer.wait_closed()
         except (OSError, RuntimeError) as e:
-            logger.error(f"Error closing UDS write stream: {e}")
+            sys.stderr.write(f"Error closing UDS write stream: {e}\n")
+            sys.stderr.flush()
 
     async def send(self, message: SessionMessage) -> None:
-        """
-        Serializes the SessionMessage to JSON and writes it to the socket.
-        """
         try:
-            # Robust payload extraction to avoid AttributeError
             if hasattr(message, "message"):
                 payload_obj = message.message
             elif isinstance(message, dict) and "message" in message:
@@ -176,128 +349,77 @@ class UDSWriteStream:
             else:
                 payload_obj = message
 
-            # Use .model_dump_json() if it's a Pydantic model, otherwise fallback to json.dumps
             if hasattr(payload_obj, "model_dump_json"):
                 serialized = payload_obj.model_dump_json()
             else:
                 serialized = json.dumps(payload_obj)
 
             payload = (serialized + "\n").encode("utf-8")
-
             self._writer.write(payload)
             await self._writer.drain()
         except (OSError, RuntimeError, AttributeError) as e:
-            logger.error(f"Failed to send MCP message: {e}")
+            sys.stderr.write(f"Failed to send MCP message: {e}\n")
+            sys.stderr.flush()
             raise ConnectionError(f"UDS write failure: {e}") from e
 
 
-class GracefulServer(Server):
-    """
-    MCP Server that avoids canceling the task group scope upon transport closure,
-    allowing in-flight requests to complete gracefully.
-    """
-
-    async def run(
-        self,
-        read_stream: Any,
-        write_stream: Any,
-        initialization_options: InitializationOptions,
-        raise_exceptions: bool = False,
-        stateless: bool = False,
-    ) -> None:
-        async with AsyncExitStack() as stack:
-            lifespan_context = await stack.enter_async_context(self.lifespan(self))
-            session = await stack.enter_async_context(
-                ServerSession(
-                    read_stream,
-                    write_stream,
-                    initialization_options,
-                    stateless=stateless,
-                )
-            )
-
-            # Configure task support for this session if enabled
-            task_support = (
-                self._experimental_handlers.task_support if self._experimental_handlers else None
-            )
-            if task_support is not None:
-                task_support.configure_session(session)
-                await stack.enter_async_context(task_support.run())
-
-            async with anyio.create_task_group() as tg:
-                try:
-                    async for message in session.incoming_messages:
-                        logger.debug("Received message: %s", message)
-
-                        tg.start_soon(
-                            self._handle_message,
-                            message,
-                            session,
-                            lifespan_context,
-                            raise_exceptions,
-                        )
-                finally:
-                    # Transport closed: we deliberately omit tg.cancel_scope.cancel()
-                    # to allow in-flight handlers to complete.
-                    pass
-
-
-def create_memory_server(core: Any) -> GracefulServer:
+def create_memory_server(core: Any, registry: RequestRegistry) -> Server:
     """
     Creates and configures an MCP server for memory operations.
     """
-    server = GracefulServer("mega-memory-manager")
+    server = Server("mega-memory-manager")
 
     @server.list_tools()
     async def handle_list_tools() -> list[Tool]:
-        return [
-            Tool(
-                name="ingest",
-                description="Ingest text into semantic memory",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "text": {"type": "string", "description": "The text to ingest"},
-                        "tier": {
-                            "type": "string",
-                            "enum": ["local", "cloud", "auto"],
-                            "description": "The storage tier",
+        async with registry:
+            return [
+                Tool(
+                    name="ingest",
+                    description="Ingest text into semantic memory",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "text": {"type": "string", "description": "The text"},
+                            "tier": {
+                                "type": "string",
+                                "enum": ["local", "cloud", "auto", "sync"],
+                                "description": "The storage tier",
+                            },
                         },
+                        "required": ["text"],
                     },
-                    "required": ["text"],
-                },
-            ),
-            Tool(
-                name="search",
-                description="Search memory for relevant context using semantic recall",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "query": {"type": "string", "description": "The search query"},
-                        "tier": {
-                            "type": "string",
-                            "enum": ["local", "cloud", "auto"],
-                            "description": "The storage tier to search in",
+                ),
+                Tool(
+                    name="search",
+                    description="Search memory using semantic recall",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "query": {"type": "string", "description": "The query"},
+                            "tier": {
+                                "type": "string",
+                                "enum": ["local", "cloud", "auto", "sync"],
+                                "description": "The storage tier",
+                            },
                         },
+                        "required": ["query"],
                     },
-                    "required": ["query"],
-                },
-            ),
-            Tool(
-                name="reflect",
-                description="Reflect on a query to get high-level context from multiple tiers",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "The query to reflect on",
-                        }
+                ),
+                Tool(
+                    name="reflect",
+                    description="Reflect on a query for high-level context",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "query": {
+                                "type": "string",
+                                "description": "The query to reflect on",
+                            }
+                        },
+                        "required": ["query"],
                     },
-                    "required": ["query"],
-                },
-            ),
-        ]
+                ),
+            ]
 
     @server.call_tool()
     async def handle_call_tool(
@@ -339,7 +461,7 @@ def create_memory_server(core: Any) -> GracefulServer:
             else:
                 raise ValueError(f"Unknown tool: {name}")
         except Exception as e:
-            sys.stderr.write(f"[ERROR] Tool execution failed: {traceback.format_exc()}\n")
+            sys.stderr.write(f"[ERROR] Tool failed: {traceback.format_exc()}\n")
             sys.stderr.flush()
             return [TextContent(type="text", text=json.dumps({"error": str(e)}))]
 
@@ -350,38 +472,37 @@ async def run_socket_server_async(core: Any, socket_path: str) -> None:
     """
     Starts a Unix Domain Socket server using asyncio.start_unix_server.
     """
-    server = create_memory_server(core)
+    registry = RequestRegistry()
+    core.registry = registry
+    server = create_memory_server(core, registry)
 
     async def handle_connection(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
-        # ----------------------------------------------------------------------
-        # SECURITY: Peer Verification (SO_PEERCRED)
-        # ----------------------------------------------------------------------
-        # Verify that the process connecting to the UDS has the same UID as the daemon.
         try:
             sock = writer.get_extra_info("socket")
             if sock:
-                # SO_PEERCRED returns a binary struct (pid, uid, gid)
-                # On Linux, this is typically 3 integers (4 bytes each)
                 creds = sock.getsockopt(
-                    socket.SOL_SOCKET, socket.SO_PEERCRED, struct.calcsize("iii")
+                    socket.SOL_SOCKET,
+                    socket.SO_PEERCRED,
+                    struct.calcsize("iii"),
                 )
                 pid, uid, gid = struct.unpack("iii", creds)
                 current_uid = os.getuid()
                 if uid != current_uid:
-                    logger.warning(
-                        f"Unauthorized connection attempt from UID {uid}. Expected {current_uid}."
-                    )
+                    sys.stderr.write(f"Unauthorized connection attempt from UID {uid}.\n")
+                    sys.stderr.flush()
                     writer.close()
                     await writer.wait_closed()
                     return
         except (OSError, RuntimeError) as e:
-            logger.error(f"Peer verification failed: {e}")
+            sys.stderr.write(f"Peer verification failed: {e}\n")
+            sys.stderr.flush()
             writer.close()
             await writer.wait_closed()
             return
 
         client_address = writer.get_extra_info("peername") or "unknown"
-        logger.info(f"New UDS connection established from {client_address}")
+        sys.stderr.write(f"New UDS connection established from {client_address}\n")
+        sys.stderr.flush()
 
         try:
             async with (
@@ -401,32 +522,31 @@ async def run_socket_server_async(core: Any, socket_path: str) -> None:
                         client_capabilities=None,
                     ),
                 )
-        except BaseException as e:
-            logger.error(f"Session Error ({type(e).__name__}): {traceback.format_exc()}")
+        except BaseException:
+            sys.stderr.write(f"Session Error: {traceback.format_exc()}\n")
+            sys.stderr.flush()
         finally:
             try:
                 client_address = writer.get_extra_info("peername") or "unknown"
-                logger.info(f"Closing connection from {client_address}")
+                sys.stderr.write(f"Closing connection from {client_address}\n")
+                sys.stderr.flush()
             except (OSError, RuntimeError):
                 pass
 
-    # 1. Socket Cleanup
     if os.path.exists(socket_path):
         try:
             os.unlink(socket_path)
-            logger.info(f"Removed existing socket file at {socket_path}")
+            sys.stderr.write(f"Removed existing socket file at {socket_path}\n")
+            sys.stderr.flush()
         except OSError as e:
-            logger.error(f"Could not remove existing socket file: {e}")
+            sys.stderr.write(f"Could not remove socket file: {e}\n")
+            sys.stderr.flush()
             raise
 
-    # 2. Standard asyncio server
     server_instance = await asyncio.start_unix_server(handle_connection, path=socket_path)
-
-    # 3. Hardened Permissions (0o600)
-    # Only the owner can read/write to the socket
     os.chmod(socket_path, 0o600)
-
-    logger.info(f"MCP UDS Server listening on {socket_path} (Permissions: 0600)")
+    sys.stderr.write(f"MCP UDS Server listening on {socket_path} (Permissions: 0600)\n")
+    sys.stderr.flush()
 
     async with server_instance:
         await server_instance.serve_forever()
@@ -447,31 +567,73 @@ def run_socket_server(core: Any, socket_path: str) -> None:
 
 async def run_stdio_server_async(core: Any) -> None:
     """
-    Robust async implementation of the MCP server over Standard Input/Output.
-    Ensures that pending tool handlers complete before the process exits on EOF.
+    Robust async implementation of the MCP server over Stdio.
+    Follows a deterministic shutdown sequence to ensure all requests are completed
+    and all output is flushed before exiting.
     """
-    server = create_memory_server(core)
+    registry = RequestRegistry()
+    core.registry = registry
+    server = create_memory_server(core, registry)
     sys.stderr.write("[DEBUG] Stdio server listening on stdin/stdout\n")
     sys.stderr.flush()
 
-    async with stdio_server() as (read, write):
-        try:
-            # The main loop: returns when stdin reaches EOF
-            await server.run(read, write, server.create_initialization_options())
-        finally:
-            # Blocking Gate: Wait for all shielded requests to complete
-            # before closing the transport streams.
-            if hasattr(core, "active_requests"):
-                while core.active_requests > 0:
-                    sys.stderr.write(
-                        f"[DEBUG] EOF received. Waiting for "
-                        f"{core.active_requests} active requests to complete...\n"
-                    )
-                    sys.stderr.flush()
-                    await asyncio.sleep(0.1)
+    # 1. Setup transport streams
+    inbound_send, inbound_receive = anyio.create_memory_object_stream(100)
+    outbound_send, outbound_receive = anyio.create_memory_object_stream(100)
 
-            sys.stderr.write("[DEBUG] Stdio server shut down gracefully\n")
+    read_stream = StdioReadStream(inbound_receive)
+
+    # 2. Unified Lifecycle Management
+    async with anyio.create_task_group() as tg:
+        # Launch transport tasks within the group
+        tg.start_soon(stdin_reader, inbound_send, registry)
+        tg.start_soon(stdout_writer, outbound_receive, registry)
+
+        try:
+            # Execute the MCP protocol
+            await server.run(
+                read_stream=read_stream,
+                write_stream=CloseShieldSendStream(outbound_send),
+                initialization_options=InitializationOptions(
+                    server_name="mega-memory-manager",
+                    server_version="1.0.0",
+                    capabilities=server.get_capabilities(
+                        notification_options=NotificationOptions(),
+                        experimental_capabilities={},
+                    ),
+                    client_capabilities=None,
+                ),
+            )
+        finally:
+            sys.stderr.write("[DEBUG] Server.run() returned. Starting graceful shutdown...\n")
             sys.stderr.flush()
+
+            # A. Close the outbound send stream to signal the writer that
+            # no more messages will be sent.
+            # This allows the stdout_writer to drain the queue and call
+            # registry.dec() for all pending responses.
+            outbound_send.close()
+
+            # B. Wait for the writer to finish processing all pending responses.
+            await registry.wait_until_empty(timeout=2.0)
+
+            # C. Signal the writer to stop finally.
+            # Note: outbound_send is already closed, but we send this to be
+            # explicit if the stream supports it.
+            try:
+                await outbound_send.send(SENTINEL_SHUTDOWN)
+            except Exception:
+                pass
+
+            # The anyio task group will now implicitly await the stdout_writer
+            # to finish its work before exiting this block.
+
+    sys.stdout.flush()
+    sys.stderr.write("[DEBUG] Stdio server shut down gracefully\n")
+    sys.stderr.flush()
+    # Final cleanup of streams
+    inbound_send.close()
+    outbound_send.close()
 
 
 def run_stdio_server(core: Any) -> None:

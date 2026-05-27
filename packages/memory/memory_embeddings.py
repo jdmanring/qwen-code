@@ -172,7 +172,7 @@ _cached_gemini = CachedEmbeddingProvider(_gemini_provider) if _gemini_provider e
 def embed(texts: str | list[str], tier: str) -> list[list[float]]:
     if isinstance(texts, str):
         texts = [texts]
-    if tier == "local":
+    if tier == "local" or tier == "sync":
         return _local_provider.embed(texts)
     elif tier == "cloud":
         if not _cached_gemini:

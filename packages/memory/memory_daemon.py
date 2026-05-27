@@ -5,6 +5,7 @@ import queue
 import sys
 import threading
 import time
+import traceback
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
@@ -26,8 +27,11 @@ SOCKET_PATH = os.path.join(
 
 
 class MemoryDaemon:
-    def __init__(self) -> None:
+    def __init__(self, registry: Any = None) -> None:
+        sys.stderr.write(f"[DEBUG] MemoryDaemon initialized. ID: {id(self)}\n")
+        sys.stderr.flush()
 
+        self.registry = registry
         self.queue: queue.Queue[tuple[str, str]] = queue.Queue()
         self.running = True
 
@@ -38,24 +42,22 @@ class MemoryDaemon:
         self._request_lock = threading.Lock()
 
     def _inc_request(self) -> None:
-        with self._request_lock:
-            self._active_requests += 1
+        pass
 
     def _dec_request(self) -> None:
-        with self._request_lock:
-            self._active_requests -= 1
+        pass
 
     @property
     def active_requests(self) -> int:
-        with self._request_lock:
-            return self._active_requests
+        return 0
 
     # -------------------------
     # INGESTION
     # -------------------------
 
     async def ingest(self, text: str, tier: str = "auto") -> dict[str, Any]:
-        self._inc_request()
+        if tier != "auto":
+            self._inc_request()
         return await asyncio.shield(self._do_ingest(text, tier))
 
     async def _do_ingest(self, text: str, tier: str = "auto") -> dict[str, Any]:
@@ -90,8 +92,10 @@ class MemoryDaemon:
             self.queue.put_nowait((text, tier))
 
             return {"status": "queued", "tier": tier}
-        finally:
-            self._dec_request()
+        except Exception:
+            sys.stderr.write(f"[ERROR] Ingest failed: {traceback.format_exc()}\n")
+            sys.stderr.flush()
+            raise
 
     # -------------------------
     # SEARCH
@@ -120,7 +124,6 @@ class MemoryDaemon:
     async def recall(
         self, query: str, tier: str = "auto"
     ) -> list[dict[str, Any]] | dict[str, list[dict[str, Any]]]:
-        self._inc_request()
         return await asyncio.shield(self._do_recall(query, tier))
 
     async def _do_recall(
@@ -141,11 +144,12 @@ class MemoryDaemon:
                 cloud = []
 
             return {"local": local, "cloud": cloud}
-        finally:
-            self._dec_request()
+        except Exception:
+            sys.stderr.write(f"[ERROR] Recall failed: {traceback.format_exc()}\n")
+            sys.stderr.flush()
+            raise
 
     async def reflect(self, query: str) -> list[dict[str, Any]] | dict[str, list[dict[str, Any]]]:
-        self._inc_request()
         return await asyncio.shield(self._do_reflect(query))
 
     async def _do_reflect(
@@ -153,8 +157,10 @@ class MemoryDaemon:
     ) -> list[dict[str, Any]] | dict[str, list[dict[str, Any]]]:
         try:
             return await self._do_recall(query, tier="auto")
-        finally:
-            self._dec_request()
+        except Exception:
+            sys.stderr.write(f"[ERROR] Reflect failed: {traceback.format_exc()}\n")
+            sys.stderr.flush()
+            raise
 
     def dream(self) -> None:
         """
@@ -218,14 +224,14 @@ class MemoryDaemon:
         while self.running:
             try:
                 text, tier = self.queue.get(timeout=1)
-                ingest(text, tier)
+                try:
+                    ingest(text, tier)
+                except Exception as e:
+                    sys.stderr.write(f"[memory] ingest failure: {e}\n")
+                    sys.stderr.flush()
+                    time.sleep(2)
             except queue.Empty:
                 continue
-            except (RuntimeError, ConnectionError, ValueError) as e:
-                sys.stderr.write(f"[memory] ingest failure: {e}\n")
-                sys.stderr.flush()
-                # PREVENT TIGHT LOOP ON ERROR
-                time.sleep(2)
 
     # -------------------------
     # STARTUP
