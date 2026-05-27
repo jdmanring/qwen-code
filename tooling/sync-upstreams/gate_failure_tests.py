@@ -171,11 +171,42 @@ class GateFailureTests:
 
         return success
 
+    def test_typescript_failure(self):
+        """
+        Verify the TypeScript gate blocks when there is a type error.
+
+        Writes a temporary .ts file with a syntax/type error and uses dry_run
+        to run gates against the current working state.
+        """
+        log_info("Testing Failure Mode: TypeScript Failure")
+
+        ts_file = self.root / "packages" / "sdk-typescript" / "src" / "failure_test.ts"
+
+        try:
+            # Create a TS file with a clear type error: assigning string to number
+            ts_file.write_text("const x: number = 'not a number';\n")
+
+            orch = UpstreamIngestPipeline(dry_run=True)
+            result = orch.run()
+
+            if not result.success and result.stage == "VERIFICATION":
+                log_success("Pipeline correctly blocked TypeScript failure.")
+                return True
+            else:
+                log_error(
+                    f"Pipeline failed to block TypeScript failure. "
+                    f"Stage: {result.stage}, success: {result.success}"
+                )
+                return False
+        finally:
+            ts_file.unlink(missing_ok=True)
+
     def run_all(self):
         results = []
         results.append(("Merge Conflict", self.test_merge_conflict()))
         results.append(("Symmetry Violation", self.test_symmetry_violation()))
         results.append(("Boot Failure", self.test_boot_failure()))
+        results.append(("TypeScript Failure", self.test_typescript_failure()))
 
         print("\n" + "=" * 42)
         print("PIPELINE GATE FAILURE TEST REPORT")
