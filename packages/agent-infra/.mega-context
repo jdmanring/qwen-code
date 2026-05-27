@@ -1,0 +1,18 @@
+# ⚓ Context Anchor: packages/agent-infra
+
+## 🎯 Purpose
+Provides the underlying infrastructure for creating, managing, and executing autonomous agents.
+
+## 🧩 Key Components
+- `agent_generator.py`: Logic for spawning specialized agents.
+- `execution_profiles.py`: Defines how agents are run (resources, constraints).
+
+## 🔗 Dependencies
+- **Internal**: Depends on `packages/core`.
+- **External**: Process management libraries.
+
+## 🛠️ Local Rules & Patterns
+- **Isolation**: Agents should be executed in isolated environments where possible.
+
+## 🚀 Entry Points
+- Agent spawning APIs used by the Orchestrator.

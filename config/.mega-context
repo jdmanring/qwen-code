@@ -1,0 +1,19 @@
+# ⚓ Context Anchor: config/
+
+## 🎯 Purpose
+Centralized configuration for the Megalonyx system, including example settings and meta-configuration.
+
+## 🧩 Key Components
+- `settings.example.json`: Template for user configuration.
+- `megalonyx/`: Domain-specific configuration.
+- `meta/`: Configuration for the system's own operational rules.
+
+## 🔗 Dependencies
+- **Internal**: Read by almost every component in the system.
+
+## 🛠️ Local Rules & Patterns
+- **Symmetry**: Changes here must be mirrored in `docs/` as per the `[CSF-SYNC]` mandate.
+- **Validation**: Configuration must be validated against a schema.
+
+## 🚀 Entry Points
+- Configuration files loaded at system startup.

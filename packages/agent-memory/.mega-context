@@ -1,0 +1,16 @@
+# ⚓ Context Anchor: packages/agent-memory
+
+## 🎯 Purpose
+Specialized memory implementations tailored for agent-specific needs (e.g., short-term context, task-specific memory).
+
+## 🧩 Key Components
+- Specialized memory handlers for agent state and history.
+
+## 🔗 Dependencies
+- **Internal**: Depends on `packages/memory`.
+
+## 🛠️ Local Rules & Patterns
+- **Context Window**: Optimized for fast retrieval of recent agent interactions.
+
+## 🚀 Entry Points
+- Agent memory APIs.

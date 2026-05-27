@@ -1,0 +1,21 @@
+# ⚓ Context Anchor: scripts/
+
+## 🎯 Purpose
+Contains automation scripts for build, release, installation, and system maintenance.
+
+## 🧩 Key Components
+- `build.js`: Main build orchestration script.
+- `release-script-utils.js`: Utilities for managing releases.
+- `installation/`: Scripts for deploying the system.
+- `dev.js`: Development environment setup.
+
+## 🔗 Dependencies
+- **Internal**: Interacts with the root `package.json` and various `packages/`.
+- **External**: Node.js, shell utilities.
+
+## 🛠️ Local Rules & Patterns
+- **Idempotency**: Scripts should be safe to run multiple times.
+- **Logging**: Clear progress indicators for long-running operations.
+
+## 🚀 Entry Points
+- Individual scripts executed via `node scripts/...` or `npm run ...`.

@@ -1,0 +1,16 @@
+# ⚓ Context Anchor: apps/
+
+## 🎯 Purpose
+Contains top-level deployable applications built using the Megalonyx packages.
+
+## 🧩 Key Components
+- `control-plane-daemon`: The primary system daemon.
+
+## 🔗 Dependencies
+- **Internal**: Depends on `packages/core`, `packages/memory`, etc.
+
+## 🛠️ Local Rules & Patterns
+- **Deployment**: Focus on runtime stability and resource management.
+
+## 🚀 Entry Points
+- `apps/control-plane-daemon` executable.

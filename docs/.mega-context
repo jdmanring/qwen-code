@@ -1,0 +1,20 @@
+# ⚓ Context Anchor: docs/
+
+## 🎯 Purpose
+The official documentation repository for Megalonyx, covering users, developers, and internal architecture.
+
+## 🧩 Key Components
+- `meta/`: Engineering standards and operational workflows.
+- `architecture/`: High-level system design.
+- `bugs/`: Post-mortem and bug reports.
+- `users/`: End-user guides.
+
+## 🔗 Dependencies
+- **Internal**: Mirrors the structure and configuration of the codebase.
+
+## 🛠️ Local Rules & Patterns
+- **Truth**: This is the source of truth for system behavior and standards.
+- **Symmetry**: Must stay in sync with `config/`.
+
+## 🚀 Entry Points
+- Documentation website (via `docs-site/`).

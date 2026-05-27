@@ -1,0 +1,19 @@
+# ⚓ Context Anchor: packages/core
+
+## 🎯 Purpose
+The central nervous system of Megalonyx. Contains the fundamental abstractions, orchestration logic, and shared utilities used by all other packages.
+
+## 🧩 Key Components
+- `orchestrator.py`: (Refactored to `upstream_sync_pipeline.py`) Main pipeline logic.
+- `shared/`: Common types and utility functions.
+
+## 🔗 Dependencies
+- **Internal**: Base dependency for almost all other packages.
+- **External**: Core Python standard library and foundational utilities.
+
+## 🛠️ Local Rules & Patterns
+- **Stability**: Changes here have the highest blast radius. Extreme caution is required.
+- **Abstraction**: Focus on generic interfaces over specific implementations.
+
+## 🚀 Entry Points
+- Core library imports across the monorepo.

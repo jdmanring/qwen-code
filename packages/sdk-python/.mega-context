@@ -1,0 +1,16 @@
+# ⚓ Context Anchor: packages/sdk-python
+
+## 🎯 Purpose
+The official Python SDK for integrating external applications with the Megalonyx system.
+
+## 🧩 Key Components
+- Client libraries for interacting with the core API.
+
+## 🔗 Dependencies
+- **External**: Python standard library, HTTP clients.
+
+## 🛠️ Local Rules & Patterns
+- **Idiomatic Python**: Adhere to PEP 8 and provide comprehensive type hints.
+
+## 🚀 Entry Points
+- `MegalonyxClient` class.

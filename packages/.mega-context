@@ -1,0 +1,23 @@
+# ⚓ Context Anchor: packages/
+
+## 🎯 Purpose
+The `packages/` directory contains the modular core of the Megalonyx ecosystem, including SDKs, core logic, and specialized agent modules. It is organized as a monorepo of independent but interoperable packages.
+
+## 🧩 Key Components
+- `core/`: Fundamental system logic and shared utilities.
+- `memory/`: The central memory system and embedding management.
+- `agent-infra/`: Infrastructure for agent orchestration and execution.
+- `cli/`: The primary command-line interface for interacting with the system.
+- `sdk-*/`: Language-specific SDKs (Python, Java, TypeScript) for external integration.
+
+## 🔗 Dependencies
+- **Internal**: Heavily interdependent; `core` is the base dependency for most other packages.
+- **External**: Various language-specific runtimes and libraries as defined in each package's manifest.
+
+## 🛠️ Local Rules & Patterns
+- **Package Isolation**: Packages should minimize direct cross-package imports unless using the defined internal API.
+- **Naming**: Package names must be descriptive and follow the `sdk-` or `agent-` prefixes where applicable.
+
+## 🚀 Entry Points
+- `packages/cli/`: Entry point for the user-facing CLI.
+- `packages/core/`: Entry point for the system's core logic.

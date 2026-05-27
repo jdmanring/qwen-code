@@ -1,0 +1,20 @@
+# ⚓ Context Anchor: integration-tests/
+
+## 🎯 Purpose
+End-to-end and integration tests that verify the interoperability of all system components.
+
+## 🧩 Key Components
+- `megalonyx/`: Integration tests for the core system.
+- `fixtures/`: Data used for testing.
+- `test_helper.ts`: Shared test utilities.
+
+## 🔗 Dependencies
+- **Internal**: Exercises almost every package in the monorepo.
+- **External**: Vitest, AnyIO, etc.
+
+## 🛠️ Local Rules Patterns
+- **Realism**: Tests should mimic real-world usage patterns as closely as possible.
+- **Isolation**: Each test should ideally start from a clean state.
+
+## 🚀 Entry Points
+- `uv run pytest` or `pnpm exec vitest run`.

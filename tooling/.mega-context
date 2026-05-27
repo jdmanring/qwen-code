@@ -1,0 +1,18 @@
+# ⚓ Context Anchor: tooling/
+
+## 🎯 Purpose
+Internal developer tools for maintaining the monorepo, auditing standards, and managing upstreams.
+
+## 🧩 Key Components
+- `project_standards_linter.py`: The primary tool for enforcing project rules.
+- `sync-upstreams/`: Logic for syncing with external repositories.
+- `symmetry_check.py`: Verifies config-doc symmetry.
+
+## 🔗 Dependencies
+- **Internal**: Operates on the entire monorepo source.
+
+## 🛠️ Local Rules & Patterns
+- **Automation**: Prioritize tools that can be integrated into CI/CD.
+
+## 🚀 Entry Points
+- Individual python scripts in `tooling/`.

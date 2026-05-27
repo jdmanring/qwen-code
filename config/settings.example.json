@@ -196,9 +196,9 @@
           "timeout": 100000,
           "contextWindowSize": 262144,
           "samplingParams": {
-            "temperature": 0.85,
+            "temperature": 0.7,
             "top_p": 0.95,
-            "repetition_penalty": 2,
+            "repetition_penalty": 1.6,
             "max_tokens": 16384
           }
         },
@@ -219,7 +219,7 @@
           "samplingParams": {
             "temperature": 0.7,
             "top_p": 0.95,
-            "repetition_penalty": 1.2,
+            "repetition_penalty": 1.22,
             "max_tokens": 16384
           }
         },

@@ -1,0 +1,18 @@
+# ⚓ Context Anchor: packages/cli
+
+## 🎯 Purpose
+The primary user interface for Megalonyx. Provides the CLI tools for system management, configuration, and interaction.
+
+## 🧩 Key Components
+- `cli.ts`: Main entry point for the CLI.
+- `commands/`: Individual command implementations.
+
+## 🔗 Dependencies
+- **Internal**: Depends on `packages/core` and other system packages for functionality.
+- **External**: Node.js, Commander.js, etc.
+
+## 🛠️ Local Rules & Patterns
+- **UX**: Focus on clear output, helpful error messages, and consistent command naming.
+
+## 🚀 Entry Points
+- `bin/megalonyx` (or equivalent CLI entry point).

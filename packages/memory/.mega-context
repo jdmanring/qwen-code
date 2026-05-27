@@ -1,0 +1,21 @@
+# ⚓ Context Anchor: packages/memory
+
+## 🎯 Purpose
+Implements the long-term memory system, including embedding generation, vector database integration (Qdrant), and the MCP memory server.
+
+## 🧩 Key Components
+- `memory_daemon.py`: The background process managing memory operations.
+- `memory_transport.py`: Handles communication (stdio/socket) for the memory system.
+- `memory_embeddings.py`: Manages the embedding pipeline and API calls.
+- `memory_schema.py`: Defines the data models for memory records.
+
+## 🔗 Dependencies
+- **Internal**: Depends on `packages/core`.
+- **External**: Qdrant, MCP SDK, embedding providers.
+
+## 🛠️ Local Rules & Patterns
+- **Transport Stability**: Use `CloseShieldSendStream` and `RequestRegistry` to prevent race conditions during shutdown.
+- **Tiering**: Supports multiple memory tiers (e.g., "local", "sync").
+
+## 🚀 Entry Points
+- `memory_daemon.py` (as a background service).

@@ -1,0 +1,16 @@
+# ⚓ Context Anchor: packages/sdk-typescript
+
+## 🎯 Purpose
+The official TypeScript/JavaScript SDK for external integration.
+
+## 🧩 Key Components
+- Type-safe clients for the Megalonyx API.
+
+## 🔗 Dependencies
+- **External**: TypeScript, Node.js/Browser runtimes.
+
+## 🛠️ Local Rules & Patterns
+- **Type Safety**: Strict typing for all API responses and requests.
+
+## 🚀 Entry Points
+- `MegalonyxClient` class.
