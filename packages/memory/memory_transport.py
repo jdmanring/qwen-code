@@ -7,11 +7,14 @@ import struct
 import sys
 import traceback
 from collections.abc import AsyncGenerator, AsyncIterator
+from contextlib import AsyncExitStack
 from typing import Any
 
+import anyio
 from mcp.server import Server
 from mcp.server.lowlevel.server import NotificationOptions
 from mcp.server.models import InitializationOptions
+from mcp.server.session import ServerSession
 from mcp.server.stdio import stdio_server
 from mcp.shared.message import SessionMessage
 from mcp.types import JSONRPCMessage, TextContent, Tool
@@ -188,11 +191,62 @@ class UDSWriteStream:
             raise ConnectionError(f"UDS write failure: {e}") from e
 
 
-def create_memory_server(core: Any) -> Server:
+class GracefulServer(Server):
+    """
+    MCP Server that avoids canceling the task group scope upon transport closure,
+    allowing in-flight requests to complete gracefully.
+    """
+
+    async def run(
+        self,
+        read_stream: Any,
+        write_stream: Any,
+        initialization_options: InitializationOptions,
+        raise_exceptions: bool = False,
+        stateless: bool = False,
+    ) -> None:
+        async with AsyncExitStack() as stack:
+            lifespan_context = await stack.enter_async_context(self.lifespan(self))
+            session = await stack.enter_async_context(
+                ServerSession(
+                    read_stream,
+                    write_stream,
+                    initialization_options,
+                    stateless=stateless,
+                )
+            )
+
+            # Configure task support for this session if enabled
+            task_support = (
+                self._experimental_handlers.task_support if self._experimental_handlers else None
+            )
+            if task_support is not None:
+                task_support.configure_session(session)
+                await stack.enter_async_context(task_support.run())
+
+            async with anyio.create_task_group() as tg:
+                try:
+                    async for message in session.incoming_messages:
+                        logger.debug("Received message: %s", message)
+
+                        tg.start_soon(
+                            self._handle_message,
+                            message,
+                            session,
+                            lifespan_context,
+                            raise_exceptions,
+                        )
+                finally:
+                    # Transport closed: we deliberately omit tg.cancel_scope.cancel()
+                    # to allow in-flight handlers to complete.
+                    pass
+
+
+def create_memory_server(core: Any) -> GracefulServer:
     """
     Creates and configures an MCP server for memory operations.
     """
-    server = Server("mega-memory-manager")
+    server = GracefulServer("mega-memory-manager")
 
     @server.list_tools()
     async def handle_list_tools() -> list[Tool]:
@@ -252,31 +306,42 @@ def create_memory_server(core: Any) -> Server:
         if not arguments:
             arguments = {}
 
-        if name == "ingest":
-            text = arguments.get("text")
-            if text is None:
-                raise ValueError("Missing required argument: 'text'")
-            tier = arguments.get("tier", "auto")
-            res = core.ingest(text, tier)
-            return [TextContent(type="text", text=json.dumps(res))]
+        try:
+            if name == "ingest":
+                text = arguments.get("text")
+                if text is None:
+                    raise ValueError("Missing required argument: 'text'")
+                tier = arguments.get("tier", "auto")
+                res = await core.ingest(text, tier)
+                sys.stderr.write(f"[DEBUG] ingest result: {res}\n")
+                sys.stderr.flush()
+                return [TextContent(type="text", text=json.dumps(res))]
 
-        elif name == "search":
-            query = arguments.get("query")
-            if query is None:
-                raise ValueError("Missing required argument: 'query'")
-            tier = arguments.get("tier", "auto")
-            res = core.recall(query, tier)
-            return [TextContent(type="text", text=json.dumps(res))]
+            elif name == "search":
+                query = arguments.get("query")
+                if query is None:
+                    raise ValueError("Missing required argument: 'query'")
+                tier = arguments.get("tier", "auto")
+                res = await core.recall(query, tier)
+                sys.stderr.write(f"[DEBUG] search result: {res}\n")
+                sys.stderr.flush()
+                return [TextContent(type="text", text=json.dumps(res))]
 
-        elif name == "reflect":
-            query = arguments.get("query")
-            if query is None:
-                raise ValueError("Missing required argument: 'query'")
-            res = core.reflect(query)
-            return [TextContent(type="text", text=json.dumps(res))]
+            elif name == "reflect":
+                query = arguments.get("query")
+                if query is None:
+                    raise ValueError("Missing required argument: 'query'")
+                res = await core.reflect(query)
+                sys.stderr.write(f"[DEBUG] reflect result: {res}\n")
+                sys.stderr.flush()
+                return [TextContent(type="text", text=json.dumps(res))]
 
-        else:
-            raise ValueError(f"Unknown tool: {name}")
+            else:
+                raise ValueError(f"Unknown tool: {name}")
+        except Exception as e:
+            sys.stderr.write(f"[ERROR] Tool execution failed: {traceback.format_exc()}\n")
+            sys.stderr.flush()
+            return [TextContent(type="text", text=json.dumps({"error": str(e)}))]
 
     return server
 
@@ -381,11 +446,32 @@ def run_socket_server(core: Any, socket_path: str) -> None:
 
 
 async def run_stdio_server_async(core: Any) -> None:
-    """Async implementation of the MCP server over Standard Input/Output."""
+    """
+    Robust async implementation of the MCP server over Standard Input/Output.
+    Ensures that pending tool handlers complete before the process exits on EOF.
+    """
     server = create_memory_server(core)
     sys.stderr.write("[DEBUG] Stdio server listening on stdin/stdout\n")
+    sys.stderr.flush()
+
     async with stdio_server() as (read, write):
-        await server.run(read, write, server.create_initialization_options())
+        try:
+            # The main loop: returns when stdin reaches EOF
+            await server.run(read, write, server.create_initialization_options())
+        finally:
+            # Blocking Gate: Wait for all shielded requests to complete
+            # before closing the transport streams.
+            if hasattr(core, "active_requests"):
+                while core.active_requests > 0:
+                    sys.stderr.write(
+                        f"[DEBUG] EOF received. Waiting for "
+                        f"{core.active_requests} active requests to complete...\n"
+                    )
+                    sys.stderr.flush()
+                    await asyncio.sleep(0.1)
+
+            sys.stderr.write("[DEBUG] Stdio server shut down gracefully\n")
+            sys.stderr.flush()
 
 
 def run_stdio_server(core: Any) -> None:

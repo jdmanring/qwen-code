@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import asyncio
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -9,8 +10,8 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../packages/core/src"))
 )
 
-from context import ExecutionContext
-from control_plane import ControlPlane
+from control_plane_daemon.execution_context import ExecutionContext
+from control_plane_daemon.control_plane import ControlPlane
 
 
 @pytest.fixture
@@ -48,7 +49,7 @@ tools:
 @pytest.fixture
 def control_plane(temp_settings, temp_agent_dir):
     """Initializes ControlPlane with mocked paths."""
-    with patch("command_manager.CommandManager") as mock_cmd_manager_class:
+    with patch("control_plane_daemon.command_manager.CommandManager") as mock_cmd_manager_class:
         mock_cmd_manager = mock_cmd_manager_class.return_value
         mock_cmd_manager.get_command.return_value = {
             "name": "test-cmd",
@@ -57,12 +58,12 @@ def control_plane(temp_settings, temp_agent_dir):
         }
 
         # We need to patch os.path.expanduser and os.path.exists in the control_plane module
-        with patch("control_plane.os.path.expanduser") as mock_expanduser:
+        with patch("control_plane_daemon.control_plane.os.path.expanduser") as mock_expanduser:
             mock_expanduser.side_effect = lambda p: (
                 str(temp_agent_dir / os.path.basename(p)) if "agents" in p else p
             )
 
-            with patch("control_plane.os.path.exists") as mock_exists:
+            with patch("control_plane_daemon.control_plane.os.path.exists") as mock_exists:
                 # Ensure comparison works by converting p to string
                 mock_exists.side_effect = lambda p: (
                     str(temp_agent_dir / os.path.basename(p)).endswith(".md")
@@ -84,11 +85,15 @@ class TestEngineIsolation:
         root_context = ExecutionContext()
         root_context.file_cache.set("/some/file.txt", "content")
 
-        with patch("skill_bridge.run_job_execution") as mock_run_job:
+        with patch("control_plane_daemon.tool_executor.run_job_execution") as mock_run_job:
             mock_run_job.return_value = "Done"
-            cp._spawn_agent(
-                agent_id, task_prompt, model_id, settings, rag_tool, root_context
-            )
+            
+            async def run_test():
+                await cp._spawn_agent(
+                    agent_id, task_prompt, model_id, settings, rag_tool, root_context
+                )
+            
+            asyncio.run(run_test())
 
             args, kwargs = mock_run_job.call_args
             passed_context = kwargs.get("context") or args[8]
@@ -103,11 +108,15 @@ class TestEngineIsolation:
         rag_tool = MagicMock()
         root_context = ExecutionContext()
 
-        with patch("skill_bridge.run_job_execution") as mock_run_job:
+        with patch("control_plane_daemon.tool_executor.run_job_execution") as mock_run_job:
             mock_run_job.return_value = "Done"
-            cp._spawn_agent(
-                agent_id, task_prompt, model_id, settings, rag_tool, root_context
-            )
+            
+            async def run_test():
+                await cp._spawn_agent(
+                    agent_id, task_prompt, model_id, settings, rag_tool, root_context
+                )
+            
+            asyncio.run(run_test())
 
             args, kwargs = mock_run_job.call_args
             passed_history = kwargs.get("history") or args[10]

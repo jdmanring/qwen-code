@@ -4,7 +4,7 @@ from typing import Any
 import pytest
 import yaml
 from cryptography.fernet import Fernet
-from tests.secure_config import SecureConfigManager
+from secure_config import SecureConfigManager
 
 
 @pytest.fixture

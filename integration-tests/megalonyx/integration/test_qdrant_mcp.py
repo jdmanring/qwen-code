@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
-from docs.skills.rag_tool import VectorSearchTool
+from control_plane_daemon.vector_search_tool import VectorSearchTool
 
 # --- Test 1: qwencode.sh injection logic ---
 
@@ -59,8 +59,8 @@ def test_rag_tool_mcp_call():
     """Tests that VectorSearchTool correctly calls the MCP server via stdio."""
     # Mocking the MCP client components
     with (
-        patch("docs.skills.rag_tool.stdio_client") as mock_stdio,
-        patch("docs.skills.rag_tool.ClientSession") as mock_session,
+        patch("control_plane_daemon.vector_search_tool.stdio_client") as mock_stdio,
+        patch("control_plane_daemon.vector_search_tool.ClientSession") as mock_session,
     ):
         # Setup mock session
         mock_session_instance = AsyncMock()
@@ -89,8 +89,8 @@ def test_rag_tool_mcp_call():
 def test_rag_tool_error_handling():
     """Tests that VectorSearchTool handles MCP communication errors gracefully."""
     with (
-        patch("docs.skills.rag_tool.stdio_client") as mock_stdio,
-        patch("docs.skills.rag_tool.ClientSession") as mock_session,
+        patch("control_plane_daemon.vector_search_tool.stdio_client") as mock_stdio,
+        patch("control_plane_daemon.vector_search_tool.ClientSession") as mock_session,
     ):
         mock_session_instance = AsyncMock()
         mock_session.return_value.__aenter__.return_value = mock_session_instance

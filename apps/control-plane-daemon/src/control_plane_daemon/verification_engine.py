@@ -1,17 +1,10 @@
 import json
 import os
 from dataclasses import dataclass
-from enum import Enum
 from typing import Any
 
 from .job_state_manager import JobStateManager
-
-
-class JobStatus(Enum):
-    PENDING = "pending"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    FAILED = "failed"
+from .models import JobStatus
 
 
 @dataclass
@@ -76,9 +69,9 @@ class VerificationEngine:
 
         # Update the JobStateManager based on the result
         if result.is_success and result.confidence >= contract.min_confidence:
-            self.jsm.update_job_status(job_id, JobStatus.COMPLETED.value, result=result.logs)
+            self.jsm.update_job_status(job_id, JobStatus.COMPLETED, result=result.logs)
         else:
-            self.jsm.update_job_status(job_id, JobStatus.FAILED.value, result=result.logs)
+            self.jsm.update_job_status(job_id, JobStatus.FAILED, result=result.logs)
 
         return result
 
@@ -86,7 +79,7 @@ class VerificationEngine:
 if __name__ == "__main__":
     # Simple test for the engine
     jsm = JobStateManager()
-    jsm.initialize_job_set([{"job_id": "test_1", "status": "pending", "dependencies": []}])
+    jsm.initialize_job_set([{"job_id": "test_1", "status": JobStatus.PENDING, "dependencies": []}])
 
     engine = VerificationEngine(jsm)
     # Test default behavior

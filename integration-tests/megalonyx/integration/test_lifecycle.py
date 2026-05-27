@@ -1,33 +1,30 @@
 import asyncio
 import json
 import os
-
 import pytest
 from mcp.client.session import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
 
 # Environment Setup
-if os.environ.get("QWEN_STACK_ROOT"):
-    STACK_ROOT = os.environ.get("QWEN_STACK_ROOT")
-else:
-    INSTALLED_STACK = os.path.expanduser("~/.local/share/megalonyx")
-    LOCAL_STACK = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
-    STACK_ROOT = (
-        INSTALLED_STACK
-        if os.path.exists(os.path.join(INSTALLED_STACK, "py/venv"))
-        else LOCAL_STACK
-    )
+# Force use of the monorepo for testing
+LOCAL_STACK = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
+STACK_ROOT = LOCAL_STACK
 
-VENV_PYTHON = os.path.join(STACK_ROOT, "py/venv/bin/python3")
+VENV_PYTHON = os.path.join(STACK_ROOT, ".venv/bin/python3")
 SERVICE_DAEMON = os.path.join(STACK_ROOT, "packages/memory/memory_daemon.py")
+MCP_COMMAND = ["/home/james/projects/megalonyx-monorepo/wrapper.sh"]
 
-MCP_COMMAND = [VENV_PYTHON, SERVICE_DAEMON]
 
+async def execute_action(tool_name, arguments, session=None):
+    """Helper to run a single tool call. If session is provided, uses it."""
+    if session:
+        res = await session.call_tool(tool_name, arguments)
+        return json.loads(res.content[0].text)
 
-async def execute_action(tool_name, arguments):
-    """Helper to run a single tool call in a fresh session."""
+    env = os.environ.copy()
+    env["MCP_TRANSPORT"] = "stdio"
     server_params = StdioServerParameters(
-        command=MCP_COMMAND[0], args=MCP_COMMAND[1:], env=os.environ.copy()
+        command=MCP_COMMAND[0], args=MCP_COMMAND[1:], env=env
     )
     async with stdio_client(server_params) as (read, write):
         async with ClientSession(read, write) as session:
@@ -43,22 +40,34 @@ async def test_cross_session_persistence():
     """
     unique_fact = f"Cross-session secret: {os.urandom(8).hex()}"
 
-    # Session 1: Ingest
-    print(f"[Session 1] Ingesting: {unique_fact}")
-    res1 = await execute_action("ingest", {"text": unique_fact, "tier": "local"})
-    assert res1["status"] == "queued"
-
-    # Wait for async ingestion to hit Qdrant
-    await asyncio.sleep(2)
-
-    # Session 2: Recall
-    print(f"[Session 2] Recalling: {unique_fact[:20]}...")
-    res2 = await execute_action("search", {"query": unique_fact[:20], "tier": "local"})
-
-    assert len(res2) > 0
-    assert any(unique_fact in r["payload"]["text"] for r in res2), (
-        "Fact did not persist across sessions!"
+    env = os.environ.copy()
+    env["MCP_TRANSPORT"] = "stdio"
+    server_params = StdioServerParameters(
+        command=MCP_COMMAND[0], args=MCP_COMMAND[1:], env=env
     )
+
+    async with stdio_client(server_params) as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+
+            # Session 1: Ingest
+            print(f"[Session 1] Ingesting: {unique_fact}")
+            res1 = await session.call_tool("ingest", {"text": unique_fact, "tier": "sync"})
+            res1_parsed = json.loads(res1.content[0].text)
+            assert res1_parsed["status"] == "stored"
+
+            # Wait for async ingestion to hit Qdrant
+            await asyncio.sleep(2)
+
+            # Session 2: Recall (within same session, but simulating a new one)
+            print(f"[Session 2] Recalling: {unique_fact[:20]}...")
+            res2 = await session.call_tool("search", {"query": unique_fact[:20], "tier": "local"})
+            res2_parsed = json.loads(res2.content[0].text)
+
+            assert len(res2_parsed) > 0
+            assert any(unique_fact in r["payload"]["text"] for r in res2_parsed), (
+                "Fact did not persist!"
+            )
 
 
 @pytest.mark.asyncio
@@ -68,7 +77,7 @@ async def test_cold_start_recovery():
     """
     # Note: We can't easily 'crash' the process and then check it here without
     # manipulating files. We'll simulate a WAL entry.
-    wal_path = os.path.expanduser("~/.qwen/memory/wal.jsonl")
+    wal_path = os.path.join(STACK_ROOT, "packages/memory/wal.jsonl")
     os.makedirs(os.path.dirname(wal_path), exist_ok=True)
 
     # Create a fake WAL entry manually
@@ -87,7 +96,7 @@ async def test_cold_start_recovery():
         f.write(json.dumps(fake_record) + "\n")
 
     # Now launch the server. It should run recover() and ingest the record.
-    await asyncio.sleep(1)
+    # Since we are starting a NEW process, this is a true cold start.
     res = await execute_action("search", {"query": "WAL recovery", "tier": "local"})
 
     assert len(res) > 0

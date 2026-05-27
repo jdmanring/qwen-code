@@ -4,6 +4,8 @@
 Orchestrator: Integrated Analysis (CPU). Sub-Agents: Atomic Execution (Workers).
 
 ## [M-RULE] Operational Rules
+- [A-ENGINEER]: (Strict adherence to `.qwen/operational_standards.md`). No blind iteration. Fail => HALT => RCA => Re-Plan.
+- [A-WORKFLOW]: (Strict adherence to `docs/meta/workflow.md`). All work must be tracked via the Macro/Meso/Micro hierarchy.
 - [A-DELEGATE]: (Analysis | Planning) => Orchestrator; (Extraction | Search | Atomic Edit) => Worker.
 - [A-PLAN]: Mode == PlanMode => Forbidden(edit, write_file_code, run_shell); Permitted(todo_write, TASKS.md edit, write_file_roadmap).
 - [A-PERM]: Permission Matrix:

@@ -3,14 +3,31 @@ import shutil
 import sys
 import tempfile
 from collections.abc import Generator
+from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
+
+# Mock tree_sitter and tree_sitter_python to avoid dependency issues in tests
+sys.modules["tree_sitter"] = MagicMock()
+sys.modules["tree_sitter_python"] = MagicMock()
 
 # --- PATH HACK FOR LEGACY IMPORTS ---
 # This must happen BEFORE any other imports to allow modules with
 # non-standard relative imports to be loaded correctly.
 
-for pkg in ["packages/core/src", "packages/memory"]:
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
+# Add all source and test directories to sys.path
+for pkg in [
+    "packages/core/src",
+    "packages/memory",
+    "apps/control-plane-daemon/src",
+    "apps/control-plane-daemon/src/control_plane_daemon",
+    "packages/agent-infra/src",
+    "integration-tests/megalonyx/integration",
+    "integration-tests/megalonyx/validators",
+]:
     pkg_path = PROJECT_ROOT / pkg
     if pkg_path.exists() and str(pkg_path) not in sys.path:
         sys.path.insert(0, str(pkg_path))

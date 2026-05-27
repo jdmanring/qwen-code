@@ -1,6 +1,6 @@
 import os
 import subprocess
-
+from pathlib import Path
 import pytest
 
 
@@ -12,7 +12,7 @@ def test_cognitive_symmetry() -> None:
     between config/ and docs/.
     """
     project_root = str(Path(__file__).resolve().parent.parent.parent.parent)
-    script_path = os.path.join(project_root, "scripts/symmetry-check.py")
+    script_path = os.path.join(project_root, "tooling/symmetry_check.py")
 
     # Run the symmetry check script
     # We pass the project root as an argument to the script

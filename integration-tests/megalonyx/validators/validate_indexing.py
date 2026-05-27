@@ -26,18 +26,26 @@ class CodeIndexer:
         self._setup_collection()
 
     def _setup_collection(self) -> None:
-        """Creates the Qdrant collection if it doesn't exist."""
-        collections = self.client.get_collections().collections
-        exists = any(c.name == COLLECTION_NAME for c in collections)
-
-        if not exists:
+        """Creates the Qdrant collection if it doesn't exist or has wrong dimension."""
+        try:
+            collection_info = self.client.get_collection(collection_name=COLLECTION_NAME)
+            if collection_info.config.params.vectors.size != 768:
+                print(f"Collection {COLLECTION_NAME} has wrong dimension ({collection_info.config.params.vectors.size}). Recreating...")
+                self.client.delete_collection(collection_name=COLLECTION_NAME)
+                self._create_new_collection()
+            else:
+                print(f"Collection {COLLECTION_NAME} is ready.")
+        except Exception:
             print(f"Creating collection {COLLECTION_NAME}...")
-            self.client.create_collection(
-                collection_name=COLLECTION_NAME,
-                vectors_config=VectorParams(
-                    size=768, distance=Distance.COSINE
-                ),  # nomic-embed-text is 768
-            )
+            self._create_new_collection()
+
+    def _create_new_collection(self) -> None:
+        self.client.create_collection(
+            collection_name=COLLECTION_NAME,
+            vectors_config=VectorParams(
+                size=768, distance=Distance.COSINE
+            ),  # nomic-embed-text is 768
+        )
 
     def get_embedding(self, text: str) -> list[float]:
         """Fetches embedding from Ollama."""

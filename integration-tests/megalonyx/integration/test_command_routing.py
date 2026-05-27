@@ -11,8 +11,8 @@ sys.path.append(
 
 from pathlib import Path
 
-from context import ExecutionContext
-from control_plane import ControlPlane
+from control_plane_daemon.execution_context import ExecutionContext
+from control_plane_daemon.control_plane import ControlPlane
 
 # --- Mocks and Helpers ---
 
@@ -28,7 +28,7 @@ def temp_settings(tmp_path: Path) -> str:
 def control_plane(temp_settings: str) -> tuple[ControlPlane, MagicMock]:
     # We need to patch the command manager to avoid it looking in ~/.qwen/commands
     # It's imported inside __init__, so we patch the module where it's defined
-    with patch("command_manager.CommandManager") as mock_cmd_manager_class:
+    with patch("control_plane_daemon.command_manager.CommandManager") as mock_cmd_manager_class:
         mock_cmd_manager = mock_cmd_manager_class.return_value
 
         # Setup a dummy command
@@ -75,7 +75,8 @@ class TestCommandRouting:
             assert jobs[0]["job_type"] == "workflow"
             assert jobs[0]["job_id"] == "workflow_root"
 
-    def test_execute_workflow_parsing(
+    @pytest.mark.asyncio
+    async def test_execute_workflow_parsing(
         self, control_plane: tuple[ControlPlane, MagicMock]
     ) -> None:
         """
@@ -100,7 +101,7 @@ class TestCommandRouting:
                 "control_plane_daemon.tool_executor.run_job_execution",
                 return_value="Orchestrator Result",
             ) as _mock_run:
-                result = cp.execute_workflow(
+                result = await cp.execute_workflow(
                     cmd_id, prompt, model_id, settings, rag_tool, root_context
                 )
 

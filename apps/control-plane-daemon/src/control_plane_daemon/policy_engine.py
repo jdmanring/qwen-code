@@ -1,14 +1,8 @@
 import json
 import os
-from typing import Any, TypedDict
+from typing import Any, cast
 
-
-class Policy(TypedDict):
-    allowed_tools: list[str]
-    allowed_paths: list[str]
-    can_write: bool
-    verification_level: str
-    approval_required: bool
+from .models import Policy
 
 
 class PolicyEngine:
@@ -70,7 +64,7 @@ class PolicyEngine:
         current_file = context.get("current_file")
 
         # 1. Base Intent Policy (General boundaries)
-        policy: Policy = {
+        policy_data = {
             "allowed_tools": ["glob", "grep_search", "read_file", "todo_write"],
             "allowed_paths": ["*"],
             "can_write": False,
@@ -81,33 +75,35 @@ class PolicyEngine:
         if intent == "Exploratory Analysis":
             pass
         elif intent == "Surgical Correction":
-            policy["can_write"] = True
-            policy["verification_level"] = "Medium"
+            policy_data["can_write"] = True
+            policy_data["verification_level"] = "Medium"
             if current_file:
-                policy["allowed_paths"] = [str(current_file)]
+                policy_data["allowed_paths"] = [str(current_file)]
             else:
-                policy["approval_required"] = True
+                policy_data["approval_required"] = True
         elif intent == "Feature Synthesis":
-            policy["can_write"] = True
-            policy["verification_level"] = "High"
-            policy["approval_required"] = True
+            policy_data["can_write"] = True
+            policy_data["verification_level"] = "High"
+            policy_data["approval_required"] = True
         elif intent == "Structural Evolution":
-            policy["can_write"] = True
-            policy["verification_level"] = "Critical"
-            policy["approval_required"] = True
+            policy_data["can_write"] = True
+            policy_data["verification_level"] = "Critical"
+            policy_data["approval_required"] = True
         elif intent == "Adversarial Review":
-            policy["verification_level"] = "Medium"
+            policy_data["verification_level"] = "Medium"
         elif intent == "Knowledge Sync":
-            policy["can_write"] = True
-            policy["allowed_paths"] = ["**/docs/**", "README.md", "QWEN.md"]
-            policy["verification_level"] = "Low"
+            policy_data["can_write"] = True
+            policy_data["allowed_paths"] = ["**/docs/**", "README.md", "QWEN.md"]
+            policy_data["verification_level"] = "Low"
 
         # 2. Agent-Specific Tool Augmentation
         # Merge the agent's authorized tools into the policy
-        agent_tools = self.agent_tool_map.get(agent_name, [])
-        policy["allowed_tools"] = list(set(policy["allowed_tools"] + agent_tools))
+        agent_tools: list[str] = self.agent_tool_map.get(agent_name, [])
+        current_tools: list[str] = cast(list[str], policy_data.get("allowed_tools", []))
+        merged_tools: list[str] = list(set(current_tools + agent_tools))
+        policy_data["allowed_tools"] = merged_tools
 
-        return policy
+        return Policy(**policy_data)
 
 
 if __name__ == "__main__":

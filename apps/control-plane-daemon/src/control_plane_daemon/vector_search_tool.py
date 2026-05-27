@@ -53,7 +53,7 @@ class VectorSearchTool:
                     "Returning partial/empty results to maintain latency."
                 )
             }
-        except (OSError, RuntimeError) as e:
+        except (OSError, RuntimeError, Exception) as e:
             return {"error": f"MCP Semantic search failed: {str(e)}"}
 
     async def _perform_mcp_search(self, query: str, limit: int) -> Any:

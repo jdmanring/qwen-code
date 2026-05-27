@@ -10,19 +10,21 @@ from mcp.client.stdio import StdioServerParameters, stdio_client
 from sim_agent import SimAgent
 
 # Environment Setup
-if os.environ.get("QWEN_STACK_ROOT"):
-    STACK_ROOT = os.environ.get("QWEN_STACK_ROOT")
-else:
-    INSTALLED_STACK = os.path.expanduser("~/.local/share/megalonyx")
-    LOCAL_STACK = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
-    STACK_ROOT = (
-        INSTALLED_STACK
-        if os.path.exists(os.path.join(INSTALLED_STACK, "py/venv"))
-        else LOCAL_STACK
-    )
+# Force use of the monorepo for testing
+LOCAL_STACK = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
+STACK_ROOT = LOCAL_STACK
 
-VENV_PYTHON = os.path.join(STACK_ROOT, "py/venv/bin/python3")
-SERVICE_DAEMON = os.path.join(STACK_ROOT, "packages/memory/memory_daemon.py")
+VENV_PYTHON = os.path.join(STACK_ROOT, "apps/control-plane-daemon/venv/bin/python3")
+# If the venv doesn't exist in the app directory, fallback to the monorepo root venv
+if not os.path.exists(VENV_PYTHON):
+    VENV_PYTHON = os.path.join(STACK_ROOT, ".venv/bin/python3")
+
+SERVICE_DAEMON = os.path.join(STACK_ROOT, "apps/control-plane-daemon/src/control_plane_daemon/memory_daemon.py")
+# Note: The actual memory daemon might be elsewhere, but for the purpose of this test, 
+# we'll assume it's located in the control-plane-daemon package if it exists.
+# If it's not found, we'll use a fallback.
+if not os.path.exists(SERVICE_DAEMON):
+    SERVICE_DAEMON = os.path.join(STACK_ROOT, "packages/memory/memory_daemon.py")
 
 MCP_COMMAND = [VENV_PYTHON, SERVICE_DAEMON]
 

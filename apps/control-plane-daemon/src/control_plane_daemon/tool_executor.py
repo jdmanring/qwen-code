@@ -10,6 +10,8 @@ from dotenv import load_dotenv
 from litellm import completion
 
 from .execution_context import ExecutionContext
+from .models import Policy
+from .registry import ToolRegistry
 from .system_watchdog import SystemWatchdog
 from .vector_search_tool import VectorSearchTool
 
@@ -20,6 +22,9 @@ STACK_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_DIR)))
 
 # Load environment variables from ~/.qwen/.env
 load_dotenv(os.path.expanduser("~/.qwen/.env"))
+
+# Initialize the Tool Registry
+registry = ToolRegistry()
 
 # --- Resilience Configuration ---
 MAX_RETRIES = 3
@@ -167,30 +172,25 @@ def call_model(
         return f"Fatal API Error: {e}"
 
 
-def call_memory_server(method: str, args: dict[str, Any]) -> Any:
+async def call_memory_server(method: str, args: dict[str, Any]) -> Any:
     """
     Calls the Memory Daemon via the Unix Domain Socket.
     """
-    import asyncio
-
     from .mcp_manager import MCPManager
 
     socket_path = os.path.join(
         os.path.expanduser("~"), ".local/share/megalonyx/sockets/megalonyx_memory.sock"
     )
 
-    async def _call() -> Any:
-        mgr = MCPManager()
-        mgr.register_server("memory", socket_path=socket_path)
-        return await mgr.call_tool(server_name="memory", tool_name=method, arguments=args)
-
+    mgr = MCPManager()
+    mgr.register_server("memory", socket_path=socket_path)
     try:
-        return asyncio.run(_call())
+        return await mgr.call_tool(server_name="memory", tool_name=method, arguments=args)
     except (OSError, RuntimeError) as e:
         return {"error": f"Memory server call failed: {str(e)}"}
 
 
-def execute_tool(
+async def execute_tool(
     tool_name: str,
     args: dict[str, Any],
     search_tool: Any,
@@ -204,10 +204,20 @@ def execute_tool(
     logger = SystemLogger()
     print(f"  [TOOL: {tool_name}] Executing with args: {args}...")
 
+    # Ensure context is never None
+    exec_context = context or ExecutionContext()
+
+    # Convert policy dict to Policy model for type safety
+    policy_model = (
+        Policy(**current_policy)
+        if current_policy
+        else Policy(allowed_tools=[], allowed_paths=[], can_write=False)
+    )
+
     # --- POLICY ENFORCEMENT ---
     if current_policy:
         # 1. Tool Permission Check
-        if tool_name not in current_policy.get("allowed_tools", []):
+        if tool_name not in policy_model.allowed_tools:
             logger.warn(
                 "policy_violation",
                 {
@@ -220,7 +230,7 @@ def execute_tool(
             }
 
         # 2. Write Permission Check
-        if not current_policy.get("can_write", False) and tool_name in [
+        if not policy_model.can_write and tool_name in [
             "write_file",
             "edit",
         ]:
@@ -232,311 +242,26 @@ def execute_tool(
 
     logger.info("tool_call", {"tool": tool_name, "args": args})
 
-    def resolve_path(path: str | None) -> str | None:
-        if not path:
-            return None
-        if os.path.isabs(path):
-            return path
-        return os.path.join(STACK_ROOT, path)
-
     try:
-        if tool_name == "read_file":
-            file_path = resolve_path(args.get("file_path"))
-            if not file_path or not os.path.exists(file_path):
-                return {"error": f"File not found: {file_path}"}
+        # Dispatch to the registered handler
+        handler = registry.get_handler(tool_name)
 
-            # --- CACHE LOOKUP ---
-            if context:
-                cached_content = context.file_cache.get(file_path)
-                if cached_content:
-                    logger.info("cache_hit", {"path": file_path})
-                    return cached_content
+        # We wrap the result in a ToolResponse to maintain backward compatibility
+        # with the existing execute_tool return types (which are mixed Any/dict)
+        # The handlers already return ToolResponse.
+        response = await handler.execute(
+            tool_name=tool_name,
+            args=args,
+            context=exec_context,
+            policy=policy_model,
+            search_tool=search_tool,
+            state_manager=state_manager_inst,
+        )
 
-            # Path Boundary Check
-            if current_policy and "allowed_paths" in current_policy:
-                allowed = current_policy["allowed_paths"]
-                if "*" not in allowed and not any(
-                    file_path.endswith(p.replace("**", "")) for p in allowed
-                ):
-                    return {"error": f"Policy Violation: Access to {file_path} is not permitted."}
+        # For now, return the content to avoid breaking callers expecting the raw result
+        return response.content if response.success else {"error": response.error}
 
-            with open(file_path, encoding="utf-8") as f:
-                content = f.read()
-
-            # --- CACHE UPDATE ---
-            if context:
-                context.file_cache.set(file_path, content)
-
-            return content
-
-        if tool_name == "write_file":
-            file_path = resolve_path(args.get("file_path"))
-            content_val = args.get("content")
-            if not file_path or not isinstance(content_val, str):
-                return {"error": "Missing file_path or content (must be string) for write_file"}
-            final_content: str = content_val
-
-            # Path Boundary Check
-            if current_policy and "allowed_paths" in current_policy:
-                allowed = current_policy["allowed_paths"]
-                if "*" not in allowed and not any(
-                    file_path.endswith(p.replace("**", "")) for p in allowed
-                ):
-                    return {
-                        "error": f"Policy Violation: Write access to {file_path} is not permitted."
-                    }
-
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(final_content)
-
-            # --- CACHE INVALIDATION ---
-            if context:
-                # We don't need to explicitly invalidate since FileReadCache checks mtime,
-                # but we could clear it if we wanted to be aggressive.
-                pass
-
-            return f"Successfully wrote to {file_path}"
-
-        if tool_name == "grep_search":
-            pattern = args.get("pattern")
-            path = resolve_path(args.get("path", "."))
-            if not pattern or not path:
-                return {"error": "Missing pattern or path for grep_search"}
-
-            result = subprocess.run(
-                ["rg", pattern, path], capture_output=True, text=True, encoding="utf-8"
-            )
-            return (
-                result.stdout
-                if result.returncode == 0
-                else f"No matches found or error: {result.stderr}"
-            )
-
-        if tool_name == "semantic_search":
-            query = args.get("query", "")
-            limit = args.get("limit", 5)
-            result = search_tool.semantic_search(query, limit)
-            return result
-
-        if tool_name == "memory_ingest":
-            text = args.get("text")
-            tier = args.get("tier", "auto")
-            if not text:
-                return {"error": "Missing 'text' argument for memory_ingest"}
-            return call_memory_server("ingest", {"text": text, "tier": tier})
-
-        if tool_name == "memory_search":
-            query = args.get("query")
-            tier = args.get("tier", "auto")
-            if not query:
-                return {"error": "Missing 'query' argument for memory_search"}
-            return call_memory_server("search", {"query": query, "tier": tier})
-
-        if tool_name == "memory_reflect":
-            query = args.get("query")
-            if not query:
-                return {"error": "Missing 'query' argument for memory_reflect"}
-            return call_memory_server("reflect", {"query": query})
-
-        if tool_name == "create_agent":
-            import asyncio
-
-            from .agent_generator import AgentGenerator
-
-            description = args.get("description")
-            if not description:
-                return {"error": "Missing 'description' argument for create_agent"}
-
-            _agent_settings = load_settings()
-
-            async def run_gen() -> Any:
-                gen_service = AgentGenerator(_agent_settings)
-                return await gen_service.generate(description)
-
-            try:
-                # In a real production app, we'd handle the event loop more gracefully.
-                agent_data = asyncio.run(run_gen())
-                return {"status": "success", "agent_data": agent_data}
-            except (RuntimeError, ValueError) as e:
-                return {"error": f"Agent generation failed: {str(e)}"}
-
-        if tool_name == "archive_knowledge":
-            key = args.get("key")
-            if not key:
-                return {"error": "Missing 'key' argument for archive_knowledge"}
-            if not state_manager_inst:
-                return {"error": "StateManager instance not available for archive_knowledge"}
-
-            success = state_manager_inst.archive_item(key)
-            if success:
-                return {
-                    "status": "success",
-                    "message": f"Context for '{key}' archived successfully.",
-                }
-            else:
-                return {"error": f"Key '{key}' not found in rag_context."}
-        if tool_name in ["cron_create", "cron_delete", "cron_list"]:
-            from agent_infra.cron_manager import CronManager
-
-            cm = CronManager()
-            try:
-                if tool_name == "cron_create":
-                    return cm.add_job(args["schedule"], args["command"], args["description"])
-                elif tool_name == "cron_delete":
-                    return cm.delete_job(args["description_part"])
-                elif tool_name == "cron_list":
-                    return cm.list_jobs()
-            except (OSError, ValueError) as e:
-                return {"error": str(e)}
-
-        if tool_name in ["mcp_call_tool", "mcp_list_tools", "mcp_read_resource"]:
-            import asyncio
-
-            from .mcp_manager import MCPManager
-
-            async def run_mcp_op() -> Any:
-                mgr = MCPManager()
-                server_name = args.get("server_name")
-                if not server_name:
-                    raise ValueError("Missing 'server_name' argument")
-
-                # For the prototype, we'll assume a default command if not provided.
-                command = args.get(
-                    "command", ["npx", "-y", "@modelcontextprotocol/server-everything"]
-                )
-                mgr.register_server(server_name, command=command)
-
-                if tool_name == "mcp_list_tools":
-                    return await mgr.list_tools(server_name)
-                elif tool_name == "mcp_call_tool":
-                    return await mgr.call_tool(
-                        server_name, args["tool_name"], args.get("arguments", {})
-                    )
-                elif tool_name == "mcp_read_resource":
-                    return await mgr.read_resource(server_name, args["uri"])
-                return None
-
-            try:
-                return asyncio.run(run_mcp_op())
-            except (OSError, RuntimeError, ValueError) as e:
-                return {"error": f"MCP operation failed: {str(e)}"}
-
-        if tool_name in [
-            "lsp_get_definitions",
-            "lsp_get_references",
-            "lsp_get_diagnostics",
-            "lsp_hover",
-        ]:
-            import asyncio
-
-            from .lsp_manager import LSPManager
-
-            async def run_lsp_op() -> Any:
-                mgr = LSPManager()
-                file_path = args.get("file_path")
-                if not file_path:
-                    raise ValueError("Missing 'file_path' argument")
-
-                if tool_name == "lsp_get_definitions":
-                    symbol = args.get("symbol")
-                    if not symbol:
-                        raise ValueError("Missing 'symbol' argument")
-                    return await mgr.get_definition(file_path, symbol)
-                elif tool_name == "lsp_get_references":
-                    symbol = args.get("symbol")
-                    if not symbol:
-                        raise ValueError("Missing 'symbol' argument")
-                    return await mgr.get_references(file_path, symbol)
-                elif tool_name == "lsp_get_diagnostics":
-                    return await mgr.get_diagnostics(file_path)
-                elif tool_name == "lsp_hover":
-                    line = args.get("line")
-                    column = args.get("column")
-                    if line is None or column is None:
-                        raise ValueError("Missing 'line' or 'column' argument")
-                    return await mgr.hover(file_path, line, column)
-                return None
-
-            try:
-                return asyncio.run(run_lsp_op())
-            except (OSError, RuntimeError, ValueError) as e:
-                return {"error": f"LSP operation failed: {str(e)}"}
-
-        if tool_name in [
-            "git_worktree_list",
-            "git_worktree_add",
-            "git_worktree_remove",
-            "git_worktree_prune",
-        ]:
-            import asyncio
-
-            from agent_infra.git_worktree_manager import GitWorktreeManager
-
-            async def run_git_op() -> Any:
-                mgr = GitWorktreeManager(STACK_ROOT)
-                if tool_name == "git_worktree_list":
-                    return await mgr.list_worktrees()
-                elif tool_name == "git_worktree_add":
-                    return await mgr.add_worktree(args["branch"], args["path"])
-                elif tool_name == "git_worktree_remove":
-                    return await mgr.remove_worktree(args["path"])
-                elif tool_name == "git_worktree_prune":
-                    return await mgr.prune_worktrees()
-                return None
-
-            try:
-                return asyncio.run(run_git_op())
-            except (OSError, RuntimeError) as e:
-                return {"error": f"Git-worktree operation failed: {str(e)}"}
-
-        if tool_name == "run-pytest":
-            test_path = resolve_path(args.get("path", "tests"))
-            if not test_path:
-                return {"error": "Could not resolve test path"}
-            result = subprocess.run(
-                ["pytest", test_path], capture_output=True, text=True, encoding="utf-8"
-            )
-            return (
-                result.stdout
-                if result.returncode == 0
-                else f"Tests failed:\n{result.stdout}\n{result.stderr}"
-            )
-
-        if tool_name == "run-mypy":
-            target_path = resolve_path(args.get("path", "."))
-            if not target_path:
-                return {"error": "Could not resolve target path"}
-            result = subprocess.run(
-                ["mypy", target_path], capture_output=True, text=True, encoding="utf-8"
-            )
-            return (
-                result.stdout if result.returncode == 0 else f"Type errors found:\n{result.stdout}"
-            )
-
-        if tool_name == "git-commit-atomic":
-            message = args.get("message", "Atomic commit")
-            file_path = resolve_path(args.get("file_path"))
-            if not file_path:
-                return {"error": "Missing 'file_path' for git-commit-atomic"}
-
-            try:
-                subprocess.run(["git", "add", file_path], check=True)
-                result = subprocess.run(
-                    ["git", "commit", "-m", message],
-                    capture_output=True,
-                    text=True,
-                    encoding="utf-8",
-                )
-                return (
-                    result.stdout if result.returncode == 0 else f"Commit failed: {result.stderr}"
-                )
-            except subprocess.CalledProcessError as e:
-                return {"error": f"Git operation failed: {e}"}
-
-        logger.warn("tool_not_implemented", {"tool": tool_name})
     except (OSError, RuntimeError, ValueError) as e:
-        # Last Resort: Top-level tool execution error handler
         logger.exception("tool_failure", {"tool": tool_name, "error": str(e)})
         return {"error": f"Tool {tool_name} failed: {e}"}
 
@@ -576,7 +301,7 @@ def strip_orphaned_user_entries(history: list[dict[str, str]]) -> list[dict[str,
     return cleaned_history
 
 
-def run_job_execution(
+async def run_job_execution(
     job: dict[str, Any],
     prompt: str,
     skill_config: dict[str, Any] | None,
@@ -618,7 +343,7 @@ def run_job_execution(
         tool_name = tool_call_match.group(1)
         try:
             tool_args = json.loads(tool_call_match.group(2))
-            result = execute_tool(
+            result = await execute_tool(
                 tool_name,
                 tool_args,
                 search_tool,
@@ -666,15 +391,22 @@ def main() -> None:
 
     # --- STRATEGIC EXECUTION LOOP ---
     root_context = ExecutionContext()
-    final_response = control_plane.execute(
-        prompt=args.prompt,
-        model_id=model_id,
-        settings=settings,
-        search_tool=search_tool_inst,
-        root_context=root_context,
-    )
 
-    print(final_response)
+    import asyncio
+
+    try:
+        final_response: str = asyncio.run(
+            control_plane.execute(
+                prompt=args.prompt,
+                model_id=model_id,
+                settings=settings,
+                search_tool=search_tool_inst,
+                root_context=root_context,
+            )
+        )
+        print(final_response)
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":

@@ -1270,6 +1270,18 @@ dev = [
 name = "memory"
 version = "0.1.0"
 source = { virtual = "packages/memory" }
+dependencies = [
+    { name = "qdrant-client" },
+    { name = "requests" },
+    { name = "sentence-transformers" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "qdrant-client" },
+    { name = "requests" },
+    { name = "sentence-transformers" },
+]
 
 [[package]]
 name = "mpmath"

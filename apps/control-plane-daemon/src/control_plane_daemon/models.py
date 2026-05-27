@@ -32,6 +32,11 @@ class Job(BaseModel):
     updated_at: str | None = None
 
 
+class JobSet(BaseModel):
+    start_time: str
+    jobs: dict[str, Job]
+
+
 class ToolRequest(BaseModel):
     tool_name: str
     args: dict[str, Any]

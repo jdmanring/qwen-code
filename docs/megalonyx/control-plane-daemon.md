@@ -4,8 +4,8 @@ The control-plane-daemon is a Python service that receives tasks, figures out wh
 task each one is, breaks it down into jobs, and routes each job to the right model and tool
 configuration.
 
-Location: `apps/control-plane-daemon/`  
-Entry point: `apps/control-plane-daemon/src/control_plane_daemon/main.py`  
+Location: `apps/control-plane-daemon/`
+Entry point: `apps/control-plane-daemon/src/control_plane_daemon/tool_executor.py`
 Package name: `control-plane-daemon` (installed as `control_plane_daemon`)
 
 ---
@@ -75,9 +75,23 @@ Output: a model ID, system prompt template, and generation parameters for the jo
 The core execution engine. Given a model assignment and execution context, it:
 1. Resolves the final system prompt from the profile template and context
 2. Calls the model via the appropriate provider API
-3. Handles tool call responses (routes them to MCP or local tool handlers)
+3. Handles tool call responses via a **Declarative Tool Dispatch** system:
+    - Uses a `ToolRegistry` to map tool names to specialized `ToolHandler` classes.
+    - `ToolHandler` is an Abstract Base Class (ABC) ensuring consistent `execute()` signatures.
+    - This removes the need for large procedural `if/elif` blocks, reducing cyclomatic complexity.
 4. Retries on transient failures; falls back to an alternate model on hard failures
 5. Returns the result to the job state manager
+
+### `registry.py`
+
+Implements the `ToolRegistry`, which acts as the central lookup for all available tool handlers. This decoupling allows new tools to be added without modifying the core execution loop in `tool_executor.py`.
+
+### `models.py`
+
+Defines the core data schemas using **Pydantic** to prevent type erosion and ensure structural integrity across the daemon. Key models include:
+- `Job`: Represents an atomic unit of work.
+- `ToolRequest` / `ToolResponse`: Standardizes the interface between the LLM and the tool handlers.
+- `Policy`: Defines granular permissions (allowed tools, write access) for specific intents.
 
 ### `command_manager.py`
 
@@ -86,8 +100,8 @@ that expand to multi-step job sequences — `/deploy` might expand to lint + tes
 
 ### `agent_generator.py`
 
-An LLM-based factory that synthesizes new execution profiles. Given a description of what kind
-of agent is needed, it generates a YAML+Markdown file in `.qwen/agents/` format, including
+An LLM-based factory that synthesizes new execution profiles. Given a description of what
+kind of agent is needed, it generates a YAML+Markdown file in `.qwen/agents/` format, including
 the system prompt, skill list, and "when to use" examples.
 
 ---
@@ -111,7 +125,24 @@ ControlPlane.__init__()
 
 ## Tests
 
-Unit tests: `apps/control-plane-daemon/tests/unit/`  
+Unit tests: `apps/control-plane-daemon/tests/unit/`
 Control plane integration tests: `apps/control-plane-daemon/tests/control_plane/`
 
 Run: `uv run pytest apps/control-plane-daemon/tests/`
+
+---
+
+## Implementation Notes: Recent Refactor (May 2026)
+
+The Control Plane and Tool Executor underwent a significant refactor to address technical debt and improve maintainability.
+
+### The Problem
+- **Complexity Spikes**: The `execute_tool` function had become a "god function" with deep nesting and massive `if/elif` chains.
+- **Type Erosion**: Heavy reliance on generic `dict` objects led to runtime errors and made the codebase difficult for AI and humans to reason about.
+- **Async Fragmentation**: Scattered `asyncio.run()` calls created nested event loops and fragile synchronization.
+
+### The Solution
+- **Declarative Dispatch**: Shifted to a Registry pattern. The `ToolRegistry` now manages `ToolHandler` instances, isolating tool logic from the execution loop.
+- **Pydantic Integration**: Replaced dictionaries with strongly-typed Pydantic models (`Job`, `Policy`, etc.), ensuring that data flowing through the system is validated at the boundaries.
+- **Lifted Async Infrastructure**: The event loop is now initialized once at the entry point (`tool_executor.py:main`), with `async/await` propagated throughout the stack.
+- **Complexity Reduction**: Refactored functions to adhere to the project standard of nesting depth $\le 3$, significantly improving readability and testability.

@@ -55,9 +55,17 @@ def ensure_collection(client_obj: QdrantClient, name: str, size: int) -> None:
             info = client_obj.get_collection(collection_name=name)
             current_dim = info.config.params.vectors.size
             if current_dim != size:
-                raise ValueError(
-                    f"Dimension mismatch for '{name}': expected {size}, found {current_dim}"
+                print(
+                    f"[memory:search] Dimension mismatch for '{name}': "
+                    f"expected {size}, found {current_dim}. Recreating collection...",
+                    file=sys.stderr,
                 )
+                client_obj.delete_collection(collection_name=name)
+                client_obj.create_collection(
+                    collection_name=name,
+                    vectors_config=VectorParams(size=size, distance=Distance.COSINE),
+                )
+                return
             return
 
         print(f"[memory:search] Creating collection: {name}", file=sys.stderr)

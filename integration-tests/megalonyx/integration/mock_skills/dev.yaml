@@ -1,0 +1,5 @@
+---
+name: developer
+triggers:
+  keywords: [implement]
+  file_extensions: [.py]

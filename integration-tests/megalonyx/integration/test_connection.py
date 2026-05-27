@@ -1,7 +1,13 @@
 import socket
 import sys
+import pytest
 
 
+@pytest.mark.parametrize("host, port", [
+    ("127.0.0.1", 6333),
+    ("0.0.0.0", 6333),
+    ("192.168.1.104", 6333),
+])
 def test_connection(host: str, port: int) -> bool:
     print(f"Attempting to connect to {host}:{port}...")
     try:

@@ -88,7 +88,9 @@ def ingest(text: str, tier: str) -> dict[str, Any]:
 
 def _perform_ingest(record: MemoryRecord) -> None:
     """The actual heavy lifting of embedding and upserting."""
+    print(f"[DEBUG] Embedding text: {record.text[:20]}...", file=sys.stderr)
     vector = embed([record.text], record.tier)[0]
+    print(f"[DEBUG] Embedding complete. Vector length: {len(vector)}", file=sys.stderr)
 
     client = local_qdrant
     collection = LOCAL_COLLECTION
@@ -100,12 +102,15 @@ def _perform_ingest(record: MemoryRecord) -> None:
         client = cloud_qdrant
         collection = CLOUD_COLLECTION
 
+    print(f"[DEBUG] Ensuring collection {collection} exists", file=sys.stderr)
     ensure_collection(client, collection, len(vector))
+    print(f"[DEBUG] Collection verified. Upserting point {record.id}...", file=sys.stderr)
 
     client.upsert(
         collection_name=collection,
         points=[PointStruct(id=record.id, vector=vector, payload=serialize(record))],
     )
+    print(f"[DEBUG] Upsert complete for {record.id}", file=sys.stderr)
 
 
 def recover() -> None:

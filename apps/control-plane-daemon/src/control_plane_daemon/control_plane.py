@@ -7,8 +7,10 @@ from agent_infra.system_logger import SystemLogger
 
 from .intent_classifier import IntentClassifier
 from .job_state_manager import JobStateManager
+from .models import Job, JobStatus
 from .status_manager import StatusManager
 from .task_decomposer import TaskDecomposer
+from .verification_engine import VerificationResult
 
 
 class ControlPlane:
@@ -89,7 +91,7 @@ class ControlPlane:
                 ]
                 job_set = self.jsm.initialize_job_set(jobs)
                 self.status_manager.update_job_status(
-                    "workflow_root", "pending", 0.0, "Initializing workflow"
+                    "workflow_root", JobStatus.PENDING, 0.0, "Initializing workflow"
                 )
 
                 return {
@@ -130,7 +132,7 @@ class ControlPlane:
 
         if jobs:
             self.status_manager.update_job_status(
-                jobs[0]["job_id"], "pending", 0.0, "Starting decomposition"
+                jobs[0]["job_id"], JobStatus.PENDING, 0.0, "Starting decomposition"
             )
 
         return {
@@ -143,7 +145,7 @@ class ControlPlane:
         """Retrieves the next executable job from the state manager."""
         return self.jsm.get_next_job()
 
-    def update_job(self, job_id: str, status: str, result: Any = None) -> None:
+    def update_job(self, job_id: str, status: JobStatus, result: Any = None) -> None:
         """Updates the status of a job and persists it."""
         self.jsm.update_job_status(job_id, status, result)
 
@@ -155,7 +157,7 @@ class ControlPlane:
         """Clears the current job set."""
         self.jsm.clear_jobs()
 
-    def _spawn_agent(
+    async def _spawn_agent(
         self,
         agent_id: str,
         task_prompt: str,
@@ -202,7 +204,7 @@ class ControlPlane:
 
         from .tool_executor import run_job_execution
 
-        response = run_job_execution(
+        response = await run_job_execution(
             temp_job,
             task_prompt,
             agent_config,
@@ -218,7 +220,7 @@ class ControlPlane:
 
         return response
 
-    def execute_workflow(
+    async def execute_workflow(
         self,
         cmd_id: str,
         prompt: str,
@@ -292,7 +294,7 @@ class ControlPlane:
                 task_prompt = f"WORKFLOW STEP {i + 1}: {step}\n\nINPUT CONTEXT: {current_context}"
 
                 self.status_manager.update_agent(agent_id, step[:50])
-                agent_report = self._spawn_agent(
+                agent_report = await self._spawn_agent(
                     agent_id, task_prompt, model_id, settings, search_tool, root_context
                 )
 
@@ -314,7 +316,7 @@ class ControlPlane:
 
                 from .tool_executor import run_job_execution
 
-                res = run_job_execution(
+                res = await run_job_execution(
                     job,
                     step,
                     None,
@@ -335,7 +337,7 @@ class ControlPlane:
 
         return full_execution_log
 
-    def execute(
+    async def execute(
         self,
         prompt: str,
         model_id: str,
@@ -362,7 +364,9 @@ class ControlPlane:
 
             job_id = job["job_id"]
             self.logger.info("job_loop_processing", {"job_id": job_id})
-            self.status_manager.update_job_status(job_id, "running", 0.0, job["description"][:50])
+            self.status_manager.update_job_status(
+                job_id, JobStatus.RUNNING, 0.0, job["description"][:50]
+            )
 
             # HANDLE WORKFLOW JOBS
             if job.get("job_type") == "workflow":
@@ -377,13 +381,13 @@ class ControlPlane:
                 )
                 cmd_id = intent.replace("command:", "") if "command:" in intent else intent
 
-                workflow_result = self.execute_workflow(
+                workflow_result = await self.execute_workflow(
                     cmd_id, prompt, model_id, settings, search_tool, root_context
                 )
 
-                self.update_job(job_id, "completed", result=workflow_result)
+                self.update_job(job_id, JobStatus.COMPLETED, result=workflow_result)
                 self.status_manager.update_job_status(
-                    job_id, "completed", 100.0, "Workflow complete"
+                    job_id, JobStatus.COMPLETED, 100.0, "Workflow complete"
                 )
                 final_aggregated_response += f"\\n\\n{workflow_result}"
                 continue
@@ -423,7 +427,7 @@ class ControlPlane:
             # 3. ACT: Execute the job
             # The current history includes the original prompt and any previous failure logs
             try:
-                job_response = run_job_execution(
+                job_response = await run_job_execution(
                     job,
                     history[-1]["content"] if history else prompt,
                     skill_config,
@@ -443,21 +447,19 @@ class ControlPlane:
                 # Treat transport failure as a verification failure to trigger the correction loop
                 job_response = f"Transport Error: {str(e)}"
 
-                # We create a mock-like result object instead of using MagicMock in production code
-                class VerificationResult:
-                    def __init__(self, success: bool, action: str, logs: str) -> None:
-                        self.is_success = success
-                        self.suggested_action = action
-                        self.logs = logs
-
-                v_result = VerificationResult(False, "RETRY", f"Transport failure: {str(e)}")
+                v_result = VerificationResult(
+                    is_success=False,
+                    confidence=1.0,
+                    logs=f"Transport failure: {str(e)}",
+                    suggested_action="RETRY",
+                )
 
                 # Skip to correction logic
                 global_retry_count += 1
                 if global_retry_count >= GLOBAL_RETRY_LIMIT:
-                    self.update_job(job_id, "failed", result=job_response)
+                    self.update_job(job_id, JobStatus.FAILED, result=job_response)
                     self.status_manager.update_job_status(
-                        job_id, "failed", 0.0, "Failed: Limit reached"
+                        job_id, JobStatus.FAILED, 0.0, "Failed: Limit reached"
                     )
                     self._fail_all_pending()
                     break
@@ -467,8 +469,10 @@ class ControlPlane:
                     "Please check the service status and retry."
                 )
                 history.append({"role": "user", "content": correction_prompt})
-                self.update_job(job_id, "retrying", result=job_response)
-                self.status_manager.update_job_status(job_id, "retrying", 50.0, "Retrying...")
+                self.update_job(job_id, JobStatus.RETRYING, result=job_response)
+                self.status_manager.update_job_status(
+                    job_id, JobStatus.RETRYING, 50.0, "Retrying..."
+                )
                 continue
 
             history.append({"role": "assistant", "content": job_response})
@@ -489,8 +493,10 @@ class ControlPlane:
             v_result = self.ve.verify_job(job_id, v_type, job_response, context=v_context)
 
             if v_result.is_success:
-                self.update_job(job_id, "completed", result=job_response)
-                self.status_manager.update_job_status(job_id, "completed", 100.0, "Verified")
+                self.update_job(job_id, JobStatus.COMPLETED, result=job_response)
+                self.status_manager.update_job_status(
+                    job_id, JobStatus.COMPLETED, 100.0, "Verified"
+                )
 
                 final_aggregated_response += f"\\n\\nJob {job_id} completed: {job_response}"
             else:
@@ -498,9 +504,9 @@ class ControlPlane:
                 global_retry_count += 1
                 if global_retry_count >= GLOBAL_RETRY_LIMIT:
                     self.logger.error("global_retry_limit_reached", {"limit": GLOBAL_RETRY_LIMIT})
-                    self.update_job(job_id, "failed", result=job_response)
+                    self.update_job(job_id, JobStatus.FAILED, result=job_response)
                     self.status_manager.update_job_status(
-                        job_id, "failed", 0.0, "Failed: Limit reached"
+                        job_id, JobStatus.FAILED, 0.0, "Failed: Limit reached"
                     )
                     self._fail_all_pending()
                     break
@@ -516,11 +522,12 @@ class ControlPlane:
 
                 if v_result.suggested_action == "PIVOT":
                     # Create a correction job for the specific failure
-                    corr_job = self.decomposer.create_correction_job(job, v_result.logs)
+                    corr_job_data = self.decomposer.create_correction_job(job, v_result.logs)
+                    corr_job = Job(**corr_job_data)
                     self.jsm.add_job(corr_job)
 
                     # Execute the correction job immediately
-                    corr_response = self._execute_single_job(
+                    corr_response = await self._execute_single_job(
                         corr_job, model_id, settings, search_tool, root_context
                     )
 
@@ -532,13 +539,15 @@ class ControlPlane:
                     )
                     history.append({"role": "user", "content": pivot_prompt})
 
-                    self.update_job(job_id, "retrying", result=job_response)
-                    self.status_manager.update_job_status(job_id, "retrying", 50.0, "Correcting...")
+                    self.update_job(job_id, JobStatus.RETRYING, result=job_response)
+                    self.status_manager.update_job_status(
+                        job_id, JobStatus.RETRYING, 50.0, "Correcting..."
+                    )
 
                 elif v_result.suggested_action == "ABORT":
                     self.logger.info("abort_suggested", {"job_id": job_id})
-                    self.update_job(job_id, "failed", result=job_response)
-                    self.status_manager.update_job_status(job_id, "failed", 0.0, "Aborted")
+                    self.update_job(job_id, JobStatus.FAILED, result=job_response)
+                    self.status_manager.update_job_status(job_id, JobStatus.FAILED, 0.0, "Aborted")
                     self._fail_all_pending()
                     break
 
@@ -548,8 +557,10 @@ class ControlPlane:
                         "Please analyze the failure and provide a corrected implementation."
                     )
                     history.append({"role": "user", "content": correction_prompt})
-                    self.update_job(job_id, "retrying", result=job_response)
-                    self.status_manager.update_job_status(job_id, "retrying", 50.0, "Retrying...")
+                    self.update_job(job_id, JobStatus.RETRYING, result=job_response)
+                    self.status_manager.update_job_status(
+                        job_id, JobStatus.RETRYING, 50.0, "Retrying..."
+                    )
 
         # Cleanup
         self.status_manager.update_agent("Idle", "None")
@@ -562,11 +573,11 @@ class ControlPlane:
         """Marks all pending jobs in the active set as failed."""
         job_set = self.jsm.sm.get("active_job_set", {})
         for j_id, j_val in job_set.get("jobs", {}).items():
-            if j_val["status"] == "pending":
-                self.update_job(j_id, "failed")
-                self.status_manager.update_job_status(j_id, "failed", 0.0, "Failed")
+            if j_val["status"] == JobStatus.PENDING:
+                self.update_job(j_id, JobStatus.FAILED)
+                self.status_manager.update_job_status(j_id, JobStatus.FAILED, 0.0, "Failed")
 
-    def _execute_single_job(
+    async def _execute_single_job(
         self,
         job: dict[str, Any],
         model_id: str,
@@ -592,7 +603,7 @@ class ControlPlane:
                 }
 
         prompt = f"TASK: {job['description']}\\nREQUIRED_OUTCOME: {job['verification_criteria']}"
-        return run_job_execution(
+        return await run_job_execution(
             job,
             prompt,
             skill_config,

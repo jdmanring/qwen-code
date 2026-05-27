@@ -1,14 +1,54 @@
 import json
 import os
-
 import pytest
 
-SETTINGS_PATH = os.path.expanduser("~/.qwen/settings.json")
+# Create a temporary settings file for testing
+@pytest.fixture(scope="module")
+def temp_settings(tmp_path_factory):
+    settings_dir = tmp_path_factory.mktemp("settings")
+    settings_file = settings_dir / "settings.json"
+    settings_data = {
+        "env": {
+            "OPENAI_API_KEY": "sk-dummy-key",
+            "GITHUB_TOKEN": "dummy-github-token",
+            "TAVILY_API_KEY": "dummy-tavily-key",
+            "QDRANT_URL": "http://localhost:6333",
+        },
+        "mcpServers": {
+            "github": {
+                "command": "npx",
+                "args": ["-y", "@modelcontextprotocol/server-github"],
+                "env": {"GITHUB_PERSONAL_ACCESS_TOKEN": "$GITHUB_TOKEN"},
+            },
+            "internet-search": {
+                "command": "npx",
+                "args": ["-y", "tavily-mcp"],
+                "env": {"TAVILY_API_KEY": "$TAVILY_API_KEY"},
+            },
+            "code-index": {
+                "command": "uvx",
+                "args": ["code-index-mcp"],
+            },
+            "mega-db": {
+                "command": "python -m qdrant_mcp.server",
+                "args": [
+                    "--qdrant-url",
+                    "http://localhost:6333",
+                    "--embedding-provider",
+                    "sentence-transformers",
+                    "--embedding-model",
+                    "all-MiniLM-L6-v2",
+                ],
+            },
+        },
+    }
+    settings_file.write_text(json.dumps(settings_data))
+    return str(settings_file)
 
 
 @pytest.fixture
-def settings():
-    with open(SETTINGS_PATH) as f:
+def settings(temp_settings):
+    with open(temp_settings) as f:
         return json.load(f)
 
 
