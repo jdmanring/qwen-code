@@ -31,6 +31,11 @@ When a bug is discovered or a system failure occurs, the following protocol is m
 1. **Identification:** Record the bug in `TASKS.md`.
 2. **Documentation:** Create a bug report in `docs/bugs/` detailing the root cause and impact.
 3. **Analysis:** Perform a formal RCA (Root Cause Analysis) and evaluate options.
+    - **Mandatory Proof**: Analysis is not complete until a "Proof of Root Cause" is established. A proof requires:
+        1. **Specific Location**: The exact line of code (including in dependencies) causing the failure.
+        2. **Evidence**: A log trace or state snapshot demonstrating the failure.
+        3. **Causal Logic**: A logical explanation of why the proposed fix resolves the specific cause.
+    - **Iteration Ban**: If an implementation fails, the agent is forbidden from "tweaking" the code. It must return to the Analysis phase and treat the previous "fix" as a new data point for the RCA.
 4. **Planning:** Present a comprehensive fix plan for user approval.
 5. **Execution:** Implement the fix using atomic steps tracked via `todo_write`.
 6. **Verification:** Certify the fix via tests and regression suites.

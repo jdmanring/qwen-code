@@ -141,14 +141,18 @@ reactHooks.configs.flat['recommended-latest']
 reactHooks.configs['recommended-latest']
 ```
 
-## 6. Runtime Independence & Pathing
+## 6. Diagnostic Rigor
+
+To avoid blind iteration and "guess-and-check" loops, the following diagnostic standards are mandatory:
+
+- **Dependency Blindness**: When a failure originates from a dependency, SDK, or "invisible" layer (where strings are present in logs but not in project source), the agent MUST NOT infer behavior through trial and error.
+- **Mandatory Delegation**: In cases of invisible errors, the agent MUST delegate to a specialized agent (e.g., `troubleshooter` or `researcher`) to perform a deep-dive into the runtime environment or installed `site-packages` before proposing any fix.
+- **RCA-First Implementation**: No code changes are permitted until the root cause is proven. A "hunch" is not a proof.
+
+
+## 7. Runtime Independence & Pathing
 
 To ensure the Megalonyx stack can be deployed and run independently of the monorepo source code, all components must adhere to strict pathing standards.
-
-### 🚫 Forbidden Pathing Patterns
-The use of relative paths that assume the project is running from the monorepo root is strictly forbidden.
-- **No `__file__` relative jumps**: Do not use `os.path.dirname(__file__)` to climb up to the root (e.g., `../../config/`).
-- **No hardcoded monorepo paths**: Do not use paths like `/home/james/projects/megalonyx-monorepo/...`.
 
 ### ✅ Mandatory Pathing Standards
 All paths must be resolved dynamically using the following hierarchy:
@@ -157,5 +161,10 @@ All paths must be resolved dynamically using the following hierarchy:
 3. **Standard XDG Base Directory**:
     - **Config**: `~/.config/qwen/` and `~/.config/megalonyx/`
     - **Data/State**: `~/.local/share/megalonyx/`
+
+### 🚫 Forbidden Pathing Patterns
+The use of relative paths that assume the project is running from the monorepo root is strictly forbidden.
+- **No `__file__` relative jumps**: Do not use `os.path.dirname(__file__)` to climb up to the root (e.g., `../../config/`).
+- **No hardcoded monorepo paths**: Do not use paths like `/home/james/projects/megalonyx-monorepo/...`.
 
 Any code that introduces a dependency on the monorepo's directory structure will be rejected during the intake normalization process.
