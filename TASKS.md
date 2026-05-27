@@ -35,6 +35,7 @@ Read at session start. Commit every status change.
 
 | ID | Subject | Owner | Started |
 | :--- | :--- | :--- | :--- |
+| #81 | INFRA: Implement `.qwen-context` anchors | Qwen-Orchestrator | 2026-05-27 |
 
 ---
 
@@ -48,6 +49,9 @@ Read at session start. Commit every status change.
 | #72 | Scheduled upstream watch workflow | Create `.github/workflows/upstream-watch.yml`. Cron: `'0 6 * * *'` (daily 06:00 UTC). Steps: checkout monorepo, install Python (uv), run `python3 tooling/sync-upstreams/fork_sync_pipeline.py --status`. If new commits detected, run `fork_sync_pipeline.py --sync --auto` (add `--auto` flag to skip interactive prompt in non-TTY). Then run `upstream_ingest_pipeline.py`. On failure, open a GitHub issue via `gh issue create` with the error output. This fully automates the QwenLM→fork→integration path. | — |
 | #73 | LKG rollback script | Create `tooling/sync-upstreams/rollback_to_lkg.py`. Args: optional `--tag LKG-YYYYMMDD-HHMM` (defaults to most recent LKG tag). Steps: find tag via `git tag -l 'LKG-*' --sort=-version:refname | head -1`, confirm with user, `git checkout integration`, `git reset --hard <tag>`, `git push --force-with-lease origin integration`. Add rollback instructions to `docs/meta/pipeline-runbook.md`. | — |
 | #74 | Automate integration→develop promotion | After successful LKG tag in `PromotionEngine.promote()`, automatically fast-forward merge `integration` into `develop` if CI is green, or create a PR if not. Simplest version: after tagging, run `git checkout develop && git merge --ff-only integration && git push origin develop && git checkout integration`. Add `--no-auto-promote` flag to skip for manual control. | — |
+| #80 | S-REC: Fix MCP Stdio Race Condition | Root Cause: Aggressive `anyio` task group cancellation on `stdin` EOF. Path: Documentation $\to$ Analysis $\to$ Fix $\to$ Certification. | — |
+| #82 | INFRA: Expand Operational Linter | Add `OPERATIONAL` domain to `tooling/project_standards_linter.py` to audit process markers (e.g., `TASKS.md` updates, commit message links). | #80 |
+| #83 | INFRA: Optimize `QWEN.md` for Fast-Activation | Add a high-density "🚀 Agent Quick-Start" cheat sheet to the top of `QWEN.md` for immediate constraint activation. | #80 |
 
 ---
 
@@ -64,6 +68,7 @@ Read at session start. Commit every status change.
 
 | ID | Subject | Commit |
 | :--- | :--- | :--- |
+| #80 | S-REC: Fix MCP Stdio Race Condition | 3f3b83d36 |
 | #65 | Final isolation validation | 3dae91c77 |
 | #64 | Status tool hardening | 3dae91c77 |
 | #63 | Memory MCP restoration | 3dae91c77 |
