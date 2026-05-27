@@ -283,7 +283,7 @@ export const presubmitCommand: CommandModule = {
       .option('new-findings', {
         type: 'string',
         describe:
-          'Path to a JSON file shaped as [{path, line}, ...] — when provided, existing comments are checked for same-(path, line) overlap with the new findings.',
+          'Path to a JSON file shaped as [{path, line}, ...] -- when provided, existing comments are checked for same-(path, line) overlap with the new findings.',
       }),
   handler: async (argv) => {
     await runPresubmit(argv as unknown as PresubmitArgs);

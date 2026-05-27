@@ -84,6 +84,6 @@ Each provider definition must adhere to the following property matrix:
 
 ---
 
-## 🔗 Mirror Link
+##  Mirror Link
 This specification mirrors the runtime configuration in:
 `../../config/settings.json` $\leftrightarrow$ `configuration.md`

@@ -28,7 +28,7 @@ describe('AskUserQuestionTool', () => {
   });
 
   describe('tool registration flags', () => {
-    it('is not deferred — must remain visible in the initial tool list', () => {
+    it('is not deferred -- must remain visible in the initial tool list', () => {
       // shouldDefer=true would hide the schema behind ToolSearch and force the
       // model to discover the tool by name before using it. The model then
       // tends to skip the structured clarification UX and ask in plain prose.

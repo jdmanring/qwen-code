@@ -53,7 +53,7 @@ async def test_ui_handshake():
         response_bytes = await asyncio.wait_for(process.stdout.readline(), timeout=5.0)
 
         if not response_bytes:
-            print("❌ FAILURE: Bridge closed stdout without responding.")
+            print(" FAILURE: Bridge closed stdout without responding.")
             return False
 
         response_text = response_bytes.decode("utf-8").strip()
@@ -62,23 +62,23 @@ async def test_ui_handshake():
         try:
             response_json = json.loads(response_text)
             if response_json.get("id") == 1 and "result" in response_json:
-                print("✅ SUCCESS: MCP Handshake complete. UI should see 'Connected'.")
+                print(" SUCCESS: MCP Handshake complete. UI should see 'Connected'.")
                 return True
             else:
-                print(f"❌ FAILURE: Invalid MCP response: {response_json}")
+                print(f" FAILURE: Invalid MCP response: {response_json}")
                 return False
         except json.JSONDecodeError:
-            print(f"❌ FAILURE: Response was not valid JSON: {response_text}")
+            print(f" FAILURE: Response was not valid JSON: {response_text}")
             return False
 
     except TimeoutError:
-        print("❌ FAILURE: Bridge timed out. No response to initialize request.")
+        print(" FAILURE: Bridge timed out. No response to initialize request.")
         # Capture stderr to see why it failed
         stderr_data = await process.stderr.read()
         print(f"Bridge Stderr: {stderr_data.decode()}")
         return False
     except (RuntimeError, ValueError, TypeError, AttributeError, OSError) as e:
-        print(f"❌ UNEXPECTED ERROR: {e}")
+        print(f" UNEXPECTED ERROR: {e}")
         return False
     finally:
         process.terminate()

@@ -6,7 +6,7 @@ set -euo pipefail
 # the removal of any Windows-only artifacts (.bat files).
 #
 # This is the low-level step called by the ingest pipeline. Running it standalone
-# is safe — it only modifies the upstream-mirror branch.
+# is safe -- it only modifies the upstream-mirror branch.
 #
 # Usage:
 #   ./tooling/sync-upstreams/raw-inline.sh
@@ -23,7 +23,7 @@ log_error()   { echo -e "${RED}[FAIL]${NC} $1" >&2; }
 MIRROR_BRANCH="upstream-mirror"
 
 main() {
-    log_info "Starting raw-inline sync: upstream/main → ${MIRROR_BRANCH}"
+    log_info "Starting raw-inline sync: upstream/main -> ${MIRROR_BRANCH}"
 
     # 1. Fetch latest from upstream
     log_info "Fetching upstream/main..."
@@ -35,7 +35,7 @@ main() {
     # 2. Switch to mirror branch (create if missing)
     log_info "Switching to ${MIRROR_BRANCH}..."
     if ! git checkout -f "$MIRROR_BRANCH" 2>/dev/null; then
-        log_info "${MIRROR_BRANCH} not found — creating from upstream/main..."
+        log_info "${MIRROR_BRANCH} not found -- creating from upstream/main..."
         if ! git checkout -B "$MIRROR_BRANCH" upstream/main; then
             log_error "Failed to create ${MIRROR_BRANCH}."
             exit 1

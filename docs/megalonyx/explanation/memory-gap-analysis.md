@@ -1,4 +1,4 @@
-# 🔍 Memory Gap Analysis: Native vs. Custom RAG
+#  Memory Gap Analysis: Native vs. Custom RAG
 
 This document analyzes the differences between the native Qwen Code memory features and the custom Semantic Memory system implemented in the Mega Code stack.
 

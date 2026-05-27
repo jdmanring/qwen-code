@@ -59,7 +59,7 @@ in the qwen_code_stack layout. The Megalonyx version is a full implementation.
 }
 ```
 
-**What it does:** Provides tools for GitHub operations — reading issues, creating PRs,
+**What it does:** Provides tools for GitHub operations -- reading issues, creating PRs,
 searching code, listing commits. Requires a personal access token in `GITHUB_TOKEN`.
 
 **Package:** `@modelcontextprotocol/server-github` (official MCP server)
@@ -110,7 +110,7 @@ If a server advertises a tool with the same name as a built-in CLI tool, the MCP
 renamed to `mcp__servername__toolname` to avoid collision.
 
 The manager enforces a budget cap on tool calls per server. It warns at 75% of the cap and
-re-arms the warning at 37.5% — this prevents runaway tool loops from exhausting API credits.
+re-arms the warning at 37.5% -- this prevents runaway tool loops from exhausting API credits.
 
 ---
 

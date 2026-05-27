@@ -24,7 +24,7 @@ import { resolveProjectRelativePath } from '../utils/projectPath.js';
 // working through the old import path. The canonical home is now
 // `utils/projectPath.ts` so `ConditionalRulesRegistry` can share the
 // same Windows-cross-drive guard without inverting the dependency
-// direction (utils → skills would be wrong).
+// direction (utils -> skills would be wrong).
 export { resolveProjectRelativePath } from '../utils/projectPath.js';
 
 const debugLogger = createDebugLogger('SKILL_ACTIVATION');
@@ -95,13 +95,13 @@ export class SkillActivationRegistry {
           // dot: true so broad globs like `**/*.js` activate on
           // dotfiles too (`.eslintrc.js`, `.env`, `.github/foo.yml`).
           // Skill activation asks "did the model touch a file matching
-          // this glob" — the gitignore-style "skip hidden" exclusion
+          // this glob" -- the gitignore-style "skip hidden" exclusion
           // makes sense for filesystem walks, not for activation.
           matchers.push(picomatch(p, { dot: true }));
         } catch (e) {
           // picomatch can throw on pathological inputs (oversize patterns,
           // broken extglob nesting). Drop the offending pattern but keep
-          // the rest of the skill — better than letting the error bubble
+          // the rest of the skill -- better than letting the error bubble
           // up to refreshCache and abort skill loading entirely (this
           // site is outside the levels-level Promise.allSettled boundary).
           //
@@ -128,7 +128,7 @@ export class SkillActivationRegistry {
   matchAndConsume(filePath: string): string[] {
     if (this.compiled.length === 0) return [];
 
-    // Skip files outside the project root — conditional skills are scoped
+    // Skip files outside the project root -- conditional skills are scoped
     // to the project, matching ConditionalRulesRegistry's behavior. The
     // helper handles the Windows cross-drive case (where `path.relative`
     // returns an absolute string).
@@ -139,7 +139,7 @@ export class SkillActivationRegistry {
       );
       return [];
     }
-    debugLogger.debug(`matchAndConsume ${filePath} → relative=${relativePath}`);
+    debugLogger.debug(`matchAndConsume ${filePath} -> relative=${relativePath}`);
 
     const newlyActivated: string[] = [];
     for (const { skill, matchers } of this.compiled) {

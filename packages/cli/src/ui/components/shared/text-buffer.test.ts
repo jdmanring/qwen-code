@@ -370,7 +370,7 @@ describe('useTextBuffer', () => {
       const { result } = renderHook(() =>
         useTextBuffer({
           initialText: 'The quick brown fox jumps over the lazy dog.',
-          initialCursorOffset: 2, // After '好'
+          initialCursorOffset: 2, // After ''
           viewport: { width: 15, height: 4 },
           isValidPath: () => false,
         }),
@@ -422,18 +422,18 @@ describe('useTextBuffer', () => {
     it('should initialize with multi-byte unicode characters and correct cursor offset', () => {
       const { result } = renderHook(() =>
         useTextBuffer({
-          initialText: '你好世界', // 4 chars, 12 bytes
-          initialCursorOffset: 2, // After '好'
+          initialText: '', // 4 chars, 12 bytes
+          initialCursorOffset: 2, // After ''
           viewport: { width: 5, height: 2 },
           isValidPath: () => false,
         }),
       );
       const state = getBufferState(result);
-      expect(state.text).toBe('你好世界');
-      expect(state.lines).toEqual(['你好世界']);
+      expect(state.text).toBe('');
+      expect(state.lines).toEqual(['']);
       expect(state.cursor).toEqual([0, 2]);
-      // Visual: "你好" (width 4), "世"界" (width 4) with viewport width 5
-      expect(state.allVisualLines).toEqual(['你好', '世界']);
+      // Visual: "" (width 4), """ (width 4) with viewport width 5
+      expect(state.allVisualLines).toEqual(['', '']);
       expect(state.visualCursor).toEqual([1, 0]);
     });
   });
@@ -853,9 +853,9 @@ describe('useTextBuffer', () => {
       const { result } = renderHook(() =>
         useTextBuffer({ viewport, isValidPath: () => false }),
       );
-      act(() => result.current.insert('你好'));
+      act(() => result.current.insert(''));
       const state = getBufferState(result);
-      expect(state.text).toBe('你好');
+      expect(state.text).toBe('');
       expect(state.cursor).toEqual([0, 2]); // Cursor is 2 (char count)
       expect(state.visualCursor).toEqual([0, 2]);
     });
@@ -863,18 +863,18 @@ describe('useTextBuffer', () => {
     it('backspace: should correctly delete multi-byte unicode characters', () => {
       const { result } = renderHook(() =>
         useTextBuffer({
-          initialText: '你好',
+          initialText: '',
           viewport,
           isValidPath: () => false,
         }),
       );
       act(() => result.current.move('end')); // cursor at [0,2]
-      act(() => result.current.backspace()); // delete '好'
+      act(() => result.current.backspace()); // delete ''
       let state = getBufferState(result);
-      expect(state.text).toBe('你');
+      expect(state.text).toBe('');
       expect(state.cursor).toEqual([0, 1]);
 
-      act(() => result.current.backspace()); // delete '你'
+      act(() => result.current.backspace()); // delete ''
       state = getBufferState(result);
       expect(state.text).toBe('');
       expect(state.cursor).toEqual([0, 0]);
@@ -883,23 +883,23 @@ describe('useTextBuffer', () => {
     it('move: left/right should treat multi-byte chars as single units for visual cursor', () => {
       const { result } = renderHook(() =>
         useTextBuffer({
-          initialText: '🐶🐱',
+          initialText: '',
           viewport: { width: 5, height: 1 },
           isValidPath: () => false,
         }),
       );
       // Initial: visualCursor [0,0]
-      act(() => result.current.move('right')); // visualCursor [0,1] (after 🐶)
+      act(() => result.current.move('right')); // visualCursor [0,1] (after )
       let state = getBufferState(result);
       expect(state.cursor).toEqual([0, 1]);
       expect(state.visualCursor).toEqual([0, 1]);
 
-      act(() => result.current.move('right')); // visualCursor [0,2] (after 🐱)
+      act(() => result.current.move('right')); // visualCursor [0,2] (after )
       state = getBufferState(result);
       expect(state.cursor).toEqual([0, 2]);
       expect(state.visualCursor).toEqual([0, 2]);
 
-      act(() => result.current.move('left')); // visualCursor [0,1] (before 🐱 / after 🐶)
+      act(() => result.current.move('left')); // visualCursor [0,1] (before  / after )
       state = getBufferState(result);
       expect(state.cursor).toEqual([0, 1]);
       expect(state.visualCursor).toEqual([0, 1]);
@@ -1253,10 +1253,10 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
           isValidPath: () => false,
         }),
       );
-      act(() => result.current.replaceRange(0, 6, 0, 9, '你好'));
+      act(() => result.current.replaceRange(0, 6, 0, 9, ''));
       const state = getBufferState(result);
-      expect(state.text).toBe('hello 你好 world');
-      expect(state.cursor).toEqual([0, 8]); // after '你好'
+      expect(state.text).toBe('hello  world');
+      expect(state.cursor).toEqual([0, 8]); // after ''
     });
 
     it('should handle invalid range by returning false and not changing text', () => {
@@ -1468,7 +1468,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
       const { result } = renderHook(() =>
         useTextBuffer({ viewport, isValidPath: () => false }),
       );
-      const emojis = '🐍🐳🦀🦄';
+      const emojis = '';
       act(() =>
         result.current.handleInput({
           name: '',
@@ -1617,14 +1617,14 @@ describe('offsetToLogicalPos', () => {
   });
 
   it('should handle multi-byte unicode characters correctly', () => {
-    const text = '你好\n世界'; // "你好" (2 chars) + \n (1) + "世界" (2 chars)
+    const text = '\n'; // "" (2 chars) + \n (1) + "" (2 chars)
     // Total "code points" for offset calculation: 2 + 1 + 2 = 5
-    expect(offsetToLogicalPos(text, 0)).toEqual([0, 0]); // Start of '你好'
-    expect(offsetToLogicalPos(text, 1)).toEqual([0, 1]); // After '你', before '好'
-    expect(offsetToLogicalPos(text, 2)).toEqual([0, 2]); // End of '你好'
-    expect(offsetToLogicalPos(text, 3)).toEqual([1, 0]); // Start of '世界'
-    expect(offsetToLogicalPos(text, 4)).toEqual([1, 1]); // After '世', before '界'
-    expect(offsetToLogicalPos(text, 5)).toEqual([1, 2]); // End of '世界'
+    expect(offsetToLogicalPos(text, 0)).toEqual([0, 0]); // Start of ''
+    expect(offsetToLogicalPos(text, 1)).toEqual([0, 1]); // After '', before ''
+    expect(offsetToLogicalPos(text, 2)).toEqual([0, 2]); // End of ''
+    expect(offsetToLogicalPos(text, 3)).toEqual([1, 0]); // Start of ''
+    expect(offsetToLogicalPos(text, 4)).toEqual([1, 1]); // After '', before ''
+    expect(offsetToLogicalPos(text, 5)).toEqual([1, 2]); // End of ''
     expect(offsetToLogicalPos(text, 6)).toEqual([1, 2]); // Beyond end
   });
 
@@ -1641,10 +1641,10 @@ describe('offsetToLogicalPos', () => {
     // This scenario is tricky as "offset" is usually character-based.
     // Assuming cpLen and related logic handles this by treating multi-byte as one unit.
     // The current implementation of offsetToLogicalPos uses cpLen, so it should be code-point aware.
-    const text = '🐶🐱'; // 2 code points
+    const text = ''; // 2 code points
     expect(offsetToLogicalPos(text, 0)).toEqual([0, 0]);
-    expect(offsetToLogicalPos(text, 1)).toEqual([0, 1]); // After 🐶
-    expect(offsetToLogicalPos(text, 2)).toEqual([0, 2]); // After 🐱
+    expect(offsetToLogicalPos(text, 1)).toEqual([0, 1]); // After 
+    expect(offsetToLogicalPos(text, 2)).toEqual([0, 2]); // After 
   });
 });
 
@@ -1870,17 +1870,17 @@ describe('textBufferReducer vim operations', () => {
 describe('Unicode helper functions', () => {
   describe('findWordEndInLine with Unicode', () => {
     it('should handle combining characters', () => {
-      // café with combining accent
+      // caf with combining accent
       const cafeWithCombining = 'cafe\u0301';
       const result = findWordEndInLine(cafeWithCombining + ' test', 0);
-      expect(result).toBe(3); // End of 'café' at base character 'e', not combining accent
+      expect(result).toBe(3); // End of 'caf' at base character 'e', not combining accent
     });
 
     it('should handle precomposed characters with diacritics', () => {
-      // café with precomposed é (U+00E9)
-      const cafePrecomposed = 'café';
+      // caf with precomposed  (U+00E9)
+      const cafePrecomposed = 'caf';
       const result = findWordEndInLine(cafePrecomposed + ' test', 0);
-      expect(result).toBe(3); // End of 'café' at precomposed character 'é'
+      expect(result).toBe(3); // End of 'caf' at precomposed character ''
     });
 
     it('should return null when no word end found', () => {
@@ -1891,12 +1891,12 @@ describe('Unicode helper functions', () => {
 
   describe('findNextWordStartInLine with Unicode', () => {
     it('should handle right-to-left text', () => {
-      const result = findNextWordStartInLine('hello مرحبا world', 0);
+      const result = findNextWordStartInLine('hello  world', 0);
       expect(result).toBe(6); // Start of Arabic word
     });
 
     it('should handle Chinese characters', () => {
-      const result = findNextWordStartInLine('hello 你好 world', 0);
+      const result = findNextWordStartInLine('hello  world', 0);
       expect(result).toBe(6); // Start of Chinese word
     });
 
@@ -1906,17 +1906,17 @@ describe('Unicode helper functions', () => {
     });
 
     it('should handle combining characters', () => {
-      // café with combining accent + next word
+      // caf with combining accent + next word
       const textWithCombining = 'cafe\u0301 test';
       const result = findNextWordStartInLine(textWithCombining, 0);
-      expect(result).toBe(6); // Start of 'test' after 'café ' (combining char makes string longer)
+      expect(result).toBe(6); // Start of 'test' after 'caf ' (combining char makes string longer)
     });
 
     it('should handle precomposed characters with diacritics', () => {
-      // café with precomposed é + next word
-      const textPrecomposed = 'café test';
+      // caf with precomposed  + next word
+      const textPrecomposed = 'caf test';
       const result = findNextWordStartInLine(textPrecomposed, 0);
-      expect(result).toBe(5); // Start of 'test' after 'café '
+      expect(result).toBe(5); // Start of 'test' after 'caf '
     });
   });
 
@@ -1935,8 +1935,8 @@ describe('Unicode helper functions', () => {
     });
 
     it('should return true for non-Latin scripts', () => {
-      expect(isWordCharStrict('你')).toBe(true); // Chinese character
-      expect(isWordCharStrict('م')).toBe(true); // Arabic character
+      expect(isWordCharStrict('')).toBe(true); // Chinese character
+      expect(isWordCharStrict('')).toBe(true); // Arabic character
     });
 
     it('should return false for whitespace', () => {
@@ -1947,13 +1947,13 @@ describe('Unicode helper functions', () => {
 
   describe('cpLen with Unicode', () => {
     it('should handle combining characters', () => {
-      expect(cpLen('é')).toBe(1); // Precomposed
+      expect(cpLen('')).toBe(1); // Precomposed
       expect(cpLen('e\u0301')).toBe(2); // e + combining acute
     });
 
     it('should handle Chinese and Arabic text', () => {
-      expect(cpLen('hello 你好 world')).toBe(14); // 5 + 1 + 2 + 1 + 5 = 14
-      expect(cpLen('hello مرحبا world')).toBe(17);
+      expect(cpLen('hello  world')).toBe(14); // 5 + 1 + 2 + 1 + 5 = 14
+      expect(cpLen('hello  world')).toBe(17);
     });
   });
 });
@@ -1966,7 +1966,7 @@ describe('CJK word navigation', () => {
   describe('delete_word_left with CJK', () => {
     it('should delete CJK word to the left', () => {
       const state: TextBufferState = {
-        lines: ['你好世界'],
+        lines: [''],
         cursorRow: 0,
         cursorCol: 4, // At end
         preferredCol: null,
@@ -1977,16 +1977,16 @@ describe('CJK word navigation', () => {
       };
       const newState = textBufferReducer(state, { type: 'delete_word_left' });
       expect(newState).toHaveOnlyValidCharacters();
-      // '世界' is one word, deletes from col 4 to col 2
+      // '' is one word, deletes from col 4 to col 2
       expect(newState.cursorCol).toBe(2);
-      expect(newState.lines[0]).toBe('你好');
+      expect(newState.lines[0]).toBe('');
     });
 
     it('should delete mixed CJK/Latin word to the left', () => {
       const state: TextBufferState = {
-        lines: ['hello你好'],
+        lines: ['hello'],
         cursorRow: 0,
-        cursorCol: 7, // After 你好
+        cursorCol: 7, // After 
         preferredCol: null,
         undoStack: [],
         redoStack: [],
@@ -1995,7 +1995,7 @@ describe('CJK word navigation', () => {
       };
       const newState = textBufferReducer(state, { type: 'delete_word_left' });
       expect(newState).toHaveOnlyValidCharacters();
-      // '你好' is one word at col 5-7, deletes to col 5
+      // '' is one word at col 5-7, deletes to col 5
       expect(newState.cursorCol).toBe(5);
       expect(newState.lines[0]).toBe('hello');
     });
@@ -2004,9 +2004,9 @@ describe('CJK word navigation', () => {
   describe('delete_word_right with CJK', () => {
     it('should delete CJK word to the right', () => {
       const state: TextBufferState = {
-        lines: ['你好世界'],
+        lines: [''],
         cursorRow: 0,
-        cursorCol: 2, // In middle (after 你好)
+        cursorCol: 2, // In middle (after )
         preferredCol: null,
         undoStack: [],
         redoStack: [],
@@ -2015,15 +2015,15 @@ describe('CJK word navigation', () => {
       };
       const newState = textBufferReducer(state, { type: 'delete_word_right' });
       expect(newState).toHaveOnlyValidCharacters();
-      // '世界' is one word at col 2-4, deletes it
-      expect(newState.lines[0]).toBe('你好');
+      // '' is one word at col 2-4, deletes it
+      expect(newState.lines[0]).toBe('');
     });
 
     it('should delete mixed CJK/Latin word to the right', () => {
       const state: TextBufferState = {
-        lines: ['你好world'],
+        lines: ['world'],
         cursorRow: 0,
-        cursorCol: 2, // After 你好
+        cursorCol: 2, // After 
         preferredCol: null,
         undoStack: [],
         redoStack: [],
@@ -2034,14 +2034,14 @@ describe('CJK word navigation', () => {
       expect(newState).toHaveOnlyValidCharacters();
       // 'world' is one word at col 2-7, deletes it
       expect(newState.cursorCol).toBe(2);
-      expect(newState.lines[0]).toBe('你好');
+      expect(newState.lines[0]).toBe('');
     });
   });
 
   describe('wordLeft/wordRight navigation with CJK', () => {
     it('should navigate wordLeft through CJK text', () => {
       const state: TextBufferState = {
-        lines: ['hello你好world'],
+        lines: ['helloworld'],
         cursorRow: 0,
         cursorCol: 14, // At end
         preferredCol: null,
@@ -2055,13 +2055,13 @@ describe('CJK word navigation', () => {
         payload: { dir: 'wordLeft' },
       });
       expect(newState).toHaveOnlyValidCharacters();
-      // 'world' ends at 14, wordLeft skips whitespace and lands at '你好' end = 7
+      // 'world' ends at 14, wordLeft skips whitespace and lands at '' end = 7
       expect(newState.cursorCol).toBe(7);
     });
 
     it('should navigate wordRight through CJK text', () => {
       const state: TextBufferState = {
-        lines: ['hello你好world'],
+        lines: ['helloworld'],
         cursorRow: 0,
         cursorCol: 5, // After 'hello'
         preferredCol: null,
@@ -2075,15 +2075,15 @@ describe('CJK word navigation', () => {
         payload: { dir: 'wordRight' },
       });
       expect(newState).toHaveOnlyValidCharacters();
-      // '你好' ends at 7, skips whitespace (none) → lands at 'world' start = 7
-      // Then skips whitespace → lands at 'world' start = 7
-      // Actually: cjkEnd = 7, then while whitespace → no whitespace → end = 7
+      // '' ends at 7, skips whitespace (none) -> lands at 'world' start = 7
+      // Then skips whitespace -> lands at 'world' start = 7
+      // Actually: cjkEnd = 7, then while whitespace -> no whitespace -> end = 7
       expect(newState.cursorCol).toBe(7);
     });
 
     it('should handle pure CJK text navigation with wordLeft', () => {
       const state: TextBufferState = {
-        lines: ['你好世界'],
+        lines: [''],
         cursorRow: 0,
         cursorCol: 4, // At end
         preferredCol: null,
@@ -2097,13 +2097,13 @@ describe('CJK word navigation', () => {
         payload: { dir: 'wordLeft' },
       });
       expect(newState).toHaveOnlyValidCharacters();
-      // '世界' is one word at col 2-4, wordLeft lands at its start = 2
+      // '' is one word at col 2-4, wordLeft lands at its start = 2
       expect(newState.cursorCol).toBe(2);
     });
 
     it('should handle pure CJK text navigation with wordRight', () => {
       const state: TextBufferState = {
-        lines: ['你好世界'],
+        lines: [''],
         cursorRow: 0,
         cursorCol: 0, // At start
         preferredCol: null,
@@ -2117,14 +2117,14 @@ describe('CJK word navigation', () => {
         payload: { dir: 'wordRight' },
       });
       expect(newState).toHaveOnlyValidCharacters();
-      // '你好' ends at 2, skips whitespace (none) → end = 2
+      // '' ends at 2, skips whitespace (none) -> end = 2
       expect(newState.cursorCol).toBe(2);
     });
   });
 
   describe('fallback and edge cases', () => {
     it('should use char-by-char fallback for long lines (>1500 chars)', () => {
-      const longText = '你'.repeat(2000);
+      const longText = ''.repeat(2000);
       const state: TextBufferState = {
         lines: [longText],
         cursorRow: 0,

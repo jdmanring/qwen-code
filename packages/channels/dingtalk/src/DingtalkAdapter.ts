@@ -15,7 +15,7 @@ import type {
 } from '@qwen-code/channel-base';
 
 /**
- * Raw DingTalk message data — the SDK's RobotMessage type only covers text,
+ * Raw DingTalk message data -- the SDK's RobotMessage type only covers text,
  * but DingTalk sends richer payloads for richText, picture, file, etc.
  */
 
@@ -71,7 +71,7 @@ interface DingTalkMessageData {
 /** Track seen msgIds to deduplicate retried callbacks. */
 const DEDUP_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
-const ACK_REACTION_NAME = '👀';
+const ACK_REACTION_NAME = '';
 const ACK_EMOTION_ID = '2659900';
 const ACK_EMOTION_BG_ID = 'im_bg_1';
 const EMOTION_API = 'https://api.dingtalk.com/v1.0/robot/emotion';
@@ -80,7 +80,7 @@ export class DingtalkChannel extends ChannelBase {
   private client: DWClient;
   private seenMessages: Map<string, number> = new Map();
   private dedupTimer?: ReturnType<typeof setInterval>;
-  /** Map conversationId → latest sessionWebhook URL for sending replies. */
+  /** Map conversationId -> latest sessionWebhook URL for sending replies. */
   private webhooks: Map<string, string> = new Map();
 
   constructor(
@@ -132,7 +132,7 @@ export class DingtalkChannel extends ChannelBase {
   }
 
   async sendMessage(chatId: string, text: string): Promise<void> {
-    // chatId is a conversationId — resolve to the latest sessionWebhook
+    // chatId is a conversationId -- resolve to the latest sessionWebhook
     const webhook = this.webhooks.get(chatId);
     if (!webhook) {
       process.stderr.write(
@@ -241,7 +241,7 @@ export class DingtalkChannel extends ChannelBase {
   /**
    * The chatId passed to onPromptStart/onPromptEnd is `conversationId ||
    * sessionWebhook` (see message handler below). Reactions require a real
-   * conversation ID — skip the webhook-URL fallback case.
+   * conversation ID -- skip the webhook-URL fallback case.
    */
   private isConversationId(chatId: string): boolean {
     return !!chatId && !chatId.startsWith('http');
@@ -423,7 +423,7 @@ export class DingtalkChannel extends ChannelBase {
 
   /**
    * Download a media file and attach it to the envelope.
-   * Images → base64 in envelope; files → saved to temp dir with path in text.
+   * Images -> base64 in envelope; files -> saved to temp dir with path in text.
    */
   private async attachMedia(
     envelope: Envelope,
@@ -535,7 +535,7 @@ export class DingtalkChannel extends ChannelBase {
 
       // After stripping the bot @mention, cleanText may legitimately be empty
       // (user pinged the bot with no other text). Don't fall back to the
-      // original text in that case — it would re-introduce the @mention.
+      // original text in that case -- it would re-introduce the @mention.
       const envelopeText = isMentioned ? cleanText : cleanText || content.text;
 
       const envelope: Envelope = {
@@ -551,7 +551,7 @@ export class DingtalkChannel extends ChannelBase {
       };
 
       // Reactions are resolved later via the chatId passed to
-      // onPromptStart/onPromptEnd — no extra bookkeeping needed.
+      // onPromptStart/onPromptEnd -- no extra bookkeeping needed.
       envelope.messageId = msgId;
 
       const processMessage = async () => {
@@ -567,7 +567,7 @@ export class DingtalkChannel extends ChannelBase {
         await this.handleInbound(envelope);
       };
 
-      // Don't await — stream callback should return quickly
+      // Don't await -- stream callback should return quickly
       processMessage().catch((err) => {
         process.stderr.write(
           `[DingTalk:${this.name}] Error handling message: ${err}\n`,

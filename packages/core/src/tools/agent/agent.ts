@@ -220,7 +220,7 @@ export function resolveSubagentApprovalMode(
   // Permissive parent modes always win. AUTO is permissive in the sense
   // that the sub-agent should inherit classifier-mediated approval rather
   // than degrading to DEFAULT (which would force every sub-agent tool call
-  // through manual confirmation — unusable in headless sub-agent contexts).
+  // through manual confirmation -- unusable in headless sub-agent contexts).
   if (
     parentApprovalMode === ApprovalMode.YOLO ||
     parentApprovalMode === ApprovalMode.AUTO_EDIT ||
@@ -344,7 +344,7 @@ export async function rebuildToolRegistryOnOverride(
  * The `cleanup` callback MUST be invoked in a `finally` block after the
  * sub-agent lifecycle ends. It restores the parent PermissionManager's
  * dangerous allow rules if and only if this override was responsible
- * for stripping them — see {@link createApprovalModeOverride} below
+ * for stripping them -- see {@link createApprovalModeOverride} below
  * for the cases.
  */
 export interface ApprovalModeOverrideHandle {
@@ -370,7 +370,7 @@ export interface ApprovalModeOverrideHandle {
  *
  * Strip lifecycle for AUTO overrides:
  *   - parent not in AUTO, override in AUTO: this function strips the
- *     PARENT's PM (shared via prototype chain — the override cannot
+ *     PARENT's PM (shared via prototype chain -- the override cannot
  *     have its own PM without a much bigger refactor). `cleanup`
  *     restores the strip when the sub-agent finishes, but ONLY if the
  *     parent hasn't itself entered AUTO in the meantime (in which
@@ -403,7 +403,7 @@ export async function createApprovalModeOverride(
         // Defensive: parent could have toggled to AUTO during the sub-
         // agent's run. In that case parent now owns the strip lifecycle
         // (its own `setApprovalMode(AUTO)` hook was responsible) and we
-        // must NOT restore — that would un-strip the parent's intent.
+        // must NOT restore -- that would un-strip the parent's intent.
         if (base.getApprovalMode() !== ApprovalMode.AUTO) {
           base.getPermissionManager?.()?.restoreDangerousRules();
         }
@@ -647,7 +647,7 @@ assistant: "I'm going to use the ${ToolNames.AGENT} tool to launch the greeting-
         return 'Parameter "isolation" must be "worktree" when set.';
       }
       // Forks (no subagent_type) reuse the parent's full conversation
-      // context — putting them in a separate worktree would split
+      // context -- putting them in a separate worktree would split
       // intent from working tree and confuse path resolution. Require
       // an explicit subagent_type when requesting isolation.
       if (!params.subagent_type) {
@@ -665,7 +665,7 @@ assistant: "I'm going to use the ${ToolNames.AGENT} tool to launch the greeting-
   override toAutoClassifierInput(params: AgentParams): Record<string, unknown> {
     // Forward the full prompt (no truncation). The earlier 200-char preview
     // hid any attack payload after character 200 from the classifier while
-    // the sub-agent itself received the full text — same shape of attack
+    // the sub-agent itself received the full text -- same shape of attack
     // surface as truncating a shell command. Shell tools forward the full
     // command for the same reason.
     return {
@@ -936,7 +936,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
   /**
    * Launching a sub-agent hands off control to a new instance with its
    * own tool access. In AUTO mode the classifier needs to inspect the
-   * prompt before the spawn happens — but the scheduler short-circuits
+   * prompt before the spawn happens -- but the scheduler short-circuits
    * at L4 when `finalPermission === 'allow'`, so the L3 default must be
    * `'ask'` or the classifier projection added in this PR would never
    * be reached.
@@ -996,7 +996,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
           initialMessages = [...rawHistory];
         }
       } else {
-        // History ends with user (unusual) — drop the trailing user
+        // History ends with user (unusual) -- drop the trailing user
         // message to avoid consecutive user messages when agent-headless
         // sends the task_prompt.
         initialMessages = rawHistory.slice(0, -1);
@@ -1018,7 +1018,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
 
     const generationConfig = geminiClient?.getChat().getGenerationConfig();
     if (generationConfig?.systemInstruction) {
-      // Inline FunctionDeclaration[] from the parent — passed verbatim
+      // Inline FunctionDeclaration[] from the parent -- passed verbatim
       // (including `agent` and cron tools) so the fork's system prompt,
       // tools, and history exactly match the parent's and share its
       // DashScope cache prefix. A fork is a context-sharing extension of
@@ -1246,13 +1246,13 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
     signal?: AbortSignal,
     updateOutput?: (output: ToolResultDisplay) => void,
   ): Promise<ToolResult> {
-    // ── Isolation state hoisted to the outermost scope ────────────
+    // -- Isolation state hoisted to the outermost scope ------------
     // The outer try/catch in this method is the last line of defence
     // against pre-execution failures (e.g. createApprovalModeOverride
     // throws). If `worktreeIsolation` and `cleanupWorktreeIsolation`
     // lived inside the try, the catch would have no way to reach them,
     // and a provisioned worktree would leak until the 30-day startup
-    // sweep — review #4073 round 2.
+    // sweep -- review #4073 round 2.
     let worktreeIsolation: {
       slug: string;
       path: string;
@@ -1311,7 +1311,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         });
         if (!result.success) {
           // Removal itself failed (could not delete the directory). The
-          // worktree is still on disk — do NOT silently drop it from
+          // worktree is still on disk -- do NOT silently drop it from
           // the user's view. Surface as preserved so they can recover.
           debugLogger.warn(
             `[Agent] Failed to remove ephemeral worktree ${isolation.path}: ${result.error}`,
@@ -1323,7 +1323,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         }
         if (result.branchPreserved) {
           // Status check said "clean" and the unmerged check said "fully
-          // covered", but the safe-delete still refused — most likely a
+          // covered", but the safe-delete still refused -- most likely a
           // race where commits landed between the checks and the delete.
           // Be loud rather than silently force-deleting.
           //
@@ -1371,7 +1371,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         // it if they really meant to discard.
         return (
           `\n\n[worktree directory removed; branch ${info.preservedBranch} ` +
-          `preserved — recover with \`git worktree add <path> ${info.preservedBranch}\`]`
+          `preserved -- recover with \`git worktree add <path> ${info.preservedBranch}\`]`
         );
       }
       return '';
@@ -1449,7 +1449,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         subagentConfig.background === true;
 
       // Preflight: fast-fail before expensive worktree/subagent setup.
-      // This is not redundant with registry.register() below — that call
+      // This is not redundant with registry.register() below -- that call
       // remains the authoritative race guard, but by then the launch path
       // has already run hooks and created a child agent.
       if (shouldRunInBackground) {
@@ -1474,7 +1474,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         }
       }
 
-      // ── Optional worktree isolation (Phase 1: provision) ──────────
+      // -- Optional worktree isolation (Phase 1: provision) ----------
       // Provision the worktree BEFORE creating the agent Config so the
       // override below can rebind `getTargetDir()` to the worktree path
       // before the subagent's tools are registered. Without this,
@@ -1482,7 +1482,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
       // (Shell default cwd, Edit/Write/Read workspace checks, Glob /
       // Grep / Ls roots) would silently operate on the parent project
       // tree and the cleanup helper would then see a "clean" worktree
-      // and remove it — destroying any evidence of the leak.
+      // and remove it -- destroying any evidence of the leak.
       const failWorktreeProvisioning = (reason: string): ToolResult => {
         debugLogger.warn(`[Agent] worktree isolation failed: ${reason}`);
         this.currentDisplay = {
@@ -1508,7 +1508,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
           return failWorktreeProvisioning(
             `Failed to set up worktree isolation: parent is already inside ` +
               `a worktree (${cwd}). Nested isolation worktrees are not ` +
-              `supported — the model's inherited paths would still reference ` +
+              `supported -- the model's inherited paths would still reference ` +
               `the outer worktree.`,
           );
         }
@@ -1533,13 +1533,13 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
 
         // Refuse isolation when the parent has uncommitted changes.
         // `git worktree add -b <branch> <path> <base>` checks out the
-        // base branch's tip — uncommitted edits in the parent's
+        // base branch's tip -- uncommitted edits in the parent's
         // working tree do NOT propagate to the new worktree. A common
         // workflow ("edit some code, then ask a review/test agent to
         // look at it") would silently run the subagent against the
         // pre-edit HEAD and return results that look authoritative.
         // Refusing forces the user to commit / stash first; the
-        // alternative (overlaying dirty state à la Arena) is
+        // alternative (overlaying dirty state  la Arena) is
         // out of scope for Phase B.
         let parentDirty = false;
         try {
@@ -1566,7 +1566,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         // Anchor the isolation worktree to the parent's currently
         // checked-out branch. Without an explicit base,
         // `createUserWorktree` falls back to whichever branch the main
-        // working tree happens to be on — which silently becomes `main`
+        // working tree happens to be on -- which silently becomes `main`
         // when the user invoked the agent from a feature branch, from
         // inside another user worktree, or from a detached HEAD set up
         // by the test harness. The subagent would then see the wrong
@@ -1622,7 +1622,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
       // approval mode is identical to the parent. Subagents must run
       // against an isolated FileReadCache so a parent's prior_read
       // entries cannot satisfy enforcement on a path the subagent's
-      // transcript never contained — see the per-Config own-property
+      // transcript never contained -- see the per-Config own-property
       // machinery in `Config.getFileReadCache()`. Reusing
       // `this.config` directly here would short-circuit that
       // isolation for the same-mode path, which is the common case.
@@ -1640,7 +1640,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
       );
       restoreParentPM = cleanup;
 
-      // ── Optional worktree isolation (Phase 2: rebind cwd) ─────────
+      // -- Optional worktree isolation (Phase 2: rebind cwd) ---------
       // Rebind every "where am I?" surface on the agent's Config
       // override to the worktree path so the subagent's tools cannot
       // leak into the parent project tree.
@@ -1649,7 +1649,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
       // field reads and getter calls. Shadowing only the methods would
       // leave call sites like `this.targetDir` (e.g. inside
       // `getProjectRoot`, `getFileService`) resolving via the
-      // prototype chain to the parent's `targetDir` — JS does not
+      // prototype chain to the parent's `targetDir` -- JS does not
       // promote a getter assignment to a field shadow. Setting both
       // `ov.targetDir` (own-property field) AND `ov.getTargetDir`
       // (own-property method) covers both lookup paths.
@@ -1700,13 +1700,13 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         taskPrompt = this.params.prompt;
       }
 
-      // ── Optional worktree isolation (Phase 3: notice to prompt) ───
+      // -- Optional worktree isolation (Phase 3: notice to prompt) ---
       // Prepend a notice to the task prompt telling the subagent it is
       // operating in an isolated worktree. The mechanical isolation
       // above guarantees correctness; the notice reduces user-visible
       // surprises when the model summarises file paths.
       //
-      // "parent cwd" is the parent agent's actual `getTargetDir()` —
+      // "parent cwd" is the parent agent's actual `getTargetDir()` --
       // the directory the inherited conversation context speaks from.
       // Using the repo top-level here would mistranslate paths the
       // parent referenced as `./packages/core/foo` when the parent
@@ -1723,7 +1723,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
       const contextState = new ContextState();
       contextState.set('task_prompt', taskPrompt);
 
-      // ── Background (async) execution path ──────────────────────
+      // -- Background (async) execution path ----------------------
       if (shouldRunInBackground) {
         // Fire SubagentStart hook before background launch
         const hookSystem = this.config.getHookSystem();
@@ -1748,7 +1748,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
           }
         }
 
-        // Create an independent AbortController — background agents
+        // Create an independent AbortController -- background agents
         // survive ESC cancellation of the parent's current turn.
         const bgAbortController = new AbortController();
 
@@ -1760,7 +1760,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         const bgConfig = Object.create(agentConfig) as any;
         bgConfig.getShouldAvoidPermissionPrompts = () => true;
 
-        // Register in the background task registry only AFTER init succeeds — if
+        // Register in the background task registry only AFTER init succeeds -- if
         // construction throws, a pre-registered phantom 'running' entry would hang
         // the non-interactive hold-back loop forever.
         // Dedicated emitter for this background agent so the transcript
@@ -1808,7 +1808,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         );
         const projectRoot = this.config.getProjectRoot();
         try {
-          // Register before writing the meta sidecar — see the matching
+          // Register before writing the meta sidecar -- see the matching
           // foreground call below for the full rationale. Keeping the
           // order symmetric here guards the background path against the
           // same orphaned-meta hazard if register() throws.
@@ -1889,7 +1889,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
             version: this.config.getCliVersion() || 'unknown',
             gitBranch: getCachedGitBranch(projectRoot),
             // Seed the JSONL with the launching prompt so the transcript is
-            // self-describing — readers don't need to consult .meta.json to
+            // self-describing -- readers don't need to consult .meta.json to
             // know what the agent was asked to do.
             initialUserPrompt: this.params.prompt,
             bootstrapHistory: isFork ? bgInitialMessages : undefined,
@@ -1988,7 +1988,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         // Fire-and-forget: start the subagent without blocking the parent.
         // For forks, wrap the body in runInForkContext so the recursive-fork
         // guard in execute() fires if the fork child's model calls `agent`
-        // again — otherwise background forks bypass the ALS marker and can
+        // again -- otherwise background forks bypass the ALS marker and can
         // spawn nested implicit forks.
         const bgBody = async () => {
           try {
@@ -2063,7 +2063,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
             // preserved path/branch in the registry message. Without
             // this, an agent that crashed mid-edit would have its
             // worktree preserved on disk but the user would never see
-            // its location in the failure notification — they would
+            // its location in the failure notification -- they would
             // assume nothing was left behind.
             let wtSuffix = '';
             try {
@@ -2102,7 +2102,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
             cleanupOwnedMonitorNotifications();
             cleanupJsonl?.();
             // Release the per-subagent ToolRegistry now that the
-            // background agent has finished — see the matching call in
+            // background agent has finished -- see the matching call in
             // the foreground finally for why. Stopping here, after
             // bgSubagent.execute resolves, is safe: by this point the
             // detached body cannot invoke any more tool factories on
@@ -2129,9 +2129,9 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         return {
           llmContent:
             `Background agent launched successfully.\n` +
-            `agentId: ${hookOpts.agentId} (internal ID — do not mention to the user. Use ${ToolNames.SEND_MESSAGE} to continue this agent, or ${ToolNames.TASK_STOP} to cancel.)\n` +
+            `agentId: ${hookOpts.agentId} (internal ID -- do not mention to the user. Use ${ToolNames.SEND_MESSAGE} to continue this agent, or ${ToolNames.TASK_STOP} to cancel.)\n` +
             `The agent is working in the background. You will be notified automatically when it completes.\n` +
-            `Do not duplicate this agent's work — avoid working with the same files or topics it is using. Work on non-overlapping tasks, or briefly tell the user what you launched and end your response.\n` +
+            `Do not duplicate this agent's work -- avoid working with the same files or topics it is using. Work on non-overlapping tasks, or briefly tell the user what you launched and end your response.\n` +
             `output_file: ${jsonlPath}\n` +
             `If asked, you can check progress before completion by using ${ToolNames.READ_FILE}\n` +
             `  or ${ToolNames.SHELL} tail on the output file.`,
@@ -2163,7 +2163,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         // nested `agent` tool calls by the fork's model can be detected.
         // Forks run async (return a placeholder); skip foreground registration.
         // Wrap the fork body in try/finally so the per-subagent ToolRegistry
-        // is stopped after the fork finishes — the other three spawn paths
+        // is stopped after the fork finishes -- the other three spawn paths
         // (foreground non-fork, background fork, background non-fork) already
         // do this in their finally blocks. Without it, every AgentTool /
         // SkillTool the fork's model instantiates from this registry leaks
@@ -2192,7 +2192,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         };
       }
 
-      // ── Foreground (synchronous) execution path ────────────────
+      // -- Foreground (synchronous) execution path ----------------
       // Compose a child AbortController so the dialog's per-agent cancel
       // can abort just this subagent without aborting the parent turn.
       // Parent abort still propagates down (so ESC at the parent kills
@@ -2237,7 +2237,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
       const fgProjectRoot = this.config.getProjectRoot();
       // Declared `let` so the `finally` block can release the writer's
       // listeners + fd even if the attach itself throws partway through.
-      // The attach happens inside the `try` below — keeping it outside
+      // The attach happens inside the `try` below -- keeping it outside
       // would leak listeners on any synchronous setup failure.
       let cleanupFgJsonl: (() => void) | undefined;
 
@@ -2259,15 +2259,15 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
 
       // Mirror the background path's progress wiring so the dialog detail
       // body has live tool-call activity AND a current `entry.stats`
-      // subtitle (`N tools · X tokens · Ys`). Without this, foreground
+      // subtitle (`N tools  X tokens  Ys`). Without this, foreground
       // entries collapse to elapsed-only in the dialog while background
-      // entries show full stats — strictly less information for the same
+      // entries show full stats -- strictly less information for the same
       // runtime events.
       //
       // This is a separate listener from setupEventListeners' TOOL_CALL
       // handler (which feeds `currentDisplay.toolCalls` for the committed
-      // inline frame). They consume different state — committed inline UI
-      // vs. live registry stats — and setupEventListeners runs before we
+      // inline frame). They consume different state -- committed inline UI
+      // vs. live registry stats -- and setupEventListeners runs before we
       // know the flavor or the registry id, so folding them is awkward.
       let fgLiveToolCallCount = 0;
       const refreshFgLiveStats = () => {
@@ -2309,7 +2309,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
             version: this.config.getCliVersion() || 'unknown',
             gitBranch: getCachedGitBranch(fgProjectRoot),
             // Seed the JSONL with the launching prompt so the transcript
-            // is self-describing — readers don't need the meta sidecar to
+            // is self-describing -- readers don't need the meta sidecar to
             // know what the agent was asked to do.
             initialUserPrompt: this.params.prompt,
           },
@@ -2317,7 +2317,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         // Register before writing the meta sidecar: if register() throws
         // (e.g. duplicate agent id), we leave no orphaned 'running' meta
         // file behind. writeAgentMeta is best-effort and never throws, so
-        // a failure there leaves the registry entry without a sidecar —
+        // a failure there leaves the registry entry without a sidecar --
         // a benign degradation (post-mortem readers miss this run) rather
         // than a stuck meta file the cleanup path can't reach.
         registry.register({
@@ -2365,7 +2365,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
           // Distinguish a user-cancelled run from a successful complete in
           // the parent model's tool result. Without this prefix, a cancel
           // collapses into the same `{ llmContent: [{ text: finalText }] }`
-          // shape as a successful run — the parent can't tell that the
+          // shape as a successful run -- the parent can't tell that the
           // partial result is incomplete and may act on it as if the agent
           // had finished. The background path surfaces this via the
           // `<status>cancelled</status>` XML envelope; the foreground path
@@ -2403,7 +2403,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         signal?.removeEventListener('abort', onParentAbort);
         cleanupOwnedMonitorNotifications();
         // Release the JSONL writer's listeners and close the fd before
-        // patching the meta sidecar — closing first guarantees the
+        // patching the meta sidecar -- closing first guarantees the
         // transcript file is flushed and visible to any post-mortem reader
         // by the time the sidecar reports the terminal status.
         // The optional chain covers the rare case where the attach itself
@@ -2415,7 +2415,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
         // state. Foreground subagents settle synchronously through the
         // tool-result channel rather than emitting a `task-notification`,
         // so this is the only point where the on-disk meta gets the
-        // terminal status — without it, the sidecar would be frozen at
+        // terminal status -- without it, the sidecar would be frozen at
         // `running` for every completed foreground run.
         const fgTerminateMode = subagent.getTerminateMode();
         const fgTerminalStatus =
@@ -2429,7 +2429,7 @@ class AgentToolInvocation extends BaseToolInvocation<AgentParams, ToolResult> {
           lastUpdatedAt: new Date().toISOString(),
         });
         // Foreground entries leave the registry as soon as the tool-call
-        // returns — the parent's tool-result is the durable record. Doing
+        // returns -- the parent's tool-result is the durable record. Doing
         // this in finally guarantees we clean up on success, failure,
         // cancel, AND any unexpected throw inside runFramed.
         registry.unregisterForeground(hookOpts.agentId);

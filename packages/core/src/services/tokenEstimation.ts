@@ -14,7 +14,7 @@ import {
 /**
  * Average characters-per-token for char-based token estimation. The inputs
  * are character counts from `estimateContentChars` (i.e. `string.length`),
- * not byte counts — for CJK / multi-byte text the byte/char ratio differs
+ * not byte counts -- for CJK / multi-byte text the byte/char ratio differs
  * from 1, so a "bytes" name would mislead. Programmatically aliased to
  * compactionInputSlimming.ts's TOKEN_TO_CHAR_RATIO so the auto-compaction
  * trigger and the compression splitter can never drift on this constant.
@@ -27,11 +27,11 @@ export const CHARS_PER_TOKEN = TOKEN_TO_CHAR_RATIO;
  *
  * Reuses `estimateContentChars` so that inlineData / functionCall /
  * functionResponse get the same treatment they receive when computing
- * compression split points — keeping the two estimators in sync prevents
+ * compression split points -- keeping the two estimators in sync prevents
  * the auto-compaction trigger and the splitter from disagreeing on size.
  *
  * Intended for the pre-send threshold gate only. char/4 is a conservative
- * lower bound (real tokenizers vary ±30%); using it to TRIGGER compaction
+ * lower bound (real tokenizers vary 30%); using it to TRIGGER compaction
  * earlier is safe (false-positive), using it to SKIP compaction is not.
  */
 export function estimateContentTokens(
@@ -53,7 +53,7 @@ export function estimateContentTokens(
  * very first send. This helper closes both gaps via local estimation.
  *
  * WARNING: like estimateContentTokens, this is a conservative lower
- * bound. Use it to TRIGGER earlier, never to SKIP — the fallback path
+ * bound. Use it to TRIGGER earlier, never to SKIP -- the fallback path
  * (lastPromptTokenCount === 0) returns a pure estimate with no API-
  * authoritative anchor.
  */
@@ -71,7 +71,7 @@ export function estimatePromptTokens(
   }
   // First-send fallback (no API data yet): estimate from `history + userMessage`
   // only. This MISSES the system prompt (~8-15K), tool definitions (~5K),
-  // skill content, and cache headers — typically ~15-20K of under-estimate.
+  // skill content, and cache headers -- typically ~15-20K of under-estimate.
   // The reactive overflow handler is the safety net if the hard-tier rescue
   // misses for that reason. See review #4168 R3.3.
   return estimateContentTokens([...history, userMessage], imageTokenEstimate);

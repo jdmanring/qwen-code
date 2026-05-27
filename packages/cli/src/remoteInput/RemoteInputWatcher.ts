@@ -82,7 +82,7 @@ export class RemoteInputWatcher {
 
   /**
    * Notify the watcher that the TUI has become idle.
-   * Call this when streamingState transitions to Idle — it triggers
+   * Call this when streamingState transitions to Idle -- it triggers
    * processing of any queued commands that were deferred due to TUI busy.
    */
   notifyIdle(): void {
@@ -210,7 +210,7 @@ export class RemoteInputWatcher {
             this.scheduleRetry();
             break;
           }
-          // Success — remove from queue
+          // Success -- remove from queue
           this.queue.shift();
         } catch (err) {
           debugLogger.error('RemoteInput: submit failed:', err);

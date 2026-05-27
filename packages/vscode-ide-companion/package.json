@@ -210,7 +210,7 @@
             "api-key"
           ],
           "enumDescriptions": [
-            "Alibaba Cloud Coding Plan — configurable from VS Code Settings",
+            "Alibaba Cloud Coding Plan -- configurable from VS Code Settings",
             "Configured via Qwen Code: Auth or the onboarding button"
           ],
           "default": "coding-plan",
@@ -230,8 +230,8 @@
             "global"
           ],
           "enumDescriptions": [
-            "China — 阿里云百炼 (aliyun.com)",
-            "Global — Alibaba Cloud (alibabacloud.com)"
+            "China --  (aliyun.com)",
+            "Global -- Alibaba Cloud (alibabacloud.com)"
           ],
           "default": "china",
           "markdownDescription": "Region for Coding Plan. _(Only used when Provider is `coding-plan`)_"

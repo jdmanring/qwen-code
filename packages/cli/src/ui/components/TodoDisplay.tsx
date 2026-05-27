@@ -19,9 +19,9 @@ interface TodoDisplayProps {
 }
 
 const STATUS_ICONS = {
-  pending: '○',
-  in_progress: '◐',
-  completed: '●',
+  pending: '',
+  in_progress: '',
+  completed: '',
 } as const;
 
 export const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos }) => {

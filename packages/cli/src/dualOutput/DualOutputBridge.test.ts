@@ -65,7 +65,7 @@ describe('DualOutputBridge', () => {
   describe('--json-file output', () => {
     it('creates the file automatically when it does not exist (ENOENT fallback)', async () => {
       const newFile = path.join(tmpDir, 'does-not-exist.jsonl');
-      // newFile is NOT pre-created — tests the ENOENT fallback path
+      // newFile is NOT pre-created -- tests the ENOENT fallback path
       bridge = new DualOutputBridge(config, { filePath: newFile });
       await bridge.shutdown();
 
@@ -124,7 +124,7 @@ describe('DualOutputBridge', () => {
       });
     });
 
-    it('shutdown is idempotent — calling it twice emits session_end only once', async () => {
+    it('shutdown is idempotent -- calling it twice emits session_end only once', async () => {
       bridge = new DualOutputBridge(config, { filePath: target });
       await bridge.shutdown();
       await bridge.shutdown();

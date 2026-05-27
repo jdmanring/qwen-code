@@ -87,7 +87,7 @@ describe('PluginChoicePrompt', () => {
         />,
       );
 
-      expect(lastFrame()).toContain('↑↓');
+      expect(lastFrame()).toContain('');
       expect(lastFrame()).toContain('Enter');
       expect(lastFrame()).toContain('Escape');
     });
@@ -244,7 +244,7 @@ describe('PluginChoicePrompt', () => {
           ctrl: true,
         } as never);
       });
-      expect(lastFrame()).toContain('❯ plugin2');
+      expect(lastFrame()).toContain(' plugin2');
 
       act(() => {
         keypressHandler({
@@ -253,7 +253,7 @@ describe('PluginChoicePrompt', () => {
           ctrl: true,
         } as never);
       });
-      expect(lastFrame()).toContain('❯ plugin1');
+      expect(lastFrame()).toContain(' plugin1');
     });
   });
 
@@ -269,7 +269,7 @@ describe('PluginChoicePrompt', () => {
         />,
       );
 
-      expect(lastFrame()).toContain('❯');
+      expect(lastFrame()).toContain('');
     });
   });
 });

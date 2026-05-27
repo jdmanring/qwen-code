@@ -270,11 +270,11 @@ An extension named `gcp` with the following structure:
 
 ```
 .qwen/extensions/gcp/
-├── qwen-extension.json
-└── commands/
-    ├── deploy.md
-    └── gcs/
-        └── sync.md
+|---- qwen-extension.json
+\_-- commands/
+    |---- deploy.md
+    \_-- gcs/
+        \_-- sync.md
 ```
 
 Would provide these commands:
@@ -290,10 +290,10 @@ Extensions can provide custom skills by placing skill files in a `skills/` subdi
 
 ```
 .qwen/extensions/my-extension/
-├── qwen-extension.json
-└── skills/
-    └── pdf-processor/
-        └── SKILL.md
+|---- qwen-extension.json
+\_-- skills/
+    \_-- pdf-processor/
+        \_-- SKILL.md
 ```
 
 The skill will be available via the `/skills` command when the extension is active.
@@ -306,9 +306,9 @@ Extensions can provide custom subagents by placing agent configuration files in 
 
 ```
 .qwen/extensions/my-extension/
-├── qwen-extension.json
-└── agents/
-    └── testing-expert.yaml
+|---- qwen-extension.json
+\_-- agents/
+    \_-- testing-expert.yaml
 ```
 
 Extension subagents appear in the subagent manager dialog under "Extension Agents" section.

@@ -78,7 +78,7 @@ export * from './tools/tool-error.js';
 export * from './tools/tool-registry.js';
 export * from './tools/tools.js';
 
-// Individual tools — MCP/SDK infrastructure only (tool classes are lazy-loaded)
+// Individual tools -- MCP/SDK infrastructure only (tool classes are lazy-loaded)
 export * from './tools/mcp-client.js';
 export * from './tools/mcp-client-manager.js';
 export * from './tools/mcp-tool.js';
@@ -422,7 +422,7 @@ export {
 } from './core/toolHookTriggers.js';
 
 // ============================================================================
-// Startup profiler — cross-package event sink (first-screen perf observability)
+// Startup profiler -- cross-package event sink (first-screen perf observability)
 // ============================================================================
 
 export {

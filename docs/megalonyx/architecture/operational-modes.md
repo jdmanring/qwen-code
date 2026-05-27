@@ -1,8 +1,8 @@
-# 🕹️ Operational Modes: Policy & Constraints
+#  Operational Modes: Policy & Constraints
 
 This document describes the different operating modes of the Runtime Stack and how they are enforced via the `PolicyEngine`.
 
-## 🛡️ The Policy Engine
+##  The Policy Engine
 
 The `PolicyEngine` (`packages/core/src/policy_engine.py`) is the central authority for safety and constraint enforcement. It does not rely on the LLM's instructions but instead intercepts every tool call to verify permissions.
 
@@ -15,7 +15,7 @@ The engine maps the combination of **Intent** and **Agent** to a set of permissi
 
 ---
 
-## 🚦 Operating Modes
+##  Operating Modes
 
 The system supports several modes that alter the behavior of the `PolicyEngine`.
 
@@ -39,7 +39,7 @@ The system supports several modes that alter the behavior of the `PolicyEngine`.
 
 ---
 
-## 📝 Planning & Task Tracking
+##  Planning & Task Tracking
 
 Planning is a first-class operational state in the Runtime Stack.
 

@@ -105,11 +105,11 @@ export const Header: React.FC<HeaderProps> = ({
   );
 
   // Two distinct fallback paths:
-  //   - User supplied a custom tier and at least one tier fits → render that.
-  //   - User supplied custom art but neither tier fits → hide the logo column.
+  //   - User supplied a custom tier and at least one tier fits -> render that.
+  //   - User supplied custom art but neither tier fits -> hide the logo column.
   //     Falling back to the bundled QWEN logo here would silently undo a
   //     white-label deployment on narrow terminals.
-  //   - User supplied no custom art → fall through to `shortAsciiLogo` and let
+  //   - User supplied no custom art -> fall through to `shortAsciiLogo` and let
   //     the existing width gate decide whether to show or hide it.
   const hasCustomArt = Boolean(customAsciiArt?.small || customAsciiArt?.large);
   const customTier = pickAsciiArtTier(

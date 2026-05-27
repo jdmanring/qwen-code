@@ -106,7 +106,7 @@ export function buildAgentContentGeneratorConfig(
  * it so the two paths can't drift.
  *
  * `contentGeneratorOwner` is the Config instance the new ContentGenerator
- * should bind to for cwd / workspace / telemetry purposes — typically the
+ * should bind to for cwd / workspace / telemetry purposes -- typically the
  * per-agent override Config when one exists, or the parent Config otherwise.
  */
 export async function createRuntimeContentGeneratorView(
@@ -173,7 +173,7 @@ function applyResolvedModelConfig(
 
 /**
  * Resolve a credential field (apiKey or baseUrl) with the following
- * priority: explicit override → same-provider parent value → env var.
+ * priority: explicit override -> same-provider parent value -> env var.
  */
 export function resolveCredentialField(
   explicitValue: string | undefined,

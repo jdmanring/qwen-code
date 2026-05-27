@@ -14,7 +14,7 @@ const { useCallback, useEffect, useState } = React;
 export type ExportTheme = 'light' | 'dark';
 
 // IMPORTANT: keep this string in sync with the inline FOUC bootstrap script
-// in `index.html` — both reads must agree on the same key for theme
+// in `index.html` -- both reads must agree on the same key for theme
 // persistence to work without an initial flash.
 export const EXPORT_THEME_STORAGE_KEY = 'qwen-export-theme';
 

@@ -334,7 +334,7 @@ export class LoggingContentGenerator implements ContentGenerator {
     }
 
     // Capture the span context so the stream wrapper can activate it
-    // during iteration — not just during generator creation.
+    // during iteration -- not just during generator creation.
     const spanContext = trace.setSpan(context.active(), llmSpan);
 
     const startTime = Date.now();
@@ -467,7 +467,7 @@ export class LoggingContentGenerator implements ContentGenerator {
 
     // TTFT (time to first token): wall-clock from generateContentStream
     // dispatch to the first stream chunk containing user-visible content.
-    // Method-local closure variable — NEVER an instance field — because
+    // Method-local closure variable -- NEVER an instance field -- because
     // LoggingContentGenerator is shared across concurrent generateContentStream
     // calls (one per ContentGenerator, see contentGenerator.ts:createContentGenerator).
     // See docs/design/telemetry-llm-request-timing-design.md (D1, D2).
@@ -550,7 +550,7 @@ export class LoggingContentGenerator implements ContentGenerator {
         : this.extractResponseText(consolidatedResponse);
       // If the idle timeout already closed the span as failed, do not contradict
       // it with a "success" api_response log or model-output span attributes.
-      // The OpenAI interaction log is also skipped — telemetry already carries
+      // The OpenAI interaction log is also skipped -- telemetry already carries
       // the timeout signal and a parallel "success" record would be confusing
       // during incident response (#4212).
       if (!spanEndedByTimeout) {
@@ -581,8 +581,8 @@ export class LoggingContentGenerator implements ContentGenerator {
       // Same gating as the success path above: if the idle timeout already
       // closed the span as failed, do not emit a parallel api_error log
       // (the span is the canonical signal). Otherwise we'd produce the
-      // exact contradictory pair the timeout fix targets — span timed-out
-      // + api_error log — just on the error branch (#4302 review).
+      // exact contradictory pair the timeout fix targets -- span timed-out
+      // + api_error log -- just on the error branch (#4302 review).
       if (!spanEndedByTimeout) {
         const durationMs = Date.now() - startTime;
         runInSpan(() =>
@@ -611,7 +611,7 @@ export class LoggingContentGenerator implements ContentGenerator {
       // If the idle timeout already ended the span, skip the redundant
       // endLLMRequestSpan call. The helper itself would no-op due to its
       // own ended guard, but we want to avoid pretending the final token
-      // counts were recorded — they weren't, the span is the timeout one.
+      // counts were recorded -- they weren't, the span is the timeout one.
       if (span && !spanEndedByTimeout) {
         const aborted = abortSignal?.aborted ?? false;
         endLLMRequestSpan(span, {

@@ -127,7 +127,7 @@ const WAIT_FOR_TIMEOUT = 5000;
 
 const expectSelectedOption = (frame: string | undefined, label: string) => {
   expect(frame).toMatch(
-    new RegExp(`›\\s*(?:\\d+\\.\\s*)?${escapeRegExp(label)}`),
+    new RegExp(`\\s*(?:\\d+\\.\\s*)?${escapeRegExp(label)}`),
   );
 };
 
@@ -176,7 +176,7 @@ const navigateToCustomProtocolSelect = async (
   await pressEnterAndWaitFor(
     stdin,
     lastFrame,
-    'Custom Provider · Step 1/6 · Protocol',
+    'Custom Provider  Step 1/6  Protocol',
   );
 };
 
@@ -188,7 +188,7 @@ const navigateToCustomBaseUrlInput = async (
   await pressEnterAndWaitFor(
     stdin,
     lastFrame,
-    'Custom Provider · Step 2/6 · Base URL',
+    'Custom Provider  Step 2/6  Base URL',
   );
 };
 
@@ -200,7 +200,7 @@ const navigateToCustomApiKeyInput = async (
   await pressEnterAndWaitFor(
     stdin,
     lastFrame,
-    'Custom Provider · Step 3/6 · API Key',
+    'Custom Provider  Step 3/6  API Key',
   );
 };
 
@@ -214,7 +214,7 @@ const navigateToCustomModelIdInput = async (
   await pressEnterAndWaitFor(
     stdin,
     lastFrame,
-    'Custom Provider · Step 4/6 · Model IDs',
+    'Custom Provider  Step 4/6  Model IDs',
   );
 };
 
@@ -229,7 +229,7 @@ const navigateToCustomAdvancedConfig = async (
   await pressEnterAndWaitFor(
     stdin,
     lastFrame,
-    'Custom Provider · Step 5/6 · Advanced Config',
+    'Custom Provider  Step 5/6  Advanced Config',
   );
 };
 
@@ -569,7 +569,7 @@ describe('AuthDialog', { timeout: 15000 }, () => {
   });
 
   // ---------------------------------------------------------------------------
-  // TUI input simulation tests — skipped on CI (process.env.CI=true)
+  // TUI input simulation tests -- skipped on CI (process.env.CI=true)
   // These tests use stdin.write() to simulate keyboard navigation through
   // multi-step UI flows. On slower CI runners the timing between simulated
   // key presses and React re-renders is unreliable, causing flaky failures.
@@ -803,15 +803,15 @@ describe('AuthDialog', { timeout: 15000 }, () => {
       const cases = [
         {
           label: 'Alibaba ModelStudio',
-          childTitle: 'Alibaba ModelStudio · Access Method',
+          childTitle: 'Alibaba ModelStudio  Access Method',
         },
         {
           label: 'Third-party Providers',
-          childTitle: 'Third-party Providers · Provider',
+          childTitle: 'Third-party Providers  Provider',
         },
         {
           label: 'Custom Provider',
-          childTitle: 'Custom Provider · Step 1/6 · Protocol',
+          childTitle: 'Custom Provider  Step 1/6  Protocol',
         },
       ];
 
@@ -822,7 +822,7 @@ describe('AuthDialog', { timeout: 15000 }, () => {
         await waitForSelectedOption(lastFrame, 'Alibaba ModelStudio');
         while (
           !lastFrame()?.match(
-            new RegExp(`›\\s*(?:\\d+\\.\\s*)?${escapeRegExp(testCase.label)}`),
+            new RegExp(`\\s*(?:\\d+\\.\\s*)?${escapeRegExp(testCase.label)}`),
           )
         ) {
           stdin.write('\u001b[B');
@@ -879,13 +879,13 @@ describe('AuthDialog', { timeout: 15000 }, () => {
       await pressEnterAndWaitFor(
         stdin,
         lastFrame,
-        'Alibaba ModelStudio · Access Method',
+        'Alibaba ModelStudio  Access Method',
       );
       await waitForSelectedOption(lastFrame, 'Coding Plan');
       await pressEnterAndWaitFor(
         stdin,
         lastFrame,
-        'Alibaba ModelStudio · Step 1/3 · Region',
+        'Alibaba ModelStudio  Step 1/3  Region',
       );
       stdin.write('\u001b');
 
@@ -950,20 +950,20 @@ describe('AuthDialog', { timeout: 15000 }, () => {
       await pressEnterAndWaitFor(
         stdin,
         lastFrame,
-        'Third-party Providers · Provider',
+        'Third-party Providers  Provider',
       );
       await waitForSelectedOption(lastFrame, 'DeepSeek API Key');
       await pressEnterAndWaitFor(
         stdin,
         lastFrame,
-        'DeepSeek API Key · Step 1/2 · API Key',
+        'DeepSeek API Key  Step 1/2  API Key',
       );
       stdin.write('\u001b');
 
       await vi.waitFor(
         () => {
           const frame = lastFrame();
-          expect(frame).toContain('Third-party Providers · Provider');
+          expect(frame).toContain('Third-party Providers  Provider');
           expect(frame).toContain('DeepSeek API Key');
         },
         { timeout: WAIT_FOR_TIMEOUT },
@@ -1020,7 +1020,7 @@ describe('AuthDialog', { timeout: 15000 }, () => {
       await pressEnterAndWaitFor(
         stdin,
         lastFrame,
-        'Third-party Providers · Provider',
+        'Third-party Providers  Provider',
       );
 
       await vi.waitFor(
@@ -1087,18 +1087,18 @@ describe('AuthDialog', { timeout: 15000 }, () => {
       await pressEnterAndWaitFor(
         stdin,
         lastFrame,
-        'Third-party Providers · Provider',
+        'Third-party Providers  Provider',
       );
       await waitForSelectedOption(lastFrame, 'DeepSeek API Key');
       await pressEnterAndWaitFor(
         stdin,
         lastFrame,
-        'DeepSeek API Key · Step 1/2 · API Key',
+        'DeepSeek API Key  Step 1/2  API Key',
       );
       stdin.write('\u001b');
       await vi.waitFor(
         () => {
-          expect(lastFrame()).toContain('Third-party Providers · Provider');
+          expect(lastFrame()).toContain('Third-party Providers  Provider');
         },
         { timeout: WAIT_FOR_TIMEOUT },
       );
@@ -1106,7 +1106,7 @@ describe('AuthDialog', { timeout: 15000 }, () => {
       await pressEnterAndWaitFor(
         stdin,
         lastFrame,
-        'MiniMax API Key · Step 1/3 · Endpoint',
+        'MiniMax API Key  Step 1/3  Endpoint',
       );
 
       await vi.waitFor(
@@ -1164,7 +1164,7 @@ describe('AuthDialog', { timeout: 15000 }, () => {
       await pressEnterAndWaitFor(
         stdin,
         lastFrame,
-        'Alibaba ModelStudio · Access Method',
+        'Alibaba ModelStudio  Access Method',
       );
 
       await vi.waitFor(
@@ -1233,7 +1233,7 @@ describe('AuthDialog', { timeout: 15000 }, () => {
       await pressEnterAndWaitFor(
         stdin,
         lastFrame,
-        'Alibaba ModelStudio · Step 1/2 · API Key',
+        'Alibaba ModelStudio  Step 1/2  API Key',
       );
 
       await typeText(stdin, 'sk-token-plan');
@@ -1241,7 +1241,7 @@ describe('AuthDialog', { timeout: 15000 }, () => {
       await pressEnterAndWaitFor(
         stdin,
         lastFrame,
-        'Alibaba ModelStudio · Step 2/2 · Model IDs',
+        'Alibaba ModelStudio  Step 2/2  Model IDs',
       );
       stdin.write('\r');
       await vi.waitFor(
@@ -1300,7 +1300,7 @@ describe('AuthDialog', { timeout: 15000 }, () => {
       await pressEnterAndWaitFor(
         stdin,
         lastFrame,
-        'Alibaba ModelStudio · Step 1/2 · API Key',
+        'Alibaba ModelStudio  Step 1/2  API Key',
       );
       stdin.write('\u001b');
 
@@ -1381,7 +1381,7 @@ describe('AuthDialog Custom API Key Wizard', { timeout: 15000 }, () => {
       await vi.waitFor(
         () => {
           const frame = lastFrame();
-          expect(frame).toContain('Custom Provider · Step 1/6 · Protocol');
+          expect(frame).toContain('Custom Provider  Step 1/6  Protocol');
           expect(frame).toContain('OpenAI-compatible');
           expect(frame).toContain('Anthropic-compatible');
           expect(frame).toContain('Gemini-compatible');
@@ -1420,7 +1420,7 @@ describe('AuthDialog Custom API Key Wizard', { timeout: 15000 }, () => {
       await vi.waitFor(
         () => {
           const frame = lastFrame();
-          expect(frame).toContain('Custom Provider · Step 2/6 · Base URL');
+          expect(frame).toContain('Custom Provider  Step 2/6  Base URL');
           expect(frame).toContain('Enter the API endpoint');
         },
         { timeout: WAIT_FOR_TIMEOUT },
@@ -1461,13 +1461,13 @@ describe('AuthDialog Custom API Key Wizard', { timeout: 15000 }, () => {
       await pressEnterAndWaitFor(
         stdin,
         lastFrame,
-        'Custom Provider · Step 6/6 · Review',
+        'Custom Provider  Step 6/6  Review',
       );
 
       await vi.waitFor(
         () => {
           const frame = lastFrame();
-          expect(frame).toContain('Custom Provider · Step 6/6 · Review');
+          expect(frame).toContain('Custom Provider  Step 6/6  Review');
           expect(frame).toContain('The following JSON will be saved');
           expect(frame).toContain('QWEN_CUSTOM_API_KEY_');
           expect(frame).toContain('qwen/qwen3-coder');
@@ -1513,7 +1513,7 @@ describe('AuthDialog Custom API Key Wizard', { timeout: 15000 }, () => {
       await pressEnterAndWaitFor(
         stdin,
         lastFrame,
-        'Custom Provider · Step 6/6 · Review',
+        'Custom Provider  Step 6/6  Review',
       );
 
       await vi.waitFor(
@@ -1575,7 +1575,7 @@ describe('AuthDialog Custom API Key Wizard', { timeout: 15000 }, () => {
 
       await vi.waitFor(() => {
         const frame = lastFrame();
-        expect(frame).toContain('Custom Provider · Step 5/6 · Advanced Config');
+        expect(frame).toContain('Custom Provider  Step 5/6  Advanced Config');
         expect(frame).toContain(
           'Optional: configure advanced generation settings',
         );
@@ -1620,14 +1620,14 @@ describe('AuthDialog Custom API Key Wizard', { timeout: 15000 }, () => {
 
       await vi.waitFor(() => {
         const frame = lastFrame();
-        expect(frame).toContain('Custom Provider · Step 5/6 · Advanced Config');
+        expect(frame).toContain('Custom Provider  Step 5/6  Advanced Config');
       });
 
-      // Toggle thinking (press Space — thinking is initially focused)
+      // Toggle thinking (press Space -- thinking is initially focused)
       stdin.write(' ');
       await wait();
 
-      // Navigate down to modality, toggle (press ↓ then Space)
+      // Navigate down to modality, toggle (press  then Space)
       stdin.write('\u001b[B');
       await wait();
       stdin.write(' ');

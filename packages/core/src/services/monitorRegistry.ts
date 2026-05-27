@@ -5,11 +5,11 @@
  */
 
 /**
- * @fileoverview MonitorRegistry — tracks long-running monitor processes.
+ * @fileoverview MonitorRegistry -- tracks long-running monitor processes.
  *
  * When the Monitor tool is called, a background process is spawned whose stdout
  * lines are pushed back to the agent as event notifications. This registry
- * manages the lifecycle of each monitor entry: running → completed/failed/cancelled.
+ * manages the lifecycle of each monitor entry: running -> completed/failed/cancelled.
  *
  * Follows the same structural pattern as BackgroundTaskRegistry (background-tasks.ts)
  * so the two can be unified into a single registry when #3488 lands.
@@ -55,7 +55,7 @@ export type MonitorStatus = 'running' | 'completed' | 'failed' | 'cancelled';
 /**
  * Resolves a per-monitor reserved output path.
  *
- * Today no writer is attached at this path — monitors deliver their
+ * Today no writer is attached at this path -- monitors deliver their
  * events through the parent's chat record via the notification callback.
  * The path is reserved on every `MonitorTask` so the `TaskBase` contract
  * ("every task has a path it would write to if it produces a primary
@@ -79,7 +79,7 @@ export function getMonitorOutputPath(
  * Monitor kind of `TaskState`. Tracks one long-running monitor process
  * whose stdout lines are pushed to the parent agent as event
  * notifications. `outputFile` is reserved on registration but no writer
- * is attached today — events stream into the parent's chat record.
+ * is attached today -- events stream into the parent's chat record.
  */
 export interface MonitorTask extends TaskBase {
   kind: 'monitor';
@@ -104,12 +104,12 @@ export interface MonitorTask extends TaskBase {
   /**
    * Reason for terminal status, when one exists. Mirrors
    * `ShellTask.error`. Populated for:
-   *   - `failed` — spawn error (passed to `fail(monitorId, error)`).
-   *   - `completed` via auto-stop — currently `'Max events reached'`
+   *   - `failed` -- spawn error (passed to `fail(monitorId, error)`).
+   *   - `completed` via auto-stop -- currently `'Max events reached'`
    *     from `emitEvent` and `'Idle timeout'` from the idle timer; any
    *     future auto-stop reason should populate this field too so the
    *     detail view stays a complete record of why the monitor stopped.
-   * Not populated for `cancelled` (no semantic reason — the user / agent
+   * Not populated for `cancelled` (no semantic reason -- the user / agent
    * just asked to stop) or for `completed` via natural process exit
    * (the `exitCode` field carries that signal instead).
    * Surfaced in the dialog's `MonitorDetailBody`.
@@ -153,12 +153,12 @@ export type MonitorRegisterCallback = (entry: MonitorTask) => void;
 
 /**
  * Fires on any change to the registry's contents that a snapshot
- * subscriber needs to observe — concretely: `register()` (nothing →
- * running), `settle()` (running → terminal: complete / fail / cancel /
+ * subscriber needs to observe -- concretely: `register()` (nothing ->
+ * running), `settle()` (running -> terminal: complete / fail / cancel /
  * emitEvent's auto-stop at maxEvents / idle timeout), and `reset()`
  * (mass clear, fired with no entry).
  *
- * Does NOT fire on `emitEvent` per se — per-event registry mutations
+ * Does NOT fire on `emitEvent` per se -- per-event registry mutations
  * (eventCount / droppedLines) are deliberately excluded so the footer
  * pill and AppContainer don't churn under heavy event traffic. The
  * dialog's detail view re-resolves selected monitor entries from the
@@ -197,7 +197,7 @@ export class MonitorRegistry {
     // Mutate the registration in place to graduate it to a `MonitorTask`.
     // Returning the same reference lets the caller continue using the
     // variable for the post-register mutations (`status`, `droppedLines`,
-    // …) the existing monitor.ts flow relies on; the registry stores this
+    // ...) the existing monitor.ts flow relies on; the registry stores this
     // exact reference, so external mutations remain observable through
     // `get()` / `getAll()`.
     const entry = registration as MonitorTask;
@@ -217,7 +217,7 @@ export class MonitorRegistry {
       }
     }
     // Mirror BackgroundTaskRegistry / BackgroundShellRegistry: registration
-    // is a status transition (nothing → running) so subscribers that only
+    // is a status transition (nothing -> running) so subscribers that only
     // care about "what's in the registry now" can subscribe to a single
     // callback and see new entries the same way they see status changes.
     this.fireStatusChange(entry);
@@ -258,7 +258,7 @@ export class MonitorRegistry {
       // after the monitor terminates. The chat-history notification is
       // separate from the registry's persistent state, so reopening the
       // Background tasks dialog or running `/tasks` later won't surface
-      // it on its own — the persisted `entry.error` is what those
+      // it on its own -- the persisted `entry.error` is what those
       // surfaces actually read.
       entry.error = 'Max events reached';
       this.settle(entry, 'completed');
@@ -267,7 +267,7 @@ export class MonitorRegistry {
     }
   }
 
-  // No-op if not 'running' — guards against race with concurrent cancellation.
+  // No-op if not 'running' -- guards against race with concurrent cancellation.
   complete(monitorId: string, exitCode: number | null): void {
     const entry = this.monitors.get(monitorId);
     if (!entry || entry.status !== 'running') return;
@@ -283,7 +283,7 @@ export class MonitorRegistry {
     );
   }
 
-  // No-op if not 'running' — guards against race with concurrent cancellation.
+  // No-op if not 'running' -- guards against race with concurrent cancellation.
   fail(monitorId: string, error: string): void {
     const entry = this.monitors.get(monitorId);
     if (!entry || entry.status !== 'running') return;
@@ -295,7 +295,7 @@ export class MonitorRegistry {
   }
 
   /**
-   * Cancel a running monitor. No-op if not 'running' — guards against a race
+   * Cancel a running monitor. No-op if not 'running' -- guards against a race
    * with concurrent cancellation.
    *
    * The two branches order `settle()` and `abort()` differently on purpose:
@@ -387,8 +387,8 @@ export class MonitorRegistry {
   }
 
   /**
-   * Subscribe to status transitions (register + every running → terminal
-   * settle). Single-subscriber on purpose — the dialog hook is the only
+   * Subscribe to status transitions (register + every running -> terminal
+   * settle). Single-subscriber on purpose -- the dialog hook is the only
    * consumer in the codebase, and a list would invite drift in
    * error-handling.
    */
@@ -431,7 +431,7 @@ export class MonitorRegistry {
     }
     this.monitors.clear();
     // Notify subscribers that the registry's contents changed wholesale
-    // — without this, the dialog snapshot in `useBackgroundTaskView`
+    // -- without this, the dialog snapshot in `useBackgroundTaskView`
     // would keep rendering the now-cleared rows until an unrelated
     // register/settle event happens. Mirrors BackgroundShellRegistry /
     // BackgroundTaskRegistry's reset paths.

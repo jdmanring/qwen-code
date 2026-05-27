@@ -133,10 +133,10 @@ async function reconnectAllMcpServers(): Promise<void> {
     for (const serverName of serverNames) {
       try {
         await toolRegistry.discoverToolsForServer(serverName);
-        writeStdoutLine(`✓ ${serverName}: Reconnected successfully`);
+        writeStdoutLine(` ${serverName}: Reconnected successfully`);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        writeStdoutLine(`✗ ${serverName}: Failed - ${message}`);
+        writeStdoutLine(` ${serverName}: Failed - ${message}`);
       }
     }
   } finally {

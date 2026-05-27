@@ -16,7 +16,7 @@ import { MessageType } from '../types.js';
 import { type LoadedSettings, SettingScope } from '../../config/settings.js';
 
 const AUTO_MODE_FIRST_TIME_MESSAGE =
-  '✨ Auto mode enabled.\n' +
+  ' Auto mode enabled.\n' +
   '   An LLM classifier evaluates each tool call and auto-approves safe actions,\n' +
   '   blocks risky ones. Most read-only operations and in-cwd edits skip the\n' +
   '   classifier for speed. To exit: Shift+Tab or /approval-mode default.\n' +
@@ -24,7 +24,7 @@ const AUTO_MODE_FIRST_TIME_MESSAGE =
 
 export interface UseAutoAcceptIndicatorArgs {
   config: Config;
-  /** Settings handle — used to read/write `ui.autoModeAcknowledged`. */
+  /** Settings handle -- used to read/write `ui.autoModeAcknowledged`. */
   settings?: LoadedSettings;
   addItem?: (item: HistoryItemWithoutId, timestamp: number) => void;
   onApprovalModeChange?: (mode: ApprovalMode) => void;
@@ -63,7 +63,7 @@ export function useAutoAcceptIndicator({
     if (currentConfigValue === ApprovalMode.AUTO) {
       emitAutoModeEntryNotices({ config, settings, addItem });
     }
-    // Intentionally mount-only — subsequent mode changes are handled by
+    // Intentionally mount-only -- subsequent mode changes are handled by
     // the Shift+Tab handler below and by the `/approval-mode` slash
     // command, which both call emitAutoModeEntryNotices on AUTO entry.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -168,7 +168,7 @@ export function emitAutoModeEntryNotices(opts: {
     (stripped.persistent.length > 0 || stripped.session.length > 0)
   ) {
     const lines = [
-      'ℹ️ Auto mode temporarily disabled these allow rules',
+      ' Auto mode temporarily disabled these allow rules',
       '   (they would bypass the classifier):',
       ...stripped.persistent.map((r) => `   - ${r.raw} (from user settings)`),
       ...stripped.session.map((r) => `   - ${r.raw} (session)`),

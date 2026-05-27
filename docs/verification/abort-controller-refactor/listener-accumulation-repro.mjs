@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
  * Direct simulation of the listener-accumulation pattern the agent runtime
- * exhibits in long sessions. Builds a deep parent → child chain to a depth
+ * exhibits in long sessions. Builds a deep parent -> child chain to a depth
  * the user observed (>1500 listeners) and asserts:
  *
  * 1. The OLD pattern (plain new AbortController + manual addEventListener
  *    without {once:true} or reverse cleanup) accumulates listeners on the
- *    long-lived parent — reproducing the warning.
+ *    long-lived parent -- reproducing the warning.
  *
  * 2. The NEW pattern (createChildAbortController from the helper) keeps the
  *    parent listener count bounded by 1, regardless of how many short-lived
@@ -20,7 +20,7 @@ import { getEventListeners, setMaxListeners } from 'node:events';
 
 // Inline copy of the production helper (packages/core/src/utils/abortController.ts)
 // so this script has no build-step dependency on @qwen-code/qwen-code-core.
-// Kept in sync — the child is held STRONGLY by the parent's listener closure
+// Kept in sync -- the child is held STRONGLY by the parent's listener closure
 // (no WeakRef on child) so propagation works even when a caller drops the
 // controller and keeps only the signal. WeakRef is used only on the PARENT,
 // to keep child cleanup from pinning a long-lived parent in memory.
@@ -56,17 +56,17 @@ const ROUNDS = 2000;
 
 console.log(`Simulating ${ROUNDS} rounds for each pattern.\n`);
 
-// ─── OLD pattern: plain new AbortController + manual addEventListener ───
+// --- OLD pattern: plain new AbortController + manual addEventListener ---
 const oldParent = new AbortController();
 setMaxListeners(0, oldParent.signal); // disable warning so we can measure cleanly
 for (let i = 0; i < ROUNDS; i++) {
   const child = new AbortController();
-  // No {once:true}, no reverse cleanup — accumulates on oldParent.
+  // No {once:true}, no reverse cleanup -- accumulates on oldParent.
   oldParent.signal.addEventListener('abort', () => child.abort());
 }
 const oldCount = getEventListeners(oldParent.signal, 'abort').length;
 
-// ─── NEW pattern: createChildAbortController ───
+// --- NEW pattern: createChildAbortController ---
 const newParent = createAbortController();
 for (let i = 0; i < ROUNDS; i++) {
   const child = createChildAbortController(newParent);
@@ -100,7 +100,7 @@ if (newCount !== expectations.newMustBe) {
   pass = false;
 } else {
   console.log(
-    `PASS: NEW pattern kept listener count at ${expectations.newMustBe} — the helper prevents accumulation.`,
+    `PASS: NEW pattern kept listener count at ${expectations.newMustBe} -- the helper prevents accumulation.`,
   );
 }
 

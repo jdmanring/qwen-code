@@ -347,7 +347,7 @@ describe('WebFetchTool', () => {
         );
       }
 
-      // setApprovalMode should NOT be called — onConfirm is a no-op
+      // setApprovalMode should NOT be called -- onConfirm is a no-op
       expect(setApprovalMode).not.toHaveBeenCalled();
     });
   });

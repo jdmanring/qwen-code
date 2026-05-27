@@ -225,7 +225,7 @@ describe('speculationToolGate', () => {
       // First: redirect a write (puts file in overlay)
       await overlayFs.redirectWrite(filePath);
 
-      // Then: evaluate a read tool — path should be resolved to overlay
+      // Then: evaluate a read tool -- path should be resolved to overlay
       const args: Record<string, unknown> = { file_path: filePath };
       const result = await evaluateToolCall(
         ToolNames.READ_FILE,

@@ -1,4 +1,4 @@
-🏛️ 
+ 
 # VerificationEngine Architectural Documentation
 
 ## 1. Identity & Role

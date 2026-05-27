@@ -15,13 +15,13 @@ import type { GenerateContentResponse } from '@google/genai';
  * A chunk is "user-visible" if any normalized Part in candidates[0].content.parts
  * is one of:
  *   - text with a non-empty string
- *   - functionCall (tool use — even tool-call-only responses count)
+ *   - functionCall (tool use -- even tool-call-only responses count)
  *   - inlineData (image, binary blob)
  *   - executableCode (sandbox / code-execution responses)
  *   - thought / reasoning content (provider-dependent; o1, qwen thinking, Anthropic <thinking>)
  *
  * Chunks containing only role metadata, only usageMetadata (final summary
- * chunk), or empty parts are NOT user-visible — TTFT should not fire on these.
+ * chunk), or empty parts are NOT user-visible -- TTFT should not fire on these.
  *
  * Centralised here (single predicate over the normalized GenerateContentResponse
  * shape) so the four provider generators (Anthropic / OpenAI / Gemini / Qwen)
@@ -48,10 +48,10 @@ function isUserVisiblePart(part: unknown): boolean {
   if (p.functionCall !== undefined) return true;
   if (p.inlineData !== undefined) return true;
   if (p.executableCode !== undefined) return true;
-  // `thought` is a boolean flag in this codebase — `true` means the part
+  // `thought` is a boolean flag in this codebase -- `true` means the part
   // carries reasoning content, false / absent means none (see loggingContentGenerator.ts
   // where `part.thought ? {...} : {}` is the canonical pattern). Match strict `=== true`
-  // rather than checking presence — `thought: false` parts are explicitly NOT user-visible.
+  // rather than checking presence -- `thought: false` parts are explicitly NOT user-visible.
   if (p.thought === true) return true;
   return false;
 }

@@ -232,7 +232,7 @@ export class PromptHookRunner {
 
     // Internal AbortController to abort the request on timeout. Use
     // createChildAbortController so parent-signal propagation gets `{once:true}`
-    // + reverse cleanup automatically — the old manual addEventListener path
+    // + reverse cleanup automatically -- the old manual addEventListener path
     // had no `{once:true}` and never removed the listener, leaking one
     // listener per prompt-hook invocation on the long-lived parent.
     const internalAbortController = createChildAbortController(signal);
@@ -257,7 +257,7 @@ export class PromptHookRunner {
         ...(isReasoningModel
           ? {}
           : {
-              // Deterministic allow/block decisions — same input must
+              // Deterministic allow/block decisions -- same input must
               // produce the same gating outcome to keep security checks
               // reliable.
               temperature: 0,
@@ -290,7 +290,7 @@ export class PromptHookRunner {
         ?.finishReason;
       if (finishReason === 'MAX_TOKENS') {
         debugLogger.warn(
-          'LLM response truncated at maxOutputTokens — treating as unreliable',
+          'LLM response truncated at maxOutputTokens -- treating as unreliable',
         );
         throw new Error('Response truncated due to token limit');
       }

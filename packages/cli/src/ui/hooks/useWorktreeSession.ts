@@ -23,7 +23,7 @@ import { readWorktreeSession } from '@qwen-code/qwen-code-core';
  * Known limitation: `fs.watch` holds an inode handle to `chatsDir` at
  * mount time. If the directory is deleted out-of-band (manual cleanup,
  * antivirus quarantine, reset scripts) and then recreated, the watcher
- * does NOT re-attach to the new inode — the Footer indicator stops
+ * does NOT re-attach to the new inode -- the Footer indicator stops
  * responding to sidecar changes until the session restarts. In normal
  * use `chatsDir` is stable for the session's lifetime; if rotation
  * becomes a real failure mode, add a polling fallback or listen for
@@ -73,7 +73,7 @@ export function useWorktreeSession(config: Config): WorktreeSession | null {
         // matched and the watcher fired but never reloaded. Normalize
         // via toString() to cover both shapes. `filename` is also
         // nullable on some platforms (e.g. recursive watchers without
-        // event payloads) — treat null as "unknown file, reload to be
+        // event payloads) -- treat null as "unknown file, reload to be
         // safe" since the worktree state is small and the load is cheap.
         watcher = fs.watch(dirPath, (_eventType, filename) => {
           if (filename === null || filename.toString() === fileName) {

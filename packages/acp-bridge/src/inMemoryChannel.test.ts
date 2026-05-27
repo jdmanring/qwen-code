@@ -7,7 +7,7 @@
 import { describe, it, expect } from 'vitest';
 import type { AnyMessage } from '@agentclientprotocol/sdk';
 // Import via the barrel rather than the source file so the public API
-// surface (serve/index.ts) is exercised by CI — a typo or missing
+// surface (serve/index.ts) is exercised by CI -- a typo or missing
 // re-export would otherwise go undetected.
 import { createInMemoryChannel } from './index.js';
 
@@ -95,7 +95,7 @@ describe('createInMemoryChannel', () => {
     ]);
   });
 
-  it('isolates client→agent direction (client write does not echo to client.readable)', async () => {
+  it('isolates client->agent direction (client write does not echo to client.readable)', async () => {
     // Sanity check that the channel is truly paired. A buggy
     // implementation that aliased `ab` to both ends would still pass
     // the round-trip tests above for one frame but echo the writer's
@@ -110,14 +110,14 @@ describe('createInMemoryChannel', () => {
     expect((onAgent as { method: string }).method).toBe('client-only');
 
     // Client's own readable must NOT see it. Race a fresh read against
-    // a short timeout — if the channel is correctly paired the read
+    // a short timeout -- if the channel is correctly paired the read
     // never resolves on its own.
     //
     // The read promise stays pending while the timeout wins; releasing
     // the reader's lock in `finally` then causes that pending read to
     // reject per Web Streams spec. Attach a rejection handler so the
     // post-`releaseLock` rejection doesn't surface as an unhandled
-    // rejection / flaky test signal — the rejection itself isn't a
+    // rejection / flaky test signal -- the rejection itself isn't a
     // failure here, it's just the cleanup path settling.
     const reader = clientStream.readable.getReader();
     try {
@@ -134,8 +134,8 @@ describe('createInMemoryChannel', () => {
     }
   });
 
-  it('isolates agent→client direction (agent write does not echo to agent.readable)', async () => {
-    // Symmetric counterpart of the previous test — closes the obvious
+  it('isolates agent->client direction (agent write does not echo to agent.readable)', async () => {
+    // Symmetric counterpart of the previous test -- closes the obvious
     // "wired one direction correctly but not the other" failure mode.
     // Same `releaseLock`-causes-pending-read-to-reject handling as the
     // previous test; see comment there.
@@ -166,7 +166,7 @@ describe('createInMemoryChannel', () => {
   it('abort() settles pending readers on both sides (teardown invariant)', async () => {
     // Key teardown invariant: after abort(), pending read() calls do
     // NOT hang. The exact settlement (resolve-with-{done:true} vs
-    // reject) depends on the SDK's ndJsonStream wrapper translation —
+    // reject) depends on the SDK's ndJsonStream wrapper translation --
     // see the helper's JSDoc. What matters is that consumers can
     // GC-reclaim and shut down without leaking.
     const { clientStream, agentStream, abort } = createInMemoryChannel();

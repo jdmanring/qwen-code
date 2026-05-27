@@ -5,13 +5,13 @@
  */
 
 /**
- * InlineParallelAgentsDisplay — dense inline panel for a tool group
- * that launched ≥2 `task_execution` subagents in one response (e.g.
- * `/review`'s 9-agent fan-out). Replaces the `Agent × 9 / <last name>`
+ * InlineParallelAgentsDisplay -- dense inline panel for a tool group
+ * that launched >=2 `task_execution` subagents in one response (e.g.
+ * `/review`'s 9-agent fan-out). Replaces the `Agent * 9 / <last name>`
  * one-liner from `CompactToolGroupDisplay`, which collapsed all useful
  * progress information into a count.
  *
- * Each row shows: status glyph · agent name · elapsed · tokens.
+ * Each row shows: status glyph  agent name  elapsed  tokens.
  * Rendered in the committed phase only; during the live phase
  * `LiveAgentPanel` below the composer owns the per-agent roster.
  * Elapsed and token data fall back to
@@ -45,7 +45,7 @@ interface InlineParallelAgentsDisplayProps {
 }
 
 /**
- * `agentId` in the registry is `${subagentName}-${parentToolCallId}` —
+ * `agentId` in the registry is `${subagentName}-${parentToolCallId}` --
  * see `AgentTool.executeImpl` in core/src/tools/agent/agent.ts where the
  * id is constructed as `${subagentConfig.name}-${this.callId}`.
  * Reconstructing it here is the cheapest way to correlate a
@@ -75,7 +75,7 @@ interface RowData {
   callId: string;
   name: string;
   status: AgentResultDisplay['status'];
-  /** Set when registry has a live entry — drives activity + elapsed. */
+  /** Set when registry has a live entry -- drives activity + elapsed. */
   startTime?: number;
   endTime?: number;
   /**
@@ -89,7 +89,7 @@ interface RowData {
   tokenCount?: number;
 }
 
-// Internal tool name → display name lookup (mirrors LiveAgentPanel so
+// Internal tool name -> display name lookup (mirrors LiveAgentPanel so
 // rows surface `Shell` instead of raw `run_shell_command`).
 const TOOL_DISPLAY_BY_NAME: Record<string, string> = Object.fromEntries(
   (Object.keys(ToolNames) as Array<keyof typeof ToolNames>).map((key) => [
@@ -102,7 +102,7 @@ function activityLabel(row: RowData): string {
   // `row.recentActivity` was snapshotted in the rows useMemo by reading
   // `registry.get(agentId).recentActivities.at(-1)`. The registry
   // intentionally mutates that array in place via `appendActivity`,
-  // not by replacing the reference — the rows memo's `now`-keyed
+  // not by replacing the reference -- the rows memo's `now`-keyed
   // re-read is what surfaces the latest entry on each tick. Treat the
   // value here as a tick-snapshot only; do NOT close over the
   // registry's live array.
@@ -120,15 +120,15 @@ function statusGlyph(status: AgentResultDisplay['status']): {
   switch (status) {
     case 'running':
     case 'background':
-      return { glyph: '○', color: theme.status.warning };
+      return { glyph: '', color: theme.status.warning };
     case 'completed':
-      return { glyph: '✔', color: theme.status.success };
+      return { glyph: '', color: theme.status.success };
     case 'failed':
-      return { glyph: '✖', color: theme.status.error };
+      return { glyph: '', color: theme.status.error };
     case 'cancelled':
-      return { glyph: '✖', color: theme.status.warning };
+      return { glyph: '', color: theme.status.warning };
     default:
-      return { glyph: '·', color: theme.text.secondary };
+      return { glyph: '', color: theme.text.secondary };
   }
 }
 
@@ -136,8 +136,8 @@ function elapsedLabel(row: RowData, now: number): string {
   // Prefer live registry timing while the agent is still tracked, fall
   // back to the terminal `executionSummary.totalDurationMs` so the
   // elapsed column survives `unregisterForeground` (otherwise completed
-  // rows lose their duration the moment they finish — visible as the
-  // "✔ Agent 2: Security review  8.1k tok" gap in real runs).
+  // rows lose their duration the moment they finish -- visible as the
+  // " Agent 2: Security review  8.1k tok" gap in real runs).
   let ms: number | undefined;
   if (row.startTime !== undefined) {
     const end = row.endTime ?? now;
@@ -155,7 +155,7 @@ function elapsedLabel(row: RowData, now: number): string {
 // labels like `Agent 6c: Maintainer` and `Agent 7: Build & Test` at
 // their full length while leaving room for the activity column on a
 // typical 100-col content width. Names longer than this truncate in
-// the middle (`Agent 1: Corr…tness review`) so both the agent number
+// the middle (`Agent 1: Corr...tness review`) so both the agent number
 // and the trailing suffix stay readable.
 const NAME_COL_WIDTH = 26;
 
@@ -165,7 +165,7 @@ function truncateMiddle(input: string, max: number): string {
   const keep = max - 1;
   const head = Math.ceil(keep / 2);
   const tail = Math.floor(keep / 2);
-  return `${input.slice(0, head)}…${input.slice(input.length - tail)}`;
+  return `${input.slice(0, head)}...${input.slice(input.length - tail)}`;
 }
 
 export const InlineParallelAgentsDisplay: React.FC<
@@ -200,7 +200,7 @@ export const InlineParallelAgentsDisplay: React.FC<
   // non-terminal value; the remaining three are terminal and don't
   // need a tick. If a new non-terminal status is ever added upstream,
   // the interval will stop early and elapsed/activity will freeze for
-  // that row — add the new value here to keep the tick alive.
+  // that row -- add the new value here to keep the tick alive.
   const hasLiveAgent = useMemo(
     () =>
       agentEntries.some(
@@ -217,13 +217,13 @@ export const InlineParallelAgentsDisplay: React.FC<
 
   // Reconcile static toolCall snapshot with live registry data so
   // activity / elapsed / tokens stay fresh. `now` participates in the
-  // dependency so each tick re-reads the registry — `appendActivity`
+  // dependency so each tick re-reads the registry -- `appendActivity`
   // mutates `recentActivities` in place, so without a tick the
   // component would freeze on the first row of activity.
   const rows: RowData[] = useMemo(() => {
     const registry = config?.getBackgroundTaskRegistry();
     // Touch `now` so a future "remove dead dep" cleanup can't silently
-    // freeze the panel — the registry mutates in place and we need to
+    // freeze the panel -- the registry mutates in place and we need to
     // re-read on every tick to surface fresh activity.
     void now;
     return agentEntries.map(({ toolCall, result }) => {
@@ -258,7 +258,7 @@ export const InlineParallelAgentsDisplay: React.FC<
       r.status === 'cancelled',
   ).length;
   const total = totalAgentCount ?? rows.length;
-  const headerLabel = `Parallel agents · ${total} · ${doneCount}/${total} done`;
+  const headerLabel = `Parallel agents  ${total}  ${doneCount}/${total} done`;
 
   return (
     <Box
@@ -293,10 +293,10 @@ const AgentRow: React.FC<{ row: RowData; now: number }> = ({ row, now }) => {
   const trailingParts: string[] = [];
   if (elapsed) trailingParts.push(elapsed);
   if (tokens) trailingParts.push(`${tokens} tok`);
-  const trailing = trailingParts.join(' · ');
+  const trailing = trailingParts.join('  ');
 
-  // Right-align `trailing` (elapsed · tokens) by giving the activity
-  // column flexGrow:1 — it consumes all remaining horizontal space,
+  // Right-align `trailing` (elapsed  tokens) by giving the activity
+  // column flexGrow:1 -- it consumes all remaining horizontal space,
   // pinning the trailing column to the right edge. Without flexGrow
   // the trailing column hugs the activity text, so each row's
   // trailing sits at a different x position and the panel reads as

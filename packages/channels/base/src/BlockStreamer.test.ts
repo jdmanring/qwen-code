@@ -59,7 +59,7 @@ describe('BlockStreamer', () => {
 
   it('force-splits at maxChars', async () => {
     const s = createStreamer({ minChars: 10, maxChars: 30 });
-    // 40 chars, no newlines — should force-split at space near 30
+    // 40 chars, no newlines -- should force-split at space near 30
     s.push('aaaa bbbb cccc dddd eeee ffff gggg hhhh');
     await s.flush();
     // First block splits around 30 chars at a space boundary
@@ -147,7 +147,7 @@ describe('BlockStreamer', () => {
     const s = createStreamer({ minChars: 1 });
     s.push('\n\n\n\n');
     await s.flush();
-    // All whitespace — nothing to emit after trim
+    // All whitespace -- nothing to emit after trim
     expect(sent).toEqual([]);
     expect(s.blockCount).toBe(0);
   });

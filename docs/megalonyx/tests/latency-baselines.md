@@ -1,4 +1,4 @@
-# ⏱️ Latency Baselines
+#  Latency Baselines
 
 This document records the performance baselines for the Control Plane orchestration loop. These metrics are used to detect performance regressions during development.
 

@@ -53,7 +53,7 @@ describe('useWorktreeSession', () => {
   it('returns null when no sidecar exists', async () => {
     const config = makeMockConfig(sidecarPath);
     const { result } = renderHook(() => useWorktreeSession(config));
-    // No sidecar yet → load() resolves to null on mount.
+    // No sidecar yet -> load() resolves to null on mount.
     await new Promise((r) => setTimeout(r, 50));
     expect(result.current).toBeNull();
   });

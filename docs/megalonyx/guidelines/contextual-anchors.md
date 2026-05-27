@@ -1,4 +1,4 @@
-# 🏛️ Contextual Anchors: The `.qwen-context` Standard
+#  Contextual Anchors: The `.qwen-context` Standard
 
 ## 1. Purpose and Scope
 
@@ -23,7 +23,7 @@ To maximize the **Signal-to-Noise Ratio (SNR)** and minimize token fragmentation
 
 Each item within `[M-LAWS]` must follow this structure:
 
-- **Attention Landmark**: An emoji used to prime the model's reasoning domain (🏛️, ⚙️, 🧠).
+- **Attention Landmark**: An emoji used to prime the model's reasoning domain (, , ).
 - **Axiom Tag**: A bracketed identifier (e.g., `[A-ARCH]`, `[S-OPERATIONAL]`, `[A-LOGIC]`).
 - `desc`: A brief human-readable description of the constraint.
 - `axiom`: The deterministic, imperative mandate that the agent must follow.
@@ -32,32 +32,32 @@ Each item within `[M-LAWS]` must follow this structure:
 
 ## 3. Usage Examples
 
-### 3.1 Architectural Constraints (🏛️)
+### 3.1 Architectural Constraints ()
 Used to enforce structural patterns, module boundaries, or design principles.
 
 ```yaml
 [M-LAWS]:
-  - 🏛️ [A-ARCH]:
+  -  [A-ARCH]:
       desc: "Module Boundary Enforcement"
       axiom: "All components in this directory must be stateless and side-effect free."
 ```
 
-### 3.2 Operational Mandates (⚙️)
+### 3.2 Operational Mandates ()
 Used to enforce workflows, testing requirements, or deployment steps.
 
 ```yaml
 [M-LAWS]:
-  - ⚙️ [S-OPERATIONAL]:
+  -  [S-OPERATIONAL]:
       desc: "Verification Requirement"
       axiom: "Always run 'stack-verify' and 'pytest' before marking a task as completed in this directory."
 ```
 
-### 3.3 Logic/Reasoning Constraints (🧠)
+### 3.3 Logic/Reasoning Constraints ()
 Used to enforce specific implementation patterns or mathematical/logical approaches.
 
 ```yaml
 [M-LAWS]:
-  - 🧠 [A-LOGIC]:
+  -  [A-LOGIC]:
       desc: "Transformation Pattern"
       axiom: "All data transformations must use the 'Functional Pipeline' pattern (map/filter/reduce)."
 ```
@@ -85,9 +85,9 @@ Upon entering any directory, an agent **MUST**:
 
 ---
 
-## 🛠️ Implementation Checklist for Contributors
+##  Implementation Checklist for Contributors
 
 - [ ] **ASCII Only**: Did you use `=>` instead of $\to$?
-- [ ] **Anchor the Domain**: Did you use the correct category emoji (🏛️, 🧠, ⚙️)?
+- [ ] **Anchor the Domain**: Did you use the correct category emoji (, , )?
 - [ ] **Axiomatize**: Did you replace narrative suggestions with a formal `[S-MANDATE]` or `[A-AXIOM]`?
 - [ ] **Symmetrize**: Is there a 1:1 mirror between the new config and the new doc?

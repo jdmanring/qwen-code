@@ -7,9 +7,9 @@ A channel plugin connects Qwen Code to a messaging platform. It's packaged as an
 Your plugin sits in the Platform Adapter layer. You handle platform-specific concerns (connecting, receiving messages, sending responses). `ChannelBase` handles everything else (access control, session routing, prompt queuing, slash commands, crash recovery).
 
 ```
-Your Plugin  →  builds Envelope  →  handleInbound()
-ChannelBase  →  gates → commands → routing → AcpBridge.prompt()
-ChannelBase  →  calls your sendMessage() with the agent's response
+Your Plugin  ->  builds Envelope  ->  handleInbound()
+ChannelBase  ->  gates -> commands -> routing -> AcpBridge.prompt()
+ChannelBase  ->  calls your sendMessage() with the agent's response
 ```
 
 ## The Plugin Object
@@ -47,15 +47,15 @@ export class MyChannel extends ChannelBase {
       senderName: '...', // Display name
       chatId: '...', // Chat/conversation ID (distinct for DMs vs groups)
       text: '...', // Message text (strip @mentions)
-      isGroup: false, // Accurate — used by GroupGate
-      isMentioned: false, // Accurate — used by GroupGate
-      isReplyToBot: false, // Accurate — used by GroupGate
+      isGroup: false, // Accurate -- used by GroupGate
+      isMentioned: false, // Accurate -- used by GroupGate
+      isReplyToBot: false, // Accurate -- used by GroupGate
     };
     this.handleInbound(envelope);
   }
 
   async sendMessage(chatId: string, text: string): Promise<void> {
-    // Format markdown → platform format, chunk if needed, deliver
+    // Format markdown -> platform format, chunk if needed, deliver
   }
 
   disconnect(): void {
@@ -76,13 +76,13 @@ The normalized message object you build from platform data. The boolean flags dr
 | `chatId`         | string       | Yes      | Must distinguish DMs from groups                                           |
 | `text`           | string       | Yes      | Strip bot @mentions                                                        |
 | `threadId`       | string       | No       | For `sessionScope: "thread"`                                               |
-| `messageId`      | string       | No       | Platform message ID — useful for response correlation                      |
+| `messageId`      | string       | No       | Platform message ID -- useful for response correlation                      |
 | `isGroup`        | boolean      | Yes      | GroupGate relies on this                                                   |
 | `isMentioned`    | boolean      | Yes      | GroupGate relies on this                                                   |
 | `isReplyToBot`   | boolean      | Yes      | GroupGate relies on this                                                   |
-| `referencedText` | string       | No       | Quoted message — prepended as context                                      |
-| `imageBase64`    | string       | No       | Base64-encoded image (legacy — prefer `attachments`)                       |
-| `imageMimeType`  | string       | No       | e.g., `image/jpeg` (legacy — prefer `attachments`)                         |
+| `referencedText` | string       | No       | Quoted message -- prepended as context                                      |
+| `imageBase64`    | string       | No       | Base64-encoded image (legacy -- prefer `attachments`)                       |
+| `imageMimeType`  | string       | No       | e.g., `image/jpeg` (legacy -- prefer `attachments`)                         |
 | `attachments`    | Attachment[] | No       | Structured media attachments (see below)                                   |
 
 ### Attachments
@@ -99,7 +99,7 @@ interface Attachment {
 }
 ```
 
-Example — handling a file upload in your adapter:
+Example -- handling a file upload in your adapter:
 
 ```typescript
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -143,7 +143,7 @@ Your `qwen-extension.json` declares the channel type. The key must match `channe
 
 ## Optional Extension Points
 
-**Custom slash commands** — register in your constructor:
+**Custom slash commands** -- register in your constructor:
 
 ```typescript
 this.registerCommand('mycommand', async (envelope, args) => {
@@ -152,7 +152,7 @@ this.registerCommand('mycommand', async (envelope, args) => {
 });
 ```
 
-**Working indicators** — override `onPromptStart()` and `onPromptEnd()` to show platform-specific typing indicators. These hooks fire only when a prompt actually begins processing — not for buffered messages (collect mode) or gated/blocked messages:
+**Working indicators** -- override `onPromptStart()` and `onPromptEnd()` to show platform-specific typing indicators. These hooks fire only when a prompt actually begins processing -- not for buffered messages (collect mode) or gated/blocked messages:
 
 ```typescript
 protected override onPromptStart(chatId: string, sessionId: string, messageId?: string): void {
@@ -164,16 +164,16 @@ protected override onPromptEnd(chatId: string, sessionId: string, messageId?: st
 }
 ```
 
-**Tool call hooks** — override `onToolCall()` to display agent activity (e.g., "Running shell command...").
+**Tool call hooks** -- override `onToolCall()` to display agent activity (e.g., "Running shell command...").
 
-**Streaming hooks** — override `onResponseChunk(chatId, chunk, sessionId)` for per-chunk progressive display (e.g., editing a message in-place). Override `onResponseComplete(chatId, fullText, sessionId)` to customize final delivery.
+**Streaming hooks** -- override `onResponseChunk(chatId, chunk, sessionId)` for per-chunk progressive display (e.g., editing a message in-place). Override `onResponseComplete(chatId, fullText, sessionId)` to customize final delivery.
 
-**Block streaming** — set `blockStreaming: "on"` in the channel config. The base class automatically splits responses into multiple messages at paragraph boundaries. No plugin code needed — it works alongside `onResponseChunk`.
+**Block streaming** -- set `blockStreaming: "on"` in the channel config. The base class automatically splits responses into multiple messages at paragraph boundaries. No plugin code needed -- it works alongside `onResponseChunk`.
 
-**Media** — populate `envelope.attachments` with images/files. See [Attachments](#attachments) above.
+**Media** -- populate `envelope.attachments` with images/files. See [Attachments](#attachments) above.
 
 ## Reference Implementations
 
-- **Plugin example** (`packages/channels/plugin-example/`) — minimal WebSocket-based adapter, good starting point
-- **Telegram** (`packages/channels/telegram/`) — full-featured: images, files, formatting, typing indicators
-- **DingTalk** (`packages/channels/dingtalk/`) — stream-based with rich text handling
+- **Plugin example** (`packages/channels/plugin-example/`) -- minimal WebSocket-based adapter, good starting point
+- **Telegram** (`packages/channels/telegram/`) -- full-featured: images, files, formatting, typing indicators
+- **DingTalk** (`packages/channels/dingtalk/`) -- stream-based with rich text handling

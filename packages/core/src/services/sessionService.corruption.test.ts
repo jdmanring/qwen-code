@@ -90,7 +90,7 @@ describe('SessionService.countSessionMessagesFromPath (corruption recovery)', ()
     // Old `JSON.parse + catch { continue }` would skip a bare `null` line
     // because `null.type` threw. After the parseLineTolerant refactor, a
     // missing object-filter would propagate that TypeError to the outer
-    // catch and zero the whole count — regression guard.
+    // catch and zero the whole count -- regression guard.
     const r1 = JSON.stringify(recordFor('u1', 'user', null));
     const r2 = JSON.stringify(recordFor('u2', 'assistant', 'u1'));
     const file = writeJsonl('scalar-line.jsonl', `${r1}\nnull\n${r2}\n`);
@@ -163,7 +163,7 @@ describe('SessionService.readLastRecordUuid (corruption recovery)', () => {
     //
     // Filler is a long array of zeros (no quote characters) so the parser's
     // inString state stays aligned even when entering mid-fragment, ensuring
-    // the trojan is reachable. ~80k entries → ~160 KB, comfortably above
+    // the trojan is reachable. ~80k entries -> ~160 KB, comfortably above
     // TAIL_READ_SIZE.
     const filler = new Array(80000).fill(0).join(',');
     const giantLine =
@@ -171,7 +171,7 @@ describe('SessionService.readLastRecordUuid (corruption recovery)', () => {
       `"trojan":{"uuid":"fake-from-payload"}}`;
     const file = writeJsonl('big-tail.jsonl', `${giantLine}\n`);
 
-    // We cannot recover "real-last" — it lies before the tail window. The
+    // We cannot recover "real-last" -- it lies before the tail window. The
     // critical assertion is the absence of the false-positive recovery: the
     // function must not surface the payload's nested uuid.
     expect(svc.readLastRecordUuid(file)).not.toBe('fake-from-payload');
@@ -182,7 +182,7 @@ describe('SessionService.readLastRecordUuid (corruption recovery)', () => {
     // whose head is past the tail window, append one normal complete
     // record. The partial first segment must be discarded, but the
     // complete record after the in-window `\n` must be recovered. Pins
-    // the desired behaviour — the bare-negative assertion above would
+    // the desired behaviour -- the bare-negative assertion above would
     // still pass if the function silently skipped every line in the
     // window and returned `null`.
     const filler = new Array(80000).fill(0).join(',');
@@ -202,7 +202,7 @@ describe('SessionService.readLastRecordUuid (corruption recovery)', () => {
     // Boundary case: file is `prev\n<final>\n` where `final\n` is
     // exactly TAIL_READ_SIZE bytes, so the tail read covers `final\n`
     // and `readStart - 1` lands on the separating `\n`. The first
-    // split segment is a complete record — not a partial fragment.
+    // split segment is a complete record -- not a partial fragment.
     // An unconditional `lines.shift()` drops the only readable uuid
     // and `renameSession` writes `custom_title.parentUuid` as `null`,
     // truncating history on resume. The fix peeks the byte before
@@ -214,7 +214,7 @@ describe('SessionService.readLastRecordUuid (corruption recovery)', () => {
     // trailing newline we'll join with) hits the target length.
     const baseFinal = recordFor('boundary-final', 'user', null);
     const baseFinalLen = Buffer.byteLength(JSON.stringify(baseFinal), 'utf8');
-    // The added field looks like `,"filler":"x...x"` — fixed overhead
+    // The added field looks like `,"filler":"x...x"` -- fixed overhead
     // (everything except the x-run) is 12 bytes: ` , " f i l l e r " : " " ` .
     const fillerLen = TAIL_READ_SIZE - 1 - baseFinalLen - 12;
     expect(fillerLen).toBeGreaterThan(0);

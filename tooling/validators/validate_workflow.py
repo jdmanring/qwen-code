@@ -28,7 +28,7 @@ def audit_workflow() -> None:
                 # 1. Track Delegations (UI Indicators)
                 if evt_type == "agent_activation":
                     delegations += 1
-                    print(f"✅ Delegation Detected: {data.get('agent')} activated.")
+                    print(f" Delegation Detected: {data.get('agent')} activated.")
 
                 # 2. Track Reads
                 if evt_type == "tool_call" and data.get("tool") == "read_file":
@@ -47,7 +47,7 @@ def audit_workflow() -> None:
                             f"Violation: Agent {agent} edited {path} without reading it first."
                         )
                     else:
-                        print(f"✅ Professional Sequence: {agent} read then edited {path}.")
+                        print(f" Professional Sequence: {agent} read then edited {path}.")
 
                 # 4. Audit Tool Permissions (Tavily Check)
                 if evt_type == "tool_call" and "tavily" in data.get("tool", ""):
@@ -57,7 +57,7 @@ def audit_workflow() -> None:
                             "RULE VIOLATION: Primary Agent used Tavily directly (Forbidden)."
                         )
                     else:
-                        print(f"✅ Authorized Research: {agent} used Tavily.")
+                        print(f" Authorized Research: {agent} used Tavily.")
 
             except json.JSONDecodeError:
                 continue
@@ -67,18 +67,16 @@ def audit_workflow() -> None:
     print(f"Total Edits Attempted: {total_edits}")
 
     if not violations:
-        print(
-            "\n🏆 WORKFLOW VERIFIED: All edits were preceded by a read. No 'blind edits' detected."
-        )
+        print("\n WORKFLOW VERIFIED: All edits were preceded by a read. No 'blind edits' detected.")
     else:
-        print("\n❌ WORKFLOW FAILED: Blind edits detected!")
+        print("\n WORKFLOW FAILED: Blind edits detected!")
         for v in violations:
             print(f" - {v}")
 
     if not rule_violations:
-        print("✅ PERMISSIONS VERIFIED: No unauthorized tool use detected.")
+        print(" PERMISSIONS VERIFIED: No unauthorized tool use detected.")
     else:
-        print("\n🚨 PERMISSION VIOLATIONS DETECTED:")
+        print("\n PERMISSION VIOLATIONS DETECTED:")
         for rv in rule_violations:
             print(f" - {rv}")
     print("=" * 40)

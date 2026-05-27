@@ -2,8 +2,8 @@
 
 Every Qwen Code session starts with a fresh context window. Two mechanisms carry knowledge across sessions so you don't have to re-explain yourself every time:
 
-- **QWEN.md** — instructions _you_ write once and Qwen reads every session
-- **Auto-memory** — notes Qwen writes itself based on what it learns from you
+- **QWEN.md** -- instructions _you_ write once and Qwen reads every session
+- **Auto-memory** -- notes Qwen writes itself based on what it learns from you
 
 ---
 
@@ -20,7 +20,7 @@ Add things you'd otherwise have to repeat every session:
 - Architectural decisions ("we use the repository pattern, never call the database directly from controllers")
 - Personal preferences ("always use pnpm, not npm")
 
-Don't include things Qwen can figure out by reading your code. QWEN.md works best when it's short and specific — the longer it gets, the less reliably Qwen follows it.
+Don't include things Qwen can figure out by reading your code. QWEN.md works best when it's short and specific -- the longer it gets, the less reliably Qwen follows it.
 
 ### Where to create QWEN.md
 
@@ -36,7 +36,7 @@ If your repository already has an `AGENTS.md` file for other AI tools, Qwen read
 
 #### When to use `.qwen/QWEN.local.md`
 
-Use it for **project-specific but personal** instructions — things that belong to this project but shouldn't be shared with the team:
+Use it for **project-specific but personal** instructions -- things that belong to this project but shouldn't be shared with the team:
 
 - Your own cluster ID, container registry namespace, or cloud account
 - A personal debug command that hardcodes your local environment
@@ -72,7 +72,7 @@ Use `@path/to/file` anywhere in QWEN.md. Relative paths resolve from the QWEN.md
 
 ## Auto-memory: what Qwen learns about you
 
-Auto-memory runs in the background. After each of your conversations, Qwen quietly saves useful things it learned — your preferences, feedback you gave, project context — so it can use them in future sessions without you repeating yourself.
+Auto-memory runs in the background. After each of your conversations, Qwen quietly saves useful things it learned -- your preferences, feedback you gave, project context -- so it can use them in future sessions without you repeating yourself.
 
 This is different from QWEN.md: you don't write it, Qwen does.
 
@@ -87,19 +87,19 @@ Qwen looks for four kinds of things worth remembering:
 | **Project context**     | Ongoing work, decisions, goals not obvious from the code |
 | **External references** | Dashboards, ticket trackers, docs links you mentioned    |
 
-Qwen doesn't save everything — only things that would actually be useful next time.
+Qwen doesn't save everything -- only things that would actually be useful next time.
 
 ### Where it's stored
 
 Auto-memory files live at `~/.qwen/projects/<project>/memory/`. All branches and worktrees of the same repository share the same memory folder, so what Qwen learns in one branch is available in others.
 
-Everything saved is plain markdown — you can open, edit, or delete any file at any time.
+Everything saved is plain markdown -- you can open, edit, or delete any file at any time.
 
 ### Periodic cleanup
 
 Qwen periodically goes through its saved memories to remove duplicates and clean up outdated entries. This runs automatically in the background once a day after enough sessions have accumulated. You can trigger it manually with `/dream` if you want it to run now.
 
-While cleanup is running, **✦ dreaming** appears in the corner of the screen. Your session continues normally.
+While cleanup is running, ** dreaming** appears in the corner of the screen. Your session continues normally.
 
 ### Turning it on or off
 
@@ -165,12 +165,12 @@ Runs the memory cleanup now instead of waiting for the automatic schedule:
 
 ### Qwen isn't following my QWEN.md
 
-Open `/memory` to see which files are loaded. If your file isn't listed, Qwen can't see it — make sure it's in the project root or `~/.qwen/`.
+Open `/memory` to see which files are loaded. If your file isn't listed, Qwen can't see it -- make sure it's in the project root or `~/.qwen/`.
 
 Instructions work better when they're specific:
 
-- ✓ `Use 2-space indentation for TypeScript files`
-- ✗ `Format code nicely`
+-  `Use 2-space indentation for TypeScript files`
+-  `Format code nicely`
 
 If you have multiple QWEN.md files with conflicting instructions, Qwen may behave inconsistently. Review them and remove any contradictions.
 
@@ -182,4 +182,4 @@ Run `/memory` and select **Open auto-memory folder**. All saved memories are rea
 
 If auto-memory is on but Qwen doesn't seem to remember things across sessions, try running `/dream` to force a cleanup pass. Also check `/memory` to confirm both toggles are enabled.
 
-For things you always want Qwen to remember, add them to QWEN.md instead — auto-memory is best-effort, QWEN.md is guaranteed.
+For things you always want Qwen to remember, add them to QWEN.md instead -- auto-memory is best-effort, QWEN.md is guaranteed.

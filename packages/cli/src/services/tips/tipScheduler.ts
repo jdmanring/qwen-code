@@ -5,7 +5,7 @@
  */
 
 /**
- * Tip selection algorithm — picks the most relevant tip to show.
+ * Tip selection algorithm -- picks the most relevant tip to show.
  */
 
 import type { TipHistory } from './tipHistory.js';

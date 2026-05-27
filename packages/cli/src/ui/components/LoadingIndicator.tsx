@@ -34,8 +34,8 @@ interface LoadingIndicatorProps {
   /** Whether to poll `streamingCharsRef` (true during Responding/WaitingForConfirmation). */
   isStreaming?: boolean;
   /**
-   * True when receiving content (shows ↓ arrow), false when waiting for API
-   * response (shows ↑ arrow).
+   * True when receiving content (shows  arrow), false when waiting for API
+   * response (shows  arrow).
    * @default true
    */
   isReceivingContent?: boolean;
@@ -56,7 +56,7 @@ export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
   const isNarrow = isNarrowWidth(terminalWidth);
 
   // Animate the streaming-chars counter locally so only this component
-  // re-renders on each animation frame (100ms ≈ spinner cadence). Siblings
+  // re-renders on each animation frame (100ms  spinner cadence). Siblings
   // like InputPrompt / Footer stay static, which eliminates terminal flicker
   // during streaming output.
   const fallbackRef = useRef(0);
@@ -74,18 +74,18 @@ export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
   const streamingTokens = streamingCharsRef ? Math.round(animatedChars / 4) : 0;
   const outputTokens = (candidatesTokens ?? 0) + streamingTokens;
   const showTokens = !isNarrow && outputTokens > 0;
-  const tokenArrow = isReceivingContent ? '↓' : '↑';
+  const tokenArrow = isReceivingContent ? '' : '';
 
   const timeStr =
     elapsedTime < 60 ? `${elapsedTime}s` : formatDuration(elapsedTime * 1000);
 
   const tokenStr = showTokens
-    ? ` · ${tokenArrow} ${formatTokenCount(outputTokens)} tokens`
+    ? `  ${tokenArrow} ${formatTokenCount(outputTokens)} tokens`
     : '';
 
   const cancelAndTimerContent =
     streamingState !== StreamingState.WaitingForConfirmation
-      ? t('({{time}}{{tokens}} · esc to cancel)', {
+      ? t('({{time}}{{tokens}}  esc to cancel)', {
           time: timeStr,
           tokens: tokenStr,
         })
@@ -104,7 +104,7 @@ export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
             <GeminiRespondingSpinner
               nonRespondingDisplay={
                 streamingState === StreamingState.WaitingForConfirmation
-                  ? '⠏'
+                  ? ''
                   : ''
               }
             />

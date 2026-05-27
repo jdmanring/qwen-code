@@ -335,7 +335,7 @@ describe('parseArguments', () => {
 
   it('rejects --json-schema combined with --prompt-interactive (-i)', async () => {
     // The interactive flow doesn't honour the synthetic-tool terminal
-    // contract — `structured_output` would just print "accepted" and
+    // contract -- `structured_output` would just print "accepted" and
     // leave the chat alive. The yargs check must reject this at parse
     // time so users get an actionable message instead of a silently
     // misbehaving run.
@@ -687,7 +687,7 @@ describe('parseArguments', () => {
   });
 
   it('should reject --json-schema with no prompt source when stdin is a TTY', async () => {
-    // True interactive invocation with no prompt anywhere → fail fast.
+    // True interactive invocation with no prompt anywhere -> fail fast.
     process.argv = ['node', 'script.js', '--json-schema', '{"type":"object"}'];
 
     const originalIsTTY = process.stdin.isTTY;
@@ -711,7 +711,7 @@ describe('parseArguments', () => {
   });
 
   it('should accept --json-schema with no -p / positional when stdin is piped', async () => {
-    // `echo "..." | qwen --json-schema ...` — input arrives via the
+    // `echo "..." | qwen --json-schema ...` -- input arrives via the
     // pipe, so the prompt-presence check must not block the run.
     process.argv = ['node', 'script.js', '--json-schema', '{"type":"object"}'];
 
@@ -729,7 +729,7 @@ describe('parseArguments', () => {
   it('should throw when --json-schema is combined with --input-format stream-json', async () => {
     // stream-json input runs through runNonInteractiveStreamJson which
     // doesn't honor the structured-output single-shot termination
-    // contract — reject the combination at parse time so the user sees
+    // contract -- reject the combination at parse time so the user sees
     // the mismatch immediately.
     process.argv = [
       'node',

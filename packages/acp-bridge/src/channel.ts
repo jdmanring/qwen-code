@@ -14,7 +14,7 @@ import type { Stream } from '@agentclientprotocol/sdk';
  *
  * This contract is consumed by the daemon HTTP bridge today and will be
  * shared by `packages/channels/base/AcpBridge.ts` and the VSCode IDE
- * companion's `acpConnection.ts` after PR 22b — both currently spawn
+ * companion's `acpConnection.ts` after PR 22b -- both currently spawn
  * their own `qwen --acp` child via independent code paths.
  */
 export interface AcpChannel {
@@ -24,14 +24,14 @@ export interface AcpChannel {
   /**
    * Synchronous force-kill for the second-signal force-exit path.
    * Fires SIGKILL on the underlying child (or equivalent in-process
-   * tear-down) and returns immediately — no Promise. The daemon's
+   * tear-down) and returns immediately -- no Promise. The daemon's
    * signal handler can call this before `process.exit(1)` so that
    * double-Ctrl+C doesn't leave the agent child running after the
    * daemon vanishes.
    */
   killSync(): void;
   /**
-   * Resolves when the channel has terminated for any reason —
+   * Resolves when the channel has terminated for any reason --
    * planned (`kill()` called) OR unexpected (child process crashed,
    * stream closed). The bridge subscribes to this so a SessionEntry
    * whose underlying channel dies between requests is removed from

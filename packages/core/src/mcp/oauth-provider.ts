@@ -679,8 +679,8 @@ export class MCPOAuthProvider {
 
     // If no authorization URL is provided, try to discover OAuth configuration
     if (!config.authorizationUrl && mcpServerUrl) {
-      debugLogger.debug(`Starting OAuth for MCP server "${serverName}"…
-✓ No authorization URL; using OAuth discovery`);
+      debugLogger.debug(`Starting OAuth for MCP server "${serverName}"...
+ No authorization URL; using OAuth discovery`);
 
       // First check if the server requires authentication via WWW-Authenticate header
       try {
@@ -761,7 +761,7 @@ export class MCPOAuthProvider {
         const authUrl = new URL(config.authorizationUrl);
         const serverUrl = `${authUrl.protocol}//${authUrl.host}`;
 
-        debugLogger.debug('→ Attempting dynamic client registration...');
+        debugLogger.debug('-> Attempting dynamic client registration...');
 
         // Get the authorization server metadata for registration
         const authServerMetadata =
@@ -787,7 +787,7 @@ export class MCPOAuthProvider {
           config.clientSecret = clientRegistration.client_secret;
         }
 
-        debugLogger.debug('✓ Dynamic client registration successful');
+        debugLogger.debug(' Dynamic client registration successful');
       } else {
         throw new Error(
           'No client ID provided and dynamic registration not supported',
@@ -820,7 +820,7 @@ export class MCPOAuthProvider {
     });
     if (events) {
       // UI consumers render the URL from this event (as a clickable OSC 8
-      // hyperlink). Avoid also pushing the raw URL through displayMessage —
+      // hyperlink). Avoid also pushing the raw URL through displayMessage --
       // hard-wrapping it inside the message list breaks link detection.
       events.emit(OAUTH_AUTH_URL_EVENT, authUrl.toString());
     } else {
@@ -843,7 +843,7 @@ export class MCPOAuthProvider {
     const { code } = await callbackPromise;
 
     debugLogger.debug(
-      '✓ Authorization code received, exchanging for tokens...',
+      ' Authorization code received, exchanging for tokens...',
     );
 
     // Exchange code for tokens
@@ -879,7 +879,7 @@ export class MCPOAuthProvider {
         config.tokenUrl,
         mcpServerUrl,
       );
-      debugLogger.debug('✓ Authentication successful! Token saved.');
+      debugLogger.debug(' Authentication successful! Token saved.');
 
       // Verify token was saved
       const savedToken = await this.tokenStorage.getCredentials(serverName);
@@ -891,7 +891,7 @@ export class MCPOAuthProvider {
           .digest('hex')
           .slice(0, 8);
         debugLogger.debug(
-          `✓ Token verification successful (fingerprint: ${tokenFingerprint})`,
+          ` Token verification successful (fingerprint: ${tokenFingerprint})`,
         );
       } else {
         debugLogger.error(

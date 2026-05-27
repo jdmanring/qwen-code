@@ -18,7 +18,7 @@ import { writeWithBackupSync } from './writeWithBackup.js';
  * replaced exactly instead of deep-merged.
  *
  * In sync mode (sync=true), the file is synchronized to match the updates
- * object exactly — keys present in the original but not in updates are
+ * object exactly -- keys present in the original but not in updates are
  * removed, preventing zombie keys after migrations.
  *
  * Uses writeWithBackupSync internally for atomic temp-file + rename writes,
@@ -65,7 +65,7 @@ export function updateSettingsFilePreservingFormat(
     parse(updatedContent);
   } catch (validationError) {
     writeStderrLine(
-      'Error: Refusing to write settings file — the result would not be valid JSON.',
+      'Error: Refusing to write settings file -- the result would not be valid JSON.',
     );
     writeStderrLine(
       validationError instanceof Error

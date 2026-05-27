@@ -138,7 +138,7 @@ Longer No Wrap: This
       </OverflowProvider>,
     );
 
-    expect(lastFrame()).equals(`... …
+    expect(lastFrame()).equals(`... ...
 istic
 expia
 lidoc
@@ -218,16 +218,16 @@ Line 3`);
       <OverflowProvider>
         <MaxSizedBox maxWidth={5} maxHeight={5}>
           <Box>
-            <Text wrap="wrap">你好世界</Text>
+            <Text wrap="wrap"></Text>
           </Box>
         </MaxSizedBox>
       </OverflowProvider>,
     );
 
-    // "你好" has a visual width of 4. "世界" has a visual width of 4.
+    // "" has a visual width of 4. "" has a visual width of 4.
     // With maxWidth=5, it should wrap after the second character.
-    expect(lastFrame()).equals(`你好
-世界`);
+    expect(lastFrame()).equals(`
+`);
   });
 
   it('wraps text with multi-byte emoji characters correctly', () => {
@@ -235,17 +235,17 @@ Line 3`);
       <OverflowProvider>
         <MaxSizedBox maxWidth={5} maxHeight={5}>
           <Box>
-            <Text wrap="wrap">🐶🐶🐶🐶🐶</Text>
+            <Text wrap="wrap"></Text>
           </Box>
         </MaxSizedBox>
       </OverflowProvider>,
     );
 
-    // Each "🐶" has a visual width of 2.
+    // Each "" has a visual width of 2.
     // With maxWidth=5, it should wrap every 2 emojis.
-    expect(lastFrame()).equals(`🐶🐶
-🐶🐶
-🐶`);
+    expect(lastFrame()).equals(`
+
+`);
   });
 
   it('falls back to an ellipsis when width is extremely small', () => {
@@ -260,7 +260,7 @@ Line 3`);
       </OverflowProvider>,
     );
 
-    expect(lastFrame()).equals('N…');
+    expect(lastFrame()).equals('N...');
   });
 
   it('truncates long non-wrapping text with ellipsis', () => {
@@ -275,7 +275,7 @@ Line 3`);
       </OverflowProvider>,
     );
 
-    expect(lastFrame()).equals('AB…');
+    expect(lastFrame()).equals('AB...');
   });
 
   it('truncates non-wrapping text containing line breaks', () => {
@@ -290,7 +290,7 @@ Line 3`);
       </OverflowProvider>,
     );
 
-    expect(lastFrame()).equals(`A\n…`);
+    expect(lastFrame()).equals(`A\n...`);
   });
 
   it('truncates emoji characters correctly with ellipsis', () => {
@@ -298,14 +298,14 @@ Line 3`);
       <OverflowProvider>
         <MaxSizedBox maxWidth={3} maxHeight={2}>
           <Box>
-            <Text>🐶🐶🐶</Text>
+            <Text></Text>
             <Text wrap="wrap">wrap</Text>
           </Box>
         </MaxSizedBox>
       </OverflowProvider>,
     );
 
-    expect(lastFrame()).equals(`🐶…`);
+    expect(lastFrame()).equals(`...`);
   });
 
   it('shows ellipsis for multiple rows with long non-wrapping text', () => {
@@ -328,7 +328,7 @@ Line 3`);
       </OverflowProvider>,
     );
 
-    expect(lastFrame()).equals(`AA…\nBB…\nCC…`);
+    expect(lastFrame()).equals(`AA...\nBB...\nCC...`);
   });
 
   it('accounts for additionalHiddenLinesCount', () => {

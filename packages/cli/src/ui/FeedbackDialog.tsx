@@ -47,7 +47,7 @@ export const FeedbackDialog: React.FC = () => {
   return (
     <Box flexDirection="column" marginY={1}>
       <Box>
-        <Text color="cyan">● </Text>
+        <Text color="cyan"> </Text>
         <Text bold>{t('How is Qwen doing this session? (optional)')}</Text>
       </Box>
       <Box marginTop={1}>

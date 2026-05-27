@@ -11,7 +11,7 @@ import dotenv from 'dotenv';
 
 /**
  * Expands tilde and resolves relative paths to absolute. Mirrors
- * `Storage.resolvePath` in packages/core (kept in sync — these scripts run
+ * `Storage.resolvePath` in packages/core (kept in sync -- these scripts run
  * before the core bundle is built and cannot import from it).
  */
 export function resolvePath(dir) {
@@ -43,7 +43,7 @@ export function resolvePath(dir) {
  * config dir via `~/.env` while these scripts still read `~/.qwen/...`,
  * splitting global state across two locations.
  *
- * Project `.env` files are deliberately excluded — only home-scoped files are
+ * Project `.env` files are deliberately excluded -- only home-scoped files are
  * consulted so a project repo can never redirect global state through this
  * back door (consistent with `PROJECT_ENV_HARDCODED_EXCLUSIONS` in the CLI).
  *

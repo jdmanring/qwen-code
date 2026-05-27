@@ -2,9 +2,9 @@
 
 Qwen Code supports three authentication methods. Pick the one that matches how you want to run the CLI:
 
-- **Qwen OAuth**: sign in with your `qwen.ai` account in a browser. **Free tier discontinued on 2026-04-15** — switch to another method.
+- **Qwen OAuth**: sign in with your `qwen.ai` account in a browser. **Free tier discontinued on 2026-04-15** -- switch to another method.
 - **Alibaba Cloud Coding Plan**: use an API key from Alibaba Cloud. Paid subscription with diverse model options and higher quotas.
-- **API Key**: bring your own API key. Flexible to your own needs — supports OpenAI, Anthropic, Gemini, and other compatible endpoints.
+- **API Key**: bring your own API key. Flexible to your own needs -- supports OpenAI, Anthropic, Gemini, and other compatible endpoints.
 
 ## Option 1: Qwen OAuth (Discontinued)
 
@@ -30,7 +30,7 @@ Then run `/auth` and choose the OAuth provider from the interactive dialog.
 > In non-interactive or headless environments (e.g., CI, SSH, containers), you typically **cannot** complete the OAuth browser login flow.
 > In these cases, please use the Alibaba Cloud Coding Plan or API Key authentication method.
 
-## 💳 Option 2: Alibaba Cloud Coding Plan
+##  Option 2: Alibaba Cloud Coding Plan
 
 Use this if you want predictable costs with diverse model options and higher usage quotas.
 
@@ -99,7 +99,7 @@ If you prefer to skip the interactive `/auth` flow, add the following to `~/.qwe
 >
 > The Coding Plan uses a dedicated endpoint (`https://coding.dashscope.aliyuncs.com/v1`) that is different from the standard Dashscope endpoint. Make sure to use the correct `baseUrl`.
 
-## 🚀 Option 3: API Key (flexible)
+##  Option 3: API Key (flexible)
 
 Use this if you want to connect to third-party providers such as OpenAI, Anthropic, Google, Azure OpenAI, OpenRouter, ModelScope, or a self-hosted endpoint. Supports multiple protocols and providers.
 
@@ -139,11 +139,11 @@ What each field does:
 | Field                        | Description                                                                                                                                     |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | `modelProviders`             | Declares which models are available and how to connect to them. Keys (`openai`, `anthropic`, `gemini`) represent the API protocol.              |
-| `env`                        | Stores API keys directly in `settings.json` as a fallback (lowest priority — shell `export` and `.env` files take precedence).                  |
+| `env`                        | Stores API keys directly in `settings.json` as a fallback (lowest priority -- shell `export` and `.env` files take precedence).                  |
 | `security.auth.selectedType` | Tells Qwen Code which protocol to use on startup (e.g. `openai`, `anthropic`, `gemini`). Without this, you'd need to run `/auth` interactively. |
 | `model.name`                 | The default model to activate when Qwen Code starts. Must match one of the `id` values in your `modelProviders`.                                |
 
-After saving the file, just run `qwen` — no interactive `/auth` setup needed.
+After saving the file, just run `qwen` -- no interactive `/auth` setup needed.
 
 > [!tip]
 >
@@ -167,7 +167,7 @@ Define which models are available for each protocol. Each model entry requires a
 >
 > It is recommended to define `modelProviders` in the user-scope `~/.qwen/settings.json` to avoid merge conflicts between project and user settings.
 
-Edit `~/.qwen/settings.json` (create it if it doesn't exist). You can mix multiple protocols in a single file — here is a multi-provider example showing just the `modelProviders` section:
+Edit `~/.qwen/settings.json` (create it if it doesn't exist). You can mix multiple protocols in a single file -- here is a multi-provider example showing just the `modelProviders` section:
 
 ```json
 {
@@ -200,7 +200,7 @@ Edit `~/.qwen/settings.json` (create it if it doesn't exist). You can mix multip
 
 > [!tip]
 >
-> Don't forget to also set `env`, `security.auth.selectedType`, and `model.name` alongside `modelProviders` — see the [complete example above](#recommended-one-file-setup-via-settingsjson) for reference.
+> Don't forget to also set `env`, `security.auth.selectedType`, and `model.name` alongside `modelProviders` -- see the [complete example above](#recommended-one-file-setup-via-settingsjson) for reference.
 
 **`ModelConfig` fields (each entry inside `modelProviders`):**
 
@@ -214,7 +214,7 @@ Edit `~/.qwen/settings.json` (create it if it doesn't exist). You can mix multip
 
 > [!note]
 >
-> When using the `env` field in `settings.json`, credentials are stored in plain text. For better security, prefer `.env` files or shell `export` — see [Step 2](#step-2-set-environment-variables).
+> When using the `env` field in `settings.json`, credentials are stored in plain text. For better security, prefer `.env` files or shell `export` -- see [Step 2](#step-2-set-environment-variables).
 
 For the full `modelProviders` schema and advanced options like `generationConfig`, `customHeaders`, and `extra_body`, see [Model Providers Reference](model-providers.md).
 
@@ -247,7 +247,7 @@ Qwen Code auto-loads the **first** `.env` file it finds (variables are **not mer
 
 Search order (from the current directory, walking upward toward `/`):
 
-1. `.qwen/.env` (preferred — keeps Qwen Code variables isolated from other tools)
+1. `.qwen/.env` (preferred -- keeps Qwen Code variables isolated from other tools)
 2. `.env`
 
 If nothing is found, it falls back to your **home directory**:
@@ -259,9 +259,9 @@ If nothing is found, it falls back to your **home directory**:
 >
 > `.qwen/.env` is recommended over `.env` to avoid conflicts with other tools. Some variables (like `DEBUG` and `DEBUG_MODE`) are excluded from project-level `.env` files to avoid interfering with Qwen Code behavior.
 
-**3. `settings.json` → `env` field (lowest priority)**
+**3. `settings.json` -> `env` field (lowest priority)**
 
-You can also define API keys directly in `~/.qwen/settings.json` under the `env` key. These are loaded as the **lowest-priority fallback** — only applied when a variable is not already set by the system environment or `.env` files.
+You can also define API keys directly in `~/.qwen/settings.json` under the `env` key. These are loaded as the **lowest-priority fallback** -- only applied when a variable is not already set by the system environment or `.env` files.
 
 ```json
 {
@@ -273,16 +273,16 @@ You can also define API keys directly in `~/.qwen/settings.json` under the `env`
 }
 ```
 
-This is the approach used in the [one-file setup example](#recommended-one-file-setup-via-settingsjson) above. It's convenient for keeping everything in one place, but be mindful that `settings.json` may be shared or synced — prefer `.env` files for sensitive secrets.
+This is the approach used in the [one-file setup example](#recommended-one-file-setup-via-settingsjson) above. It's convenient for keeping everything in one place, but be mindful that `settings.json` may be shared or synced -- prefer `.env` files for sensitive secrets.
 
 **Priority summary:**
 
 | Priority    | Source                         | Override behavior                            |
 | ----------- | ------------------------------ | -------------------------------------------- |
 | 1 (highest) | CLI flags (`--openai-api-key`) | Always wins                                  |
-| 2           | System env (`export`, inline)  | Overrides `.env` and `settings.json` → `env` |
+| 2           | System env (`export`, inline)  | Overrides `.env` and `settings.json` -> `env` |
 | 3           | `.env` file                    | Only sets if not in system env               |
-| 4 (lowest)  | `settings.json` → `env`        | Only sets if not in system env or `.env`     |
+| 4 (lowest)  | `settings.json` -> `env`        | Only sets if not in system env or `.env`     |
 
 #### Step 3: Switch models with `/model`
 

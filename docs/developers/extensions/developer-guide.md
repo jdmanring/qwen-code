@@ -1,6 +1,6 @@
 # Extension Developer Guide: Qwen Code
 
-This guide serves as the single source of truth for developing, implementing, and managing extensions for Qwen Code. Extensions allow developers to expand the capabilities of the system—adding tools, specialized agents, and automated workflows—without modifying the core codebase.
+This guide serves as the single source of truth for developing, implementing, and managing extensions for Qwen Code. Extensions allow developers to expand the capabilities of the system--adding tools, specialized agents, and automated workflows--without modifying the core codebase.
 
 ---
 
@@ -23,16 +23,16 @@ A standard Qwen Code extension follows a specific directory structure to ensure 
 ### Directory Structure
 ```text
 extension-name/
-├── qwen-extension.json      # Core Manifest (Required)
-├── QWEN.md                  # AI Context & Operational Law
-├── commands/                # CLI Command Definitions
-│   └── my-command.md        # Individual command logic
-├── skills/                  # Custom Skill Implementations
-│   └── data_processor.py    # Logic for a specific skill
-├── agents/                  # Specialized Subagent Definitions
-│   └── researcher.md        # Persona and instructions for a subagent
-└── hooks/                   # Event-Driven Automation
-    └── hooks.json           # Trigger and action mappings
+|---- qwen-extension.json      # Core Manifest (Required)
+|---- QWEN.md                  # AI Context & Operational Law
+|---- commands/                # CLI Command Definitions
+|   \_-- my-command.md        # Individual command logic
+|---- skills/                  # Custom Skill Implementations
+|   \_-- data_processor.py    # Logic for a specific skill
+|---- agents/                  # Specialized Subagent Definitions
+|   \_-- researcher.md        # Persona and instructions for a subagent
+\_-- hooks/                   # Event-Driven Automation
+    \_-- hooks.json           # Trigger and action mappings
 ```
 
 ### Component Roles

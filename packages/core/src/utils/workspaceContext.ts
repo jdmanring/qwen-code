@@ -25,10 +25,10 @@ export class WorkspaceContext {
   private onDirectoriesChangedListeners = new Set<() => void>();
   /**
    * Memoized realpath results. Every workspace-bounded tool call ultimately
-   * routes through {@link fullyResolvedPath} → `fs.realpathSync`; without
+   * routes through {@link fullyResolvedPath} -> `fs.realpathSync`; without
    * this cache the same path gets re-resolved on every Read/Glob/Grep/Ls
    * invocation. Bounded so long sessions touching many files don't grow
-   * without limit; FIFO eviction is good enough — the working set tends to
+   * without limit; FIFO eviction is good enough -- the working set tends to
    * be the small set of paths the model is actively manipulating.
    */
   private resolvedPathCache = new Map<string, string>();
@@ -238,7 +238,7 @@ export class WorkspaceContext {
         // If it doesn't exist, e.path contains the fully resolved path.
         resolved = e.path;
       } else {
-        // Don't cache exceptions — the path may exist on retry.
+        // Don't cache exceptions -- the path may exist on retry.
         throw e;
       }
     }

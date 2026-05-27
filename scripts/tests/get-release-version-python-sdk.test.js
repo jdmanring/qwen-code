@@ -952,7 +952,7 @@ describe('python sdk get-release-version', () => {
     const getVersion = await loadGetVersion();
 
     await expect(getVersion({ type: 'preview' })).rejects.toThrow(
-      'gh release view timed out after 30s checking "sdk-python-v0.1.0-preview.0" — GitHub API may be unavailable',
+      'gh release view timed out after 30s checking "sdk-python-v0.1.0-preview.0" -- GitHub API may be unavailable',
     );
   });
 
@@ -966,7 +966,7 @@ describe('python sdk get-release-version', () => {
     const getVersion = await loadGetVersion();
 
     await expect(getVersion({ type: 'preview' })).rejects.toThrow(
-      'git tag -l timed out after 10s — local git may be unresponsive',
+      'git tag -l timed out after 10s -- local git may be unresponsive',
     );
   });
 
@@ -981,7 +981,7 @@ describe('python sdk get-release-version', () => {
     const getVersion = await loadGetVersion();
 
     await expect(getVersion({ type: 'nightly' })).rejects.toThrow(
-      'git rev-parse timed out after 10s — local git may be unresponsive',
+      'git rev-parse timed out after 10s -- local git may be unresponsive',
     );
   });
 });

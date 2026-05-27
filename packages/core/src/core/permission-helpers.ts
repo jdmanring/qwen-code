@@ -8,7 +8,7 @@
  * Shared permission-evaluation and persistence helpers.
  *
  * These are used by both `coreToolScheduler` (CLI mode) and the ACP
- * `Session` (VS Code / webui mode) so that the L3→L4→L5 permission flow
+ * `Session` (VS Code / webui mode) so that the L3->L4->L5 permission flow
  * and the "Always Allow" persistence logic stay in sync.
  */
 
@@ -22,9 +22,9 @@ import type {
 import { ToolConfirmationOutcome } from '../tools/tools.js';
 import { buildPermissionRules } from '../permissions/rule-parser.js';
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Context building
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Build a {@link PermissionCheckContext} from raw tool invocation parameters.
@@ -40,7 +40,7 @@ export function buildPermissionCheckContext(
   const rawCommand =
     'command' in toolParams ? String(toolParams['command']) : undefined;
   // Monitor command normalization is handled by
-  // PermissionManager.normalizePermissionContext — single point of truth.
+  // PermissionManager.normalizePermissionContext -- single point of truth.
   const command = rawCommand;
   const cwd =
     typeof toolParams['directory'] === 'string'
@@ -49,7 +49,7 @@ export function buildPermissionCheckContext(
         : path.resolve(targetDir, toolParams['directory'])
       : undefined;
 
-  // Extract file path — tools use 'file_path', 'notebook_path', or
+  // Extract file path -- tools use 'file_path', 'notebook_path', or
   // 'path' (LS / grep / glob).
   let filePath =
     typeof toolParams['file_path'] === 'string'
@@ -73,7 +73,7 @@ export function buildPermissionCheckContext(
     try {
       domain = new URL(toolParams['url']).hostname;
     } catch {
-      // malformed URL — leave domain undefined
+      // malformed URL -- leave domain undefined
     }
   }
 
@@ -88,9 +88,9 @@ export function buildPermissionCheckContext(
   return { toolName, command, cwd, filePath, domain, specifier };
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // PM evaluation
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /** Result of {@link evaluatePermissionRules}. */
 export interface PermissionEvalResult {
@@ -105,7 +105,7 @@ export interface PermissionEvalResult {
 }
 
 /**
- * L4 — evaluate {@link PermissionManager} rules against the given context.
+ * L4 -- evaluate {@link PermissionManager} rules against the given context.
  *
  * Returns the final permission decision and whether PM forced 'ask'.
  * When `defaultPermission` is already `'deny'`, PM evaluation is skipped.
@@ -135,9 +135,9 @@ export async function evaluatePermissionRules(
   return { finalPermission, pmForcedAsk };
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Centralised rule injection
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Inject centralized permission rules into confirmation details when the tool
@@ -161,9 +161,9 @@ export function injectPermissionRulesIfMissing(
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Permission persistence
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Persist permission rules for `ProceedAlwaysProject` / `ProceedAlwaysUser`

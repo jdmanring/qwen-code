@@ -21,7 +21,7 @@ const debugLogger = createDebugLogger('DiffDialog');
 /** Cap concurrent `getTurnDiff` calls. Each call can fan out to up to
  *  `MAX_TURN_DIFF_FILES * 2 = 1000` open()s; without an outer cap a
  *  50-turn session would multiply that and trivially blow past macOS's
- *  default `ulimit -n` of 256. 4 is conservative — turns batch quickly
+ *  default `ulimit -n` of 256. 4 is conservative -- turns batch quickly
  *  enough that loading never feels slower in practice while bounding the
  *  worst case to ~4000 concurrent fds (well under typical 4096 ceilings).
  */
@@ -40,7 +40,7 @@ export interface TurnDiffEntry {
  * Loads per-turn diffs for every user turn that has a tracked `promptId`.
  *
  * Output is ordered **most recent first** to match how users mentally scan
- * "what just happened" — the source picker in the dialog mirrors that.
+ * "what just happened" -- the source picker in the dialog mirrors that.
  *
  * Turns that:
  *   - have no `promptId` (slash commands, BTW prompts, pre-checkpointing
@@ -77,7 +77,7 @@ export function useTurnDiffs(
       item: UserTurn,
       idx: number,
     ): Promise<TurnDiffEntry | null> => {
-      // Early-exit so a quick close → reopen doesn't keep paying for
+      // Early-exit so a quick close -> reopen doesn't keep paying for
       // disk reads from the previous effect. The outer cancellation
       // guard alone would still suppress setState, but the I/O would
       // have already completed.
@@ -118,7 +118,7 @@ export function useTurnDiffs(
     loadAll()
       .then((entries) => {
         if (cancelled) return;
-        // Most recent first — matches the mental model: hitting `/diff`
+        // Most recent first -- matches the mental model: hitting `/diff`
         // is almost always "what just changed".
         entries.reverse();
         setTurns(entries);
@@ -153,5 +153,5 @@ function previewOfUserItem(item: UserTurn): string {
   const safe = escapeAnsiCtrlCodes(item.text);
   const oneLine = safe.replace(/\s+/g, ' ').trim();
   if (oneLine.length <= PREVIEW_MAX) return oneLine;
-  return `${oneLine.slice(0, PREVIEW_MAX - 1)}…`;
+  return `${oneLine.slice(0, PREVIEW_MAX - 1)}...`;
 }

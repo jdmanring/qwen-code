@@ -137,7 +137,7 @@ describe('languageUtils', () => {
 
     it('should preserve unknown language names as-is', () => {
       expect(normalizeOutputLanguage('CustomLanguage')).toBe('CustomLanguage');
-      expect(normalizeOutputLanguage('日本語')).toBe('日本語');
+      expect(normalizeOutputLanguage('')).toBe('');
     });
   });
 

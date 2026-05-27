@@ -9,7 +9,7 @@
 //   - Delete the local branch ref qwen-review/pr-<n>.
 //   - Remove any .qwen/tmp/qwen-review-<target>-* side files.
 //
-// The command is idempotent — missing files / branches are silent OK.
+// The command is idempotent -- missing files / branches are silent OK.
 
 import type { CommandModule } from 'yargs';
 import { execFileSync } from 'node:child_process';
@@ -102,7 +102,7 @@ export const cleanupCommand: CommandModule = {
       type: 'string',
       demandOption: true,
       describe:
-        'Review target — "pr-<n>" for a PR review, "local" for an uncommitted review, or a filename for a file review',
+        'Review target -- "pr-<n>" for a PR review, "local" for an uncommitted review, or a filename for a file review',
     }),
   handler: (argv) => {
     runCleanup((argv as unknown as CleanupArgs).target);

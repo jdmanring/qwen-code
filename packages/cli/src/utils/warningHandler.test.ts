@@ -15,7 +15,7 @@ const ENV_KEYS = ['NODE_ENV', 'DEBUG', 'QWEN_DEBUG'] as const;
 describe('initializeWarningHandler', () => {
   const originalEnv: Partial<Record<(typeof ENV_KEYS)[number], string>> = {};
   let originalListeners: NodeJS.WarningListener[] = [];
-  // Mock prior listener — installed before initializeWarningHandler so it
+  // Mock prior listener -- installed before initializeWarningHandler so it
   // becomes one of the captured "priorListeners" the handler fans out to.
   // This is the channel the real Node default printer travels on, so
   // asserting fan-out here is equivalent to asserting "the default printer
@@ -67,7 +67,7 @@ describe('initializeWarningHandler', () => {
     expect(priorListener).not.toHaveBeenCalled();
   });
 
-  it('does NOT suppress generic [EventTarget] warnings — only AbortSignal', () => {
+  it('does NOT suppress generic [EventTarget] warnings -- only AbortSignal', () => {
     initializeWarningHandler();
     emit(
       makeWarning(
@@ -97,7 +97,7 @@ describe('initializeWarningHandler', () => {
     expect(priorListener).toHaveBeenCalledWith(warning);
   });
 
-  it('preserves third-party warning listeners — they still fire for non-suppressed warnings', () => {
+  it('preserves third-party warning listeners -- they still fire for non-suppressed warnings', () => {
     const telemetryHook = vi.fn();
     process.on('warning', telemetryHook);
     initializeWarningHandler();
@@ -167,16 +167,16 @@ describe('initializeWarningHandler', () => {
     expect(priorListener).toHaveBeenCalledTimes(1);
   });
 
-  it('is idempotent — repeated calls install only one listener', () => {
+  it('is idempotent -- repeated calls install only one listener', () => {
     initializeWarningHandler();
     initializeWarningHandler();
     initializeWarningHandler();
     expect(process.listeners('warning').length).toBe(1);
   });
 
-  it('honors runtime DEBUG toggles — debug check is evaluated per warning', () => {
+  it('honors runtime DEBUG toggles -- debug check is evaluated per warning', () => {
     initializeWarningHandler();
-    // Initially DEBUG unset → suppression active.
+    // Initially DEBUG unset -> suppression active.
     emit(
       makeWarning(
         'MaxListenersExceededWarning',
@@ -185,7 +185,7 @@ describe('initializeWarningHandler', () => {
     );
     expect(priorListener).not.toHaveBeenCalled();
 
-    // Flip DEBUG at runtime → next suppressed-pattern warning passes through.
+    // Flip DEBUG at runtime -> next suppressed-pattern warning passes through.
     process.env['DEBUG'] = '1';
     emit(
       makeWarning(
@@ -197,9 +197,9 @@ describe('initializeWarningHandler', () => {
   });
 });
 
-describe('initializeWarningHandler — end-to-end stderr behavior', () => {
+describe('initializeWarningHandler -- end-to-end stderr behavior', () => {
   // Integration test: spawn a child Node process to verify the real
-  // emitWarning → default printer path is actually suppressed. The unit
+  // emitWarning -> default printer path is actually suppressed. The unit
   // tests above can't catch this because the default printer lives inside
   // Node and writes to stderr via internal mechanisms, not via the same
   // process.stderr.write spy.
@@ -211,7 +211,7 @@ describe('initializeWarningHandler — end-to-end stderr behavior', () => {
     const { tmpdir } = await import('node:os');
 
     const here = dirname(fileURLToPath(import.meta.url));
-    // Convert the absolute path to a `file://` URL — on Windows, Node's ESM
+    // Convert the absolute path to a `file://` URL -- on Windows, Node's ESM
     // loader rejects raw absolute paths (it treats `D:` as a URL scheme),
     // so import specifiers MUST be file URLs.
     const helperImportSpecifier = pathToFileURL(

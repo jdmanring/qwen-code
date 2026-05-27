@@ -96,7 +96,7 @@ export function parseCron(cronExpr: string): CronFields {
     );
   }
 
-  // Parse day-of-week with range 0-7, then normalize 7 → 0 (both mean Sunday)
+  // Parse day-of-week with range 0-7, then normalize 7 -> 0 (both mean Sunday)
   const dayOfWeek = parseField(
     parts[4]!,
     FIELD_RANGES[4]![0],

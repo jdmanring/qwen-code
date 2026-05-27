@@ -225,21 +225,21 @@ export function startSpanWithContext(
  * parentbased_* samplers delegate to localParentNotSampled (default AlwaysOff)
  * when the parent carries TraceFlags.NONE. Since our synthetic root is the
  * parent of all session spans, it MUST carry SAMPLED for most parentbased_*
- * samplers — otherwise zero traces are exported.
+ * samplers -- otherwise zero traces are exported.
  *
  * Note: `parentbased_traceidratio` users expect probabilistic sampling, but
  * because our synthetic root is always present with SAMPLED, the ratio sampler
- * (only consulted for parentless root spans) is never invoked — they
+ * (only consulted for parentless root spans) is never invoked -- they
  * effectively get 100% sampling. This is intentional: the alternative
  * (TraceFlags.NONE) would produce zero traces.
  *
  * Exception: `parentbased_always_off` explicitly wants no sampling. Forcing
  * SAMPLED would cause ParentBasedSampler to delegate to localParentSampled
- * (default AlwaysOn), sampling everything — the opposite of the user's intent.
+ * (default AlwaysOn), sampling everything -- the opposite of the user's intent.
  *
  * For non-parentbased samplers (e.g. `traceidratio`, `always_off`), each span
  * is evaluated independently regardless of parent flags, so we use NONE to
- * let the sampler decide. `always_on` is the exception — it ignores parent
+ * let the sampler decide. `always_on` is the exception -- it ignores parent
  * flags, so SAMPLED is harmless and keeps the decision matrix explicit.
  */
 function shouldForceSampled(): boolean {

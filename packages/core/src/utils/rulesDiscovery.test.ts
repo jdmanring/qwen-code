@@ -60,9 +60,9 @@ describe('rulesDiscovery', () => {
     });
   });
 
-  // ─────────────────────────────────────────────────────────────────────────
+  // -------------------------------------------------------------------------
   // parseRuleFile
-  // ─────────────────────────────────────────────────────────────────────────
+  // -------------------------------------------------------------------------
 
   describe('parseRuleFile', () => {
     it('parses a rule with paths frontmatter', () => {
@@ -171,9 +171,9 @@ Body.
     });
   });
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // loadRules — baseline vs conditional split
-  // ─────────────────────────────────────────────────────────────────────────
+  // -------------------------------------------------------------------------
+  // loadRules -- baseline vs conditional split
+  // -------------------------------------------------------------------------
 
   describe('loadRules', () => {
     it('returns empty when no rules directory exists', async () => {
@@ -356,9 +356,9 @@ Use hooks.`,
     });
   });
 
-  // ─────────────────────────────────────────────────────────────────────────
+  // -------------------------------------------------------------------------
   // ConditionalRulesRegistry
-  // ─────────────────────────────────────────────────────────────────────────
+  // -------------------------------------------------------------------------
 
   describe('ConditionalRulesRegistry', () => {
     const rule = (fp: string, pats: string[], body: string) => ({
@@ -433,7 +433,7 @@ Use hooks.`,
     });
 
     it('rejects the exact `..` relative path (parent of projectRoot)', () => {
-      // Pattern matches literal '..' — pathological but defensive
+      // Pattern matches literal '..' -- pathological but defensive
       const reg = new ConditionalRulesRegistry(
         [rule('/r/dot.md', ['..'], 'Parent rule.')],
         '/project',
@@ -476,7 +476,7 @@ Use hooks.`,
       // the helper lives in skill-activation.test.ts via the
       // `path.win32`-parameterized test; this case asserts the rules
       // registry calls into the hardened path. On POSIX runners the
-      // input shape exercises the existing `..` branch — either
+      // input shape exercises the existing `..` branch -- either
       // platform must return undefined for off-project paths.
       const reg = new ConditionalRulesRegistry(
         [rule('/r/broad.md', ['**/*.ts'], 'Broad rule.')],

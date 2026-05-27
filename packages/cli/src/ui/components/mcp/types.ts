@@ -10,7 +10,7 @@ import type {
 } from '@qwen-code/qwen-code-core';
 
 /**
- * MCP管理步骤定义
+ * MCP
  */
 export const MCP_MANAGEMENT_STEPS = {
   SERVER_LIST: 'server-list',
@@ -18,53 +18,53 @@ export const MCP_MANAGEMENT_STEPS = {
   DISABLE_SCOPE_SELECT: 'disable-scope-select',
   TOOL_LIST: 'tool-list',
   TOOL_DETAIL: 'tool-detail',
-  AUTHENTICATE: 'authenticate', // OAuth 认证步骤
+  AUTHENTICATE: 'authenticate', // OAuth 
 } as const;
 
 export type MCPManagementStep =
   (typeof MCP_MANAGEMENT_STEPS)[keyof typeof MCP_MANAGEMENT_STEPS];
 
 /**
- * MCP服务器显示信息
+ * MCP
  */
 export interface MCPServerDisplayInfo {
-  /** 服务器名称 */
+  /**  */
   name: string;
-  /** 连接状态 */
+  /**  */
   status: MCPServerStatus;
-  /** 来源类型 */
+  /**  */
   source: 'user' | 'project' | 'extension';
-  /** 配置文件路径 */
+  /**  */
   configPath?: string;
-  /** 服务器配置 */
+  /**  */
   config: MCPServerConfig;
-  /** 工具数量 */
+  /**  */
   toolCount: number;
-  /** 无效工具数量（缺少name或description） */
+  /** namedescription */
   invalidToolCount?: number;
-  /** Prompt数量 */
+  /** Prompt */
   promptCount: number;
-  /** 错误信息 */
+  /**  */
   errorMessage?: string;
-  /** 是否被禁用（在排除列表中） */
+  /**  */
   isDisabled: boolean;
-  /** 是否存储有 OAuth 认证信息 */
+  /**  OAuth  */
   hasOAuthTokens?: boolean;
 }
 
 /**
- * MCP工具显示信息
+ * MCP
  */
 export interface MCPToolDisplayInfo {
-  /** 工具名称 */
+  /**  */
   name: string;
-  /** 工具描述 */
+  /**  */
   description?: string;
-  /** 所属服务器 */
+  /**  */
   serverName: string;
-  /** 工具schema */
+  /** schema */
   schema?: object;
-  /** 工具注解 */
+  /**  */
   annotations?: {
     title?: string;
     readOnlyHint?: boolean;
@@ -72,23 +72,23 @@ export interface MCPToolDisplayInfo {
     idempotentHint?: boolean;
     openWorldHint?: boolean;
   };
-  /** 工具是否有效（有name和description才能被LLM调用） */
+  /** namedescriptionLLM */
   isValid: boolean;
-  /** 无效原因（当isValid为false时） */
+  /** isValidfalse */
   invalidReason?: string;
 }
 
 /**
- * MCP Prompt显示信息
+ * MCP Prompt
  */
 export interface MCPPromptDisplayInfo {
-  /** Prompt名称 */
+  /** Prompt */
   name: string;
-  /** Prompt描述 */
+  /** Prompt */
   description?: string;
-  /** 所属服务器 */
+  /**  */
   serverName: string;
-  /** 参数定义 */
+  /**  */
   arguments?: Array<{
     name: string;
     description?: string;
@@ -97,99 +97,99 @@ export interface MCPPromptDisplayInfo {
 }
 
 /**
- * 分组后的服务器列表
+ * 
  */
 export interface GroupedServers {
-  /** 来源标识 */
+  /**  */
   source: string;
-  /** 来源显示名称 */
+  /**  */
   displayName: string;
-  /** 配置文件路径 */
+  /**  */
   configPath?: string;
-  /** 服务器列表 */
+  /**  */
   servers: MCPServerDisplayInfo[];
 }
 
 /**
- * ServerListStep组件属性
+ * ServerListStep
  */
 export interface ServerListStepProps {
-  /** 服务器列表 */
+  /**  */
   servers: MCPServerDisplayInfo[];
-  /** 选择回调 */
+  /**  */
   onSelect: (index: number) => void;
 }
 
 /**
- * ServerDetailStep 组件属性
+ * ServerDetailStep 
  */
 export interface ServerDetailStepProps {
-  /** 选中的服务器 */
+  /**  */
   server: MCPServerDisplayInfo | null;
-  /** 查看工具列表回调 */
+  /**  */
   onViewTools: () => void;
-  /** 重新连接回调 */
+  /**  */
   onReconnect?: () => void;
-  /** 禁用服务器回调 */
+  /**  */
   onDisable?: () => void;
-  /** OAuth 认证回调 */
+  /** OAuth  */
   onAuthenticate?: () => void;
-  /** 清空认证信息回调 */
+  /**  */
   onClearAuth?: () => void;
-  /** 返回回调 */
+  /**  */
   onBack: () => void;
 }
 
 /**
- * DisableScopeSelectStep组件属性
+ * DisableScopeSelectStep
  */
 export interface DisableScopeSelectStepProps {
-  /** 选中的服务器 */
+  /**  */
   server: MCPServerDisplayInfo | null;
-  /** 选择 scope 回调 */
+  /**  scope  */
   onSelectScope: (scope: 'user' | 'workspace') => void;
-  /** 返回回调 */
+  /**  */
   onBack: () => void;
 }
 
 /**
- * ToolListStep组件属性
+ * ToolListStep
  */
 export interface ToolListStepProps {
-  /** 工具列表 */
+  /**  */
   tools: MCPToolDisplayInfo[];
-  /** 服务器名称 */
+  /**  */
   serverName: string;
-  /** 选择回调 */
+  /**  */
   onSelect: (tool: MCPToolDisplayInfo) => void;
-  /** 返回回调 */
+  /**  */
   onBack: () => void;
 }
 
 /**
- * ToolDetailStep 组件属性
+ * ToolDetailStep 
  */
 export interface ToolDetailStepProps {
-  /** 工具信息 */
+  /**  */
   tool: MCPToolDisplayInfo | null;
-  /** 返回回调 */
+  /**  */
   onBack: () => void;
 }
 
 /**
- * AuthenticateStep 组件属性
+ * AuthenticateStep 
  */
 export interface AuthenticateStepProps {
-  /** 服务器信息 */
+  /**  */
   server: MCPServerDisplayInfo | null;
-  /** 返回回调 */
+  /**  */
   onBack: () => void;
 }
 
 /**
- * MCP管理对话框属性
+ * MCP
  */
 export interface MCPManagementDialogProps {
-  /** 关闭回调 */
+  /**  */
   onClose: () => void;
 }

@@ -80,7 +80,7 @@ describe('collectContextData (contextCommand)', () => {
   it('queries getFunctionDeclarations with no args, matching the actual API request', async () => {
     // /context should reflect what's actually sent to the model. Deferred
     // tools (MCP tools default to shouldDefer=true) are excluded from the
-    // prompt unless ToolSearch has revealed them this session — see
+    // prompt unless ToolSearch has revealed them this session -- see
     // client.ts which calls getFunctionDeclarations() with no options.
     // Pinning the call here keeps the /context token estimate aligned with
     // the real request, instead of overcounting by the full MCP tool pool.
@@ -144,7 +144,7 @@ describe('/context shows three-tier thresholds', () => {
     // 200K window. computeThresholds(200K) = {
     //   warn: 147,000, auto: 167,000, hard: 177,000, effectiveWindow: 180,000
     // }
-    // lastPromptTokenCount = 150K → between warn and auto → tier = warn.
+    // lastPromptTokenCount = 150K -> between warn and auto -> tier = warn.
     mockGetLastPromptTokenCount.mockReturnValue(150_000);
     const data = await collectContextData(makeMockConfig(200_000), false);
     const text = formatContextUsageText(data);
@@ -179,7 +179,7 @@ describe('/context shows three-tier thresholds', () => {
   });
 
   it('classifies usage between auto and hard as the auto tier', async () => {
-    // 200K window — between 167K (auto) and 177K (hard) → tier = auto.
+    // 200K window -- between 167K (auto) and 177K (hard) -> tier = auto.
     mockGetLastPromptTokenCount.mockReturnValue(170_000);
     const data = await collectContextData(makeMockConfig(200_000), false);
     expect(data.breakdown.currentTier).toBe('auto');
@@ -188,11 +188,11 @@ describe('/context shows three-tier thresholds', () => {
   });
 
   it('treats no-API-data sessions as safe and omits the threshold section from text', async () => {
-    // lastPromptTokenCount = 0 → collectContextData uses the estimated branch
+    // lastPromptTokenCount = 0 -> collectContextData uses the estimated branch
     // (classifies against `rawOverhead`, not apiTotalTokens). With these
     // default fixtures rawOverhead lands well below `warn`, so currentTier
     // resolves to `safe`. On heavy system-prompt / skill / MCP loads the
-    // estimated branch can return warn/auto/hard — this test only covers
+    // estimated branch can return warn/auto/hard -- this test only covers
     // the default-fixture safe case. formatContextUsageText must NOT emit
     // the "Compaction thresholds" section because the estimated path
     // renders a different layout.

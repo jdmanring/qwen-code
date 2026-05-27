@@ -23,7 +23,7 @@ import { ReadFileTool } from '../read-file.js';
  * `WriteFileTool` / `ReadFileTool` instances bound at parent-init time
  * with `this.config = parent`, so any subagent that walks up the
  * prototype chain to read `getToolRegistry()` ends up invoking those
- * parent-bound tools — which then read FileReadCache / approval mode
+ * parent-bound tools -- which then read FileReadCache / approval mode
  * from the parent rather than the subagent.
  *
  * `createApprovalModeOverride` must rebuild the registry on the override
@@ -31,8 +31,8 @@ import { ReadFileTool } from '../read-file.js';
  */
 describe('createApprovalModeOverride bound-tool isolation', () => {
   // Use bare mode so createToolRegistry() registers only ReadFile / Edit /
-  // Shell — keeps the test focused on the bound-tool path without dragging
-  // in optional tools that may need extra setup (LSP, ripgrep, MCP, …).
+  // Shell -- keeps the test focused on the bound-tool path without dragging
+  // in optional tools that may need extra setup (LSP, ripgrep, MCP, ...).
   const baseParams = {
     cwd: '/tmp',
     targetDir: '/tmp',
@@ -48,7 +48,7 @@ describe('createApprovalModeOverride bound-tool isolation', () => {
       skipDiscovery: true,
     });
     // Parent's getToolRegistry() is what subagents would walk through if
-    // we did NOT rebuild — make it return parentRegistry so the comparison
+    // we did NOT rebuild -- make it return parentRegistry so the comparison
     // is meaningful.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (parent as any).toolRegistry = parentRegistry;
@@ -177,12 +177,12 @@ describe('createApprovalModeOverride bound-tool isolation', () => {
 
     const childNames = child.getToolRegistry().getAllToolNames().sort();
 
-    // After warmAll the core tool sets must match — the child registry
+    // After warmAll the core tool sets must match -- the child registry
     // is built from the same Config (just the override), and we copied
     // any discovered tools across. So the name set should equal parent's.
     expect(childNames).toEqual(parentRegistry.getAllToolNames().sort());
     // And the parent's pre-warm names must be a subset of the post-warm
-    // names — sanity check that warmAll didn't lose anything.
+    // names -- sanity check that warmAll didn't lose anything.
     const beforeSet = new Set(beforeNames);
     for (const name of beforeSet) {
       expect(childNames).toContain(name);
@@ -243,7 +243,7 @@ describe('createApprovalModeOverride bound-tool isolation', () => {
       const bgWrapper = Object.create(upstream) as any;
       bgWrapper.getShouldAvoidPermissionPrompts = () => true;
 
-      // The plain own-property check would miss this — Symbol lookup
+      // The plain own-property check would miss this -- Symbol lookup
       // doesn't.
       expect(
         Object.prototype.hasOwnProperty.call(bgWrapper, 'getToolRegistry'),
@@ -255,7 +255,7 @@ describe('createApprovalModeOverride bound-tool isolation', () => {
       const parent = new Config(baseParams);
       expect(hasRebuiltToolRegistry(parent)).toBe(false);
 
-      // Plain Object.create wrapper without a rebuild — must still
+      // Plain Object.create wrapper without a rebuild -- must still
       // report false so the downstream caller knows it has to rebuild.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const plainWrapper = Object.create(parent) as any;

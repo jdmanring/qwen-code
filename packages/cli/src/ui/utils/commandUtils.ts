@@ -14,10 +14,10 @@ import type { RecentSlashCommands } from '../hooks/useSlashCompletion.js';
  * Common Windows console code pages (CP) used for encoding conversions.
  *
  * @remarks
- * - `UTF8` (65001): Unicode (UTF-8) — recommended for cross-language scripts.
- * - `GBK` (936): Simplified Chinese — default on most Chinese Windows systems.
+ * - `UTF8` (65001): Unicode (UTF-8) -- recommended for cross-language scripts.
+ * - `GBK` (936): Simplified Chinese -- default on most Chinese Windows systems.
  * - `BIG5` (950): Traditional Chinese.
- * - `LATIN1` (1252): Western European — default on many Western systems.
+ * - `LATIN1` (1252): Western European -- default on many Western systems.
  */
 export const CodePage = {
   UTF8: 65001,
@@ -257,7 +257,7 @@ export function findMidInputSlashCommand(
  * Finds the best (alphabetically first) prefix-matching command for a partial
  * command string. Returns the completion suffix and full command name, or null.
  *
- * e.g. partialCommand="st" → { suffix: "ats", fullCommand: "stats" }
+ * e.g. partialCommand="st" -> { suffix: "ats", fullCommand: "stats" }
  */
 export function getBestSlashCommandMatch(
   partialCommand: string,

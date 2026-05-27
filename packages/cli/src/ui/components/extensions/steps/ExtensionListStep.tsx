@@ -137,7 +137,7 @@ export const ExtensionListStep = ({
       <Box key={extension.name} alignItems="center">
         <Box minWidth={2} flexShrink={0}>
           <Text color={isSelected ? theme.text.accent : theme.text.primary}>
-            {isSelected ? '●' : ' '}
+            {isSelected ? '' : ' '}
           </Text>
         </Box>
         <Box width={maxNameWidth} flexShrink={0}>

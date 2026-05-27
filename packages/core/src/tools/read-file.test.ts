@@ -712,7 +712,7 @@ describe('ReadFileTool', () => {
         fileReadCache.markReadEvictedFromHistory(fs.statSync(filePath));
 
         // The fast-path must NOT serve a placeholder pointing at content
-        // the model can no longer retrieve — it must re-emit real bytes.
+        // the model can no longer retrieve -- it must re-emit real bytes.
         const second = await read({ file_path: filePath });
         expect(second.llmContent).toBe('hello world');
         expect(second.llmContent).not.toMatch(/unchanged since/);
@@ -737,7 +737,7 @@ describe('ReadFileTool', () => {
         const partial = await read({ file_path: filePath, limit: 1 });
         expect(partial.llmContent).not.toMatch(/unchanged since/);
 
-        // A follow-up full Read must STILL re-emit real bytes — the
+        // A follow-up full Read must STILL re-emit real bytes -- the
         // full content is not in history, only the slice is.
         const full = await read({ file_path: filePath });
         expect(full.llmContent).toContain('line3');
@@ -820,7 +820,7 @@ describe('ReadFileTool', () => {
       });
 
       it('does not arm the placeholder if the first Read was ranged', async () => {
-        // First Read covers only a slice — lastReadWasFull = false. A
+        // First Read covers only a slice -- lastReadWasFull = false. A
         // follow-up no-args Read must therefore go through the full
         // pipeline, since the cache cannot prove the model has already
         // seen the entire file.
@@ -850,7 +850,7 @@ describe('ReadFileTool', () => {
         // Auto-memory files skip the file_unchanged fast-path (they
         // own a per-read freshness `<system-reminder>` that must be
         // re-emitted) but they MUST still be recorded in the cache
-        // — otherwise the prior-read enforcement on Edit / WriteFile
+        // -- otherwise the prior-read enforcement on Edit / WriteFile
         // would refuse to mutate a file the model legitimately just
         // read. Put a file under .qwen/<auto-memory>/ via
         // QWEN_CODE_MEMORY_LOCAL=1 and assert recordRead happened.
@@ -875,7 +875,7 @@ describe('ReadFileTool', () => {
           // enforcement on Edit / WriteFile (fresh + lastReadAt set +
           // full + cacheable). Asserting only `fresh` would let a
           // future regression that records auto-memory reads as
-          // partial/non-cacheable slip through silently — those reads
+          // partial/non-cacheable slip through silently -- those reads
           // would still report fresh but enforcement would reject
           // every follow-up Edit.
           const status = fileReadCache.check(fs.statSync(memFile));
@@ -951,7 +951,7 @@ describe('ReadFileTool', () => {
           // ranged read leaves the model without sight of every
           // byte, so this stays false.
           expect(status.entry.lastReadWasFull).toBe(false);
-          // The bytes the model saw were text — Edit must accept
+          // The bytes the model saw were text -- Edit must accept
           // this read.
           expect(status.entry.lastReadCacheable).toBe(true);
         }
@@ -978,7 +978,7 @@ describe('ReadFileTool', () => {
         const status = fileReadCache.check(fs.statSync(filePath));
         expect(status.state).toBe('fresh');
         if (status.state === 'fresh') {
-          // Truncated → model has not seen every byte.
+          // Truncated -> model has not seen every byte.
           expect(status.entry.lastReadWasFull).toBe(false);
           // But the bytes are text, so Edit (which accepts partial
           // reads) must not be rejected as "binary payload".
@@ -1003,7 +1003,7 @@ describe('ReadFileTool', () => {
         // unit test, so we approximate by writing nominally text
         // content to a `.cpp` file. The test relies on the
         // extension override winning over any future content-side
-        // heuristic — there is no isBinaryFile mocking in scope.
+        // heuristic -- there is no isBinaryFile mocking in scope.
         const filePath = path.join(tempRootDir, 'src.cpp');
         await fsp.writeFile(filePath, '#include <iostream>\nint main() {}\n');
 
@@ -1030,14 +1030,14 @@ describe('ReadFileTool', () => {
         expect(typeof first.llmContent).not.toBe('string');
 
         const second = await read({ file_path: imagePath });
-        // Must remain a Part — never collapsed to a string placeholder.
+        // Must remain a Part -- never collapsed to a string placeholder.
         expect(typeof second.llmContent).not.toBe('string');
       });
 
       it('completely bypasses the cache when getFileReadCacheDisabled() is true', async () => {
         // Build a fresh ReadFileTool with a Config whose cache is
         // disabled. Two consecutive full Reads must both return the
-        // file content — never the placeholder, and the cache itself
+        // file content -- never the placeholder, and the cache itself
         // must remain empty so prior-read enforcement (added in a
         // follow-up) cannot accidentally trip on a recorded entry.
         const isolatedCache = new FileReadCache();

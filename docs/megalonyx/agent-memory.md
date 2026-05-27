@@ -70,11 +70,11 @@ Includes health checks and latency diagnostics.
 ### `memory_ingest_filter.py`
 
 A gatekeeper that classifies each ingest request into one of three routing decisions:
-- `local` — store in `agent_memory_local` collection only
-- `cloud` — store in both `agent_memory_local` and `agent_memory_cloud`
-- `ignore` — discard (reduces noise from low-value content)
+- `local` -- store in `agent_memory_local` collection only
+- `cloud` -- store in both `agent_memory_local` and `agent_memory_cloud`
+- `ignore` -- discard (reduces noise from low-value content)
 
-Classification is based on content heuristics — length, pattern matching, source metadata.
+Classification is based on content heuristics -- length, pattern matching, source metadata.
 
 ### `memory_pruner.py`
 

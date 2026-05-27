@@ -258,15 +258,15 @@ Hooks fire at specific points during a Qwen Code session. Different events suppo
 
 | Event Type          | Events                                                                 | Matcher Support | Matcher Target                                           |
 | :------------------ | :--------------------------------------------------------------------- | :-------------- | :------------------------------------------------------- |
-| Tool Events         | `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest` | ✅ Regex        | Tool name: `WriteFile`, `ReadFile`, `Bash`, etc.         |
-| Subagent Events     | `SubagentStart`, `SubagentStop`                                        | ✅ Regex        | Agent type: `Bash`, `Explorer`, etc.                     |
-| Session Events      | `SessionStart`                                                         | ✅ Regex        | Source: `startup`, `resume`, `clear`, `compact`          |
-| Session Events      | `SessionEnd`                                                           | ✅ Regex        | Reason: `clear`, `logout`, `prompt_input_exit`, etc.     |
-| Notification Events | `Notification`                                                         | ✅ Exact match  | Type: `permission_prompt`, `idle_prompt`, `auth_success` |
-| Compact Events      | `PreCompact`                                                           | ✅ Exact match  | Trigger: `manual`, `auto`                                |
-| Todo Events         | `TodoCreated`, `TodoCompleted`                                         | ❌ No           | N/A                                                      |
-| Prompt Events       | `UserPromptSubmit`                                                     | ❌ No           | N/A                                                      |
-| Stop Events         | `Stop`                                                                 | ❌ No           | N/A                                                      |
+| Tool Events         | `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest` |  Regex        | Tool name: `WriteFile`, `ReadFile`, `Bash`, etc.         |
+| Subagent Events     | `SubagentStart`, `SubagentStop`                                        |  Regex        | Agent type: `Bash`, `Explorer`, etc.                     |
+| Session Events      | `SessionStart`                                                         |  Regex        | Source: `startup`, `resume`, `clear`, `compact`          |
+| Session Events      | `SessionEnd`                                                           |  Regex        | Reason: `clear`, `logout`, `prompt_input_exit`, etc.     |
+| Notification Events | `Notification`                                                         |  Exact match  | Type: `permission_prompt`, `idle_prompt`, `auth_success` |
+| Compact Events      | `PreCompact`                                                           |  Exact match  | Trigger: `manual`, `auto`                                |
+| Todo Events         | `TodoCreated`, `TodoCompleted`                                         |  No           | N/A                                                      |
+| Prompt Events       | `UserPromptSubmit`                                                     |  No           | N/A                                                      |
+| Stop Events         | `Stop`                                                                 |  No           | N/A                                                      |
 
 **Matcher Syntax:**
 

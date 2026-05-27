@@ -5,7 +5,7 @@
  */
 
 /**
- * Integration test — deliberately does NOT mock `./converter.js`. Unlike
+ * Integration test -- deliberately does NOT mock `./converter.js`. Unlike
  * `pipeline.test.ts` which stubs the converter, this suite drives the real
  * `ContentGenerationPipeline` + real `OpenAIContentConverter` through two
  * streams that interleave on the event loop, and asserts that tool-call
@@ -123,7 +123,7 @@ function finisherChunk(): OpenAI.Chat.ChatCompletionChunk {
   } as unknown as OpenAI.Chat.ChatCompletionChunk;
 }
 
-describe('ContentGenerationPipeline — concurrent streams (issue #3516)', () => {
+describe('ContentGenerationPipeline -- concurrent streams (issue #3516)', () => {
   function buildPipeline(
     createStreamImpl: () => AsyncIterable<OpenAI.Chat.ChatCompletionChunk>,
   ) {
@@ -131,7 +131,7 @@ describe('ContentGenerationPipeline — concurrent streams (issue #3516)', () =>
       chat: {
         completions: {
           // Each call returns a fresh stream. The real Pipeline will
-          // invoke this twice — once per concurrent executeStream call.
+          // invoke this twice -- once per concurrent executeStream call.
           create: vi.fn().mockImplementation(() => createStreamImpl()),
         },
       },
@@ -167,7 +167,7 @@ describe('ContentGenerationPipeline — concurrent streams (issue #3516)', () =>
   }
 
   it('two concurrent streams keep their tool-call buffers isolated', async () => {
-    // Queue of pending stream factories — each call to the mocked
+    // Queue of pending stream factories -- each call to the mocked
     // chat.completions.create consumes one.
     const streamQueue: Array<
       () => AsyncIterable<OpenAI.Chat.ChatCompletionChunk>
@@ -270,7 +270,7 @@ describe('ContentGenerationPipeline — concurrent streams (issue #3516)', () =>
     streamQueue.push(() =>
       interleavingStream([
         () => openerChunk('call_B', 'read_file', '{"file_path":"/y'),
-        // Inject an error_finish chunk — this triggers StreamContentError
+        // Inject an error_finish chunk -- this triggers StreamContentError
         // inside processStreamWithLogging's catch block.
         () =>
           ({

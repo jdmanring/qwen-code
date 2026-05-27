@@ -50,7 +50,7 @@ export class SkillTool extends BaseDeclarativeTool<SkillParams, ToolResult> {
   private loadedSkillNames: Set<string> = new Set();
   // Cleanup function returned by `addChangeListener`. Stored so per-agent
   // SkillTool instances (subagents share the parent's SkillManager) can
-  // detach their listener at teardown — without this the SkillManager
+  // detach their listener at teardown -- without this the SkillManager
   // accumulates listeners across subagent lifetimes, and each path
   // activation would serialize through every stale listener's
   // refreshSkills / setTools round-trip.
@@ -129,7 +129,7 @@ export class SkillTool extends BaseDeclarativeTool<SkillParams, ToolResult> {
       );
       // Merge in model-invocable commands from CommandService (injected via
       // Config), but exclude any whose names appear as a model-invocable
-      // file-based skill — including pending conditional skills. Using
+      // file-based skill -- including pending conditional skills. Using
       // `availableSkills` (active only) here would let a path-gated skill
       // leak through the <available_commands> listing and bypass
       // validateToolParams's pendingConditionalSkillNames check, breaking
@@ -171,7 +171,7 @@ export class SkillTool extends BaseDeclarativeTool<SkillParams, ToolResult> {
     const allSkillEntries: string[] = [];
 
     for (const skill of this.availableSkills) {
-      const descText = `${escapeXml(skill.description)}${skill.whenToUse ? ` — ${escapeXml(skill.whenToUse)}` : ''} (${skill.level})`;
+      const descText = `${escapeXml(skill.description)}${skill.whenToUse ? ` -- ${escapeXml(skill.whenToUse)}` : ''} (${skill.level})`;
       // Escape `skill.name` defensively. File-based skills loaded
       // through `parseSkillContent` go through `validateSkillName` (a
       // charset whitelist that already excludes `<>&`), but extension
@@ -192,7 +192,7 @@ ${skill.level}
     }
 
     for (const cmd of this.modelInvocableCommands) {
-      // Escape `cmd.name` too — file-based skill names go through
+      // Escape `cmd.name` too -- file-based skill names go through
       // `validateSkillName` (charset whitelist), but command names come
       // from externally-injected sources (MCP servers, extensions) and
       // bypass that validator. A command shipped with an XML-special
@@ -330,7 +330,7 @@ ${skillDescriptions}
    * SkillTool instances share the parent's SkillManager via
    * `InProcessBackend.createPerAgentConfig`, so without dispose the
    * SkillManager would accumulate one stale listener per subagent
-   * lifetime — and `notifyChangeListeners` is now `await`-ed
+   * lifetime -- and `notifyChangeListeners` is now `await`-ed
    * sequentially, so each path activation would serialize through every
    * accumulated listener's refreshSkills + setTools round-trip.
    */
@@ -358,7 +358,7 @@ class SkillToolInvocation extends BaseToolInvocation<SkillParams, ToolResult> {
 
   /**
    * Skills load user-defined code that runs with the agent's tool
-   * access — they're a privileged sink. In AUTO mode the classifier
+   * access -- they're a privileged sink. In AUTO mode the classifier
    * needs to inspect the skill name and any inline args before the
    * skill loads, but the scheduler short-circuits at L4 when
    * `finalPermission === 'allow'`. The L3 default must be `'ask'` so

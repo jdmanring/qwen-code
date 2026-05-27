@@ -69,7 +69,7 @@ describe('AuthMessageHandler', () => {
   });
 
   it('drives a fixed-baseUrl third-party provider through to authInteractiveHandler', async () => {
-    // Provider pick → DeepSeek (fixed baseUrl, models step shown)
+    // Provider pick -> DeepSeek (fixed baseUrl, models step shown)
     mockShowQuickPick.mockResolvedValueOnce({ value: 'deepseek' });
     // API key input + comma-separated model IDs
     mockShowInputBox
@@ -170,14 +170,14 @@ describe('AuthMessageHandler', () => {
   // comma-split model IDs + empty-input guard, and advanced config.
 
   it('drives custom provider through protocol + url + key + models + advanced', async () => {
-    // 1) Provider pick → custom (custom-openai-compatible)
-    // 2) Protocol pick → Anthropic
-    // 3) Advanced config pick → modality-only (no thinking)
+    // 1) Provider pick -> custom (custom-openai-compatible)
+    // 2) Protocol pick -> Anthropic
+    // 3) Advanced config pick -> modality-only (no thinking)
     mockShowQuickPick
       .mockResolvedValueOnce({ value: 'custom-openai-compatible' })
       .mockResolvedValueOnce({ value: 'anthropic' })
       .mockResolvedValueOnce({ value: 'no' });
-    // URL → API key → model IDs (advanced is a separate pick already mocked)
+    // URL -> API key -> model IDs (advanced is a separate pick already mocked)
     mockShowInputBox
       .mockResolvedValueOnce('https://my-proxy.example.com/v1')
       .mockResolvedValueOnce('sk-custom-anthropic')
@@ -240,7 +240,7 @@ describe('AuthMessageHandler', () => {
       .mockResolvedValueOnce({ value: 'anthropic' })
       .mockResolvedValueOnce({ value: 'no' });
     mockShowInputBox
-      .mockResolvedValueOnce('') // blank URL → fallback to Anthropic default
+      .mockResolvedValueOnce('') // blank URL -> fallback to Anthropic default
       .mockResolvedValueOnce('sk-anthropic')
       .mockResolvedValueOnce('claude-3-opus');
 
@@ -273,7 +273,7 @@ describe('AuthMessageHandler', () => {
     mockShowInputBox
       .mockResolvedValueOnce('https://api.example.com/v1')
       .mockResolvedValueOnce('sk-test')
-      // Only whitespace + commas — must not reach authInteractiveHandler.
+      // Only whitespace + commas -- must not reach authInteractiveHandler.
       .mockResolvedValueOnce(' , , ,');
 
     const sendToWebView = vi.fn();
@@ -296,7 +296,7 @@ describe('AuthMessageHandler', () => {
   });
 
   it('does not send authCancelled after a validation authError (would clear the message)', async () => {
-    // Pick custom + openai, then enter a non-http(s) URL → scheme validation
+    // Pick custom + openai, then enter a non-http(s) URL -> scheme validation
     // fails. The webview clears the error on authCancelled, so a validation
     // failure must send ONLY authError, never a trailing authCancelled.
     mockShowQuickPick

@@ -1,8 +1,8 @@
-# 🧠 Memory System Validation Framework
+#  Memory System Validation Framework
 
 This document defines the testing strategy for the Mega Code dual-tier RAG memory system. The goal is to ensure that memory is not only stored and retrieved correctly but that the agent uses it as a professional software engineer would.
 
-## 📐 The Validation Pyramid
+##  The Validation Pyramid
 
 We employ a four-layer testing strategy to cover every aspect of the memory lifecycle.
 
@@ -15,7 +15,7 @@ We employ a four-layer testing strategy to cover every aspect of the memory life
 
 ---
 
-## 🧪 Detailed Test Matrix
+##  Detailed Test Matrix
 
 ### 1. Plumbing Tests
 | ID | Test Case | Expected Outcome |
@@ -48,7 +48,7 @@ We employ a four-layer testing strategy to cover every aspect of the memory life
 
 ---
 
-## 🚀 How to Run Tests
+##  How to Run Tests
 
 ### Prerequisites
 Ensure the stack is started:
@@ -79,7 +79,7 @@ mega-run-py tests/validators/validate_stack.py
 ```
 
 
-## 🛠️ Troubleshooting Failures
+##  Troubleshooting Failures
 
 | Failure Symptom | Likely Cause | Resolution |
 | :--- | :--- | :--- |

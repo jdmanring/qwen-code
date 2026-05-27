@@ -8,7 +8,7 @@
  * while the user is in AUTO and restored when they leave (see
  * PermissionManager.stripDangerousRulesForAutoMode / restoreDangerousRules).
  *
- * `settings.json` is never modified — strip / restore is a runtime-only
+ * `settings.json` is never modified -- strip / restore is a runtime-only
  * concern.
  */
 
@@ -20,7 +20,7 @@ import type { PermissionRule } from './types.js';
  * model execute arbitrary code under the AUTO classifier's nose. Covers
  * Unix and Windows shell interpreters, scripting-language interpreters,
  * remote shells, and build/package tools that themselves run arbitrary
- * scripts (`cargo run`, `npm run`, …). The exact token set is intentionally
+ * scripts (`cargo run`, `npm run`, ...). The exact token set is intentionally
  * self-contained so AUTO-mode stripping does not depend on an external
  * upstream identifier.
  */
@@ -113,7 +113,7 @@ function leadingCommandToken(content: string): string {
 /**
  * Tools whose allow rules carry shell-like risk. `monitor` is a long-running
  * shell-command runner and should be treated the same as `shell` for the
- * AUTO mode strip — a broad `Monitor(*)` or `Monitor(python *)` allow rule
+ * AUTO mode strip -- a broad `Monitor(*)` or `Monitor(python *)` allow rule
  * would bypass the classifier just like its `Bash(...)` counterpart.
  */
 const SHELL_LIKE_TOOLS: readonly string[] = Object.freeze([
@@ -124,7 +124,7 @@ const SHELL_LIKE_TOOLS: readonly string[] = Object.freeze([
 /**
  * Returns true when `token` looks like a dangerous interpreter, considering
  *   - bare names (`python`, `bun`)
- *   - absolute-path forms (`/usr/bin/python3` → trailing segment `python3`)
+ *   - absolute-path forms (`/usr/bin/python3` -> trailing segment `python3`)
  *   - trailing-wildcard forms (`python3*`)
  *   - colon form (`python:`)
  *   - Windows executable suffixes (`python.exe`)
@@ -143,7 +143,7 @@ function isInterpreterToken(rawToken: string): boolean {
   const colonIndex = matcherColonIndex(noWildcard);
   const beforeColon =
     colonIndex >= 0 ? noWildcard.slice(0, colonIndex) : noWildcard;
-  // Last path segment so `/usr/bin/python3` → `python3`
+  // Last path segment so `/usr/bin/python3` -> `python3`
   const lastSegment = (beforeColon ?? '').split(/[\\/]/).pop() ?? '';
   const normalizedSegment = stripWindowsExecutableSuffix(lastSegment);
   return DANGEROUS_BASH_INTERPRETERS.some(
@@ -163,7 +163,7 @@ function isInterpreterToken(rawToken: string): boolean {
  *     - `/usr/bin/python3 *` (absolute-path form)
  *
  * Literal concrete commands like `Bash(python script.py)` or `Bash(npm test)`
- * are NOT flagged — the user has spelled out the exact command they trust,
+ * are NOT flagged -- the user has spelled out the exact command they trust,
  * which is precisely what the strip is meant to *not* override.
  */
 export function isDangerousBashRule(rule: PermissionRule): boolean {
@@ -179,13 +179,13 @@ export function isDangerousBashRule(rule: PermissionRule): boolean {
   // An interpreter is dangerous when it appears as the first token of either
   // form
   // (`python -c *` or `python:*`). For colon-form, the part after `:` is
-  // the specifier — we'll separately check whether it's concrete below.
+  // the specifier -- we'll separately check whether it's concrete below.
   const firstToken = leadingCommandToken(content);
   if (!isInterpreterToken(firstToken)) return false;
   const colonIndex = matcherColonIndex(content);
   const hasMatcherColon = colonIndex >= 0;
 
-  // Bare interpreter name (`python`, `/usr/bin/python3`) — caller decides
+  // Bare interpreter name (`python`, `/usr/bin/python3`) -- caller decides
   // what to do, classifier never sees it. Dangerous.
   if (firstToken === content && !hasMatcherColon) return true;
 
@@ -196,9 +196,9 @@ export function isDangerousBashRule(rule: PermissionRule): boolean {
 
   // Colon form: only the wildcard variants are dangerous.
   //   `python:` (empty suffix) and `python:*` (caught above by `*` branch)
-  // are interpreter-with-no-specifier — every command runs.
+  // are interpreter-with-no-specifier -- every command runs.
   // `python:run-tests` / `python3:./script.py` are concrete user-allow
-  // rules — same shape as `Bash(npm run test)`, which the docstring above
+  // rules -- same shape as `Bash(npm run test)`, which the docstring above
   // commits to NOT flagging. Strip them and we'd silently disable
   // intentional user allow lists in AUTO.
   if (hasMatcherColon) {
@@ -207,7 +207,7 @@ export function isDangerousBashRule(rule: PermissionRule): boolean {
   }
 
   // Multi-token form without colon and without wildcard
-  // (`python script.py`, `bun run test`) is concrete — don't flag.
+  // (`python script.py`, `bun run test`) is concrete -- don't flag.
   return false;
 }
 

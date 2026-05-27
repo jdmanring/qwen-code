@@ -319,17 +319,17 @@ export const useGeminiStream = (
   // slash submit_prompt paths don't add a user item, so this stays null
   // on those turns. The cancel handler uses this to verify that the
   // candidate `lastUserItem` it's about to rewind actually came from the
-  // cancelled turn — without the guard, an older user item with
+  // cancelled turn -- without the guard, an older user item with
   // only-synthetic trailing could be wrongly truncated when a non-USER
   // turn is cancelled.
   //
   // Identity is carried as `{ id, text }` (not just text) because
   // `useHistoryManager.addItem` skips consecutive-duplicate user
-  // messages while still returning a freshly-generated id — text alone
+  // messages while still returning a freshly-generated id -- text alone
   // would let the auto-restore guard wrongly match an older USER row
   // when the user re-submits the same prompt.
   const lastTurnUserItemRef = useRef<{ id: number; text: string } | null>(null);
-  // Set to true the first time a content event lands this turn — even
+  // Set to true the first time a content event lands this turn -- even
   // during the pre-cancel flush. AppContainer's auto-restore guard
   // can't otherwise see content that was just addItem'd inside flush
   // (React history hasn't re-rendered) and would wrongly truncate the
@@ -342,7 +342,7 @@ export const useGeminiStream = (
   const [thought, setThought] = useState<ThoughtSummary | null>(null);
   // Hold the latest history in a ref so handleCompletedTools can read it
   // without depending on `history` (which would recreate the tool scheduler
-  // every render). Use useLayoutEffect instead of writing during render —
+  // every render). Use useLayoutEffect instead of writing during render --
   // writing refs in the render phase is unsafe under React's concurrent
   // rendering (a bailed-out render could leave the ref with a dropped value).
   const historyRef = useRef<HistoryItem[]>(history);
@@ -352,7 +352,7 @@ export const useGeminiStream = (
   // In-flight tool-use-summary aborters. Each batch gets its own AbortController
   // because the captured turn controller is replaced when submitQuery starts
   // the next turn, and the summary call outlives the current turn (that's the
-  // whole point — it overlaps with the next turn's streaming). cancelOngoingRequest
+  // whole point -- it overlaps with the next turn's streaming). cancelOngoingRequest
   // aborts all in-flight summaries so Ctrl+C during the next turn also kills
   // this turn's stale summary work.
   const summaryAbortRefsRef = useRef<Set<AbortController>>(new Set());
@@ -378,7 +378,7 @@ export const useGeminiStream = (
   // Accumulates output character count across the whole turn (not per API call).
   // Uses a ref to avoid re-renders on every text_delta.
   const streamingResponseLengthRef = useRef(0);
-  // Tracks whether we are receiving content (↓) or waiting for API (↑).
+  // Tracks whether we are receiving content () or waiting for API ().
   const [isReceivingContent, setIsReceivingContent] = useState(false);
   const {
     startNewPrompt,
@@ -485,7 +485,7 @@ export const useGeminiStream = (
         const remainingSec = Math.ceil(remainingMs / 1000);
 
         // Update error item with hint containing countdown info (short format)
-        const hintText = `Retrying in ${remainingSec}s… (attempt ${attempt}/${maxRetries})`;
+        const hintText = `Retrying in ${remainingSec}s... (attempt ${attempt}/${maxRetries})`;
 
         setPendingRetryErrorItem({
           type: MessageType.ERROR,
@@ -496,7 +496,7 @@ export const useGeminiStream = (
         setPendingRetryCountdownItem({
           type: 'retry_countdown',
           text: t(
-            'Retrying in {{seconds}} seconds… (attempt {{attempt}}/{{maxRetries}})',
+            'Retrying in {{seconds}} seconds... (attempt {{attempt}}/{{maxRetries}})',
             {
               seconds: String(remainingSec),
               attempt: String(attempt),
@@ -620,7 +620,7 @@ export const useGeminiStream = (
     // before we snapshot. Snapshotting before flush would miss content
     // events that arrived inside the throttle window
     // (STREAM_UPDATE_THROTTLE_MS), making AppContainer's auto-restore
-    // wrongly conclude the model produced nothing — and the subsequent
+    // wrongly conclude the model produced nothing -- and the subsequent
     // addItem(pendingHistoryItemRef.current) below would commit content
     // that auto-restore then truncates away.
     for (const flushBufferedStreamEvents of flushBufferedStreamEventsRef.current) {
@@ -629,7 +629,7 @@ export const useGeminiStream = (
     // Snapshot AFTER flush, BEFORE any addItem / setPendingHistoryItem(null)
     // mutate the ref. This is what `onCancelSubmit` consumers (auto-restore
     // in AppContainer) need to decide whether the model produced meaningful
-    // in-flight content — reading the React-state copy at the consumer
+    // in-flight content -- reading the React-state copy at the consumer
     // would race with stream chunks that haven't re-rendered yet.
     const pendingItemAtCancel = pendingHistoryItemRef.current;
     turnCancelledRef.current = true;
@@ -645,7 +645,7 @@ export const useGeminiStream = (
     // Report cancellation to arena status reporter (if in arena mode).
     // This is needed because cancellation during tool execution won't
     // flow through sendMessageStream where the inline reportCancelled()
-    // lives — tools get cancelled and handleCompletedTools returns early.
+    // lives -- tools get cancelled and handleCompletedTools returns early.
     config.getArenaAgentClient()?.reportCancelled();
 
     // Log API cancellation
@@ -671,7 +671,7 @@ export const useGeminiStream = (
     clearRetryCountdown();
     // Wrap the consumer callback so a throw in AppContainer's cancel
     // handler can't strand the stream in `Responding` (which would lock
-    // the UI — Esc would no-op, the user would have to restart). State
+    // the UI -- Esc would no-op, the user would have to restart). State
     // resets always run.
     //
     // Coupling note: AppContainer's auto-restore guard reads
@@ -724,7 +724,7 @@ export const useGeminiStream = (
       }
 
       // Reset at turn start. Only the user-typed-text path below assigns
-      // this — paths that don't add a USER history item (Cron /
+      // this -- paths that don't add a USER history item (Cron /
       // Notification / slash submit_prompt) leave it null so cancel
       // never wrongly targets an older user item.
       lastTurnUserItemRef.current = null;
@@ -796,9 +796,9 @@ export const useGeminiStream = (
 
         localQueryToSendToGemini = trimmedQuery;
 
-        // Cron prompts are already rendered as a `● Cron: …` notification by
+        // Cron prompts are already rendered as a ` Cron: ...` notification by
         // the queue drain, so skip the user-message history item to avoid
-        // a duplicate `> …` line. Preprocessing (@/slash/shell) still runs.
+        // a duplicate `> ...` line. Preprocessing (@/slash/shell) still runs.
         if (submitType !== SendMessageType.Cron) {
           const insertedId = addItem(
             {
@@ -1179,7 +1179,7 @@ export const useGeminiStream = (
         addItem(
           {
             type: 'info',
-            text: `⚠️  ${message}`,
+            text: `  ${message}`,
           },
           userMessageTimestamp,
         );
@@ -1236,11 +1236,11 @@ export const useGeminiStream = (
         {
           type: 'error',
           text:
-            `🚫 Session token limit exceeded: ${value.currentTokens.toLocaleString()} tokens > ${value.limit.toLocaleString()} limit.\n\n` +
-            `💡 Solutions:\n` +
-            `   • Start a new session: Use /clear command\n` +
-            `   • Increase limit: Add "sessionTokenLimit": (e.g., 128000) to your settings.json\n` +
-            `   • Compress history: Use /compress command to compress history`,
+            ` Session token limit exceeded: ${value.currentTokens.toLocaleString()} tokens > ${value.limit.toLocaleString()} limit.\n\n` +
+            ` Solutions:\n` +
+            `    Start a new session: Use /clear command\n` +
+            `    Increase limit: Add "sessionTokenLimit": (e.g., 128000) to your settings.json\n` +
+            `    Compress history: Use /compress command to compress history`,
         },
         Date.now(),
       ),
@@ -1482,7 +1482,7 @@ export const useGeminiStream = (
                 const argsJson = JSON.stringify(event.value.args);
                 streamingResponseLengthRef.current += argsJson.length;
               } catch {
-                // Best-effort — don't block on serialization errors
+                // Best-effort -- don't block on serialization errors
               }
               break;
             case ServerGeminiEventType.UserCancelled:
@@ -1520,8 +1520,8 @@ export const useGeminiStream = (
               // client.ts:1378 or next-speaker auto-continue at 1444). Both
               // paths yield* a fresh Turn through this same stream processor,
               // so without this seal the next turn's first content/thought
-              // chunk appends to this turn's pending item — visible in the UI
-              // as "t" → "te" → "tes" cumulative rendering even though each
+              // chunk appends to this turn's pending item -- visible in the UI
+              // as "t" -> "te" -> "tes" cumulative rendering even though each
               // turn is persisted as a clean, separate assistant message.
               if (pendingHistoryItemRef.current) {
                 addItem(pendingHistoryItemRef.current, userMessageTimestamp);
@@ -1544,7 +1544,7 @@ export const useGeminiStream = (
               // On fresh restart (escalation / rate-limit / invalid stream),
               // clear pending content and buffers to discard the failed attempt.
               // On continuation (recovery), keep the pending gemini item AND
-              // buffers so the model's continuation text appends to them —
+              // buffers so the model's continuation text appends to them --
               // otherwise handleContentEvent would see a null pending item,
               // create a fresh one, and reset the buffer to just the new chunk,
               // losing the partial text we meant to preserve.
@@ -1681,13 +1681,13 @@ export const useGeminiStream = (
       // Reset turn-local ownership trackers at the very top of every
       // top-level submit (UserQuery, Retry, Cron, Notification, etc.).
       // `prepareQueryForGemini` also resets `lastTurnUserItemRef`, but
-      // Retry skips that path — without this earlier reset, a stale
+      // Retry skips that path -- without this earlier reset, a stale
       // ownership snapshot from the prior UserQuery would survive into
       // the retry's cancel info and let auto-restore wrongly truncate
       // the original prompt.
       //
       // ToolResult continuations and same-turn btw concurrencies keep
-      // the trackers untouched — they're piggybacking on an in-flight
+      // the trackers untouched -- they're piggybacking on an in-flight
       // turn that already owns its own snapshot.
       if (
         submitType !== SendMessageType.ToolResult &&
@@ -1809,7 +1809,7 @@ export const useGeminiStream = (
 
         setIsResponding(true);
         setInitError(null);
-        // Entering "requesting" phase — no content yet for this API call.
+        // Entering "requesting" phase -- no content yet for this API call.
         setIsReceivingContent(false);
         // Reset char counter only on new user queries; tool-result continuations
         // keep accumulating so the token count only goes up within a turn.
@@ -1819,7 +1819,7 @@ export const useGeminiStream = (
 
         try {
           // Emit user message to dual output sidecar (if enabled).
-          // Skip for tool-result submissions — those are emitted separately
+          // Skip for tool-result submissions -- those are emitted separately
           // when the tool completes.
           if (dualOutput && submitType !== SendMessageType.ToolResult) {
             const rawParts =
@@ -1861,7 +1861,7 @@ export const useGeminiStream = (
             setPendingHistoryItem(null);
           }
           // Only clear auto-retry countdown errors (those with an active timer).
-          // Do NOT clear static error+hint from handleErrorEvent — those should
+          // Do NOT clear static error+hint from handleErrorEvent -- those should
           // remain visible until the user presses Ctrl+Y to retry or starts
           // a new conversation turn (cleared in submitQuery).
           if (retryCountdownTimerRef.current) {
@@ -1949,10 +1949,10 @@ export const useGeminiStream = (
    * Retries the last failed prompt when the user presses Ctrl+Y.
    *
    * Activation conditions for Ctrl+Y shortcut:
-   * 1. ✅ The last request must have failed (lastPromptErroredRef.current === true)
-   * 2. ✅ Current streaming state must NOT be "Responding" (avoid interrupting ongoing stream)
-   * 3. ✅ Current streaming state must NOT be "WaitingForConfirmation" (avoid conflicting with tool confirmation flow)
-   * 4. ✅ There must be a stored lastPrompt in lastPromptRef.current
+   * 1.  The last request must have failed (lastPromptErroredRef.current === true)
+   * 2.  Current streaming state must NOT be "Responding" (avoid interrupting ongoing stream)
+   * 3.  Current streaming state must NOT be "WaitingForConfirmation" (avoid conflicting with tool confirmation flow)
+   * 4.  There must be a stored lastPrompt in lastPromptRef.current
    *
    * When conditions are not met:
    * - If streaming is active (Responding/WaitingForConfirmation): silently return without action
@@ -1967,7 +1967,7 @@ export const useGeminiStream = (
    */
   const retryLastPrompt = useCallback(async () => {
     // During a rate-limit retry countdown, skip the delay so the generator
-    // retries immediately — no abort/re-submit needed.
+    // retries immediately -- no abort/re-submit needed.
     if (skipRetryDelayRef.current) {
       skipRetryDelayRef.current();
       skipRetryDelayRef.current = null;
@@ -2067,22 +2067,22 @@ export const useGeminiStream = (
       // chat.history (planted on session-load by
       // `client.repairOrphanedToolUseTurnsInHistory` or on every
       // `chat.sendMessageStream` push by the inline repair pass), the
-      // in-flight scheduler result must be marked submitted NOW —
+      // in-flight scheduler result must be marked submitted NOW --
       // `useReactToolScheduler.allToolCallsCompleteHandler` is single-shot
       // per batch, so a later isResponding=true early-return would leave
       // the tool stuck in `completed-but-not-submitted` forever (Race A
       // surfaced in PR #4176 review). The real result is dropped on the
-      // wire — same trade-off upstream Claude Code makes when its
+      // wire -- same trade-off upstream Claude Code makes when its
       // `StreamingToolExecutor.discard()` follows a
       // `yieldMissingToolResultBlocks` synthesis (`query.ts:733` + `:984`).
-      // Walk raw history WITHOUT cloning — `geminiClient.getHistory()`
+      // Walk raw history WITHOUT cloning -- `geminiClient.getHistory()`
       // returns `structuredClone(this.history)`, which on long sessions
       // (200+ entries with sizable tool outputs) costs several ms on
       // the React UI thread and visibly stalls streaming when the
       // dedup pass runs on every tool-completion batch.
       // `getHistoryFunctionResponseIds` walks history in place and
       // returns only the id Set this dispatcher needs. The
-      // GeminiClient implementation is mandatory — production and
+      // GeminiClient implementation is mandatory -- production and
       // test mocks both expose it. Skip the dedup pass entirely if
       // the client is missing (only happens in unit tests that
       // construct a hook without a client).
@@ -2100,18 +2100,18 @@ export const useGeminiStream = (
             `${dedupedCallIds.join(', ')}`,
         );
         // Even though the wire-side submission is dropped, the tool DID
-        // run locally — `toolCallCount` and `skillsModifiedInSession`
+        // run locally -- `toolCallCount` and `skillsModifiedInSession`
         // must reflect that. Without this, deduped skill-write tools
         // (e.g. write_file under a project SKILLS path) would silently
         // skip the `skillsModifiedInSession` flip that gates the
         // skills-reload prompt at end-of-turn. Mirrors the
-        // `recordCompletedToolCall` loop below over `geminiTools` —
+        // `recordCompletedToolCall` loop below over `geminiTools` --
         // filter to the same shape (non-client-initiated) so client
         // tools (which the original loop also skipped) stay skipped.
         //
         // Cancelled tools are also skipped: `dedupedTools` includes
         // anything in a terminal state (success | error | cancelled),
-        // but cancelled means the tool never actually ran end-to-end —
+        // but cancelled means the tool never actually ran end-to-end --
         // the `allToolsCancelled` branch below would have surfaced
         // them via `addHistory + reportCancelled` rather than the
         // completed-call metric, and the metric should match. Without
@@ -2136,7 +2136,7 @@ export const useGeminiStream = (
 
       // Finalize any client-initiated tools as soon as they are done.
       // Skip ones whose callId already lives in chat history with a
-      // matching `functionResponse` — the dedup block above already
+      // matching `functionResponse` -- the dedup block above already
       // called `markToolsAsSubmitted` for those, and re-dispatching
       // the same callIds here would queue an extra React render.
       const clientTools = completedAndReadyToSubmitTools.filter(
@@ -2199,7 +2199,7 @@ export const useGeminiStream = (
             parts: combinedParts,
           });
 
-          // Report cancellation to arena (safety net — cancelOngoingRequest
+          // Report cancellation to arena (safety net -- cancelOngoingRequest
           config.getArenaAgentClient()?.reportCancelled();
         }
 
@@ -2242,7 +2242,7 @@ export const useGeminiStream = (
       // Fire tool-use summary generation in parallel with the next API call.
       // The fast-model latency is hidden behind the main-model streaming.
       // Fire-and-forget: failures are silent and never block the turn.
-      // Subagent exclusion is implicit — useGeminiStream only drives the
+      // Subagent exclusion is implicit -- useGeminiStream only drives the
       // main session; subagents run through agents/runtime/ with their own loop.
       if (config.getEmitToolUseSummaries()) {
         // Only summarize successful tools. Error/cancelled entries push
@@ -2265,7 +2265,7 @@ export const useGeminiStream = (
             historyRef.current,
           );
           // Dedicated AbortController for this batch. Scoping it to the
-          // current turn via abortControllerRef.current would be wrong —
+          // current turn via abortControllerRef.current would be wrong --
           // submitQuery() below allocates a new controller for the next
           // turn, so the captured signal becomes stale the moment the
           // next turn starts. Instead, check the live abort state at
@@ -2277,7 +2277,7 @@ export const useGeminiStream = (
           // Capture the first callId so we can locate "our" tool_group at
           // resolve time. If a newer tool_group has been added since we
           // fired (i.e., the conversation moved on), we drop the summary
-          // rather than wedging the `● <label>` line between later items.
+          // rather than wedging the ` <label>` line between later items.
           const anchorCallId = toolUseIds[0];
 
           void generateToolUseSummary({
@@ -2297,7 +2297,7 @@ export const useGeminiStream = (
               // Stale-summary check: only append if our tool_group is still
               // the latest one in history. If a newer batch landed while
               // the fast-model call was in flight, the conversation has
-              // moved past this batch and dropping in a `● <label>` line
+              // moved past this batch and dropping in a ` <label>` line
               // now would land it after later content (full mode) or
               // attribute it to the wrong group (compact mode).
               const currentHistory = historyRef.current;
@@ -2336,7 +2336,7 @@ export const useGeminiStream = (
 
       // Mid-turn queue drain: inject queued user messages alongside tool
       // results so the model sees them in the next API call.
-      // Skip if the turn was cancelled — messages stay in queue for next turn.
+      // Skip if the turn was cancelled -- messages stay in queue for next turn.
       const drained =
         turnCancelledRef.current || abortControllerRef.current?.signal.aborted
           ? []
@@ -2506,7 +2506,7 @@ export const useGeminiStream = (
     storage,
   ]);
 
-  // ─── Unified notification queue (cron + background agents) ──────
+  // --- Unified notification queue (cron + background agents) ------
   const notificationQueueRef = useRef<
     Array<{
       displayText: string;

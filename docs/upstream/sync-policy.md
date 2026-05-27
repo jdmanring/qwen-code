@@ -23,7 +23,7 @@ it can enter our pipeline. The fork is the filter.
 
 **How it works:**
 1. Periodically sync the fork from QwenLM (human review step)
-2. Run the ingest pipeline — it fetches from the fork's `main`
+2. Run the ingest pipeline -- it fetches from the fork's `main`
 3. Changes flow through our three gates into `integration`
 
 **Why fork-as-filter:**
@@ -82,7 +82,7 @@ upstream sync overwrites them, re-apply the following changes before merging to 
 
 | File | What was changed |
 |---|---|
-| `.github/workflows/e2e.yml` | Added `pnpm/action-setup@v4` step; changed `cache: npm` → `cache: pnpm`; replaced `npm ci` with `pnpm install --frozen-lockfile`; removed npm rate-limit config step |
+| `.github/workflows/e2e.yml` | Added `pnpm/action-setup@v4` step; changed `cache: npm` -> `cache: pnpm`; replaced `npm ci` with `pnpm install --frozen-lockfile`; removed npm rate-limit config step |
 | `packages/sdk-python/pyproject.toml` | Added `[project.optional-dependencies] dev = [ruff, mypy, pytest]` so `pip install -e '.[dev]'` installs required tools |
 
 After each upstream sync, run `git diff upstream/main HEAD -- .github/workflows/e2e.yml packages/sdk-python/pyproject.toml` to confirm our patches are still in place.
@@ -93,11 +93,11 @@ After each upstream sync, run `git diff upstream/main HEAD -- .github/workflows/
 
 Before any upstream change reaches `integration`, it must pass three gates in order:
 
-1. **Boot gate** (`uv lock --check`) — confirms the Python lockfile is consistent. Runs first to prevent `uv sync` from silently regenerating the lockfile and masking dependency issues.
+1. **Boot gate** (`uv lock --check`) -- confirms the Python lockfile is consistent. Runs first to prevent `uv sync` from silently regenerating the lockfile and masking dependency issues.
 
-2. **Lint gate** (`uv run ruff check .`) — runs Ruff on all Python in scope. Zero violations required. This catches upstream Python changes that introduce style or correctness issues.
+2. **Lint gate** (`uv run ruff check .`) -- runs Ruff on all Python in scope. Zero violations required. This catches upstream Python changes that introduce style or correctness issues.
 
-3. **Symmetry gate** (`python3 tooling/symmetry_check.py`) — verifies that `.qwen/config/` and `docs/` remain in 1:1 correspondence. Upstream changes that add config files without documentation would break this.
+3. **Symmetry gate** (`python3 tooling/symmetry_check.py`) -- verifies that `.qwen/config/` and `docs/` remain in 1:1 correspondence. Upstream changes that add config files without documentation would break this.
 
 If any gate fails, the pipeline stops and the `integration` branch is left unchanged.
 See `docs/meta/pipeline-runbook.md` for how to recover from each failure mode.
@@ -116,14 +116,14 @@ QwenLM/qwen-code
         | [GATE-NEWFILES]  new files added?
         | [human confirmation]
         v
-jdmanring/qwen-code  ← "upstream" remote in megalonyx-monorepo
+jdmanring/qwen-code  <- "upstream" remote in megalonyx-monorepo
         |
         | upstream_ingest_pipeline.py
-        | git fetch upstream main → reset upstream-mirror
+        | git fetch upstream main -> reset upstream-mirror
         | merge upstream-mirror into staging branch off integration
         | [PROTECTED_FILES restored to integration version post-merge]
         v
-[Boot gate] → [Lint gate] → [Symmetry gate]
+[Boot gate] -> [Lint gate] -> [Symmetry gate]
         |
         | all gates pass
         v
@@ -131,7 +131,7 @@ integration branch (fast-forward merge from staging)
         |
         | tagged as LKG (Last Known Good)
         v
-developer manually merges integration → develop when ready
+developer manually merges integration -> develop when ready
 ```
 
 Ingest pipeline: `tooling/sync-upstreams/upstream_ingest_pipeline.py`  
@@ -145,7 +145,7 @@ When upstream changes a file that Megalonyx also modified, you get a merge confl
 pipeline stops at the merge step and leaves the repo in a conflicted state.
 
 Resolution steps:
-1. Read `docs/meta/pipeline-runbook.md` — it describes each failure mode
+1. Read `docs/meta/pipeline-runbook.md` -- it describes each failure mode
 2. Resolve the conflict manually, favoring Megalonyx changes unless the upstream fix is critical
 3. Run the pipeline with `--dry-run` to verify gates pass before re-running the full sync
 
@@ -156,8 +156,8 @@ Resolution steps:
 When you fix a bug in the CLI code (in `packages/cli/` or `packages/core/`) that also affects
 the upstream project, read the full procedure before doing anything:
 
-- **`docs/upstream/upstream-pr-guide.md`** — complete preparation and submission procedure
-- **`docs/upstream/upstream-pr-checklist.md`** — mandatory gate checklist to run before every submission
+- **`docs/upstream/upstream-pr-guide.md`** -- complete preparation and submission procedure
+- **`docs/upstream/upstream-pr-checklist.md`** -- mandatory gate checklist to run before every submission
 
 The `upstream` remote (`jdmanring/qwen-code`) serves dual purpose: it is both the inbound
 filter for the pipeline AND the outbound channel for upstream PRs. Topic branches for PRs are
@@ -166,7 +166,7 @@ pushed to the fork, then opened as PRs against `QwenLM/qwen-code`.
 The `upstream` remote is already set up (part of the standard monorepo setup):
 ```bash
 # Confirm:
-git remote -v  # should show upstream → git@github.com:jdmanring/qwen-code.git
+git remote -v  # should show upstream -> git@github.com:jdmanring/qwen-code.git
 ```
 
 For single-commit cherry-picks, the fork sync pipeline handles isolation gates, branch

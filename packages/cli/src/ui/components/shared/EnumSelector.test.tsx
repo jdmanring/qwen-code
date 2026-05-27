@@ -11,9 +11,9 @@ import { describe, it, expect } from 'vitest';
 
 const LANGUAGE_OPTIONS: readonly SettingEnumOption[] = [
   { label: 'English', value: 'en' },
-  { label: '中文 (简体)', value: 'zh' },
-  { label: 'Español', value: 'es' },
-  { label: 'Français', value: 'fr' },
+  { label: ' ()', value: 'zh' },
+  { label: 'Espaol', value: 'es' },
+  { label: 'Franais', value: 'fr' },
 ];
 
 const NUMERIC_OPTIONS: readonly SettingEnumOption[] = [
@@ -118,7 +118,7 @@ describe('<EnumSelector />', () => {
         onValueChange={() => {}}
       />,
     );
-    expect(lastFrame()).toContain('中文 (简体)');
+    expect(lastFrame()).toContain(' ()');
   });
 
   it('shows navigation arrows when multiple options available', () => {
@@ -130,8 +130,8 @@ describe('<EnumSelector />', () => {
         onValueChange={() => {}}
       />,
     );
-    expect(lastFrame()).toContain('←');
-    expect(lastFrame()).toContain('→');
+    expect(lastFrame()).toContain('<-');
+    expect(lastFrame()).toContain('->');
   });
 
   it('hides navigation arrows when single option available', () => {
@@ -146,7 +146,7 @@ describe('<EnumSelector />', () => {
         onValueChange={() => {}}
       />,
     );
-    expect(lastFrame()).not.toContain('←');
-    expect(lastFrame()).not.toContain('→');
+    expect(lastFrame()).not.toContain('<-');
+    expect(lastFrame()).not.toContain('->');
   });
 });

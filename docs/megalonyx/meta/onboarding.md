@@ -1,4 +1,4 @@
-🏛️ 
+ 
 # Onboarding Guide: Zero-to-One
 
 Welcome to the **Megalonyx**. This guide is designed to take a developer from a fresh `git clone` to a fully operational, high-fidelity agentic environment.

@@ -203,7 +203,7 @@ describe('useResumeCommand', () => {
 
     let resumePromise: Promise<void> | undefined;
     act(() => {
-      // Start resume but do not await it yet — we want to assert the dialog
+      // Start resume but do not await it yet -- we want to assert the dialog
       // closes immediately before the async session load completes.
       resumePromise = result.current.handleResume('session-2');
     });
@@ -231,7 +231,7 @@ describe('useResumeCommand', () => {
     expect(resetMonitorRegistry).toHaveBeenCalledTimes(1);
     // Goal must be re-armed under the resumed sessionId so the in-memory
     // activeGoalStore entry (potentially stale across /new + /resume) gets
-    // a fresh setAt / hookId / observer — otherwise the footer pill ticks
+    // a fresh setAt / hookId / observer -- otherwise the footer pill ticks
     // from the pre-/new setAt and the Stop hook is silently dead.
     expect(restoreGoalFromHistory).toHaveBeenCalledWith(
       expect.any(Array),

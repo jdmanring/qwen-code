@@ -52,7 +52,7 @@ export type TrackedWaitingToolCall = WaitingToolCall & {
 };
 /**
  * NOTE on inherited fields: `pid?` and `promoteAbortController?` come
- * from the core `ExecutingToolCall` type via the `&` intersection —
+ * from the core `ExecutingToolCall` type via the `&` intersection --
  * we do NOT redeclare them here. `promoteAbortController` is set by
  * `coreToolScheduler` when the shell tool's
  * `setPromoteAbortControllerCallback` fires, and is read by the
@@ -61,7 +61,7 @@ export type TrackedWaitingToolCall = WaitingToolCall & {
  * `ShellExecutionService` promote handoff; `shell.ts` then registers
  * a `BackgroundShellEntry` and the child keeps running. The optional
  * `shellId` field on the abort reason is generated downstream by
- * `handlePromotedForeground` — callers leave it unset.
+ * `handlePromotedForeground` -- callers leave it unset.
  *
  * The compile-time assertions below pin the inheritance: if a future
  * core change renames or removes `pid` / `promoteAbortController` from
@@ -146,7 +146,7 @@ export function useReactToolScheduler(
           if (coreTc.status === 'executing') {
             // `...coreTc` already spreads `pid` and
             // `promoteAbortController` from the core `ExecutingToolCall`
-            // — no need to re-project. `liveOutput` is the only React-
+            // -- no need to re-project. `liveOutput` is the only React-
             // side state we need to carry over from the previous tracked
             // version of this call.
             return {
@@ -158,7 +158,7 @@ export function useReactToolScheduler(
           }
 
           // For non-executing statuses, explicitly clear liveOutput so
-          // it doesn't leak across an executing → completed transition.
+          // it doesn't leak across an executing -> completed transition.
           // `pid` / `promoteAbortController` are also explicitly set to
           // `undefined` here as defense-in-depth: today they're not on
           // `coreTc` for non-executing statuses so `...coreTc` doesn't

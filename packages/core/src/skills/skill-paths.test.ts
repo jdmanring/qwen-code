@@ -50,7 +50,7 @@ describe('skill project paths', () => {
   });
 });
 
-describe('assertRealProjectSkillPath – symlink traversal', () => {
+describe('assertRealProjectSkillPath - symlink traversal', () => {
   let tmpDir: string;
   let projectRoot: string;
   let skillsDir: string;
@@ -88,7 +88,7 @@ describe('assertRealProjectSkillPath – symlink traversal', () => {
   });
 
   it('accepts a path where skills root itself is a symlink to a safe dir', async () => {
-    // skills dir → realSkills (still inside project)
+    // skills dir -> realSkills (still inside project)
     const realSkills = path.join(projectRoot, '.qwen', 'real-skills');
     await fs.mkdir(realSkills, { recursive: true });
     await fs.rm(skillsDir, { recursive: true });

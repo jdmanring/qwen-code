@@ -55,7 +55,7 @@ if (!qwenSandbox) {
 
 if (!qwenSandbox) {
   // Walk up from cwd to find a project-level .env. Parse manually and copy
-  // only QWEN_SANDBOX — calling dotenv.config() here would inject every key,
+  // only QWEN_SANDBOX -- calling dotenv.config() here would inject every key,
   // including QWEN_HOME / QWEN_RUNTIME_DIR that the main CLI hard-blocks via
   // PROJECT_ENV_HARDCODED_EXCLUSIONS. A project file must not be able to
   // redirect global state through this back door.

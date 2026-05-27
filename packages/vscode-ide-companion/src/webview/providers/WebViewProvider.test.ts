@@ -1203,7 +1203,7 @@ describe('WebViewProvider settings sync', () => {
     (provider as unknown as { agentInitialized: boolean }).agentInitialized =
       true;
 
-    // syncVSCodeSettingsToQwenConfig returns false — normal for api-key providers
+    // syncVSCodeSettingsToQwenConfig returns false -- normal for api-key providers
     vi.spyOn(
       provider as unknown as {
         syncVSCodeSettingsToQwenConfig: () => Promise<boolean>;
@@ -1290,25 +1290,25 @@ describe('truncatePanelTitle', () => {
   it('truncates a title of MAX+1 characters to MAX content chars + ellipsis', () => {
     const title = 'a'.repeat(MAX_PANEL_TITLE_LENGTH + 1);
     const result = truncatePanelTitle(title);
-    expect(result).toBe('a'.repeat(MAX_PANEL_TITLE_LENGTH) + '…');
+    expect(result).toBe('a'.repeat(MAX_PANEL_TITLE_LENGTH) + '...');
     expect([...result].length).toBe(MAX_PANEL_TITLE_LENGTH + 1);
   });
 
   it('truncates a very long title to MAX content code points + ellipsis', () => {
     const title = 'a'.repeat(200);
     const result = truncatePanelTitle(title);
-    expect(result).toBe('a'.repeat(MAX_PANEL_TITLE_LENGTH) + '…');
+    expect(result).toBe('a'.repeat(MAX_PANEL_TITLE_LENGTH) + '...');
     expect([...result].length).toBe(MAX_PANEL_TITLE_LENGTH + 1);
   });
 
   it('does not split a surrogate pair (emoji) at the truncation boundary', () => {
     // 49 ASCII chars + emoji (1 code point, 2 UTF-16 code units) + trailing text
-    // Total: 49 + 1 + 5 = 55 code points → needs truncation
-    const emoji = '😀';
+    // Total: 49 + 1 + 5 = 55 code points -> needs truncation
+    const emoji = '';
     const title = 'a'.repeat(MAX_PANEL_TITLE_LENGTH - 1) + emoji + 'extra';
     const result = truncatePanelTitle(title);
-    // First 50 code points: 49 'a's + emoji, then '…' — emoji is not split
-    expect(result).toBe('a'.repeat(MAX_PANEL_TITLE_LENGTH - 1) + emoji + '…');
+    // First 50 code points: 49 'a's + emoji, then '...' -- emoji is not split
+    expect(result).toBe('a'.repeat(MAX_PANEL_TITLE_LENGTH - 1) + emoji + '...');
     expect([...result].length).toBe(MAX_PANEL_TITLE_LENGTH + 1);
   });
 });
@@ -1472,7 +1472,7 @@ describe('Notification & dot indicator', () => {
 
     await setupAttachedProvider();
 
-    // Trigger permission request — don't await, it blocks on user response
+    // Trigger permission request -- don't await, it blocks on user response
     void permissionRequestCallbackRef.current?.({
       toolCall: { title: 'Bash' },
       options: [],
@@ -1553,7 +1553,7 @@ describe('Notification & dot indicator', () => {
     endTurnCallbackRef.current?.('end_turn');
     expect(mockShowInformationMessage).toHaveBeenCalledTimes(1);
 
-    // Second endTurn (final) — should NOT fire another notification
+    // Second endTurn (final) -- should NOT fire another notification
     endTurnCallbackRef.current?.('end_turn');
     expect(mockShowInformationMessage).toHaveBeenCalledTimes(1);
   });
@@ -1672,7 +1672,7 @@ describe('Notification & dot indicator', () => {
     vi.advanceTimersByTime(25_000);
     endTurnCallbackRef.current?.('end_turn');
 
-    // User is in VS Code but not looking at the panel — should notify
+    // User is in VS Code but not looking at the panel -- should notify
     expect(mockShowInformationMessage).toHaveBeenCalledWith(
       'Qwen Code: Waiting for your input.',
       'Show',
@@ -1695,7 +1695,7 @@ describe('Notification & dot indicator', () => {
     vi.advanceTimersByTime(25_000);
     endTurnCallbackRef.current?.('end_turn');
 
-    // User left VS Code — should notify even though panel is visible
+    // User left VS Code -- should notify even though panel is visible
     expect(mockShowInformationMessage).toHaveBeenCalledWith(
       'Qwen Code: Waiting for your input.',
       'Show',
@@ -1714,7 +1714,7 @@ describe('Notification & dot indicator', () => {
 
     await setupAttachedProvider();
 
-    // Trigger askUserQuestion — don't await, it blocks on user response
+    // Trigger askUserQuestion -- don't await, it blocks on user response
     void askUserQuestionCallbackRef.current?.({
       questions: [{ question: 'Which option?' }],
     });
@@ -1897,7 +1897,7 @@ describe('WebViewProvider.handleAuthInteractive credential rollback', () => {
 
   it('rolls back + disconnects + reports authError when doInitializeAgentConnection throws (outer catch)', async () => {
     // The outer catch handles unexpected exceptions (disk errors, partial
-    // writes) — the path where rollback is most likely to also be needed.
+    // writes) -- the path where rollback is most likely to also be needed.
     const snapshot = { env: { OPENAI_API_KEY: 'sk-old' } };
     mockSnapshotSettingsForRollback.mockReturnValue(snapshot);
 

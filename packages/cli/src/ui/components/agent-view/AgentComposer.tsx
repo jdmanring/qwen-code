@@ -5,12 +5,12 @@
  */
 
 /**
- * @fileoverview AgentComposer — footer area for in-process agent tabs.
+ * @fileoverview AgentComposer -- footer area for in-process agent tabs.
  *
  * Replaces the main Composer when an agent tab is active so that:
  *  - The loading indicator reflects the agent's status (not the main agent)
  *  - The input prompt sends messages to the agent (via enqueueMessage)
- *  - Keyboard events are scoped — no conflict with the main InputPrompt
+ *  - Keyboard events are scoped -- no conflict with the main InputPrompt
  *
  * Wraps its content in a local StreamingContext.Provider so reusable
  * components like LoadingIndicator and GeminiRespondingSpinner read the
@@ -46,13 +46,13 @@ import { theme } from '../../semantic-colors.js';
 import { usePreferredEditor } from '../../hooks/usePreferredEditor.js';
 import { t } from '../../../i18n/index.js';
 
-// ─── Types ──────────────────────────────────────────────────
+// --- Types --------------------------------------------------
 
 interface AgentComposerProps {
   agentId: string;
 }
 
-// ─── Component ──────────────────────────────────────────────
+// --- Component ----------------------------------------------
 
 export const AgentComposer: React.FC<AgentComposerProps> = ({ agentId }) => {
   const { agents, agentTabBarFocused, agentShellFocused, agentApprovalModes } =
@@ -79,7 +79,7 @@ export const AgentComposer: React.FC<AgentComposerProps> = ({ agentId }) => {
     lastPromptTokenCount,
   } = useAgentStreamingState(interactiveAgent);
 
-  // ── Escape to cancel the active agent round ──
+  // -- Escape to cancel the active agent round --
 
   useKeypress(
     (key) => {
@@ -96,7 +96,7 @@ export const AgentComposer: React.FC<AgentComposerProps> = ({ agentId }) => {
     },
   );
 
-  // ── Shift+Tab to cycle this agent's approval mode ──
+  // -- Shift+Tab to cycle this agent's approval mode --
 
   const agentApprovalMode =
     agentApprovalModes.get(agentId) ?? ApprovalMode.DEFAULT;
@@ -119,7 +119,7 @@ export const AgentComposer: React.FC<AgentComposerProps> = ({ agentId }) => {
     { isActive: !agentShellFocused },
   );
 
-  // ── Input buffer (independent from main agent) ──
+  // -- Input buffer (independent from main agent) --
 
   const isValidPath = useCallback((): boolean => false, []);
 
@@ -141,7 +141,7 @@ export const AgentComposer: React.FC<AgentComposerProps> = ({ agentId }) => {
   // When agent input is not active (agent running, completed, etc.),
   // auto-focus the tab bar so arrow keys switch tabs directly.
   // We also depend on streamingState so that transitions like
-  // WaitingForConfirmation → Responding re-trigger the effect — the
+  // WaitingForConfirmation -> Responding re-trigger the effect -- the
   // approval keypress releases tab-bar focus (printable char handler),
   // but isInputActive stays false throughout, so without this extra
   // dependency the focus would never be restored.
@@ -151,7 +151,7 @@ export const AgentComposer: React.FC<AgentComposerProps> = ({ agentId }) => {
     }
   }, [isInputActive, streamingState, setAgentTabBarFocused]);
 
-  // ── Focus management between input and tab bar ──
+  // -- Focus management between input and tab bar --
 
   const handleKeypress = useCallback(
     (key: Key): boolean => {
@@ -171,7 +171,7 @@ export const AgentComposer: React.FC<AgentComposerProps> = ({ agentId }) => {
         return true; // consume non-printable keys
       }
 
-      // Down arrow at the bottom edge (or empty buffer) → focus the tab bar
+      // Down arrow at the bottom edge (or empty buffer) -> focus the tab bar
       if (keyMatchers[Command.NAVIGATION_DOWN](key)) {
         if (
           buffer.text === '' ||
@@ -187,7 +187,7 @@ export const AgentComposer: React.FC<AgentComposerProps> = ({ agentId }) => {
     [buffer, agentTabBarFocused, setAgentTabBarFocused],
   );
 
-  // ── Message queue (accumulate while streaming, flush as one prompt on idle) ──
+  // -- Message queue (accumulate while streaming, flush as one prompt on idle) --
 
   const [messageQueue, setMessageQueue] = useState<string[]>([]);
 
@@ -218,7 +218,7 @@ export const AgentComposer: React.FC<AgentComposerProps> = ({ agentId }) => {
     [interactiveAgent, streamingState],
   );
 
-  // ── Render ──
+  // -- Render --
 
   const statusLabel = useMemo(() => {
     switch (status) {
@@ -241,7 +241,7 @@ export const AgentComposer: React.FC<AgentComposerProps> = ({ agentId }) => {
     }
   }, [status, interactiveAgent]);
 
-  // ── Approval-mode styling (mirrors main InputPrompt) ──
+  // -- Approval-mode styling (mirrors main InputPrompt) --
 
   const isYolo = agentApprovalMode === ApprovalMode.YOLO;
   const isAutoAccept = agentApprovalMode !== ApprovalMode.DEFAULT;
@@ -264,12 +264,12 @@ export const AgentComposer: React.FC<AgentComposerProps> = ({ agentId }) => {
   return (
     <StreamingContext.Provider value={streamingState}>
       <Box flexDirection="column" marginTop={1}>
-        {/* Loading indicator — mirrors main Composer but reads agent's
+        {/* Loading indicator -- mirrors main Composer but reads agent's
             streaming state via the overridden StreamingContext. */}
         <LoadingIndicator
           currentLoadingPhrase={
             streamingState === StreamingState.Responding
-              ? t('Thinking…')
+              ? t('Thinking...')
               : undefined
           }
           elapsedTime={elapsedTime}
@@ -284,7 +284,7 @@ export const AgentComposer: React.FC<AgentComposerProps> = ({ agentId }) => {
 
         <QueuedMessageDisplay messageQueue={messageQueue} />
 
-        {/* Input prompt — always visible, like the main Composer */}
+        {/* Input prompt -- always visible, like the main Composer */}
         <BaseTextInput
           buffer={buffer}
           onSubmit={handleSubmit}

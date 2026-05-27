@@ -137,7 +137,7 @@ function setup(initial: readonly DialogEntry[]): Harness {
   const monitorCancel = vi.fn();
   const dreamCancelTask = vi.fn();
   // Stub registry that resolves `.get(agentId)` against the current entries
-  // snapshot — the dialog now re-reads agent entries via `.get()` to pick up
+  // snapshot -- the dialog now re-reads agent entries via `.get()` to pick up
   // live activity/stats mutations the snapshot misses.
   let currentEntries: readonly DialogEntry[] = initial;
   const config = {
@@ -219,7 +219,7 @@ function setup(initial: readonly DialogEntry[]): Harness {
       // Real `useKeypress` unbinds the previous callback on rerender, so
       // only the most recently registered closure should run. Calling all
       // accumulated handlers misses state updates that happened between
-      // renders (the older closures see stale state) — the symptom looks
+      // renders (the older closures see stale state) -- the symptom looks
       // like a re-render race in production code that doesn't exist.
       act(() => {
         const latest = handlers[handlers.length - 1];
@@ -274,7 +274,7 @@ describe('BackgroundTasksDialog', () => {
   });
 
   it('routes monitor cancel via monitorRegistry.cancel(monitorId)', () => {
-    // Pin the monitor-cancel branch in `cancelSelected` — flipping it to
+    // Pin the monitor-cancel branch in `cancelSelected` -- flipping it to
     // anything else (e.g. shell's `requestCancel`) would silently break,
     // since neither task_stop nor the dialog-test mocks fail loudly on
     // the wrong method name.
@@ -287,7 +287,7 @@ describe('BackgroundTasksDialog', () => {
 
     h.pressKey({ sequence: 'x' });
     expect(h.monitorCancel).toHaveBeenCalledWith('mon-zzz');
-    // Agent registry's cancel must NOT be called for a monitor entry —
+    // Agent registry's cancel must NOT be called for a monitor entry --
     // belt-and-braces guard against the kind switch falling through.
     expect(h.cancel).not.toHaveBeenCalled();
   });
@@ -300,7 +300,7 @@ describe('BackgroundTasksDialog', () => {
     h.call(() => h.probe.current!.actions.enterDetail());
     expect(h.probe.current!.state.dialogMode).toBe('detail');
 
-    // The auto-fallback ref must only trigger on a running → terminal
+    // The auto-fallback ref must only trigger on a running -> terminal
     // transition. Re-rendering with a fresh terminal entry must not evict
     // the user from detail.
     h.setEntries([{ ...done }]);
@@ -350,7 +350,7 @@ describe('BackgroundTasksDialog', () => {
     // the tool-call's finally path unregisters it. The dialog's hint
     // footer drops "x stop" once status leaves 'running', but without
     // gating handleCancelKey itself, the first `x` would still arm a
-    // confirm step on the (now-terminal) entry — surfacing a misleading
+    // confirm step on the (now-terminal) entry -- surfacing a misleading
     // "x again to confirm stop" line that does nothing.
     const completed = entry({
       agentId: 'fg-done',
@@ -371,7 +371,7 @@ describe('BackgroundTasksDialog', () => {
   it('detail-mode left clears any armed foreground cancel before exiting', () => {
     // Detail-mode `x` arms the foreground confirm step on the focused
     // entry. If the user presses `left` to back out without confirming,
-    // the armed state must NOT carry into list mode — otherwise the
+    // the armed state must NOT carry into list mode -- otherwise the
     // hint bar still shows "x again to confirm stop" and the next `x`
     // unintentionally cancels the run.
     const fg = entry({
@@ -406,7 +406,7 @@ describe('BackgroundTasksDialog', () => {
 
     h.pressKey({ sequence: 'x' });
     h.pressKey({ name: 'escape' });
-    // Dialog still open — Esc on the armed cancel resets the confirm
+    // Dialog still open -- Esc on the armed cancel resets the confirm
     // state instead of nuking the dialog.
     expect(h.probe.current!.state.dialogOpen).toBe(true);
 
@@ -547,7 +547,7 @@ describe('BackgroundTasksDialog', () => {
     it('uses singular "1 event" / plural "N events"', () => {
       const f1 = openMonitorDetail({ eventCount: 1 } as Partial<DialogEntry>);
       expect(f1).toContain('1 event');
-      // Guard against false positive — substring "1 event" also matches "1 events".
+      // Guard against false positive -- substring "1 event" also matches "1 events".
       expect(f1).not.toContain('1 events');
 
       const f5 = openMonitorDetail({ eventCount: 5 } as Partial<DialogEntry>);
@@ -585,7 +585,7 @@ describe('BackgroundTasksDialog', () => {
       } as Partial<DialogEntry>);
       expect(f).toContain('Error');
       expect(f).toContain('spawn ENOENT');
-      // The auto-stop label must not appear on a `failed` entry — the
+      // The auto-stop label must not appear on a `failed` entry -- the
       // two error-block branches share a render slot, so a regression
       // collapsing them would silently swap the user-facing wording.
       expect(f).not.toContain('Stopped because');
@@ -609,7 +609,7 @@ describe('BackgroundTasksDialog', () => {
 
   describe('dream entries', () => {
     // Coverage for the dream task kind in the unified pill / dialog
-    // plumbing — list rendering, detail body, hint visibility, and
+    // plumbing -- list rendering, detail body, hint visibility, and
     // cancellation routing. Mirrors the agent / shell / monitor
     // coverage profile so each kind has parity in this test file.
     it('renders the [dream] row with session count in list mode', () => {
@@ -654,7 +654,7 @@ describe('BackgroundTasksDialog', () => {
     });
 
     it("routes 'x' on a running dream to MemoryManager.cancelTask(dreamId)", () => {
-      // Pin the dream-cancel branch in `cancelSelected` — flipping it
+      // Pin the dream-cancel branch in `cancelSelected` -- flipping it
       // to anything else (e.g. shell's `requestCancel`) would silently
       // break the only path the user has to stop a runaway dream
       // consolidation, since the hint already advertises the action.
@@ -662,7 +662,7 @@ describe('BackgroundTasksDialog', () => {
       h.call(() => h.probe.current!.actions.openDialog());
       h.pressKey({ sequence: 'x' });
       expect(h.dreamCancelTask).toHaveBeenCalledWith('d-zzz');
-      // Belt-and-braces — the registry-side cancel paths must not fire
+      // Belt-and-braces -- the registry-side cancel paths must not fire
       // for a dream entry, otherwise the wrong AbortController gets
       // signalled.
       expect(h.cancel).not.toHaveBeenCalled();
@@ -681,7 +681,7 @@ describe('BackgroundTasksDialog', () => {
     });
 
     it('renders the Error block on failed status with a "+ Stopped because" verb', () => {
-      // Dream failures need to surface — they are the user's only signal
+      // Dream failures need to surface -- they are the user's only signal
       // that consolidation didn't happen as expected (success path
       // already produces a memory_saved toast in useGeminiStream).
       const h = setup([
@@ -712,7 +712,7 @@ describe('BackgroundTasksDialog', () => {
       // First 8 visible.
       expect(f).toContain('topic-1');
       expect(f).toContain('topic-8');
-      // Past the cap — must NOT be inlined.
+      // Past the cap -- must NOT be inlined.
       expect(f).not.toContain('topic-9');
       expect(f).not.toContain('topic-12');
       // Tail summary.

@@ -1,4 +1,4 @@
-🏛️ 
+ 
 # Unified Engineering Engine Architecture
 
 ## Overview

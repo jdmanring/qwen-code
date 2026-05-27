@@ -8,10 +8,10 @@ a specific type of task. Profiles live in `.qwen/agents/` as Markdown files with
 ## What a profile contains
 
 Each profile specifies:
-- **Which model to use** — a model ID from `settings.json`
-- **Which skills to activate** — skill names from `.qwen/skills/`
-- **System prompt emphasis** — what the model should prioritize for this task type
-- **When to apply it** — file patterns and task keywords that trigger this profile
+- **Which model to use** -- a model ID from `settings.json`
+- **Which skills to activate** -- skill names from `.qwen/skills/`
+- **System prompt emphasis** -- what the model should prioritize for this task type
+- **When to apply it** -- file patterns and task keywords that trigger this profile
 
 Example profile header:
 ```yaml
@@ -73,7 +73,7 @@ File: `apps/control-plane-daemon/src/control_plane_daemon/execution_profile_sele
 
 1. Create `.qwen/agents/<name>.md` with YAML frontmatter (model, skills, triggers) and a Markdown system prompt body
 2. Ensure any skills listed in the profile exist in `.qwen/skills/`
-3. The profile is picked up automatically on next daemon start — no code change required
+3. The profile is picked up automatically on next daemon start -- no code change required
 
 Follow the naming standard: use plain engineering terms. `database-migration.md` is good;
 `schema-evolution-wizard.md` is not.

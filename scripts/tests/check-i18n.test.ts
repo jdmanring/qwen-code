@@ -150,12 +150,12 @@ describe('checkI18n', () => {
       MissingInStrict: 'MissingInStrict',
     });
     writeLocale(localesDir, 'zh', {
-      Used: '已使用',
-      ExtraStrict: '额外',
+      Used: '',
+      ExtraStrict: '',
     });
     writeLocale(localesDir, 'zh-TW', {
-      Used: '已使用',
-      ExtraStrict: '額外',
+      Used: '',
+      ExtraStrict: '',
     });
     writeSource(sourceDir, "t('Used');\nt('MissingInStrict');\n");
 
@@ -188,7 +188,7 @@ describe('checkI18n', () => {
     });
     writeLocale(localesDir, 'fr', {
       Used: 'Utilise',
-      ExtraStrict: 'Supplémentaire',
+      ExtraStrict: 'Supplmentaire',
     });
     writeSource(sourceDir, "t('Used');\nt('MissingInStrict');\n");
 
@@ -216,7 +216,7 @@ describe('checkI18n', () => {
       Optional: 'Optional',
       Required: 'Required',
     });
-    writeLocale(localesDir, 'fr', { ExtraLoose: 'Supplémentaire' });
+    writeLocale(localesDir, 'fr', { ExtraLoose: 'Supplmentaire' });
     writeSource(sourceDir, "t('Optional');\nt('Required');\n");
 
     const result = await checkI18n({
@@ -239,7 +239,7 @@ describe('checkI18n', () => {
     writeLocale(localesDir, 'en', { Used: 'Used' });
     writeLocale(localesDir, 'fr', {
       Used: 'Utilise',
-      ExtraLoose: 'Supplémentaire',
+      ExtraLoose: 'Supplmentaire',
     });
     writeSource(sourceDir, "t('Used');\n");
 
@@ -319,8 +319,8 @@ describe('checkI18n', () => {
       'Line\nbreak': 'Line\nbreak',
     });
     writeLocale(localesDir, 'fr', {
-      "Quoted ' key": 'Clé avec apostrophe',
-      'Tabbed\tkey': 'Clé avec tabulation',
+      "Quoted ' key": 'Cl avec apostrophe',
+      'Tabbed\tkey': 'Cl avec tabulation',
       'Line\nbreak': 'Saut de ligne',
     });
     writeSource(
@@ -352,20 +352,20 @@ describe('checkI18n', () => {
       Config: 'Config',
     });
     writeLocale(localesDir, 'zh', {
-      Open: '打开',
-      Server: '服务器',
-      Menu: '菜单',
-      Disable: '禁用',
-      Config: '配置',
+      Open: '',
+      Server: '',
+      Menu: '',
+      Disable: '',
+      Config: '',
     });
     writeLocale(localesDir, 'zh-TW', {
       // Regressions we expect the check to catch
-      Open: '啓動', // variant Traditional 啓 (OpenCC s2t artifact)
-      Server: '服務器', // Mainland vocabulary
-      Menu: '菜單', // Mainland vocabulary
-      // Taiwan-standard vocabulary — must NOT be flagged
-      Disable: '禁用',
-      Config: '配置',
+      Open: '', // variant Traditional  (OpenCC s2t artifact)
+      Server: '', // Mainland vocabulary
+      Menu: '', // Mainland vocabulary
+      // Taiwan-standard vocabulary -- must NOT be flagged
+      Disable: '',
+      Config: '',
     });
     writeSource(
       sourceDir,
@@ -380,13 +380,13 @@ describe('checkI18n', () => {
     });
 
     expect(result.errors).toContain(
-      'Non-Taiwan vocabulary in zh-TW.js at "Open": "啓" should be "啟"',
+      'Non-Taiwan vocabulary in zh-TW.js at "Open": "" should be ""',
     );
     expect(result.errors).toContain(
-      'Non-Taiwan vocabulary in zh-TW.js at "Server": "服務器" should be "伺服器"',
+      'Non-Taiwan vocabulary in zh-TW.js at "Server": "" should be ""',
     );
     expect(result.errors).toContain(
-      'Non-Taiwan vocabulary in zh-TW.js at "Menu": "菜單" should be "選單"',
+      'Non-Taiwan vocabulary in zh-TW.js at "Menu": "" should be ""',
     );
     expect(result.errors).not.toContainEqual(
       expect.stringContaining('at "Disable"'),
@@ -398,25 +398,25 @@ describe('checkI18n', () => {
 
   it('returns no findings for clean Taiwan Traditional translations', () => {
     const findings = findForbiddenZhTwPatterns({
-      Open: '開啟',
-      Server: '伺服器',
-      Menu: '選單',
-      Disable: '禁用',
-      Config: '配置',
-      Link: '連結',
-      History: '歷史',
+      Open: '',
+      Server: '',
+      Menu: '',
+      Disable: '',
+      Config: '',
+      Link: '',
+      History: '',
     });
     expect(findings).toEqual([]);
   });
 
   it('reports only the most specific pattern per value (no duplicate findings)', () => {
-    // `历史` (Simplified) overlaps with the single-char pattern `历`.
+    // `` (Simplified) overlaps with the single-char pattern ``.
     // We expect exactly one finding for the longer/more specific pattern.
     const findings = findForbiddenZhTwPatterns({
-      History: '历史',
+      History: '',
     });
     expect(findings).toEqual([
-      { key: 'History', pattern: '历史', preferred: '歷史' },
+      { key: 'History', pattern: '', preferred: '' },
     ]);
   });
 

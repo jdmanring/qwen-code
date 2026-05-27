@@ -5,22 +5,22 @@
  */
 
 /**
- * InteractiveSession — lightweight terminal session driver for interactive
+ * InteractiveSession -- lightweight terminal session driver for interactive
  * integration tests.
  *
  * Architecture:
  *   node-pty (pseudo-terminal)
- *     ↓  raw ANSI byte stream
+ *       raw ANSI byte stream
  *   @xterm/headless (pure Node.js terminal emulator)
- *     ↓  proper ANSI processing: cursor movement, line clearing, scrollback
- *   buffer.active.getLine()  →  rendered screen text
+ *       proper ANSI processing: cursor movement, line clearing, scrollback
+ *   buffer.active.getLine()  ->  rendered screen text
  *
- * No browser, no Playwright — runs entirely in Node.js.
+ * No browser, no Playwright -- runs entirely in Node.js.
  */
 
 import * as pty from '@lydell/node-pty';
 import stripAnsi from 'strip-ansi';
-// @xterm/headless is CJS — use default import + destructure
+// @xterm/headless is CJS -- use default import + destructure
 import xtermHeadless from '@xterm/headless';
 const { Terminal } = xtermHeadless;
 type Terminal = InstanceType<typeof Terminal>;
@@ -160,7 +160,7 @@ export class InteractiveSession {
   }
 
   /**
-   * Read the rendered terminal screen — what a user would actually see.
+   * Read the rendered terminal screen -- what a user would actually see.
    * Uses @xterm/headless buffer to get properly processed output,
    * handling cursor movement, line clearing, and scrollback.
    */

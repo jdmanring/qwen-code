@@ -34,7 +34,7 @@ export const TempFileModal = ({
         <div className="modal-header">
           <span className="modal-title font-mono">{state.fileName}</span>
           <button className="modal-close" onClick={onClose} aria-label="Close">
-            ✕
+            
           </button>
         </div>
         <pre className="modal-content">{state.content}</pre>

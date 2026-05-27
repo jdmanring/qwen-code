@@ -67,7 +67,7 @@ function mockExecError() {
 }
 
 /**
- * Helper: simulate Node's maxBuffer overrun — child is killed, partial
+ * Helper: simulate Node's maxBuffer overrun -- child is killed, partial
  * stdout is delivered, error.code is 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER'.
  */
 function mockMaxBufferExceeded(partialStdout: string) {
@@ -143,7 +143,7 @@ describe('pdf utilities', () => {
     });
 
     it('should reject malformed tokens that parseInt would silently truncate', () => {
-      // Whole-string validation — parseInt() would accept each of these.
+      // Whole-string validation -- parseInt() would accept each of these.
       expect(parsePDFPageRange('5abc')).toBeNull();
       expect(parsePDFPageRange('1-2-3')).toBeNull();
       expect(parsePDFPageRange('1-2x')).toBeNull();
@@ -218,7 +218,7 @@ describe('pdf utilities', () => {
 
     it('should dedupe concurrent callers to a single subprocess spawn', async () => {
       // Returning a delayed result lets us start multiple callers before
-      // the first resolves — without in-flight promise caching each one
+      // the first resolves -- without in-flight promise caching each one
       // would have spawned its own pdftotext -v probe.
       mockExecFile.mockImplementation(
         (_cmd: unknown, _args: unknown, _opts: unknown, cb: unknown) => {
@@ -469,7 +469,7 @@ describe('pdf utilities', () => {
 
     it('should NOT treat maxBuffer overrun as success when stdout is tiny', async () => {
       // If pdftotext spilled into maxBuffer-exceeded with very little
-      // stdout, the overrun was probably caused by stderr warnings —
+      // stdout, the overrun was probably caused by stderr warnings --
       // pretending we got a valid extraction would feed garbage to the
       // model. Re-run the password/corrupt detectors on the stderr we
       // did capture, then fall back to a generic failure.

@@ -5,8 +5,8 @@
  */
 
 /**
- * BackgroundTaskViewContext — React state for the Background tasks
- * dialog. Subscription plumbing (registry callbacks → entries) lives in
+ * BackgroundTaskViewContext -- React state for the Background tasks
+ * dialog. Subscription plumbing (registry callbacks -> entries) lives in
  * `useBackgroundTaskView`, invoked once here so it owns the single-slot
  * `setStatusChangeCallback` for the TUI's lifetime.
  */
@@ -27,7 +27,7 @@ import {
 
 const debugLogger = createDebugLogger('BG_TASK_VIEW');
 
-// ─── Types ──────────────────────────────────────────────────
+// --- Types --------------------------------------------------
 
 export type BackgroundDialogMode = 'closed' | 'list' | 'detail' | 'detail-from-panel';
 
@@ -75,14 +75,14 @@ export interface BackgroundTaskViewActions {
   setSelectedIndex(index: number): void;
 }
 
-// ─── Context ────────────────────────────────────────────────
+// --- Context ------------------------------------------------
 
 export const BackgroundTaskViewStateContext =
   createContext<BackgroundTaskViewState | null>(null);
 export const BackgroundTaskViewActionsContext =
   createContext<BackgroundTaskViewActions | null>(null);
 
-// ─── Defaults (used when no provider is mounted) ────────────
+// --- Defaults (used when no provider is mounted) ------------
 
 const DEFAULT_STATE: BackgroundTaskViewState = {
   entries: [],
@@ -113,7 +113,7 @@ const DEFAULT_ACTIONS: BackgroundTaskViewActions = {
   setSelectedIndex: noop,
 };
 
-// ─── Hooks ──────────────────────────────────────────────────
+// --- Hooks --------------------------------------------------
 
 export function useBackgroundTaskViewState(): BackgroundTaskViewState {
   return useContext(BackgroundTaskViewStateContext) ?? DEFAULT_STATE;
@@ -123,7 +123,7 @@ export function useBackgroundTaskViewActions(): BackgroundTaskViewActions {
   return useContext(BackgroundTaskViewActionsContext) ?? DEFAULT_ACTIONS;
 }
 
-// ─── Provider ───────────────────────────────────────────────
+// --- Provider -----------------------------------------------
 
 interface BackgroundTaskViewProviderProps {
   config?: Config;
@@ -148,10 +148,10 @@ export function BackgroundTaskViewProvider({
   const dialogOpen = dialogMode !== 'closed';
   const hasEntries = entries.length > 0;
 
-  // Drop stale pill focus once the pill itself unmounts — i.e., when the
+  // Drop stale pill focus once the pill itself unmounts -- i.e., when the
   // registry is empty. The pill stays rendered while terminal entries
   // exist (so the user can reopen the dialog post-termination), so we
-  // intentionally do *not* drop focus on the running → terminal flip.
+  // intentionally do *not* drop focus on the running -> terminal flip.
   useEffect(() => {
     if (pillFocused && !hasEntries) setPillFocused(false);
   }, [pillFocused, hasEntries]);
@@ -218,7 +218,7 @@ export function BackgroundTaskViewProvider({
     }
     // All three registries' cancel paths are no-ops on non-running
     // entries, so no pre-check here. Shell cancel goes through
-    // requestCancel — it triggers the AbortController only and lets the
+    // requestCancel -- it triggers the AbortController only and lets the
     // spawn's settle path record the real terminal moment + outcome
     // (mirrors the task_stop tool path in #3687). Monitor cancel is
     // synchronous: settle + abort happen inside the registry's cancel(),
@@ -250,7 +250,7 @@ export function BackgroundTaskViewProvider({
         if (!ok) {
           debugLogger.warn(
             `cancelSelected: dream task ${target.dreamId} could not be cancelled ` +
-              `(internal state inconsistency — see MemoryManager.cancelTask warn).`,
+              `(internal state inconsistency -- see MemoryManager.cancelTask warn).`,
           );
         }
         break;

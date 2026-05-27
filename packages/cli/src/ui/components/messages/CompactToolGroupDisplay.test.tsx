@@ -15,7 +15,7 @@ import type { IndividualToolCallDisplay } from '../../types.js';
 // StreamingContext; stub it out so we can test the elapsed/timeout
 // plumbing in isolation.
 vi.mock('../shared/ToolStatusIndicator.js', () => ({
-  ToolStatusIndicator: () => <Text>•</Text>,
+  ToolStatusIndicator: () => <Text></Text>,
   STATUS_INDICATOR_WIDTH: 2,
 }));
 
@@ -51,7 +51,7 @@ function toolCall(
   };
 }
 
-describe('<CompactToolGroupDisplay /> — shell timeout plumbing', () => {
+describe('<CompactToolGroupDisplay /> -- shell timeout plumbing', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -73,7 +73,7 @@ describe('<CompactToolGroupDisplay /> — shell timeout plumbing', () => {
     const { lastFrame } = render(
       <CompactToolGroupDisplay toolCalls={[tool]} contentWidth={80} />,
     );
-    expect(lastFrame()).toContain('(0s · timeout 30s)');
+    expect(lastFrame()).toContain('(0s  timeout 30s)');
   });
 
   it('falls back to quiet elapsed-only when no timeout is surfaced', () => {
@@ -87,7 +87,7 @@ describe('<CompactToolGroupDisplay /> — shell timeout plumbing', () => {
     const { lastFrame } = render(
       <CompactToolGroupDisplay toolCalls={[tool]} contentWidth={80} />,
     );
-    // Sub-3s without a timeout budget → indicator is quiet.
+    // Sub-3s without a timeout budget -> indicator is quiet.
     expect(lastFrame()).not.toContain('timeout');
     expect(lastFrame()).not.toContain('0s');
   });
@@ -101,13 +101,13 @@ describe('<CompactToolGroupDisplay /> — shell timeout plumbing', () => {
     );
     vi.advanceTimersByTime(5_000);
     rerender(<CompactToolGroupDisplay toolCalls={[tool]} contentWidth={80} />);
-    // No timeout in display → legacy 3s-threshold elapsed.
+    // No timeout in display -> legacy 3s-threshold elapsed.
     expect(lastFrame()).toContain('5s');
     expect(lastFrame()).not.toContain('timeout');
   });
 });
 
-describe('<CompactToolGroupDisplay /> — summary label', () => {
+describe('<CompactToolGroupDisplay /> -- summary label', () => {
   it('renders default header (active tool name + count) when no compactLabel is provided', () => {
     const tools = [
       toolCall({ callId: 'c1', name: 'read_file' }),
@@ -120,7 +120,7 @@ describe('<CompactToolGroupDisplay /> — summary label', () => {
     const frame = lastFrame()!;
     // Active tool = last in array when none are executing/confirming.
     expect(frame).toContain('grep');
-    expect(frame).toContain('× 3');
+    expect(frame).toContain('* 3');
   });
 
   it('replaces header with compactLabel when provided', () => {
@@ -140,7 +140,7 @@ describe('<CompactToolGroupDisplay /> — summary label', () => {
     expect(frame).toContain('2 tools');
     // The raw tool name should not appear as the primary header when a
     // summary is shown.
-    expect(frame).not.toContain('read_file × 2');
+    expect(frame).not.toContain('read_file * 2');
   });
 
   it('shows tool count suffix only when multiple tools are present', () => {

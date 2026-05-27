@@ -66,7 +66,7 @@ export const AppHeader = ({ version }: AppHeaderProps) => {
     contentGeneratorConfig?.apiKeyEnvKey,
   );
 
-  // Resolve once per (settings identity) — file reads and sanitization are
+  // Resolve once per (settings identity) -- file reads and sanitization are
   // not free, and the merged settings reference is stable across renders
   // until a settings hot-reload swaps it.
   const resolvedBanner = useMemo(

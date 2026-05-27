@@ -125,8 +125,8 @@ describe('EventBus', () => {
   });
 
   it('emits slow_client_warning exactly once per overflow episode', async () => {
-    // Queue size 8; warn threshold = 75% = 6. Push to 6 → warning
-    // fires; push to 7 → no additional warning (sub.warned latched).
+    // Queue size 8; warn threshold = 75% = 6. Push to 6 -> warning
+    // fires; push to 7 -> no additional warning (sub.warned latched).
     const bus = new EventBus();
     const abort = new AbortController();
     const iter = bus.subscribe({ maxQueued: 8, signal: abort.signal });
@@ -162,24 +162,24 @@ describe('EventBus', () => {
     expect(warning!.id).toBeUndefined();
     expect(evicted!.id).toBeUndefined();
     // The two live events that DID make it through must carry
-    // contiguous ids — synthetic frames must not burn a slot.
+    // contiguous ids -- synthetic frames must not burn a slot.
     const live = collected.filter((e) => e.type === 'foo');
     expect(live.map((e) => e.id)).toEqual([1, 2]);
     abort.abort();
   });
 
   it('rearms slow_client_warning after queue drains below the hysteresis threshold', async () => {
-    // Threshold 75%, reset 37.5%. maxQueued=8 → warn at 6, reset at 3.
+    // Threshold 75%, reset 37.5%. maxQueued=8 -> warn at 6, reset at 3.
     const bus = new EventBus();
     const abort = new AbortController();
     const iter = bus.subscribe({ maxQueued: 8, signal: abort.signal });
     const it = iter[Symbol.asyncIterator]();
 
-    // Fill to 6 → first warning fires (force-pushed AFTER the 6th
+    // Fill to 6 -> first warning fires (force-pushed AFTER the 6th
     // event, so it sits at the back of the queue behind the 6 live
     // events).
     for (let i = 1; i <= 6; i++) bus.publish({ type: 'foo', data: i });
-    // Drain all 7 items (events 1–6 + warning frame) — leaves the
+    // Drain all 7 items (events 1-6 + warning frame) -- leaves the
     // queue empty, well below the 3-item reset threshold.
     const firstEpisode: BridgeEvent[] = [];
     for (let i = 0; i < 7; i++) firstEpisode.push((await it.next()).value);
@@ -193,7 +193,7 @@ describe('EventBus', () => {
     bus.publish({ type: 'foo', data: 7 });
     expect((await it.next()).value.data).toBe(7);
 
-    // Re-fill back past the threshold — second overflow episode must
+    // Re-fill back past the threshold -- second overflow episode must
     // produce a second warning because the flag was re-armed.
     for (let i = 8; i <= 13; i++) bus.publish({ type: 'foo', data: i });
     const secondEpisode: BridgeEvent[] = [];
@@ -217,11 +217,11 @@ describe('EventBus', () => {
     const iter = bus.subscribe({ maxQueued: 8, signal: abort.signal });
     const it = iter[Symbol.asyncIterator]();
 
-    // Episode 1: fill to 6 → warn at 75%. buf = [1..6, warning].
+    // Episode 1: fill to 6 -> warn at 75%. buf = [1..6, warning].
     for (let i = 1; i <= 6; i++) bus.publish({ type: 'foo', data: i });
 
     // Drain ALL 7 items (events 1..6 + warning frame). Live cap should
-    // now be 0 — the warning was a forced frame and must NOT have
+    // now be 0 -- the warning was a forced frame and must NOT have
     // counted as a live drain.
     const drained: BridgeEvent[] = [];
     for (let i = 0; i < 7; i++) drained.push((await it.next()).value);
@@ -234,11 +234,11 @@ describe('EventBus', () => {
     // threshold (live=6) fired a second warning prematurely or the
     // push at 7 was even rejected. Post-fix: live count is the truth,
     // and the second warning fires exactly at push 8 (live=8, queue
-    // full → push 8 fills the cap and either succeeds at the cap line
+    // full -> push 8 fills the cap and either succeeds at the cap line
     // or trips the warn check first).
     let rejected = 0;
     for (let i = 7; i <= 14; i++) {
-      // Stop publishing once the queue refuses — the 8th live publish
+      // Stop publishing once the queue refuses -- the 8th live publish
       // is the maxQueued ceiling.
       const ok = bus.publish({ type: 'foo', data: i }) !== undefined;
       if (!ok) rejected++;
@@ -249,7 +249,7 @@ describe('EventBus', () => {
     // Drain everything that's still alive in the iter. The exact frame
     // shape varies (depending on whether the bus also force-pushed a
     // second warning + evicted), but the ASSERTION we need is: the
-    // sub didn't get evicted on a phantom premature overflow — i.e.
+    // sub didn't get evicted on a phantom premature overflow -- i.e.
     // we received MORE THAN 1 live frame in this episode (pre-fix,
     // the live count drift evicted after 0-1 frames).
     const episode2: BridgeEvent[] = [];
@@ -266,7 +266,7 @@ describe('EventBus', () => {
     abort.abort();
   });
 
-  it('default ring size is 8000 (#3803 §02 target)', async () => {
+  it('default ring size is 8000 (#3803 02 target)', async () => {
     const bus = new EventBus();
     for (let i = 1; i <= 8001; i++) bus.publish({ type: 'foo', data: i });
     // After publishing 8001 frames into the default ring, the replay
@@ -294,11 +294,11 @@ describe('EventBus', () => {
     // Pre-fix the eviction path only did `this.subs.delete(sub)`,
     // leaving the AbortSignal abort-listener attached because the
     // dispose() closure was never invoked (consumer is stalled
-    // BY DEFINITION — that's what caused the overflow). Retention
+    // BY DEFINITION -- that's what caused the overflow). Retention
     // amplifies under a thousands-of-stalled-clients attack.
     const bus = new EventBus();
     const abort = new AbortController();
-    // Capture the listener count via the AbortSignal — we add a
+    // Capture the listener count via the AbortSignal -- we add a
     // sentinel listener and assert our own listener fires (proving
     // the signal isn't pinned by leaked closures); the eviction
     // path now invokes dispose() so the bus's own listener
@@ -310,7 +310,7 @@ describe('EventBus', () => {
     bus.publish({ type: 'foo', data: 2 }); // triggers eviction
     // Bus dropped the subscriber via dispose():
     expect(bus.subscriberCount).toBe(0);
-    // The abort listener is gone — firing abort now should NOT
+    // The abort listener is gone -- firing abort now should NOT
     // re-enter the bus's onAbort (which would no-op via the
     // `disposed` flag, but the listener shouldn't be attached at
     // all). We can't directly assert listener count without
@@ -361,7 +361,7 @@ describe('EventBus', () => {
     for (let i = 1; i <= 10; i++) bus.publish({ type: 'foo', data: i });
 
     const abort = new AbortController();
-    // Subscribe with maxQueued:2 — way smaller than the replay backlog.
+    // Subscribe with maxQueued:2 -- way smaller than the replay backlog.
     // Replay must NOT be silently truncated (a generic queue.push would
     // drop entries 4-10), otherwise the consumer thinks they caught up
     // when they didn't.
@@ -382,7 +382,7 @@ describe('EventBus', () => {
   it('a live publish AFTER a large replay does NOT evict the resumed subscriber', async () => {
     // Regression: the original `forcePush` impl bypassed the cap, but the
     // very next live `push()` saw `buf.length >= maxSize` and triggered
-    // the eviction path — which is exactly the contract `Last-Event-ID`
+    // the eviction path -- which is exactly the contract `Last-Event-ID`
     // is supposed to honor. The fix tracks force-pushed items separately
     // so the cap applies only to the LIVE backlog.
     const bus = new EventBus();
@@ -399,7 +399,7 @@ describe('EventBus', () => {
 
     // Now publish a LIVE event. Reviewer's concrete sequence:
     //   - push() check `buf.length - forcedInBuf >= maxSize`
-    //   - = (10 - 10) >= 2 → false → push accepted, buf becomes 11.
+    //   - = (10 - 10) >= 2 -> false -> push accepted, buf becomes 11.
     bus.publish({ type: 'live', data: 'after-replay' });
 
     const events: BridgeEvent[] = [];
@@ -407,7 +407,7 @@ describe('EventBus', () => {
       events.push(e);
       if (events.length === 11) break;
     }
-    // The live frame must arrive — NOT a `client_evicted` terminal.
+    // The live frame must arrive -- NOT a `client_evicted` terminal.
     expect(events.find((e) => e.type === 'client_evicted')).toBeUndefined();
     expect(events.at(-1)?.type).toBe('live');
     expect(events.filter((e) => e.type === 'replay')).toHaveLength(10);
@@ -449,7 +449,7 @@ describe('EventBus', () => {
     abort.abort();
     // Without an explicit dispose-on-abort path, the subscriber would
     // linger in `bus.subs` until the consumer drove next() or return().
-    // Here the consumer never iterates — the abort alone must clean up.
+    // Here the consumer never iterates -- the abort alone must clean up.
     expect(bus.subscriberCount).toBe(0);
 
     // The iterator still resolves cleanly when it eventually runs.
@@ -470,11 +470,11 @@ describe('EventBus', () => {
     const bus = new EventBus(3);
     for (let i = 1; i <= 5; i++) bus.publish({ type: 'foo', data: i });
     // Internal: only the last 3 should be replayable.
-    // Subscribe with lastEventId=0 — only ids 3, 4, 5 should be queued.
+    // Subscribe with lastEventId=0 -- only ids 3, 4, 5 should be queued.
     const abort = new AbortController();
     const iter = bus.subscribe({ lastEventId: 0, signal: abort.signal });
 
-    // Must `await` the iteration: the prior `void (async () => …)()` form
+    // Must `await` the iteration: the prior `void (async () => ...)()` form
     // returned synchronously to vitest, so the assertion below could
     // silently pass even if the ring eviction logic was broken.
     const out: BridgeEvent[] = [];

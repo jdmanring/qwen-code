@@ -45,7 +45,7 @@ type SkillScopedPermissionManager = Pick<
  * Returns true if the file at `filePath` exists and its YAML frontmatter
  * contains `source: auto-skill`.
  * Returns null if the file does not exist (caller may allow creation).
- * Returns false for any other read error (EISDIR, EACCES, etc.) — caller
+ * Returns false for any other read error (EISDIR, EACCES, etc.) -- caller
  * should deny in that case.
  */
 async function hasAutoSkillSource(filePath: string): Promise<boolean | null> {
@@ -54,10 +54,10 @@ async function hasAutoSkillSource(filePath: string): Promise<boolean | null> {
     content = await fs.readFile(filePath, 'utf-8');
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-      // File does not exist — allow creation.
+      // File does not exist -- allow creation.
       return null;
     }
-    // EISDIR, EACCES, EMFILE, EPERM, etc. — deny to be safe.
+    // EISDIR, EACCES, EMFILE, EPERM, etc. -- deny to be safe.
     return false;
   }
   // Match the opening frontmatter block only (up to the closing ---)
@@ -102,7 +102,7 @@ async function evaluateScopedDecision(
       // Read tools are allowed only within the project root. This prevents
       // the review agent from reading arbitrary files (e.g. ~/.aws/credentials)
       // and embedding them into a SKILL.md that gets committed.
-      if (!ctx.filePath) return 'allow'; // no path means listing root — allow
+      if (!ctx.filePath) return 'allow'; // no path means listing root -- allow
       const resolvedRead = path.resolve(projectRoot, ctx.filePath);
       const resolvedRoot = path.resolve(projectRoot);
       if (
@@ -126,7 +126,7 @@ async function evaluateScopedDecision(
       // For existing files, verify source: auto-skill is present.
       const sourceFlag = await hasAutoSkillSource(ctx.filePath);
       if (sourceFlag === null) {
-        // File does not exist yet — allow creation (path already validated above).
+        // File does not exist yet -- allow creation (path already validated above).
         return 'allow';
       }
       return sourceFlag ? 'allow' : 'deny';
@@ -136,9 +136,9 @@ async function evaluateScopedDecision(
       //   write_file can ONLY create a brand-new SKILL.md slot
       //   (edit is what updates an existing auto-skill).
       // Together with the EDIT case above, this gives:
-      //   create new skill   → write_file at fresh <name>/SKILL.md
-      //   update auto-skill  → edit on existing SKILL.md (source: auto-skill)
-      // Denying writes to existing paths is the hard guard for #4437 —
+      //   create new skill   -> write_file at fresh <name>/SKILL.md
+      //   update auto-skill  -> edit on existing SKILL.md (source: auto-skill)
+      // Denying writes to existing paths is the hard guard for #4437 --
       // it's what prevents an agent that picks a colliding name from
       // clobbering either another auto-skill or a user-authored skill.
       // The prompt enumeration is the soft guard above it.
@@ -147,7 +147,7 @@ async function evaluateScopedDecision(
       }
       // Restrict to the canonical `<name>/SKILL.md` slot. Without this,
       // the agent could write auxiliary files (notes, README, attachments)
-      // anywhere under `.qwen/skills/**` — SkillManager would ignore them
+      // anywhere under `.qwen/skills/**` -- SkillManager would ignore them
       // but they still pollute the directory.
       if (path.basename(ctx.filePath) !== SKILL_FILE_NAME) {
         return 'deny';
@@ -157,8 +157,8 @@ async function evaluateScopedDecision(
       } catch {
         return 'deny';
       }
-      // ENOENT → file does not exist → allow creation.
-      // Anything else (file present, EACCES, EISDIR, ...) → deny so we
+      // ENOENT -> file does not exist -> allow creation.
+      // Anything else (file present, EACCES, EISDIR, ...) -> deny so we
       // never overwrite something we cannot prove is safe to clobber.
       try {
         await fs.stat(ctx.filePath);
@@ -180,11 +180,11 @@ function getScopedDenyRule(
   switch (ctx.toolName) {
     case ToolNames.READ_FILE:
     case ToolNames.LS:
-      return undefined; // allow within project root — no deny rule needed
+      return undefined; // allow within project root -- no deny rule needed
     case ToolNames.EDIT:
       return `ManagedSkillReview(edit: only within ${getProjectSkillsRoot(projectRoot)} and only on skills with 'source: auto-skill' in frontmatter)`;
     case ToolNames.WRITE_FILE:
-      return `ManagedSkillReview(write_file: only within ${getProjectSkillsRoot(projectRoot)} and only to a path that does not yet exist — use a different skill name like \`<name>-2\`, or use \`edit\` to update an existing auto-skill)`;
+      return `ManagedSkillReview(write_file: only within ${getProjectSkillsRoot(projectRoot)} and only to a path that does not yet exist -- use a different skill name like \`<name>-2\`, or use \`edit\` to update an existing auto-skill)`;
     default:
       return undefined;
   }
@@ -237,7 +237,7 @@ const SKILL_REVIEW_SYSTEM_PROMPT = [
   '',
   'IMPORTANT constraints:',
   "- You may ONLY modify skill files that contain 'source: auto-skill' in their YAML frontmatter. Always read a skill file before editing it.",
-  '- Do NOT touch skills that lack this marker — they were created by the user.',
+  '- Do NOT touch skills that lack this marker -- they were created by the user.',
   "- When creating a new skill, you MUST include 'source: auto-skill' in the frontmatter so future review agents can safely update it.",
   '- Do NOT delete any skill. Only create or update.',
   '',
@@ -288,7 +288,7 @@ export async function listExistingSkillDirNames(
   }
   const names: string[] = [];
   for (const entry of entries) {
-    // Skill dirs can be symlinked — `skill-load.ts` and `skill-manager.ts`
+    // Skill dirs can be symlinked -- `skill-load.ts` and `skill-manager.ts`
     // both treat `isDirectory() || isSymbolicLink()` as "consider this a
     // skill candidate". Mirror that here so symlinked skills appear in
     // the enumeration and the agent steers clear of their names.
@@ -297,7 +297,7 @@ export async function listExistingSkillDirNames(
       await fs.stat(path.join(skillsRoot, entry.name, SKILL_FILE_NAME));
       names.push(entry.name);
     } catch {
-      // No SKILL.md (or unreadable) — skip; half-built directories
+      // No SKILL.md (or unreadable) -- skip; half-built directories
       // shouldn't reserve a name.
     }
   }
@@ -307,11 +307,11 @@ export async function listExistingSkillDirNames(
 
 /**
  * Exported for tests. The "(do not reuse these names)" line is the soft
- * guard for #4437 — the hard guard is `evaluateScopedDecision`'s WRITE_FILE
+ * guard for #4437 -- the hard guard is `evaluateScopedDecision`'s WRITE_FILE
  * branch denying any write to an existing path.
  *
  * Takes `projectRoot` (not `skillsRoot`) so the displayed path and the
- * enumeration both derive from the same source — keeps them from drifting
+ * enumeration both derive from the same source -- keeps them from drifting
  * if a future caller passes a non-standard root.
  */
 export async function buildTaskPrompt(projectRoot: string): Promise<string> {
@@ -319,7 +319,7 @@ export async function buildTaskPrompt(projectRoot: string): Promise<string> {
   const existing = await listExistingSkillDirNames(projectRoot);
   const existingLine =
     existing.length === 0
-      ? '(no skills exist yet — any name is available)'
+      ? '(no skills exist yet -- any name is available)'
       : `Existing skill names (do NOT reuse for write_file; use \`edit\` if you want to update one of these): ${existing.join(', ')}`;
   return [
     `Project skills directory: \`${skillsRoot}\``,

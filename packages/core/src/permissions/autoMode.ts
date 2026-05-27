@@ -5,16 +5,16 @@
  *
  * AUTO approval mode three-layer filter.
  *
- * Layer 1 (L5.1): acceptEdits fast-path — Edit/Write targeting a path inside
+ * Layer 1 (L5.1): acceptEdits fast-path -- Edit/Write targeting a path inside
  *   the workspace are auto-allowed without invoking the classifier.
- * Layer 2 (L5.2): safe-tool allowlist — built-in read-only / metadata tools
+ * Layer 2 (L5.2): safe-tool allowlist -- built-in read-only / metadata tools
  *   are auto-allowed without invoking the classifier.
- * Layer 3 (L5.3): LLM classifier — see `classifier.ts` (wired in by the
+ * Layer 3 (L5.3): LLM classifier -- see `classifier.ts` (wired in by the
  *   top-level `evaluateAutoMode` orchestrator).
  *
  * All three layers only fire when L4 PermissionManager returned `'default'`
  * (no rule matched). When L4 returns `'ask'` (user wrote an explicit ask
- * rule) the fast-paths are skipped — user intent takes precedence.
+ * rule) the fast-paths are skipped -- user intent takes precedence.
  */
 
 import type { Content } from '@google/genai';
@@ -34,7 +34,7 @@ const autoModeDebugLogger = createDebugLogger('AUTO_MODE');
 
 /**
  * Built-in tools whose any-parameter behavior is safe under the AUTO mode
- * classifier's threat model — they never write files, never perform network
+ * classifier's threat model -- they never write files, never perform network
  * calls, and never execute arbitrary code.
  *
  * MCP tools are intentionally excluded (third-party code, cannot be statically
@@ -52,7 +52,7 @@ export const SAFE_TOOL_ALLOWLIST: ReadonlySet<string> = new Set<string>([
   // Output / session metadata
   ToolNames.TODO_WRITE,
   ToolNames.STRUCTURED_OUTPUT,
-  // Inverse tools — hand control back to the user
+  // Inverse tools -- hand control back to the user
   ToolNames.ASK_USER_QUESTION,
   ToolNames.EXIT_PLAN_MODE,
   // Background task coordination (peers' permission checks still apply)
@@ -68,7 +68,7 @@ export const SAFE_TOOL_ALLOWLIST: ReadonlySet<string> = new Set<string>([
 /**
  * Returns true when `toolName` is a built-in tool whose every legal parameter
  * combination is safe enough to skip the classifier. Caller should only
- * consult this when L4 evaluation returned `'default'` — explicit user rules
+ * consult this when L4 evaluation returned `'default'` -- explicit user rules
  * still take precedence.
  */
 export function isInSafeToolAllowlist(toolName: string): boolean {
@@ -99,10 +99,10 @@ export function shouldRunAutoModeForCall(
 
 /**
  * Paths inside the workspace that nevertheless execute code on subsequent
- * tooling operations (git commit, npm install, CI runs, …) and must NOT
+ * tooling operations (git commit, npm install, CI runs, ...) and must NOT
  * take the acceptEdits fast-path. Without this list, a hostile AGENTS.md
- * could instruct the agent to write `.git/hooks/pre-commit` → fast-path
- * approves (it's in workspace) → next `git commit` runs arbitrary code
+ * could instruct the agent to write `.git/hooks/pre-commit` -> fast-path
+ * approves (it's in workspace) -> next `git commit` runs arbitrary code
  * without classifier review.
  *
  * Edits to these paths still pass through the AUTO classifier; users
@@ -110,10 +110,10 @@ export function shouldRunAutoModeForCall(
  * `permissions.allow` rule.
  */
 const PERSISTENCE_PATH_PATTERNS: readonly RegExp[] = Object.freeze([
-  /(^|\/)\.git\//, // git config, hooks, alias — covers .git/hooks/* and .git/config
+  /(^|\/)\.git\//, // git config, hooks, alias -- covers .git/hooks/* and .git/config
   /(^|\/)\.husky\//, // git hooks via husky
   /(^|\/)package\.json$/, // npm scripts (root + nested workspaces)
-  /(^|\/)\.npmrc$/, // registry override → malicious package fetch on next install
+  /(^|\/)\.npmrc$/, // registry override -> malicious package fetch on next install
   /(^|\/)(Makefile|makefile|GNUmakefile)$/, // make targets
   /(^|\/)\.?[Jj]ustfile$/, // just task runner
   /(^|\/)Taskfile\.ya?ml$/, // go-task
@@ -128,7 +128,7 @@ const PERSISTENCE_PATH_PATTERNS: readonly RegExp[] = Object.freeze([
  * Symlinks ARE resolved via `WorkspaceContext.isPathWithinWorkspace`, which
  * internally calls `fs.realpathSync`. A symlink whose target is outside the
  * workspace correctly fails this check and falls through to the classifier
- * — fail-safe by implementation.
+ * -- fail-safe by implementation.
  *
  * Caller should only consult this when L4 evaluation returned `'default'`.
  */
@@ -139,7 +139,7 @@ export function passesAcceptEditsFastPath(
   if (!EDIT_TOOL_NAMES.has(ctx.toolName)) return false;
   if (!ctx.filePath) return false;
   // Persistence paths (hooks, package.json scripts, CI definitions) must
-  // never auto-approve via fast-path — they execute code on subsequent
+  // never auto-approve via fast-path -- they execute code on subsequent
   // tooling operations.
   if (PERSISTENCE_PATH_PATTERNS.some((p) => p.test(ctx.filePath!))) {
     return false;
@@ -147,7 +147,7 @@ export function passesAcceptEditsFastPath(
   return config.getWorkspaceContext().isPathWithinWorkspace(ctx.filePath);
 }
 
-// ─── Top-level orchestrator ───────────────────────────────────────────────
+// --- Top-level orchestrator -----------------------------------------------
 
 /**
  * Unified decision returned by {@link evaluateAutoMode}.
@@ -184,7 +184,7 @@ export type AutoModeOutcome =
 /**
  * Apply an {@link AutoModeDecision} to denial-tracking state and return
  * an outcome the caller can act on. Shared between
- * `coreToolScheduler.ts` and `acp-integration/session/Session.ts` — the
+ * `coreToolScheduler.ts` and `acp-integration/session/Session.ts` -- the
  * switch on `decision.via`, the `recordAllow / recordBlock /
  * recordUnavailable` updates, and the formatted block message used to
  * all be duplicated line-for-line across the two files. Drift between
@@ -193,7 +193,7 @@ export type AutoModeOutcome =
  *
  * Callers retain responsibility for the surrounding integration
  * (marking the tool call scheduled vs writing an error response,
- * logging the fallback reason with denial-state context, etc.) — those
+ * logging the fallback reason with denial-state context, etc.) -- those
  * pieces differ between scheduler and Session.
  */
 export function applyAutoModeDecision(
@@ -224,12 +224,12 @@ export function applyAutoModeDecision(
       return { kind: 'fallback' };
     default: {
       const _exhaustive: never = decision;
-      // Surface drift at runtime — TS exhaustiveness can be bypassed
+      // Surface drift at runtime -- TS exhaustiveness can be bypassed
       // via `as` cast / JS interop / partial build. Without this log
       // every tool call would silently degrade to manual approval with
       // zero operator-visible signal.
       autoModeDebugLogger.error(
-        `Auto mode: unrecognised decision.via "${(decision as { via: string }).via}" — falling through to manual approval`,
+        `Auto mode: unrecognised decision.via "${(decision as { via: string }).via}" -- falling through to manual approval`,
       );
       void _exhaustive;
       return { kind: 'fallback' };
@@ -244,7 +244,7 @@ export function applyAutoModeDecision(
  * CLI and ACP paths surface identical diagnostic signal to operators
  * (context overflow vs API timeout vs construction failure).
  *
- * Callers are responsible for only invoking this on classifier verdicts —
+ * Callers are responsible for only invoking this on classifier verdicts --
  * `decision.via === 'classifier'` with `decision.shouldBlock === true`.
  */
 export function formatClassifierBlockMessage(
@@ -270,7 +270,7 @@ export interface EvaluateAutoModeInput {
    *
    * False here covers both "no user rule matched at all" (L4 returned
    * `'default'`) AND "tool's intrinsic L3 default was `'ask'` and the
-   * user has no rule" — both cases should still hit the fast-paths
+   * user has no rule" -- both cases should still hit the fast-paths
    * because the user hasn't expressed a contrary intent.
    */
   pmForcedAsk: boolean;
@@ -284,7 +284,7 @@ export interface EvaluateAutoModeInput {
    * When true, the L5.3 classifier is skipped and an unmatched call
    * resolves to `{ via: 'fallback' }`. Used by the scheduler to short-
    * circuit classifier dispatch when denialTracking has already armed a
-   * fallback to manual approval — while still letting safe tools take
+   * fallback to manual approval -- while still letting safe tools take
    * the L5.1 / L5.2 fast-paths.
    */
   skipClassifier?: boolean;
@@ -293,7 +293,7 @@ export interface EvaluateAutoModeInput {
 /**
  * Resolve a pending tool call under AUTO mode by walking the three-layer
  * filter in order. Caller must have already determined that L4 did not
- * resolve the call to `allow` or `deny` — `evaluateAutoMode` only runs
+ * resolve the call to `allow` or `deny` -- `evaluateAutoMode` only runs
  * when L4 produced `'ask'` (tool's intrinsic default OR user-forced) or
  * `'default'`.
  */
@@ -317,7 +317,7 @@ export async function evaluateAutoMode(
     return { via: 'fast-path:allowlist' };
   }
 
-  // User wrote an explicit `permissions.ask` rule matching this call —
+  // User wrote an explicit `permissions.ask` rule matching this call --
   // honor that intent and route to manual confirmation instead of letting
   // the classifier auto-approve. The fast-paths above already opt out for
   // the same reason; the classifier path was the missing leg.
@@ -334,7 +334,7 @@ export async function evaluateAutoMode(
   }
 
   // L5.3: two-stage LLM classifier.
-  // Forward the messages array by reference — buildClassifierContents only
+  // Forward the messages array by reference -- buildClassifierContents only
   // reads it. The previous spread `[...input.messages]` was a redundant
   // allocation on every classifier call.
   const result: ClassifierResult = await classifyAction({

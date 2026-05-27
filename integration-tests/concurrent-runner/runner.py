@@ -202,7 +202,7 @@ class GitWorktreeManager:
         if result.returncode != 0:
             raise RuntimeError(f"Failed to create initial commit: {result.stderr}")
 
-        self.console.print("[green]✓ Git repository initialized[/green]")
+        self.console.print("[green] Git repository initialized[/green]")
 
     async def create(self, source_repo: Path, worktree_dir: Path, branch: Optional[str] = None) -> Path:
         """Create a new git worktree from the source repository."""
@@ -839,7 +839,7 @@ class QwenRunner:
 
 
 def generate_run_matrix(config: RunConfig) -> List[RunRecord]:
-    """Generate all task × model combinations."""
+    """Generate all task * model combinations."""
     runs = []
     for task in config.tasks:
         for model in config.models:
@@ -921,7 +921,7 @@ async def execute_single_run(
             exit_code=run.exit_code,
             ended_at=run.ended_at,
         )
-        console.print(f"[green]✓[/green] {run.task_name} / {run.model}")
+        console.print(f"[green][/green] {run.task_name} / {run.model}")
         
     except Exception as e:
         run.ended_at = datetime.now().isoformat()
@@ -931,7 +931,7 @@ async def execute_single_run(
             error_message=str(e),
             ended_at=run.ended_at,
         )
-        console.print(f"[red]✗[/red] {run.task_name} / {run.model}: {e}")
+        console.print(f"[red][/red] {run.task_name} / {run.model}: {e}")
 
     finally:
         # Step 4: Capture git diff (before cleanup)
@@ -989,7 +989,7 @@ async def run_all(config: RunConfig, console: Console) -> ExecutionState:
     
     # Generate all runs
     runs = generate_run_matrix(config)
-    console.print(f"[bold]Generated {len(runs)} runs:[/bold] {len(config.tasks)} tasks × {len(config.models)} models")
+    console.print(f"[bold]Generated {len(runs)} runs:[/bold] {len(config.tasks)} tasks * {len(config.models)} models")
     
     # Initialize components
     tracker = StatusTracker(config.results_file, console)

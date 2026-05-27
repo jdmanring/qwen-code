@@ -109,7 +109,7 @@ describe('ChatRecordingService - auto-title trigger', () => {
       }),
       getResumedSessionData: vi.fn().mockReturnValue(undefined),
       // Default SessionService for the cross-process re-read: returns no
-      // title, i.e. "nothing else has landed on disk" — tests that need
+      // title, i.e. "nothing else has landed on disk" -- tests that need
       // a specific on-disk state override this mock.
       getSessionService: vi.fn().mockReturnValue({
         getSessionTitleInfo: vi.fn().mockReturnValue({}),
@@ -215,7 +215,7 @@ describe('ChatRecordingService - auto-title trigger', () => {
 
   it('retries across turns after a transient thrown error (up to cap)', async () => {
     // A transient error (network blip, 429, bad UTF-16 in one turn's history)
-    // must NOT permanently disable auto-titling — the next turn should retry.
+    // must NOT permanently disable auto-titling -- the next turn should retry.
     // The attempt cap bounds total waste.
     tryGenerateSessionTitleMock
       .mockRejectedValueOnce(new Error('transient'))
@@ -330,7 +330,7 @@ describe('ChatRecordingService - auto-title trigger', () => {
     expect(svc.getCurrentCustomTitle()).toBe('Auto-generated title');
     expect(svc.getCurrentTitleSource()).toBe('auto');
 
-    // finalize() was called by the constructor — drain the queued async
+    // finalize() was called by the constructor -- drain the queued async
     // write before inspecting the mock.
     await svc.flush();
 
@@ -449,7 +449,7 @@ describe('ChatRecordingService - auto-title trigger', () => {
   });
 
   it('aborts the in-flight generation on finalize and suppresses the title write', async () => {
-    // Model rejects when the signal fires — mirrors what a real provider's
+    // Model rejects when the signal fires -- mirrors what a real provider's
     // fetch layer does when the AbortController aborts. Previously this
     // test only checked that `signal.aborted` flipped; but what we actually
     // care about is that NO custom_title record gets written after abort.
@@ -472,14 +472,14 @@ describe('ChatRecordingService - auto-title trigger', () => {
 
     expect(capturedSignal).toBeDefined();
     expect(capturedSignal?.aborted).toBe(false);
-    // No title yet — generation is still pending.
+    // No title yet -- generation is still pending.
     expect(findCustomTitleRecord()).toBeUndefined();
 
     chatRecordingService.finalize();
     expect(capturedSignal?.aborted).toBe(true);
 
     await flushMicrotasks();
-    // The aborted generation must NOT result in a custom_title record —
+    // The aborted generation must NOT result in a custom_title record --
     // even though the mock technically "completed" (via rejection).
     expect(findCustomTitleRecord()).toBeUndefined();
     expect(chatRecordingService.getCurrentCustomTitle()).toBeUndefined();

@@ -35,7 +35,7 @@ describe('SuggestionsDisplay', () => {
       />,
     );
 
-    expect(lastFrame()).toContain('正在加载建议...');
+    expect(lastFrame()).toContain('...');
   });
 
   it('wraps long slash command descriptions instead of truncating them', () => {

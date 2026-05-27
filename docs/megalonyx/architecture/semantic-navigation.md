@@ -1,4 +1,4 @@
-🏛️ 
+ 
 # Semantic Navigation: AST & Symbol Mapping
 
 This document defines the technical specification for moving from probabilistic text search (grep) to structural semantic navigation using Abstract Syntax Trees (AST).

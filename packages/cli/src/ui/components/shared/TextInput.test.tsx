@@ -73,7 +73,7 @@ describe('TextInput', () => {
       expect(onSubmit).toHaveBeenCalledTimes(1);
     });
 
-    it('does NOT submit on Shift+Enter — inserts newline instead', () => {
+    it('does NOT submit on Shift+Enter -- inserts newline instead', () => {
       render(
         <TextInput
           value=""
@@ -91,7 +91,7 @@ describe('TextInput', () => {
       expect(onChange).toHaveBeenCalled();
     });
 
-    it('does NOT submit on Ctrl+Enter — inserts newline instead', () => {
+    it('does NOT submit on Ctrl+Enter -- inserts newline instead', () => {
       render(
         <TextInput
           value=""

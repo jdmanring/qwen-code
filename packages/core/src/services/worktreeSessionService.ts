@@ -23,7 +23,7 @@ export interface WorktreeSession {
   worktreeBranch: string;
   /**
    * The repo top-level (output of `GitWorktreeService.getRepoTopLevel()`)
-   * captured when the worktree was created — NOT the user's launch cwd.
+   * captured when the worktree was created -- NOT the user's launch cwd.
    *
    * Named `originalCwd` for on-disk back-compat with sidecars written
    * by earlier Phase C builds; semantically this is the value to pass
@@ -31,7 +31,7 @@ export interface WorktreeSession {
    * (e.g. `handleWorktreeExit`'s remove path), because the worktree
    * always lives under `<repoTopLevel>/.qwen/worktrees/`. When the
    * CLI is launched from a monorepo subdirectory, `process.cwd()` and
-   * `getRepoTopLevel()` differ — this field stores the latter.
+   * `getRepoTopLevel()` differ -- this field stores the latter.
    *
    * Consumers expecting `process.cwd()` semantics should NOT use this
    * field; capture cwd separately at the time of need.
@@ -41,7 +41,7 @@ export interface WorktreeSession {
   /**
    * HEAD commit SHA captured at the moment the worktree was created.
    * Used by `WorktreeExitDialog` to count new commits inside the worktree.
-   * Empty string when capture failed (rev-parse error) — consumers must
+   * Empty string when capture failed (rev-parse error) -- consumers must
    * treat empty as "unknown" and skip the commit-count display.
    */
   originalHeadCommit: string;
@@ -76,7 +76,7 @@ function isValidWorktreeSession(value: unknown): value is WorktreeSession {
  * The validation check guards against partial writes and manual edits
  * that would otherwise propagate `undefined` paths into consumers
  * (`removeUserWorktree(undefined)`, `git status` with `cwd: undefined`,
- * Footer rendering `⎇ undefined (undefined)`).
+ * Footer rendering ` undefined (undefined)`).
  *
  * Throws only on unexpected I/O errors (permission, EIO, etc.) so the
  * caller can log them; benign ENOENT / parse failures are silenced into
@@ -127,7 +127,7 @@ export async function clearWorktreeSession(filePath: string): Promise<void> {
 
 export interface WorktreeRestoreResult {
   /**
-   * When non-null, the worktree directory is still alive — callers should
+   * When non-null, the worktree directory is still alive -- callers should
    * surface this one-line context message so the model continues using
    * the worktree path for file operations after a `--resume`.
    *
@@ -154,12 +154,12 @@ export interface WorktreeRestoreResult {
  *    which returns null without throwing for parse errors).
  * 2. The worktree directory referenced by a valid sidecar no longer exists.
  * 3. The sidecar exists but `readWorktreeSession` threw a non-ENOENT I/O
- *    error (e.g. permission, EIO) — we still attempt cleanup so the next
+ *    error (e.g. permission, EIO) -- we still attempt cleanup so the next
  *    resume isn't stuck reading the same broken file.
  *
  * Shared by TUI / headless / ACP entry points so all three behave
  * consistently on `--resume`. Failures are logged via the supplied
- * `onWarn` callback but never thrown — worktree restore is best-effort,
+ * `onWarn` callback but never thrown -- worktree restore is best-effort,
  * the session itself must still load.
  */
 export async function restoreWorktreeContext(
@@ -171,7 +171,7 @@ export async function restoreWorktreeContext(
     session = await readWorktreeSession(sidecarPath);
   } catch (error) {
     onWarn?.(error);
-    // Sidecar exists but we can't read it (permission, EIO, …). Try to
+    // Sidecar exists but we can't read it (permission, EIO, ...). Try to
     // clear it so subsequent --resume calls don't keep hitting the same
     // error. If the clear also fails, surface that too but don't throw.
     try {
@@ -200,7 +200,7 @@ export async function restoreWorktreeContext(
   // `<originalCwd>/.qwen/worktrees/`. Schema validation (readWorktreeSession)
   // already ensures the fields are strings, but a manually-edited or
   // copy-pasted sidecar could still point worktreePath at an arbitrary
-  // existing directory — the model would then be directed to operate
+  // existing directory -- the model would then be directed to operate
   // there. Restrict to the Qwen-managed worktrees subtree so a
   // tampered sidecar can't redirect file operations to /etc, ~/, etc.
   // (PR #4174 review #3256839787.)

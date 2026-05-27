@@ -236,7 +236,7 @@ export function ThemeDialog({
             </Text>
             {/* Get the Theme object for the highlighted theme, fall back to default if not found */}
             {(() => {
-              // For 'auto', show the currently resolved theme (set by onHighlight → applyTheme)
+              // For 'auto', show the currently resolved theme (set by onHighlight -> applyTheme)
               const previewTheme =
                 highlightedThemeName === AUTO_THEME_NAME
                   ? themeManager.getActiveTheme()

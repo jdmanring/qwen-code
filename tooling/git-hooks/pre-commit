@@ -14,10 +14,10 @@ if [ -f "tooling/project_standards_linter.py" ]; then
   echo "pre-commit: project standards lint..."
   uv run python3 tooling/project_standards_linter.py --strict tooling/ docs/ apps/control-plane-daemon/ packages/agent-infra/ packages/agent-memory/ scripts/
 else
-  echo "pre-commit: project standards lint... (skipped — tooling not present on this branch)"
+  echo "pre-commit: project standards lint... (skipped -- tooling not present on this branch)"
 fi
 
-# ESLint on staged TypeScript/JavaScript files only — avoids full nx pipeline overhead.
+# ESLint on staged TypeScript/JavaScript files only -- avoids full nx pipeline overhead.
 STAGED_TS=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(ts|tsx|js|mjs)$' || true)
 if [ -n "$STAGED_TS" ]; then
   echo "pre-commit: eslint (staged files)..."

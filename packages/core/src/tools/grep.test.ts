@@ -502,7 +502,7 @@ describe('GrepTool', () => {
       } as unknown as Config;
 
       const multiDirGrepTool = new GrepTool(multiDirConfig);
-      // 'sub dir' exists only in sub/fileC.txt — a file that lives under both
+      // 'sub dir' exists only in sub/fileC.txt -- a file that lives under both
       // tempRootDir and subDir, so without deduplication it would appear twice.
       const params: GrepToolParams = { pattern: 'sub dir' };
       const invocation = multiDirGrepTool.build(params);

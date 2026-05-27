@@ -171,7 +171,7 @@ fi
 # ===
 echo "[6/9] Configuring runtime wrappers in $BIN_DIR..."
 
-# mega-run-py — RUNTIME: resolves relative paths against the Machine root
+# mega-run-py -- RUNTIME: resolves relative paths against the Machine root
 cat > "$BIN_DIR/mega-run-py" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail

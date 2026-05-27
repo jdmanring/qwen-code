@@ -131,18 +131,18 @@ You can publish Qwen Code extensions as scoped npm packages (e.g. `@your-org/my-
 
 ### Package requirements
 
-Your npm package must include a `qwen-extension.json` file at the package root. This is the same config file used by all Qwen Code extensions — the npm tarball is simply another delivery mechanism.
+Your npm package must include a `qwen-extension.json` file at the package root. This is the same config file used by all Qwen Code extensions -- the npm tarball is simply another delivery mechanism.
 
 A minimal package structure looks like:
 
 ```
 my-extension/
-├── package.json
-├── qwen-extension.json
-├── QWEN.md              # optional context file
-├── commands/             # optional custom commands
-├── skills/               # optional custom skills
-└── agents/               # optional custom subagents
+|---- package.json
+|---- qwen-extension.json
+|---- QWEN.md              # optional context file
+|---- commands/             # optional custom commands
+|---- skills/               # optional custom skills
+\_-- agents/               # optional custom subagents
 ```
 
 Make sure `qwen-extension.json` is included in your published package (i.e. not excluded by `.npmignore` or the `files` field in `package.json`).
@@ -184,8 +184,8 @@ qwen extensions install @your-org/my-extension --registry https://your-registry.
 
 Qwen Code reads npm auth credentials automatically:
 
-1. **`NPM_TOKEN` environment variable** — highest priority
-2. **`.npmrc` file** — supports both host-level and path-scoped `_authToken` entries (e.g. `//your-registry.com/:_authToken=TOKEN` or `//pkgs.dev.azure.com/org/_packaging/feed/npm/registry/:_authToken=TOKEN`)
+1. **`NPM_TOKEN` environment variable** -- highest priority
+2. **`.npmrc` file** -- supports both host-level and path-scoped `_authToken` entries (e.g. `//your-registry.com/:_authToken=TOKEN` or `//pkgs.dev.azure.com/org/_packaging/feed/npm/registry/:_authToken=TOKEN`)
 
 `.npmrc` files are read from the current directory and the user's home directory.
 

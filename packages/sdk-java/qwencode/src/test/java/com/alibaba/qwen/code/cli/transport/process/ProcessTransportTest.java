@@ -107,7 +107,7 @@ class ProcessTransportTest {
         });
 
         transport.inputWaitForOneLine(CLIControlRequest.create(new CLIControlInitializeRequest()).toString());
-        transport.inputWaitForMultiLine(new SDKUserMessage().setContent("您好").toString(),
+        transport.inputWaitForMultiLine(new SDKUserMessage().setContent("").toString(),
                 line -> "result".equals(JSON.parseObject(line).getString("type")));
     }
 

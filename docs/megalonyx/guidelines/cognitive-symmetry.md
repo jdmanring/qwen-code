@@ -1,4 +1,4 @@
-# 🧠 Cognitive-Symmetry Framework (CSF)
+#  Cognitive-Symmetry Framework (CSF)
 
 The Cognitive-Symmetry Framework (CSF) is the architectural foundation for the transition from "AI-Friendly" software engineering to "AI-Native" orchestration. It establishes a deterministic, bi-directional relationship between the system's configuration, its documentation, and its execution logic.
 
@@ -14,17 +14,17 @@ The core goal of CSF is **Structural Determinism**: the principle that any piece
 
 ## 2. The 4 Pillars of Symmetry
 
-### 🏛️ Pillar I: Contextual Anchors `[S-ANCHOR]`
+###  Pillar I: Contextual Anchors `[S-ANCHOR]`
 Contextual Anchors prevent "context drift" and hallucination by providing immutable points of reference.
 
-*   **The `.qwen-context` Standard**: Every modular component must contain a `.qwen-context` file (or section) defining its local axioms—the "ground truths" that never change for that specific module.
+*   **The `.qwen-context` Standard**: Every modular component must contain a `.qwen-context` file (or section) defining its local axioms--the "ground truths" that never change for that specific module.
 *   **Axiom Hierarchy**:
     1.  **Global Axioms** (`QWEN.md`): The supreme operational law.
     2.  **Domain Axioms** (`docs/guidelines/`): The rules for specific categories of work.
     3.  **Local Axioms** (`.qwen-context`): The constraints for a specific file or package.
 *   **Agent Usage**: Agents MUST resolve conflicts by ascending the hierarchy. If a local axiom contradicts a global axiom, the global axiom prevails.
 
-### 🪞 Pillar II: Symmetric Mirroring `[S-MIRROR]`
+###  Pillar II: Symmetric Mirroring `[S-MIRROR]`
 Symmetric Mirroring ensures that the "Map" (Documentation) and the "Territory" (Code/Config) are identical in structure.
 
 *   **1:1 Mapping**: Every directory and file in `config/` must have a corresponding mirror in `docs/`.
@@ -32,7 +32,7 @@ Symmetric Mirroring ensures that the "Map" (Documentation) and the "Territory" (
     *   `config/skills/refactor-safe.json` $\leftrightarrow$ `docs/skills/refactor-safe.md`
 *   **Analogy Navigation**: When an agent encounters a bug in a config file, it is mandated to check the mirrored documentation to understand the *intent* before attempting a fix. This prevents "blind patching" where the agent fixes the symptom but breaks the architectural intent.
 
-### 📜 Pillar III: Machine-Readable Contracts `[S-CONTRACT]`
+###  Pillar III: Machine-Readable Contracts `[S-CONTRACT]`
 To move beyond probabilistic markdown, CSF implements strict output contracts.
 
 *   **JSON Schema Migration**: While humans read Markdown, agents verify via JSON Schema. All complex output contracts are defined as schemas.
@@ -40,7 +40,7 @@ To move beyond probabilistic markdown, CSF implements strict output contracts.
     `Executor (Produces Output)` $\rightarrow$ `Verifier (Validates against Schema)` $\rightarrow$ `Schema (The Ground Truth)`
 *   **Determinism**: If the output does not validate against the schema, it is treated as a system failure, not a "slight hallucination," triggering an immediate `[S-CORRECT]` loop.
 
-### 🔍 Pillar IV: Meta-Audit Loops `[S-AUDIT]`
+###  Pillar IV: Meta-Audit Loops `[S-AUDIT]`
 The Meta-Audit loop is the "immune system" of the framework, ensuring the agent doesn't deviate from the operational law.
 
 *   **The Judge Agent Pattern**: A specialized, read-only agent that does not perform tasks but audits the execution traces of other agents.

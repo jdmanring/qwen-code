@@ -1080,7 +1080,7 @@ describe('useGeminiStream', () => {
       expect(mockMarkToolsAsSubmitted).toHaveBeenCalledWith(['call_race_A']);
     });
 
-    // The deduped tool DID run locally — `recordCompletedToolCall` must
+    // The deduped tool DID run locally -- `recordCompletedToolCall` must
     // still fire so toolCallCount / skillsModifiedInSession reflect it,
     // even though the wire-side submission is dropped. Regression guard:
     // an earlier version filtered deduped tools out of `geminiTools`
@@ -1090,13 +1090,13 @@ describe('useGeminiStream', () => {
     });
 
     // No follow-up submission: the synthetic in history already closes
-    // the tool_use ↔ tool_result pair.
+    // the tool_use <-> tool_result pair.
     expect(mockSendMessageStream).not.toHaveBeenCalled();
   });
 
   it('skips recordCompletedToolCall for deduped CANCELLED tools (telemetry parity)', async () => {
     // A deduped tool with status='cancelled' never actually produced
-    // model-visible output — counting it via `recordCompletedToolCall`
+    // model-visible output -- counting it via `recordCompletedToolCall`
     // (which increments toolCallCount and can flip
     // skillsModifiedInSession on a skill-write path) would inflate the
     // metric for a call that never ran end-to-end. Dedup must skip
@@ -1219,7 +1219,7 @@ describe('useGeminiStream', () => {
       ]);
     });
 
-    // Telemetry NOT incremented — the cancelled filter held.
+    // Telemetry NOT incremented -- the cancelled filter held.
     expect(client.recordCompletedToolCall).not.toHaveBeenCalled();
   });
 
@@ -1371,8 +1371,8 @@ describe('useGeminiStream', () => {
       }
     });
 
-    // The dedup MUST still fire — markToolsAsSubmitted called with the
-    // deduped callId — even though the early-return on isResponding
+    // The dedup MUST still fire -- markToolsAsSubmitted called with the
+    // deduped callId -- even though the early-return on isResponding
     // would otherwise skip every later branch.
     await waitFor(() => {
       expect(mockMarkToolsAsSubmitted).toHaveBeenCalledWith([
@@ -1399,7 +1399,7 @@ describe('useGeminiStream', () => {
     // without breaking any current test.
     //
     // Mixed-batch repro: scheduler completes two tools in the same
-    // batch — one whose callId already has a fr in history (deduped),
+    // batch -- one whose callId already has a fr in history (deduped),
     // one whose callId is fresh (must reach sendMessageStream). Pin:
     //   (a) markToolsAsSubmitted called with BOTH callIds,
     //   (b) recordCompletedToolCall fires once per non-deduped tool,
@@ -1486,7 +1486,7 @@ describe('useGeminiStream', () => {
     // `structuredClone` cost on long sessions, and an earlier
     // version of this test only mocked `getHistory()` so the slow
     // path was always the one exercised. We assert below that the
-    // fast path was the only one called — a regression that drops
+    // fast path was the only one called -- a regression that drops
     // the fast-path branch from the dispatcher would silently
     // re-route every batch onto the slow clone path with no test
     // failure.
@@ -1585,7 +1585,7 @@ describe('useGeminiStream', () => {
     expect(recordedCallIds.filter((p) => p === '/tmp/d.txt').length).toBe(1);
     expect(recordedCallIds.filter((p) => p === '/tmp/f.txt').length).toBe(1);
 
-    // (c) The fresh tool's real result reaches sendMessageStream —
+    // (c) The fresh tool's real result reaches sendMessageStream --
     // dedup didn't accidentally suppress it.
     expect(mockSendMessageStream).toHaveBeenCalled();
 
@@ -1596,7 +1596,7 @@ describe('useGeminiStream', () => {
     // pin only that the dedup itself did not re-clone.) A future
     // refactor that drops the fast-path branch from the dispatcher
     // would re-route the dedup pass onto the structuredClone path
-    // and break this assertion — exactly the regression the
+    // and break this assertion -- exactly the regression the
     // accessor was added to prevent.
     expect(client.getHistoryFunctionResponseIds).toHaveBeenCalled();
     expect(client.getHistory).not.toHaveBeenCalled();
@@ -1844,7 +1844,7 @@ describe('useGeminiStream', () => {
         makeCompletedToolCall('c2', 'Grep', { pattern: 'foo' }),
       ]);
 
-      // The flag is off — even though a fast model is configured, no summary
+      // The flag is off -- even though a fast model is configured, no summary
       // history item should be added.
       const summaryItems = (mockAddItem.mock.calls as any[][]).filter(
         (call) => call[0]?.type === 'tool_use_summary',
@@ -1913,9 +1913,9 @@ describe('useGeminiStream', () => {
 
     it('drops a late summary when a newer tool_group has been added', async () => {
       // Resolve the fast-model call but ensure history shows a NEWER
-      // tool_group AFTER ours — simulates a slow summary landing during
+      // tool_group AFTER ours -- simulates a slow summary landing during
       // the next turn. The summary must not be appended; otherwise the
-      // ● label line would land in the wrong transcript position.
+      //  label line would land in the wrong transcript position.
       let resolveSummary: (val: { text: string; usage?: undefined }) => void;
       const generateText = vi.fn().mockImplementation(
         () =>
@@ -2009,7 +2009,7 @@ describe('useGeminiStream', () => {
         }
       });
 
-      // Resolve the summary — it should be dropped because tool_group id=2
+      // Resolve the summary -- it should be dropped because tool_group id=2
       // is newer than our anchor tool_group id=1.
       await act(async () => {
         resolveSummary!({ text: 'Read file', usage: undefined });
@@ -2129,7 +2129,7 @@ describe('useGeminiStream', () => {
         await waitForNextChunk;
         yield {
           type: ServerGeminiEventType.Content,
-          value: '哈哈',
+          value: '',
         };
         await holdStream;
       })();
@@ -2165,7 +2165,7 @@ describe('useGeminiStream', () => {
       expect(result.current.pendingHistoryItems).toEqual([
         expect.objectContaining({
           type: 'gemini',
-          text: '哈哈',
+          text: '',
         }),
       ]);
 
@@ -2440,7 +2440,7 @@ describe('useGeminiStream', () => {
       // The ownership guard in AppContainer's auto-restore depends on
       // useGeminiStream emitting the just-added USER history item via
       // `info.lastTurnUserItem`. The AppContainer tests fabricate this
-      // value — pin the producer side here so a regression that drops
+      // value -- pin the producer side here so a regression that drops
       // `lastTurnUserItemRef.current = { text: trimmedQuery }` cannot
       // sneak through.
       const cancelSubmitSpy = vi.fn();
@@ -2483,7 +2483,7 @@ describe('useGeminiStream', () => {
 
       expect(cancelSubmitSpy).toHaveBeenCalledTimes(1);
       const info = cancelSubmitSpy.mock.calls[0][0];
-      // Identity is carried as `{ id, text }` — id makes the cancel
+      // Identity is carried as `{ id, text }` -- id makes the cancel
       // handler's guard robust against `addItem` skipping a
       // consecutive-duplicate user message. (Whether the content flag
       // ended up true depends on whether the stream's mock yielded
@@ -2547,7 +2547,7 @@ describe('useGeminiStream', () => {
 
     it('resets lastTurnUserItem to null when a Retry turn cancels, even though Retry skips prepareQueryForGemini', async () => {
       // Retry takes a shortcut at submitQuery's dispatch site that
-      // bypasses prepareQueryForGemini — and therefore bypasses the
+      // bypasses prepareQueryForGemini -- and therefore bypasses the
       // ref reset that lives there. The submit-level reset must fire
       // for every top-level submit so a stale ownership snapshot from
       // an earlier UserQuery can't ride into the retry's cancel info
@@ -2555,7 +2555,7 @@ describe('useGeminiStream', () => {
       // prompt.
       const cancelSubmitSpy = vi.fn();
       // Two held-open streams; require-yield wants at least one yield.
-      // (Stream type 'content' is harmless here — these tests only
+      // (Stream type 'content' is harmless here -- these tests only
       // assert on lastTurnUserItem, not on the content flag.)
       const heldStream = () =>
         (async function* () {
@@ -2588,7 +2588,7 @@ describe('useGeminiStream', () => {
         ),
       );
 
-      // Original UserQuery — populates `lastTurnUserItemRef`.
+      // Original UserQuery -- populates `lastTurnUserItemRef`.
       await act(async () => {
         result.current.submitQuery('first prompt');
       });
@@ -2621,7 +2621,7 @@ describe('useGeminiStream', () => {
       });
 
       // The most recent cancelSubmit call corresponds to the retry, and
-      // it must report `lastTurnUserItem: null` — Retry didn't add a
+      // it must report `lastTurnUserItem: null` -- Retry didn't add a
       // user history item, so auto-restore must not have a target.
       const retryCall = cancelSubmitSpy.mock.calls.at(-1)?.[0];
       expect(retryCall?.lastTurnUserItem).toBeNull();
@@ -2739,7 +2739,7 @@ describe('useGeminiStream', () => {
     it('flushes buffered stream events before snapshotting pendingItem so cancelling mid-throttle does not lose content', async () => {
       // Regression: snapshotting pendingHistoryItemRef.current BEFORE the
       // flush left content events stuck in bufferedEvents invisible to
-      // the snapshot — info.pendingItem would arrive null at AppContainer
+      // the snapshot -- info.pendingItem would arrive null at AppContainer
       // even though the stream had produced meaningful text. AppContainer's
       // auto-restore would then truncate the just-committed content.
       vi.useFakeTimers();
@@ -2786,7 +2786,7 @@ describe('useGeminiStream', () => {
       });
 
       // Let the async generator yield the content event into bufferedEvents
-      // (microtasks drain) — but DO NOT advance timers, so the throttle
+      // (microtasks drain) -- but DO NOT advance timers, so the throttle
       // never fires and pendingHistoryItemRef stays null.
       await act(async () => {
         await Promise.resolve();
@@ -2800,7 +2800,7 @@ describe('useGeminiStream', () => {
         result.current.cancelOngoingRequest();
       });
 
-      // The cancel path flushed FIRST, then snapshotted — so the content
+      // The cancel path flushed FIRST, then snapshotted -- so the content
       // that was buffered must be visible in info.pendingItem.
       expect(cancelSubmitSpy).toHaveBeenCalledTimes(1);
       const [info] = cancelSubmitSpy.mock.calls[0];
@@ -2820,7 +2820,7 @@ describe('useGeminiStream', () => {
 
     it('still resets streamingState to Idle when onCancelSubmit throws', async () => {
       // Regression: a throw in AppContainer's cancel handler must not
-      // strand the stream in Responding (which would lock the UI — Esc
+      // strand the stream in Responding (which would lock the UI -- Esc
       // would no-op afterwards). The try/finally around onCancelSubmit
       // guarantees setIsResponding(false) and setShellInputFocused(false)
       // both run.
@@ -3762,7 +3762,7 @@ describe('useGeminiStream', () => {
         expect(mockAddItem).toHaveBeenCalledWith(
           {
             type: 'info',
-            text: '⚠️  Response truncated due to token limits.',
+            text: '  Response truncated due to token limits.',
           },
           expect.any(Number),
         );
@@ -3882,41 +3882,41 @@ describe('useGeminiStream', () => {
       const testCases = [
         {
           reason: 'SAFETY',
-          message: '⚠️  Response stopped due to safety reasons.',
+          message: '  Response stopped due to safety reasons.',
         },
         {
           reason: 'RECITATION',
-          message: '⚠️  Response stopped due to recitation policy.',
+          message: '  Response stopped due to recitation policy.',
         },
         {
           reason: 'LANGUAGE',
-          message: '⚠️  Response stopped due to unsupported language.',
+          message: '  Response stopped due to unsupported language.',
         },
         {
           reason: 'BLOCKLIST',
-          message: '⚠️  Response stopped due to forbidden terms.',
+          message: '  Response stopped due to forbidden terms.',
         },
         {
           reason: 'PROHIBITED_CONTENT',
-          message: '⚠️  Response stopped due to prohibited content.',
+          message: '  Response stopped due to prohibited content.',
         },
         {
           reason: 'SPII',
           message:
-            '⚠️  Response stopped due to sensitive personally identifiable information.',
+            '  Response stopped due to sensitive personally identifiable information.',
         },
-        { reason: 'OTHER', message: '⚠️  Response stopped for other reasons.' },
+        { reason: 'OTHER', message: '  Response stopped for other reasons.' },
         {
           reason: 'MALFORMED_FUNCTION_CALL',
-          message: '⚠️  Response stopped due to malformed function call.',
+          message: '  Response stopped due to malformed function call.',
         },
         {
           reason: 'IMAGE_SAFETY',
-          message: '⚠️  Response stopped due to image safety violations.',
+          message: '  Response stopped due to image safety violations.',
         },
         {
           reason: 'UNEXPECTED_TOOL_CALL',
-          message: '⚠️  Response stopped due to unexpected tool call.',
+          message: '  Response stopped due to unexpected tool call.',
         },
       ];
 
@@ -4698,7 +4698,7 @@ describe('useGeminiStream', () => {
 
     // Regression for #4169: when a pending retry error is cleared as the user
     // starts a new turn, the error must be committed to the persistent
-    // history first — otherwise running /status (or any new turn) silently
+    // history first -- otherwise running /status (or any new turn) silently
     // discards the failure the user was investigating.
     it('commits pending retry error to history (without hint) when a new query starts', async () => {
       mockSendMessageStream.mockReturnValueOnce(
@@ -4743,7 +4743,7 @@ describe('useGeminiStream', () => {
         await result.current.submitQuery('Second query');
       });
 
-      // The pending error is now committed to history…
+      // The pending error is now committed to history...
       await waitFor(() => {
         expect(mockAddItem).toHaveBeenCalledWith(
           expect.objectContaining({ type: 'error' }),
@@ -4751,7 +4751,7 @@ describe('useGeminiStream', () => {
         );
       });
 
-      // …and the retry hint is stripped, since it is no longer actionable.
+      // ...and the retry hint is stripped, since it is no longer actionable.
       const errorCommit = mockAddItem.mock.calls.find(
         ([item]) => item && typeof item === 'object' && item.type === 'error',
       );
@@ -5625,7 +5625,7 @@ describe('useGeminiStream', () => {
         (async function* () {
           yield {
             type: ServerGeminiEventType.HookSystemMessage,
-            value: '🔄 Ralph iteration 3 | No completion promise set',
+            value: ' Ralph iteration 3 | No completion promise set',
           };
         })(),
       );
@@ -5640,7 +5640,7 @@ describe('useGeminiStream', () => {
         expect(mockAddItem).toHaveBeenCalledWith(
           expect.objectContaining({
             type: 'stop_hook_system_message',
-            message: '🔄 Ralph iteration 3 | No completion promise set',
+            message: ' Ralph iteration 3 | No completion promise set',
           }),
           expect.any(Number),
         );

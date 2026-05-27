@@ -3,13 +3,13 @@
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
  *
- * Phase C ACP worktree context restore — agent-level integration tests.
+ * Phase C ACP worktree context restore -- agent-level integration tests.
  *
  * Coverage (this file):
- *   VP1: loadSession with a stale sidecar — pendingWorktreeNotice stays null.
- *   VP2: loadSession with a live sidecar — pendingWorktreeNotice is set to
+ *   VP1: loadSession with a stale sidecar -- pendingWorktreeNotice stays null.
+ *   VP2: loadSession with a live sidecar -- pendingWorktreeNotice is set to
  *        the contextMessage from restoreWorktreeContext.
- *   VP2b: restoreWorktreeContext throws — session still loads, notice null.
+ *   VP2b: restoreWorktreeContext throws -- session still loads, notice null.
  *
  * VP3 / VP4 (Session.prompt consumption) are in Session.worktree.test.ts.
  */
@@ -84,7 +84,7 @@ vi.mock('node:stream', async (importOriginal) => {
   };
 });
 
-// Core mock — includes restoreWorktreeContext controllable per-test.
+// Core mock -- includes restoreWorktreeContext controllable per-test.
 const { mockRestoreWorktreeContext } = vi.hoisted(() => ({
   mockRestoreWorktreeContext: vi
     .fn()
@@ -154,10 +154,10 @@ import { loadCliConfig } from '../config/config.js';
 import { Session } from './session/Session.js';
 
 // ---------------------------------------------------------------------------
-// Test suite — VP1, VP2, VP2b
+// Test suite -- VP1, VP2, VP2b
 // ---------------------------------------------------------------------------
 
-describe('QwenAgent loadSession — Phase C worktree context restore', () => {
+describe('QwenAgent loadSession -- Phase C worktree context restore', () => {
   type AgentSideConnectionLike = { closed: Promise<void> };
   type AgentLike = {
     initialize: (args: Record<string, unknown>) => Promise<unknown>;
@@ -319,7 +319,7 @@ describe('QwenAgent loadSession — Phase C worktree context restore', () => {
     return { agent, agentPromise };
   }
 
-  it('VP1: stale sidecar — pendingWorktreeNotice stays null', async () => {
+  it('VP1: stale sidecar -- pendingWorktreeNotice stays null', async () => {
     // mockRestoreWorktreeContext defaults to { contextMessage: null, session: null }
     const innerConfig = makeInnerConfig();
     const { agent, agentPromise } = await bootAgentWithLoadSession(innerConfig);
@@ -337,7 +337,7 @@ describe('QwenAgent loadSession — Phase C worktree context restore', () => {
     await agentPromise;
   });
 
-  it('VP2: live sidecar — pendingWorktreeNotice is set to contextMessage', async () => {
+  it('VP2: live sidecar -- pendingWorktreeNotice is set to contextMessage', async () => {
     const contextMessage =
       '[Resumed] Active worktree: "my-feature" at /repo/.qwen/worktrees/my-feature ' +
       '(branch: worktree-my-feature). Continue using this path for all file operations.';
@@ -369,7 +369,7 @@ describe('QwenAgent loadSession — Phase C worktree context restore', () => {
     await agentPromise;
   });
 
-  it('VP2b: restoreWorktreeContext throws — loadSession succeeds and notice stays null', async () => {
+  it('VP2b: restoreWorktreeContext throws -- loadSession succeeds and notice stays null', async () => {
     mockRestoreWorktreeContext.mockRejectedValueOnce(
       new Error('disk I/O error'),
     );

@@ -122,7 +122,7 @@ export interface BridgeHeartbeatState {
 
 export interface HttpAcpBridge {
   /**
-   * Create a new session, or — under `sessionScope: 'single'` — attach to an
+   * Create a new session, or -- under `sessionScope: 'single'` -- attach to an
    * existing session for the same workspace.
    */
   spawnOrAttach(req: BridgeSpawnRequest): Promise<BridgeSession>;
@@ -243,7 +243,7 @@ export interface HttpAcpBridge {
   /**
    * Union of every live session's `clientIds`. Used by workspace-level
    * mutation routes to validate the optional `X-Qwen-Client-Id` header.
-   * Returns a snapshot — callers must not mutate.
+   * Returns a snapshot -- callers must not mutate.
    */
   knownClientIds(): ReadonlySet<string>;
 
@@ -265,13 +265,13 @@ export interface HttpAcpBridge {
 
   /**
    * Read the daemon-process environment snapshot for the bound workspace.
-   * Answered entirely from `process.*` state — does not consult ACP.
+   * Answered entirely from `process.*` state -- does not consult ACP.
    */
   getWorkspaceEnvStatus(): Promise<ServeWorkspaceEnvStatus>;
 
   /**
    * Read daemon-runtime preflight diagnostics. Daemon-level cells are
-   * always populated; ACP-level cells require a live ACP child — when
+   * always populated; ACP-level cells require a live ACP child -- when
    * the daemon is idle they are emitted with `status: 'not_started'`.
    */
   getWorkspacePreflightStatus(): Promise<ServeWorkspacePreflightStatus>;
@@ -357,7 +357,7 @@ export interface HttpAcpBridge {
   >;
 
   /**
-   * Tear down a session — kill the child, drop from maps, publish
+   * Tear down a session -- kill the child, drop from maps, publish
    * `session_died`. Idempotent on already-dead sessions.
    *
    * `requireZeroAttaches: true` makes the call a no-op when at

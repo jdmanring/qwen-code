@@ -25,7 +25,7 @@ import {
 import { PermissionManager } from './permission-manager.js';
 import type { PermissionManagerConfig } from './permission-manager.js';
 
-// ─── resolveToolName ─────────────────────────────────────────────────────────
+// --- resolveToolName ---------------------------------------------------------
 
 describe('resolveToolName', () => {
   it('resolves canonical names', async () => {
@@ -69,7 +69,7 @@ describe('resolveToolName', () => {
   });
 });
 
-// ─── getSpecifierKind ────────────────────────────────────────────────────────
+// --- getSpecifierKind --------------------------------------------------------
 
 describe('getSpecifierKind', () => {
   it('returns "command" for shell tools', async () => {
@@ -97,7 +97,7 @@ describe('getSpecifierKind', () => {
   });
 });
 
-// ─── toolMatchesRuleToolName ─────────────────────────────────────────────────
+// --- toolMatchesRuleToolName -------------------------------------------------
 
 describe('toolMatchesRuleToolName', () => {
   it('exact match', async () => {
@@ -133,7 +133,7 @@ describe('toolMatchesRuleToolName', () => {
   });
 });
 
-// ─── parseRule ───────────────────────────────────────────────────────────────
+// --- parseRule ---------------------------------------------------------------
 
 describe('parseRule', () => {
   it('parses a simple tool name', async () => {
@@ -239,7 +239,7 @@ describe('parseRule', () => {
   });
 });
 
-// ─── parseRules ──────────────────────────────────────────────────────────────
+// --- parseRules --------------------------------------------------------------
 
 describe('parseRules', () => {
   it('filters empty strings', async () => {
@@ -248,7 +248,7 @@ describe('parseRules', () => {
   });
 });
 
-// ─── matchesCommandPattern (Shell glob) ──────────────────────────────────────
+// --- matchesCommandPattern (Shell glob) --------------------------------------
 
 describe('matchesCommandPattern', () => {
   // Basic prefix matching (no wildcards)
@@ -381,7 +381,7 @@ describe('matchesCommandPattern', () => {
     });
 
     it('operators inside quotes are not boundaries for splitCompoundCommand', async () => {
-      // "echo 'a && b'" → the && is inside quotes, not an operator
+      // "echo 'a && b'" -> the && is inside quotes, not an operator
       expect(matchesCommandPattern('echo *', "echo 'a && b'")).toBe(true);
     });
   });
@@ -413,7 +413,7 @@ describe('matchesCommandPattern', () => {
   });
 });
 
-// ─── splitCompoundCommand ────────────────────────────────────────────────────
+// --- splitCompoundCommand ----------------------------------------------------
 
 describe('splitCompoundCommand', () => {
   it('simple command returns single-element array', async () => {
@@ -476,19 +476,19 @@ describe('splitCompoundCommand', () => {
   });
 });
 
-// ─── resolvePathPattern ──────────────────────────────────────────────────────
+// --- resolvePathPattern ------------------------------------------------------
 
 describe('resolvePathPattern', () => {
   const projectRoot = '/project';
   const cwd = '/project/subdir';
 
-  it('// prefix → absolute from filesystem root', async () => {
+  it('// prefix -> absolute from filesystem root', async () => {
     expect(
       resolvePathPattern('//Users/alice/secrets/**', projectRoot, cwd),
     ).toBe('/Users/alice/secrets/**');
   });
 
-  it('~/ prefix → relative to home directory', async () => {
+  it('~/ prefix -> relative to home directory', async () => {
     const result = resolvePathPattern('~/Documents/*.pdf', projectRoot, cwd);
     expect(result).toContain('Documents/*.pdf');
     // On POSIX systems the home dir starts with '/'; on Windows it may look like
@@ -498,19 +498,19 @@ describe('resolvePathPattern', () => {
     expect(result.startsWith(normalizedHome)).toBe(true);
   });
 
-  it('/ prefix → relative to project root (NOT absolute)', async () => {
+  it('/ prefix -> relative to project root (NOT absolute)', async () => {
     expect(resolvePathPattern('/src/**/*.ts', projectRoot, cwd)).toBe(
       '/project/src/**/*.ts',
     );
   });
 
-  it('./ prefix → relative to cwd', async () => {
+  it('./ prefix -> relative to cwd', async () => {
     expect(resolvePathPattern('./secrets/**', projectRoot, cwd)).toBe(
       '/project/subdir/secrets/**',
     );
   });
 
-  it('no prefix → relative to cwd', async () => {
+  it('no prefix -> relative to cwd', async () => {
     expect(resolvePathPattern('*.env', projectRoot, cwd)).toBe(
       '/project/subdir/*.env',
     );
@@ -524,7 +524,7 @@ describe('resolvePathPattern', () => {
   });
 });
 
-// ─── matchesPathPattern ──────────────────────────────────────────────────────
+// --- matchesPathPattern ------------------------------------------------------
 
 describe('matchesPathPattern', () => {
   const projectRoot = '/project';
@@ -611,7 +611,7 @@ describe('matchesPathPattern', () => {
   });
 });
 
-// ─── matchesDomainPattern ────────────────────────────────────────────────────
+// --- matchesDomainPattern ----------------------------------------------------
 
 describe('matchesDomainPattern', () => {
   it('matches exact domain', async () => {
@@ -646,7 +646,7 @@ describe('matchesDomainPattern', () => {
   });
 });
 
-// ─── matchesRule (unified) ───────────────────────────────────────────────────
+// --- matchesRule (unified) ---------------------------------------------------
 
 describe('matchesRule', () => {
   // Basic tool name matching
@@ -720,7 +720,7 @@ describe('matchesRule', () => {
   it('Read with path specifier requires filePath', async () => {
     const rule = parseRule('Read(.env)');
     const pathCtx = { projectRoot: '/project', cwd: '/project' };
-    // No filePath → no match
+    // No filePath -> no match
     expect(matchesRule(rule, 'read_file')).toBe(false);
     // With filePath
     expect(
@@ -807,7 +807,7 @@ describe('matchesRule', () => {
     expect(
       matchesRule(rule, 'web_fetch', undefined, undefined, 'other.com'),
     ).toBe(false);
-    // No domain → no match
+    // No domain -> no match
     expect(matchesRule(rule, 'web_fetch')).toBe(false);
   });
 
@@ -869,7 +869,7 @@ describe('matchesRule', () => {
   });
 });
 
-// ─── PermissionManager ──────────────────────────────────────────────────────
+// --- PermissionManager ------------------------------------------------------
 
 function makeConfig(
   opts: Partial<{
@@ -1225,7 +1225,7 @@ describe('PermissionManager', () => {
   });
 
   describe('compound command evaluation', () => {
-    it('all sub-commands allowed → allow', async () => {
+    it('all sub-commands allowed -> allow', async () => {
       pm = new PermissionManager(
         makeConfig({
           permissionsAllow: ['Bash(safe-cmd *)', 'Bash(one-cmd *)'],
@@ -1240,7 +1240,7 @@ describe('PermissionManager', () => {
       ).toBe('allow');
     });
 
-    it('one sub-command unmatched (non-readonly) → ask (resolved from default)', async () => {
+    it('one sub-command unmatched (non-readonly) -> ask (resolved from default)', async () => {
       pm = new PermissionManager(
         makeConfig({
           permissionsAllow: ['Bash(safe-cmd *)'],
@@ -1256,7 +1256,7 @@ describe('PermissionManager', () => {
       ).toBe('ask');
     });
 
-    it('one sub-command denied → deny', async () => {
+    it('one sub-command denied -> deny', async () => {
       pm = new PermissionManager(
         makeConfig({
           permissionsAllow: ['Bash(safe-cmd *)'],
@@ -1272,7 +1272,7 @@ describe('PermissionManager', () => {
       ).toBe('deny');
     });
 
-    it('one sub-command ask + one allow → ask', async () => {
+    it('one sub-command ask + one allow -> ask', async () => {
       pm = new PermissionManager(
         makeConfig({
           permissionsAllow: ['Bash(git *)'],
@@ -1288,7 +1288,7 @@ describe('PermissionManager', () => {
       ).toBe('ask');
     });
 
-    it('pipe compound: all matched → allow', async () => {
+    it('pipe compound: all matched -> allow', async () => {
       pm = new PermissionManager(
         makeConfig({
           permissionsAllow: ['Bash(git *)', 'Bash(grep *)'],
@@ -1303,7 +1303,7 @@ describe('PermissionManager', () => {
       ).toBe('allow');
     });
 
-    it('pipe compound: second unmatched but readonly → allow (resolved from default)', async () => {
+    it('pipe compound: second unmatched but readonly -> allow (resolved from default)', async () => {
       pm = new PermissionManager(
         makeConfig({
           permissionsAllow: ['Bash(git *)'],
@@ -1319,7 +1319,7 @@ describe('PermissionManager', () => {
       ).toBe('allow');
     });
 
-    it('semicolon compound: deny in second → deny', async () => {
+    it('semicolon compound: deny in second -> deny', async () => {
       pm = new PermissionManager(
         makeConfig({
           permissionsAllow: ['Bash(echo *)'],
@@ -1335,7 +1335,7 @@ describe('PermissionManager', () => {
       ).toBe('deny');
     });
 
-    it('|| compound: all allowed → allow', async () => {
+    it('|| compound: all allowed -> allow', async () => {
       pm = new PermissionManager(
         makeConfig({
           permissionsAllow: ['Bash(git *)', 'Bash(echo *)'],
@@ -1380,7 +1380,7 @@ describe('PermissionManager', () => {
       ).toBe('allow');
     });
 
-    it('three-part compound: one unmatched (non-readonly) → ask (resolved from default)', async () => {
+    it('three-part compound: one unmatched (non-readonly) -> ask (resolved from default)', async () => {
       pm = new PermissionManager(
         makeConfig({
           permissionsAllow: ['Bash(git *)', 'Bash(echo *)'],
@@ -1644,7 +1644,7 @@ describe('PermissionManager', () => {
       // exit_plan_mode (bypass the coreTools allowlist) is the right
       // default: a run that combines `--json-schema X --core-tools read_file`
       // intends "restrict the model's pluggable toolbelt to read_file"
-      // while still receiving the structured payload — silently dropping
+      // while still receiving the structured payload -- silently dropping
       // structured_output here would leave --json-schema with no terminal
       // contract, so the run would loop until maxTurns.
       pm = new PermissionManager(makeConfig({ coreTools: ['read_file'] }));
@@ -1712,7 +1712,7 @@ describe('PermissionManager', () => {
 
     it('malformed session deny rule is silently ignored', async () => {
       pm.addSessionDenyRule('Bash(rm -rf /)*');
-      // Should NOT deny — the malformed rule must not act as catch-all
+      // Should NOT deny -- the malformed rule must not act as catch-all
       expect(
         await pm.evaluate({
           toolName: 'run_shell_command',
@@ -1804,7 +1804,7 @@ describe('PermissionManager', () => {
   });
 });
 
-// ─── getRuleDisplayName ──────────────────────────────────────────────────────
+// --- getRuleDisplayName ------------------------------------------------------
 
 describe('getRuleDisplayName', () => {
   it('maps read tools to "Read" meta-category', async () => {
@@ -1838,7 +1838,7 @@ describe('getRuleDisplayName', () => {
   });
 });
 
-// ─── buildPermissionRules ────────────────────────────────────────────────────
+// --- buildPermissionRules ----------------------------------------------------
 
 describe('buildPermissionRules', () => {
   describe('path-based tools (Read/Edit)', () => {
@@ -1847,7 +1847,7 @@ describe('buildPermissionRules', () => {
         toolName: 'read_file',
         filePath: '/Users/alice/.secrets',
       });
-      // read_file is file-targeted → dirname gives /Users/alice, plus /** glob
+      // read_file is file-targeted -> dirname gives /Users/alice, plus /** glob
       expect(rules).toEqual(['Read(//Users/alice/**)']);
     });
 
@@ -1856,7 +1856,7 @@ describe('buildPermissionRules', () => {
         toolName: 'grep_search',
         filePath: '/external/dir',
       });
-      // grep_search is directory-targeted → path used as-is, plus /** glob
+      // grep_search is directory-targeted -> path used as-is, plus /** glob
       expect(rules).toEqual(['Read(//external/dir/**)']);
     });
 
@@ -1881,7 +1881,7 @@ describe('buildPermissionRules', () => {
         toolName: 'edit',
         filePath: '/external/file.ts',
       });
-      // edit is file-targeted → dirname gives /external, plus /** glob
+      // edit is file-targeted -> dirname gives /external, plus /** glob
       expect(rules).toEqual(['Edit(//external/**)']);
     });
 
@@ -2067,7 +2067,7 @@ describe('buildPermissionRules', () => {
   });
 });
 
-// ─── buildHumanReadableRuleLabel ─────────────────────────────────────────────
+// --- buildHumanReadableRuleLabel ---------------------------------------------
 
 describe('buildHumanReadableRuleLabel', () => {
   it('returns empty string for empty rules array', () => {
@@ -2177,7 +2177,7 @@ describe('buildHumanReadableRuleLabel', () => {
   });
 });
 
-// ─── PermissionManager.findMatchingDenyRule ──────────────────────────────────
+// --- PermissionManager.findMatchingDenyRule ----------------------------------
 
 describe('PermissionManager.findMatchingDenyRule', () => {
   it('returns the raw deny rule string when context matches', () => {
@@ -2243,9 +2243,9 @@ describe('PermissionManager.findMatchingDenyRule', () => {
   });
 });
 
-// ─── AUTO mode dangerous-rule stash ────────────────────────────────────
+// --- AUTO mode dangerous-rule stash ------------------------------------
 
-describe('PermissionManager — strip/restore for AUTO mode', () => {
+describe('PermissionManager -- strip/restore for AUTO mode', () => {
   it('strips Bash interpreter wildcards and stashes them', () => {
     const pm = new PermissionManager(
       makeConfig({
@@ -2307,7 +2307,7 @@ describe('PermissionManager — strip/restore for AUTO mode', () => {
     expect(pm.getAllowRawStrings()).toEqual(['ReadFileTool']);
   });
 
-  it('is idempotent — second strip returns the same stash without re-removal', () => {
+  it('is idempotent -- second strip returns the same stash without re-removal', () => {
     const pm = new PermissionManager(
       makeConfig({ permissionsAllow: ['Bash(python:*)'] }),
     );
@@ -2340,7 +2340,7 @@ describe('PermissionManager — strip/restore for AUTO mode', () => {
     ).toBe('allow');
   });
 
-  it('never strips deny rules — user intent for deny is honored', () => {
+  it('never strips deny rules -- user intent for deny is honored', () => {
     const pm = new PermissionManager(
       makeConfig({
         permissionsDeny: ['Bash', 'Agent'],
@@ -2350,7 +2350,7 @@ describe('PermissionManager — strip/restore for AUTO mode', () => {
     pm.initialize();
 
     pm.stripDangerousRulesForAutoMode();
-    // Bash deny still applies — no allow rule can override it after strip.
+    // Bash deny still applies -- no allow rule can override it after strip.
     return expect(
       pm.evaluate({ toolName: 'run_shell_command', command: 'git log' }),
     ).resolves.toBe('deny');

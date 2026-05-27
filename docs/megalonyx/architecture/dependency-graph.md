@@ -1,8 +1,8 @@
-# 📉 Dependency Graph: Independent Flow
+#  Dependency Graph: Independent Flow
 
 This document provides a high-level visualization of the data and control flow within the Megacode monorepo.
 
-## 🔄 High-Level Flow
+##  High-Level Flow
 
 The system follows a strictly hierarchical flow to maintain modularity and prevent circular dependencies.
 
@@ -35,7 +35,7 @@ The system follows a strictly hierarchical flow to maintain modularity and preve
 [ System / OS / Network ]
 ```
 
-## 🛠️ Detailed Interaction Logic
+##  Detailed Interaction Logic
 
 1. **Request Phase**:
    `User` -> `App` -> `Core (Tool Dispatcher)`
@@ -54,7 +54,7 @@ The system follows a strictly hierarchical flow to maintain modularity and preve
 
 ---
 
-## 🚫 Forbidden Paths
+##  Forbidden Paths
 To prevent architectural decay, the following paths are strictly forbidden:
 - `packages/core` -> `apps/` (Core must not know about the App)
 - `packages/infra` -> `apps/` (Infra must not know about the App)

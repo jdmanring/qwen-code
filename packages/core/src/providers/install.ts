@@ -13,7 +13,7 @@ import type {
 } from './types.js';
 
 /**
- * Environment variable names an install plan must never set — they alter
+ * Environment variable names an install plan must never set -- they alter
  * process/loader behavior (code injection, PATH hijack, home redirection).
  * Compared case-insensitively. Provider API-key envs never collide with
  * these.
@@ -103,7 +103,7 @@ export interface ApplyProviderInstallPlanResult {
  * via the chain).
  *
  * A class (not an interface) so `err instanceof ProviderInstallError` works
- * at runtime — an interface would erase at compile time and silently always
+ * at runtime -- an interface would erase at compile time and silently always
  * be false.
  */
 export class ProviderInstallError extends Error {
@@ -146,7 +146,7 @@ export async function applyProviderInstallPlan(
 
   // Track which step is in flight so a rethrow at the bottom can name it
   // (an EACCES from persist vs a refreshAuth rejection look identical
-  // otherwise — eight steps, one anonymous error).
+  // otherwise -- eight steps, one anonymous error).
   let currentStep = 'init';
 
   try {
@@ -267,7 +267,7 @@ export async function applyProviderInstallPlan(
       // eslint-disable-next-line no-console -- best-effort rollback path
       console.error('[applyProviderInstallPlan] env rollback failed:', envErr);
     }
-    // Restore in-memory runtime providers — reloadModelProviders may have run
+    // Restore in-memory runtime providers -- reloadModelProviders may have run
     // before the failure (e.g. before a refreshAuth rejection).
     try {
       reloadModelProviders?.(previousRuntimeProviders);

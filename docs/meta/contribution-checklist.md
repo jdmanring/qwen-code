@@ -2,7 +2,7 @@
 
 This document defines the "Hardened Verification" protocol for any code intended to be contributed back to the upstream `qwen-code` fork. Given that we operate as a solo entity without external guidance, we adhere to a zero-tolerance policy for regressions and noise in our PRs.
 
-## 🛡️ The Hardened Verification Protocol
+##  The Hardened Verification Protocol
 
 Every contribution branch must pass through this sequence before it is considered "PR-Ready".
 
@@ -31,7 +31,7 @@ Every contribution branch must pass through this sequence before it is considere
 
 ---
 
-## 🚩 Stop-Ship Criteria
+##  Stop-Ship Criteria
 If any of the following occur, the PR is blocked:
 1. Any test failure, regardless of how "trivial" it seems.
 2. Any new TypeScript `any` casts introduced in the diff.

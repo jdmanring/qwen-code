@@ -6,7 +6,7 @@ It provides utilities that would otherwise be duplicated across both services.
 Location: `packages/agent-infra/`  
 Package name: `agent-infra` (installed as `agent_infra`)
 
-This package has no Megalonyx-specific dependencies — it only depends on standard library
+This package has no Megalonyx-specific dependencies -- it only depends on standard library
 and third-party packages. It is the foundation of the dependency chain.
 
 ---
@@ -35,7 +35,7 @@ Configuration is read from `~/.qwen/settings.json` at startup: `logging.log_leve
 `logging.log_path`, `logging.enable_trace`.
 
 This module is the single source of truth for logging across the stack. Do not use
-`print()` statements in production code — they bypass log routing and make operational
+`print()` statements in production code -- they bypass log routing and make operational
 debugging difficult.
 
 ### `cron_manager.py`
@@ -72,5 +72,5 @@ If you add a utility that both services need, put it here rather than duplicatin
 The rule: if it's pure infrastructure with no business logic tied to memory or task handling,
 it belongs in `agent-infra`.
 
-Do not add Qdrant, MCP, or model-provider dependencies to this package — keep it minimal
+Do not add Qdrant, MCP, or model-provider dependencies to this package -- keep it minimal
 so it can be imported without pulling in the full ML stack.

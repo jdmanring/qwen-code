@@ -486,7 +486,7 @@ describe('McpClientManager', () => {
     const elapsed = Date.now() - t0;
 
     expect(elapsed).toBeGreaterThanOrEqual(40);
-    // Generous upper bound — the 50ms timeout should fire well within 2s
+    // Generous upper bound -- the 50ms timeout should fire well within 2s
     // even on a heavily-loaded CI runner.
     expect(elapsed).toBeLessThan(2000);
     // discoveryAllMcpToolsIncremental must always settle the state, even
@@ -536,11 +536,11 @@ describe('McpClientManager', () => {
     expect(mockedMcpClient.discover).toHaveBeenCalledTimes(1);
   });
 
-  it('discoverAllMcpToolsIncremental tears down enabled→disabled transitions', async () => {
+  it('discoverAllMcpToolsIncremental tears down enabled->disabled transitions', async () => {
     // Mid-session, the user disables a previously-connected server (e.g.
     // via `/mcp disable foo` or by editing settings). The incremental
     // path must tear down the existing client, drop its registered tools,
-    // stop its health check, and remove its global status — otherwise
+    // stop its health check, and remove its global status -- otherwise
     // the Footer pill keeps counting it, its tools stay live in the
     // ToolRegistry, and the health-check loop keeps probing a server
     // the user has told us to ignore.
@@ -589,13 +589,13 @@ describe('McpClientManager', () => {
 
   it('discoverAllMcpToolsIncremental records `failed` outcome for swallowed connect errors', async () => {
     // `discoverMcpToolsForServerInternal` catches connect/discover errors
-    // without re-throwing (best-effort semantics — one broken server
+    // without re-throwing (best-effort semantics -- one broken server
     // shouldn't bring down the others). Before this fix, the try block in
     // `discoverAllMcpToolsIncremental` therefore resolved even for failed
     // servers, and we'd record `mcp_server_ready:<name>` with
     // `outcome: 'ready'`. Now we consult the actual server status (set
     // to DISCONNECTED by McpClient.connect's catch) and emit `failed`
-    // instead — otherwise the startup profile claims success for every
+    // instead -- otherwise the startup profile claims success for every
     // auth error / crashed server.
     const events: Array<{ name: string; attrs?: Record<string, unknown> }> = [];
     const startupEventSink = await import('../utils/startupEventSink.js');
@@ -631,7 +631,7 @@ describe('McpClientManager', () => {
     );
     expect(readyEvents).toHaveLength(1);
     expect(readyEvents[0].attrs?.['outcome']).toBe('failed');
-    // And no `mcp_first_tool_registered` was emitted — that metric is
+    // And no `mcp_first_tool_registered` was emitted -- that metric is
     // user-facing ("first MCP server became usable") so a failed server
     // must not pollute it.
     const firstToolEvents = events.filter(
@@ -695,7 +695,7 @@ describe('McpClientManager', () => {
   it('discoveryTimeoutFor treats websocket (tcp) transport as remote', async () => {
     // The remote-vs-stdio classification gates the 5s vs 30s default
     // timeout. `tcp` is the WebSocket transport field on MCPServerConfig
-    // — without it, hung WS handshakes would block `waitForMcpReady()`
+    // -- without it, hung WS handshakes would block `waitForMcpReady()`
     // for 30s instead of 5s.
     const mockedMcpClient = {
       connect: vi.fn().mockReturnValue(new Promise<void>(() => {})),
@@ -744,7 +744,7 @@ describe('McpClientManager', () => {
     //
     // Disconnecting the client on timeout aborts the handshake, but a
     // fire-and-forget `void disconnect()` doesn't help when `discover()`
-    // already pumped tools into the registry synchronously — the
+    // already pumped tools into the registry synchronously -- the
     // transport close lands a tick later. We therefore (a) await the
     // disconnect and (b) call `removeMcpToolsByServer()` to drop any
     // tools that slipped through the race window.
@@ -778,7 +778,7 @@ describe('McpClientManager', () => {
 
     await manager.discoverAllMcpToolsIncremental(mockConfig);
 
-    // The timeout must have triggered the disconnect — that's what
+    // The timeout must have triggered the disconnect -- that's what
     // aborts the connect() handshake so no tools land.
     expect(mockedMcpClient.disconnect).toHaveBeenCalled();
     // And any tools that registered during the disconnect race window
@@ -795,8 +795,8 @@ describe('McpClientManager', () => {
     // health-check timer. `discoverMcpToolsForServerInternal`'s `finally`
     // block would then `startHealthCheck`, which (with `autoReconnect`)
     // detects `status !== CONNECTED`, increments the failure counter for
-    // ~maxConsecutiveFailures intervals, and calls `reconnectServer()` →
-    // `discoverMcpToolsForServer()` directly — bypassing
+    // ~maxConsecutiveFailures intervals, and calls `reconnectServer()` ->
+    // `discoverMcpToolsForServer()` directly -- bypassing
     // `runWithDiscoveryTimeout` entirely. The intentionally slow server
     // would silently come back.
     let resolveConnect!: () => void;
@@ -828,7 +828,7 @@ describe('McpClientManager', () => {
 
     await manager.discoverAllMcpToolsIncremental(mockConfig);
 
-    // The client entry must be gone — otherwise `performHealthCheck`
+    // The client entry must be gone -- otherwise `performHealthCheck`
     // would observe it (and the disconnected status) every checkInterval.
     expect(
       (manager as unknown as { clients: Map<string, unknown> }).clients.has(
@@ -903,7 +903,7 @@ describe('McpClientManager', () => {
 // budget enforcement). Kept in its own describe so the existing test
 // suite stays untouched and a future revert of PR 14 drops a single
 // contiguous block.
-describe('McpClientManager — PR 14 guardrails', () => {
+describe('McpClientManager -- PR 14 guardrails', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     delete process.env['QWEN_SERVE_MCP_CLIENT_BUDGET'];
@@ -913,12 +913,12 @@ describe('McpClientManager — PR 14 guardrails', () => {
   /**
    * Mock factory: returns a fresh stub McpClient whose `getStatus()`
    * returns CONNECTED after `connect()` resolves. Mirrors the
-   * `discoverAllMcpTools` happy path — counter sees the client as
+   * `discoverAllMcpTools` happy path -- counter sees the client as
    * live only when `getStatus === CONNECTED`, so without flipping
    * the mock status the accounting would always read zero.
    */
   function makeConnectedMcpClientMock() {
-    // Real McpClient.getStatus is sync — start CONNECTED so accounting
+    // Real McpClient.getStatus is sync -- start CONNECTED so accounting
     // sees it as live immediately after construction. `connect()` is a
     // no-op (we don't simulate handshake state machinery in unit
     // tests; the accounting cares only about the final status).
@@ -1066,7 +1066,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     await manager.discoverAllMcpTools(config);
     const accounting = manager.getMcpClientAccounting();
     expect(accounting.total).toBe(2);
-    // `off` skips reservation altogether — operators see live count via
+    // `off` skips reservation altogether -- operators see live count via
     // `total`, but reservedSlots stays empty.
     expect(accounting.reservedSlots).toEqual([]);
     expect(accounting.refusedServerNames).toEqual([]);
@@ -1078,7 +1078,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
       created.push(name);
       return makeConnectedMcpClientMock() as unknown as McpClient;
     });
-    // Insertion order: zulu, alpha, mike. Budget 2 → zulu+alpha survive.
+    // Insertion order: zulu, alpha, mike. Budget 2 -> zulu+alpha survive.
     const config = configWithServers({
       zulu: { command: 'node' },
       alpha: { command: 'node' },
@@ -1118,11 +1118,11 @@ describe('McpClientManager — PR 14 guardrails', () => {
     await manager.discoverAllMcpTools(config);
     expect(manager.getMcpClientAccounting().refusedServerNames).toEqual(['b']);
 
-    // Second pass: stop()→clear→re-run. The reset happens at the start
+    // Second pass: stop()->clear->re-run. The reset happens at the start
     // of discoverAllMcpTools (see also stop() clearing reservedSlots).
     await manager.discoverAllMcpTools(config);
     // Same outcome (still budget 1, still 2 servers), but the array
-    // is fresh — not appended to.
+    // is fresh -- not appended to.
     expect(manager.getMcpClientAccounting().refusedServerNames).toEqual(['b']);
   });
 
@@ -1145,7 +1145,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     );
     await manager.discoverAllMcpTools(config);
     // `a` was reserved; `b` was refused. A `readResource('b', ...)` would
-    // lazy-spawn — must throw rather than silently exceed the cap.
+    // lazy-spawn -- must throw rather than silently exceed the cap.
     await expect(manager.readResource('b', 'file:///x')).rejects.toBeInstanceOf(
       BudgetExhaustedError,
     );
@@ -1170,7 +1170,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     await manager.discoverAllMcpTools(config);
     expect(manager.getMcpClientAccounting().reservedSlots).toEqual(['a']);
     await manager.disconnectServer('a');
-    // Slot released — accounting shows the configured set shrank.
+    // Slot released -- accounting shows the configured set shrank.
     expect(manager.getMcpClientAccounting().reservedSlots).toEqual([]);
   });
 
@@ -1196,7 +1196,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     process.env['QWEN_SERVE_MCP_CLIENT_BUDGET'] = '-3';
     const config = configWithServers({});
     const manager = new McpClientManager(config, {} as ToolRegistry);
-    // Invalid values fall through to `undefined` budget + `off` mode —
+    // Invalid values fall through to `undefined` budget + `off` mode --
     // no enforcement, no boot-time crash. Validation lives in the CLI
     // flag handler (`packages/cli/src/commands/serve.ts`).
     expect(manager.getMcpClientBudget()).toBeUndefined();
@@ -1209,7 +1209,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
       created.push(name);
       return makeConnectedMcpClientMock() as unknown as McpClient;
     });
-    // `b` is disabled — must not even attempt to reserve. With budget=2,
+    // `b` is disabled -- must not even attempt to reserve. With budget=2,
     // `a` and `c` should both succeed (b is invisible to the gate, so it
     // doesn't consume a slot; the cap is enough for the remaining two).
     const config = configWithServers(
@@ -1262,7 +1262,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     );
     await manager.discoverAllMcpTools(config);
     // `b` was refused at startup. A manual `/mcp reconnect b` (which goes
-    // through `discoverMcpToolsForServer` → `...Internal`) would have
+    // through `discoverMcpToolsForServer` -> `...Internal`) would have
     // pre-fix bypassed the gate and exceeded the cap. Now it must stay
     // refused.
     expect(created).toEqual(['a']);
@@ -1333,9 +1333,9 @@ describe('McpClientManager — PR 14 guardrails', () => {
       'b',
     ]);
 
-    // Swap b → c (still budget=2). Pre-fix order: `c` refused because
+    // Swap b -> c (still budget=2). Pre-fix order: `c` refused because
     // `b`'s slot was only freed after the new-server loop. Post-fix:
-    // `b` removed first → reservedSlots={a} → `c` reserved.
+    // `b` removed first -> reservedSlots={a} -> `c` reserved.
     delete mcpServers['b'];
     mcpServers['c'] = { command: 'node' };
     await manager.discoverAllMcpToolsIncremental(config);
@@ -1347,7 +1347,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     void inflight;
   });
 
-  it('buildBudgetCells deferred to acpAgent — manager off-mode returns no budget bookkeeping (review #2)', async () => {
+  it('buildBudgetCells deferred to acpAgent -- manager off-mode returns no budget bookkeeping (review #2)', async () => {
     // Sibling check: when `mode === 'off'` the manager doesn't reserve
     // anything and the snapshot has empty `reservedSlots` + zero
     // `refusedServerNames`. The empty-`budgets[]` assertion lives in
@@ -1379,8 +1379,8 @@ describe('McpClientManager — PR 14 guardrails', () => {
   // Round 2 review fixes (PR #4247 wenshao Critical 2, Critical 3, Suggestion 4).
   it('connect() failure releases the reserved slot in discoverAllMcpTools (wenshao C2)', async () => {
     // Failing client: getStatus stays DISCONNECTED; connect() throws.
-    // Pre-fix the slot stayed reserved → permanent leak under enforce
-    // → second server couldn't claim a freed slot until full restart.
+    // Pre-fix the slot stayed reserved -> permanent leak under enforce
+    // -> second server couldn't claim a freed slot until full restart.
     let firstCall = true;
     vi.mocked(McpClient).mockImplementation(() => {
       if (firstCall) {
@@ -1407,9 +1407,9 @@ describe('McpClientManager — PR 14 guardrails', () => {
       { clientBudget: 1, budgetMode: 'enforce' },
     );
     await manager.discoverAllMcpTools(config);
-    // `a` failed → slot freed → `b` ought to fit (budget=1, current=0
+    // `a` failed -> slot freed -> `b` ought to fit (budget=1, current=0
     // after `a` released). But discoverAllMcpTools walks all servers
-    // concurrently — `b` may have been refused at the time of its
+    // concurrently -- `b` may have been refused at the time of its
     // synchronous reserve check (before `a` released). What we MUST
     // assert is the post-conditions: `a` released its slot, `a` not
     // in clients map. `b` may be either reserved or refused depending
@@ -1428,7 +1428,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     let getResourceCalled = false;
     vi.mocked(McpClient).mockImplementation(
       function() { return {
-          // Stays disconnected → readResource code path forces a
+          // Stays disconnected -> readResource code path forces a
           // `client.connect()` before `client.readResource(...)`.
           connect: vi.fn().mockRejectedValue(new Error('lazy connect boom')),
           discover: vi.fn().mockResolvedValue(undefined),
@@ -1451,11 +1451,11 @@ describe('McpClientManager — PR 14 guardrails', () => {
       undefined,
       { clientBudget: 1, budgetMode: 'enforce' },
     );
-    // No discovery yet → `a` not in clients → lazy spawn path.
+    // No discovery yet -> `a` not in clients -> lazy spawn path.
     await expect(manager.readResource('a', 'file:///x')).rejects.toThrow(
       'lazy connect boom',
     );
-    // Slot must NOT leak — pre-fix one failed readResource permanently
+    // Slot must NOT leak -- pre-fix one failed readResource permanently
     // burned a budget slot.
     expect(manager.getMcpClientAccounting().reservedSlots).toEqual([]);
     expect(
@@ -1469,13 +1469,13 @@ describe('McpClientManager — PR 14 guardrails', () => {
 
   it('readBudgetFromEnv downgrades enforce-without-budget to off (wenshao S4)', async () => {
     process.env['QWEN_SERVE_MCP_BUDGET_MODE'] = 'enforce';
-    // No QWEN_SERVE_MCP_CLIENT_BUDGET — silently fail-open pre-fix:
+    // No QWEN_SERVE_MCP_CLIENT_BUDGET -- silently fail-open pre-fix:
     // `tryReserveSlot` returns 'reserved' when `clientBudget === undefined`,
     // so an "enforce" daemon would let unlimited servers through.
     const config = configWithServers({});
     const manager = new McpClientManager(config, {} as ToolRegistry);
     expect(manager.getMcpClientBudget()).toBeUndefined();
-    // Downgraded — not 'enforce' — because enforce requires a budget.
+    // Downgraded -- not 'enforce' -- because enforce requires a budget.
     expect(manager.getMcpBudgetMode()).toBe('off');
   });
 
@@ -1582,7 +1582,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
   // the R5 release-on-fresh test below; a dedicated already_held
   // timeout test requires either driving the health-monitor flow
   // end-to-end (which needs autoReconnect timer interleaving with
-  // fake timers — interferes with the sibling R5 test in the same
+  // fake timers -- interferes with the sibling R5 test in the same
   // file) or piercing the private `runWithDiscoveryTimeout`
   // helper. The invariant is small enough that the fresh-release
   // test below is sufficient regression coverage; an integration
@@ -1590,7 +1590,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
   // without the timer interleave problem.
   it('runWithDiscoveryTimeout timeout handler releases the budget slot (wenshao R5 line 956)', async () => {
     vi.useFakeTimers();
-    // McpClient.connect never resolves → timeout fires.
+    // McpClient.connect never resolves -> timeout fires.
     vi.mocked(McpClient).mockImplementation(
       function() { return {
           connect: vi.fn(() => new Promise(() => {})),
@@ -1625,7 +1625,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
 
   it('incremental discovery still refuses past the cap after R6 pre-reservation removal (wenshao R6 line 956)', async () => {
     // Round 6 removed the duplicate pre-reservation in
-    // discoverAllMcpToolsIncremental — refusal now happens INSIDE
+    // discoverAllMcpToolsIncremental -- refusal now happens INSIDE
     // discoverMcpToolsForServerInternal's tryReserveSlot. Verify
     // the observable refusal behavior is unchanged from the outside.
     const created: string[] = [];
@@ -1648,7 +1648,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     );
     await manager.discoverAllMcpToolsIncremental(config);
     // First two declared servers fit; third refused. Refusal-order
-    // determinism preserved (config-declaration order) — the inner
+    // determinism preserved (config-declaration order) -- the inner
     // tryReserveSlot is called in the same serversToUpdate iteration
     // order as the outer walk produced.
     expect(created).toEqual(['first', 'second']);
@@ -1685,7 +1685,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     expect(manager.getMcpClientAccounting().refusedServerNames).toEqual(['b']);
     // Free a slot.
     await manager.disconnectServer('a');
-    // Lazy spawn b — should now succeed (slot available).
+    // Lazy spawn b -- should now succeed (slot available).
     await manager.readResource('b', 'file:///x');
     // Stale refusal entry must be cleared.
     expect(manager.getMcpClientAccounting().refusedServerNames).toEqual([]);
@@ -1746,7 +1746,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
   });
 
   it('discoverMcpToolsForServerInternal disconnects on discover() failure (wenshao R7 #3 line 634)', async () => {
-    // Pre-fix: `connect()` succeeds + `discover()` throws → catch
+    // Pre-fix: `connect()` succeeds + `discover()` throws -> catch
     // deletes the client from the map without calling
     // `disconnect()`, leaking the stdio child.
     let disconnectCalls = 0;
@@ -1820,7 +1820,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     // Now operator disables 'a' mid-session.
     disabled = true;
     // readResource on the EXISTING (still CONNECTED) client must
-    // reject — pre-fix this would have proceeded to client.readResource.
+    // reject -- pre-fix this would have proceeded to client.readResource.
     await expect(manager.readResource('a', 'file:///x')).rejects.toThrow(
       /'a' is disabled/,
     );
@@ -1829,8 +1829,8 @@ describe('McpClientManager — PR 14 guardrails', () => {
   it('readResource lazy spawn disconnects on connect() failure (wenshao R9 #2 line 1534)', async () => {
     // Mirror of the discovery-side R7 #3 / R8 #1 fixes, but for
     // the readResource lazy-spawn path. Pre-fix: connect()
-    // partially established transport then threw → catch deleted
-    // client without disconnect() → stdio child / socket leaked.
+    // partially established transport then threw -> catch deleted
+    // client without disconnect() -> stdio child / socket leaked.
     let disconnectCalls = 0;
     vi.mocked(McpClient).mockImplementation(
       function() { return {
@@ -1865,7 +1865,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
   it('readBudgetFromEnv emits stderr breadcrumb on enforce-no-budget downgrade (wenshao R9 #7)', async () => {
     const writeSpy = vi.spyOn(process.stderr, 'write').mockReturnValue(true);
     process.env['QWEN_SERVE_MCP_BUDGET_MODE'] = 'enforce';
-    // No budget → downgrade fires
+    // No budget -> downgrade fires
     try {
       const config = configWithServers({});
       const manager = new McpClientManager(config, {} as ToolRegistry);
@@ -1885,8 +1885,8 @@ describe('McpClientManager — PR 14 guardrails', () => {
 
   it('discoverAllMcpTools disconnects on discover() failure (wenshao R8 #1 line 532)', async () => {
     // Bulk-path mirror of R7 #3 (per-server path). Pre-fix:
-    // connect() success + discover() throw → catch deleted client
-    // without disconnect() → stdio child / WebSocket / HTTP socket
+    // connect() success + discover() throw -> catch deleted client
+    // without disconnect() -> stdio child / WebSocket / HTTP socket
     // leaked for the rest of the daemon's lifetime (stop() can't
     // see the entry it just removed from this.clients).
     let disconnectCalls = 0;
@@ -1918,7 +1918,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
 
   it('readBudgetFromEnv downgrades warn-without-budget to off (wenshao R8 #2)', async () => {
     process.env['QWEN_SERVE_MCP_BUDGET_MODE'] = 'warn';
-    // No budget — pre-fix this passed through with mode='warn',
+    // No budget -- pre-fix this passed through with mode='warn',
     // reaching emitBudgetTelemetry with clientBudget=undefined.
     const config = configWithServers({});
     const manager = new McpClientManager(config, {} as ToolRegistry);
@@ -1927,7 +1927,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
   });
 
   it('constructor downgrades enforce-without-budget when budgetConfig passed directly (wenshao R8 #5)', async () => {
-    // Direct-budgetConfig path is test-/embedded-only — production
+    // Direct-budgetConfig path is test-/embedded-only -- production
     // callers (CLI, runQwenServe, env-var fallback) all validate
     // upfront. Defense-in-depth: constructor mirrors the env-var
     // path's downgrade so a future caller that bypasses validation
@@ -1949,7 +1949,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
   it('discoverMcpToolsForServer reconnect-attempt connect-failure KEEPS slot (wenshao R4 C2 already_held)', async () => {
     // Distinguish from the previous test: same call signature, but
     // here the slot is already-held (from a prior successful connect
-    // in discoverAllMcpTools). A failed reconnect must NOT release —
+    // in discoverAllMcpTools). A failed reconnect must NOT release --
     // the operator's stable server that just hiccupped should keep
     // its capacity reservation for the health-monitor retry loop.
     let connectThrows = false;
@@ -1981,9 +1981,9 @@ describe('McpClientManager — PR 14 guardrails', () => {
     await manager.discoverAllMcpTools(config);
     expect(manager.getMcpClientAccounting().reservedSlots).toEqual(['a']);
     // Now simulate health-monitor reconnect against a flaky server:
-    // discoverMcpToolsForServer goes through tryReserveSlot →
-    // 'already_held' (slot stays) → existing client.disconnect()
-    // (slot stays) → new client.connect() throws → fix says
+    // discoverMcpToolsForServer goes through tryReserveSlot ->
+    // 'already_held' (slot stays) -> existing client.disconnect()
+    // (slot stays) -> new client.connect() throws -> fix says
     // weReservedSlot=false here so slot NOT released.
     connectThrows = true;
     await manager.discoverMcpToolsForServer('a', config);
@@ -1997,7 +1997,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
 // fluent `configWithServers` helper). Imports are dynamic to keep
 // the spy on `McpClient` cleanly bound per test (vi.mocked module
 // already mocked at file top).
-describe('McpClientManager — PR 14b push events + hysteresis', () => {
+describe('McpClientManager -- PR 14b push events + hysteresis', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     delete process.env['QWEN_SERVE_MCP_CLIENT_BUDGET'];
@@ -2046,8 +2046,8 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
       () => makeConnectedMcpClientMock() as unknown as McpClient,
     );
     const events: unknown[] = [];
-    // 4-server config, budget 4, ratio after pass = 4/4 = 1.0 ≥ 0.75
-    // → exactly one warning fires.
+    // 4-server config, budget 4, ratio after pass = 4/4 = 1.0 >= 0.75
+    // -> exactly one warning fires.
     const config = configWithServers({
       a: { command: 'node' },
       b: { command: 'node' },
@@ -2073,7 +2073,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
     expect(warnings).toHaveLength(1);
     // PR 14b fix #4 (codex review round 1): hysteresis fires inline on
     // the upward crossing, so the payload reflects the moment ratio
-    // first hits 0.75 — `reservedCount: 3` (3 of 4 reserved). Pre-fix
+    // first hits 0.75 -- `reservedCount: 3` (3 of 4 reserved). Pre-fix
     // the test saw the post-stabilization `reservedCount: 4` because
     // the standalone end-of-pass `evaluateBudgetState` ran after every
     // reservation completed.
@@ -2091,7 +2091,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
       () => makeConnectedMcpClientMock() as unknown as McpClient,
     );
     const events: unknown[] = [];
-    // 2 of 4 → 0.5 < 0.75 → no fire.
+    // 2 of 4 -> 0.5 < 0.75 -> no fire.
     const config = configWithServers({
       a: { command: 'node' },
       b: { command: 'node' },
@@ -2122,7 +2122,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
     // Budget 4. Pass 1: 4/4 = 1.0 fires. Pass 2 after disconnecting
     // 2 (-> 2/4=0.5, above 37.5%) does NOT re-arm. Pass 3 after
     // disconnecting one more (-> 1/4=0.25 below 37.5%) re-arms.
-    // Re-arming alone doesn't fire — the next upward crossing fires.
+    // Re-arming alone doesn't fire -- the next upward crossing fires.
     let servers: Record<string, unknown> = {
       a: { command: 'node' },
       b: { command: 'node' },
@@ -2150,20 +2150,20 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
       events.filter((e) => (e as { kind: string }).kind === 'budget_warning'),
     ).toHaveLength(1);
 
-    // Drop to 50% via disconnect: 2/4 = 0.5 — above 37.5%, NO re-arm
+    // Drop to 50% via disconnect: 2/4 = 0.5 -- above 37.5%, NO re-arm
     // (warning stays disabled).
     await manager.disconnectServer('c');
     await manager.disconnectServer('d');
     // Force a state evaluation: a successful per-server reconnect path
     // is the cleanest in-band trigger; emulate one by re-discovering
-    // 'a'. (`evaluateBudgetState` is private — we exercise it via the
+    // 'a'. (`evaluateBudgetState` is private -- we exercise it via the
     // public path instead.)
     await manager.discoverMcpToolsForServer('a', config);
     expect(
       events.filter((e) => (e as { kind: string }).kind === 'budget_warning'),
-    ).toHaveLength(1); // still 1 — not re-fired
+    ).toHaveLength(1); // still 1 -- not re-fired
 
-    // Drop to 25% via disconnect — below 37.5% — should re-arm but
+    // Drop to 25% via disconnect -- below 37.5% -- should re-arm but
     // not fire yet (re-arming alone doesn't trigger an event).
     await manager.disconnectServer('b');
     await manager.discoverMcpToolsForServer('a', config);
@@ -2171,7 +2171,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
       events.filter((e) => (e as { kind: string }).kind === 'budget_warning'),
     ).toHaveLength(1);
 
-    // Now refill back to 4/4 — re-armed state plus upward crossing
+    // Now refill back to 4/4 -- re-armed state plus upward crossing
     // fires the second warning.
     servers = {
       a: { command: 'node' },
@@ -2211,7 +2211,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
       () => makeConnectedMcpClientMock() as unknown as McpClient,
     );
     const events: unknown[] = [];
-    // budget 1, 3 servers → a connects, b+c refused.
+    // budget 1, 3 servers -> a connects, b+c refused.
     const config = configWithServers({
       a: { command: 'node' },
       b: { httpUrl: 'http://b' },
@@ -2294,13 +2294,13 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
         onBudgetEvent: (e) => events.push(e),
       },
     );
-    // First pass fills the budget with `a`. `b` is refused — that's
+    // First pass fills the budget with `a`. `b` is refused -- that's
     // the bulk refusal (length-1 batch).
     await manager.discoverAllMcpTools(config);
     // Clear bulk events so the assertion below tracks only the
     // readResource path.
     events.length = 0;
-    // Now lazy-spawn against b — slot full, throws + emits a
+    // Now lazy-spawn against b -- slot full, throws + emits a
     // length-1 batch.
     await expect(manager.readResource('b', 'mcp://b/resource')).rejects.toThrow(
       BudgetExhaustedError,
@@ -2453,15 +2453,15 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
     // Codex review round 1, finding #3: pre-fix, when
     // `discoverAllMcpToolsIncremental` walked N new servers and the
     // budget was full, each per-server refusal called
-    // `emitRefusedBatchIfAny` inline → N length-1 batch events
+    // `emitRefusedBatchIfAny` inline -> N length-1 batch events
     // instead of 1 length-N batch. This test pins the documented
     // "one batch per pass" contract via the `bulkPassDepth` guard.
     vi.mocked(McpClient).mockImplementation(
       () => makeConnectedMcpClientMock() as unknown as McpClient,
     );
     const events: unknown[] = [];
-    // Budget 1, 4 servers — 1 admitted, 3 refused. Pre-fix this
-    // produced 3 length-1 batches via `discoverMcpToolsForServer` →
+    // Budget 1, 4 servers -- 1 admitted, 3 refused. Pre-fix this
+    // produced 3 length-1 batches via `discoverMcpToolsForServer` ->
     // `discoverMcpToolsForServerInternal`. Post-fix: 1 length-3 batch.
     const config = configWithServers({
       a: { command: 'node' },
@@ -2499,9 +2499,9 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
     // `removeServer` deleted from `reservedSlots` without invoking
     // `evaluateBudgetState`, so `warnArmed` stayed `false` after a
     // 75% fire even though the ratio dropped below 37.5%. This test
-    // exercises the operator-driven release path: 4/4 → fire #1 →
-    // disconnect 3 servers (1/4, below re-arm) → reconnect 3 → 4/4
-    // → fire #2. Pre-fix: only one fire. Post-fix: two fires.
+    // exercises the operator-driven release path: 4/4 -> fire #1 ->
+    // disconnect 3 servers (1/4, below re-arm) -> reconnect 3 -> 4/4
+    // -> fire #2. Pre-fix: only one fire. Post-fix: two fires.
     vi.mocked(McpClient).mockImplementation(
       () => makeConnectedMcpClientMock() as unknown as McpClient,
     );
@@ -2528,8 +2528,8 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
     expect(
       events.filter((e) => (e as { kind: string }).kind === 'budget_warning'),
     ).toHaveLength(1);
-    // Drop to 1/4 via operator disconnects — each release crosses
-    // through 0.75 → 0.5 → 0.25, the last one crossing 37.5% inline
+    // Drop to 1/4 via operator disconnects -- each release crosses
+    // through 0.75 -> 0.5 -> 0.25, the last one crossing 37.5% inline
     // re-arms `warnArmed` via `releaseSlotName`'s evaluate.
     await manager.disconnectServer('b');
     await manager.disconnectServer('c');
@@ -2539,7 +2539,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
     // state through inline `tryReserveSlot` evaluate calls).
     await manager.discoverMcpToolsForServer('b', config);
     await manager.discoverMcpToolsForServer('c', config);
-    // 3/4 = 0.75 — fire #2.
+    // 3/4 = 0.75 -- fire #2.
     expect(
       events.filter((e) => (e as { kind: string }).kind === 'budget_warning'),
     ).toHaveLength(2);

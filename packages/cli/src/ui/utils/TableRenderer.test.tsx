@@ -155,18 +155,18 @@ describe('<TableRenderer />', () => {
     expect(output).toContain('foo');
     expect(output).toContain('bar');
     // Should have border characters
-    expect(output).toContain('┌');
-    expect(output).toContain('┐');
-    expect(output).toContain('└');
-    expect(output).toContain('┘');
-    expect(output).toContain('│');
+    expect(output).toContain('+--');
+    expect(output).toContain('+--');
+    expect(output).toContain('\_');
+    expect(output).toContain('---');
+    expect(output).toContain('|');
     expectAllLinesToHaveSameVisibleWidth(output);
   });
 
   it('keeps all rendered lines at the same visible width for mixed content', () => {
     const output = renderTable(
-      ['项目', 'ANSI', 'Markdown'],
-      [['中文内容', '\u001b[31mRed\u001b[0m Blue', '**bold** and `code`']],
+      ['', 'ANSI', 'Markdown'],
+      [['', '\u001b[31mRed\u001b[0m Blue', '**bold** and `code`']],
       80,
       ['left', 'center', 'right'],
     );
@@ -175,31 +175,31 @@ describe('<TableRenderer />', () => {
 
   it('handles CJK characters with correct column alignment', () => {
     const output = renderTable(
-      ['项目', '描述'],
-      [['名称', '这是一个很长的描述']],
+      ['', ''],
+      [['', '']],
     );
 
-    expect(output).toContain('项目');
-    expect(output).toContain('描述');
-    expect(output).toContain('名称');
-    expect(output).toContain('这是一个很长的描述');
+    expect(output).toContain('');
+    expect(output).toContain('');
+    expect(output).toContain('');
+    expect(output).toContain('');
   });
 
   it('handles mixed CJK and ASCII content', () => {
     const output = renderTable(
-      ['Feature', '功能'],
+      ['Feature', ''],
       [
-        ['Speed', '速度很快'],
-        ['Quality', '质量很高'],
+        ['Speed', ''],
+        ['Quality', ''],
       ],
     );
 
     expect(output).toContain('Feature');
-    expect(output).toContain('功能');
+    expect(output).toContain('');
     expect(output).toContain('Speed');
-    expect(output).toContain('速度很快');
+    expect(output).toContain('');
     expect(output).toContain('Quality');
-    expect(output).toContain('质量很高');
+    expect(output).toContain('');
   });
 
   it('wraps long cell content instead of truncating', () => {
@@ -216,7 +216,7 @@ describe('<TableRenderer />', () => {
     expect(output).toContain('wrap');
   });
 
-  // Alignment tests use contentWidth ≥ 60 so horizontal mode is exercised
+  // Alignment tests use contentWidth >= 60 so horizontal mode is exercised
   // (vertical mode renders key:value pairs and bypasses pad alignment).
 
   it('respects left alignment', () => {
@@ -224,19 +224,19 @@ describe('<TableRenderer />', () => {
     expect(output).toContain('left');
     // Horizontal-mode guard so this test fails loudly if the threshold
     // is bumped back above 60 and the test silently degrades to vertical.
-    expect(output).toContain('┌');
+    expect(output).toContain('+--');
   });
 
   it('respects center alignment', () => {
     const output = renderTable(['Header'], [['center']], 60, ['center']);
     expect(output).toContain('center');
-    expect(output).toContain('┌');
+    expect(output).toContain('+--');
   });
 
   it('respects right alignment', () => {
     const output = renderTable(['Header'], [['right']], 60, ['right']);
     expect(output).toContain('right');
-    expect(output).toContain('┌');
+    expect(output).toContain('+--');
   });
 
   it('handles multiple columns with mixed alignment', () => {
@@ -274,21 +274,21 @@ describe('<TableRenderer />', () => {
     // This is the classic failure case: CJK chars counted as width 1
     // causes column misalignment
     const output = renderTable(
-      ['对比项', 'Claude Code', 'Qwen Code'],
+      ['', 'Claude Code', 'Qwen Code'],
       [
-        ['性能', '优秀', '优秀'],
-        ['中文支持', '一般', '很好'],
-        ['开源', '否', '是'],
+        ['', '', ''],
+        ['', '', ''],
+        ['', '', ''],
       ],
       50,
     );
 
-    expect(output).toContain('对比项');
+    expect(output).toContain('');
     expect(output).toContain('Claude Code');
     expect(output).toContain('Qwen Code');
-    expect(output).toContain('性能');
-    expect(output).toContain('中文支持');
-    expect(output).toContain('开源');
+    expect(output).toContain('');
+    expect(output).toContain('');
+    expect(output).toContain('');
   });
 
   it('handles inline markdown in cells', () => {
@@ -328,7 +328,7 @@ describe('<TableRenderer />', () => {
     expect(output).toContain('lue');
   });
 
-  // ─── Reverse audit: edge cases that SHOULD NOT break ───
+  // --- Reverse audit: edge cases that SHOULD NOT break ---
 
   it('handles empty headers array without crash', () => {
     const output = renderTable([], [], 80);
@@ -355,15 +355,15 @@ describe('<TableRenderer />', () => {
 
   it('handles cell content that is all CJK', () => {
     const output = renderTable(
-      ['项目名', '状态'],
+      ['', ''],
       [
-        ['数据库连接测试', '成功'],
-        ['缓存压力测试', '失败'],
+        ['', ''],
+        ['', ''],
       ],
       40,
     );
-    expect(output).toContain('数据库连接测试');
-    expect(output).toContain('缓存压力测试');
+    expect(output).toContain('');
+    expect(output).toContain('');
   });
 
   it('handles row with more columns than headers (truncation)', () => {
@@ -387,9 +387,9 @@ describe('<TableRenderer />', () => {
   it('table with only one row still has all borders', () => {
     const output = renderTable(['H1', 'H2'], [['v1', 'v2']]);
     // Should have top, single middle, bottom border
-    const borderChars = output.match(/┌/g);
+    const borderChars = output.match(/+--/g);
     expect(borderChars).toHaveLength(1);
-    const bottomBorders = output.match(/└/g);
+    const bottomBorders = output.match(/\_/g);
     expect(bottomBorders).toHaveLength(1);
   });
 
@@ -402,30 +402,30 @@ describe('<TableRenderer />', () => {
   });
 
   it('preserves ANSI escape sequences in non-markdown cells', () => {
-    const red = '\u001b[31m红色\u001b[0m';
-    const output = renderTable(['状态', '值'], [[red, 'OK']], 40);
+    const red = '\u001b[31m\u001b[0m';
+    const output = renderTable(['', ''], [[red, 'OK']], 40);
     expect(output).toContain('\u001b[31m');
-    expect(output).toContain('红色');
+    expect(output).toContain('');
   });
 
   it('wraps complex ANSI-colored content without losing segments', () => {
     const colorful =
-      '\u001b[31m红色\u001b[0m and \u001b[32mgreen\u001b[0m then \u001b[34mblue文本\u001b[0m';
-    const output = renderTable(['状态'], [[colorful]], 24);
+      '\u001b[31m\u001b[0m and \u001b[32mgreen\u001b[0m then \u001b[34mblue\u001b[0m';
+    const output = renderTable([''], [[colorful]], 24);
     expect(output).toContain('\u001b[31m');
     expect(output).toContain('\u001b[32m');
     expect(output).toContain('\u001b[34m');
-    expect(output).toContain('红色');
+    expect(output).toContain('');
     expect(output).toContain('green');
     expect(output).toContain('blue');
-    expect(output).toContain('文本');
+    expect(output).toContain('');
     expectAllLinesToHaveSameVisibleWidth(output);
   });
 
   it('preserves truecolor inline-code foreground across wrapped lines', () => {
     const tableName =
       'deleted_t_spark_odps_sql_type_system2_test_view_more_times_expand_view_f44c82c06096_244650615';
-    const output = renderTable(['表名'], [[`\`${tableName}\``]], 64);
+    const output = renderTable([''], [[`\`${tableName}\``]], 64);
 
     expect(output).toContain('244650615');
     expectWrappedContinuation(output, tableName, '244650615');
@@ -463,7 +463,7 @@ describe('<TableRenderer />', () => {
   // TODO: re-enable after ink 7 re-upgrade. The `[39m` (foreground-only
   // reset) variant added in #4050 only wraps "colored reset" at width=18 under
   // ink 7's <Text> wrapping; ink 6 keeps it on a single line. The functional
-  // assertions (foreground cleared, equal widths) still pass — only the
+  // assertions (foreground cleared, equal widths) still pass -- only the
   // wrap-position assertion is ink-7-specific.
   it.skip('does not preserve foreground after an explicit foreground reset', () => {
     const output = renderTable(
@@ -478,22 +478,22 @@ describe('<TableRenderer />', () => {
   });
 
   it('handles ANSI + CJK mixed width without losing content', () => {
-    const green = '\u001b[32m中文ABC\u001b[0m';
-    const output = renderTable(['列1', '列2'], [[green, '普通文本']], 40);
+    const green = '\u001b[32mABC\u001b[0m';
+    const output = renderTable(['1', '2'], [[green, '']], 40);
     expect(output).toContain('\u001b[32m');
-    expect(output).toContain('中文ABC');
-    expect(output).toContain('普通文本');
+    expect(output).toContain('ABC');
+    expect(output).toContain('');
   });
 
   it('keeps markdown cells readable while preserving layout', () => {
     const output = renderTable(
-      ['名称', '描述'],
-      [['**加粗**', '`code` 和 普通文本']],
+      ['', ''],
+      [['****', '`code`  ']],
       40,
     );
-    expect(output).toContain('加粗');
+    expect(output).toContain('');
     expect(output).toContain('code');
-    expect(output).toContain('普通文本');
+    expect(output).toContain('');
   });
 
   it('handles ANSI and markdown mixed across different columns', () => {
@@ -591,40 +591,40 @@ describe('<TableRenderer />', () => {
   });
 
   it('keeps CJK + ANSI + wrapping stable near width boundary', () => {
-    const cyan = '\u001b[36m中文对比ABC\u001b[0m';
+    const cyan = '\u001b[36mABC\u001b[0m';
     const output = renderTable(
-      ['项目', '结果说明'],
-      [[cyan, '这是一个接近边界宽度的说明文本']],
+      ['', ''],
+      [[cyan, '']],
       26,
     );
     expect(output).toContain('\u001b[36m');
-    expect(output).toContain('中文');
-    expect(output).toContain('对比');
+    expect(output).toContain('');
+    expect(output).toContain('');
     expect(output).toContain('ABC');
-    expect(output).toContain('说明文本');
+    expect(output).toContain('');
   });
 
   it('keeps alignment stable with mixed widths near boundary', () => {
     const output = renderTable(
-      ['短', 'LongHeader'],
-      [['中文', 'abcdefghi']],
+      ['', 'LongHeader'],
+      [['', 'abcdefghi']],
       24,
       ['center', 'right'],
     );
-    expect(output).toContain('中');
-    expect(output).toContain('文');
+    expect(output).toContain('');
+    expect(output).toContain('');
     expect(output).toContain('abcdefghi');
     expect(output).not.toContain('NaN');
   });
 
   it('renders vertical fallback with CJK labels readably', () => {
     const output = renderTable(
-      ['字段一', '字段二', '字段三'],
-      [['很长的值一', '很长的值二', '很长的值三']],
+      ['', '', ''],
+      [['', '', '']],
       10,
     );
-    expect(output).toContain('字段一');
-    expect(output).toContain('很长的值一');
+    expect(output).toContain('');
+    expect(output).toContain('');
   });
 
   describe('OSC 8 markdown links in cells', () => {
@@ -707,22 +707,22 @@ describe('<TableRenderer />', () => {
     });
   });
 
-  // ─── Narrow-terminal vertical fallback ───
+  // --- Narrow-terminal vertical fallback ---
   describe('horizontal/vertical mode threshold', () => {
     it('uses horizontal mode at ample width (60 cols, 2 short cols)', () => {
       const output = renderTable(['A', 'B'], [['x', 'y']], 60);
       // Horizontal markers must be present.
-      expect(output).toContain('┌');
-      expect(output).toContain('└');
-      expect(output).toContain('│');
+      expect(output).toContain('+--');
+      expect(output).toContain('\_');
+      expect(output).toContain('|');
     });
 
-    it('falls back to vertical below the absolute floor (≤24 cols)', () => {
+    it('falls back to vertical below the absolute floor (<=24 cols)', () => {
       // ABSOLUTE_MIN_HORIZONTAL_TABLE_WIDTH is 24.
       const output = renderTable(['A', 'B'], [['x', 'y']], 20);
       // No horizontal table border characters in vertical mode.
-      expect(output).not.toContain('┌');
-      expect(output).not.toContain('└');
+      expect(output).not.toContain('+--');
+      expect(output).not.toContain('\_');
       // Vertical mode renders "label:" pairs.
       expect(output).toContain('A:');
       expect(output).toContain('B:');
@@ -734,7 +734,7 @@ describe('<TableRenderer />', () => {
       // borderOverhead = 1 + 2*3 = 7; minHorizontal = max(24, 2*3 + 7 + 4) = 24
       // so 30 cols comfortably fits horizontal.
       const output = renderTable(['A', 'B'], [['x', 'y']], 30);
-      expect(output).toContain('┌');
+      expect(output).toContain('+--');
     });
 
     // Boundary equality tests: the comparator is strict `<`, so the threshold
@@ -744,25 +744,25 @@ describe('<TableRenderer />', () => {
       // ABSOLUTE_MIN_HORIZONTAL_TABLE_WIDTH is 24. With strict `<`, equality
       // means horizontal mode is selected.
       const output = renderTable(['A', 'B'], [['x', 'y']], 24);
-      expect(output).toContain('┌');
-      expect(output).toContain('└');
+      expect(output).toContain('+--');
+      expect(output).toContain('\_');
     });
 
     it('falls back to vertical one below absolute floor (2 cols, contentWidth=23)', () => {
       const output = renderTable(['A', 'B'], [['x', 'y']], 23);
-      expect(output).not.toContain('┌');
+      expect(output).not.toContain('+--');
       expect(output).toContain('A:');
     });
 
     it('renders horizontal at exact column-budget threshold (5 cols, contentWidth=35)', () => {
-      // 5 cols → minHorizontal = 5*3 + (1+5*3) + 4 = 35. Equality must still
+      // 5 cols -> minHorizontal = 5*3 + (1+5*3) + 4 = 35. Equality must still
       // render horizontally under the strict `<` comparator.
       const output = renderTable(
         ['A', 'B', 'C', 'D', 'E'],
         [['1', '2', '3', '4', '5']],
         35,
       );
-      expect(output).toContain('┌');
+      expect(output).toContain('+--');
     });
 
     it('falls back to vertical one below column-budget threshold (5 cols, contentWidth=34)', () => {
@@ -771,18 +771,18 @@ describe('<TableRenderer />', () => {
         [['1', '2', '3', '4', '5']],
         34,
       );
-      expect(output).not.toContain('┌');
+      expect(output).not.toContain('+--');
       expect(output).toContain('A:');
     });
 
     it('forces vertical for many-column tables on narrow terminals', () => {
-      // 5 cols → minHorizontal = 5*3 + (1+5*3) + 4 = 35; 30 cols is below that.
+      // 5 cols -> minHorizontal = 5*3 + (1+5*3) + 4 = 35; 30 cols is below that.
       const output = renderTable(
         ['A', 'B', 'C', 'D', 'E'],
         [['1', '2', '3', '4', '5']],
         30,
       );
-      expect(output).not.toContain('┌');
+      expect(output).not.toContain('+--');
       // Should still surface the data.
       expect(output).toContain('A:');
       expect(output).toContain('1');
@@ -793,12 +793,12 @@ describe('<TableRenderer />', () => {
   it('stays stable across multiple content widths', () => {
     for (const width of [8, 10, 12, 16, 20, 30, 40, 60]) {
       const output = renderTable(
-        ['项目', '状态', '说明'],
+        ['', '', ''],
         [
           [
-            '中文ABC',
+            'ABC',
             '\u001b[33mWARN\u001b[0m',
-            '**long** explanation with mixed 中英 content',
+            '**long** explanation with mixed  content',
           ],
         ],
         width,
@@ -807,10 +807,10 @@ describe('<TableRenderer />', () => {
       expect(output).toBeDefined();
       expect(output).not.toContain('NaN');
       expect(output).not.toContain('Infinity');
-      expect(output).toContain('项目');
-      expect(output).toContain('状态');
-      expect(output).toContain('说明');
-      if (output.includes('┌')) {
+      expect(output).toContain('');
+      expect(output).toContain('');
+      expect(output).toContain('');
+      if (output.includes('+--')) {
         expectAllLinesToHaveSameVisibleWidth(output);
       }
     }

@@ -17,7 +17,7 @@ import {
 
 /**
  * Select a startup tip. Extracted as a standalone function for clarity.
- * Called once via useMemo([], ...) — recordShown writes to disk.
+ * Called once via useMemo([], ...) -- recordShown writes to disk.
  */
 function pickStartupTip(): string {
   const history = getTipHistory();
@@ -35,7 +35,7 @@ function pickStartupTip(): string {
     return tip.content;
   }
 
-  // Fallback — should not happen with the current registry
+  // Fallback -- should not happen with the current registry
   return 'Type / to see all available commands.';
 }
 

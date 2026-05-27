@@ -14,7 +14,7 @@ UX problem.
 The goal is to proactively surface a brief 1-2 sentence recap when the user
 returns:
 
-- **High-level task** (what they are doing) → **next step** (what to do next).
+- **High-level task** (what they are doing) -> **next step** (what to do next).
 - Visually distinct from real assistant replies, so it is never mistaken
   for new model output.
 - **Best-effort**: failures must be silent and never break the main flow.
@@ -24,45 +24,45 @@ returns:
 | Trigger    | Conditions                                                                                   | Implementation                                                    |
 | ---------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | **Manual** | User runs `/recap`                                                                           | `recapCommand.ts` calls the same underlying service               |
-| **Auto**   | Terminal blurred (DECSET 1004 focus protocol) for ≥ 5 min + focus returns + stream is `Idle` | `useAwaySummary.ts` — 5min blur timer + `useFocus` event listener |
+| **Auto**   | Terminal blurred (DECSET 1004 focus protocol) for >= 5 min + focus returns + stream is `Idle` | `useAwaySummary.ts` -- 5min blur timer + `useFocus` event listener |
 
-Both paths funnel into a single function — `generateSessionRecap()` — to
+Both paths funnel into a single function -- `generateSessionRecap()` -- to
 guarantee identical behavior. The auto-trigger is gated by
-`general.showSessionRecap` (default: off — explicit opt-in, so ambient
+`general.showSessionRecap` (default: off -- explicit opt-in, so ambient
 LLM calls are never silently added to a user's bill); the manual
 command ignores that setting.
 
 ## Architecture
 
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                          AppContainer.tsx                              │
-│   isFocused = useFocus()                                               │
-│   isIdle = streamingState === Idle                                     │
-│       │                                                                │
-│       ├─→ useAwaySummary({enabled, config, isFocused, isIdle,          │
-│       │       │             addItem})                                  │
-│       │       └─→ 5 min blur timer + idle/dedupe gates                 │
-│       │              │                                                 │
-│       │              ↓                                                 │
-│       └─→ recapCommand (slash) ─→ generateSessionRecap(config, signal) │
-│                                          │                             │
-│                                          ↓                             │
-│                              ┌─────────────────────────┐               │
-│                              │ packages/core/services/ │               │
-│                              │   sessionRecap.ts       │               │
-│                              └─────────────────────────┘               │
-│                                          │                             │
-│                                          ↓                             │
-│                              GeminiClient.generateContent              │
-│                              (fastModel + tools:[])                    │
-│                                                                        │
-│   addItem({type: 'away_recap', text}) ─→ HistoryItemDisplay            │
-│       └─ AwayRecapMessage rendered inline like any other history       │
-│         item (※ + bold "recap: " + italic content, all dim);           │
-│         scrolls naturally with the conversation. Mirrors Claude        │
-│         Code's away_summary system message.                            │
-└────────────────────────────────────────────────────────────────────────┘
++--------------------------------------------------------------------------+--
+|                          AppContainer.tsx                              |
+|   isFocused = useFocus()                                               |
+|   isIdle = streamingState === Idle                                     |
+|       |                                                                |
+|       |----> useAwaySummary({enabled, config, isFocused, isIdle,          |
+|       |       |             addItem})                                  |
+|       |       \_--> 5 min blur timer + idle/dedupe gates                 |
+|       |              |                                                 |
+|       |                                                               |
+|       \_--> recapCommand (slash) --> generateSessionRecap(config, signal) |
+|                                          |                             |
+|                                                                       |
+|                              +---------------------------+--               |
+|                              | packages/core/services/ |               |
+|                              |   sessionRecap.ts       |               |
+|                              \_----------------------------               |
+|                                          |                             |
+|                                                                       |
+|                              GeminiClient.generateContent              |
+|                              (fastModel + tools:[])                    |
+|                                                                        |
+|   addItem({type: 'away_recap', text}) --> HistoryItemDisplay            |
+|       \_- AwayRecapMessage rendered inline like any other history       |
+|         item ( + bold "recap: " + italic content, all dim);           |
+|         scrolls naturally with the conversation. Mirrors Claude        |
+|         Code's away_summary system message.                            |
+\_---------------------------------------------------------------------------
 ```
 
 ### Files
@@ -72,7 +72,7 @@ command ignores that setting.
 | `packages/core/src/services/sessionRecap.ts`                 | One-shot LLM call + history filter + tag extraction                              |
 | `packages/cli/src/ui/hooks/useAwaySummary.ts`                | Auto-trigger React hook                                                          |
 | `packages/cli/src/ui/commands/recapCommand.ts`               | `/recap` manual entry point                                                      |
-| `packages/cli/src/ui/components/messages/StatusMessages.tsx` | `AwayRecapMessage` renderer (`※` + bold `recap:` + italic content, all dim)      |
+| `packages/cli/src/ui/components/messages/StatusMessages.tsx` | `AwayRecapMessage` renderer (`` + bold `recap:` + italic content, all dim)      |
 | `packages/cli/src/ui/types.ts`                               | `HistoryItemAwayRecap` type                                                      |
 | `packages/cli/src/ui/components/HistoryItemDisplay.tsx`      | Dispatches `away_recap` history items to the renderer                            |
 | `packages/cli/src/config/settingsSchema.ts`                  | `general.showSessionRecap` + `general.sessionRecapAwayThresholdMinutes` settings |
@@ -88,7 +88,7 @@ generator and not as a coding assistant.
 Note that `GeminiClient.generateContent()` internally runs the prompt
 through `getCustomSystemPrompt()`, which appends the user's memory
 (QWEN.md / managed auto-memory) as a suffix. The final system prompt is
-therefore `recap prompt + user memory` — useful project context for the
+therefore `recap prompt + user memory` -- useful project context for the
 recap, not a leak.
 
 Bullets below correspond 1:1 with `RECAP_SYSTEM_PROMPT`:
@@ -116,10 +116,10 @@ that reasoning into the UI.
 1. Both tags present: take what is between `<recap>...</recap>` (preferred).
 2. Only the open tag (e.g. `maxOutputTokens` truncated the close tag):
    take everything after the open tag.
-3. Tag missing entirely: return empty string → service returns `null`
-   → UI renders nothing.
+3. Tag missing entirely: return empty string -> service returns `null`
+   -> UI renders nothing.
 
-The third tier is "skip rather than show the wrong thing" — surfacing
+The third tier is "skip rather than show the wrong thing" -- surfacing
 the model's reasoning preamble is worse than showing no recap at all.
 
 ### Call Parameters
@@ -176,11 +176,11 @@ response.
 | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `!enabled \|\| !config`                                          | Abort in-flight call + clear `inFlightRef` + clear `blurredAtRef`                                                                      |
 | `!isFocused` and `blurredAtRef === null`                         | Set `blurredAtRef = Date.now()`                                                                                                        |
-| `isFocused` and `blurredAtRef === null`                          | Return early (no blur cycle to handle — first render or right after a brief-blur reset)                                                |
+| `isFocused` and `blurredAtRef === null`                          | Return early (no blur cycle to handle -- first render or right after a brief-blur reset)                                                |
 | `isFocused` and blur duration < 5 min                            | Clear `blurredAtRef`, wait for next blur cycle                                                                                         |
-| `isFocused` and blur ≥ 5 min and `recapPendingRef`               | Return (dedupe)                                                                                                                        |
-| `isFocused` and blur ≥ 5 min and `!isIdle`                       | **Preserve** `blurredAtRef` and wait for the turn to finish (`isIdle` is in the deps, so the effect re-fires when streaming completes) |
-| `isFocused` and blur ≥ 5 min and `shouldFireRecap` returns false | Clear `blurredAtRef` and return — conversation hasn't moved enough since the last recap (≥ 2 user turns required, mirrors Claude Code) |
+| `isFocused` and blur >= 5 min and `recapPendingRef`               | Return (dedupe)                                                                                                                        |
+| `isFocused` and blur >= 5 min and `!isIdle`                       | **Preserve** `blurredAtRef` and wait for the turn to finish (`isIdle` is in the deps, so the effect re-fires when streaming completes) |
+| `isFocused` and blur >= 5 min and `shouldFireRecap` returns false | Clear `blurredAtRef` and return -- conversation hasn't moved enough since the last recap (>= 2 user turns required, mirrors Claude Code) |
 | `isFocused` and all conditions met                               | Clear `blurredAtRef`, set `recapPendingRef = true`, create `AbortController`, send the LLM request                                     |
 
 The `.then` callback **re-checks** `isIdleRef.current`: if the user has
@@ -217,8 +217,8 @@ and a null `pendingItem`.
 `config.getFastModel() ?? config.getModel()`:
 
 - User has a `fastModel` set and it is valid for the current auth type
-  → use `fastModel`.
-- Otherwise → fall back to the main session model (works, just costlier
+  -> use `fastModel`.
+- Otherwise -> fall back to the main session model (works, just costlier
   and slower).
 
 ## Observability
@@ -227,7 +227,7 @@ and a null `pendingItem`.
 
 - caught exceptions from the recap path (`debugLogger.warn`).
 
-All failures are **fully transparent** to the user — recap is an
+All failures are **fully transparent** to the user -- recap is an
 auxiliary feature and never throws into the UI. Developers can grep for
 the `[SESSION_RECAP]` tag in the debug log file: written by default to
 `~/.qwen/debug/<sessionId>.txt` (`latest.txt` symlinks to the current

@@ -45,7 +45,7 @@ export function hostAllowlist(
     return (_req: Request, _res: Response, next: NextFunction) => next();
   }
   // Cache the allowed-Host Set per port. `getPort()` is invoked
-  // lazily because tests bind to ephemeral port 0 — the actual port
+  // lazily because tests bind to ephemeral port 0 -- the actual port
   // is only known after `listen()` resolves and tests can call
   // through with a placeholder port that flips later. SSE
   // heartbeats and high-frequency probes go through this middleware,
@@ -62,8 +62,8 @@ export function hostAllowlist(
       `[::1]:${port}`,
       `host.docker.internal:${port}`,
     ]);
-    // RFC 7230 §5.4: clients may omit the port suffix when it matches
-    // the URI scheme's default. http → 80, https → 443. The qwen
+    // RFC 7230 5.4: clients may omit the port suffix when it matches
+    // the URI scheme's default. http -> 80, https -> 443. The qwen
     // serve daemon is plain HTTP, so accept the no-port forms when
     // we're listening on port 80 (uncommon but valid for an operator
     // who points at a privileged port for clean URLs).
@@ -77,7 +77,7 @@ export function hostAllowlist(
   };
   return (req: Request, res: Response, next: NextFunction) => {
     const port = getPort();
-    // Per RFC 7230 §5.4, Host is case-insensitive. Express normalizes
+    // Per RFC 7230 5.4, Host is case-insensitive. Express normalizes
     // header *names* to lowercase but NOT values, so a Docker-proxy
     // that capitalizes the hostname (`Host: Localhost:4170`) or a
     // platform with case-preserving DNS (`HOST.docker.internal`) would
@@ -92,7 +92,7 @@ export function hostAllowlist(
 }
 
 /**
- * Bearer token middleware. When `token` is undefined the gate is open — used
+ * Bearer token middleware. When `token` is undefined the gate is open -- used
  * for the loopback-only developer default. `runQwenServe` enforces that any
  * non-loopback bind has a token, and that `--require-auth` boots only with a
  * token configured, so this no-token branch is reachable only on loopback
@@ -112,8 +112,8 @@ export function bearerAuth(token: string | undefined): RequestHandler {
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
-    // Per RFC 7235 §2.1 / RFC 7230 §3.2.6 the auth scheme token is
-    // case-insensitive — `Bearer` / `bearer` / `BEARER` are all valid.
+    // Per RFC 7235 2.1 / RFC 7230 3.2.6 the auth scheme token is
+    // case-insensitive -- `Bearer` / `bearer` / `BEARER` are all valid.
     // Lowercase the scheme before comparing; the token value itself
     // stays case-sensitive (it's user-defined opaque material).
     //
@@ -132,13 +132,13 @@ export function bearerAuth(token: string | undefined): RequestHandler {
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
-    // After the initial SP separator (the scheme→credentials boundary
-    // matches RFC 9110 §11.6.2's `1*SP`), skip any extra BWS before
-    // the credentials. RFC 7230 §3.2.6 BWS allows both SP (0x20)
+    // After the initial SP separator (the scheme->credentials boundary
+    // matches RFC 9110 11.6.2's `1*SP`), skip any extra BWS before
+    // the credentials. RFC 7230 3.2.6 BWS allows both SP (0x20)
     // and HTAB (0x09); accept both so a client emitting
     // `Authorization: Bearer \t<token>` (SP then HTAB) doesn't 401.
     // Pure-HTAB-as-separator (`Bearer\t<token>`) is still rejected
-    // because the scheme parse uses `indexOf(' ')` — that's
+    // because the scheme parse uses `indexOf(' ')` -- that's
     // intentional per RFC 9110, not an oversight.
     let credStart = schemeEnd + 1;
     while (
@@ -165,7 +165,7 @@ export function bearerAuth(token: string | undefined): RequestHandler {
 /**
  * Per-route mutation gate (issue #4175 PR 15).
  *
- * Wave 4 (PR 16-21) will add broadly state-changing routes — memory
+ * Wave 4 (PR 16-21) will add broadly state-changing routes -- memory
  * CRUD, agent CRUD, tool enable/disable, MCP restart, file write/edit,
  * device-flow auth, etc. The roadmap calls for "a single mutation-gating
  * helper rather than open-code auth checks per route" so all those
@@ -196,7 +196,7 @@ export function bearerAuth(token: string | undefined): RequestHandler {
  * a token; restart with --require-auth or --token" hint rather than a
  * generic auth failure. Pre-flight via `/capabilities.features.require_auth`
  * still requires a successful unauthenticated `/capabilities` call,
- * which is only possible when the daemon has not enforced auth — so
+ * which is only possible when the daemon has not enforced auth -- so
  * the gate's own 401 is the discovery surface for routes that opt in
  * to strict mode on otherwise-open daemons.
  */
@@ -221,7 +221,7 @@ export interface CreateMutationGateDeps {
 
 /**
  * Build a route-scoped mutation gate factory. Returns a function that
- * — given `MutationGateOptions` — yields an Express `RequestHandler`.
+ * -- given `MutationGateOptions` -- yields an Express `RequestHandler`.
  *
  * Callers cache the factory at app construction time and invoke it per
  * route, e.g.:
@@ -239,7 +239,7 @@ export function createMutationGate(
   // When the global gate is already enforcing bearer auth (token set
   // via --token / env, OR --require-auth boot-checked a token), every
   // request that reaches the route handler has already passed
-  // `bearerAuth`. The mutation gate becomes a passthrough — return a
+  // `bearerAuth`. The mutation gate becomes a passthrough -- return a
   // pre-built no-op so we don't allocate one closure per route call.
   const passthrough: RequestHandler = (
     _req: Request,
@@ -256,8 +256,8 @@ export function createMutationGate(
   // Body-parser ordering (PR #4236 review #3254485915): the strict 401
   // fires AFTER `express.json()` because the gate is per-route
   // middleware, not app-level. On no-token loopback defaults a strict
-  // route therefore parses the request body before refusing it —
-  // bounded by `express.json({limit: '10mb'})` × `--max-connections`
+  // route therefore parses the request body before refusing it --
+  // bounded by `express.json({limit: '10mb'})` * `--max-connections`
   // (256 default). Loopback-only attack surface, so the worst case is
   // ~2.5 GB transient on a fully-saturated listener. The strict routes
   // Wave 4 actually adds (memory writes / file edits / device-flow
@@ -271,7 +271,7 @@ export function createMutationGate(
   // Allocation symmetry (PR #4236 review #3254467193): cache the strict
   // denier alongside `passthrough` so a route table with N strict
   // routes doesn't allocate N identical closures. The auth.test.ts
-  // identity assertion anchors this — a future change that loses the
+  // identity assertion anchors this -- a future change that loses the
   // cache is visible.
   const strictDenier: RequestHandler = (_req: Request, res: Response) => {
     // Only list remediations that work standalone. `--require-auth` is

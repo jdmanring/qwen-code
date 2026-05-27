@@ -19,7 +19,7 @@ The user stepped away and is coming back. Recap in under 40 words, 1-2 plain sen
 
 Match the dominant language of the conversation (English or Chinese). For Chinese, treat the budget as roughly 80 characters total.
 
-Output format — strict:
+Output format -- strict:
 - Wrap your recap in <recap>...</recap> tags.
 - Put NOTHING outside the tags. No preamble, no reasoning, no closing remarks.
 
@@ -38,7 +38,7 @@ const RECAP_TAG_RE = /<recap>([\s\S]*?)<\/recap>/i;
  * tools disabled and a very small generation budget. Prompt mirrors
  * Claude Code's away-summary prompt for behavioral parity.
  *
- * Returns null on any failure — recap is best-effort and must never break
+ * Returns null on any failure -- recap is best-effort and must never break
  * the main flow or surface errors to the user.
  */
 export async function generateSessionRecap(
@@ -68,7 +68,7 @@ export async function generateSessionRecap(
         temperature: 0.3,
       },
       abortSignal,
-      // Recap is best-effort cosmetic — don't burn the default 7 retries.
+      // Recap is best-effort cosmetic -- don't burn the default 7 retries.
       maxAttempts: 1,
     });
 
@@ -93,7 +93,7 @@ export async function generateSessionRecap(
  * before the actual answer; the <recap>...</recap> tag lets us isolate the
  * useful part. If the close tag is missing (e.g., hit token limit mid-output),
  * take everything after the open tag. If the open tag is missing entirely,
- * return empty — better to skip than show the reasoning preamble.
+ * return empty -- better to skip than show the reasoning preamble.
  */
 function extractRecap(raw: string): string {
   const tagged = RECAP_TAG_RE.exec(raw);

@@ -402,7 +402,7 @@ describe('ChannelBase', () => {
 
   describe('dispatch modes', () => {
     it('collect: buffers messages and coalesces into one followup prompt', async () => {
-      // Make the first prompt "slow" — we control when it resolves
+      // Make the first prompt "slow" -- we control when it resolves
       let resolveFirst!: (v: string) => void;
       const firstPrompt = new Promise<string>((r) => {
         resolveFirst = r;
@@ -416,13 +416,13 @@ describe('ChannelBase', () => {
 
       const ch = createChannel({ dispatchMode: 'collect' });
 
-      // Send first message — starts processing
+      // Send first message -- starts processing
       const p1 = ch.handleInbound(envelope({ text: 'first' }));
 
       // Wait a tick for the prompt to be registered as active
       await new Promise((r) => setTimeout(r, 10));
 
-      // Send two more messages while first is busy — these should buffer
+      // Send two more messages while first is busy -- these should buffer
       const p2 = ch.handleInbound(envelope({ text: 'second' }));
       const p3 = ch.handleInbound(envelope({ text: 'third' }));
 
@@ -481,14 +481,14 @@ describe('ChannelBase', () => {
       (bridge as unknown as Record<string, unknown>).cancelSession = vi
         .fn()
         .mockImplementation(() => {
-          // Simulate cancellation — resolve the first prompt
+          // Simulate cancellation -- resolve the first prompt
           resolveFirst('cancelled partial');
           return Promise.resolve();
         });
 
       const ch = createChannel({ dispatchMode: 'steer' });
 
-      // Send first message — starts processing
+      // Send first message -- starts processing
       const p1 = ch.handleInbound(envelope({ text: 'refactor auth' }));
 
       // Wait for prompt to register as active
@@ -549,7 +549,7 @@ describe('ChannelBase', () => {
       // Wait for prompt to start
       await new Promise((r) => setTimeout(r, 10));
 
-      // Send second message — should queue (not buffer)
+      // Send second message -- should queue (not buffer)
       const p2 = ch.handleInbound(envelope({ text: 'task two' }));
 
       // Only first prompt should be running
@@ -590,7 +590,7 @@ describe('ChannelBase', () => {
           return Promise.resolve();
         });
 
-      // No dispatchMode set — should default to steer
+      // No dispatchMode set -- should default to steer
       const ch = createChannel();
 
       const p1 = ch.handleInbound(envelope({ text: 'first' }));
@@ -648,7 +648,7 @@ describe('ChannelBase', () => {
       await p1;
       await p2Promise;
 
-      // Both ran sequentially — followup behavior
+      // Both ran sequentially -- followup behavior
       expect(callCount).toBe(2);
       expect(ch.sent).toEqual([
         expect.objectContaining({ text: 'response-1' }),
@@ -706,7 +706,7 @@ describe('ChannelBase', () => {
       );
       await new Promise((r) => setTimeout(r, 10));
 
-      // This message gets buffered — should NOT trigger hooks
+      // This message gets buffered -- should NOT trigger hooks
       await ch.handleInbound(envelope({ text: 'second', messageId: 'msg-2' }));
 
       // Only one prompt start so far (for the first message)

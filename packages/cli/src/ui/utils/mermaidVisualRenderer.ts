@@ -90,10 +90,10 @@ function truncateToWidth(text: string, width: number): string {
   if (width <= 0 || stringWidth(text) <= width) return text;
   let result = '';
   for (const char of text) {
-    if (stringWidth(result + char + '…') > width) break;
+    if (stringWidth(result + char + '...') > width) break;
     result += char;
   }
-  return result + '…';
+  return result + '...';
 }
 
 function center(text: string, width: number): string {
@@ -366,24 +366,24 @@ function boxNode(node: FlowNode, width: number): string[] {
   const innerWidth = Math.max(4, ...labels.map((label) => stringWidth(label)));
   if (node.shape === 'diamond') {
     return [
-      ` ╱${'─'.repeat(innerWidth + 2)}╲ `,
-      ...labels.map((label) => ` ◇ ${center(label, innerWidth)} ◇ `),
-      ` ╲${'─'.repeat(innerWidth + 2)}╱ `,
+      ` ${'-'.repeat(innerWidth + 2)} `,
+      ...labels.map((label) => `  ${center(label, innerWidth)}  `),
+      ` ${'-'.repeat(innerWidth + 2)} `,
     ];
   }
 
   if (node.shape === 'round') {
     return [
-      `╭${'─'.repeat(innerWidth + 2)}╮`,
-      ...labels.map((label) => `│ ${center(label, innerWidth)} │`),
-      `╰${'─'.repeat(innerWidth + 2)}╯`,
+      `${'-'.repeat(innerWidth + 2)}`,
+      ...labels.map((label) => `| ${center(label, innerWidth)} |`),
+      `${'-'.repeat(innerWidth + 2)}`,
     ];
   }
 
   return [
-    `┌${'─'.repeat(innerWidth + 2)}┐`,
-    ...labels.map((label) => `│ ${center(label, innerWidth)} │`),
-    `└${'─'.repeat(innerWidth + 2)}┘`,
+    `+--${'-'.repeat(innerWidth + 2)}+--`,
+    ...labels.map((label) => `| ${center(label, innerWidth)} |`),
+    `\_${'-'.repeat(innerWidth + 2)}---`,
   ];
 }
 
@@ -450,8 +450,8 @@ function computeRanks(graph: FlowGraph): Map<string, number> {
 function branchPreference(label: string | undefined): number {
   if (!label) return 0;
   const normalized = label.trim().toLowerCase();
-  if (/^(no|false|fail|failed|否|不|失败)$/.test(normalized)) return -1;
-  if (/^(yes|true|pass|passed|是|成功)$/.test(normalized)) return 1;
+  if (/^(no|false|fail|failed|||)$/.test(normalized)) return -1;
+  if (/^(yes|true|pass|passed||)$/.test(normalized)) return 1;
   return 0;
 }
 
@@ -531,17 +531,17 @@ function mergeCanvasChar(existing: string, next: string): string {
   if (existing === '') return existing;
   if (next === '') return existing;
   if (existing === ' ' || existing === next) return next;
-  if ('▼▲◀▶→←↩'.includes(existing)) return existing;
-  if ('▼▲◀▶→←↩'.includes(next)) return next;
+  if ('-><-'.includes(existing)) return existing;
+  if ('-><-'.includes(next)) return next;
   if (
-    (existing === '│' && next === '─') ||
-    (existing === '─' && next === '│') ||
-    existing === '┼' ||
-    next === '┼'
+    (existing === '|' && next === '-') ||
+    (existing === '-' && next === '|') ||
+    existing === '---' ||
+    next === '---'
   ) {
-    return '┼';
+    return '---';
   }
-  if ('┌┐└┘╭╮╰╯╱╲◇'.includes(existing)) return existing;
+  if ('+--+--\_---'.includes(existing)) return existing;
   return next;
 }
 
@@ -589,7 +589,7 @@ function drawHorizontal(
 ): void {
   const start = Math.min(x1, x2);
   const end = Math.max(x1, x2);
-  for (let x = start; x <= end; x++) putChar(canvas, x, y, '─');
+  for (let x = start; x <= end; x++) putChar(canvas, x, y, '-');
 }
 
 function drawVertical(
@@ -600,7 +600,7 @@ function drawVertical(
 ): void {
   const start = Math.min(y1, y2);
   const end = Math.max(y1, y2);
-  for (let y = start; y <= end; y++) putChar(canvas, x, y, '│');
+  for (let y = start; y <= end; y++) putChar(canvas, x, y, '|');
 }
 
 function drawNode(canvas: string[][], positioned: PositionedNode): void {
@@ -715,7 +715,7 @@ function drawForwardVerticalEdge(
 
   if (Math.abs(from.centerX - to.centerX) <= 1) {
     drawVertical(canvas, from.centerX, startY, endY);
-    putChar(canvas, from.centerX, endY, '▼');
+    putChar(canvas, from.centerX, endY, '');
     if (label) {
       putText(
         canvas,
@@ -734,9 +734,9 @@ function drawForwardVerticalEdge(
   if (bendY + 1 <= endY) {
     drawVertical(canvas, to.centerX, bendY + 1, endY);
   }
-  putChar(canvas, from.centerX, bendY, targetIsRight ? '└' : '┘', true);
-  putChar(canvas, to.centerX, bendY, targetIsRight ? '┐' : '┌', true);
-  putChar(canvas, to.centerX, endY, '▼');
+  putChar(canvas, from.centerX, bendY, targetIsRight ? '\_' : '---', true);
+  putChar(canvas, to.centerX, bendY, targetIsRight ? '+--' : '+--', true);
+  putChar(canvas, to.centerX, endY, '');
 
   if (label) {
     const text = truncateToWidth(label, 14);
@@ -781,20 +781,20 @@ function drawVerticalFork(
 
   drawVertical(canvas, from.centerX, startY, forkY);
   drawHorizontal(canvas, forkY, minX, maxX);
-  putChar(canvas, from.centerX, forkY, '┴', true);
+  putChar(canvas, from.centerX, forkY, '', true);
 
   for (const [index, target] of sortedTargets.entries()) {
     const endY = target.to.y - 1;
     const targetJunction =
       sortedTargets.length === 1
-        ? '┴'
+        ? ''
         : index === 0
-          ? '┌'
+          ? '+--'
           : index === sortedTargets.length - 1
-            ? '┐'
-            : '┬';
+            ? '+--'
+            : '';
     putChar(canvas, target.to.centerX, forkY, targetJunction, true);
-    putChar(canvas, target.to.centerX, endY, '▼');
+    putChar(canvas, target.to.centerX, endY, '');
     if (target.edge.label) {
       const label = `[${truncateToWidth(target.edge.label, 10)}]`;
       const x = Math.max(
@@ -821,7 +821,7 @@ function formatLoopNote(
   label: string | undefined,
 ): string {
   const edgeLabel = label ? ` [${label}]` : '';
-  return `${singleLineLabel(from.node.label)}${edgeLabel} ↩ to ${singleLineLabel(
+  return `${singleLineLabel(from.node.label)}${edgeLabel}  to ${singleLineLabel(
     to.node.label,
   )}`;
 }
@@ -839,7 +839,7 @@ function drawHorizontalEdge(
 
   if (from.centerY === to.centerY) {
     drawHorizontal(canvas, from.centerY, fromX, toX);
-    putChar(canvas, toX, to.centerY, forward ? '▶' : '◀');
+    putChar(canvas, toX, to.centerY, forward ? '' : '');
     if (label) {
       const text = truncateToWidth(label, 12);
       putText(
@@ -855,7 +855,7 @@ function drawHorizontalEdge(
   drawHorizontal(canvas, from.centerY, fromX, midX);
   drawVertical(canvas, midX, from.centerY, to.centerY);
   drawHorizontal(canvas, to.centerY, midX, toX);
-  putChar(canvas, toX, to.centerY, forward ? '▶' : '◀');
+  putChar(canvas, toX, to.centerY, forward ? '' : '');
 
   if (label) {
     const text = truncateToWidth(label, 12);
@@ -1050,7 +1050,7 @@ function renderSequence(
       /^(.+?)(-->>|->>|-->|->|--x|-x)\s*(.+?)\s*:\s*(.+)$/.exec(line);
     if (!messageMatch) continue;
     const from = stripMermaidPunctuation(messageMatch[1]!);
-    const arrow = messageMatch[2]!.includes('--') ? '⇢' : '→';
+    const arrow = messageMatch[2]!.includes('--') ? '' : '->';
     const to = stripMermaidPunctuation(messageMatch[3]!);
     const message = stripMermaidPunctuation(messageMatch[4]!);
     if (!participants.has(from)) participants.set(from, from);
@@ -1212,7 +1212,7 @@ function renderStateDiagram(
       const label = stripMermaidPunctuation(transitionMatch[3] ?? '');
       transitions.push(
         truncateToWidth(
-          `${from} → ${to}${label ? `: ${label}` : ''}`,
+          `${from} -> ${to}${label ? `: ${label}` : ''}`,
           contentWidth,
         ),
       );
@@ -1412,7 +1412,7 @@ function renderGanttDiagram(
       continue;
     }
     output.push(
-      truncateToWidth(`• ${stripMermaidPunctuation(line)}`, contentWidth),
+      truncateToWidth(` ${stripMermaidPunctuation(line)}`, contentWidth),
     );
   }
 
@@ -1462,7 +1462,7 @@ function renderJourneyDiagram(
       continue;
     }
     output.push(
-      truncateToWidth(`• ${stripMermaidPunctuation(line)}`, contentWidth),
+      truncateToWidth(` ${stripMermaidPunctuation(line)}`, contentWidth),
     );
   }
 
@@ -1504,7 +1504,7 @@ function renderIndentedTreeDiagram(
     const indentation = /^\s*/.exec(safeLine)?.[0].length ?? 0;
     const depth = Math.floor(indentation / 2);
     return truncateToWidth(
-      `${'  '.repeat(depth)}• ${safeLine.trim()}`,
+      `${'  '.repeat(depth)} ${safeLine.trim()}`,
       contentWidth,
     );
   });

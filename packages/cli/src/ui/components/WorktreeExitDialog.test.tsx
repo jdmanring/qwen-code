@@ -11,7 +11,7 @@ import { WorktreeExitDialog } from './WorktreeExitDialog.js';
 // Stub `node:child_process.execFile` so a render here doesn't actually
 // spawn `git` against the synthetic worktreePath in props. The default
 // vi.fn() never invokes the callback, which keeps the dialog in its
-// loading state — perfect for asserting the initial render frame
+// loading state -- perfect for asserting the initial render frame
 // without depending on async useEffect resolution (which is brittle
 // under ink-testing-library; see PR #4174 reviewer notes on dialog
 // dirty-state coverage).

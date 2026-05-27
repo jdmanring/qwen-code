@@ -39,7 +39,7 @@ export type OpenAIRuntimeFetchOptions =
       };
       // Optional fetch override. When a custom dispatcher is being passed,
       // we pin this to the bundled undici's fetch so the dispatcher and
-      // fetch share a single undici version — otherwise Node's built-in
+      // fetch share a single undici version -- otherwise Node's built-in
       // fetch (newer undici) rejects a ProxyAgent from the bundled undici
       // (e.g. v6) with `invalid onError method`.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -207,8 +207,8 @@ export function resetDispatcherCache(): void {
  * to diagnose credential issues.
  *
  * Examples:
- * - `http://user:pass@proxy.example.com:8080` → `proxy.example.com:8080`
- * - `https://proxy.example.com:8080` → `proxy.example.com:8080`
+ * - `http://user:pass@proxy.example.com:8080` -> `proxy.example.com:8080`
+ * - `https://proxy.example.com:8080` -> `proxy.example.com:8080`
  *
  * @param proxyUrl - Proxy URL that may contain credentials
  * @returns Hostname with port (credentials removed)
@@ -276,8 +276,8 @@ function shouldRedactTokenOnlyCredential(
  * The /g flag ensures all credential occurrences in multi-line error chains are redacted.
  *
  * Two patterns are supported:
- * - With scheme: `http://user:pass@proxy.local` → `http://<redacted>@proxy.local`
- * - Without scheme (Node.js native errors): `token@proxy.local:8080` → `<redacted>@proxy.local:8080`
+ * - With scheme: `http://user:pass@proxy.local` -> `http://<redacted>@proxy.local`
+ * - Without scheme (Node.js native errors): `token@proxy.local:8080` -> `<redacted>@proxy.local:8080`
  *
  * Scheme-less token-only credentials are only redacted when the host has a
  * plausible proxy port and either local/proxy-like host structure or nearby

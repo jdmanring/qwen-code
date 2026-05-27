@@ -204,7 +204,7 @@ const useResultDisplayRenderer = (
       const totalStr = progress.total != null ? `/${progress.total}` : '';
       return {
         type: 'string',
-        data: `⏳ [${progress.progress}${totalStr}] ${msg}`,
+        data: ` [${progress.progress}${totalStr}] ${msg}`,
       };
     }
 
@@ -256,7 +256,7 @@ const PlanResultRenderer: React.FC<{
  *
  * The verbose inline frame has been retired. Three surfaces remain:
  *
- * - **Running**: nothing inline — `LiveAgentPanel` (the always-on
+ * - **Running**: nothing inline -- `LiveAgentPanel` (the always-on
  *   bottom roster) and `BackgroundTasksDialog` (Down-arrow detail
  *   view) own progress reporting. `ToolGroupMessage` filters
  *   running task entries out of the live phase entirely so the
@@ -267,11 +267,11 @@ const PlanResultRenderer: React.FC<{
  * - **Terminal (completed / failed / cancelled)**: a single-line
  *   scrollback summary so the conversation history retains a
  *   permanent record after the panel evicts. Fires regardless of
- *   `isPending` — `unregisterForeground`'s post-delete emit drops
+ *   `isPending` -- `unregisterForeground`'s post-delete emit drops
  *   the panel snapshot row immediately, so the inline summary is
  *   the only surface that bridges the moment a foreground subagent
  *   finishes mid-parent-turn until the parent commits.
- *   Format: `<icon> <type>: <description> · N tools · Xs · Yk tokens`.
+ *   Format: `<icon> <type>: <description>  N tools  Xs  Yk tokens`.
  *
  * `isPending` is no longer used as a render gate here; the live-phase
  * filter in `ToolGroupMessage` handles the running case before this
@@ -286,7 +286,7 @@ const SubagentExecutionRenderer: React.FC<{
   isFocused?: boolean;
   isPending?: boolean;
   // `isPending` stays on the prop signature for parity with sibling
-  // renderers and possible future gating, but isn't read here — the
+  // renderers and possible future gating, but isn't read here -- the
   // live-phase filter in `ToolGroupMessage` already keeps running
   // entries from reaching this renderer (so the terminal-summary path
   // is the only thing left to gate, and it should fire in both phases).
@@ -324,7 +324,7 @@ const SubagentExecutionRenderer: React.FC<{
     return (
       <Box paddingLeft={1}>
         <Text color={theme.text.secondary} dimColor>
-          ⏳ Queued approval:{' '}
+           Queued approval:{' '}
         </Text>
         <Text dimColor>{agentLabel}</Text>
       </Box>
@@ -332,7 +332,7 @@ const SubagentExecutionRenderer: React.FC<{
   }
   // Terminal phase: render a single-line scrollback summary so the
   // conversation history keeps a permanent record. Fires in BOTH
-  // live and committed phases — `unregisterForeground`'s post-delete
+  // live and committed phases -- `unregisterForeground`'s post-delete
   // emit drops the panel snapshot row immediately, so without an
   // inline render here a foreground subagent that finishes
   // mid-parent-turn would simply disappear from screen until commit.
@@ -355,7 +355,7 @@ const SubagentExecutionRenderer: React.FC<{
  * scrollback flicker); this single line preserves the persistent
  * record without re-introducing the flicker.
  *
- *   ✔ researcher: investigate import order · 5 tools · 12s · 2.4k tokens
+ *    researcher: investigate import order  5 tools  12s  2.4k tokens
  */
 const SubagentScrollbackSummary: React.FC<{
   data: AgentResultDisplay;
@@ -363,13 +363,13 @@ const SubagentScrollbackSummary: React.FC<{
   const { glyph, color } = (() => {
     switch (data.status) {
       case 'completed':
-        return { glyph: '✔', color: theme.status.success };
+        return { glyph: '', color: theme.status.success };
       case 'failed':
-        return { glyph: '✖', color: theme.status.error };
+        return { glyph: '', color: theme.status.error };
       case 'cancelled':
-        return { glyph: '✖', color: theme.status.warning };
+        return { glyph: '', color: theme.status.warning };
       default:
-        return { glyph: '·', color: theme.text.secondary };
+        return { glyph: '', color: theme.text.secondary };
     }
   })();
   const stats = data.executionSummary;
@@ -392,16 +392,16 @@ const SubagentScrollbackSummary: React.FC<{
   // `taskDescription` is LLM-generated, `terminateReason` is whatever
   // the agent emitted on failure. All can carry terminal control
   // sequences that would otherwise bleed through Ink's `<Text>` and
-  // corrupt scrollback chrome — same threat model as the panel rows
+  // corrupt scrollback chrome -- same threat model as the panel rows
   // and HistoryItemDisplay's user-facing content.
-  const tail = parts.length > 0 ? ` · ${parts.join(' · ')}` : '';
+  const tail = parts.length > 0 ? `  ${parts.join('  ')}` : '';
   const typePrefix = data.subagentName
     ? `${escapeAnsiCtrlCodes(data.subagentName)}: `
     : '';
   const safeDescription = escapeAnsiCtrlCodes(data.taskDescription ?? '');
   const reason =
     data.status !== 'completed' && data.terminateReason
-      ? ` · ${escapeAnsiCtrlCodes(data.terminateReason)}`
+      ? `  ${escapeAnsiCtrlCodes(data.terminateReason)}`
       : '';
   return (
     <Box paddingLeft={1}>
@@ -514,14 +514,14 @@ export interface ToolMessageProps extends IndividualToolCallDisplay {
   forceShowResult?: boolean;
   /**
    * Whether this subagent owns keyboard input for the inline approval
-   * surface — when true the focus-holder banner renders and the
+   * surface -- when true the focus-holder banner renders and the
    * underlying ToolConfirmationMessage receives keystrokes; when false
    * sibling subagents render a dim "Queued approval" marker instead.
    */
   isFocused?: boolean;
   /**
    * True while the tool message is rendered inside `pendingHistoryItems`
-   * (live area), false (or omitted — undefined is treated as false)
+   * (live area), false (or omitted -- undefined is treated as false)
    * once committed to `<Static>`. Forwarded for parity with sibling
    * renderers and possible future gating; currently inert inside this
    * component. The live-phase filter for panel-owned subagent entries
@@ -570,7 +570,7 @@ export const ToolMessage: React.FC<ToolMessageProps> = ({
 
   // Shell tools surface their configured timeout via AnsiOutputDisplay as
   // soon as streaming starts. Feed it into ToolElapsedTime so the budget is
-  // shown inline (`(elapsed · timeout N)`) instead of in a separate stats
+  // shown inline (`(elapsed  timeout N)`) instead of in a separate stats
   // row.
   const shellTimeoutMs = React.useMemo(() => {
     if (
@@ -796,6 +796,6 @@ const ToolInfo: React.FC<ToolInfo> = ({
 const TrailingIndicator: React.FC = () => (
   <Text color={theme.text.primary} wrap="truncate">
     {' '}
-    ←
+    <-
   </Text>
 );

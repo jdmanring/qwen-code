@@ -69,7 +69,7 @@ function renderPanel(
   };
   // Wrap render() in act() so the panel's mount-time effect (the
   // 1s wall-clock interval) is flushed inside React's scheduler boundary
-  // — silences the "update inside a test was not wrapped in act"
+  // -- silences the "update inside a test was not wrapped in act"
   // warning ink-testing-library otherwise leaks for every render.
   let result!: ReturnType<typeof render>;
   act(() => {
@@ -85,7 +85,7 @@ function renderPanel(
 }
 
 /**
- * Build a stub Config exposing only `getBackgroundTaskRegistry` — the
+ * Build a stub Config exposing only `getBackgroundTaskRegistry` -- the
  * one method the panel calls. Returning a Map-backed registry whose
  * `get` reads from the live store lets a test mutate `recentActivities`
  * after render and observe the panel pick up the new value on the next
@@ -181,7 +181,7 @@ describe('<LiveAgentPanel />', () => {
     // The width prop is plumbed all the way down to the row's outer
     // Box; without exercising a narrow case the truncation behavior
     // (left flex-shrink + truncate-end) is uncovered. Anchor the
-    // test on the right-pinned tail (` · Ns`) which must remain
+    // test on the right-pinned tail (`  Ns`) which must remain
     // visible regardless of how aggressive the truncation gets.
     const { lastFrame } = renderPanel({
       entries: [
@@ -196,16 +196,16 @@ describe('<LiveAgentPanel />', () => {
       width: 50,
     });
     const frame = lastFrame() ?? '';
-    expect(frame).toContain('…');
+    expect(frame).toContain('...');
     // Right column still intact at the tail.
-    expect(frame).toContain('▶ 3s');
+    expect(frame).toContain(' 3s');
   });
 
   it('clears the 1s tick interval when unmounted with live work in flight', () => {
     // The closest existing case (`tears the 1s tick down when the
     // bg-tasks dialog opens`) short-circuits BEFORE the interval is
-    // ever scheduled. This case mounts with a running agent — the
-    // interval IS scheduled — and asserts unmount tears it down so
+    // ever scheduled. This case mounts with a running agent -- the
+    // interval IS scheduled -- and asserts unmount tears it down so
     // setNow can't fire on a discarded fiber.
     const setIntervalSpy = vi.spyOn(globalThis, 'setInterval');
     const clearIntervalSpy = vi.spyOn(globalThis, 'clearInterval');
@@ -236,7 +236,7 @@ describe('<LiveAgentPanel />', () => {
     // AgentToolCallEvent (e.g. `run_shell_command`, `glob`). Without
     // mapping through ToolDisplayNames the panel would surface those
     // raw identifiers while BackgroundTasksDialog shows `Shell` /
-    // `Glob` — vocabulary drift between two views of the same data.
+    // `Glob` -- vocabulary drift between two views of the same data.
     const { lastFrame } = renderPanel({
       entries: [
         agentEntry({
@@ -256,7 +256,7 @@ describe('<LiveAgentPanel />', () => {
 
   it('renders elapsed + token count for completed agents with stats', () => {
     // Locks in the cost-visibility win the panel is partly motivated
-    // by — completed entries should surface `▶ Ns · Nk tokens`. Using
+    // by -- completed entries should surface ` Ns  Nk tokens`. Using
     // a completed entry (rather than running) so the assertion is
     // stable against the running-tally heuristic.
     const { lastFrame } = renderPanel({
@@ -290,16 +290,16 @@ describe('<LiveAgentPanel />', () => {
     });
     const frame = lastFrame() ?? '';
     expect(frame).toContain('main');
-    expect(frame).toContain('⏸');
+    expect(frame).toContain('');
   });
 
   it.each([
-    ['paused', '⏸'],
-    ['failed', '✖'],
-    ['cancelled', '✖'],
+    ['paused', ''],
+    ['failed', ''],
+    ['cancelled', ''],
   ] as const)('renders the %s status with the %s glyph', (status, glyph) => {
     // Status routing is otherwise uncovered for paused / failed /
-    // cancelled — a future regression that flattened the switch
+    // cancelled -- a future regression that flattened the switch
     // would slip past the existing running / completed cases.
     const { lastFrame } = renderPanel({
       entries: [
@@ -317,10 +317,10 @@ describe('<LiveAgentPanel />', () => {
   });
 
   it('strips the subagentType: prefix from the description case-insensitively', () => {
-    // `descriptionWithoutPrefix` lowercases both sides — the existing
+    // `descriptionWithoutPrefix` lowercases both sides -- the existing
     // tests only feed lowercase prefixes, so a future revert to
     // strict `startsWith` would silently re-introduce
-    // `Researcher: Researcher: …` double-prefix on capitalised inputs.
+    // `Researcher: Researcher: ...` double-prefix on capitalised inputs.
     const { lastFrame } = renderPanel({
       entries: [
         agentEntry({
@@ -331,7 +331,7 @@ describe('<LiveAgentPanel />', () => {
       ],
     });
     const frame = lastFrame() ?? '';
-    // The prefix MUST have been stripped — the descriptive tail
+    // The prefix MUST have been stripped -- the descriptive tail
     // should appear exactly once, with no leading "Researcher: ".
     expect(frame).toContain('cap-mismatch description');
     expect(frame).not.toContain('Researcher: cap-mismatch');
@@ -354,7 +354,7 @@ describe('<LiveAgentPanel />', () => {
     const frame = lastFrame() ?? '';
     // Neither the legacy `[in turn]` (pre-rename) nor the current
     // `[blocking]` (BackgroundTasksDialog convention) should bleed
-    // into the glance panel — only the dialog surfaces the flavor
+    // into the glance panel -- only the dialog surfaces the flavor
     // distinction, where the cancel semantics warrant it.
     expect(frame).not.toContain('[in turn]');
     expect(frame).not.toContain('[blocking]');
@@ -405,7 +405,7 @@ describe('<LiveAgentPanel />', () => {
 
   it('re-pulls recentActivities from the live registry on each tick', () => {
     // The snapshot from useBackgroundTaskView only refreshes on
-    // statusChange — appendActivity is intentionally silenced there to
+    // statusChange -- appendActivity is intentionally silenced there to
     // protect the footer pill / AppContainer from per-tool churn. The
     // panel must reach back into the registry on every tick or it
     // would freeze on whatever activities the snapshot captured at
@@ -478,10 +478,10 @@ describe('<LiveAgentPanel />', () => {
     // and then evicts the row cleanly.
     //
     // The synthesis MUST use a neutral glyph rather than the success
-    // ✔ — foreground subagents do not transition through
+    //  -- foreground subagents do not transition through
     // `complete`/`fail`/`cancel` on the registry before unregister,
     // so the panel cannot tell whether the run succeeded or failed.
-    // Showing ✔ for 8s on a run the user just saw fail (via the
+    // Showing  for 8s on a run the user just saw fail (via the
     // inline tool result) would be a confusing lie.
     const ghost = agentEntry({
       agentId: 'ghost-1',
@@ -496,9 +496,9 @@ describe('<LiveAgentPanel />', () => {
     expect(frame).toContain('long-gone foreground task');
     // The synthesis sets status='completed' for the visibility-window
     // logic but flags `synthesized: true` so the row renders the
-    // neutral `·` glyph instead of the success `✔`.
-    expect(frame).not.toContain('✔');
-    expect(frame).toContain('·');
+    // neutral `` glyph instead of the success ``.
+    expect(frame).not.toContain('');
+    expect(frame).toContain('');
     // After the visibility window the row evicts and the panel hides.
     act(() => {
       vi.advanceTimersByTime(9000);
@@ -537,10 +537,10 @@ describe('<LiveAgentPanel />', () => {
   });
 
   it('keeps the success glyph for entries the registry still tracks (non-synthesized)', () => {
-    // Sibling assertion to the synthesized case above — when the
+    // Sibling assertion to the synthesized case above -- when the
     // registry HAS the entry (an authentic completed transition,
     // e.g. a background subagent reaching `complete()`), the panel
-    // should keep rendering the green ✔. The neutral glyph is
+    // should keep rendering the green . The neutral glyph is
     // synthesis-only.
     const real = agentEntry({
       agentId: 'real-1',
@@ -553,8 +553,8 @@ describe('<LiveAgentPanel />', () => {
     const { config } = makeRegistryConfig([real]);
     const { lastFrame } = renderPanel({ entries: [real], config });
     const frame = lastFrame() ?? '';
-    expect(frame).toContain('✔');
-    expect(frame).not.toContain('·');
+    expect(frame).toContain('');
+    expect(frame).not.toContain('');
   });
 
   it('keeps terminal snapshots visible until the TTL even when the registry forgot them', () => {
@@ -562,7 +562,7 @@ describe('<LiveAgentPanel />', () => {
     // `cancel`/`fail` (which stamp `endTime` and emit statusChange)
     // followed by `unregisterForeground` (which deletes silently).
     // The snap captures the real `endTime`, so the panel must keep
-    // it on screen until the visibility window expires — dropping
+    // it on screen until the visibility window expires -- dropping
     // immediately would contradict the "brief terminal visibility"
     // contract the synthesized-completion path also relies on.
     const cancelled = agentEntry({
@@ -577,9 +577,9 @@ describe('<LiveAgentPanel />', () => {
     const { lastFrame } = renderPanel({ entries: [cancelled], config });
     let frame = lastFrame() ?? '';
     // Within the window the row stays on screen with the cancelled
-    // glyph (✖, warning color routing — see status-icon test).
+    // glyph (, warning color routing -- see status-icon test).
     expect(frame).toContain('was cancelled');
-    expect(frame).toContain('✖');
+    expect(frame).toContain('');
     // After TERMINAL_VISIBLE_MS the row evicts and the panel hides.
     act(() => {
       vi.advanceTimersByTime(9000);
@@ -607,7 +607,7 @@ describe('<LiveAgentPanel />', () => {
 
   it('tears the 1s tick down when the bg-tasks dialog opens', () => {
     // While the dialog is open the panel returns null and the dialog
-    // owns the same data — a still-running interval is a wasted
+    // owns the same data -- a still-running interval is a wasted
     // re-render budget. Verify by checking that advancing the clock
     // past the visibility window with dialogOpen=true does not flip
     // the panel into its "expired" state (which would only happen if
@@ -626,7 +626,7 @@ describe('<LiveAgentPanel />', () => {
       config,
       dialogOpen: true,
     });
-    // Dialog open → panel hidden, no opportunity for `now` to drift.
+    // Dialog open -> panel hidden, no opportunity for `now` to drift.
     expect(lastFrame() ?? '').toBe('');
     act(() => {
       vi.advanceTimersByTime(60_000);
@@ -638,7 +638,7 @@ describe('<LiveAgentPanel />', () => {
 
   it('still shows the snapshot when no Config is mounted (test fixtures)', () => {
     // Without a Config provider the panel can't reach the registry, so
-    // it has to trust the snapshot — this is the one place the legacy
+    // it has to trust the snapshot -- this is the one place the legacy
     // "fall back to snap" behavior is correct (and the seven other
     // tests in this file rely on it).
     const { lastFrame } = renderPanel({

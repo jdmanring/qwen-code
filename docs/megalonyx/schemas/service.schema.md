@@ -3,7 +3,7 @@
 ## Component Identity
 The `service.schema.json` is the formal JSON Schema definition for Agentic Services. While `schema.md` provides a human-readable guide for skills, this JSON schema provides the machine-readable validation layer for service configurations.
 
-## 🛠️ Implementation Status
+##  Implementation Status
 
 **Status: Declarative**
 

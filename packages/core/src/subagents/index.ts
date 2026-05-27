@@ -5,7 +5,7 @@
  */
 
 /**
- * @fileoverview Subagents — file-based configuration layer.
+ * @fileoverview Subagents -- file-based configuration layer.
  *
  * This module provides the foundation for the subagents feature by implementing
  * a file-based configuration system that builds on the agent runtime.

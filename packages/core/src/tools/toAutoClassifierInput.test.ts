@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * Tests for each tool's `toAutoClassifierInput` projection. The projection
- * controls what the AUTO mode classifier sees about each tool call — it must
+ * controls what the AUTO mode classifier sees about each tool call -- it must
  * redact sensitive / voluminous fields (full edit content, web fetch prompts,
  * sub-agent prompts) while preserving enough for safety judgement.
  */
@@ -27,7 +27,7 @@ function minimalConfig(over: Partial<Record<string, unknown>> = {}): Config {
   } as unknown as Config;
 }
 
-// EditTool ────────────────────────────────────────────────────────────────
+// EditTool ----------------------------------------------------------------
 
 describe('EditTool.toAutoClassifierInput', () => {
   const tool = new EditTool(minimalConfig());
@@ -75,13 +75,13 @@ describe('EditTool.toAutoClassifierInput', () => {
   });
 });
 
-// WriteFileTool ──────────────────────────────────────────────────────────
+// WriteFileTool ----------------------------------------------------------
 
 describe('WriteFileTool.toAutoClassifierInput', () => {
   const tool = new WriteFileTool(minimalConfig());
 
   it('reports byte count and a 300-char content preview', () => {
-    // Raised from 80 → 300 chars in PR #4151 review feedback — same
+    // Raised from 80 -> 300 chars in PR #4151 review feedback -- same
     // rationale as EditTool: out-of-workspace writes need enough
     // headroom for the classifier to spot a hostile payload after a
     // benign prefix.
@@ -99,21 +99,21 @@ describe('WriteFileTool.toAutoClassifierInput', () => {
   });
 
   it('handles multi-byte characters correctly in byte count', () => {
-    const content = '你好世界';
+    const content = '';
     const result = tool.toAutoClassifierInput({
       file_path: '/x/y.ts',
       content,
     } as never) as Record<string, unknown>;
-    expect(result['byte_count']).toBe(12); // 4 chars × 3 bytes (UTF-8)
+    expect(result['byte_count']).toBe(12); // 4 chars * 3 bytes (UTF-8)
   });
 });
 
-// ShellTool ──────────────────────────────────────────────────────────────
+// ShellTool --------------------------------------------------------------
 
 describe('ShellTool.toAutoClassifierInput', () => {
   const tool = new ShellTool(minimalConfig({ getTargetDir: () => '/cwd' }));
 
-  it('forwards the full command — no redaction (needed for safety judgement)', () => {
+  it('forwards the full command -- no redaction (needed for safety judgement)', () => {
     const result = tool.toAutoClassifierInput({
       command: 'rm -rf /tmp/build',
       is_background: false,
@@ -139,12 +139,12 @@ describe('ShellTool.toAutoClassifierInput', () => {
   });
 });
 
-// WebFetchTool ────────────────────────────────────────────────────────────
+// WebFetchTool ------------------------------------------------------------
 
 describe('WebFetchTool.toAutoClassifierInput', () => {
   const tool = new WebFetchTool(minimalConfig());
 
-  it('forwards only the URL — never the prompt', () => {
+  it('forwards only the URL -- never the prompt', () => {
     const result = tool.toAutoClassifierInput({
       url: 'https://example.com/path',
       prompt: 'sensitive context about the user',
@@ -155,7 +155,7 @@ describe('WebFetchTool.toAutoClassifierInput', () => {
   });
 });
 
-// SkillTool ──────────────────────────────────────────────────────────────
+// SkillTool --------------------------------------------------------------
 // SkillTool's constructor requires a fully-wired SkillManager via Config.
 // Invoke the projection method via prototype to avoid that setup cost.
 
@@ -170,7 +170,7 @@ describe('SkillTool.toAutoClassifierInput', () => {
   });
 });
 
-// AgentTool ──────────────────────────────────────────────────────────────
+// AgentTool --------------------------------------------------------------
 
 describe('AgentTool.toAutoClassifierInput', () => {
   it('forwards full prompt and subagent_type (no truncation)', () => {

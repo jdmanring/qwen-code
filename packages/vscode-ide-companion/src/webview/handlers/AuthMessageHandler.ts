@@ -57,7 +57,7 @@ export class AuthMessageHandler extends BaseMessageHandler {
   }
 
   /**
-   * Set auth interactive handler — called with provider config and user inputs.
+   * Set auth interactive handler -- called with provider config and user inputs.
    */
   setAuthInteractiveHandler(
     handler: (
@@ -161,7 +161,7 @@ export class AuthMessageHandler extends BaseMessageHandler {
   // ---------------------------------------------------------------------------
 
   /**
-   * Handle auth — full interactive auth flow.
+   * Handle auth -- full interactive auth flow.
    * Dynamically generates provider choices from the shared registry.
    */
   private async handleAuthInteractive(): Promise<void> {
@@ -232,7 +232,7 @@ export class AuthMessageHandler extends BaseMessageHandler {
   }
 
   // ---------------------------------------------------------------------------
-  // Generic provider setup flow — driven by ProviderConfig
+  // Generic provider setup flow -- driven by ProviderConfig
   // ---------------------------------------------------------------------------
 
   private async runProviderSetupFlow(provider: ProviderConfig): Promise<void> {
@@ -304,7 +304,7 @@ export class AuthMessageHandler extends BaseMessageHandler {
         baseUrl = urlInput.trim() || placeholder;
         if (!/^https?:\/\//i.test(baseUrl)) {
           // authError already clears the webview's connecting state; do NOT
-          // also send authCancelled — the webview clears the error on
+          // also send authCancelled -- the webview clears the error on
           // cancel, so the two messages race and the error flashes away
           // before the user can read it. authCancelled is reserved for
           // user-initiated dismissals (Escape on a QuickPick/InputBox).
@@ -330,7 +330,7 @@ export class AuthMessageHandler extends BaseMessageHandler {
       required: true,
     });
     if (!apiKeyInput) return;
-    // Trim before validation and persistence — a key pasted with trailing
+    // Trim before validation and persistence -- a key pasted with trailing
     // whitespace would otherwise be stored as-is and cause silent auth
     // failures, and validateApiKey could reject in VS Code what the CLI
     // (which trims) accepts.
@@ -341,7 +341,7 @@ export class AuthMessageHandler extends BaseMessageHandler {
     if (provider.validateApiKey) {
       const validationError = provider.validateApiKey(apiKey, baseUrl);
       if (validationError) {
-        // No authCancelled here — see the base-URL validation note above.
+        // No authCancelled here -- see the base-URL validation note above.
         this.sendToWebView({
           type: 'authError',
           data: { message: validationError },
@@ -368,7 +368,7 @@ export class AuthMessageHandler extends BaseMessageHandler {
         .filter(Boolean);
       if (modelIds.length === 0) {
         // E.g. user typed only whitespace/commas like ", , ,". No
-        // authCancelled — see the base-URL validation note above.
+        // authCancelled -- see the base-URL validation note above.
         this.sendToWebView({
           type: 'authError',
           data: { message: 'Model IDs cannot be empty.' },
@@ -410,7 +410,7 @@ export class AuthMessageHandler extends BaseMessageHandler {
       console.error(
         '[AuthMessageHandler] authInteractiveHandler not set; cannot apply provider config.',
       );
-      // No authCancelled — see the base-URL validation note above.
+      // No authCancelled -- see the base-URL validation note above.
       this.sendToWebView({
         type: 'authError',
         data: {

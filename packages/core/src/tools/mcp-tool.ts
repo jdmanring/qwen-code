@@ -131,9 +131,9 @@ class DiscoveredMCPToolInvocation extends BaseToolInvocation<
 
   /**
    * MCP tool default permission based on trust and annotations:
-   * - trust: true in a trusted folder → 'allow' (server explicitly trusted by user config)
-   * - readOnlyHint → 'allow'
-   * - All other MCP tools → 'ask'
+   * - trust: true in a trusted folder -> 'allow' (server explicitly trusted by user config)
+   * - readOnlyHint -> 'allow'
+   * - All other MCP tools -> 'ask'
    */
   override async getDefaultPermission(): Promise<PermissionDecision> {
     // MCP servers explicitly marked as trusted bypass confirmation,
@@ -478,8 +478,8 @@ export class DiscoveredMCPTool extends BaseDeclarativeTool<
       annotations?.readOnlyHint === true ? Kind.Read : Kind.Other,
       parameterSchema,
       true, // isOutputMarkdown
-      true, // canUpdateOutput — enables streaming progress for MCP tools
-      true, // shouldDefer — MCP tools are discovered via ToolSearch to keep the
+      true, // canUpdateOutput -- enables streaming progress for MCP tools
+      true, // shouldDefer -- MCP tools are discovered via ToolSearch to keep the
       //   initial tool-declaration list small when many MCP servers are attached.
       false, // alwaysLoad
       // searchHint: server name boosts fuzzy matching when the user references

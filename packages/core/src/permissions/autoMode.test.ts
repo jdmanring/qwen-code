@@ -18,7 +18,7 @@ import { ToolNames } from '../tools/tool-names.js';
 import type { Config } from '../config/config.js';
 import type { PermissionCheckContext } from './types.js';
 
-// ─── SAFE_TOOL_ALLOWLIST contents (frozen) ───────────────────────────────
+// --- SAFE_TOOL_ALLOWLIST contents (frozen) -------------------------------
 
 describe('SAFE_TOOL_ALLOWLIST', () => {
   it('includes the canonical read-only / metadata tools', () => {
@@ -53,7 +53,7 @@ describe('SAFE_TOOL_ALLOWLIST', () => {
       ToolNames.CRON_CREATE,
       ToolNames.CRON_DELETE,
       // `send_message` injects arbitrary text into another running agent
-      // as a new instruction — the classifier must see destination + body
+      // as a new instruction -- the classifier must see destination + body
       // so it can detect inter-agent steering toward destructive actions.
       ToolNames.SEND_MESSAGE,
     ];
@@ -87,7 +87,7 @@ describe('SAFE_TOOL_ALLOWLIST', () => {
   });
 });
 
-// ─── isInSafeToolAllowlist ────────────────────────────────────────────────
+// --- isInSafeToolAllowlist ------------------------------------------------
 
 describe('isInSafeToolAllowlist', () => {
   it('returns true for an allowlisted tool', () => {
@@ -103,7 +103,7 @@ describe('isInSafeToolAllowlist', () => {
   });
 });
 
-// ─── passesAcceptEditsFastPath ────────────────────────────────────────────
+// --- passesAcceptEditsFastPath --------------------------------------------
 
 /**
  * Build a stub Config whose WorkspaceContext considers `workspaceRoots`
@@ -239,9 +239,9 @@ describe('passesAcceptEditsFastPath', () => {
   });
 });
 
-// ─── evaluateAutoMode gating ─────────────────────────────────────────────
+// --- evaluateAutoMode gating ---------------------------------------------
 
-describe('evaluateAutoMode — fast-path gating', () => {
+describe('evaluateAutoMode -- fast-path gating', () => {
   const cwd = '/Users/test/project';
   const baseConfig = makeConfig([cwd]);
 
@@ -270,7 +270,7 @@ describe('evaluateAutoMode — fast-path gating', () => {
   });
 
   it('routes to manual fallback (skipping classifier) when pmForcedAsk=true', async () => {
-    // User wrote an explicit ask rule — fast-paths AND classifier must be
+    // User wrote an explicit ask rule -- fast-paths AND classifier must be
     // skipped. The PR auto-mode.md doc states "ask rules force manual
     // confirmation"; without this leg, the classifier could approve and
     // silently override the user's explicit intent.
@@ -290,7 +290,7 @@ describe('evaluateAutoMode — fast-path gating', () => {
     // (3 consecutive blocks / 2 consecutive unavailables), the scheduler
     // passes `skipClassifier: true` so the in-progress call drops to
     // manual approval without burning another classifier request. Fast
-    // paths still fire — only the classifier dispatch is suppressed.
+    // paths still fire -- only the classifier dispatch is suppressed.
     // Tool here is SHELL (not on the allowlist, not an edit), so neither
     // fast-path applies; without skipClassifier this would dispatch the
     // classifier.
@@ -307,12 +307,12 @@ describe('evaluateAutoMode — fast-path gating', () => {
   });
 });
 
-// ─── formatClassifierBlockMessage ────────────────────────────────────────
+// --- formatClassifierBlockMessage ----------------------------------------
 
 describe('formatClassifierBlockMessage', () => {
   // Shared between coreToolScheduler.ts and acp-integration/session/
   // Session.ts. Drift between the two used to give CLI vs ACP users
-  // different diagnostics for the same failure — guard it once.
+  // different diagnostics for the same failure -- guard it once.
   const baseDecision = {
     via: 'classifier' as const,
     shouldBlock: true,
@@ -353,13 +353,13 @@ describe('formatClassifierBlockMessage', () => {
   });
 });
 
-// ─── shouldRunAutoModeForCall ─────────────────────────────────────────────
+// --- shouldRunAutoModeForCall ---------------------------------------------
 
 describe('shouldRunAutoModeForCall', () => {
   // Security-critical gate. Drift here would either silently skip AUTO
-  // for tools that need it (false negative — bypass) or invoke the
+  // for tools that need it (false negative -- bypass) or invoke the
   // classifier on tools that must always reach the user
-  // (false positive — UX break for ask_user_question / exit_plan_mode).
+  // (false positive -- UX break for ask_user_question / exit_plan_mode).
 
   it('returns false when approval mode is not AUTO', () => {
     for (const mode of [
@@ -386,13 +386,13 @@ describe('shouldRunAutoModeForCall', () => {
     }
   });
 
-  it('excludes ASK_USER_QUESTION even under AUTO — must always reach the user', () => {
+  it('excludes ASK_USER_QUESTION even under AUTO -- must always reach the user', () => {
     expect(
       shouldRunAutoModeForCall(ApprovalMode.AUTO, ToolNames.ASK_USER_QUESTION),
     ).toBe(false);
   });
 
-  it('excludes EXIT_PLAN_MODE even under AUTO — plan exits are operator-driven', () => {
+  it('excludes EXIT_PLAN_MODE even under AUTO -- plan exits are operator-driven', () => {
     expect(
       shouldRunAutoModeForCall(ApprovalMode.AUTO, ToolNames.EXIT_PLAN_MODE),
     ).toBe(false);

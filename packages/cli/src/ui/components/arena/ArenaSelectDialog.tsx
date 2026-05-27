@@ -77,7 +77,7 @@ export function ArenaSelectDialog({
 
       pushMessage({
         messageType: 'info',
-        content: `Applying changes from ${label}…`,
+        content: `Applying changes from ${label}...`,
       });
       const result = await mgr.applyAgentResult(agentId);
       if (!result.success) {
@@ -118,7 +118,7 @@ export function ArenaSelectDialog({
     try {
       pushMessage({
         messageType: 'info',
-        content: 'Discarding Arena results and cleaning up…',
+        content: 'Discarding Arena results and cleaning up...',
       });
       await config.cleanupArenaRuntime(true);
       pushMessage({
@@ -187,19 +187,19 @@ export function ArenaSelectDialog({
         const description = (
           <Text>
             <Text color={statusInfo.color}>{statusInfo.text}</Text>
-            <Text color={theme.text.secondary}> · </Text>
+            <Text color={theme.text.secondary}>  </Text>
             <Text color={theme.text.secondary}>{duration}</Text>
-            <Text color={theme.text.secondary}> · </Text>
+            <Text color={theme.text.secondary}>  </Text>
             <Text color={theme.text.secondary}>{tokens} tokens</Text>
             {fileCount > 0 && (
               <>
-                <Text color={theme.text.secondary}> · </Text>
+                <Text color={theme.text.secondary}>  </Text>
                 <Text color={theme.text.secondary}>{fileCount} files</Text>
               </>
             )}
             {(diffAdditions > 0 || diffDeletions > 0) && (
               <>
-                <Text color={theme.text.secondary}> · </Text>
+                <Text color={theme.text.secondary}>  </Text>
                 <Text color={theme.status.success}>+{diffAdditions}</Text>
                 <Text color={theme.text.secondary}>/</Text>
                 <Text color={theme.status.error}>-{diffDeletions}</Text>
@@ -258,7 +258,7 @@ export function ArenaSelectDialog({
           <Text color={theme.text.secondary}>Task: </Text>
           <Text
             color={theme.text.primary}
-          >{`"${task.length > 60 ? task.slice(0, 59) + '…' : task}"`}</Text>
+          >{`"${task.length > 60 ? task.slice(0, 59) + '...' : task}"`}</Text>
         </Text>
       </Box>
 
@@ -310,7 +310,7 @@ function ArenaAgentPreview({
   return (
     <Box marginTop={1} flexDirection="column">
       <Text bold color={theme.text.primary}>
-        Quick Preview · {result.model.modelId}
+        Quick Preview  {result.model.modelId}
       </Text>
       <Box marginLeft={2}>
         <Text color={theme.text.secondary}>Approach: </Text>
@@ -327,8 +327,8 @@ function ArenaAgentPreview({
       <Box marginLeft={2}>
         <Text color={theme.text.secondary}>Metrics: </Text>
         <Text color={theme.text.primary}>
-          {result.stats.totalTokens.toLocaleString()} tokens ·{' '}
-          {formatDuration(result.stats.durationMs)} · {result.stats.toolCalls}{' '}
+          {result.stats.totalTokens.toLocaleString()} tokens {' '}
+          {formatDuration(result.stats.durationMs)}  {result.stats.toolCalls}{' '}
           tools
         </Text>
       </Box>
@@ -345,7 +345,7 @@ function ArenaAgentDetailedDiff({
   return (
     <Box marginTop={1} flexDirection="column">
       <Text bold color={theme.text.primary}>
-        Detailed Diff · {result.model.modelId}
+        Detailed Diff  {result.model.modelId}
       </Text>
       {diffLines.length === 0 ? (
         <Box marginLeft={2}>

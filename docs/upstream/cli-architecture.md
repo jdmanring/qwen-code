@@ -32,7 +32,7 @@ The npm package declares `"qwen": "dist/index.js"` as its bin, so the installed 
 
 ## Subcommands
 
-Registered at `packages/cli/src/config/config.ts:997–1008`:
+Registered at `packages/cli/src/config/config.ts:997-1008`:
 
 | Command | What it does |
 |---|---|
@@ -102,7 +102,7 @@ The `McpClientManager` maintains connections to MCP servers defined in `settings
 ## Interactive session vs. one-shot
 
 - **Interactive**: the React/Ink UI renders a chat loop; the user types, the model responds, tools execute, repeat.
-- **One-shot**: `qwen "do this"` — runs the prompt, executes any tool calls, prints the result, exits.
+- **One-shot**: `qwen "do this"` -- runs the prompt, executes any tool calls, prints the result, exits.
 
 The routing decision is at `packages/cli/src/config/config.ts:1050`.
 

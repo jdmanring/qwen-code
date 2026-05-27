@@ -57,7 +57,7 @@ export class QwenConnectionHandler {
     },
   ): Promise<QwenConnectionResult> {
     const connectId = Date.now();
-    console.log(`[QwenAgentManager] 🚀 CONNECT() CALLED - ID: ${connectId}`);
+    console.log(`[QwenAgentManager]  CONNECT() CALLED - ID: ${connectId}`);
     const autoAuthenticate = options?.autoAuthenticate ?? true;
     let sessionCreated = false;
     let requiresAuth = false;
@@ -113,7 +113,7 @@ export class QwenConnectionHandler {
     // Try to restore existing session or create new session
     // Note: Auto-restore on connect is disabled to avoid surprising loads
     // when user opens a "New Chat" tab. Restoration is now an explicit action
-    // (session selector → session/load) or handled by higher-level flows.
+    // (session selector -> session/load) or handled by higher-level flows.
     const sessionRestored = false;
 
     // Create new session if unable to restore
@@ -165,7 +165,7 @@ export class QwenConnectionHandler {
           );
         } else {
           console.log(
-            `\n⚠️ [SESSION FAILED] newSessionWithRetry threw error\n`,
+            `\n [SESSION FAILED] newSessionWithRetry threw error\n`,
           );
           console.log(`[QwenAgentManager] Error details:`, sessionError);
           throw sessionError;
@@ -176,7 +176,7 @@ export class QwenConnectionHandler {
     }
 
     console.log(`\n========================================`);
-    console.log(`[QwenAgentManager] ✅ CONNECT() COMPLETED SUCCESSFULLY`);
+    console.log(`[QwenAgentManager]  CONNECT() COMPLETED SUCCESSFULLY`);
     console.log(`========================================\n`);
     return {
       sessionCreated,

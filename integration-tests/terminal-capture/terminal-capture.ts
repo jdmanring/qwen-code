@@ -2,17 +2,17 @@
  * TerminalCapture - Terminal Screenshot Tool
  *
  * Terminal screenshot solution based on xterm.js + Playwright + node-pty.
- * Core philosophy: WYSIWYG — let xterm.js complete terminal simulation and rendering
+ * Core philosophy: WYSIWYG -- let xterm.js complete terminal simulation and rendering
  * inside the browser. Screenshots always capture the terminal's current real state,
  * no manual output cleaning needed.
  *
  * Architecture:
  *   node-pty (pseudo-terminal)
- *     ↓  raw ANSI byte stream
+ *       raw ANSI byte stream
  *   xterm.js (running inside Playwright headless Chromium)
- *     ↓  perfect rendering: colors, bold, cursor, scrolling
+ *       perfect rendering: colors, bold, cursor, scrolling
  *   Playwright element screenshot
- *     ↓  pixel-perfect screenshots (optional macOS window decorations)
+ *       pixel-perfect screenshots (optional macOS window decorations)
  */
 
 import { chromium, type Browser, type Page } from 'playwright';
@@ -24,9 +24,9 @@ import { createRequire } from 'node:module';
 
 const _require = createRequire(import.meta.url);
 
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 // Theme definitions
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 
 export interface XtermTheme {
   background: string;
@@ -170,9 +170,9 @@ export const THEMES: Record<string, XtermTheme> = {
   },
 };
 
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 // Options
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 
 export interface TerminalCaptureOptions {
   /** Number of terminal columns, default 120 */
@@ -197,9 +197,9 @@ export interface TerminalCaptureOptions {
   outputDir?: string;
 }
 
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 // Main class
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 
 export class TerminalCapture {
   private browser: Browser | null = null;
@@ -219,7 +219,7 @@ export class TerminalCapture {
   private readonly fontFamily: string;
   private readonly outputDir: string;
 
-  // ── Factory ──────────────────────────────
+  // -- Factory ------------------------------
 
   /**
    * Create and initialize a TerminalCapture instance
@@ -275,7 +275,7 @@ export class TerminalCapture {
     }
   }
 
-  // ── Lifecycle ────────────────────────────
+  // -- Lifecycle ----------------------------
 
   private async init(): Promise<void> {
     // 1. Launch browser
@@ -363,7 +363,7 @@ export class TerminalCapture {
     });
   }
 
-  // ── Input ────────────────────────────────
+  // -- Input --------------------------------
 
   /**
    * Input text. Supports `\n` as Enter.
@@ -400,7 +400,7 @@ export class TerminalCapture {
     }
   }
 
-  // ── Wait ─────────────────────────────────
+  // -- Wait ---------------------------------
 
   /**
    * Wait for specific text to appear in terminal output
@@ -458,7 +458,7 @@ export class TerminalCapture {
         return;
       }
     }
-    // Timeout for idle() is not an error — just means output kept coming
+    // Timeout for idle() is not an error -- just means output kept coming
   }
 
   /**
@@ -472,7 +472,7 @@ export class TerminalCapture {
     await this.idle(options?.stableMs ?? 300, 5000);
   }
 
-  // ── Capture ──────────────────────────────
+  // -- Capture ------------------------------
 
   /**
    * Capture and save a screenshot. Filenames are deterministic (no timestamps) for easy regression comparison.
@@ -511,7 +511,7 @@ export class TerminalCapture {
       await this.page.screenshot({ path: filepath });
     }
 
-    console.log(`📸 Captured: ${filepath}`);
+    console.log(` Captured: ${filepath}`);
     return filepath;
   }
 
@@ -620,11 +620,11 @@ export class TerminalCapture {
 
     await this.page.setViewportSize({ width: 1600, height: 1000 });
 
-    console.log(`📸 Captured (full): ${filepath}`);
+    console.log(` Captured (full): ${filepath}`);
     return filepath;
   }
 
-  // ── Output access ────────────────────────
+  // -- Output access ------------------------
 
   /**
    * Get cleaned terminal output (without ANSI escape sequences)
@@ -645,7 +645,7 @@ export class TerminalCapture {
    *
    * Unlike getOutput() which returns the accumulated raw PTY stream (with
    * duplicates from Ink TUI redraws), this returns the actual screen content
-   * as rendered by xterm.js — what a user would see right now.
+   * as rendered by xterm.js -- what a user would see right now.
    *
    * Includes scrollback buffer content.
    */
@@ -680,7 +680,7 @@ export class TerminalCapture {
     });
   }
 
-  // ── Cleanup ──────────────────────────────
+  // -- Cleanup ------------------------------
 
   /**
    * Release all resources (PTY process, browser)
@@ -702,7 +702,7 @@ export class TerminalCapture {
     }
   }
 
-  // ── Internal: flush PTY → xterm.js ──────
+  // -- Internal: flush PTY -> xterm.js ------
 
   /**
    * Flush accumulated PTY raw output to xterm.js inside the browser.
@@ -728,7 +728,7 @@ export class TerminalCapture {
             write: (d: string, cb: () => void) => void;
           };
           term.write(data, () => {
-            // Data parsed → wait one frame for rendering
+            // Data parsed -> wait one frame for rendering
             requestAnimationFrame(() => resolve());
           });
         });
@@ -736,7 +736,7 @@ export class TerminalCapture {
     }
   }
 
-  // ── Internal: resolve xterm.js path ─────
+  // -- Internal: resolve xterm.js path -----
 
   private resolveXtermDir(): string {
     try {
@@ -750,7 +750,7 @@ export class TerminalCapture {
     }
   }
 
-  // ── Internal: build HTML ────────────────
+  // -- Internal: build HTML ----------------
 
   private buildHTML(): string {
     const bg = this.theme.background;
@@ -798,7 +798,7 @@ export class TerminalCapture {
         0 0 0 1px rgba(255, 255, 255, 0.08);
     }
 
-    /* ── Title bar (macOS chrome) ── */
+    /* -- Title bar (macOS chrome) -- */
     .title-bar {
       height: 40px;
       display: flex;
@@ -837,7 +837,7 @@ export class TerminalCapture {
       font-weight: 500;
     }
 
-    /* ── Terminal container ── */
+    /* -- Terminal container -- */
     #xterm-container {
       padding: 4px 8px 8px 8px;
     }
@@ -859,7 +859,7 @@ export class TerminalCapture {
 </html>`;
   }
 
-  // ── Internal: utils ─────────────────────
+  // -- Internal: utils ---------------------
 
   private escapeHtml(text: string): string {
     return text

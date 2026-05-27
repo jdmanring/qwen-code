@@ -723,7 +723,7 @@ describe('AppContainer State Management', () => {
 
   describe('Cancel Handler (issue #3204)', () => {
     // The cancel handler is wired through useGeminiStream's onCancelSubmit
-    // arg (positional index 14 — see the useGeminiStream call site in
+    // arg (positional index 14 -- see the useGeminiStream call site in
     // AppContainer.tsx). We capture it via mockImplementation so a future
     // signature change surfaces as a clear test failure rather than silently
     // grabbing the wrong callback.
@@ -735,7 +735,7 @@ describe('AppContainer State Management', () => {
     }) => void;
     let capturedOnCancelSubmit: CapturedCancelSubmit | null = null;
 
-    // Most cancel tests want auto-restore to be REACHABLE — the new
+    // Most cancel tests want auto-restore to be REACHABLE -- the new
     // ownership guard requires the cancelled turn to have added a
     // matching user item. This helper builds the info object for the
     // common case (the cancelled turn added the user prompt in the
@@ -764,7 +764,7 @@ describe('AppContainer State Management', () => {
     const triggerCancel = (info?: Parameters<CapturedCancelSubmit>[0]) => {
       if (!capturedOnCancelSubmit) {
         throw new Error(
-          `onCancelSubmit was not captured at arg index ${ON_CANCEL_SUBMIT_ARG_INDEX} — useGeminiStream signature may have changed`,
+          `onCancelSubmit was not captured at arg index ${ON_CANCEL_SUBMIT_ARG_INDEX} -- useGeminiStream signature may have changed`,
         );
       }
       capturedOnCancelSubmit(info);
@@ -776,7 +776,7 @@ describe('AppContainer State Management', () => {
         text: '',
         setText: mockSetText,
       });
-      // Simulate logger returning a previously submitted prompt — this is
+      // Simulate logger returning a previously submitted prompt -- this is
       // what the old buggy handler would read via userMessages.at(-1) and
       // unconditionally restore into the buffer.
       mockedUseLogger.mockReturnValue({
@@ -872,7 +872,7 @@ describe('AppContainer State Management', () => {
 
       triggerCancel();
 
-      // The queued message should be moved into the buffer for editing —
+      // The queued message should be moved into the buffer for editing --
       // and crucially, it should NOT be prefixed with the previous prompt.
       expect(mockSetText).toHaveBeenCalledWith('queued follow-up');
       expect(mockSetText).not.toHaveBeenCalledWith(
@@ -955,18 +955,18 @@ describe('AppContainer State Management', () => {
 
       triggerCancel(cancelInfoFor('what time is it?'));
 
-      // User item (id=1) is the truncation target — slice removes it AND
+      // User item (id=1) is the truncation target -- slice removes it AND
       // the trailing INFO in the same render pass.
       expect(mockTruncateToItem).toHaveBeenCalledWith(1);
       expect(mockSetText).toHaveBeenCalledWith('what time is it?');
-      // Cross-session ↑-history (disk-backed) is also cleaned.
+      // Cross-session -history (disk-backed) is also cleaned.
       expect(mockRemoveLastUserMessage).toHaveBeenCalled();
       // Third cleanup leg: in-memory chat history is stripped so the
       // cancelled prompt doesn't ride along on the next request as an
       // orphan user turn.
       expect(mockStripOrphans).toHaveBeenCalled();
       // Fourth cleanup leg: Ink's static-rendered transcript region
-      // is append-only — shrinking the underlying array doesn't unprint
+      // is append-only -- shrinking the underlying array doesn't unprint
       // already-flushed lines. `refreshStatic` writes the clear-terminal
       // escape so the cancelled `> prompt` actually disappears from
       // scrollback rather than appearing twice (transcript + input box).
@@ -1034,7 +1034,7 @@ describe('AppContainer State Management', () => {
       await Promise.resolve();
       await Promise.resolve();
 
-      // No lastTurnUserItem → guard must bail even though the trailing
+      // No lastTurnUserItem -> guard must bail even though the trailing
       // slice looks restore-eligible.
       triggerCancel({
         pendingItem: null,
@@ -1101,7 +1101,7 @@ describe('AppContainer State Management', () => {
       await Promise.resolve();
       await Promise.resolve();
 
-      // Text mismatch even though id collides — guard bails.
+      // Text mismatch even though id collides -- guard bails.
       triggerCancel({
         pendingItem: null,
         lastTurnUserItem: { id: 1, text: 'a different text' },
@@ -1172,8 +1172,8 @@ describe('AppContainer State Management', () => {
     });
 
     it('does not auto-restore when the sync pendingItem snapshot has meaningful content (closes stale-state race)', async () => {
-      // Race scenario from PR review: stream chunk arrives → cancelOngoingRequest
-      // commits via addItem → fires onCancelSubmit before React re-renders, so
+      // Race scenario from PR review: stream chunk arrives -> cancelOngoingRequest
+      // commits via addItem -> fires onCancelSubmit before React re-renders, so
       // the consumer's pendingGeminiHistoryItems prop reads as [] even though
       // pendingHistoryItemRef.current was non-null. The synchronous snapshot
       // passed via info.pendingItem must override the stale React-state copy.
@@ -1233,7 +1233,7 @@ describe('AppContainer State Management', () => {
       capturedOnCancelSubmit!({
         pendingItem: {
           type: 'gemini_content',
-          text: 'partial reply…',
+          text: 'partial reply...',
         },
         lastTurnUserItem: { id: 1, text: 'what time is it?' },
         turnProducedMeaningfulContent: false,
@@ -1275,7 +1275,7 @@ describe('AppContainer State Management', () => {
         streamingState: 'responding',
         submitQuery: vi.fn(),
         initError: null,
-        pendingHistoryItems: [], // stale — content already committed in flush
+        pendingHistoryItems: [], // stale -- content already committed in flush
         thought: null,
         cancelOngoingRequest: vi.fn(),
         retryLastPrompt: vi.fn(),
@@ -1303,9 +1303,9 @@ describe('AppContainer State Management', () => {
       await Promise.resolve();
 
       // pendingItem is a (synthetic) thought, but turnProducedMeaningfulContent
-      // says content DID happen earlier — guard must bail.
+      // says content DID happen earlier -- guard must bail.
       triggerCancel({
-        pendingItem: { type: 'gemini_thought', text: 'thinking…' },
+        pendingItem: { type: 'gemini_thought', text: 'thinking...' },
         lastTurnUserItem: { id: 1, text: 'what time is it?' },
         turnProducedMeaningfulContent: true,
       });
@@ -1374,7 +1374,7 @@ describe('AppContainer State Management', () => {
       await Promise.resolve();
       await Promise.resolve();
 
-      // Same text but a different (later) id — addItem skipped the
+      // Same text but a different (later) id -- addItem skipped the
       // insert, but the producer-side ref still recorded the
       // freshly-generated id. Guard bails on id mismatch even though
       // text matches.
@@ -1598,7 +1598,7 @@ describe('AppContainer State Management', () => {
       // The cancel must drain the queue back into the buffer (so the user
       // can edit or delete it) instead of silently dropping it. This still
       // resolves issue #3204 (no auto-fire after tool settles) because the
-      // queue ends up empty — but without losing the user's queued work.
+      // queue ends up empty -- but without losing the user's queued work.
       // Mirrors claude-code's popAllEditable behaviour.
       const mockSetText = vi.fn();
       const mockClearQueue = vi.fn();
@@ -2401,7 +2401,7 @@ describe('AppContainer State Management', () => {
         );
       });
 
-      // The sticky todo status change (pending → in_progress) must not alter
+      // The sticky todo status change (pending -> in_progress) must not alter
       // the computed terminal height. Combined with the mock-height swap
       // above, this fails iff the footer was re-measured.
       expect(capturedUIState.availableTerminalHeight).toBe(heightAfterSettle);
@@ -2636,7 +2636,7 @@ describe('AppContainer State Management', () => {
 
       // Find the global keypress handler. AppContainer registers
       // multiple via useKeypress (text buffer, dialogs, etc.); the
-      // global one is identifiable by its body — it references the
+      // global one is identifiable by its body -- it references the
       // PROMOTE_SHELL_TO_BACKGROUND command we just added.
       const handleKeypress = mockedUseKeypress.mock.calls
         .map((call) => call[0])
@@ -2666,7 +2666,7 @@ describe('AppContainer State Management', () => {
 
     it('Ctrl+B is a no-op when no foreground shell is currently executing', () => {
       // Pin the safety contract: pressing Ctrl+B mid-prompt with no
-      // pending tool calls must NOT throw — falls through to the input
+      // pending tool calls must NOT throw -- falls through to the input
       // layer's own Ctrl+B (cursor-left).
       mockedUseGeminiStream.mockReturnValue({
         streamingState: 'responding',
@@ -2723,7 +2723,7 @@ describe('AppContainer State Management', () => {
       const executingNonShell = {
         status: 'executing',
         request: { callId: 'call-other-1', name: 'read_file' },
-        // Hostile shape: non-shell tool carries the controller — must
+        // Hostile shape: non-shell tool carries the controller -- must
         // be filtered out by the tool-name guard.
         promoteAbortController: fakeNonShellAc,
       };
@@ -2820,7 +2820,7 @@ describe('AppContainer State Management', () => {
         expect(handler).toBeDefined();
         handler!(ctrlOKey);
 
-        // refreshStatic writes ansiEscapes.clearTerminal — its absence
+        // refreshStatic writes ansiEscapes.clearTerminal -- its absence
         // proves we took the no-op short-circuit.
         expect(mockStdout.write).not.toHaveBeenCalledWith(
           ansiEscapes.clearTerminal,
@@ -2922,13 +2922,13 @@ describe('AppContainer State Management', () => {
   // (key = `${historyRemountKey}-${currentModel}`) and MainContent's
   // progressive-replay reset (keyed on historyRemountKey) both depend on
   // these two state updates landing in the same commit on a real model
-  // change — see the comment in AppContainer.tsx around the
+  // change -- see the comment in AppContainer.tsx around the
   // config.onModelChange subscription and PR #4119 review discussion.
   describe('Model change refreshStatic wiring', () => {
     function captureModelChangeListener(config: Config) {
       // Track every subscribe/unsubscribe pair. The CLI test harness
       // tears down ink's renderer after the initial render flush, which
-      // runs the effect's cleanup synchronously — but the captured
+      // runs the effect's cleanup synchronously -- but the captured
       // callback closure is still callable (and AppContainer's setState
       // still updates state because React's update queue is independent
       // of the listener registration). We therefore fire on the LAST
@@ -2975,7 +2975,7 @@ describe('AppContainer State Management', () => {
       // Wenshao's PR #4119 [Critical]: if refreshStatic (which bumps
       // historyRemountKey) and setCurrentModel were split into two
       // separate effects, the first commit would show the new
-      // currentModel against the OLD historyRemountKey — MainContent's
+      // currentModel against the OLD historyRemountKey -- MainContent's
       // <Static key={`${historyRemountKey}-${currentModel}`}> would
       // remount BEFORE the progressive-replay reset, dumping the full
       // history in one frame.
@@ -2983,7 +2983,7 @@ describe('AppContainer State Management', () => {
       // The fix moves refreshStatic into the event handler itself so
       // both side effects (clearTerminal + setHistoryRemountKey via
       // refreshStatic, plus setCurrentModel) run inside the same
-      // synchronous JS task — React 18+ batches all setState calls in
+      // synchronous JS task -- React 18+ batches all setState calls in
       // an event-handler-style task into one commit. We verify this
       // synchronously by inspecting mockStdout.write the moment the
       // listener returns: clearTerminal must already be written, proving
@@ -3008,7 +3008,7 @@ describe('AppContainer State Management', () => {
       await flushEffects();
       mockStdout.write.mockClear();
 
-      // Synchronous notification → refreshStatic must run BEFORE the
+      // Synchronous notification -> refreshStatic must run BEFORE the
       // notify() call returns (i.e., before any React batch tick).
       trigger.notify('model-b');
 
@@ -3045,7 +3045,7 @@ describe('AppContainer State Management', () => {
     it('fires refreshStatic only once per real model change (StrictMode-safe)', async () => {
       // StrictMode double-invokes state updater functions in dev. The
       // refreshStatic side-effect therefore must NOT live inside a
-      // setState updater — it lives in the event handler, with a ref
+      // setState updater -- it lives in the event handler, with a ref
       // guard to de-dupe redundant notifications. We simulate the
       // StrictMode-style re-fire by calling the listener twice with the
       // same value (e.g. if a deduplicator upstream missed it).
@@ -3076,7 +3076,7 @@ describe('AppContainer State Management', () => {
     it('returns an unsubscribe function that AppContainer wires up', async () => {
       // AppContainer's effect returns the unsubscribe so React can call it
       // on unmount or when deps change. We verify both halves of the
-      // subscribe/cleanup contract were exercised — every subscribe must
+      // subscribe/cleanup contract were exercised -- every subscribe must
       // have paired with a cleanup invocation by the time the renderer
       // tears down.
       vi.spyOn(mockConfig, 'getModel').mockReturnValue('model-a');

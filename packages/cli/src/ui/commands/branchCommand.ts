@@ -25,7 +25,7 @@ export const branchCommand: SlashCommand = {
       };
     }
 
-    // Guard: streaming or awaiting tool confirmation — forking mid-flight
+    // Guard: streaming or awaiting tool confirmation -- forking mid-flight
     // would tear the new session's parent chain.
     if (context.ui.isIdleRef?.current === false) {
       return {

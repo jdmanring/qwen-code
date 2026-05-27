@@ -50,7 +50,7 @@ export {
   type DaemonEvent,
   type DaemonEventEnvelope,
   type DaemonKnownEventType,
-  // PR 14b — MCP guardrail push-event types.
+  // PR 14b -- MCP guardrail push-event types.
   type DaemonMcpBudgetWarningData,
   type DaemonMcpBudgetWarningEvent,
   type DaemonMcpChildRefusedBatchData,
@@ -139,7 +139,7 @@ export {
   type SubscribeOptions,
 } from './daemon/index.js';
 
-// PR #4255 fold-in 9 review thread #11 — Issue #4175 PR 21 auth
+// PR #4255 fold-in 9 review thread #11 -- Issue #4175 PR 21 auth
 // surface. These were re-exported from `./daemon/index.js` but the
 // public SDK entry (this file) never re-exported them, so an
 // `import { DaemonAuthFlow } from '@qwen-code/sdk'` resolved to

@@ -41,7 +41,7 @@ function asSignal(
  * even when many short-lived children come and go:
  *  - The parent's abort listener is registered with `{once: true}` so it
  *    removes itself when the parent fires.
- *  - When the child aborts (from any source — parent propagation, manual
+ *  - When the child aborts (from any source -- parent propagation, manual
  *    abort, etc.), the listener it registered on the parent is actively
  *    removed. This is the key to preventing dead-listener accumulation on
  *    long-lived parents.
@@ -52,7 +52,7 @@ function asSignal(
  * listener closure until either the parent fires (closure released by
  * `{once: true}` self-removal) or the child aborts (closure released by
  * reverse-cleanup). This means callers can safely pass `child.signal` into
- * async APIs and drop the controller object — the controller will stay
+ * async APIs and drop the controller object -- the controller will stay
  * alive long enough for parent abort to propagate to the signal.
  *
  * Accepts an `AbortController`, an `AbortSignal`, or `undefined`. Undefined
@@ -73,7 +73,7 @@ export function createChildAbortController(
     return child;
   }
 
-  // WeakRef on the parent only — the handler closure strongly retains the
+  // WeakRef on the parent only -- the handler closure strongly retains the
   // child so that propagation works even if the caller passes child.signal
   // to an async API and drops the controller object. See the contract
   // docstring above.
@@ -101,7 +101,7 @@ export function createChildAbortController(
 /**
  * Combine N input signals (any undefined entries are ignored) plus an optional
  * timeout into a single child AbortSignal. The returned `cleanup` releases all
- * listeners and clears the timeout — call it on the success path so listeners
+ * listeners and clears the timeout -- call it on the success path so listeners
  * don't linger on long-lived input signals. Cleanup is idempotent and is also
  * invoked automatically when the returned signal aborts.
  */
@@ -134,7 +134,7 @@ export function combineAbortSignals(
     cleanups.push(() => sourceSignal.removeEventListener('abort', handler));
   }
 
-  // Skip timeout if the loop already aborted the controller — its cleanup
+  // Skip timeout if the loop already aborted the controller -- its cleanup
   // wouldn't fire via the post-loop auto-cleanup path below.
   const timeoutMs = options?.timeoutMs;
   if (timeoutMs !== undefined && timeoutMs > 0 && !controller.signal.aborted) {

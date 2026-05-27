@@ -1,8 +1,8 @@
-# 🔌 MCP Implementation: The Connection Layer
+#  MCP Implementation: The Connection Layer
 
 This document describes the current implementation of the Model Context Protocol (MCP) in the Runtime Stack.
 
-## 🛠️ The MCP Client
+##  The MCP Client
 
 The system implements an MCP client in `packages/core/src/tools/mcp-client.ts`. This client is responsible for establishing connections, discovering tools/prompts, and managing the session lifecycle.
 
@@ -28,7 +28,7 @@ The system implements a sophisticated OAuth flow for network-based MCP servers:
 
 ---
 
-## 🔄 Tool & Prompt Execution
+##  Tool & Prompt Execution
 
 ### Tool Calling
 When an MCP tool is invoked:
@@ -41,7 +41,7 @@ The system can invoke predefined prompts from an MCP server using the `prompts/g
 
 ---
 
-## ⚙️ Configuration
+##  Configuration
 MCP servers are configured in `settings.json` with the following parameters:
 - `command`/`args`: For stdio servers.
 - `url`/`httpUrl`: For network servers.

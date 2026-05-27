@@ -70,7 +70,7 @@ const debugLogger = createDebugLogger('QWEN_CODE_CHAT');
  * The chat-recording JSONL (`<projectDir>/chats/<sessionId>.jsonl`)
  * persists assistant turns to disk and re-feeds them on
  * `--continue` / `--resume`. For `--json-schema` runs the tool args
- * ARE the user's structured payload — already emitted on stdout via
+ * ARE the user's structured payload -- already emitted on stdout via
  * `result` / `structured_result`. Recording them verbatim here would
  * mean the same payload (and every validation-failure retry along the
  * way) sits on disk indefinitely, contradicting the privacy contract
@@ -153,7 +153,7 @@ interface TryCompressOptions {
   pendingUserMessage?: Content;
   /**
    * Pre-computed `estimatePromptTokens` value from the caller. When set,
-   * the cheap-gate uses this instead of recomputing — avoids a second
+   * the cheap-gate uses this instead of recomputing -- avoids a second
    * `getHistory(true)` clone per send. (review #4168 R1.3 / R1.4)
    */
   precomputedEffectiveTokens?: number;
@@ -187,7 +187,7 @@ const MAX_OUTPUT_RECOVERY_ATTEMPTS = 3;
  * without repeating itself and to break remaining work into smaller steps.
  */
 const OUTPUT_RECOVERY_MESSAGE =
-  'Output token limit hit. Resume directly — no apology, no recap of what ' +
+  'Output token limit hit. Resume directly -- no apology, no recap of what ' +
   'you were doing. Pick up mid-thought if that is where the cut happened. ' +
   'Break remaining work into smaller pieces.';
 
@@ -195,7 +195,7 @@ const OUTPUT_RECOVERY_MESSAGE =
  * Maximum length of the previous-response tail embedded inside the
  * `<previous_response_suffix>` block of the recovery user-turn. Chosen as a
  * pragmatic balance: large enough to give the model enough trailing context to
- * resume coherently (covers ~200–400 tokens of prose, or a multi-row Markdown
+ * resume coherently (covers ~200-400 tokens of prose, or a multi-row Markdown
  * table), and small enough to keep the recovery prompt well under any
  * provider's input budget even when combined with the rest of history.
  */
@@ -214,7 +214,7 @@ const RECOVERY_OVERLAP_MAX_SCAN_CHARS = 4000;
  * Minimum byte-length before a plain-text overlap (between previous tail and
  * continuation prefix) is considered "significant" enough to dedup. Short
  * coincidental matches like `". "`, `"the "`, or `", and "` happen routinely
- * across unrelated turns; requiring ≥6 bytes makes accidental matches on
+ * across unrelated turns; requiring >=6 bytes makes accidental matches on
  * common short suffixes vanishingly unlikely while still catching meaningful
  * replayed phrases.
  */
@@ -224,12 +224,12 @@ const RECOVERY_OVERLAP_MIN_BYTES = 6;
  * Companion floor in *code points* for prose overlaps. The byte floor alone is
  * too permissive for CJK: a single Chinese character is 3 UTF-8 bytes, so
  * `RECOVERY_OVERLAP_MIN_BYTES = 6` would accept a coincidental 2-character
- * overlap like `"我们"` / `"但是"` that is extremely common across unrelated
+ * overlap like `""` / `""` that is extremely common across unrelated
  * Chinese turns. Requiring at least 4 code points in addition to the byte
- * floor makes CJK collisions need a 4-character coincidence (~10⁻⁵ when
+ * floor makes CJK collisions need a 4-character coincidence (~10 when
  * each character is independent), without raising the bar for ASCII (4 ASCII
- * chars is only 4 bytes — still gated by the 6-byte floor, so ASCII effectively
- * needs ≥6 chars). Structural anchors (`#|`\n) are exempted because the
+ * chars is only 4 bytes -- still gated by the 6-byte floor, so ASCII effectively
+ * needs >=6 chars). Structural anchors (`#|`\n) are exempted because the
  * structural floor already governs them and structural collisions are far
  * rarer than prose.
  */
@@ -238,15 +238,15 @@ const RECOVERY_OVERLAP_MIN_CHARS = 4;
 /**
  * Lower floor for overlaps that contain Markdown structural characters
  * (`#`, `|`, backtick, newline). Structural anchors are far less likely to
- * collide coincidentally than prose — a 4-byte overlap like `"| a "` or
+ * collide coincidentally than prose -- a 4-byte overlap like `"| a "` or
  * `"## "` is almost certainly a replayed block-level marker, so we accept a
  * smaller match to catch table/heading replays that the 6-byte prose floor
  * would otherwise miss.
  */
 const RECOVERY_STRUCTURAL_OVERLAP_MIN_BYTES = 4;
 // Plain-prose substring matches outside the suffix-anchored path are very
-// prone to false positives on common opener phrases ("In summary, …", "Here is
-// the …"). The contained-prefix replay path is reserved for replayed Markdown
+// prone to false positives on common opener phrases ("In summary, ...", "Here is
+// the ..."). The contained-prefix replay path is reserved for replayed Markdown
 // blocks (tables, headings, fenced code), so we require both a structural
 // anchor at the start of the prefix and a substantially larger byte floor than
 // the suffix path uses. This intentionally errs on the side of leaving rare
@@ -266,7 +266,7 @@ function isSignificantRecoveryOverlap(overlap: string): boolean {
   // than a strict Markdown-block-anchor parse: an overlap that picks up `#`,
   // `` ` ``, `|`, or `\n` is *probably* a replayed structural marker, and
   // the 4-byte structural floor only differs from the 6-byte prose floor by
-  // a 2-byte window. The worst realistic over-classification (4–5 byte prose
+  // a 2-byte window. The worst realistic over-classification (4-5 byte prose
   // fragments like `"C#dev"` or `"a|b|c"` slipping through the structural
   // path instead of the prose path) still requires that fragment to be
   // identical at the truncation boundary on both sides, which is far rarer
@@ -292,16 +292,16 @@ function isSignificantRecoveryOverlap(overlap: string): boolean {
  * Returns true if `text` opens with a Markdown block-level structural marker
  * (table row, fenced code, ATX heading, blockquote, list item). Leading
  * whitespace/newline chars are skipped because providers often prepend them
- * when restarting a block — some completion APIs re-emit the suffix with
+ * when restarting a block -- some completion APIs re-emit the suffix with
  * leading spaces or tabs, not just newlines. The marker must appear at the
  * start of a line and be followed by the syntactic gap the spec requires
  * (e.g. `# ` not `#abc`), so incidental `#` or `|` characters in prose do
  * not count.
  *
- * The table-row alternation requires either ≥3 pipes (GFM tables need at
+ * The table-row alternation requires either >=3 pipes (GFM tables need at
  * least 2 cells, i.e. 3 separator pipes) *or* a separator row (`|---|`,
  * `|:---:|`, etc.). A bare `|expression|` in technical prose has only 2
- * pipes and no separator syntax, so it is intentionally rejected — that
+ * pipes and no separator syntax, so it is intentionally rejected -- that
  * pattern is not a valid GFM table row anyway.
  */
 function startsWithMarkdownStructuralAnchor(text: string): boolean {
@@ -325,8 +325,8 @@ function findContainedRecoveryPrefixReplayLength(
 
   // The contained-prefix path is intended *only* for replayed Markdown blocks
   // (tables, headings, fenced code) that providers re-emit when resuming after
-  // MAX_TOKENS. Prose replays — even ones that briefly coincide with the
-  // previous tail — are out of scope: dropping them would silently lose user-
+  // MAX_TOKENS. Prose replays -- even ones that briefly coincide with the
+  // previous tail -- are out of scope: dropping them would silently lose user-
   // visible content. Require a structural anchor at the very start of the
   // continuation before considering any contained-prefix match at all.
   if (!startsWithMarkdownStructuralAnchor(continuationText)) {
@@ -338,7 +338,7 @@ function findContainedRecoveryPrefixReplayLength(
   // substring match must use the *trimmed* continuation, otherwise a
   // continuation like `"  ### Heading"` would never match a previous tail
   // containing `"### Heading"` (no leading whitespace). Track the offset so
-  // the returned length consumes the leading whitespace too — keeping the
+  // the returned length consumes the leading whitespace too -- keeping the
   // caller's `continuationText.slice(replayedLength)` invariant intact.
   const leadingMatch = continuationText.match(/^\s+/);
   const leadingWhitespaceLength = leadingMatch?.[0].length ?? 0;
@@ -400,7 +400,7 @@ function previousTailContainsAtLineBoundary(
  * The empty-input guard (`previousText.length === 0 ||
  * continuationText.length === 0`) is *defensive only*. The sole production
  * caller is {@link appendRecoveryContinuationParts}, which already short-
- * circuits when either side has no plain-text part — neither branch of the
+ * circuits when either side has no plain-text part -- neither branch of the
  * guard can fire from production code. It exists so that anyone reusing this
  * helper directly (e.g. a future unit test, a refactor that bypasses the
  * caller's filter) cannot crash or read out of bounds. We deliberately leave
@@ -427,7 +427,7 @@ function getRecoveryContinuationSuffix(
     RECOVERY_OVERLAP_MAX_SCAN_CHARS,
   );
 
-  // Worst-case complexity here is O(n²): up to RECOVERY_OVERLAP_MAX_SCAN_CHARS
+  // Worst-case complexity here is O(n): up to RECOVERY_OVERLAP_MAX_SCAN_CHARS
   // iterations, each calling `previousText.endsWith(overlap)` plus
   // `byteLength(overlap)` (both O(m)). At the current 4000-char scan cap that
   // is ~16M char-ops per recovery event, which is fine because recovery is
@@ -495,7 +495,7 @@ function getPlainTextFromParts(parts: Part[] | undefined): string {
  *
  * If the model's own truncated output happened to contain the literal
  * closing delimiter (e.g. while generating XML/HTML examples), the
- * recovery prompt's structure would break — the model would see a
+ * recovery prompt's structure would break -- the model would see a
  * prematurely closed tag and misinterpret the suffix boundary. We
  * neutralize any literal opening/closing delimiter occurrences by
  * inserting a zero-width space between the angle bracket and the rest
@@ -511,8 +511,8 @@ function sanitizeRecoverySuffixTail(tail: string): string {
     return tail;
   }
   return tail
-    .replace(/<\/previous_response_suffix>/g, '<​/previous_response_suffix>')
-    .replace(/<previous_response_suffix>/g, '<​previous_response_suffix>');
+    .replace(/<\/previous_response_suffix>/g, '</previous_response_suffix>')
+    .replace(/<previous_response_suffix>/g, '<previous_response_suffix>');
 }
 
 function buildOutputRecoveryMessage(previousModelTurn: Content | undefined) {
@@ -547,7 +547,7 @@ function buildOutputRecoveryMessage(previousModelTurn: Content | undefined) {
  *
  * Coupling with `processStreamResponse`. This function assumes the parts
  * arrays it receives were produced by {@link GeminiChat.processStreamResponse}
- * — i.e. all plain-text streaming chunks from a given turn have been
+ * -- i.e. all plain-text streaming chunks from a given turn have been
  * consolidated in place into a single text part via `lastPart.text +=
  * part.text`. The dedup logic only inspects the *last* plain-text part of
  * `previousParts` and the *first* plain-text part of `continuationParts`, so
@@ -608,7 +608,7 @@ function appendRecoveryContinuationParts(
     // replay of the previous tail and should be discarded so it does not
     // duplicate into history. Hoist any non-text parts that preceded the
     // matched text on the continuation side (typically the recovery turn's
-    // thought) so they land *before* the merged text part — thinking-model
+    // thought) so they land *before* the merged text part -- thinking-model
     // providers (Gemini 2.5+, Anthropic, OpenAI o-series) validate
     // thought-signature provenance and expect a thought to precede the
     // content it generated. Trailing non-text parts (tool calls etc.) keep
@@ -853,12 +853,12 @@ export class InvalidStreamError extends Error {
  * `isResponding` early-return).
  */
 const ORPHAN_TOOL_USE_REPAIR_REASON =
-  'Tool execution result was not recorded — likely interrupted by network ' +
+  'Tool execution result was not recorded -- likely interrupted by network ' +
   'failure, abort, or process exit. Treat as failure and retry if needed.';
 
 /*
  * ============================================================================
- * Partial-tool_use repair subsystem — canonical design note.
+ * Partial-tool_use repair subsystem -- canonical design note.
  * ============================================================================
  *
  * Every comment block elsewhere in this file that mentions one of the
@@ -867,14 +867,14 @@ const ORPHAN_TOOL_USE_REPAIR_REASON =
  *
  * --- The wedge ----------------------------------------------------------
  *
- * Anthropic-compatible backends (Anthropic, DeepSeek, …) reject a request
+ * Anthropic-compatible backends (Anthropic, DeepSeek, ...) reject a request
  * whose `user[tool_result]` blocks are not at the HEAD of the user message
  * immediately following the `model[tool_use]` they answer:
  *
  *     "tool_use_id ... must have a corresponding tool_use block in the
  *      previous message"
  *
- * Without a matching pair the session is unrecoverable — `stripOrphanedUser
+ * Without a matching pair the session is unrecoverable -- `stripOrphanedUser
  * EntriesFromHistory` only strips trailing user entries, so a lost tool_use
  * cannot be resurrected and the next send 400s repeatedly.
  *
@@ -927,7 +927,7 @@ const ORPHAN_TOOL_USE_REPAIR_REASON =
 
 /**
  * Walk `history` left-to-right and close every dangling
- * tool_use ↔ tool_result pair. For each `model[functionCall]`:
+ * tool_use <-> tool_result pair. For each `model[functionCall]`:
  *  - SYNTHESIZE an `error` `functionResponse` for ids with no match;
  *  - HOIST a real fr from a non-adjacent later user turn into the
  *    adjacent one;
@@ -972,8 +972,8 @@ interface RepairPlan {
 }
 
 /**
- * SCAN — collect every `functionCall.id → name` from the model turn at
- * `modelIdx` and EVERY `functionResponse.id → location` from the
+ * SCAN -- collect every `functionCall.id -> name` from the model turn at
+ * `modelIdx` and EVERY `functionResponse.id -> location` from the
  * consecutive user turns that follow. Pure read. Storing all locations
  * (not just the first) is what lets the decision phase drop duplicates.
  */
@@ -1004,8 +1004,8 @@ function scanModelTurn(history: Content[], modelIdx: number): ScanResult {
 }
 
 /**
- * DECISION — classify each expected id: no match → SYNTHESIZE; first
- * match adjacent → SKIP relocation; first match non-adjacent → HOIST.
+ * DECISION -- classify each expected id: no match -> SYNTHESIZE; first
+ * match adjacent -> SKIP relocation; first match non-adjacent -> HOIST.
  * Every duplicate beyond the first is always dropped. Pure compute.
  */
 function planRepair(scan: ScanResult): RepairPlan {
@@ -1021,7 +1021,7 @@ function planRepair(scan: ScanResult): RepairPlan {
       synthesizeIds.push([id, name]);
       continue;
     }
-    // First copy is the canonical survivor — payloads should be
+    // First copy is the canonical survivor -- payloads should be
     // identical for the same callId; if they differ, the wire is
     // already corrupt and the backend rejects regardless.
     const survivor = locations[0]!;
@@ -1052,14 +1052,14 @@ function planRepair(scan: ScanResult): RepairPlan {
 }
 
 /**
- * MUTATION — apply the plan to `history` in place. Returns the count
+ * MUTATION -- apply the plan to `history` in place. Returns the count
  * of new user turns inserted ahead of `modelIdx + 1` (0 or 1) so the
  * outer loop can advance its cursor.
  *
  * Order: (1) splice removal targets desc-by-desc, (2) drop empty user
  * turns in `[modelIdx + 2, scanEnd)`, (3) HEAD-insert at the adjacent
  * user turn OR splice a new user turn between. The HEAD insert is
- * load-bearing (mirrors upstream `hoistToolResults`) — see the
+ * load-bearing (mirrors upstream `hoistToolResults`) -- see the
  * canonical note for why tail-append re-triggers the wedge.
  */
 function applyRepair(
@@ -1087,7 +1087,7 @@ function applyRepair(
   }
 
   // (2) Drop now-empty user turns within [modelIdx + 2, scanEnd).
-  // Preserve the adjacent turn even if empty — we'll rewrite it
+  // Preserve the adjacent turn even if empty -- we'll rewrite it
   // below.
   const adjacentIdx = plan.modelIdx + 1;
   for (let j = plan.scanEnd - 1; j > adjacentIdx; j--) {
@@ -1122,7 +1122,7 @@ function applyRepair(
  * a freshly-injected turn isn't re-visited.
  *
  * Splitting scan / decision / mutation into separate functions keeps
- * each phase auditable in isolation — index drift can only happen in
+ * each phase auditable in isolation -- index drift can only happen in
  * `applyRepair`, the only function that mutates `history`.
  */
 export function repairOrphanedToolUseTurns(
@@ -1147,7 +1147,7 @@ export function repairOrphanedToolUseTurns(
     }
 
     const { insertedBefore } = applyRepair(history, plan, reason);
-    // Only synthesized ids feed `injected` — hoisted ids reference real
+    // Only synthesized ids feed `injected` -- hoisted ids reference real
     // frs that were ALREADY in history before this pass (just
     // relocated), so the scheduler's dedup naturally handles them.
     for (const [callId, name] of plan.synthesizeIds) {
@@ -1222,11 +1222,11 @@ export class GeminiChat {
    * SEMANTICS (R5.3): this counter tracks "non-force, non-hard-rescue
    * consecutive failures", NOT every failure literally.
    *   - Auto-compaction failures (cheap-gate path): increment by 1.
-   *   - Manual `/compress` failures: skipped (`force=true` → `!force`
+   *   - Manual `/compress` failures: skipped (`force=true` -> `!force`
    *     guard in the failure branch).
-   *   - Hard-tier rescue failures: skipped (force=true → `!force` guard
+   *   - Hard-tier rescue failures: skipped (force=true -> `!force` guard
    *     in tryCompress's failure branch). The counter is NOT pre-reset
-   *     before the rescue call — force=true already bypasses the breaker
+   *     before the rescue call -- force=true already bypasses the breaker
    *     check in compress's cheap-gate, and pre-resetting would in fact
    *     defeat the breaker entirely (hard-rescue failures don't increment
    *     via tryCompress, and a pre-reset every send would wipe the
@@ -1235,7 +1235,7 @@ export class GeminiChat {
    *     branch in tryCompress's COMPRESSED handler resets to 0, which is
    *     the correct recovery path for a previously-latched session.
    *     Reactive overflow remains the explicit-increment safety net for
-   *     the force=true path — its handler bumps the counter by +1 so N
+   *     the force=true path -- its handler bumps the counter by +1 so N
    *     reactive failures will still trip the breaker.
    *
    * If you're debugging "why is hard-rescue firing but the counter is 0",
@@ -1244,7 +1244,7 @@ export class GeminiChat {
   private consecutiveFailures = 0;
 
   /**
-   * Partial-push markers — index of the in-memory `model[partial fc]`
+   * Partial-push markers -- index of the in-memory `model[partial fc]`
    * and the matching deferred JSONL record. See the canonical note
    * above `ORPHAN_TOOL_USE_REPAIR_REASON` for the lifecycle and the
    * wedge they prevent.
@@ -1256,7 +1256,7 @@ export class GeminiChat {
 
   /**
    * Reset both partial-push markers in lockstep. Every history-mutation
-   * site uses this — single-field resets are a bug because the fields
+   * site uses this -- single-field resets are a bug because the fields
    * are always paired by lifecycle.
    */
   private clearPendingPartialState(): void {
@@ -1312,7 +1312,7 @@ export class GeminiChat {
   /**
    * Seed the last-prompt-token-count for chats created with inherited
    * history (forks, subagents, speculation). Without this, the auto-compress
-   * threshold check sees `0` and refuses to compress — so the first API call
+   * threshold check sees `0` and refuses to compress -- so the first API call
    * can 400 from oversized history. Callers pass the parent chat's
    * `getLastPromptTokenCount()` here.
    */
@@ -1452,7 +1452,7 @@ export class GeminiChat {
     this.sendPromise = streamDonePromise;
 
     // Clear any partial-push marker left over from a prior unretryable
-    // break path — the marker is per-send; carrying it across sends
+    // break path -- the marker is per-send; carrying it across sends
     // would let the next send's retry catch wrongly pop a now-valid
     // model entry sitting at the stale index. The deferred-record
     // stash gets the same per-send reset for the same reason: a
@@ -1470,7 +1470,7 @@ export class GeminiChat {
       // generator must release the lock or subsequent sends will block forever
       // at `await this.sendPromise`.
       // Build the user content BEFORE compression so the cheap-gate can size
-      // the upcoming prompt — closes the "first send after inherited history"
+      // the upcoming prompt -- closes the "first send after inherited history"
       // gap where `lastPromptTokenCount === 0` and the gate would otherwise
       // see only the stale prior-turn count (0).
       const userContent = createUserContent(params.message);
@@ -1481,7 +1481,7 @@ export class GeminiChat {
       // large.
       //
       // We compute `effectiveTokens` ONCE here and pass it through to
-      // tryCompress → service.compress so the cheap-gate doesn't redo the
+      // tryCompress -> service.compress so the cheap-gate doesn't redo the
       // estimation (which involves another `getHistory(true)` clone). This
       // reuse also fixes a per-config-knob inconsistency: previously the
       // hard-tier rescue used the default imageTokenEstimate while the
@@ -1495,7 +1495,7 @@ export class GeminiChat {
       // entirely because hard-rescue failures don't increment via tryCompress
       // (force=true skips the `if (!force)` increment in the failure branch),
       // and only the reactive overflow handler explicitly increments. With a
-      // pre-reset the counter would oscillate 0↔1 across sends and never trip.
+      // pre-reset the counter would oscillate 0<->1 across sends and never trip.
       // On COMPRESSED success, the post-call branch in `tryCompress` (the
       // `consecutiveFailures = 0` line in the COMPRESSED handler) still resets
       // to 0, which is the correct recovery path for a previously-latched
@@ -1509,13 +1509,13 @@ export class GeminiChat {
       ).imageTokenEstimate;
       // When lastPromptTokenCount > 0, estimatePromptTokens uses the
       // API-authoritative count + a tiny estimate of just the new user
-      // message — it does NOT touch the history at all in that branch, so
+      // message -- it does NOT touch the history at all in that branch, so
       // skip the costly `getHistory(true)` clone on the steady-state path.
       // The lastPromptTokenCount=0 branch (first send after --continue
       // restore / subagent inheritance) walks history with a char/4
       // heuristic that can under-count by ~15-20K tokens; the reactive
       // overflow recovery path inside the async iterator below (the
-      // `getContextLengthExceededInfo` → `tryCompress` → RETRY branch)
+      // `getContextLengthExceededInfo` -> `tryCompress` -> RETRY branch)
       // is the documented safety net when this under-count causes
       // hard-rescue to miss.
       const effectiveTokens = estimatePromptTokens(
@@ -1670,7 +1670,7 @@ export class GeminiChat {
             // yielded), every retry-and-continue path below must drop
             // that turn first; otherwise the retry's response lands as
             // a second consecutive model turn with an orphan tool_use
-            // (the wedge — see the canonical note above
+            // (the wedge -- see the canonical note above
             // `ORPHAN_TOOL_USE_REPAIR_REASON`). Paths that `break`
             // (unretryable) keep the partial.
             const popPartialIfPushed = () => {
@@ -1689,12 +1689,12 @@ export class GeminiChat {
                 // stripOrphanedUserEntriesFromHistory) calls
                 // clearPendingPartialState() in lockstep, so the marker
                 // is null whenever the index basis is invalidated.
-                // Logging the mismatch makes the invariant observable —
+                // Logging the mismatch makes the invariant observable --
                 // without this, a future caller that mutates history
                 // without resetting the marker would silently leave a
                 // stale partial in `this.history` (popPartialIfPushed
                 // skipping the splice) AND the field-level invariant
-                // that "marker non-null ⇒ a real partial sits at idx"
+                // that "marker non-null  a real partial sits at idx"
                 // would be quietly violated. With the warn, anyone
                 // investigating a stale-partial wedge sees a log line
                 // pointing straight at the offending caller.
@@ -1704,7 +1704,7 @@ export class GeminiChat {
                     `roleAtIdx=${self.history[idx]?.role ?? 'undefined'}`,
                 );
               }
-              // Drop both markers in lockstep — the deferred chat-
+              // Drop both markers in lockstep -- the deferred chat-
               // recording record must be discarded alongside the
               // in-memory splice so the JSONL transcript also drops the
               // failed attempt. See the field-level comment on
@@ -1826,7 +1826,7 @@ export class GeminiChat {
                   ) {
                     // Reactive compression is force=true so tryCompress's
                     // failure branch did not increment the counter. Count it
-                    // explicitly as one strike — a single transient error
+                    // explicitly as one strike -- a single transient error
                     // (network blip, model 5xx) should not permanently latch
                     // the breaker; only repeated reactive failures should.
                     // The only recovery path for a latched counter is a
@@ -1894,7 +1894,7 @@ export class GeminiChat {
               await delay(delayMs, params.config?.abortSignal).promise;
               continue;
             }
-            // Transient budget exhausted — stop immediately.
+            // Transient budget exhausted -- stop immediately.
             if (isTransientStreamError) {
               break;
             }
@@ -2053,7 +2053,7 @@ export class GeminiChat {
               // pushed one before re-throwing), THEN the recovery user
               // turn. Reversed order would strand `OUTPUT_RECOVERY_MESSAGE`
               // as a real user turn. Index-checked pop mirrors
-              // `popPartialIfPushed` above — see the design note above
+              // `popPartialIfPushed` above -- see the design note above
               // `ORPHAN_TOOL_USE_REPAIR_REASON` for the wedge mechanism
               // and the partial-push marker lifecycle.
               const expectedIdx = self.pendingPartialAssistantTurnIndex;
@@ -2068,7 +2068,7 @@ export class GeminiChat {
                     `[RECOVERY_POP] Marker/last-index mismatch: ` +
                       `marker=${expectedIdx}, lastIdx=${lastIdx}, ` +
                       `historyLength=${self.history.length}. Popping ` +
-                      `last entry as best-effort rollback — investigate ` +
+                      `last entry as best-effort rollback -- investigate ` +
                       `any history mutation between processStreamResponse's ` +
                       `partial push and this catch.`,
                   );
@@ -2136,7 +2136,7 @@ export class GeminiChat {
         // escalation throw (the escalated processStreamResponse can
         // set a new record that escapes the retry-loop catch).
         // Recording-service errors are logged at error level (sustained
-        // failure = monitoring signal) and swallowed — propagating
+        // failure = monitoring signal) and swallowed -- propagating
         // would mask the real send outcome.
         if (self.pendingPartialAssistantRecord) {
           try {
@@ -2306,7 +2306,7 @@ export class GeminiChat {
 
   /**
    * Returns the number of entries in the raw chat history. O(1) and
-   * does not clone — use this when you only need the count and would
+   * does not clone -- use this when you only need the count and would
    * otherwise pay the {@link getHistory} `structuredClone` cost.
    */
   getHistoryLength(): number {
@@ -2315,7 +2315,7 @@ export class GeminiChat {
 
   /**
    * Set of `functionResponse.id` strings in user turns. Walk-only,
-   * no clone — `useGeminiStream.handleCompletedTools` calls this per
+   * no clone -- `useGeminiStream.handleCompletedTools` calls this per
    * tool-completion batch, so {@link getHistory}'s `structuredClone`
    * would stall the UI on long sessions.
    */
@@ -2338,7 +2338,7 @@ export class GeminiChat {
     this.history = [];
     // Any pending partial-push state points into the now-empty history;
     // resetting prevents `popPartialIfPushed` from splicing whatever
-    // shows up at that index in a future send (defense-in-depth — the
+    // shows up at that index in a future send (defense-in-depth -- the
     // helper also bounds-checks, but a stale marker that happens to
     // line up with a real model turn could otherwise pop the wrong
     // entry). The deferred-record stash is dropped for the same reason:
@@ -2354,7 +2354,7 @@ export class GeminiChat {
     this.history.push(content);
     // addHistory only runs between sends, so the partial-push marker
     // should already be cleared. If it is not, a new caller is
-    // violating that invariant — surface it at error level so the
+    // violating that invariant -- surface it at error level so the
     // offending stack is visible. See the design note above
     // `ORPHAN_TOOL_USE_REPAIR_REASON` for the marker lifecycle.
     if (
@@ -2363,7 +2363,7 @@ export class GeminiChat {
     ) {
       debugLogger.error(
         '[INVARIANT_VIOLATION] addHistory called while a partial-push ' +
-          'marker is active — clearing it.',
+          'marker is active -- clearing it.',
       );
     }
     this.clearPendingPartialState();
@@ -2373,7 +2373,7 @@ export class GeminiChat {
     this.history = history;
     // History replacement (compression, /clear, --resume reload) wipes
     // the index basis the partial-push marker was captured against. The
-    // marker MUST be cleared — otherwise `popPartialIfPushed` could find
+    // marker MUST be cleared -- otherwise `popPartialIfPushed` could find
     // a model turn at the stale index in the replacement history and
     // splice an entry that has nothing to do with the original partial
     // push, corrupting the conversation. Drop the paired deferred-record
@@ -2385,7 +2385,7 @@ export class GeminiChat {
     this.history = this.history.slice(0, keepCount);
     // Truncation can drop the entry the partial-push marker points at,
     // or leave it valid but shift the meaning of nearby indices. Reset
-    // both fields rather than try to fix them up — they're per-send and
+    // both fields rather than try to fix them up -- they're per-send and
     // ephemeral, so losing them across a truncate is safe (the
     // sendMessageStream that pushed them has already finished or will
     // start fresh on the next call).
@@ -2398,7 +2398,7 @@ export class GeminiChat {
       .filter((content): content is Content => content !== null);
     // Filter+map replaces `this.history` with a new array, so any pending
     // partial-push marker is now indexed against an array that no longer
-    // exists. Clear it for the same reason setHistory does — and drop
+    // exists. Clear it for the same reason setHistory does -- and drop
     // the paired deferred-record stash so a later flush can't land a
     // turn that doesn't exist in live history.
     this.clearPendingPartialState();
@@ -2416,7 +2416,7 @@ export class GeminiChat {
     ) {
       this.history.pop();
     }
-    // Today this is safe even without the reset — only trailing user
+    // Today this is safe even without the reset -- only trailing user
     // entries are popped, which can't shift the index of an earlier
     // `model` partial. But every other history-mutation method now
     // clears the partial-push state in lockstep
@@ -2493,7 +2493,7 @@ export class GeminiChat {
     // Captured if the upstream stream throws mid-iteration (typical on weak
     // networks: SSE drops between `content_block_stop` of a tool_use and the
     // terminal `message_stop`). We still build / record / push a partial
-    // assistant turn below before re-throwing — see the dedicated branch in
+    // assistant turn below before re-throwing -- see the dedicated branch in
     // the post-loop block for why this is needed to keep tool_use/tool_result
     // pairing intact across the failure.
     let streamError: unknown = null;
@@ -2528,7 +2528,7 @@ export class GeminiChat {
             // Always update the per-chat counter so this chat (including
             // subagents) can make its own compaction decisions.
             this.lastPromptTokenCount = lastPromptTokenCount;
-            // Mirror to the global telemetry only when wired — subagents
+            // Mirror to the global telemetry only when wired -- subagents
             // pass `telemetryService=undefined` to keep their context usage
             // out of the main session's UI counters.
             this.telemetryService?.setLastPromptTokenCount(
@@ -2597,7 +2597,7 @@ export class GeminiChat {
     // history: on `--resume` the transcript-load path would otherwise
     // re-inject a model turn the in-session run intentionally discarded
     // (text-only mid-stream errors, where the Retry re-issues the user
-    // prompt — a stale partial-text record would bias the resumed
+    // prompt -- a stale partial-text record would bias the resumed
     // conversation or surface as duplicate output).
     const willPersistToHistory =
       streamError === null ||
@@ -2647,15 +2647,15 @@ export class GeminiChat {
 
     // Mid-stream failure recovery (Race C in the canonical note above
     // `ORPHAN_TOOL_USE_REPAIR_REASON`): if the upstream stream threw
-    // AFTER a `functionCall` chunk was already yielded — typical on
+    // AFTER a `functionCall` chunk was already yielded -- typical on
     // weak networks: SSE cut between a tool_use `content_block_stop`
-    // and the terminal `message_stop` — we persist the partial
+    // and the terminal `message_stop` -- we persist the partial
     // assistant turn so the React scheduler's incoming
     // `user[functionResponse]` has a matching `model[tool_use]` to
     // pair with.
     //
     // Plain-text partial turns (no functionCall yielded) are
-    // deliberately NOT persisted — the Retry path pops the trailing
+    // deliberately NOT persisted -- the Retry path pops the trailing
     // user prompt and re-issues it; a stale partial-text model turn
     // between them would either bias the retry or surface as a
     // duplicate.

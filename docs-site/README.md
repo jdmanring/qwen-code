@@ -39,16 +39,16 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the d
 
 ```
 docs-site/
-├── src/
-│   └── app/
-│       ├── [[...mdxPath]]/    # Dynamic routing for MDX pages
-│       │   └── page.jsx
-│       └── layout.jsx          # Root layout with navbar and footer
-├── mdx-components.js           # MDX component configuration
-├── next.config.mjs             # Next.js configuration
-└── package.json
+|---- src/
+|   \_-- app/
+|       |---- [[...mdxPath]]/    # Dynamic routing for MDX pages
+|       |   \_-- page.jsx
+|       \_-- layout.jsx          # Root layout with navbar and footer
+|---- mdx-components.js           # MDX component configuration
+|---- next.config.mjs             # Next.js configuration
+\_-- package.json
 ```
 
 ## License
 
-MIT © Qwen Team
+MIT  Qwen Team

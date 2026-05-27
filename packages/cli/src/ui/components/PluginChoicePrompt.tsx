@@ -32,7 +32,7 @@ export const PluginChoicePrompt = (props: PluginChoicePromptProps) => {
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const prefixWidth = 2; // "❯ " or "  "
+  const prefixWidth = 2; // " " or "  "
 
   const handleKeypress = useCallback(
     (key: Key) => {
@@ -134,7 +134,7 @@ export const PluginChoicePrompt = (props: PluginChoicePromptProps) => {
           <Box>
             <Text dimColor>
               {' '}
-              ↑ {t('{{count}} more above', { count: String(startIndex) })}
+               {t('{{count}} more above', { count: String(startIndex) })}
             </Text>
           </Box>
         )}
@@ -142,7 +142,7 @@ export const PluginChoicePrompt = (props: PluginChoicePromptProps) => {
         {visiblePlugins.map((plugin, visibleIndex) => {
           const actualIndex = startIndex + visibleIndex;
           const isSelected = actualIndex === selectedIndex;
-          const prefix = isSelected ? '❯ ' : '  ';
+          const prefix = isSelected ? ' ' : '  ';
 
           return (
             <Box key={plugin.name} flexDirection="column">
@@ -172,7 +172,7 @@ export const PluginChoicePrompt = (props: PluginChoicePromptProps) => {
           <Box>
             <Text dimColor>
               {' '}
-              ↓{' '}
+              {' '}
               {t('{{count}} more below', {
                 count: String(plugins.length - startIndex - MAX_VISIBLE_ITEMS),
               })}
@@ -183,7 +183,7 @@ export const PluginChoicePrompt = (props: PluginChoicePromptProps) => {
 
       <Box marginTop={1} flexDirection="row" gap={2}>
         <Text dimColor>
-          {t('Use ↑↓ or j/k to navigate, Enter to select, Escape to cancel')}
+          {t('Use  or j/k to navigate, Enter to select, Escape to cancel')}
         </Text>
         {plugins.length > MAX_VISIBLE_ITEMS && (
           <Text dimColor>

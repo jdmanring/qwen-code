@@ -13,11 +13,11 @@ import { useEffect, useRef, useState } from 'react';
  *
  * Animation rules (matching Claude Code's SpinnerAnimationRow):
  * - Gap < 70:   increment by 3 per frame
- * - Gap 70–200: increment by ~20% of gap per frame
+ * - Gap 70-200: increment by ~20% of gap per frame
  * - Gap > 200:  increment by 50 per frame
  *
  * When the real value decreases (e.g. ref reset to 0), the displayed
- * value snaps immediately — animation only applies to increases.
+ * value snaps immediately -- animation only applies to increases.
  *
  * Pass `null` as intervalMs to pause polling entirely.
  *

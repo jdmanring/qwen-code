@@ -198,7 +198,7 @@ describe('SkillTool', () => {
       // file-based skill names go through `validateSkillName` (regex
       // whitelist) at parse time. Command names from
       // modelInvocableCommands come from MCP / extensions and bypass
-      // that validator entirely — so the SkillTool description must
+      // that validator entirely -- so the SkillTool description must
       // escape them at the sink before they're handed to the model.
       vi.mocked(mockSkillManager.listSkills).mockResolvedValue([]);
       vi.mocked(config.getModelInvocableCommandsProvider).mockReturnValue(
@@ -212,7 +212,7 @@ describe('SkillTool', () => {
     });
 
     it('should XML-escape modelInvocableCommands description', async () => {
-      // Same XML-injection vector via the cmd.description field — an
+      // Same XML-injection vector via the cmd.description field -- an
       // MCP prompt can ship a crafted description and the SkillTool's
       // <available_skills> block must escape it the same way as
       // file-based skills.
@@ -556,7 +556,7 @@ describe('SkillTool', () => {
 
     it("L3 default is 'ask' so AUTO mode routes through the classifier", async () => {
       // Previously this returned 'allow', but skills load user-defined
-      // code that runs with the agent's tool access — a privileged sink.
+      // code that runs with the agent's tool access -- a privileged sink.
       // The AUTO scheduler short-circuits at L4 when finalPermission ===
       // 'allow', so without this override the classifier projection
       // added in PR #4151 would never be reached and arbitrary skill
@@ -631,7 +631,7 @@ describe('SkillTool', () => {
     });
 
     it('should not duplicate commands already present as file-based skills', async () => {
-      // 'code-review' matches a skill in mockSkills → should be filtered out
+      // 'code-review' matches a skill in mockSkills -> should be filtered out
       const commandsIncludingSkill = [
         { name: 'code-review', description: 'Bundled version of code-review' },
         { name: 'mcp-prompt-a', description: 'An MCP prompt' },
@@ -673,7 +673,7 @@ describe('SkillTool', () => {
       // Regression for /review finding: the model-invocable-commands dedup
       // set was built from every file-based skill name, including hidden
       // ones. A skill marked `disable-model-invocation: true` is
-      // intentionally invisible to the model — it must not also suppress
+      // intentionally invisible to the model -- it must not also suppress
       // an unrelated MCP prompt or command that happens to share its name.
       const hiddenSkill: SkillConfig = {
         name: 'mcp-prompt-a',
@@ -844,7 +844,7 @@ describe('SkillTool', () => {
       ).createInvocation({ skill: 'non-existent' });
       const result = (await invocation.execute()) as unknown as ToolResult;
 
-      // No modelOverride field — prior override should persist
+      // No modelOverride field -- prior override should persist
       expect('modelOverride' in result).toBe(false);
     });
 
@@ -858,7 +858,7 @@ describe('SkillTool', () => {
       ).createInvocation({ skill: 'code-review' });
       const result = (await invocation.execute()) as unknown as ToolResult;
 
-      // No modelOverride field — prior override should persist
+      // No modelOverride field -- prior override should persist
       expect('modelOverride' in result).toBe(false);
     });
   });

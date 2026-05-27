@@ -436,7 +436,7 @@ describe('PromptHookRunner', () => {
       // Allow/block decisions must be deterministic to keep security
       // gating reliable across identical inputs.
       expect(callArg.config?.temperature).toBe(0);
-      // Output is a tiny JSON object — cap tokens to avoid runaway
+      // Output is a tiny JSON object -- cap tokens to avoid runaway
       // generations and unnecessary cost.
       expect(callArg.config?.maxOutputTokens).toBe(500);
       // Prompt hooks must explicitly disable inherited reasoning.

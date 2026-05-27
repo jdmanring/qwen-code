@@ -148,7 +148,7 @@ export function generateMigrationPrompt(tomlFiles: string[]): string {
       : `  - ${tomlFiles.slice(0, 3).join('\n  - ')}\n  - ${t('... and {{count}} more', { count: String(moreCount) })}`;
 
   return `
-⚠️  ${t('TOML Command Format Deprecation Notice')}
+  ${t('TOML Command Format Deprecation Notice')}
 
 ${t('Found {{count}} command file(s) in TOML format:', { count: String(count) })}
 ${fileList}
@@ -164,9 +164,9 @@ ${t('Or manually convert each file:')}
   - ${t('Markdown: YAML frontmatter + content')}
 
 ${t('The migration tool will:')}
-  ✓ ${t('Convert TOML files to Markdown')}
-  ✓ ${t('Create backups of original files')}
-  ✓ ${t('Preserve all command functionality')}
+   ${t('Convert TOML files to Markdown')}
+   ${t('Create backups of original files')}
+   ${t('Preserve all command functionality')}
 
 ${t('TOML format will continue to work for now, but migration is recommended.')}
 `.trim();

@@ -70,17 +70,17 @@ Channels are configured under the `channels` key in `settings.json`. Each channe
 
 Controls who can interact with the bot:
 
-- **`allowlist`** (default) — Only users listed in `allowedUsers` can send messages. Others are silently ignored.
-- **`pairing`** — Unknown senders receive a pairing code. The bot operator approves them via CLI, and they're added to a persistent allowlist. Users in `allowedUsers` skip pairing entirely. See [DM Pairing](#dm-pairing) below.
-- **`open`** — Anyone can send messages. Use with caution.
+- **`allowlist`** (default) -- Only users listed in `allowedUsers` can send messages. Others are silently ignored.
+- **`pairing`** -- Unknown senders receive a pairing code. The bot operator approves them via CLI, and they're added to a persistent allowlist. Users in `allowedUsers` skip pairing entirely. See [DM Pairing](#dm-pairing) below.
+- **`open`** -- Anyone can send messages. Use with caution.
 
 ### Session Scope
 
 Controls how conversation sessions are managed:
 
-- **`user`** (default) — One session per user. All messages from the same user share a conversation.
-- **`thread`** — One session per thread/topic. Useful for group chats with threads.
-- **`single`** — One shared session for all users. Everyone shares the same conversation.
+- **`user`** (default) -- One session per user. All messages from the same user share a conversation.
+- **`thread`** -- One session per thread/topic. Useful for group chats with threads.
+- **`single`** -- One shared session for all users. Everyone shares the same conversation.
 
 ### Token Security
 
@@ -123,9 +123,9 @@ qwen channel pairing approve my-channel <CODE>
 
 - Codes are 8 characters, uppercase, using an unambiguous alphabet (no `0`/`O`/`1`/`I`)
 - Codes expire after 1 hour
-- Maximum 3 pending requests per channel at a time — additional requests are ignored until one expires or is approved
+- Maximum 3 pending requests per channel at a time -- additional requests are ignored until one expires or is approved
 - Users listed in `allowedUsers` in `settings.json` always skip pairing
-- Approved users are stored in `~/.qwen/channels/<name>-allowlist.json` — treat this file as sensitive
+- Approved users are stored in `~/.qwen/channels/<name>-allowlist.json` -- treat this file as sensitive
 
 ## Group Chats
 
@@ -135,9 +135,9 @@ By default, the bot only works in direct messages. To enable group chat support,
 
 Controls whether the bot participates in group chats at all:
 
-- **`disabled`** (default) — The bot ignores all group messages. Safest option.
-- **`allowlist`** — The bot only responds in groups explicitly listed in `groups` by chat ID. The `"*"` key provides default settings but does **not** act as a wildcard allow.
-- **`open`** — The bot responds in all groups it's added to. Use with caution.
+- **`disabled`** (default) -- The bot ignores all group messages. Safest option.
+- **`allowlist`** -- The bot only responds in groups explicitly listed in `groups` by chat ID. The `"*"` key provides default settings but does **not** act as a wildcard allow.
+- **`open`** -- The bot responds in all groups it's added to. Use with caution.
 
 ### Mention Gating
 
@@ -154,23 +154,23 @@ Configure per-group with the `groups` setting:
 }
 ```
 
-- **`"*"`** — Default settings for all groups. Only sets config defaults, not an allowlist entry.
-- **Group chat ID** — Override settings for a specific group. Overrides `"*"` defaults.
-- **`requireMention`** (default: `true`) — When `true`, the bot only responds to messages that @mention it or reply to one of its messages. When `false`, the bot responds to all messages (useful for dedicated task groups).
+- **`"*"`** -- Default settings for all groups. Only sets config defaults, not an allowlist entry.
+- **Group chat ID** -- Override settings for a specific group. Overrides `"*"` defaults.
+- **`requireMention`** (default: `true`) -- When `true`, the bot only responds to messages that @mention it or reply to one of its messages. When `false`, the bot responds to all messages (useful for dedicated task groups).
 
 ### How group messages are evaluated
 
 ```
-1. groupPolicy — is this group allowed?           (no → ignore)
-2. requireMention — was the bot mentioned/replied to? (no → ignore)
-3. senderPolicy — is this sender approved?         (no → pairing flow)
+1. groupPolicy -- is this group allowed?           (no -> ignore)
+2. requireMention -- was the bot mentioned/replied to? (no -> ignore)
+3. senderPolicy -- is this sender approved?         (no -> pairing flow)
 4. Route to session
 ```
 
 ### Telegram Setup for Groups
 
 1. Add the bot to a group
-2. **Disable privacy mode** in BotFather (`/mybots` → Bot Settings → Group Privacy → Turn Off) — otherwise the bot won't see non-command messages
+2. **Disable privacy mode** in BotFather (`/mybots` -> Bot Settings -> Group Privacy -> Turn Off) -- otherwise the bot won't see non-command messages
 3. **Remove and re-add the bot** to the group after changing privacy mode (Telegram caches this setting)
 
 ### Finding a Group Chat ID
@@ -185,7 +185,7 @@ To find a group's chat ID for the `groups` allowlist:
 curl -s "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates" | python3 -m json.tool
 ```
 
-Look for `message.chat.id` in the response — group IDs are negative numbers (e.g., `-5170296765`).
+Look for `message.chat.id` in the response -- group IDs are negative numbers (e.g., `-5170296765`).
 
 ## Media Support
 
@@ -193,7 +193,7 @@ Channels support sending images and files to the agent, not just text.
 
 ### Images
 
-Send a photo to the bot and the agent will see it — useful for sharing screenshots, error messages, or diagrams. The image is sent directly to the model as a vision input.
+Send a photo to the bot and the agent will see it -- useful for sharing screenshots, error messages, or diagrams. The image is sent directly to the model as a vision input.
 
 To use image support, configure a multimodal model for the channel:
 
@@ -213,7 +213,7 @@ To use image support, configure a multimodal model for the channel:
 
 Send a document (PDF, code file, text file, etc.) to the bot. The file is downloaded and saved to a temporary directory, and the agent is told the file path so it can read the contents using its file-reading tools.
 
-Files work with any model — no multimodal support required.
+Files work with any model -- no multimodal support required.
 
 ### Platform differences
 
@@ -227,9 +227,9 @@ Files work with any model — no multimodal support required.
 
 Controls what happens when you send a new message while the bot is still processing a previous one.
 
-- **`steer`** (default) — The bot cancels the current request and starts working on your new message. Best for normal chat, where a follow-up usually means you want to correct or redirect the bot.
-- **`collect`** — Your new messages are buffered. When the current request finishes, all buffered messages are combined into a single follow-up prompt. Good for async workflows where you want to queue up thoughts.
-- **`followup`** — Each message is queued and processed as its own separate turn, in order. Useful for batch workflows where each message is independent.
+- **`steer`** (default) -- The bot cancels the current request and starts working on your new message. Best for normal chat, where a follow-up usually means you want to correct or redirect the bot.
+- **`collect`** -- Your new messages are buffered. When the current request finishes, all buffered messages are combined into a single follow-up prompt. Good for async workflows where you want to queue up thoughts.
+- **`followup`** -- Each message is queued and processed as its own separate turn, in order. Useful for batch workflows where each message is independent.
 
 ```json
 {
@@ -256,7 +256,7 @@ You can also set dispatch mode per group, overriding the channel default:
 
 ## Block Streaming
 
-By default, the agent works for a while and then sends one large response. With block streaming enabled, the response arrives as multiple shorter messages while the agent is still working — similar to how ChatGPT or Claude show progressive output.
+By default, the agent works for a while and then sends one large response. With block streaming enabled, the response arrives as multiple shorter messages while the agent is still working -- similar to how ChatGPT or Claude show progressive output.
 
 ```json
 {
@@ -275,9 +275,9 @@ By default, the agent works for a while and then sends one large response. With 
 ### How it works
 
 - The agent's response is split into blocks at paragraph boundaries and sent as separate messages
-- `minChars` (default 400) — don't send a block until it's at least this long, to avoid spamming tiny messages
-- `maxChars` (default 1000) — if a block gets this long without a natural break, send it anyway
-- `idleMs` (default 1500) — if the agent pauses (e.g., running a tool), send what's buffered so far
+- `minChars` (default 400) -- don't send a block until it's at least this long, to avoid spamming tiny messages
+- `maxChars` (default 1000) -- if a block gets this long without a natural break, send it anyway
+- `idleMs` (default 1500) -- if the agent pauses (e.g., running a tool), send what's buffered so far
 - When the agent finishes, any remaining text is sent immediately
 
 Only `blockStreaming` is required. The chunk and coalesce settings are optional and have sensible defaults.
@@ -286,9 +286,9 @@ Only `blockStreaming` is required. The chunk and coalesce settings are optional 
 
 Channels support slash commands. These are handled locally (no agent round-trip):
 
-- `/help` — List available commands
-- `/clear` — Clear your session and start fresh (aliases: `/reset`, `/new`)
-- `/status` — Show session info and access policy
+- `/help` -- List available commands
+- `/clear` -- Clear your session and start fresh (aliases: `/reset`, `/new`)
+- `/status` -- Show session info and access policy
 
 All other slash commands (e.g., `/compress`, `/summary`) are forwarded to the agent.
 
@@ -314,7 +314,7 @@ The bot runs in the foreground. Press `Ctrl+C` to stop, or use `qwen channel sto
 
 ### Multi-Channel Mode
 
-When you run `qwen channel start` without a name, all channels defined in `settings.json` start together sharing a single agent process. Each channel maintains its own sessions — a Telegram user and a WeChat user get separate conversations, even though they share the same agent.
+When you run `qwen channel start` without a name, all channels defined in `settings.json` start together sharing a single agent process. Each channel maintains its own sessions -- a Telegram user and a WeChat user get separate conversations, even though they share the same agent.
 
 Each channel uses its own `cwd` from its config, so different channels can work on different projects simultaneously.
 
@@ -333,4 +333,4 @@ If the agent process crashes unexpectedly, the channel service automatically res
 - Sessions are persisted to `~/.qwen/channels/sessions.json` while the service is running
 - On crash: the agent restarts within 3 seconds and reloads saved sessions
 - After 3 consecutive crashes, the service exits with an error
-- On clean shutdown (Ctrl+C or `qwen channel stop`): session data is cleared — the next start is always fresh
+- On clean shutdown (Ctrl+C or `qwen channel stop`): session data is cleared -- the next start is always fresh

@@ -4,17 +4,17 @@
 
 ## Overview
 
-When the Agent tool is called without `subagent_type`, it triggers an implicit **fork** — a background subagent that inherits the parent's conversation history, system prompt, and tool definitions. The fork uses `CacheSafeParams` to ensure its API requests share the same prefix as the parent's, enabling DashScope prompt cache hits.
+When the Agent tool is called without `subagent_type`, it triggers an implicit **fork** -- a background subagent that inherits the parent's conversation history, system prompt, and tool definitions. The fork uses `CacheSafeParams` to ensure its API requests share the same prefix as the parent's, enabling DashScope prompt cache hits.
 
 ## Architecture
 
 ```
 Parent conversation: [SystemPrompt | Tools | Msg1 | Msg2 | ... | MsgN (model)]
-                              ↑ identical prefix for all forks ↑
+                               identical prefix for all forks 
 
-Fork A: [...MsgN | placeholder results | "Research A"]  ← shared cache
-Fork B: [...MsgN | placeholder results | "Modify B"]    ← shared cache
-Fork C: [...MsgN | placeholder results | "Test C"]      ← shared cache
+Fork A: [...MsgN | placeholder results | "Research A"]  <- shared cache
+Fork B: [...MsgN | placeholder results | "Modify B"]    <- shared cache
+Fork C: [...MsgN | placeholder results | "Test C"]      <- shared cache
 ```
 
 ## Key Components
@@ -27,30 +27,30 @@ Synthetic agent config, not registered in `builtInAgents`. Has a fallback `syste
 
 ```
 agent.ts (fork path)
-  │
-  ├── getCacheSafeParams()          ← parent's generationConfig snapshot
-  │     ├── generationConfig        ← systemInstruction + tools + temp/topP
-  │     └── history                 ← (not used — we build extraHistory instead)
-  │
-  ├── forkGenerationConfig          ← passed as generationConfigOverride
-  └── forkToolsOverride             ← FunctionDeclaration[] extracted from tools
-        │
-        ▼
+  |
+  |---- getCacheSafeParams()          <- parent's generationConfig snapshot
+  |     |---- generationConfig        <- systemInstruction + tools + temp/topP
+  |     \_-- history                 <- (not used -- we build extraHistory instead)
+  |
+  |---- forkGenerationConfig          <- passed as generationConfigOverride
+  \_-- forkToolsOverride             <- FunctionDeclaration[] extracted from tools
+        |
+        
   AgentHeadless.execute(context, signal, {
-    extraHistory,                   ← parent conversation history
-    generationConfigOverride,       ← parent's exact systemInstruction + tools
-    toolsOverride,                  ← parent's exact tool declarations
+    extraHistory,                   <- parent conversation history
+    generationConfigOverride,       <- parent's exact systemInstruction + tools
+    toolsOverride,                  <- parent's exact tool declarations
   })
-        │
-        ▼
+        |
+        
   AgentCore.createChat(context, {
     extraHistory,
-    generationConfigOverride,       ← bypasses buildChatSystemPrompt()
+    generationConfigOverride,       <- bypasses buildChatSystemPrompt()
   })                                   AND skips getInitialChatHistory()
-        │                              (extraHistory already has env context)
-        ▼
+        |                              (extraHistory already has env context)
+        
   new GeminiChat(config, generationConfig, startHistory)
-                          ↑ byte-identical to parent's config
+                           byte-identical to parent's config
 ```
 
 ### 3. History Construction (`agent.ts` + `forkSubagent.ts`)
@@ -78,16 +78,16 @@ Fork uses `void executeSubagent()` (fire-and-forget) and returns `FORK_PLACEHOLD
 ```
 1. Model calls Agent tool (no subagent_type)
 2. agent.ts: import forkSubagent.js
-3. agent.ts: getCacheSafeParams() → forkGenerationConfig + forkToolsOverride
+3. agent.ts: getCacheSafeParams() -> forkGenerationConfig + forkToolsOverride
 4. agent.ts: build extraHistory from parent's getHistory(true)
 5. agent.ts: build forkTaskPrompt (directive or 'Begin.')
 6. agent.ts: createAgentHeadless(FORK_AGENT, ...)
-7. agent.ts: void executeSubagent() — background
+7. agent.ts: void executeSubagent() -- background
 8. agent.ts: return FORK_PLACEHOLDER_RESULT to parent immediately
 9. Background:
    a. AgentHeadless.execute(context, signal, {extraHistory, generationConfigOverride, toolsOverride})
-   b. AgentCore.createChat() — uses parent's generationConfig (cache-shared)
-   c. runReasoningLoop() — uses parent's tool declarations
+   b. AgentCore.createChat() -- uses parent's generationConfig (cache-shared)
+   c. runReasoningLoop() -- uses parent's tool declarations
    d. Fork executes tools, produces result
    e. updateDisplay() with final status
 ```

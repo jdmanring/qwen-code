@@ -86,7 +86,7 @@ describe('<LoadingIndicator />', () => {
       StreamingState.WaitingForConfirmation,
     );
     const output = lastFrame();
-    expect(output).toContain('⠏'); // Static char for WaitingForConfirmation
+    expect(output).toContain(''); // Static char for WaitingForConfirmation
     expect(output).toContain('Confirm action');
     expect(output).not.toContain('(esc to cancel)');
     expect(output).not.toContain('10s');
@@ -113,7 +113,7 @@ describe('<LoadingIndicator />', () => {
       <LoadingIndicator {...props} />,
       StreamingState.Responding,
     );
-    expect(lastFrame()).toContain('(1m · esc to cancel)');
+    expect(lastFrame()).toContain('(1m  esc to cancel)');
   });
 
   it('should display the elapsedTime correctly in human-readable format', () => {
@@ -125,7 +125,7 @@ describe('<LoadingIndicator />', () => {
       <LoadingIndicator {...props} />,
       StreamingState.Responding,
     );
-    expect(lastFrame()).toContain('(2m 5s · esc to cancel)');
+    expect(lastFrame()).toContain('(2m 5s  esc to cancel)');
   });
 
   it('should render rightContent when provided', () => {
@@ -156,7 +156,7 @@ describe('<LoadingIndicator />', () => {
     let output = lastFrame();
     expect(output).toContain('MockRespondingSpinner');
     expect(output).toContain('Now Responding');
-    expect(output).toContain('(2s · esc to cancel)');
+    expect(output).toContain('(2s  esc to cancel)');
 
     // Transition to WaitingForConfirmation
     rerender(
@@ -168,7 +168,7 @@ describe('<LoadingIndicator />', () => {
       </StreamingContext.Provider>,
     );
     output = lastFrame();
-    expect(output).toContain('⠏');
+    expect(output).toContain('');
     expect(output).toContain('Please Confirm');
     expect(output).not.toContain('(esc to cancel)');
     expect(output).not.toContain('15s');
@@ -263,7 +263,7 @@ describe('<LoadingIndicator />', () => {
       // Check for single line output
       expect(output?.includes('\n')).toBe(false);
       expect(output).toContain('Loading...');
-      expect(output).toContain('(5s · esc to cancel)');
+      expect(output).toContain('(5s  esc to cancel)');
       expect(output).toContain('Right');
     });
 
@@ -317,8 +317,8 @@ describe('<LoadingIndicator />', () => {
         StreamingState.Responding,
       );
       const output = lastFrame();
-      expect(output).toContain('↓ 847 tokens');
-      expect(output).not.toContain('↑');
+      expect(output).toContain(' 847 tokens');
+      expect(output).not.toContain('');
       expect(output).toContain('5s');
       expect(output).toContain('esc to cancel');
     });
@@ -329,7 +329,7 @@ describe('<LoadingIndicator />', () => {
         StreamingState.Responding,
       );
       const output = lastFrame();
-      expect(output).not.toContain('↓');
+      expect(output).not.toContain('');
       expect(output).not.toContain('tokens');
     });
 
@@ -339,7 +339,7 @@ describe('<LoadingIndicator />', () => {
         StreamingState.Responding,
       );
       const output = lastFrame();
-      expect(output).not.toContain('↓');
+      expect(output).not.toContain('');
       expect(output).not.toContain('tokens');
     });
 
@@ -350,7 +350,7 @@ describe('<LoadingIndicator />', () => {
         79,
       );
       const output = lastFrame();
-      expect(output).not.toContain('↓');
+      expect(output).not.toContain('');
       expect(output).not.toContain('tokens');
       expect(output).toContain('esc to cancel');
     });
@@ -362,7 +362,7 @@ describe('<LoadingIndicator />', () => {
         80,
       );
       const output = lastFrame();
-      expect(output).toContain('↓ 5.4k tokens');
+      expect(output).toContain(' 5.4k tokens');
     });
 
     it('should format tokens inline with time and cancel', () => {
@@ -372,10 +372,10 @@ describe('<LoadingIndicator />', () => {
         120,
       );
       const output = lastFrame();
-      expect(output).toContain('(5s · ↓ 5.4k tokens · esc to cancel)');
+      expect(output).toContain('(5s   5.4k tokens  esc to cancel)');
     });
 
-    it('should show ↑ arrow when waiting for API response', () => {
+    it('should show  arrow when waiting for API response', () => {
       const { lastFrame } = renderWithContext(
         <LoadingIndicator
           {...defaultProps}
@@ -385,18 +385,18 @@ describe('<LoadingIndicator />', () => {
         StreamingState.Responding,
       );
       const output = lastFrame();
-      expect(output).toContain('↑ 500 tokens');
-      expect(output).not.toContain('↓');
+      expect(output).toContain(' 500 tokens');
+      expect(output).not.toContain('');
     });
 
-    it('should show ↓ arrow when receiving content (default)', () => {
+    it('should show  arrow when receiving content (default)', () => {
       const { lastFrame } = renderWithContext(
         <LoadingIndicator {...defaultProps} candidatesTokens={500} />,
         StreamingState.Responding,
       );
       const output = lastFrame();
-      expect(output).toContain('↓ 500 tokens');
-      expect(output).not.toContain('↑');
+      expect(output).toContain(' 500 tokens');
+      expect(output).not.toContain('');
     });
   });
 });

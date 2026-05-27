@@ -6,8 +6,8 @@
  * Integration coverage for the runtime.json sidecar wiring through
  * Config.startNewSession(). The unit tests in runtimeStatus.test.ts
  * exercise the module in isolation; this file pins the contract that
- * /clear, /reset, /new and /resume — all of which flow through
- * startNewSession() — actually drive the sidecar swap, and only when
+ * /clear, /reset, /new and /resume -- all of which flow through
+ * startNewSession() -- actually drive the sidecar swap, and only when
  * the interactive UI bootstrap has flipped runtimeStatusEnabled on.
  */
 
@@ -53,7 +53,7 @@ function makeConfig(sessionId: string): Config {
 }
 
 // The IIFE in startNewSession is fire-and-forget. Poll the filesystem
-// briefly instead of guessing a fixed sleep — keeps the test fast on
+// briefly instead of guessing a fixed sleep -- keeps the test fast on
 // happy paths and resilient on slow CI.
 async function waitFor<T>(
   predicate: () => Promise<T | null>,
@@ -133,7 +133,7 @@ describe('Config.startNewSession runtime.json swap', () => {
 
     const before = await readRuntimeStatus(aPath);
 
-    // Pass the same id back in — startNewSession should be a no-op for
+    // Pass the same id back in -- startNewSession should be a no-op for
     // the sidecar so we don't churn the file (and lose started_at).
     config.startNewSession(sessionA);
     await new Promise((r) => setTimeout(r, 100));

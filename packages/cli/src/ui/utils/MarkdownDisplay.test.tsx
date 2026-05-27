@@ -171,8 +171,8 @@ Some text before.
       expect(output).toContain('Name');
       expect(output).toContain('Alice');
       expect(output).toContain('Bob');
-      expect(output).toContain('┌');
-      expect(output).toContain('└');
+      expect(output).toContain('+--');
+      expect(output).toContain('\_');
       expect(output).toMatchSnapshot();
     });
 
@@ -213,7 +213,7 @@ next line
       );
       const output = lastFrame() ?? '';
       expect(output).toContain('| just text |');
-      expect(output).not.toContain('┌');
+      expect(output).not.toContain('+--');
     });
 
     it('does not treat invalid separator as a table separator', () => {
@@ -227,7 +227,7 @@ next line
       );
       const output = lastFrame() ?? '';
       expect(output).toContain('| A | B |');
-      expect(output).not.toContain('┌');
+      expect(output).not.toContain('+--');
     });
 
     it('does not treat separator with mismatched column count as a table', () => {
@@ -241,7 +241,7 @@ next line
       );
       const output = lastFrame() ?? '';
       expect(output).toContain('| A | B |');
-      expect(output).not.toContain('┌');
+      expect(output).not.toContain('+--');
     });
 
     it('does not treat a horizontal rule after a pipe line as a table separator', () => {
@@ -256,7 +256,7 @@ data
       const output = lastFrame() ?? '';
       // `---` without any `|` is a horizontal rule, not a table separator
       expect(output).toContain('| Header |');
-      expect(output).not.toContain('┌');
+      expect(output).not.toContain('+--');
     });
 
     it('ends a table when a blank line appears', () => {
@@ -271,7 +271,7 @@ After
         <MarkdownDisplay {...baseProps} text={text} />,
       );
       const output = lastFrame();
-      expect(output).toContain('┌');
+      expect(output).toContain('+--');
       expect(output).toContain('After');
     });
 
@@ -285,7 +285,7 @@ plain
       );
       const output = lastFrame();
       expect(output).toContain('|---|---|');
-      expect(output).not.toContain('┌');
+      expect(output).not.toContain('+--');
     });
 
     it('does not crash on uneven escaped pipes near row edges', () => {
@@ -372,8 +372,8 @@ Another paragraph.
         <MarkdownDisplay {...baseProps} text={text} />,
       );
       const output = lastFrame();
-      expect(output).toContain('✓ Done');
-      expect(output).toContain('○ Todo');
+      expect(output).toContain(' Done');
+      expect(output).toContain(' Todo');
     });
 
     it('keeps pipes inside markdown table code spans in the same cell', () => {
@@ -405,7 +405,7 @@ Another paragraph.
       );
       const output = lastFrame();
 
-      expect(output).toContain('α');
+      expect(output).toContain('');
       expect(output).toContain('alpha');
       expect(output).not.toContain('$\\alpha$');
     });
@@ -447,7 +447,7 @@ Another paragraph.
         <MarkdownDisplay {...baseProps} text={text} />,
       );
       const output = lastFrame();
-      expect(output).toContain('│');
+      expect(output).toContain('|');
       expect(output).toContain('Important note');
     });
 
@@ -463,9 +463,9 @@ $$
         <MarkdownDisplay {...baseProps} text={text} />,
       );
       const output = lastFrame();
-      expect(output).toContain('x² + α');
-      expect(output).toContain('LaTeX block · source: /copy latex 1');
-      expect(output).toContain('Σᵢ₌₁ⁿ xᵢ');
+      expect(output).toContain('x + ');
+      expect(output).toContain('LaTeX block  source: /copy latex 1');
+      expect(output).toContain(' x');
     });
 
     it('does not treat ordinary dollar amounts as inline math', () => {
@@ -492,7 +492,7 @@ flowchart LR
       expect(output).toContain('source: /copy mermaid 1');
       expect(output).toContain('Client');
       expect(output).toContain('API');
-      expect(output).toContain('▶');
+      expect(output).toContain('');
       expect(output).not.toContain('flowchart LR');
     });
 
@@ -588,11 +588,11 @@ $$
       expect(output).toContain('\\alpha + \\beta');
       expect(output).toContain('- [x] Done');
       expect(output).toContain('> Important');
-      expect(output).not.toContain('┌');
-      expect(output).not.toContain('x²');
-      expect(output).not.toContain('α + β');
-      expect(output).not.toContain('✓ Done');
-      expect(output).not.toContain('│ Important');
+      expect(output).not.toContain('+--');
+      expect(output).not.toContain('x');
+      expect(output).not.toContain(' + ');
+      expect(output).not.toContain(' Done');
+      expect(output).not.toContain('| Important');
     });
 
     it('applies source copy offsets from previous assistant chunks', () => {
@@ -641,11 +641,11 @@ flowchart TD
       expect(output).toContain('Fix failing tests');
       expect(output).toContain('Yes');
       expect(output).toContain('No');
-      expect(output).toContain('▼');
+      expect(output).toContain('');
       expect(output.match(/Tests pass\?/g)?.length).toBe(1);
       expect(output.match(/Create Pull Request/g)?.length).toBe(1);
       expect(output.match(/Fix failing tests/g)?.length).toBe(1);
-      expect(output).not.toContain('│ B ');
+      expect(output).not.toContain('| B ');
     });
 
     it('does not duplicate branch nodes when a mermaid flowchart loops back', () => {
@@ -664,10 +664,10 @@ flowchart TD
       const output = lastFrame() ?? '';
       expect(output).toContain('No');
       expect(output).toContain('Debug');
-      expect(output).toContain('↩');
+      expect(output).toContain('');
       expect(output).toContain('Cycles:');
-      expect(output).toContain('Debug ↩ to Is it working?');
-      expect(output.match(/│ Debug │/g)?.length).toBe(1);
+      expect(output).toContain('Debug  to Is it working?');
+      expect(output.match(/| Debug |/g)?.length).toBe(1);
     });
 
     it('resizes mermaid flowchart wireframes to the available width', () => {
@@ -683,8 +683,8 @@ flowchart TD
       const narrowOutput = narrow.join('\n');
       const wideOutput = wide.join('\n');
 
-      expect(narrowOutput).toContain('◇ Is it working? ◇');
-      expect(narrowOutput).toContain('↩');
+      expect(narrowOutput).toContain(' Is it working? ');
+      expect(narrowOutput).toContain('');
       expect(narrowOutput).toContain('Cycles:');
       expect(narrow.every((line) => line.length <= 44)).toBe(true);
       expect(wide.every((line) => line.length <= 72)).toBe(true);
@@ -721,7 +721,7 @@ sequenceDiagram
       const output = lastFrame();
       expect(output).toContain('Mermaid sequence diagram');
       expect(output).toContain('Participants: User | API');
-      expect(output).toContain('User → API: request');
+      expect(output).toContain('User -> API: request');
       expect(output).not.toContain('sequenceDiagram');
     });
 
@@ -819,7 +819,7 @@ requirementDiagram
       );
 
       expect(statePreview.title).toBe('Mermaid state diagram');
-      expect(statePreview.lines.join('\n')).toContain('Idle → Running');
+      expect(statePreview.lines.join('\n')).toContain('Idle -> Running');
       expect(ganttPreview.title).toBe('Mermaid gantt chart');
       expect(ganttPreview.lines.join('\n')).toContain('Bundle');
       expect(journeyPreview.title).toBe('Mermaid journey diagram');

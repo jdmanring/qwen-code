@@ -153,7 +153,7 @@ describe('microcompactHistory', () => {
     expect(
       result.history[1]!.parts![0]!.functionResponse!.response!['output'],
     ).toBe('user answer');
-    // keepRecent floored to 1 — only 1 compactable, so it's kept
+    // keepRecent floored to 1 -- only 1 compactable, so it's kept
     expect(result.meta).toBeUndefined();
   });
 
@@ -558,7 +558,7 @@ describe('microcompactHistory', () => {
   });
 
   it('strips nested media from non-compactable tool results (preserves text output)', () => {
-    // ask_user_question is NOT in COMPACTABLE_TOOLS — we want the user's
+    // ask_user_question is NOT in COMPACTABLE_TOOLS -- we want the user's
     // answer (response.output) preserved but the attached image dropped.
     const oldNonCompactableWithImage: Content = {
       role: 'user',
@@ -702,7 +702,7 @@ describe('microcompactHistory evictedReadPaths (issue #4239)', () => {
 
   it('disarms ALL paths sharing a reused functionCall.id (mimo F1)', () => {
     // Pathological/resumed history reuses one id across two files.
-    // The blanked result must disarm BOTH candidate paths — keeping
+    // The blanked result must disarm BOTH candidate paths -- keeping
     // the wrong one armed would resurrect the dangling-placeholder
     // hazard. Over-disarming only costs a redundant re-read.
     const history: Content[] = [
@@ -743,7 +743,7 @@ describe('microcompactHistory evictedReadPaths (issue #4239)', () => {
     });
 
     expect(result.meta!.toolsCleared).toBe(2);
-    // /proj/a.ts blanked via both edit and write_file → reported once.
+    // /proj/a.ts blanked via both edit and write_file -> reported once.
     expect(result.meta!.evictedReadPaths).toEqual(['/proj/a.ts']);
     expect(result.meta!.unresolvedEvictedReads).toBe(0);
   });
@@ -751,7 +751,7 @@ describe('microcompactHistory evictedReadPaths (issue #4239)', () => {
   it('counts a blanked read it cannot link back as unresolved (forces safe fallback)', () => {
     const history: Content[] = [
       // functionResponse without an id: cannot be linked to a call.
-      // This is the id-less-provider case — must NOT be silently
+      // This is the id-less-provider case -- must NOT be silently
       // skipped, or its fast-path stays armed and serves a dangling
       // placeholder. It is counted so the caller falls back to the
       // blanket wipe.
@@ -814,7 +814,7 @@ describe('microcompactHistory evictedReadPaths (issue #4239)', () => {
 
     expect(result.meta!.toolsCleared).toBe(1);
     expect(result.meta!.evictedReadPaths).toEqual([]);
-    // Shell is not a file tool — not counted as an unresolved read.
+    // Shell is not a file tool -- not counted as an unresolved read.
     expect(result.meta!.unresolvedEvictedReads).toBe(0);
   });
 
@@ -829,7 +829,7 @@ describe('microcompactHistory evictedReadPaths (issue #4239)', () => {
       toolResultsNumToKeep: 1,
     });
 
-    // No trigger → no meta at all (and therefore no eviction data).
+    // No trigger -> no meta at all (and therefore no eviction data).
     expect(result.meta).toBeUndefined();
   });
 });

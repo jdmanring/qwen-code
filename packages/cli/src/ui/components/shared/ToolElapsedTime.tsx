@@ -16,7 +16,7 @@ interface ToolElapsedTimeProps {
   executionStartTime?: number;
   /**
    * When provided, the elapsed indicator becomes a combined budget display:
-   * `(elapsed · timeout N)` visible from t=0 so the timeout is always on
+   * `(elapsed  timeout N)` visible from t=0 so the timeout is always on
    * screen. When absent, the indicator keeps the 3-second quiet threshold
    * and renders just the elapsed time.
    */
@@ -29,7 +29,7 @@ interface ToolElapsedTimeProps {
  * Two modes:
  *   - no `timeoutMs`: suppressed for the first 3 seconds so fast tools stay
  *     visually quiet.
- *   - with `timeoutMs`: rendered as `(elapsed · timeout N)` from t=0 so the
+ *   - with `timeoutMs`: rendered as `(elapsed  timeout N)` from t=0 so the
  *     user can see both how long the tool has been running and how much
  *     budget remains.
  */
@@ -61,7 +61,7 @@ export const ToolElapsedTime: React.FC<ToolElapsedTimeProps> = ({
     hideTrailingZeros: true,
   });
   const label = hasTimeout
-    ? `(${elapsedStr} · timeout ${formatDuration(timeoutMs, { hideTrailingZeros: true })})`
+    ? `(${elapsedStr}  timeout ${formatDuration(timeoutMs, { hideTrailingZeros: true })})`
     : elapsedStr;
 
   return (

@@ -69,7 +69,7 @@ describe('QWEN_HOME environment variable', () => {
      * 1a. CLI uses custom config dir for settings and initialization.
      *
      * A full prompt run is required because installation_id is only written
-     * during config.initialize() → logStartSession() → getInstallationId().
+     * during config.initialize() -> logStartSession() -> getInstallationId().
      * --help exits before that point.
      */
     it('1a: installation_id is written inside QWEN_HOME, not ~/.qwen', async () => {
@@ -83,7 +83,7 @@ describe('QWEN_HOME environment variable', () => {
       try {
         await rig.run('say hello');
       } catch {
-        // May fail without a valid API key; that is acceptable — we only
+        // May fail without a valid API key; that is acceptable -- we only
         // need config.initialize() to run far enough to create installation_id
       }
 
@@ -109,7 +109,7 @@ describe('QWEN_HOME environment variable', () => {
       try {
         await rig.run('say hello');
       } catch {
-        // May fail without a valid API key — tolerate the error
+        // May fail without a valid API key -- tolerate the error
       }
 
       // The directory must have been created
@@ -142,7 +142,7 @@ describe('QWEN_HOME environment variable', () => {
       try {
         await rig.run('say hello');
       } catch {
-        // May fail without a valid API key — tolerate the error
+        // May fail without a valid API key -- tolerate the error
       }
 
       // Resolve the expected absolute path the same way the subprocess does
@@ -180,7 +180,7 @@ describe('QWEN_HOME environment variable', () => {
      * `extensions list` is sufficient here because it is a yargs subcommand
      * that runs through `main()` and reaches `loadSettings()` (which triggers
      * migration), without needing an API key or interactive session.
-     * (Note: `--help` cannot be used — yargs intercepts it and exits the
+     * (Note: `--help` cannot be used -- yargs intercepts it and exits the
      * process before `loadSettings()` runs.)
      */
     it('2b: settings migration runs in QWEN_HOME dir', async () => {
@@ -223,7 +223,7 @@ describe('QWEN_HOME environment variable', () => {
   });
 
   // -------------------------------------------------------------------------
-  // Group 3: Isolation — project-level .qwen/ is NOT affected
+  // Group 3: Isolation -- project-level .qwen/ is NOT affected
   // -------------------------------------------------------------------------
 
   describe('Group 3: Project-level isolation', () => {
@@ -283,7 +283,7 @@ describe('QWEN_HOME environment variable', () => {
       }
 
       // The workspace settings.json must have been migrated to the current
-      // SETTINGS_VERSION — proving the CLI read it from the workspace dir, not
+      // SETTINGS_VERSION -- proving the CLI read it from the workspace dir, not
       // from QWEN_HOME. Update the version when the schema bumps.
       const workspaceRaw = readFileSync(workspaceSettingsPath, 'utf-8');
       const workspaceSettings = JSON.parse(workspaceRaw) as Record<
@@ -328,7 +328,7 @@ describe('QWEN_HOME environment variable', () => {
       try {
         await rig.run('say hello');
       } catch {
-        // May fail without a valid API key — tolerate the error
+        // May fail without a valid API key -- tolerate the error
       }
 
       // Config file must be inside QWEN_HOME

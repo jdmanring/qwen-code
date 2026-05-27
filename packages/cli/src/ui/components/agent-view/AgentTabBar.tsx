@@ -5,7 +5,7 @@
  */
 
 /**
- * @fileoverview AgentTabBar — horizontal tab strip for in-process agent views.
+ * @fileoverview AgentTabBar -- horizontal tab strip for in-process agent views.
  *
  * Rendered at the top of the terminal whenever in-process agents are registered.
  *
@@ -34,7 +34,7 @@ import { useKeypress } from '../../hooks/useKeypress.js';
 import { useUIState } from '../../contexts/UIStateContext.js';
 import { theme } from '../../semantic-colors.js';
 
-// ─── Status Indicators ──────────────────────────────────────
+// --- Status Indicators --------------------------------------
 
 function statusIndicator(agent: RegisteredAgent): {
   symbol: string;
@@ -44,21 +44,21 @@ function statusIndicator(agent: RegisteredAgent): {
   switch (status) {
     case AgentStatus.RUNNING:
     case AgentStatus.INITIALIZING:
-      return { symbol: '\u25CF', color: theme.status.warning }; // ● running
+      return { symbol: '\u25CF', color: theme.status.warning }; //  running
     case AgentStatus.IDLE:
-      return { symbol: '\u25CF', color: theme.status.success }; // ● idle (ready)
+      return { symbol: '\u25CF', color: theme.status.success }; //  idle (ready)
     case AgentStatus.COMPLETED:
-      return { symbol: '\u2713', color: theme.status.success }; // ✓ completed
+      return { symbol: '\u2713', color: theme.status.success }; //  completed
     case AgentStatus.FAILED:
-      return { symbol: '\u2717', color: theme.status.error }; // ✗ failed
+      return { symbol: '\u2717', color: theme.status.error }; //  failed
     case AgentStatus.CANCELLED:
-      return { symbol: '\u25CB', color: theme.text.secondary }; // ○ cancelled
+      return { symbol: '\u25CB', color: theme.text.secondary }; //  cancelled
     default:
-      return { symbol: '\u25CB', color: theme.text.secondary }; // ○ fallback
+      return { symbol: '\u25CB', color: theme.text.secondary }; //  fallback
   }
 }
 
-// ─── Component ──────────────────────────────────────────────
+// --- Component ----------------------------------------------
 
 export const AgentTabBar: React.FC = () => {
   const { activeView, agents, agentShellFocused, agentTabBarFocused } =
@@ -97,7 +97,7 @@ export const AgentTabBar: React.FC = () => {
         !key.ctrl &&
         !key.meta
       ) {
-        // Printable character → return focus to input (key falls through
+        // Printable character -> return focus to input (key falls through
         // to BaseTextInput's useKeypress and gets typed normally)
         setAgentTabBarFocused(false);
       }
@@ -106,7 +106,7 @@ export const AgentTabBar: React.FC = () => {
   );
 
   // Subscribe to STATUS_CHANGE events from all agents so the tab bar
-  // re-renders when an agent's status transitions (e.g. RUNNING → COMPLETED).
+  // re-renders when an agent's status transitions (e.g. RUNNING -> COMPLETED).
   // Without this, status indicators would be stale until the next unrelated render.
   const [, setTick] = useState(0);
   const forceRender = useCallback(() => setTick((t) => t + 1), []);

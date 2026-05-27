@@ -36,7 +36,7 @@ export const InsightProgressCard: FC<InsightProgressCardProps> = ({
           </div>
         ) : (
           <div className="text-xs leading-5 text-[var(--vscode-descriptionForeground)]">
-            Processing your chat history…
+            Processing your chat history...
           </div>
         )}
       </div>

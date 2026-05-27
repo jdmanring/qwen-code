@@ -82,7 +82,7 @@ for char-count apportionment. Replace this with an
 
 - For `text` parts: `text.length`
 - For `inlineData` / `fileData` parts: `imageTokenEstimate * 4` (default
-  1,600 × 4 = 6,400 chars).
+  1,600 * 4 = 6,400 chars).
 - For `functionCall` / `functionResponse` parts:
   `JSON.stringify(part).length` (unchanged behavior).
 
@@ -97,13 +97,13 @@ optional 4th argument); the same array is reused for the
 
 `collectCompactablePartRefs` now returns three groups:
 
-- `tool` — `functionResponse` parts from compactable built-in tools.
+- `tool` -- `functionResponse` parts from compactable built-in tools.
   Cleared as a unit: response output replaced with the sentinel,
   `functionResponse.parts` dropped along with it.
-- `media` — top-level `inlineData` / `fileData` parts under user-role
+- `media` -- top-level `inlineData` / `fileData` parts under user-role
   messages (e.g. images pasted via `@reference`). Replaced with
   `[Old inline media cleared: <mime>]`.
-- `nested-media` — `functionResponse` parts from **non-compactable**
+- `nested-media` -- `functionResponse` parts from **non-compactable**
   tools (e.g. MCP screenshot tools whose names are not in
   `COMPACTABLE_TOOLS`) that carry images / documents on the
   `functionResponse.parts` extension field. Only the nested media is
@@ -138,7 +138,7 @@ Plus an env override for ops/debug: `QWEN_IMAGE_TOKEN_ESTIMATE`.
 **Decision 1: `imageTokenEstimate = 1600`.**
 Qwen-VL family caps at 1,280 visual tokens per image without
 `vl_high_resolution_images`; with that flag, up to 16,384. 1,600 is a
-conservative middle ground biased slightly high — overestimating leads
+conservative middle ground biased slightly high -- overestimating leads
 to earlier compaction (safe), underestimating leads to late compaction
 (unsafe). For non-VL models (Qwen3-Coder, the qwen-code default) the
 constant only matters for token-estimation correctness, since images
@@ -156,7 +156,7 @@ output; extending it to inline images keeps the policy consistent and
 reuses the existing keepRecent window.
 
 **Decision 4: No paste-store / no text externalization.**
-See Out-of-scope section. Upstream consensus (claude-code 2026-03 →
+See Out-of-scope section. Upstream consensus (claude-code 2026-03 ->
 2026-05) is to keep verbatim user input visible and amortize via
 prompt caching, not externalize.
 
@@ -169,15 +169,15 @@ prompt caching, not externalize.
 
 **Modified files**
 
-- `packages/core/src/config/config.ts` — extend `ChatCompressionSettings`
-- `packages/core/src/services/chatCompressionService.ts` — call slimming
+- `packages/core/src/config/config.ts` -- extend `ChatCompressionSettings`
+- `packages/core/src/services/chatCompressionService.ts` -- call slimming
   before `runSideQuery`; replace char-count helper; precompute charCounts
   once for splitter + guard
-- `packages/core/src/services/chatCompressionService.test.ts` — add a
+- `packages/core/src/services/chatCompressionService.test.ts` -- add a
   wire-up test asserting base64 never reaches the summary model
-- `packages/core/src/services/microcompaction/microcompact.ts` — extend
+- `packages/core/src/services/microcompaction/microcompact.ts` -- extend
   collection to inline images
-- `packages/core/src/services/microcompaction/microcompact.test.ts` —
+- `packages/core/src/services/microcompaction/microcompact.test.ts` --
   test image clearing
 
 ## Scope Boundaries
@@ -212,11 +212,11 @@ prompt caching, not externalize.
 3. **`MIN_COMPRESSION_FRACTION` gate is computed on pre-slim char
    counts.** An image-heavy slice can pass the 5% threshold (because
    images count as ~6,400 chars each in the estimator) and then
-   shrink to `[image: …]` placeholders post-slim. The summary model
+   shrink to `[image: ...]` placeholders post-slim. The summary model
    then receives almost no textual context. This is intentional for
    now: the summary's job is to record "user shared an image of X"
    even when most of the slice was visual, and the gate's purpose is
-   "is there enough to be worth summarizing" — which images
+   "is there enough to be worth summarizing" -- which images
    reasonably satisfy. If quality regresses we can revisit by either
    re-checking post-slim or biasing the gate on
    `imagesStripped` proportion.

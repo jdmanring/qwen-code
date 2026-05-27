@@ -39,7 +39,7 @@ import {
  * success, fans out a `memory_changed` event onto every active
  * session's bus so adapters can refresh cached snapshots.
  *
- * Both routes are filesystem-only — neither spawns the ACP child.
+ * Both routes are filesystem-only -- neither spawns the ACP child.
  *
  * **Absolute filePath disclosure note**: success / 413 / GET-list
  * responses include absolute on-disk paths (`/work/<x>/QWEN.md`,
@@ -52,7 +52,7 @@ import {
  * default binding already restrict who can see these paths. If a
  * future deployment shape needs path redaction (e.g. multi-tenant
  * over a shared host), it should land as a `--redact-paths`
- * deployment toggle rather than a per-route default flip — tracked
+ * deployment toggle rather than a per-route default flip -- tracked
  * with PR 24's `--redact-errors` policy work, not in PR 16.
  */
 
@@ -72,7 +72,7 @@ export interface WorkspaceMemoryRouteDeps {
    * Re-uses `parseClientIdHeader` from `server.ts`.
    */
   parseClientId: (req: Request, res: Response) => string | undefined | null;
-  /** `safeBody` from `server.ts` — strips prototype-pollution keys. */
+  /** `safeBody` from `server.ts` -- strips prototype-pollution keys. */
   safeBody: (req: Request) => Record<string, unknown>;
 }
 
@@ -92,7 +92,7 @@ export function mountWorkspaceMemoryRoutes(
       // `collectWorkspaceMemoryStatus` and surfaced in-band via
       // `errors[]` with `errorKind: 'stat_failed'`. The outer catch
       // here only fires on programmer error (an upstream helper
-      // throws unexpectedly). Return 500 — a 200-with-errors response
+      // throws unexpectedly). Return 500 -- a 200-with-errors response
       // for a complete-discovery failure would silently look healthy
       // to status dashboards counting non-2xx as failures, which is
       // exactly the silent-failure mode PR 12's read-only routes
@@ -163,7 +163,7 @@ export function mountWorkspaceMemoryRoutes(
         // posture: validate against `bridge.knownClientIds()`, send
         // 400 directly, return `null` so the caller short-circuits.
         // Previously this branch threw `InvalidClientIdError` and
-        // caught it locally — wenshao round-6 flagged the
+        // caught it locally -- wenshao round-6 flagged the
         // throw-vs-direct-400 inconsistency between the two route
         // files. Aligning the call sites now removes the surface
         // divergence; the deeper DRY refactor (one shared helper
@@ -221,7 +221,7 @@ export function mountWorkspaceMemoryRoutes(
         // either trim the file or switch to mode=replace.
         if (err instanceof WorkspaceMemoryWriteTimeoutError) {
           writeStderrLine(
-            `qwen serve: POST /workspace/memory timeout — file lock at ` +
+            `qwen serve: POST /workspace/memory timeout -- file lock at ` +
               `${err.filePath} did not acquire within ${err.timeoutMs}ms ` +
               `(stalled FS / OneDrive / NFS)`,
           );
@@ -240,11 +240,11 @@ export function mountWorkspaceMemoryRoutes(
         }
         if (err instanceof WorkspaceMemoryFileTooLargeError) {
           writeStderrLine(
-            `qwen serve: POST /workspace/memory refused — existing file ` +
+            `qwen serve: POST /workspace/memory refused -- existing file ` +
               `${err.filePath} is ${err.bytes} bytes (cap ${err.limit})`,
           );
           // Path disclosure: both `error` (which embeds the absolute
-          // file path in the constructor message — see
+          // file path in the constructor message -- see
           // `WorkspaceMemoryFileTooLargeError`) and `filePath` are
           // gated behind QWEN_SERVE_DEBUG so production responses
           // don't include `/Users/<x>/.qwen/...` in the body.
@@ -390,7 +390,7 @@ async function collectWorkspaceMemoryStatus(
 /**
  * Stat each known memory filename (`QWEN.md`, `AGENTS.md`) at the
  * bound workspace root and return the matches. v1 does not walk
- * parent directories — that's reserved for PR 16.5's hierarchical
+ * parent directories -- that's reserved for PR 16.5's hierarchical
  * mode, which will replace this helper with a real upward walk
  * (originally drafted in this file but removed at glm-5.1's review
  * because the loop body was reachable only on its first iteration

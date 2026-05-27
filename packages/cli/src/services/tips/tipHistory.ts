@@ -5,7 +5,7 @@
  */
 
 /**
- * Tip history tracking — in-session cooldown and cross-session persistence.
+ * Tip history tracking -- in-session cooldown and cross-session persistence.
  */
 
 import * as fs from 'node:fs';
@@ -23,7 +23,7 @@ interface TipHistoryData {
 }
 
 export class TipHistory {
-  /** In-session tracking: tipId → prompt count when last shown */
+  /** In-session tracking: tipId -> prompt count when last shown */
   private sessionShown: Map<string, number> = new Map();
   private data: TipHistoryData;
   private filePath: string;
@@ -118,7 +118,7 @@ export class TipHistory {
         mode: 0o600,
       });
     } catch {
-      // Silently ignore write errors — tips are non-critical
+      // Silently ignore write errors -- tips are non-critical
     }
   }
 
@@ -147,7 +147,7 @@ export class TipHistory {
         }
       }
     } catch {
-      // Ignore read/parse errors — start fresh
+      // Ignore read/parse errors -- start fresh
     }
 
     // Increment session count for this startup

@@ -94,20 +94,20 @@ describe('matches', () => {
   it('uses OR logic when both day-of-month and day-of-week are constrained', () => {
     // Jan 15 2025 is a Wednesday (day 3), day-of-month 15
     const date = new Date(2025, 0, 15, 10, 0);
-    // dom=1 (no match), dow=3 (match) → should match via OR
+    // dom=1 (no match), dow=3 (match) -> should match via OR
     expect(matches('0 10 1 * 3', date)).toBe(true);
-    // dom=15 (match), dow=1 (no match) → should match via OR
+    // dom=15 (match), dow=1 (no match) -> should match via OR
     expect(matches('0 10 15 * 1', date)).toBe(true);
-    // dom=1 (no match), dow=1 (no match) → no match
+    // dom=1 (no match), dow=1 (no match) -> no match
     expect(matches('0 10 1 * 1', date)).toBe(false);
   });
 
   it('uses AND logic when only one day field is constrained', () => {
     // Jan 15 2025 is a Wednesday (day 3)
     const date = new Date(2025, 0, 15, 10, 0);
-    // dom=1, dow=* → AND, dom doesn't match
+    // dom=1, dow=* -> AND, dom doesn't match
     expect(matches('0 10 1 * *', date)).toBe(false);
-    // dom=*, dow=1 → AND, dow doesn't match
+    // dom=*, dow=1 -> AND, dow doesn't match
     expect(matches('0 10 * * 1', date)).toBe(false);
   });
 

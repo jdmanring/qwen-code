@@ -106,7 +106,7 @@ describe('createMutationGate (#4175 PR 15)', () => {
     // The factory caches the no-op when `requireAuth || tokenConfigured`
     // so a route table with N mutation routes doesn't allocate N
     // identical closures. Not a behavioral guarantee for callers, but
-    // useful as a regression anchor — if a future change makes the
+    // useful as a regression anchor -- if a future change makes the
     // factory return a fresh closure per call, this test will surface
     // the change so reviewers can confirm the allocation cost is
     // intentional.
@@ -135,7 +135,7 @@ describe('createMutationGate (#4175 PR 15)', () => {
     const strictB = gate({ strict: true });
     expect(passA).toBe(passB);
     expect(strictA).toBe(strictB);
-    // And the two singletons must be distinct — otherwise the gate
+    // And the two singletons must be distinct -- otherwise the gate
     // would degenerate to a single shape and lose the "strict gates
     // refuse" property.
     expect(passA).not.toBe(strictA);

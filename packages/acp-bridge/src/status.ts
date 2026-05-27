@@ -51,7 +51,7 @@ export class BridgeTimeoutError extends Error {
 /**
  * Raised when the bridge observes its ACP child's transport closing while
  * a request is in flight (workspace status, session/* restore, or
- * mid-prompt). Replaces three `new Error('agent channel closed …')` sites
+ * mid-prompt). Replaces three `new Error('agent channel closed ...')` sites
  * so `mapDomainErrorToErrorKind` can recognize the failure via
  * `instanceof` rather than regex-matching `.message`. The `context` suffix
  * preserves the legacy message wording so log greps and existing
@@ -172,7 +172,7 @@ export type ServeMcpBudgetMode = 'enforce' | 'warn' | 'off';
  * add a `scope: 'pool'` cell alongside without a schema bump.
  *
  * Consumers MUST tolerate additional entries with unrecognized
- * `scope` values — drop them rather than failing.
+ * `scope` values -- drop them rather than failing.
  */
 export interface ServeMcpBudgetStatusCell extends ServeStatusCell {
   kind: 'mcp_budget';
@@ -181,7 +181,7 @@ export interface ServeMcpBudgetStatusCell extends ServeStatusCell {
    *
    * **PR 14 v1 emits `'session'`** because each ACP session creates
    * its own `Config`/`McpClientManager` via `acpAgent.newSessionConfig()`
-   * — so the budget caps live MCP clients **per session**, not
+   * -- so the budget caps live MCP clients **per session**, not
    * per-workspace. The snapshot reflects the bootstrap session's
    * view; concurrent sessions each enforce their own copy of the
    * cap independently. See `qwen-serve-protocol.md` "PR 14 v1
@@ -192,7 +192,7 @@ export interface ServeMcpBudgetStatusCell extends ServeStatusCell {
    *     manager and will emit `'workspace'` (or `'pool'`) cells.
    *   - The `string & {}` widening keeps IDE autocomplete + literal
    *     narrowing for known scopes while allowing unknown scopes
-   *     through without a compile-time break — the protocol contract
+   *     through without a compile-time break -- the protocol contract
    *     is "consumers MUST tolerate additional scope values, drop
    *     don't fail."
    */
@@ -201,7 +201,7 @@ export interface ServeMcpBudgetStatusCell extends ServeStatusCell {
   liveCount: number;
   /** Configured cap (positive integer). Absent only when mode is `off`. */
   budget?: number;
-  /** Active enforcement mode. `off` mode produces no cell — `budgets: []`. */
+  /** Active enforcement mode. `off` mode produces no cell -- `budgets: []`. */
   mode: ServeMcpBudgetMode;
   /** Servers refused during the most recent discovery pass. */
   refusedCount: number;
@@ -419,7 +419,7 @@ export function createIdleWorkspaceMcpStatus(
   // PR 14: an idle workspace has zero live clients and no enforcement
   // pressure. `budgetMode` is `'off'` (regardless of how the operator
   // configured it) because no discovery has run, so no reservation
-  // could have happened. `budgets` is an empty array, not absent —
+  // could have happened. `budgets` is an empty array, not absent --
   // the daemon DOES support the surface, the snapshot just has
   // nothing to report yet. Older daemons omitting the array entirely
   // are still spec-compliant; consumers default-coalesce to `[]`.
@@ -462,12 +462,12 @@ export function createIdleWorkspaceProvidersStatus(
  * has no `DaemonStatusProvider` injected (Mode A in-process consumers,
  * tests, embedded callers that don't need daemon-host cells). Single
  * construction site so future optional-field additions to
- * `ServeWorkspaceEnvStatus` only need updating in one place — the
+ * `ServeWorkspaceEnvStatus` only need updating in one place -- the
  * production builder in `cli/src/serve/envSnapshot.ts buildEnvStatusFromProcess`
  * and this helper would otherwise diverge silently (TS won't flag a
  * missing optional field).
  *
- * Note: `initialized: true` matches `buildEnvStatusFromProcess` —
+ * Note: `initialized: true` matches `buildEnvStatusFromProcess` --
  * the daemon answers env from `process.*` state without consulting
  * ACP, so even an "empty" envelope is initialized.
  */
@@ -509,7 +509,7 @@ export interface ServeEnvCell extends ServeStatusCell {
 export interface ServeWorkspaceEnvStatus {
   v: typeof STATUS_SCHEMA_VERSION;
   workspaceCwd: string;
-  /** Always true — the daemon answers env without consulting ACP. */
+  /** Always true -- the daemon answers env without consulting ACP. */
   initialized: true;
   /** Whether an ACP channel is currently live; informational only. */
   acpChannelLive: boolean;
@@ -521,7 +521,7 @@ export interface ServeWorkspaceEnvStatus {
  * Discriminant for diagnostic cells emitted by `/workspace/preflight`. Cells
  * with `locality: 'daemon'` are answered by the bridge process directly and
  * are always populated. Cells with `locality: 'acp'` require a live ACP child
- * — when the daemon is idle they are emitted with `status: 'not_started'`.
+ * -- when the daemon is idle they are emitted with `status: 'not_started'`.
  */
 export type ServePreflightKind =
   | 'node_version'
@@ -547,7 +547,7 @@ export interface ServePreflightCell extends ServeStatusCell {
 export interface ServeWorkspacePreflightStatus {
   v: typeof STATUS_SCHEMA_VERSION;
   workspaceCwd: string;
-  /** Always true — daemon-level cells are populated regardless of ACP state. */
+  /** Always true -- daemon-level cells are populated regardless of ACP state. */
   initialized: true;
   acpChannelLive: boolean;
   cells: ServePreflightCell[];
@@ -558,7 +558,7 @@ export interface ServeWorkspacePreflightStatus {
  * The six preflight kinds that require a live ACP child to populate. Shared
  * between `createIdleAcpPreflightCells` (idle placeholder) and the
  * ACP-side `buildAcpPreflightCells` builder so the two sides cannot drift
- * — a future contributor adding a new ACP kind in one place sees the
+ * -- a future contributor adding a new ACP kind in one place sees the
  * other surface immediately.
  */
 export const ACP_PREFLIGHT_KINDS = [
@@ -573,7 +573,7 @@ export const ACP_PREFLIGHT_KINDS = [
 /**
  * The narrow union of ACP-locality preflight kinds. Useful for callers
  * that need to dispatch on every ACP kind exhaustively (e.g. the
- * `Record<AcpPreflightKind, …>` builder map in `acpAgent.ts`).
+ * `Record<AcpPreflightKind, ...>` builder map in `acpAgent.ts`).
  */
 export type AcpPreflightKind = (typeof ACP_PREFLIGHT_KINDS)[number];
 
@@ -637,7 +637,7 @@ export function mapDomainErrorToErrorKind(
   if (err instanceof BridgeChannelClosedError) return 'protocol_error';
   if (err instanceof MissingCliEntryError) return 'missing_binary';
   // `SkillError` is defined in `@qwen-code/qwen-code-core/skills`; same
-  // cross-package bundling concern as `TrustGateError` below — when this
+  // cross-package bundling concern as `TrustGateError` below -- when this
   // function is consumed from outside the monorepo (or under a bundler
   // that doesn't dedupe `file:` workspace deps), the `SkillError` class
   // identity at the throw site (cli's `SkillManager`) can diverge from

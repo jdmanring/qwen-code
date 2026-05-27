@@ -84,7 +84,7 @@ and attempts image rendering only after the model response is complete.
 Every rendered Mermaid block includes a source hint such as:
 
 ```text
-Mermaid flowchart (TD) · source: /copy mermaid 1
+Mermaid flowchart (TD)  source: /copy mermaid 1
 ```
 
 Use these commands to copy Mermaid source from the last AI response:

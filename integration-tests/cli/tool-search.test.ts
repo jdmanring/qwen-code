@@ -116,7 +116,7 @@ describe('tool-search / deferred tools', () => {
 
   it('does not register deferred tools when their feature flag is off', async () => {
     rig = new TestRig();
-    // No experimental.cron setting → cron_* tools must not be registered at
+    // No experimental.cron setting -> cron_* tools must not be registered at
     // all (deferred or otherwise). tool_search has nothing to surface.
     await rig.setup('tool-search-no-cron');
 
@@ -129,7 +129,7 @@ describe('tool-search / deferred tools', () => {
     const foundSearch = await rig.waitForToolCall('tool_search');
     expect(foundSearch, 'tool_search should still be available').toBeTruthy();
 
-    // cron_list must NOT have been invoked — it was never registered.
+    // cron_list must NOT have been invoked -- it was never registered.
     const calls = rig.readToolLogs().map((l) => l.toolRequest.name);
     expect(calls).not.toContain('cron_list');
     expect(calls).not.toContain('cron_create');

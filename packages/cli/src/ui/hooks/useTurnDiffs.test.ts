@@ -32,7 +32,7 @@ function userTurn(id: number, text: string, promptId?: string): HistoryItem {
 
 function slashTurn(id: number, text: string): HistoryItem {
   // Slash commands are also `type: 'user'` but `isRealUserTurn` filters them
-  // out — useful for the "empty filter" assertion.
+  // out -- useful for the "empty filter" assertion.
   return { id, type: 'user', text } as HistoryItem;
 }
 
@@ -71,7 +71,7 @@ describe('useTurnDiffs', () => {
   it('returns empty when disabled', async () => {
     const service = makeService(async () => fakeDiff('p1', 1));
     // Stable history reference: useEffect deps include `history`, so a new
-    // array on every render would re-fire the effect → infinite loop.
+    // array on every render would re-fire the effect -> infinite loop.
     const history = [userTurn(1, 'hello', 'p1')];
     const { result } = renderHook(() => useTurnDiffs(history, service, false));
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -94,7 +94,7 @@ describe('useTurnDiffs', () => {
 
     const history: HistoryItem[] = [
       slashTurn(1, '/help'),
-      userTurn(2, 'no prompt id'), // no promptId → filtered
+      userTurn(2, 'no prompt id'), // no promptId -> filtered
       userTurn(3, 'empty diff', 'p-empty'),
       userTurn(4, 'good one', 'p-good'),
       userTurn(5, 'missing snapshot', 'p-missing'),
@@ -124,7 +124,7 @@ describe('useTurnDiffs', () => {
       'p1',
     ]);
     // 1-based turn index follows the original history order, not the
-    // most-recent-first display order — newest turn = highest index.
+    // most-recent-first display order -- newest turn = highest index.
     expect(result.current.turns.map((t) => t.turnIndex)).toEqual([3, 2, 1]);
   });
 
@@ -150,7 +150,7 @@ describe('useTurnDiffs', () => {
   });
 
   it('processes more than TURN_CONCURRENCY (4) turns without dropping any', async () => {
-    // 10 turns × concurrency 4 forces ≥3 batches. Verifies the for-loop
+    // 10 turns * concurrency 4 forces >=3 batches. Verifies the for-loop
     // walks every batch instead of returning after the first.
     const promptIds = Array.from({ length: 10 }, (_, i) => `p${i + 1}`);
     const service = makeService(async (id) => fakeDiff(id, 1));

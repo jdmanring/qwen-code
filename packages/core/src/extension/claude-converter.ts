@@ -550,7 +550,7 @@ export async function convertClaudePluginPackage(
 
 /**
  * Collects resources (commands, skills, agents) to a destination folder.
- * Resources are always copied unconditionally — the caller
+ * Resources are always copied unconditionally -- the caller
  * (`convertClaudePluginPackage`) clears `destDir` beforehand so it can
  * honor selective sub-entry lists.
  * @param resourcePaths String or array of resource paths
@@ -592,7 +592,7 @@ async function collectResources(
       // When the marketplace entry points at the *whole* resource folder
       // (e.g. `commands: ["./commands/"]`, deep-wiki style), the source
       // directory name matches the destination folder name and we want to
-      // copy the directory's contents *flat* into destDir — otherwise we'd
+      // copy the directory's contents *flat* into destDir -- otherwise we'd
       // end up with `tmpDir/commands/commands/...`.
       //
       // When the entry points at a sub-folder (e.g. `skills: ["./skills/xlsx"]`,
@@ -638,7 +638,7 @@ async function collectResources(
       }
     } else {
       // File entry (e.g. `agents: ["./agents/wiki-architect.md"]`).
-      // Always copy — the caller has already cleared destDir, so the
+      // Always copy -- the caller has already cleared destDir, so the
       // file is missing even when the relative path looks like it's
       // "already in the destination folder".
       const fileName = path.basename(resolvedPath);

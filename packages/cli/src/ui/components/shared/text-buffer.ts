@@ -74,9 +74,9 @@ const CJK_CHAR_REGEX =
 /** Check if a character is a CJK character */
 const isCjkChar = (char: string): boolean => CJK_CHAR_REGEX.test(char);
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Word segmentation (Intl.Segmenter)
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /** Max entries in the word boundaries cache before eviction */
 const WORD_BOUNDARIES_CACHE_MAX = 500;
@@ -84,7 +84,7 @@ const WORD_BOUNDARIES_CACHE_MAX = 500;
 /** Skip segmentation for lines longer than this (in code points) to prevent UI lag on huge pastes */
 const SEGMENTER_LENGTH_LIMIT = 1500;
 
-/** Cache: line content → array of { start: codePointIndex, end: codePointIndex } */
+/** Cache: line content -> array of { start: codePointIndex, end: codePointIndex } */
 let wordBoundariesCache: Map<
   string,
   Array<{ start: number; end: number }>
@@ -111,7 +111,7 @@ function ensureSegmenterLoaded(): void {
 /**
  * Fallback: build word boundaries character-by-character.
  * Each CJK character becomes its own word boundary; non-CJK characters are
- * not emitted here — callers should use outer fallback loops (e.g.,
+ * not emitted here -- callers should use outer fallback loops (e.g.,
  * `findPrevWordStartInLine`, `findNextWordStartInLine`) for pure ASCII text.
  * Returns an empty array for lines with no CJK characters.
  */
@@ -147,7 +147,7 @@ function evictCacheIfNeeded(): void {
 /**
  * Reset word segmentation state for testing.
  * Clears the cache and forces re-initialization of Intl.Segmenter.
- * @internal — only used in tests to ensure test isolation.
+ * @internal -- only used in tests to ensure test isolation.
  */
 export function __resetWordSegmenter(): void {
   wordBoundariesCache = null;
@@ -215,7 +215,7 @@ function getWordBoundaries(
       }
 
       // For word-like segments that contain '.', split into sub-segments
-      // e.g., "Intl.Segmenter" → ["Intl", ".", "Segmenter"]
+      // e.g., "Intl.Segmenter" -> ["Intl", ".", "Segmenter"]
       if (isWordLike && segment.includes('.')) {
         let currentOffset = index;
         const parts = segment.split(/(\.)/); // Keep the '.' as separate parts
@@ -241,7 +241,7 @@ function getWordBoundaries(
       }
 
       // For standalone punctuation, include it as a boundary marker
-      if (!isWordLike && /^[.,;!?，。；！？、]+$/.test(trimmedSegment)) {
+      if (!isWordLike && /^[.,;!?]+$/.test(trimmedSegment)) {
         const startCpIdx = binarySearchCpIndex(cpToStrIdx, index);
         const endStrPos = index + segment.length;
         const endCpIdxRaw = binarySearchCpIndex(cpToStrIdx, endStrPos);
@@ -295,8 +295,8 @@ function binarySearchCpIndex(cpToStrIdx: number[], target: number): number {
  * Returns null if no boundary applies.
  *
  * Semantics match browser/editor behavior:
- * - Cursor inside a word → jump to that word's start
- * - Cursor exactly at a word's start → jump to previous word's start
+ * - Cursor inside a word -> jump to that word's start
+ * - Cursor exactly at a word's start -> jump to previous word's start
  */
 function findPrevWordStart(
   boundaries: Array<{ start: number; end: number }>,
@@ -305,11 +305,11 @@ function findPrevWordStart(
   for (let i = boundaries.length - 1; i >= 0; i--) {
     const b = boundaries[i]!;
     if (col > b.start && col <= b.end) {
-      // Cursor is inside this word → jump to its start
+      // Cursor is inside this word -> jump to its start
       return b.start;
     }
     if (col === b.start && i > 0) {
-      // Cursor is exactly at this word's start → jump to previous word's start
+      // Cursor is exactly at this word's start -> jump to previous word's start
       return boundaries[i - 1]!.start;
     }
   }
@@ -329,7 +329,7 @@ function findNextWordEnd(
       return b.end;
     }
     if (col < b.start) {
-      // Cursor is before this word — no applicable boundary
+      // Cursor is before this word -- no applicable boundary
       return null;
     }
   }
@@ -527,7 +527,7 @@ export const findWordEndInLine = (line: string, col: number): number | null => {
       i++;
     }
   } else if (i < chars.length && !isWhitespace(chars[i])) {
-    // Handle punctuation sequences (like ████)
+    // Handle punctuation sequences (like )
     while (
       i < chars.length &&
       !isWordCharStrict(chars[i]) &&
@@ -674,7 +674,7 @@ const offsetToRowCol = (
     }
     running += lineLength;
   }
-  // Offset is at or past end of text — clamp to end of last line
+  // Offset is at or past end of text -- clamp to end of last line
   const last = Math.max(0, lines.length - 1);
   return { row: last, col: lines[last]?.length ?? 0 };
 };
@@ -798,7 +798,7 @@ function clamp(v: number, min: number, max: number): number {
   return v < min ? min : v > max ? max : v;
 }
 
-/* ────────────────────────────────────────────────────────────────────────── */
+/* -------------------------------------------------------------------------- */
 
 interface UseTextBufferProps {
   initialText?: string;
@@ -2408,7 +2408,7 @@ export function useTextBuffer({
         try {
           // recursive+force handles leftover swap files (.swp) from vim/neovim.
           // On Windows, EPERM/EBUSY from locked files may still cause a partial
-          // delete — the catch below keeps it non-fatal.
+          // delete -- the catch below keeps it non-fatal.
           fs.rmSync(tmpDir, { recursive: true, force: true });
         } catch {
           /* best-effort cleanup */
@@ -2738,7 +2738,7 @@ export interface TextBuffer {
    * Delete the word to the *left* of the caret, mirroring common
    * Ctrl/Alt+Backspace behaviour in editors & terminals. Both the adjacent
    * whitespace *and* the word characters immediately preceding the caret are
-   * removed.  If the caret is already at column‑0 this becomes a no-op.
+   * removed.  If the caret is already at column0 this becomes a no-op.
    */
   deleteWordLeft: () => void;
   /**
@@ -2757,7 +2757,7 @@ export interface TextBuffer {
    */
   killLineLeft: () => void;
   /**
-   * High level "handleInput" – receives what Ink gives us.
+   * High level "handleInput" - receives what Ink gives us.
    */
   handleInput: (key: {
     name: string;
@@ -2769,7 +2769,7 @@ export interface TextBuffer {
   }) => void;
   /**
    * Opens the current buffer contents in an external editor.  Resolution
-   * order: `/editor` preference → `$VISUAL` → `$EDITOR` → platform default (`vi` on Unix, `notepad` on Windows).
+   * order: `/editor` preference -> `$VISUAL` -> `$EDITOR` -> platform default (`vi` on Unix, `notepad` on Windows).
    *
    * The undo snapshot is created *after* the editor exits and only when
    * the content actually changed, so one `undo()` reverts the entire edit.

@@ -1,5 +1,5 @@
 #!/bin/bash
-# DEPRECATED — use fork_sync_pipeline.py --sync instead.
+# DEPRECATED -- use fork_sync_pipeline.py --sync instead.
 #
 # The Python pipeline runs from the monorepo (no separate fork checkout needed),
 # runs structured advisory gates before asking for confirmation, and handles
@@ -9,12 +9,12 @@
 #
 # This script is kept for reference only.
 #
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # sync-fork-from-qwenlm.sh (original)
 #
 # Run this script INSIDE a local checkout of jdmanring/qwen-code (the fork).
 # It fetches the latest commits from QwenLM/qwen-code, shows you what's coming
-# in, and — only after you confirm — fast-forward merges and pushes to the fork.
+# in, and -- only after you confirm -- fast-forward merges and pushes to the fork.
 #
 # The fork (jdmanring/qwen-code) is the trusted inbound source for the
 # megalonyx-monorepo pipeline. Review what you're absorbing before running this.
@@ -92,10 +92,10 @@ if [[ "${CONFIRM}" != "y" && "${CONFIRM}" != "Y" ]]; then
     exit 0
 fi
 
-# Fast-forward only — if this fails, divergence exists and manual review is required
+# Fast-forward only -- if this fails, divergence exists and manual review is required
 log_info "Fast-forward merging origin/main..."
 if ! git merge --ff-only origin/main; then
-    log_error "Fast-forward failed — fork has diverged from QwenLM. Manual merge required."
+    log_error "Fast-forward failed -- fork has diverged from QwenLM. Manual merge required."
     exit 1
 fi
 

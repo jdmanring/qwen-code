@@ -11,11 +11,11 @@ The goal is a clean, professional look that renders perfectly in a monospace CLI
 Replace LaTeX symbols with standard Unicode characters:
 - Instead of `$\rightarrow$`, use `=>`
 - Instead of `$\Rightarrow$`, use `=>`
-- Instead of `$\approx$`, use `≈`
+- Instead of `$\approx$`, use ``
 - Instead of `$\text{Text}$`, use plain text.
 
 ## 4. Approved Layouts
-- **ASCII Boxes**: Use `┌`, `┐`, `└`, `┘`, `├`, `┤`, `┬`, `┴`, `─`, `│` for structural diagrams.
+- **ASCII Boxes**: Use `+--`, `+--`, `\_`, `---`, `|--`, ``, ``, ``, `-`, `|` for structural diagrams.
 - **Markdown Tables**: Use standard GFM tables for matrices and comparisons.
 - **Bold Identifiers**: Use `**Bold**` for key components and `code` for paths/files.
 

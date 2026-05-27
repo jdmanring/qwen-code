@@ -24,7 +24,7 @@ export const Onboarding: FC = () => (
       textAlign: 'center',
     }}
   >
-    {/* Logo + title block — sits above the card for visual breathing room */}
+    {/* Logo + title block -- sits above the card for visual breathing room */}
     <div className="flex flex-col items-center gap-3 mb-6">
       <img src={iconUrl} alt="Qwen Code" className="w-12 h-12 object-contain" />
       <div className="text-center">

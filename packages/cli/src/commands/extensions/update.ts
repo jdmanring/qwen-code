@@ -22,7 +22,7 @@ interface UpdateArgs {
 
 const updateOutput = (info: ExtensionUpdateInfo) =>
   t(
-    'Extension "{{name}}" successfully updated: {{oldVersion}} → {{newVersion}}.',
+    'Extension "{{name}}" successfully updated: {{oldVersion}} -> {{newVersion}}.',
     {
       name: info.name,
       oldVersion: info.originalVersion,
@@ -76,7 +76,7 @@ export async function handleUpdate(args: UpdateArgs) {
       ) {
         writeStdoutLine(
           t(
-            'Extension "{{name}}" successfully updated: {{oldVersion}} → {{newVersion}}.',
+            'Extension "{{name}}" successfully updated: {{oldVersion}} -> {{newVersion}}.',
             {
               name: args.name,
               oldVersion: updatedExtensionInfo.originalVersion,

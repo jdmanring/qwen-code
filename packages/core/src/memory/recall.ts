@@ -221,7 +221,7 @@ export async function resolveRelevantAutoMemoryPromptForQuery(
     } catch (error) {
       // Distinguish three cases so oncall debugging isn't misled:
       //   - caller-driven abort (user signal / new UserQuery / session
-      //     cleanup): caller signal is aborted → heuristic fallback is
+      //     cleanup): caller signal is aborted -> heuristic fallback is
       //     skipped below at `options.abortSignal?.aborted`, so the
       //     result really is discarded.
       //   - 30 s safety-net timeout in relevanceSelector: only the inner
@@ -248,7 +248,7 @@ export async function resolveRelevantAutoMemoryPromptForQuery(
   }
 
   // If the caller's abort signal is already set, skip the heuristic
-  // fallback — the result would be discarded anyway.
+  // fallback -- the result would be discarded anyway.
   if (options.abortSignal?.aborted) {
     return {
       prompt: '',

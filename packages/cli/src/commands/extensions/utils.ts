@@ -51,7 +51,7 @@ export function extensionToOutputString(
     cwd,
   );
 
-  const status = workspaceEnabled ? chalk.green('✓') : chalk.red('✗');
+  const status = workspaceEnabled ? chalk.green('') : chalk.red('');
   let output = `${inline ? '' : status} ${extension.config.name} (${extension.config.version})`;
   output += `\n ${t('Path:')} ${extension.path}`;
   if (extension.installMetadata) {

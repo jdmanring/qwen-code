@@ -25,7 +25,7 @@ import { getCurrentGeminiMdFilename, MEMORY_SECTION_HEADER } from './const.js';
  * Pattern mirrors `packages/core/src/utils/jsonl-utils.ts:36-46`. The
  * Map grows by one entry per unique resolved path; production has at
  * most two (workspace QWEN.md + global QWEN.md), so no cleanup is
- * required. Tests use tmpdirs and clean up with `afterEach` — the Map
+ * required. Tests use tmpdirs and clean up with `afterEach` -- the Map
  * keeps inert entries between tests but each entry is a single Mutex
  * that acquires no resources when idle.
  */
@@ -34,7 +34,7 @@ const fileLocks = new Map<string, MutexInterface>();
 /**
  * Per-file-mutex acquire deadline. A wedged filesystem (NFS hiccup,
  * disk I/O stall, locked OneDrive sync target) would otherwise let
- * `runExclusive` hold indefinitely — every subsequent `POST
+ * `runExclusive` hold indefinitely -- every subsequent `POST
  * /workspace/memory` for the same path queues up with no deadline,
  * no abort path, and no diagnostic. 30 s is generous for any sane
  * filesystem op while bounded enough that a single stalled write
@@ -68,7 +68,7 @@ export class WorkspaceMemoryWriteTimeoutError extends Error {
   constructor(filePath: string, timeoutMs: number) {
     super(
       `Workspace memory write at ${filePath} did not acquire the per-file ` +
-        `lock within ${timeoutMs}ms — another write may be stalled (NFS / ` +
+        `lock within ${timeoutMs}ms -- another write may be stalled (NFS / ` +
         `OneDrive / locked file). Retry or restart the daemon.`,
     );
     this.name = 'WorkspaceMemoryWriteTimeoutError';
@@ -101,7 +101,7 @@ export interface WriteContextFileResult {
   /**
    * Bytes actually written by this call. `0` on the no-op short-
    * circuit path (`changed: false`). NOT a measurement of the file's
-   * on-disk size — callers that need that should `fs.stat` the
+   * on-disk size -- callers that need that should `fs.stat` the
    * returned `filePath` directly.
    */
   bytesWritten: number;
@@ -150,7 +150,7 @@ export async function writeWorkspaceContextFile(
   // INCLUDING the whitespace-only no-op detection. Two concurrent
   // POSTs targeting the same file (one whitespace-only, one with real
   // content) would otherwise let the no-op `fs.stat` see a stale size
-  // — the no-op's `changed: false` would still be correct but
+  // -- the no-op's `changed: false` would still be correct but
   // `bytesWritten` could lag the post-write reality. Holding the
   // mutex makes the snapshot consistent. `replace` mode also acquires
   // the lock so a concurrent `replace` + `append` against the same
@@ -162,7 +162,7 @@ export async function writeWorkspaceContextFile(
     );
   } catch (err) {
     // `withTimeout` rejects with the `E_TIMEOUT` sentinel when the
-    // mutex acquire deadline elapses — typically a wedged write on
+    // mutex acquire deadline elapses -- typically a wedged write on
     // a stalled FS (NFS hiccup, locked OneDrive sync, kernel I/O
     // hang). Translate to a typed error so the route can map to a
     // structured 500 instead of a generic catch-all.
@@ -183,7 +183,7 @@ async function runWrite(
   if (options.mode === 'append' && isWhitespaceOnly(options.content)) {
     // No-op short-circuit. Skip the mkdir + writeFile path entirely
     // so the parent dir mtime isn't bumped on a request that
-    // changed nothing — the whitespace-only `\n\n` case from a
+    // changed nothing -- the whitespace-only `\n\n` case from a
     // flaky pipeline must not reach the filesystem at all.
     //
     // `bytesWritten` is `0` (zero bytes were actually written),
@@ -228,7 +228,7 @@ function resolveContextFilePath(
   // file GET surfaces. With the prior `DEFAULT_CONTEXT_FILENAME` hard-
   // code, a deployment that switched the context filename to
   // `AGENTS.md` would have GET listing the new file while POST kept
-  // appending to a stale `QWEN.md` — clients then observed "I just
+  // appending to a stale `QWEN.md` -- clients then observed "I just
   // wrote content but it's missing from /workspace/memory". Mirrors the
   // discovery path's `getAllGeminiMdFilenames()` usage in
   // `workspaceMemory.ts:collectWorkspaceMemoryStatus`.
@@ -248,7 +248,7 @@ function resolveContextFilePath(
  * three orders of magnitude above any realistic user-authored
  * memory file while still bounding the daemon's transient memory
  * cost per append. Hitting this cap means QWEN.md has grown past
- * any reasonable size and the operator should clean it up — we
+ * any reasonable size and the operator should clean it up -- we
  * 500 the route with a structured error rather than try to
  * stream-process a corrupted file.
  */
@@ -312,10 +312,10 @@ async function composeAppendedContent(
   // necessarily at the end of the file. Without this guard, a file
   // whose `## Qwen Added Memories` block is followed by another
   // `## ...` heading would land each new entry past the next heading
-  // — silently moving entries into the wrong section.
+  // -- silently moving entries into the wrong section.
   //
   // The naive `indexOf('\n## ')` scan, however, can match `## ` lines
-  // INSIDE fenced code blocks (` ``` `) — common in user-authored
+  // INSIDE fenced code blocks (` ``` `) -- common in user-authored
   // QWEN.md memory entries that quote API documentation containing
   // markdown headings. Track fence state while scanning and only
   // accept matches outside fences. If no real heading is found
@@ -343,7 +343,7 @@ async function composeAppendedContent(
  *
  * The fence detector is line-based: a line whose first three
  * characters are ``` ``` `` ` toggles fence state. Doesn't model
- * indented code blocks (4+ leading spaces) — `## ` inside an
+ * indented code blocks (4+ leading spaces) -- `## ` inside an
  * indented code block is rare enough not to justify the parser
  * complexity, and a misclassification only causes us to fall back
  * to EOF-append, which is the legacy behavior.
@@ -355,7 +355,7 @@ function findNextTopLevelHeading(text: string, start: number): number {
     if (text.charCodeAt(i) !== 0x0a /* \n */) continue;
     const nextLineStart = i + 1;
     // Toggle fence state if the JUST-FINISHED line opens/closes a
-    // fence. Strict prefix check — leading whitespace is intentional
+    // fence. Strict prefix check -- leading whitespace is intentional
     // because a 4-space-indented "```" is markdown code-block content,
     // not a fence marker. CommonMark allows both ` ``` ` and `~~~` as
     // fence delimiters; both must toggle the inside-fence state so a
@@ -415,7 +415,7 @@ function isWhitespaceOnly(s: string): boolean {
 /**
  * Hand-rolled `^\n+|\n+$` substitute. Same CodeQL rationale as
  * `isWhitespaceOnly`. Trims only `\n` so the section-header insert
- * path keeps its newline framing semantics — a leading `\t` in
+ * path keeps its newline framing semantics -- a leading `\t` in
  * `newContent` is preserved as part of the user's bullet, while
  * `\n\n- entry\n` collapses to `- entry`.
  */

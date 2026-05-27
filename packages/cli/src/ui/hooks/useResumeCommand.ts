@@ -37,7 +37,7 @@ export interface UseResumeCommandResult {
   openResumeDialog: (matchedSessions?: SessionListItem[]) => void;
   closeResumeDialog: () => void;
   /**
-   * Async — the implementation awaits SessionService and SessionStart hooks.
+   * Async -- the implementation awaits SessionService and SessionStart hooks.
    * Callers that need to chain post-resume work should `await` it; pure
    * fire-and-forget callers (the resume dialog's `onSelect`) can ignore the
    * promise.
@@ -119,17 +119,17 @@ export function useResumeCommand(
       resetBackgroundStateForSessionSwitch(config);
       config.startNewSession(sessionId, sessionData);
       // Re-arm /goal: the in-memory activeGoalStore entry (if any) is stale
-      // after `config.startNewSession` rebuilds the hook system — its
+      // after `config.startNewSession` rebuilds the hook system -- its
       // `setAt` was captured before /new, and its `hookId` points to a
       // hook that no longer exists. The cold-boot path runs this same
       // call in AppContainer; the runtime /resume path needs it too,
       // otherwise the footer pill keeps ticking from the original setAt
-      // (visible as "几十秒" elapsed immediately after /new + /resume) and
+      // (visible as "" elapsed immediately after /new + /resume) and
       // the Stop hook is silently dead until the user re-issues /goal.
       try {
         if (addItem) restoreGoalFromHistory(uiHistoryItems, config, addItem);
       } catch {
-        // Best-effort — never block resume on goal restoration.
+        // Best-effort -- never block resume on goal restoration.
       }
       // Rebuild turn boundary tracking so rewind works within resumed sessions.
       config

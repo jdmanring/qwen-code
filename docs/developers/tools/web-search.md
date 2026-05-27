@@ -2,7 +2,7 @@
 
 Qwen Code supports web search capabilities through **MCP (Model Context Protocol)** integrations. Rather than a built-in search tool, web search is provided by connecting to external MCP servers, giving you full flexibility to choose the search service that best fits your needs.
 
-## ⚠️ Breaking Change: Built-in `web_search` Tool Removed
+##  Breaking Change: Built-in `web_search` Tool Removed
 
 > **Affected versions:** `V0.0.7+` through the last release with built-in web search support.
 
@@ -124,10 +124,10 @@ A production-ready MCP server providing real-time web search, extract, map, and 
 
 #### Available Tools
 
-- `tavily_search` — Real-time web search
-- `tavily_extract` — Intelligent data extraction from web pages
-- `tavily_map` — Create a structured map of a website
-- `tavily_crawl` — Systematically explore websites
+- `tavily_search` -- Real-time web search
+- `tavily_extract` -- Intelligent data extraction from web pages
+- `tavily_map` -- Create a structured map of a website
+- `tavily_crawl` -- Systematically explore websites
 
 #### Setup
 
@@ -173,7 +173,7 @@ Replace `${TAVILY_API_KEY}` with your actual API key, or set it as an environmen
 
 ### GLM WebSearch Prime (ZhipuAI)
 
-The official web search Remote MCP service provided by ZhipuAI (智谱AI), designed for GLM Coding Plan users. Provides real-time web search including news, stock prices, weather, and more.
+The official web search Remote MCP service provided by ZhipuAI (AI), designed for GLM Coding Plan users. Provides real-time web search including news, stock prices, weather, and more.
 
 - **Documentation:** https://docs.bigmodel.cn/cn/coding-plan/mcp/search-mcp-server
 - **Cost:** Included in GLM Coding Plan subscription (Lite: 100 calls/month, Pro: 1,000/month, Max: 4,000/month)
@@ -182,7 +182,7 @@ The official web search Remote MCP service provided by ZhipuAI (智谱AI), desig
 
 #### Available Tools
 
-- `webSearchPrime` — Web search returning page title, URL, summary, site name, and favicon
+- `webSearchPrime` -- Web search returning page title, URL, summary, site name, and favicon
 
 #### Setup
 

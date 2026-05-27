@@ -327,7 +327,7 @@ describe('runNonInteractive', () => {
   });
 
   it('on EPIPE, destroys stdout and returns normally instead of process.exit', async () => {
-    // Regression: process.exit(0) on EPIPE bypassed runExitCleanup → flush()
+    // Regression: process.exit(0) on EPIPE bypassed runExitCleanup -> flush()
     // and dropped queued JSONL writes for `qwen -p ... | head -1` patterns.
     // process.exit is mocked to throw in beforeEach, so reaching the
     // assertion also proves the bypass route is gone.
@@ -923,7 +923,7 @@ describe('runNonInteractive', () => {
     // already-formatted Error.message a second time, producing
     // "[API Error: [API Error: 402 ...]]" on stderr.
     //
-    // We don't assert on the *number* of stderr writes here — JsonOutputAdapter
+    // We don't assert on the *number* of stderr writes here -- JsonOutputAdapter
     // also emits the result message on the error path, which legitimately hits
     // stderr in TEXT mode (separate concern, separate channel). What we
     // strictly forbid is the double-wrap and any handleError-path duplicate.
@@ -968,7 +968,7 @@ describe('runNonInteractive', () => {
     }
 
     // Each formatted line ("[API Error: ...]") must contain the upstream
-    // message verbatim — i.e. wrapping happens exactly once per emission.
+    // message verbatim -- i.e. wrapping happens exactly once per emission.
     for (const call of processStderrSpy.mock.calls) {
       const line = String(call[0]);
       if (line.startsWith('[API Error: ')) {
@@ -1443,7 +1443,7 @@ describe('runNonInteractive', () => {
         content: [
           {
             type: 'text',
-            text: '来自 envelope 的消息',
+            text: ' envelope ',
           },
         ],
       },
@@ -2611,7 +2611,7 @@ describe('runNonInteractive', () => {
 
       // Same turn, reverse order: a side-effecting tool comes BEFORE
       // structured_output. The pre-scan must drop the leading call so the
-      // side effect never runs — accepting the structured result while
+      // side effect never runs -- accepting the structured result while
       // having already executed write_file would violate the "structured
       // output is the terminal contract" guarantee.
       const structuredArgs = { summary: 'done' };
@@ -2687,7 +2687,7 @@ describe('runNonInteractive', () => {
       expect(leadingToolResult).toBeDefined();
       // On the success path, the synthesised "Skipped" message must NOT
       // include the trailing "Re-issue this call in a separate turn"
-      // advice — the session terminates immediately so neither the model
+      // advice -- the session terminates immediately so neither the model
       // nor any SDK consumer can act on it. Keeps the success-path event
       // stream clean and avoids contradictory guidance ("re-issue" + the
       // run already exited).
@@ -2703,7 +2703,7 @@ describe('runNonInteractive', () => {
     it('tries multiple structured_output calls in the same turn until one succeeds', async () => {
       // Same-turn batch: [structured_output(bad), structured_output(good)].
       // The first fails validation; the second has valid args and should
-      // be tried in-order, ending the session without an extra turn —
+      // be tried in-order, ending the session without an extra turn --
       // rather than the older behaviour of only attempting the first
       // structured_output and forcing a retry.
       (mockConfig.getJsonSchema as Mock).mockReturnValue({
@@ -2834,7 +2834,7 @@ describe('runNonInteractive', () => {
 
       // First turn: model calls structured_output with invalid args (the
       // tool returns a tool-execution error). The session must NOT terminate
-      // — `!toolResponse.error` keeps `structuredSubmission` undefined and
+      // -- `!toolResponse.error` keeps `structuredSubmission` undefined and
       // we feed the validation failure back so the model can retry.
       const invalidStructured: ServerGeminiStreamEvent = {
         type: GeminiEventType.ToolCallRequest,
@@ -2895,7 +2895,7 @@ describe('runNonInteractive', () => {
       expect(secondName).toBe('structured_output');
 
       // A second sendMessageStream call confirms the retry turn was issued
-      // — the failed first attempt did not short-circuit the run.
+      // -- the failed first attempt did not short-circuit the run.
       expect(mockGeminiClient.sendMessageStream).toHaveBeenCalledTimes(2);
     });
 
@@ -3074,7 +3074,7 @@ describe('runNonInteractive', () => {
 
       // The failed structured_output's tool_result must carry the actual
       // validation error from `executeToolCall` so the model has signal
-      // to correct itself on the retry — a regression that overwrote it
+      // to correct itself on the retry -- a regression that overwrote it
       // with the synthesised "Skipped" message would leave the model
       // blind. Assert the shape: the bad call's response carries the
       // validation error string, not the suppressed-output prose.
@@ -3093,11 +3093,11 @@ describe('runNonInteractive', () => {
     });
 
     it('captures structured_output emitted from a drain-turn (queued notification)', async () => {
-      // Main turn ends with plain text → control falls into the drain
+      // Main turn ends with plain text -> control falls into the drain
       // block. A monitor notification then arrives and the model's reply
       // to it calls structured_output. The synthetic tool is registered
       // for the whole session, so the drain turn must apply the same
-      // terminal handling as the main loop — capture the args, abort
+      // terminal handling as the main loop -- capture the args, abort
       // background work, and emit the structured success envelope.
       // Without this fix the drain treated structured_output as a regular
       // tool, sent its response back to the model, and the run exited
@@ -3125,7 +3125,7 @@ describe('runNonInteractive', () => {
       });
 
       // Inject a monitor notification synchronously when the registry
-      // wires up — same trick the existing notification tests use to
+      // wires up -- same trick the existing notification tests use to
       // enqueue a drain item before the first turn runs.
       const notificationXml =
         '<task-notification>\n' +
@@ -3157,7 +3157,7 @@ describe('runNonInteractive', () => {
         },
       };
 
-      // First turn: plain text, no tool calls — drains into the queue.
+      // First turn: plain text, no tool calls -- drains into the queue.
       // Drain turn: model invokes structured_output as the reply to the
       // notification.
       mockGeminiClient.sendMessageStream
@@ -3186,7 +3186,7 @@ describe('runNonInteractive', () => {
         'prompt-drain-struct',
       );
 
-      // The drain turn captured structured_output → success exit, not the
+      // The drain turn captured structured_output -> success exit, not the
       // "Model produced plain text..." failure path.
       expect(exitCode).toBe(0);
 
@@ -3223,7 +3223,7 @@ describe('runNonInteractive', () => {
       // sleeping 50 ms between polls. All other success-path tests pin
       // `hasUnfinalizedTasks: () => false`, so the loop body never
       // enters and the cap, polling, and ordering of flush + finalize
-      // are unverified. This test flips `hasUnfinalizedTasks` true →
+      // are unverified. This test flips `hasUnfinalizedTasks` true ->
       // false mid-run so the body executes at least once, and asserts
       // (a) the structured success result still emits, (b) the
       // suppressed in-flight task's `task_notification` is flushed
@@ -3328,7 +3328,7 @@ describe('runNonInteractive', () => {
       expect(abortAllSpy).toHaveBeenCalledTimes(1);
       // The holdback while-body must have executed at least one poll.
       expect(unfinalizedCalls).toBeGreaterThanOrEqual(2);
-      // …but it must NOT exceed the 500 ms cap by a meaningful margin.
+      // ...but it must NOT exceed the 500 ms cap by a meaningful margin.
       // 1000 ms is generous (test env CI noise) while still proving the
       // cap exists; without the cap, an infinitely-true
       // hasUnfinalizedTasks would never return.
@@ -3424,14 +3424,14 @@ describe('runNonInteractive', () => {
       // `result = JSON.stringify(structuredResult)` when the field is
       // set; JsonOutputAdapter writes `result` directly to stdout in
       // TEXT mode). The line should be exactly the stringified args plus
-      // a trailing newline — no JSON envelope, no extra event log.
+      // a trailing newline -- no JSON envelope, no extra event log.
       const stdout = writes.join('');
       expect(stdout).toBe(`${JSON.stringify(structuredArgs)}\n`);
     });
   });
 
   // PR #4174 Phase C: `--resume` headless restore.
-  // Covers reviewer #4174 follow-up — "nonInteractiveCli.ts:375-408
+  // Covers reviewer #4174 follow-up -- "nonInteractiveCli.ts:375-408
   // headless --resume worktree restore is stubbed out". Verifies the
   // <system-reminder> injection + worktree_restored adapter event.
   describe('--resume with active worktree (Phase C)', () => {
@@ -3514,7 +3514,7 @@ describe('runNonInteractive', () => {
     });
 
     it('does not inject anything when sidecar is absent', async () => {
-      // No sidecar set up — getResumedSessionData also returns undefined
+      // No sidecar set up -- getResumedSessionData also returns undefined
       // by default, so the entire restore block is short-circuited.
       (mockConfig.getResumedSessionData as Mock).mockReturnValue(undefined);
 
@@ -3540,7 +3540,7 @@ describe('runNonInteractive', () => {
       const [parts] = mockGeminiClient.sendMessageStream.mock.calls[0] as [
         Array<{ text?: string }>,
       ];
-      // Exactly one part — the user prompt, no reminder prefix.
+      // Exactly one part -- the user prompt, no reminder prefix.
       expect(parts.length).toBe(1);
       expect(parts[0].text).toBe('plain prompt');
     });
@@ -3553,7 +3553,7 @@ describe('runNonInteractive', () => {
       const sidecarPath = path.join(realTmpDir, 'stale.worktree.json');
       const sidecar = {
         slug: 'stale-test',
-        // Points at a dir that does NOT exist on disk → restoreWorktreeContext
+        // Points at a dir that does NOT exist on disk -> restoreWorktreeContext
         // treats it as stale and clears the sidecar.
         worktreePath: path.join(realTmpDir, 'never-created'),
         worktreeBranch: 'worktree-stale-test',
@@ -3597,7 +3597,7 @@ describe('runNonInteractive', () => {
         await expect(fs.stat(sidecarPath)).rejects.toMatchObject({
           code: 'ENOENT',
         });
-        // No <system-reminder> injected — the user prompt is the only part.
+        // No <system-reminder> injected -- the user prompt is the only part.
         const [parts] = mockGeminiClient.sendMessageStream.mock.calls[0] as [
           Array<{ text?: string }>,
         ];

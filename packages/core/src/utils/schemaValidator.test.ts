@@ -318,7 +318,7 @@ describe('SchemaValidator', () => {
     });
 
     it('should handle stringified array with plain type (no anyOf)', () => {
-      // Should NOT coerce when there is no anyOf/oneOf — the schema just
+      // Should NOT coerce when there is no anyOf/oneOf -- the schema just
       // says type: array, and a string value is simply invalid.
       const schema = {
         type: 'object',
@@ -329,7 +329,7 @@ describe('SchemaValidator', () => {
       };
       const params = { urls: '["https://example.com"]' };
       // No anyOf/oneOf, so fixStringifiedJsonValues won't have types to check
-      // against — but getAcceptedTypes reads plain 'type' too, so it should
+      // against -- but getAcceptedTypes reads plain 'type' too, so it should
       // still coerce since 'string' is not in the accepted types.
       expect(SchemaValidator.validate(schema, params)).toBeNull();
       expect(params.urls).toEqual(['https://example.com']);
@@ -551,7 +551,7 @@ describe('SchemaValidator', () => {
     });
 
     it('accepts the draft-2020-12 URI with a trailing `#` fragment', () => {
-      // Both `…/schema` and `…/schema#` reference the same meta-schema;
+      // Both `.../schema` and `.../schema#` reference the same meta-schema;
       // exact-equality on the canonical URI rejected the trailing-`#`
       // form, falling back to the draft-07 Ajv and surfacing as
       // `no schema with key or ref ...`. Real schemas in the wild

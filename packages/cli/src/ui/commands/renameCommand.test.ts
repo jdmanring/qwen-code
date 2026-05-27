@@ -38,7 +38,7 @@ describe('renameCommand', () => {
 
   it('exposes an argumentHint covering --auto and <name>', () => {
     // The completion menu reads argumentHint when the user types
-    // `/rename` and hovers — this is the primary discoverability
+    // `/rename` and hovers -- this is the primary discoverability
     // affordance, so pin its shape.
     expect(renameCommand.argumentHint).toBe('[--auto] [<name>]');
   });
@@ -57,7 +57,7 @@ describe('renameCommand', () => {
 
     it('suggests --auto when the partial argument is a prefix of it', async () => {
       // Covers the discovery path: typing `--`, `--a`, `--au`, `--auto`
-      // all match — same shape as /model's --fast handling.
+      // all match -- same shape as /model's --fast handling.
       for (const partial of ['-', '--', '--a', '--au', '--auto']) {
         const result = await run(partial);
         expect(result).toEqual([
@@ -116,7 +116,7 @@ describe('renameCommand', () => {
       type: 'message',
       messageType: 'error',
       content:
-        'No conversation to title yet — send at least one message first.',
+        'No conversation to title yet -- send at least one message first.',
     });
     expect(tryGenerateSessionTitleMock).toHaveBeenCalledOnce();
   });
@@ -143,7 +143,7 @@ describe('renameCommand', () => {
       type: 'message',
       messageType: 'error',
       content:
-        'No conversation to title yet — send at least one message first.',
+        'No conversation to title yet -- send at least one message first.',
     });
   });
 
@@ -249,7 +249,7 @@ describe('renameCommand', () => {
     });
 
     it('records bare /rename success as auto-sourced', async () => {
-      // The LLM produced the title, not the user — picker should be able
+      // The LLM produced the title, not the user -- picker should be able
       // to dim it the same way it dims --auto results.
       tryGenerateSessionTitleMock.mockResolvedValue({
         ok: true,
@@ -275,7 +275,7 @@ describe('renameCommand', () => {
     });
 
     it('surfaces no_fast_model on bare /rename when fast model is unset', async () => {
-      // Both bare /rename and --auto now hard-require a fast model — the
+      // Both bare /rename and --auto now hard-require a fast model -- the
       // failure reason flows out via the discriminated outcome rather
       // than a pre-flight check, so the user sees a single consistent
       // message regardless of which form they typed.
@@ -303,7 +303,7 @@ describe('renameCommand', () => {
 
   describe('--auto flag', () => {
     it('surfaces no_fast_model on --auto via the shared pipeline', async () => {
-      // Pre-flight `getFastModel()` check was removed in the unification —
+      // Pre-flight `getFastModel()` check was removed in the unification --
       // both bare /rename and --auto now rely on tryGenerateSessionTitle
       // to return the `no_fast_model` reason, which keeps the failure
       // mode in one place.
@@ -402,7 +402,7 @@ describe('renameCommand', () => {
         type: 'message',
         messageType: 'error',
         content:
-          'No conversation to title yet — send at least one message first.',
+          'No conversation to title yet -- send at least one message first.',
       });
     });
 

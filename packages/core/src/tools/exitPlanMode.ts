@@ -208,7 +208,7 @@ export class ExitPlanModeTool extends BaseDeclarativeTool<
       >,
       true, // isOutputMarkdown
       false, // canUpdateOutput
-      true, // shouldDefer — only used when leaving plan mode
+      true, // shouldDefer -- only used when leaving plan mode
       false, // alwaysLoad
       'plan mode exit approve',
     );

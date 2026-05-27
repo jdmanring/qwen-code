@@ -72,7 +72,7 @@ export const ProviderUpdatePrompt = ({
 
   const title =
     entries.length === 1
-      ? t('Built-in Provider Update · {{provider}}', {
+      ? t('Built-in Provider Update  {{provider}}', {
           provider: entries[0]!.providerLabel,
         })
       : t('Built-in Provider Updates');

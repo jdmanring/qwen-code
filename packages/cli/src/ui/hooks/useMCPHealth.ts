@@ -5,7 +5,7 @@
  */
 
 /**
- * useMCPHealth — subscribes to MCP server status changes from
+ * useMCPHealth -- subscribes to MCP server status changes from
  * `mcp-client`'s module-level listener API and re-renders consumers
  * with up-to-date counts. The Footer MCP health pill is the primary
  * consumer; the hook intentionally exposes raw counts (not just a
@@ -24,7 +24,7 @@ import {
 export interface MCPHealthSnapshot {
   /** Total servers tracked by the registry (configured + discovered). */
   totalCount: number;
-  /** Servers currently in `DISCONNECTED` — usually means failed connect / lost link. */
+  /** Servers currently in `DISCONNECTED` -- usually means failed connect / lost link. */
   disconnectedCount: number;
   /** Servers in mid-handshake. Often transient during boot or reconnect. */
   connectingCount: number;

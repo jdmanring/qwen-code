@@ -36,7 +36,7 @@ function buildBtwPrompt(question: string): string {
     'This is a side question from the user. Answer directly in a single response.',
     '',
     'CRITICAL CONSTRAINTS:',
-    '- You have NO tools available — you cannot read files, run commands, or take any actions.',
+    '- You have NO tools available -- you cannot read files, run commands, or take any actions.',
     '- You can ONLY use information already present in the conversation context.',
     '- NEVER promise to look something up or investigate further.',
     '- If you do not know the answer, say so.',
@@ -91,7 +91,7 @@ function getBtwCacheSafeParams(
  * runForkedAgent with cacheSafeParams shares the main conversation's
  * CacheSafeParams (systemInstruction + history) so the fork sees the full
  * conversation context and benefits from prompt-cache hits. Tools are denied
- * at the per-request level (NO_TOOLS) — single-turn, text-only.
+ * at the per-request level (NO_TOOLS) -- single-turn, text-only.
  */
 async function askBtw(
   context: CommandContext,

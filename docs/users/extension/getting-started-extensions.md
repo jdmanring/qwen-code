@@ -20,10 +20,10 @@ This will create a new directory with the following structure:
 
 ```
 my-first-extension/
-├── example.ts
-├── qwen-extension.json
-├── package.json
-└── tsconfig.json
+|---- example.ts
+|---- qwen-extension.json
+|---- package.json
+\_-- tsconfig.json
 ```
 
 ## Step 2: Understand the Extension Files

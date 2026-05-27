@@ -190,7 +190,7 @@ export function MemoryDialog({ onClose }: MemoryDialogProps) {
           }
         }
       } catch {
-        // meta.json not found or invalid — keep null
+        // meta.json not found or invalid -- keep null
       }
     }
 
@@ -279,7 +279,7 @@ export function MemoryDialog({ onClose }: MemoryDialogProps) {
       }
 
       if (focusedSection === 'autoMemory') {
-        // No "up" target above autoMemory; only handle down → autoDream.
+        // No "up" target above autoMemory; only handle down -> autoDream.
         if (keyMatchers[Command.SELECTION_DOWN](key)) {
           setFocusedSection('autoDream');
           return;
@@ -357,7 +357,7 @@ export function MemoryDialog({ onClose }: MemoryDialogProps) {
               : theme.text.secondary
           }
         >
-          {focusedSection === 'autoMemory' ? '› ' : '  '}
+          {focusedSection === 'autoMemory' ? ' ' : '  '}
           {t('Auto-memory: {{status}}', {
             status: autoMemoryOn ? t('on') : t('off'),
           })}
@@ -369,8 +369,8 @@ export function MemoryDialog({ onClose }: MemoryDialogProps) {
               : theme.text.secondary
           }
         >
-          {focusedSection === 'autoDream' ? '› ' : '  '}
-          {t('Auto-dream: {{status}} · {{lastDream}} · /dream to run', {
+          {focusedSection === 'autoDream' ? ' ' : '  '}
+          {t('Auto-dream: {{status}}  {{lastDream}}  /dream to run', {
             status: autoDreamOn ? t('on') : t('off'),
             lastDream: dreamStatusText,
           })}
@@ -390,7 +390,7 @@ export function MemoryDialog({ onClose }: MemoryDialogProps) {
           return (
             <Box key={item.value} flexDirection="row">
               <Text color={isSelected ? theme.status.success : undefined}>
-                {isSelected ? '› ' : '  '}
+                {isSelected ? ' ' : '  '}
                 {index + 1}. {item.label}
               </Text>
               {item.description ? (
@@ -405,7 +405,7 @@ export function MemoryDialog({ onClose }: MemoryDialogProps) {
 
       <Box marginTop={1}>
         <Text color={theme.text.secondary}>
-          {t('Enter to confirm · Esc to cancel')}
+          {t('Enter to confirm  Esc to cancel')}
         </Text>
       </Box>
     </Box>

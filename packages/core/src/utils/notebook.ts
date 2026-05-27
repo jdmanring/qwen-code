@@ -13,9 +13,9 @@ const MAX_NOTEBOOK_OUTPUT_CHARS = 100000;
  * Strip ANSI escape sequences so terminal control codes emitted by
  * ipykernel (and any tool that writes to the cell's stdout/stderr) don't
  * leak into the LLM prompt. Covers the four common families:
- *   CSI: ESC [ … final            — colour / cursor / SGR
- *   OSC: ESC ] … BEL or ST        — hyperlinks (`OSC 8`), titles
- *   DCS / APC / PM / SOS: ESC P/_/^/X … ST  — long-form sequences
+ *   CSI: ESC [ ... final            -- colour / cursor / SGR
+ *   OSC: ESC ] ... BEL or ST        -- hyperlinks (`OSC 8`), titles
+ *   DCS / APC / PM / SOS: ESC P/_/^/X ... ST  -- long-form sequences
  *   Lone two-byte escapes in the C1 Fe set (0x40-0x5A, 0x5C-0x5F):
  *     e.g. IND `ESC D`, NEL `ESC E`, HTS `ESC H`, RI `ESC M`.
  *     (CSI's `[` 0x5B is excluded here since it's handled above.)
@@ -31,7 +31,7 @@ function stripAnsi(input: string): string {
 // IANA MIME-type grammar: type "/" subtree.subtype with optional
 // suffix and parameters. We accept a permissive but ASCII-printable
 // shape and reject anything else (newlines, control chars, "[", "]"
-// — which would let an attacker-authored notebook break out of the
+// -- which would let an attacker-authored notebook break out of the
 // `[non-text output: ...]` placeholder and inject prompt-shaped text).
 const MIME_TYPE_RE =
   /^[A-Za-z0-9!#$&^_.+-]+\/[A-Za-z0-9!#$&^_.+-]+(?:\+[A-Za-z0-9!#$&^_.+-]+)?$/;
@@ -308,7 +308,7 @@ function processOutput(output: NotebookCellOutput): string {
       if (Array.isArray(textData)) return stripAnsi(textData.join(''));
       // Non-textual output (image/png, text/html, application/json, widget
       // views, ...): we don't render the payload but don't silently drop
-      // it either — surface a placeholder so the LLM knows something
+      // it either -- surface a placeholder so the LLM knows something
       // was in the cell. Filter to well-formed MIME types so a malicious
       // notebook can't inject prompt-shaped text via crafted data keys.
       const mimeTypes = output.data

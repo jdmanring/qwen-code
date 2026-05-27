@@ -238,7 +238,7 @@ export function useStatusLine(): {
   // does not fire redundantly on mount.
   const { lastPromptTokenCount } = uiState.sessionStats;
   const { currentModel, branchName, activeWorktree, streamingState } = uiState;
-  // Track only the slug — equality on the whole object would re-fire on
+  // Track only the slug -- equality on the whole object would re-fire on
   // every render because `activeWorktree` is rebuilt by AppContainer's
   // useMemo each time the sidecar reloads.
   const worktreeSlug = activeWorktree?.slug;
@@ -471,8 +471,8 @@ export function useStatusLine(): {
     const gen = ++generationRef.current;
 
     // exec() can throw synchronously: libuv reports a handful of spawn
-    // errors (EACCES, ENOENT, …) via the async 'error' event, but anything
-    // else — including EBADF, reported on macOS Node 22 in issue #3264 — is
+    // errors (EACCES, ENOENT, ...) via the async 'error' event, but anything
+    // else -- including EBADF, reported on macOS Node 22 in issue #3264 -- is
     // thrown from ChildProcess.spawn. Without this guard the throw escapes
     // the setTimeout callback and crashes the CLI as uncaughtException.
     let child: ChildProcess;
@@ -491,7 +491,7 @@ export function useStatusLine(): {
                   .filter(Boolean)
                   .slice(0, MAX_STATUS_LINES)
               : [];
-          // Skip the state update if the output is unchanged — avoids a
+          // Skip the state update if the output is unchanged -- avoids a
           // Footer re-render each periodic tick, which cuts wasted work
           // and reduces the window for Ink to miscount rows in narrow
           // terminals when `refreshInterval` runs at 1s (see #3383).
@@ -540,7 +540,7 @@ export function useStatusLine(): {
   // Trigger update when meaningful state changes
   useEffect(() => {
     if (!statusLineCommand && !hasStatusLinePreset) {
-      // Command removed — kill any in-flight process and discard callbacks.
+      // Command removed -- kill any in-flight process and discard callbacks.
       activeChildRef.current?.kill();
       activeChildRef.current = undefined;
       generationRef.current++;
@@ -600,7 +600,7 @@ export function useStatusLine(): {
   ]);
 
   // Re-execute immediately when the command itself changes (hot reload).
-  // Skip the first run — the mount effect below already handles it.
+  // Skip the first run -- the mount effect below already handles it.
   useEffect(() => {
     if (!hasMountedRef.current) return;
     if (statusLineCommand || hasStatusLinePreset) {
@@ -634,7 +634,7 @@ export function useStatusLine(): {
     scheduleUpdate,
   ]);
 
-  // Periodic refresh — re-run the command every `refreshInterval` seconds.
+  // Periodic refresh -- re-run the command every `refreshInterval` seconds.
   // The tick yields if a previous exec is still running: unlike state-change
   // triggers (which legitimately need to preempt stale data), the periodic
   // tick exists only to keep external data fresh, so killing an in-flight

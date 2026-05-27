@@ -157,7 +157,7 @@ describe('<ToolMessage />', () => {
       StreamingState.Idle,
     );
     const output = lastFrame();
-    expect(output).toContain('✓'); // Success indicator
+    expect(output).toContain(''); // Success indicator
     expect(output).toContain('test-tool');
     expect(output).toContain('A tool for testing');
     expect(output).toContain('MockMarkdown:Test result');
@@ -170,18 +170,18 @@ describe('<ToolMessage />', () => {
       true, // compact mode
     );
     const output = lastFrame();
-    expect(output).toContain('✓'); // status indicator still visible
+    expect(output).toContain(''); // status indicator still visible
     expect(output).toContain('test-tool'); // tool name still visible
     expect(output).not.toContain('MockMarkdown:Test result'); // result hidden
   });
 
   describe('ToolStatusIndicator rendering', () => {
-    it('shows ✓ for Success status', () => {
+    it('shows  for Success status', () => {
       const { lastFrame } = renderWithContext(
         <ToolMessage {...baseProps} status={ToolCallStatus.Success} />,
         StreamingState.Idle,
       );
-      expect(lastFrame()).toContain('✓');
+      expect(lastFrame()).toContain('');
     });
 
     it('shows o for Pending status', () => {
@@ -221,9 +221,9 @@ describe('<ToolMessage />', () => {
         <ToolMessage {...baseProps} status={ToolCallStatus.Executing} />,
         StreamingState.Idle,
       );
-      expect(lastFrame()).toContain('⊷');
+      expect(lastFrame()).toContain('');
       expect(lastFrame()).not.toContain('MockRespondingSpinner');
-      expect(lastFrame()).not.toContain('✓');
+      expect(lastFrame()).not.toContain('');
     });
 
     it('shows paused spinner for Executing status when streamingState is WaitingForConfirmation', () => {
@@ -231,9 +231,9 @@ describe('<ToolMessage />', () => {
         <ToolMessage {...baseProps} status={ToolCallStatus.Executing} />,
         StreamingState.WaitingForConfirmation,
       );
-      expect(lastFrame()).toContain('⊷');
+      expect(lastFrame()).toContain('');
       expect(lastFrame()).not.toContain('MockRespondingSpinner');
-      expect(lastFrame()).not.toContain('✓');
+      expect(lastFrame()).not.toContain('');
     });
 
     it('shows MockRespondingSpinner for Executing status when streamingState is Responding', () => {
@@ -242,7 +242,7 @@ describe('<ToolMessage />', () => {
         StreamingState.Responding, // Simulate app still responding
       );
       expect(lastFrame()).toContain('MockRespondingSpinner');
-      expect(lastFrame()).not.toContain('✓');
+      expect(lastFrame()).not.toContain('');
     });
   });
 
@@ -288,7 +288,7 @@ describe('<ToolMessage />', () => {
       StreamingState.Idle,
     );
     // Check for trailing indicator or specific color if applicable (Colors are not easily testable here)
-    expect(highEmphasisFrame()).toContain('←'); // Trailing indicator for high emphasis
+    expect(highEmphasisFrame()).toContain('<-'); // Trailing indicator for high emphasis
 
     const { lastFrame: lowEmphasisFrame } = renderWithContext(
       <ToolMessage {...baseProps} emphasis="low" />,
@@ -297,7 +297,7 @@ describe('<ToolMessage />', () => {
     // For low emphasis, the name and description might be dimmed (check for dimColor if possible)
     // This is harder to assert directly in text output without color checks.
     // We can at least ensure it doesn't have the high emphasis indicator.
-    expect(lowEmphasisFrame()).not.toContain('←');
+    expect(lowEmphasisFrame()).not.toContain('<-');
   });
 
   describe('subagent inline rendering (approval-only surface)', () => {
@@ -305,7 +305,7 @@ describe('<ToolMessage />', () => {
     // favour of the always-on LiveAgentPanel (live progress) and
     // BackgroundTasksDialog (history / detail). ToolMessage's only
     // remaining inline subagent surface is the focus-routed approval
-    // prompt — both running and committed agent states render nothing
+    // prompt -- both running and committed agent states render nothing
     // inline now.
     const buildProps = (overrides: {
       data: {
@@ -336,7 +336,7 @@ describe('<ToolMessage />', () => {
       };
     };
 
-    it('running subagent without confirmation → no inline frame', () => {
+    it('running subagent without confirmation -> no inline frame', () => {
       const { lastFrame } = renderWithContext(
         <ToolMessage
           {...buildProps({
@@ -357,7 +357,7 @@ describe('<ToolMessage />', () => {
       expect(output).not.toContain('Queued approval:');
     });
 
-    it('committed (`!isPending`) terminal subagent → renders a one-line scrollback summary', () => {
+    it('committed (`!isPending`) terminal subagent -> renders a one-line scrollback summary', () => {
       // The verbose 15-row inline frame is retired (it caused
       // scrollback flicker), but the conversation history needs to
       // keep a permanent record after the panel's 8s window expires
@@ -379,18 +379,18 @@ describe('<ToolMessage />', () => {
       );
       const output = lastFrame() ?? '';
       // One-line summary: success glyph + agent name + description.
-      expect(output).toContain('✔');
+      expect(output).toContain('');
       expect(output).toContain('committed-agent');
       expect(output).toContain('Already done');
-      // No approval prompt — completed subagents don't sit on the
+      // No approval prompt -- completed subagents don't sit on the
       // focus lock.
       expect(output).not.toContain('MockApprovalPrompt');
     });
 
-    it('live (`isPending`) terminal subagent → renders summary inline (panel snapshot already dropped)', () => {
+    it('live (`isPending`) terminal subagent -> renders summary inline (panel snapshot already dropped)', () => {
       // After `unregisterForeground`'s post-delete emit (#3921 swap-
       // order), the panel snapshot drops the foreground entry as soon
-      // as the subagent finishes — even while the parent turn is
+      // as the subagent finishes -- even while the parent turn is
       // still in `pendingHistoryItems`. If the inline summary were
       // also gated on `!isPending`, a foreground subagent that
       // finishes mid-turn would simply disappear from screen until
@@ -412,11 +412,11 @@ describe('<ToolMessage />', () => {
         StreamingState.Responding,
       );
       const output = lastFrame() ?? '';
-      expect(output).toContain('✔');
+      expect(output).toContain('');
       expect(output).toContain('Just finished mid-turn');
     });
 
-    it('failed subagent → renders summary with terminate reason', () => {
+    it('failed subagent -> renders summary with terminate reason', () => {
       const { lastFrame } = renderWithContext(
         <ToolMessage
           {...buildProps({
@@ -432,13 +432,13 @@ describe('<ToolMessage />', () => {
         StreamingState.Idle,
       );
       const output = lastFrame() ?? '';
-      expect(output).toContain('✖');
+      expect(output).toContain('');
       expect(output).toContain('failed-agent');
       expect(output).toContain('Crashed early');
       expect(output).toContain('Network timeout');
     });
 
-    it('pendingConfirmation && isFocused → renders banner with agent label', () => {
+    it('pendingConfirmation && isFocused -> renders banner with agent label', () => {
       const { lastFrame } = renderWithContext(
         <ToolMessage
           {...buildProps({
@@ -460,9 +460,9 @@ describe('<ToolMessage />', () => {
       expect(output).toContain('MockApprovalPrompt');
     });
 
-    it('pendingConfirmation && !isFocused → renders queued marker (one-line)', () => {
+    it('pendingConfirmation && !isFocused -> renders queued marker (one-line)', () => {
       // Without this marker, a subagent waiting on another subagent's
-      // approval would be invisible in the main view — the user would
+      // approval would be invisible in the main view -- the user would
       // have no inline signal that an approval is queued and would have
       // to open the dialog to discover it.
       const { lastFrame } = renderWithContext(
@@ -829,9 +829,9 @@ describe('<ToolMessage />', () => {
       </CompactModeProvider>,
     );
     const output = lastFrame()!;
-    // -1 → 0 → cap disabled (height=94)
-    // 1.5 → 1 → cap to 1 (height=1)
-    // 'abc' → NaN → 0 → cap disabled (height=94)
+    // -1 -> 0 -> cap disabled (height=94)
+    // 1.5 -> 1 -> cap to 1 (height=1)
+    // 'abc' -> NaN -> 0 -> cap disabled (height=94)
     if (
       typeof badValue === 'number' &&
       Number.isFinite(badValue) &&
@@ -859,7 +859,7 @@ describe('<ToolMessage />', () => {
       StreamingState.Idle,
     );
     const output = lastFrame()!;
-    // availableHeight = 94, well above 30 lines → all visible
+    // availableHeight = 94, well above 30 lines -> all visible
     expect(output).toContain('line 1');
     expect(output).toContain('line 30');
   });

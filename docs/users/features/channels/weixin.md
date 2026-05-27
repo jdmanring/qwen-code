@@ -39,7 +39,7 @@ Add the channel to `~/.qwen/settings.json`:
 }
 ```
 
-Note: WeChat channels do not use a `token` field — credentials come from the QR login step.
+Note: WeChat channels do not use a `token` field -- credentials come from the QR login step.
 
 ### 3. Start the channel
 
@@ -57,7 +57,7 @@ Open WeChat and send a message to the bot. You should see a typing indicator (".
 
 You can send photos and documents to the bot, not just text.
 
-**Photos:** Send an image (screenshot, photo, etc.) and the agent will analyze it using its vision capabilities. This requires a multimodal model — add `"model": "qwen3.5-plus"` (or another vision-capable model) to your channel config. A typing indicator shows while the image is being downloaded and processed.
+**Photos:** Send an image (screenshot, photo, etc.) and the agent will analyze it using its vision capabilities. This requires a multimodal model -- add `"model": "qwen3.5-plus"` (or another vision-capable model) to your channel config. A typing indicator shows while the image is being downloaded and processed.
 
 **Files:** Send a PDF, code file, or any document. The bot downloads and decrypts it from WeChat's CDN, saves it locally, and the agent reads it with its file tools. This works with any model.
 
@@ -71,18 +71,18 @@ WeChat channels support all the standard channel options (see [Channel Overview]
 
 ## Key Differences from Telegram
 
-- **Authentication:** QR code login instead of a static bot token. Sessions can expire — the channel will pause and log a message if this happens.
+- **Authentication:** QR code login instead of a static bot token. Sessions can expire -- the channel will pause and log a message if this happens.
 - **Formatting:** WeChat only supports plain text. Markdown in agent responses is automatically stripped.
 - **Typing indicator:** WeChat has a native "..." typing indicator instead of a "Working..." text message.
-- **Groups:** WeChat iLink Bot is DM-only — group chats are not supported.
+- **Groups:** WeChat iLink Bot is DM-only -- group chats are not supported.
 - **Media encryption:** Images and files are encrypted on WeChat's CDN with AES-128-ECB. The channel handles decryption transparently.
 
 ## Tips
 
-- **Use plain text instructions** — Since WeChat strips all markdown, add instructions like "Use plain text only" to avoid the agent producing formatted responses that look messy.
-- **Keep responses short** — WeChat message bubbles work best with concise text. Adding a character limit to your instructions helps (e.g., "Keep responses under 500 characters").
-- **Session expiry** — If you see "Session expired (errcode -14)" in the logs, your WeChat login has expired. Stop the channel and re-run `qwen channel configure-weixin` to log in again.
-- **Restrict access** — Use `senderPolicy: "pairing"` or `"allowlist"` to control who can talk to the bot. See [DM Pairing](./overview#dm-pairing) for details.
+- **Use plain text instructions** -- Since WeChat strips all markdown, add instructions like "Use plain text only" to avoid the agent producing formatted responses that look messy.
+- **Keep responses short** -- WeChat message bubbles work best with concise text. Adding a character limit to your instructions helps (e.g., "Keep responses under 500 characters").
+- **Session expiry** -- If you see "Session expired (errcode -14)" in the logs, your WeChat login has expired. Stop the channel and re-run `qwen channel configure-weixin` to log in again.
+- **Restrict access** -- Use `senderPolicy: "pairing"` or `"allowlist"` to control who can talk to the bot. See [DM Pairing](./overview#dm-pairing) for details.
 
 ## Troubleshooting
 
@@ -103,4 +103,4 @@ Your WeChat login session has expired. Stop the channel and run `qwen channel co
 ### Images not working
 
 - Make sure your channel config has a `model` that supports vision (e.g., `qwen3.5-plus`)
-- Check the terminal for CDN download errors — these may indicate a network issue
+- Check the terminal for CDN download errors -- these may indicate a network issue

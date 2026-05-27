@@ -49,7 +49,7 @@ describe('sleep-interception', () => {
     const foundShell = await rig.waitForToolCall('run_shell_command');
     expect(foundShell).toBeTruthy();
 
-    // Should not be blocked — model should complete successfully
+    // Should not be blocked -- model should complete successfully
     expect(result.toLowerCase()).not.toContain('blocked');
   }, 30000);
 

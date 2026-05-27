@@ -35,23 +35,23 @@ const SHARED_TEST_OPTIONS = createSharedTestOptions();
  */
 function getMessageType(message: SDKMessage | ControlMessage): string {
   if (isSDKUserMessage(message)) {
-    return '🧑 USER';
+    return ' USER';
   } else if (isSDKAssistantMessage(message)) {
-    return '🤖 ASSISTANT';
+    return ' ASSISTANT';
   } else if (isSDKSystemMessage(message)) {
-    return `🖥️ SYSTEM(${message.subtype})`;
+    return ` SYSTEM(${message.subtype})`;
   } else if (isSDKResultMessage(message)) {
-    return `✅ RESULT(${message.subtype})`;
+    return ` RESULT(${message.subtype})`;
   } else if (isSDKPartialAssistantMessage(message)) {
-    return '⏳ STREAM_EVENT';
+    return ' STREAM_EVENT';
   } else if (isControlRequest(message)) {
-    return `🎮 CONTROL_REQUEST(${message.request.subtype})`;
+    return ` CONTROL_REQUEST(${message.request.subtype})`;
   } else if (isControlResponse(message)) {
-    return `📭 CONTROL_RESPONSE(${message.response.subtype})`;
+    return ` CONTROL_RESPONSE(${message.response.subtype})`;
   } else if (isControlCancel(message)) {
-    return '🛑 CONTROL_CANCEL';
+    return ' CONTROL_CANCEL';
   } else {
-    return '❓ UNKNOWN';
+    return ' UNKNOWN';
   }
 }
 

@@ -51,7 +51,7 @@ function ensureRootBundle() {
 function copyOptionalDir(source, destination, label) {
   if (existsSync(source)) {
     cpSync(source, destination, { recursive: true });
-    console.log(`[sdk prepack] ✓ ${label}/ copied`);
+    console.log(`[sdk prepack]  ${label}/ copied`);
   }
 }
 

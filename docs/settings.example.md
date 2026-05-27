@@ -1,15 +1,15 @@
 # settings.example.json
 
 `config/settings.example.json` is the template for the Qwen Code runtime configuration file. Copy it
-to `config/settings.json` (never commit the live copy — it contains real API keys) and fill in your
+to `config/settings.json` (never commit the live copy -- it contains real API keys) and fill in your
 credentials.
 
 ## Setup
 
 ```bash
 cp config/settings.example.json ~/.config/qwen/settings.json
-# Edit ~/.config/qwen/settings.json — review model providers, set auth type.
-# The $VARNAME values in the env block are references, not placeholders — they read from your shell environment.
+# Edit ~/.config/qwen/settings.json -- review model providers, set auth type.
+# The $VARNAME values in the env block are references, not placeholders -- they read from your shell environment.
 ```
 
 ## Sections
@@ -78,5 +78,5 @@ defined in `modelProviders`.
 
 ## What not to commit
 
-`~/.config/qwen/settings.json` (the live file) must never be committed — it lives outside the repo tree.
+`~/.config/qwen/settings.json` (the live file) must never be committed -- it lives outside the repo tree.
 Only `config/settings.example.json` is tracked. The live file is deployed by the installer.

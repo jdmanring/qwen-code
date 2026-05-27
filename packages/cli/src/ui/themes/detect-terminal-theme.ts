@@ -13,7 +13,7 @@ const debugLogger = createDebugLogger('THEME_DETECT');
 export type DetectedTheme = 'dark' | 'light';
 
 // ---------------------------------------------------------------------------
-// OSC 11 – query terminal background color
+// OSC 11 - query terminal background color
 // ---------------------------------------------------------------------------
 
 /** Timeout (ms) for the OSC 11 query. */
@@ -26,11 +26,11 @@ interface Rgb {
 }
 
 /**
- * Normalises a variable-length hex colour component (1–4 hex digits) to
- * the [0, 1] range.  For example "ff" → 1, "8000" → 0.5 (≈ 32768/65535).
+ * Normalises a variable-length hex colour component (1-4 hex digits) to
+ * the [0, 1] range.  For example "ff" -> 1, "8000" -> 0.5 ( 32768/65535).
  */
 function hexComponent(hex: string): number {
-  const max = 16 ** hex.length - 1; // 1-digit → 15, 4-digit → 65535
+  const max = 16 ** hex.length - 1; // 1-digit -> 15, 4-digit -> 65535
   return parseInt(hex, 16) / max;
 }
 
@@ -38,7 +38,7 @@ function hexComponent(hex: string): number {
  * Parses an XParseColor RGB string returned by OSC 11.
  *
  * Accepted formats:
- *   - `rgb:RRRR/GGGG/BBBB` (1–4 hex digits per component)
+ *   - `rgb:RRRR/GGGG/BBBB` (1-4 hex digits per component)
  *   - `#RRGGBB` or `#RRRRGGGGBBBB` (equal-length triplets)
  */
 export function parseOscRgb(data: string): Rgb | undefined {
@@ -85,7 +85,7 @@ export function themeFromOscColor(data: string): DetectedTheme | undefined {
  *
  * The caller is responsible for having stdin in raw mode with an active
  * consumer (so the stream is in flowing mode). This probe only attaches
- * an extra listener to parse the OSC 11 response — it does NOT flip raw
+ * an extra listener to parse the OSC 11 response -- it does NOT flip raw
  * mode or resume/pause stdin, because doing so interleaves with other
  * early-startup stdin consumers (kitty protocol detection, early input
  * capture) and causes terminal response bytes to leak into the TUI.
@@ -136,7 +136,7 @@ export function detectOsc11Theme(): Promise<DetectedTheme | undefined> {
  * Detects the macOS system appearance using `defaults read -g AppleInterfaceStyle`.
  * Returns 'dark' if Dark Mode is active, 'light' when `defaults` reports the key
  * is missing (the canonical macOS Light Mode signal), and undefined for any
- * other failure (timeout, `defaults` not on PATH, killed by signal, …) so the
+ * other failure (timeout, `defaults` not on PATH, killed by signal, ...) so the
  * caller can continue its fallback chain instead of pinning to Light.
  * Returns undefined on non-macOS platforms.
  */
@@ -160,8 +160,8 @@ export function detectMacOSTheme(): DetectedTheme | undefined {
         ? err.stderr
         : (err.stderr?.toString?.() ?? '');
     const message = err.message ?? '';
-    // Only the explicit "… does not exist" error confirms Light Mode. Any
-    // other failure is inconclusive — returning undefined lets the caller
+    // Only the explicit "... does not exist" error confirms Light Mode. Any
+    // other failure is inconclusive -- returning undefined lets the caller
     // fall through to the next detection layer (or the default-dark).
     if (/does not exist/i.test(stderr) || /does not exist/i.test(message)) {
       return 'light';
@@ -176,8 +176,8 @@ export function detectMacOSTheme(): DetectedTheme | undefined {
  * COLORFGBG is set by some terminals (e.g., rxvt, xterm, iTerm2, Konsole)
  * in the format "foreground;background" where values are ANSI color indices (0-15).
  *
- * A dark background (0-6, 8) → dark theme.
- * A light background (7, 9-15) → light theme.
+ * A dark background (0-6, 8) -> dark theme.
+ * A light background (7, 9-15) -> light theme.
  */
 export function detectFromColorFgBg(): DetectedTheme | undefined {
   const colorFgBg = process.env['COLORFGBG'];
@@ -210,7 +210,7 @@ export function detectFromColorFgBg(): DetectedTheme | undefined {
 /**
  * Synchronous theme detection (for theme dialog live-preview).
  *
- * Order: COLORFGBG → macOS system appearance → default dark.
+ * Order: COLORFGBG -> macOS system appearance -> default dark.
  */
 export function detectTerminalTheme(): DetectedTheme {
   const colorFgBgResult = detectFromColorFgBg();
@@ -238,7 +238,7 @@ export function detectTerminalTheme(): DetectedTheme {
  * ~200 ms OSC 11 timeout when a fast answer is already available.  OSC 11 is
  * tried only when no synchronous source provides an answer.
  *
- * Order: COLORFGBG → OSC 11 → macOS system appearance → default dark.
+ * Order: COLORFGBG -> OSC 11 -> macOS system appearance -> default dark.
  */
 export async function detectTerminalThemeAsync(): Promise<DetectedTheme> {
   // Fast path: COLORFGBG is instant and terminal-specific.
@@ -260,7 +260,7 @@ export async function detectTerminalThemeAsync(): Promise<DetectedTheme> {
     return osc11Result;
   }
 
-  // Remaining synchronous fallbacks (macOS → default dark).
+  // Remaining synchronous fallbacks (macOS -> default dark).
   const macResult = detectMacOSTheme();
   if (macResult) {
     debugLogger.info(

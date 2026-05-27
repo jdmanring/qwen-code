@@ -1,10 +1,10 @@
-# 🧠 Naming Standards: Engineering-First Clarity
+#  Naming Standards: Engineering-First Clarity
 
-This document defines the standards for naming files and directories in the Megalonyx project. The goal is to minimize **Developer Friction**—the mental overhead an agent or developer experiences when inferring the purpose of a file.
+This document defines the standards for naming files and directories in the Megalonyx project. The goal is to minimize **Developer Friction**--the mental overhead an agent or developer experiences when inferring the purpose of a file.
 
 ---
 
-## 🎯 The Engineering Logic of Naming
+##  The Engineering Logic of Naming
 
 AI agents process information through pattern recognition. Inconsistent naming (e.g., mixing `Screaming_Caps` with `kebab-case`) or ambiguous terms (e.g., `_alt`, `_sim`) force the agent to read the file content to understand its role, increasing token usage and latency.
 
@@ -26,7 +26,7 @@ To reduce visual noise and maintain consistency, the project adheres to a strict
 
 ---
 
-## 🗺️ Naming Realignment Mapping
+##  Naming Realignment Mapping
 
 The following table maps high-friction names to technical-optimal counterparts.
 
@@ -60,7 +60,7 @@ The following table maps high-friction names to technical-optimal counterparts.
 
 ---
 
-## 🛠️ Implementation Protocol
+##  Implementation Protocol
 All renames must follow the **Surgical Realignment Protocol**:
 1. **Reference Map**: Identify all imports and shell calls.
 2. **Atomic Update**: Rename file and update references in a single batch.

@@ -1,5 +1,5 @@
 #!/bin/bash
-# DEPRECATED — use fork_sync_pipeline.py --contribute instead.
+# DEPRECATED -- use fork_sync_pipeline.py --contribute instead.
 #
 # The Python pipeline runs automated isolation gates (GATE-MEGALONYX, GATE-PNPM,
 # GATE-JDMANRING, GATE-CONFIG, GATE-CIFILES) before creating any branch.
@@ -8,7 +8,7 @@
 #   python3 tooling/sync-upstreams/fork_sync_pipeline.py --contribute <hash> <branch>
 #
 # This script is kept for reference only.
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 set -euo pipefail
 
 # Upstream Contribution Tool
@@ -91,9 +91,9 @@ main() {
     PR_BRANCH="contribute/${BRANCH_NAME}"
 
     echo ""
-    log_info "Commit : ${FULL_HASH:0:12} — ${COMMIT_MSG}"
+    log_info "Commit : ${FULL_HASH:0:12} -- ${COMMIT_MSG}"
     log_info "Branch : ${PR_BRANCH}"
-    log_info "Target : upstream/main → upstream/${PR_BRANCH} → PR to QwenLM/qwen-code"
+    log_info "Target : upstream/main -> upstream/${PR_BRANCH} -> PR to QwenLM/qwen-code"
     echo ""
 
     # Fetch the latest upstream so we branch from current main, not a stale ref
@@ -106,7 +106,7 @@ main() {
     git checkout -b "$PR_BRANCH" upstream/main
 
     # Cherry-pick the fix. If there's a conflict, we stop and let the user
-    # resolve it — do not auto-resolve, as that could corrupt the upstream PR.
+    # resolve it -- do not auto-resolve, as that could corrupt the upstream PR.
     log_info "Cherry-picking ${FULL_HASH:0:12}..."
     if ! git cherry-pick --no-edit "$FULL_HASH"; then
         echo ""
@@ -125,7 +125,7 @@ main() {
 
     # Build the PR URL from the upstream remote URL
     UPSTREAM_URL=$(git remote get-url upstream)
-    # Normalise SSH → HTTPS for display
+    # Normalise SSH -> HTTPS for display
     UPSTREAM_URL=$(echo "$UPSTREAM_URL" | sed 's|git@github.com:|https://github.com/|; s|\.git$||')
     FORK_OWNER=$(echo "$UPSTREAM_URL" | sed 's|https://github.com/\([^/]*\)/.*|\1|')
 
@@ -141,7 +141,7 @@ main() {
     echo "  [ ] No monorepo-specific files or imports are included in the diff"
     echo ""
 
-    # Return to integration — the contribution branch stays local for amendments
+    # Return to integration -- the contribution branch stays local for amendments
     git checkout integration
     log_info "Returned to integration branch. ${PR_BRANCH} remains local for amendments."
     echo ""

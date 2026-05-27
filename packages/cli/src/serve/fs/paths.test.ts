@@ -34,7 +34,7 @@ describe('canonicalizeWorkspace', () => {
     // Use mkdirSync via fsp.mkdir-await to keep test async-shape consistent.
     return fsp.mkdir(subdir).then(() => {
       const canonical = canonicalizeWorkspace(subdir);
-      // On macOS the tmpdir resolves through `/private` — `realpathSync.native`
+      // On macOS the tmpdir resolves through `/private` -- `realpathSync.native`
       // returns that prefix; we just assert it matches what realpath itself
       // would produce so the test is platform-agnostic.
       expect(canonical).toBe(realpathSync.native(subdir));
@@ -67,7 +67,7 @@ describe('canonicalizeWorkspace', () => {
   });
 
   it('preserves on-disk casing on case-insensitive filesystems for an existing path', async () => {
-    // Skipped on Linux where the FS is case-sensitive — the function's
+    // Skipped on Linux where the FS is case-sensitive -- the function's
     // casing-collapse contract is only meaningful on macOS APFS / Windows
     // NTFS, and forcing the test to assert "different cased input == same
     // output" on ext4 would just fail with ENOENT before realpath runs.
@@ -84,7 +84,7 @@ describe('canonicalizeWorkspace', () => {
   it('rethrows non-ENOENT filesystem errors instead of masking them', async () => {
     // EACCES is hard to produce portably and on macOS gates behind SIP.
     // Instead simulate the contract by asserting that an EISDIR-or-similar
-    // path that *does* exist returns its realpath rather than throwing —
+    // path that *does* exist returns its realpath rather than throwing --
     // the negative case (rethrow on non-ENOENT) is exercised by code review
     // and documented in the function's doc comment. The minimal positive
     // assertion here guards against a future regression that swallows
@@ -153,7 +153,7 @@ describe('hasSuspiciousPathPattern', () => {
     expect(hasSuspiciousPathPattern('LPT1.log')).toBe(true);
     // Middle-extension form
     expect(hasSuspiciousPathPattern('CON.foo.bar')).toBe(true);
-    // Substring of longer name must NOT match (BACON, concat, lprint…)
+    // Substring of longer name must NOT match (BACON, concat, lprint...)
     expect(hasSuspiciousPathPattern('BACON')).toBe(false);
     expect(hasSuspiciousPathPattern('concat.txt')).toBe(false);
     expect(hasSuspiciousPathPattern('precon.go')).toBe(false);
@@ -328,7 +328,7 @@ describe('resolveWithinWorkspace', () => {
     // The exploit class: `<ws>/leak -> <ws>/middle -> /scratch/evil`
     // where every link is a symlink and the final target doesn't
     // exist. A single-hop guard (read T19's earlier fix) only
-    // checks the first readlink target — `<ws>/middle` — sees it's
+    // checks the first readlink target -- `<ws>/middle` -- sees it's
     // inside the workspace, and lets the chain through. The OS
     // write at `<ws>/leak` then follows BOTH hops and creates
     // `/scratch/evil`. The multi-hop loop fix dereferences every
@@ -346,7 +346,7 @@ describe('resolveWithinWorkspace', () => {
   });
 
   it('detects a symlink cycle and rejects with symlink_escape', async () => {
-    // a -> b -> a — symmetric self-referential pair. realpath
+    // a -> b -> a -- symmetric self-referential pair. realpath
     // returns ELOOP on most platforms; the multi-hop loop's inode
     // tracking catches this even on filesystems that don't
     // surface ELOOP.
@@ -369,13 +369,13 @@ describe('resolveWithinWorkspace', () => {
       workspace,
       'read',
     );
-    // Brand is compile-time only — assert string identity at runtime.
+    // Brand is compile-time only -- assert string identity at runtime.
     expect(typeof out).toBe('string');
     expect(out).toBe(realpathSync.native(target));
   });
 
   it('canonicalizes the boundWorkspace once so symlinked workspaces resolve correctly', async () => {
-    // Workspace itself reachable via a symlink — daemon should still
+    // Workspace itself reachable via a symlink -- daemon should still
     // pin members by the canonical (realpath) form, so a request that
     // names a child via the symlinked workspace path still resolves
     // to the same canonical and passes the boundary check.

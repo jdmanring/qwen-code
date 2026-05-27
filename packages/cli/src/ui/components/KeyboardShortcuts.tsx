@@ -36,7 +36,7 @@ const getShortcuts = (): Shortcut[] => [
     description: t('to cycle approvals'),
   },
   { key: 'ctrl+c', description: t('to quit') },
-  { key: getNewlineKey(), description: t('for newline') + ' ⏎' },
+  { key: getNewlineKey(), description: t('for newline') + ' ' },
   { key: 'ctrl+l', description: t('to clear screen') },
   { key: 'ctrl+r', description: t('to search history') },
   { key: 'ctrl+y', description: t('to retry last request') },

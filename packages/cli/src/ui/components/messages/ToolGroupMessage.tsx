@@ -60,14 +60,14 @@ function isSubagentToolEntry(tool: IndividualToolCallDisplay): boolean {
 /**
  * Predicate: subagent tool entry whose live UI is owned by
  * `LiveAgentPanel`. Only running / background entries should be
- * hidden during the live phase — terminal entries (the subagent
+ * hidden during the live phase -- terminal entries (the subagent
  * already finished while the parent turn is still running) are NOT
  * panel-owned: the panel snapshot drops them on
  * `unregisterForeground`'s post-delete emit, so the inline path
  * needs to render `SubagentScrollbackSummary` immediately so the
  * user keeps a record of the run instead of seeing nothing.
  *
- * Note: `AgentResultDisplay.status` does NOT carry `'paused'` — that
+ * Note: `AgentResultDisplay.status` does NOT carry `'paused'` -- that
  * status lives on the registry-side `BackgroundTaskStatus` and is
  * surfaced through the panel directly, never through a tool-result
  * `task_execution` payload. So this predicate has no `paused` arm.
@@ -79,10 +79,10 @@ function isPanelOwnedSubagentTool(tool: IndividualToolCallDisplay): boolean {
 }
 
 /**
- * Predicate: this whole group is a parallel fan-out of ≥2 agent
+ * Predicate: this whole group is a parallel fan-out of >=2 agent
  * invocations and nothing else. Triggers the dense inline panel
  * (`InlineParallelAgentsDisplay`) instead of letting the legacy path
- * collapse the batch into `Agent × N / <last name>`. Mixed groups
+ * collapse the batch into `Agent * N / <last name>`. Mixed groups
  * (e.g. a sibling shell call landed in the same response) deliberately
  * fall through so the non-agent tools stay visible.
  */
@@ -117,7 +117,7 @@ interface ToolGroupMessageProps {
    * `pendingHistoryItems`). False once it commits to Ink's `<Static>`.
    *
    * Read by the group body to:
-   *   1. Build `inlineToolCalls` — drop panel-owned subagent entries
+   *   1. Build `inlineToolCalls` -- drop panel-owned subagent entries
    *      (running / background `task_execution` without pending
    *      approval) so LiveAgentPanel below the composer is the single
    *      source of truth for in-flight subagents. Mixed groups still
@@ -137,7 +137,7 @@ interface ToolGroupMessageProps {
    *      that layer (the live-phase filter at #1 already prevents
    *      panel-owned entries from reaching the renderer, and the
    *      terminal scrollback summary fires in BOTH live and committed
-   *      phases to bridge `unregisterForeground` → parent commit).
+   *      phases to bridge `unregisterForeground` -> parent commit).
    */
   isPending?: boolean;
   activeShellPtyId?: number | null;
@@ -150,7 +150,7 @@ interface ToolGroupMessageProps {
   isUserInitiated?: boolean;
   /**
    * Short LLM-generated label for this batch. Used in compact mode in place
-   * of the "active tool name × count" line. Undefined when summary
+   * of the "active tool name * count" line. Undefined when summary
    * generation is disabled, still in-flight, or failed.
    */
   compactLabel?: string;
@@ -184,7 +184,7 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
         t.ptyId === activeShellPtyId && t.status === ToolCallStatus.Executing,
     );
 
-  // useMemo must be called unconditionally (Rules of Hooks) — before any early return
+  // useMemo must be called unconditionally (Rules of Hooks) -- before any early return
   // only prompt for tool approval on the first 'confirming' tool in the list
   // note, after the CTA, this automatically moves over to the next 'confirming' tool
   const toolAwaitingApproval = useMemo(
@@ -229,7 +229,7 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
   );
 
   // Determine which subagent tools currently have a pending confirmation.
-  // Must be called unconditionally (Rules of Hooks) — before any early return.
+  // Must be called unconditionally (Rules of Hooks) -- before any early return.
   const subagentsAwaitingApproval = useMemo(
     () =>
       toolCalls.filter((tc) =>
@@ -255,13 +255,13 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
   const focusedSubagentCallId = focusedSubagentRef.current;
   // When no subagent has a pending confirmation, fall back to the *first*
   // running subagent for keyboard focus. "First" (array order) is the
-  // oldest — the one most likely to be the focal subagent. The legacy
+  // oldest -- the one most likely to be the focal subagent. The legacy
   // Ctrl+E / Ctrl+F display shortcuts retired with the inline frame, so
   // the fallback is now mostly inert; it stays here so a future
   // re-introduction of inline keyboard surfaces has a focus target.
   // Note: during the live phase running subagent entries are filtered
   // out of `inlineToolCalls` (LiveAgentPanel owns those rows), so this
-  // id can point at a tool that won't be rendered. That's harmless —
+  // id can point at a tool that won't be rendered. That's harmless --
   // `isSubagentFocused` is only consumed inside the `inlineToolCalls`
   // map iteration; the hidden entry is never iterated, so no focus
   // prop ever reaches a missing DOM node.
@@ -276,7 +276,7 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
 
   const hasSubagentPendingConfirmation = subagentsAwaitingApproval.length > 0;
 
-  // Pure parallel agent group (≥2 agents, nothing else).
+  // Pure parallel agent group (>=2 agents, nothing else).
   // Dense panel in both phases with all agents. During live phase
   // LiveAgentPanel below also shows running agents (brief overlap
   // that resolves as agents complete and expire from the panel).
@@ -290,7 +290,7 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
   }
 
   // Hide the entire group when the live-phase filter leaves nothing
-  // inline to render — i.e. a pure-running-subagent batch with no
+  // inline to render -- i.e. a pure-running-subagent batch with no
   // pending approval. LiveAgentPanel below the composer is the
   // single source of truth for those rows; an empty bordered
   // container floating above the panel would just be a duplicate
@@ -301,16 +301,16 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
   // immediately so the user keeps a record of the run.
   // (Gate on `isPending` so a degenerate empty `toolCalls=[]` in the
   // committed phase still falls through to the legacy empty-border
-  // snapshot — the suppression is specifically about live-phase
+  // snapshot -- the suppression is specifically about live-phase
   // panel ownership, not about hiding empty inputs in general.)
   if (isPending && inlineToolCalls.length === 0) {
     return null;
   }
 
-  // Compact mode: entire group → single line summary
+  // Compact mode: entire group -> single line summary
   // Force-expand when: user must interact (Confirming or subagent pending
   // confirmation), tool errored, shell is focused, or user-initiated.
-  // Also force-expand when this group carries a terminal subagent —
+  // Also force-expand when this group carries a terminal subagent --
   // `CompactToolGroupDisplay` doesn't know about `task_execution`
   // results, so the compact path would skip `SubagentScrollbackSummary`
   // entirely. Applies in BOTH live and committed phases:
@@ -394,7 +394,7 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
         {readCount > 0 && (
           <Box paddingLeft={1}>
             <Text dimColor>
-              {'● '}
+              {' '}
               Recalled {readCount} {readCount === 1 ? 'memory' : 'memories'}
             </Text>
           </Box>
@@ -402,7 +402,7 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
         {writeCount > 0 && (
           <Box paddingLeft={1}>
             <Text dimColor>
-              {'● '}
+              {' '}
               Wrote {writeCount} {writeCount === 1 ? 'memory' : 'memories'}
             </Text>
           </Box>
@@ -443,7 +443,7 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
           }
           return (
             <Box paddingLeft={1}>
-              <Text dimColor>● {parts.join(', ')}</Text>
+              <Text dimColor> {parts.join(', ')}</Text>
             </Box>
           );
         })()}
@@ -489,7 +489,7 @@ export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
                   tool.status === ToolCallStatus.Error ||
                   isAgentWithPendingConfirmation(tool.resultDisplay) ||
                   // Terminal subagents need their result block to render
-                  // even in compact mode — that's where
+                  // even in compact mode -- that's where
                   // `SubagentScrollbackSummary` lands. ToolMessage's
                   // compact-mode gate
                   // (`!compactMode || forceShowResult ? renderer : 'none'`)

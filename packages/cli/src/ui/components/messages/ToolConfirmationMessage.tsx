@@ -448,7 +448,7 @@ export const ToolConfirmationMessage: React.FC<
   // For exec/mcp confirmations the type-specific question text would
   // restate what the body already shows (the full command, or the labeled
   // server + tool). Use the generic prompt so the question line acts as a
-  // body→options transition without duplicating information.
+  // body->options transition without duplicating information.
   const renderedQuestion =
     compactMode &&
     (confirmationDetails.type === 'exec' || confirmationDetails.type === 'mcp')
@@ -481,7 +481,7 @@ export const ToolConfirmationMessage: React.FC<
       : options;
 
   // Compact mode strips outer padding, inter-section margins, and explicit
-  // width — the parent (SubagentExecutionRenderer) already provides those.
+  // width -- the parent (SubagentExecutionRenderer) already provides those.
   const outerPadding = compactMode ? 0 : 1;
   const sectionMargin = compactMode ? 0 : 1;
   const outerWidth = compactMode ? undefined : contentWidth;

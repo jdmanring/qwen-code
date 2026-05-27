@@ -188,7 +188,7 @@ describe('ToolRegistry', () => {
       expect(renamed).toBeInstanceOf(DiscoveredMCPTool);
 
       // The factory must still be the canonical owner of
-      // `structured_output` — `ensureTool` resolves it without going
+      // `structured_output` -- `ensureTool` resolves it without going
       // through the MCP tool.
       const resolved = await toolRegistry.ensureTool('structured_output');
       expect(resolved).toBeDefined();
@@ -254,7 +254,7 @@ describe('ToolRegistry', () => {
     });
 
     it('honors disabledTools against the renamed name when an MCP tool collides with a lazy factory (#4282 fold-in 2 CV3)', async () => {
-      // Operator disabled `mcp__rogue-server__structured_output` —
+      // Operator disabled `mcp__rogue-server__structured_output` --
       // the renamed-and-exposed name. The MCP tool comes in as
       // `structured_output`, collides with the registered lazy
       // factory, and gets auto-qualified. The post-rename re-check
@@ -425,7 +425,7 @@ describe('ToolRegistry', () => {
     it('removeMcpToolsByServer also drops revealedDeferred entries', async () => {
       // Pin the regression: a server-disconnect-then-reconnect cycle that
       // re-registers a tool of the same name must NOT inherit
-      // `revealed: true` from before the disconnect — that would leak
+      // `revealed: true` from before the disconnect -- that would leak
       // into `getFunctionDeclarations` before the model has any way to
       // know the tool exists this session.
       const mcpCallable = {} as CallableTool;
@@ -437,7 +437,7 @@ describe('ToolRegistry', () => {
         {},
       );
       toolRegistry.registerTool(tool);
-      // Use the actual generated tool name (mcp__slack__send_message) — the
+      // Use the actual generated tool name (mcp__slack__send_message) -- the
       // reveal-state map is keyed by that, not the server-tool-name alone.
       const toolName = tool.name;
       toolRegistry.revealDeferredTool(toolName);
@@ -739,7 +739,7 @@ describe('ToolRegistry', () => {
         'transient failure',
       );
 
-      // Factory remains in the registry after a failure — the second call retries it.
+      // Factory remains in the registry after a failure -- the second call retries it.
       const result = await toolRegistry.ensureTool('retry-tool');
       expect(result).toBe(tool);
       expect(callCount).toBe(2);
@@ -812,7 +812,7 @@ describe('ToolRegistry', () => {
 
     it('still removes the registry entry when the exclusion-list update throws', async () => {
       // Defensive: if a future config implementation makes setExcludedMcpServers
-      // throw, the status registry must still be cleaned up — otherwise the
+      // throw, the status registry must still be cleaned up -- otherwise the
       // health pill would keep a stale entry forever.
       updateMCPServerStatus('flaky-server', MCPServerStatus.DISCONNECTED);
       vi.spyOn(config, 'getExcludedMcpServers').mockReturnValue([]);
@@ -832,7 +832,7 @@ describe('ToolRegistry', () => {
     });
 
     it('removes the server from the global status registry so the health pill stops counting it', async () => {
-      // Simulate an MCP server that connected and then dropped — the global
+      // Simulate an MCP server that connected and then dropped -- the global
       // registry would carry a DISCONNECTED entry for it.
       updateMCPServerStatus('flaky-server', MCPServerStatus.DISCONNECTED);
       expect(getAllMCPServerStatuses().has('flaky-server')).toBe(true);
@@ -842,7 +842,7 @@ describe('ToolRegistry', () => {
         .mockImplementation(() => {});
       vi.spyOn(config, 'getExcludedMcpServers').mockReturnValue([]);
       // disableMcpServer delegates the actual transport teardown to the
-      // McpClientManager — stub it out so we can isolate the status-registry
+      // McpClientManager -- stub it out so we can isolate the status-registry
       // behavior.
       vi.spyOn(
         McpClientManager.prototype,
@@ -880,7 +880,7 @@ describe('ToolRegistry', () => {
       await toolRegistry.disableMcpServer('flaky-server');
 
       // When setExcludedMcpServers ran, the status entry must still be
-      // present — i.e. the exclusion list is updated first.
+      // present -- i.e. the exclusion list is updated first.
       expect(callOrder).toEqual(['setExcludedMcpServers:hasStatus=true']);
       expect(getAllMCPServerStatuses().has('flaky-server')).toBe(false);
     });
@@ -899,7 +899,7 @@ describe('ToolRegistry', () => {
 
       toolRegistry.registerFactory('inflight-tool', () => factoryPromise);
 
-      // Start loading the tool but don't await — it's inflight when stop() is called.
+      // Start loading the tool but don't await -- it's inflight when stop() is called.
       const ensurePromise = toolRegistry.ensureTool('inflight-tool');
 
       // Resolve the factory after stop() has started but before it returns.

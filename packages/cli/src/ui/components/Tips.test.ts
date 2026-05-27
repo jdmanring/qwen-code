@@ -40,7 +40,7 @@ function createContext(overrides: Partial<TipContext> = {}): TipContext {
     sessionPromptCount: 0,
     sessionCount: 1,
     platform: 'linux',
-    // Matches computeThresholds(1_000_000) — kept inline so this test stays
+    // Matches computeThresholds(1_000_000) -- kept inline so this test stays
     // hermetic to the registry's tier logic rather than re-deriving constants.
     thresholds: {
       warn: 947_000,
@@ -67,7 +67,7 @@ describe('selectTip', () => {
 
   it('returns context-high tip when context usage is high', () => {
     const ctx = createContext({
-      // Between auto (967K) and hard (977K) — context-high band.
+      // Between auto (967K) and hard (977K) -- context-high band.
       lastPromptTokenCount: 970_000,
       contextWindowSize: 1_000_000,
       sessionPromptCount: 10,
@@ -80,7 +80,7 @@ describe('selectTip', () => {
 
   it('returns context-critical tip when context usage is critical', () => {
     const ctx = createContext({
-      // At/above hard (977K) — context-critical band.
+      // At/above hard (977K) -- context-critical band.
       lastPromptTokenCount: 980_000,
       contextWindowSize: 1_000_000,
       sessionPromptCount: 10,
@@ -93,7 +93,7 @@ describe('selectTip', () => {
 
   it('returns compress-intro tip when context is moderate and session is long', () => {
     const ctx = createContext({
-      // Between warn (947K) and auto (967K) — compress-intro band.
+      // Between warn (947K) and auto (967K) -- compress-intro band.
       lastPromptTokenCount: 955_000,
       contextWindowSize: 1_000_000,
       sessionPromptCount: 10,
@@ -115,7 +115,7 @@ describe('selectTip', () => {
     expect(tip).toBeNull();
   });
 
-  it('respects cooldown — does not re-show same tip within cooldown period', () => {
+  it('respects cooldown -- does not re-show same tip within cooldown period', () => {
     const ctx = createContext({
       lastPromptTokenCount: 970_000,
       contextWindowSize: 1_000_000,
@@ -130,7 +130,7 @@ describe('selectTip', () => {
     // Record it as shown
     history.recordShown(tip1!.id, 10);
 
-    // Same prompt count — should be cooled down, skip context-high
+    // Same prompt count -- should be cooled down, skip context-high
     const tip2 = selectTip('post-response', ctx, tipRegistry, history);
     // Should either be null or a different tip
     expect(tip2?.id).not.toBe('context-high');
@@ -154,7 +154,7 @@ describe('selectTip', () => {
     expect(tip1).not.toBeNull();
     history.recordShown(tip1!.id, 0);
 
-    // Pick second tip — should be different due to LRU
+    // Pick second tip -- should be different due to LRU
     const tip2 = selectTip('startup', ctx, tipRegistry, history);
     expect(tip2).not.toBeNull();
     expect(tip2!.id).not.toBe(tip1!.id);

@@ -65,10 +65,10 @@ export function isMainModule(importMetaUrl) {
 
 /**
  * Parse CLI arguments. Supports:
- *  - --flag           → args[def.key] = true
- *  - --key value      → args[def.key] = value
- *  - --key=value      → args[def.key] = value
- *  - -h, --help       → args.help = true (always recognised)
+ *  - --flag           -> args[def.key] = true
+ *  - --key value      -> args[def.key] = value
+ *  - --key=value      -> args[def.key] = value
+ *  - -h, --help       -> args.help = true (always recognised)
  *
  * @param {string[]} argv
  * @param {Record<string, {key: string, type: 'flag'|'value'}>} definitions

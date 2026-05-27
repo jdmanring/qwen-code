@@ -1,4 +1,4 @@
-# 🧠 Memory Taxonomy: The Three Layers of Cognition
+#  Memory Taxonomy: The Three Layers of Cognition
 
 In the Mega Code system, "Memory" is not a single feature but a hierarchy of three distinct cognitive layers. Confusing these layers leads to suboptimal agent behavior. This document formally defines the taxonomy to ensure clear communication between developers and the AI.
 

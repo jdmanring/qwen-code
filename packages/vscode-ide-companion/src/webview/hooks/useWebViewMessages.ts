@@ -566,7 +566,7 @@ export const useWebViewMessages = ({
         }
 
         case 'authCancelled': {
-          // User dismissed the auth picker — clear loading state so the
+          // User dismissed the auth picker -- clear loading state so the
           // input is not left disabled.
           handlers.messageHandling.clearWaitingForResponse();
           break;

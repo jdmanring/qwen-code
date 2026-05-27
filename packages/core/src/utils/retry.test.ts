@@ -542,7 +542,7 @@ describe('isUnattendedMode', () => {
   });
 
   it('should use strict matching consistent with parseBooleanEnvFlag', () => {
-    // Only 'true' and '1' are accepted — matches project convention
+    // Only 'true' and '1' are accepted -- matches project convention
     process.env['QWEN_CODE_UNATTENDED_RETRY'] = 'TRUE';
     expect(isUnattendedMode()).toBe(false); // strict: not 'true'
     process.env['QWEN_CODE_UNATTENDED_RETRY'] = ' 1 ';
@@ -731,7 +731,7 @@ describe('retryWithBackoff - persistent mode', () => {
   });
 
   it('should respect shouldRetryOnError even in persistent mode', async () => {
-    // Caller explicitly says "don't retry 429" — persistent mode must obey
+    // Caller explicitly says "don't retry 429" -- persistent mode must obey
     const fn = vi.fn(async () => {
       const error: HttpError = new Error('Rate limited');
       error.status = 429;
@@ -750,7 +750,7 @@ describe('retryWithBackoff - persistent mode', () => {
     await vi.runAllTimersAsync();
     await assertionPromise;
 
-    // Should fail on first attempt — shouldRetryOnError trumps persistent mode
+    // Should fail on first attempt -- shouldRetryOnError trumps persistent mode
     expect(fn).toHaveBeenCalledTimes(1);
   });
 
@@ -839,7 +839,7 @@ describe('retryWithBackoff - Retry-After handling in persistent mode', () => {
       maxAttempts: 3,
       initialDelayMs: 100,
       persistentMode: true,
-      persistentMaxBackoffMs: 5000, // 5 seconds — Retry-After must NOT be capped to this
+      persistentMaxBackoffMs: 5000, // 5 seconds -- Retry-After must NOT be capped to this
     });
 
     await vi.runAllTimersAsync();
@@ -867,7 +867,7 @@ describe('retryWithBackoff - Retry-After handling in persistent mode', () => {
       maxAttempts: 3,
       initialDelayMs: 100,
       persistentMode: true,
-      persistentCapMs: 50_000, // absolute cap 50s — less than Retry-After
+      persistentCapMs: 50_000, // absolute cap 50s -- less than Retry-After
     });
 
     await vi.runAllTimersAsync();
@@ -908,7 +908,7 @@ describe('retryWithBackoff - Retry-After handling in persistent mode', () => {
       observedDelays.push(delays[0]);
     }
 
-    // All delays should be exactly 10000ms — no jitter
+    // All delays should be exactly 10000ms -- no jitter
     for (const d of observedDelays) {
       expect(d).toBe(10_000);
     }

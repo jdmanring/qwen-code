@@ -27,7 +27,7 @@ function createMockConfig(): Config {
   } as unknown as Config;
 }
 
-describe('StreamJsonOutputAdapter — dual-output extensions', () => {
+describe('StreamJsonOutputAdapter -- dual-output extensions', () => {
   let mockConfig: Config;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let stdoutWriteSpy: any;

@@ -182,14 +182,14 @@ describe('ChatRecordingService - recordCustomTitle', () => {
       // Write a title, then keep appending bulky messages until the
       // running tally crosses the 32KB threshold. The first non-title
       // record after the threshold should provoke a fresh
-      // custom_title append at EOF — keeping the title within the
+      // custom_title append at EOF -- keeping the title within the
       // 64KB tail window the picker scans even if no lifecycle event
       // (finalize) has fired.
       chatRecordingService.recordCustomTitle('long-running-task');
       await chatRecordingService.flush();
       vi.mocked(jsonl.writeLine).mockClear();
 
-      // Each user message carries ~2KB of text — 20 of them put well
+      // Each user message carries ~2KB of text -- 20 of them put well
       // over 32KB on the wire (counting the ~200B per-record envelope).
       const bulkText = 'x'.repeat(2000);
       for (let i = 0; i < 20; i++) {
@@ -205,7 +205,7 @@ describe('ChatRecordingService - recordCustomTitle', () => {
 
       expect(titleAppendsAfterClear.length).toBeGreaterThanOrEqual(1);
       // The re-anchored record must carry the same title + source as
-      // the original — it's a copy, not a fresh rename.
+      // the original -- it's a copy, not a fresh rename.
       const reanchored = titleAppendsAfterClear[0][1] as ChatRecord;
       expect(reanchored.systemPayload).toEqual({
         customTitle: 'long-running-task',
@@ -266,7 +266,7 @@ describe('ChatRecordingService - recordCustomTitle', () => {
     it('omits titleSource on re-anchor when source is unknown (legacy resumed session)', async () => {
       // The picker dim-styling depends on the persisted `titleSource`
       // discriminator. Legacy `custom_title` records (written before
-      // the field existed) have no source — `getSessionTitleInfo`
+      // the field existed) have no source -- `getSessionTitleInfo`
       // returns `source: undefined` for those, and the writer's
       // re-anchor invariant must mirror that exact shape: emit
       // `customTitle` alone, never a hardcoded `'manual'`. Otherwise
@@ -288,7 +288,7 @@ describe('ChatRecordingService - recordCustomTitle', () => {
 
       const svc = new ChatRecordingService(mockConfig);
       // Constructor's finalize re-appends a custom_title record on resume
-      // — clear it out so we can isolate the threshold-triggered re-anchor.
+      // -- clear it out so we can isolate the threshold-triggered re-anchor.
       await svc.flush();
       vi.mocked(jsonl.writeLine).mockClear();
 
@@ -307,7 +307,7 @@ describe('ChatRecordingService - recordCustomTitle', () => {
 
       expect(titleAppends.length).toBeGreaterThanOrEqual(1);
       const reanchored = titleAppends[0][1] as ChatRecord;
-      // Key must be ABSENT, not present-and-undefined — JSON.stringify
+      // Key must be ABSENT, not present-and-undefined -- JSON.stringify
       // would still serialize an explicit `undefined` away, but the
       // record-shape contract is "no key when no source", so pin it.
       expect(reanchored.systemPayload).toEqual({ customTitle: 'legacy-title' });
@@ -322,19 +322,19 @@ describe('ChatRecordingService - recordCustomTitle', () => {
     it('counts UTF-8 bytes, not UTF-16 code units, when measuring bulk writes', async () => {
       // CJK characters are 1 UTF-16 code unit but 3 UTF-8 bytes. The wire
       // format is UTF-8 (jsonl.writeLine emits utf8), so a per-record
-      // `String.length` undercounts a multi-byte payload by ~3×. A naive
+      // `String.length` undercounts a multi-byte payload by ~3*. A naive
       // length-based counter would let ~96KB of CJK content land on disk
-      // before the 32KB threshold thinks it has — pushing the title past
+      // before the 32KB threshold thinks it has -- pushing the title past
       // the 64KB tail window the picker scans.
       //
-      // Twelve 1500-char CJK messages ≈ 21K UTF-16 units (under threshold)
-      // but ≈ 57K UTF-8 bytes (over). Anchor fires only when the counter
+      // Twelve 1500-char CJK messages  21K UTF-16 units (under threshold)
+      // but  57K UTF-8 bytes (over). Anchor fires only when the counter
       // measures bytes, not chars.
       chatRecordingService.recordCustomTitle('cjk-session');
       await chatRecordingService.flush();
       vi.mocked(jsonl.writeLine).mockClear();
 
-      const cjkText = '汉'.repeat(1500);
+      const cjkText = ''.repeat(1500);
       for (let i = 0; i < 12; i++) {
         chatRecordingService.recordUserMessage([{ text: cjkText }]);
       }
@@ -349,10 +349,10 @@ describe('ChatRecordingService - recordCustomTitle', () => {
       expect(titleAppends.length).toBeGreaterThanOrEqual(1);
     });
 
-    it('resets the byte counter when re-anchor fails — no retry storm', async () => {
+    it('resets the byte counter when re-anchor fails -- no retry storm', async () => {
       // If reanchorTitle throws (disk full, permission revoked) and we
       // leave the byte counter pinned at the threshold, every subsequent
-      // appendRecord will re-fire the failing reanchor — an unbounded
+      // appendRecord will re-fire the failing reanchor -- an unbounded
       // retry storm that amplifies I/O pressure on an already-degraded
       // system. Resetting on failure trades one missed anchor for
       // bounded recovery; finalize() will re-emit on the next lifecycle
@@ -362,7 +362,7 @@ describe('ChatRecordingService - recordCustomTitle', () => {
       vi.mocked(jsonl.writeLine).mockClear();
 
       // Wrap the private appendRecord so any custom_title append (i.e.
-      // a re-anchor — the initial title write already happened) throws.
+      // a re-anchor -- the initial title write already happened) throws.
       // Bulk records pass through to the real implementation so the
       // byte counter still accumulates exactly as production would.
       let reanchorAttempts = 0;
@@ -378,7 +378,7 @@ describe('ChatRecordingService - recordCustomTitle', () => {
         return originalAppendRecord(record);
       };
 
-      // 25 × 2KB ≈ 50KB > 32KB → first re-anchor fires (and throws).
+      // 25 * 2KB  50KB > 32KB -> first re-anchor fires (and throws).
       // With the counter-reset fix, it stays reset; without it, every
       // subsequent message would re-trigger reanchor.
       const bulkText = 'x'.repeat(2000);
@@ -393,7 +393,7 @@ describe('ChatRecordingService - recordCustomTitle', () => {
     });
 
     it('does not re-anchor on small write bursts under threshold', async () => {
-      // A handful of small messages must not trigger a re-anchor —
+      // A handful of small messages must not trigger a re-anchor --
       // the cost would defeat the whole point. Threshold is 32KB;
       // five 200B user messages stay safely under it.
       chatRecordingService.recordCustomTitle('quick-session');

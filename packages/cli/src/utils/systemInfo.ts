@@ -55,7 +55,7 @@ export interface ExtendedSystemInfo extends SystemInfo {
 // `execFile` (not the shell-spawning `exec`) so a hostile binary on PATH
 // can't inject shell metacharacters. The timeout protects the daemon's
 // event loop from a hung `git` / `npm` (NFS stall, Gatekeeper prompt,
-// broken install) — `execSync` would have blocked indefinitely.
+// broken install) -- `execSync` would have blocked indefinitely.
 const VERSION_PROBE_TIMEOUT_MS = 5_000;
 
 /**
@@ -63,7 +63,7 @@ const VERSION_PROBE_TIMEOUT_MS = 5_000;
  * trimmed, or `'unknown'` on any failure (including timeout). Helper kept
  * inline (rather than `const probeVersion = promisify(execFile)`) so a
  * `vi.mock('node:child_process', { execFile: vi.fn() })` test can override
- * each call individually — the promisified value would otherwise capture
+ * each call individually -- the promisified value would otherwise capture
  * the original `execFile` reference at module load.
  */
 function probeVersion(binary: string): Promise<string> {

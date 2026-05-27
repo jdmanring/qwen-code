@@ -25,7 +25,7 @@ describe('TaskStopTool', () => {
     abandonBackgroundAgent = vi.fn();
     shellRegistry = new BackgroundShellRegistry();
     monitorRegistry = new MonitorRegistry();
-    // Default fake MemoryManager — every test that doesn't care about
+    // Default fake MemoryManager -- every test that doesn't care about
     // dream gets an empty stub so the 4th-route lookup falls through to
     // the not-found branch instead of crashing on undefined.
     const memoryManager = {
@@ -163,7 +163,7 @@ describe('TaskStopTool', () => {
       expect(result.llmContent).toContain(
         '/tmp/bg-out/shell-bg_a1b2c3d4.output',
       );
-      // task_stop only requests cancellation — the entry stays `running`
+      // task_stop only requests cancellation -- the entry stays `running`
       // until the spawn handler observes the abort and settles the entry
       // with the real exit moment. Without this guarantee, /tasks would
       // report a terminal-but-still-draining shell.
@@ -366,7 +366,7 @@ describe('TaskStopTool', () => {
       // Extract is short-lived and runs on the request path; cancelling
       // it would interfere with the user's own turn. The dispatch must
       // distinguish "task exists but isn't cancellable" from "task
-      // doesn't exist" — without the distinct error type, a model
+      // doesn't exist" -- without the distinct error type, a model
       // retrying against an extract id would incorrectly conclude the
       // id was never valid.
       const extractRecord = {
@@ -404,7 +404,7 @@ describe('TaskStopTool', () => {
 
     it('returns an error when cancelTask returns false (missing AbortController)', async () => {
       // The MemoryManager.cancelTask contract returns false when the
-      // AbortController is missing for a running record — a logic-
+      // AbortController is missing for a running record -- a logic-
       // level invariant violation. task_stop must surface the failure
       // rather than report a phantom success, otherwise the model
       // believes the dream is being aborted while it actually keeps

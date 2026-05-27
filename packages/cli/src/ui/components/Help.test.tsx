@@ -261,7 +261,7 @@ describe('Help Component', () => {
 
     expect(lastFrame()).toContain('/cmd-00');
     expect(lastFrame()).not.toContain('/cmd-11');
-    expect(lastFrame()).toContain('Use ↑/↓ to scroll');
+    expect(lastFrame()).toContain('Use / to scroll');
 
     sendKey({ name: 'down' });
     sendKey({ name: 'down' });

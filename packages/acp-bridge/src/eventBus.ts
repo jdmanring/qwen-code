@@ -7,7 +7,7 @@
 /**
  * Event-bus for the daemon's per-session NDJSON stream.
  *
- * Design notes (from issue #3803 §04 / threat-model):
+ * Design notes (from issue #3803 04 / threat-model):
  *   - Each event carries a monotonic `id` (per session) so the SSE
  *     `Last-Event-ID` reconnect protocol can pick up where the client left
  *     off. Backed by a bounded ring of recent events for replay.
@@ -26,7 +26,7 @@ export interface BridgeEvent {
   /**
    * Monotonic per-session id, starting at 1. Absent on synthetic
    * terminal frames (e.g. `client_evicted`) so they don't burn a slot
-   * in the sequence other subscribers observe — the gap would be
+   * in the sequence other subscribers observe -- the gap would be
    * visible on the live stream and the resume ring wouldn't have the
    * skipped id either, silently breaking contiguity.
    */
@@ -35,7 +35,7 @@ export interface BridgeEvent {
   v: typeof EVENT_SCHEMA_VERSION;
   /** Frame type: `session_update`, `client_evicted`, or daemon-pushed events. */
   type: string;
-  /** Frame payload — opaque JSON. */
+  /** Frame payload -- opaque JSON. */
   data: unknown;
   /**
    * Identifier of the client that triggered the event, when known. Used by
@@ -63,13 +63,13 @@ export interface SubscribeOptions {
 const DEFAULT_MAX_QUEUED = 256;
 /**
  * Default replay-ring depth per session. Sized for a 5-second
- * reconnect window over a chatty turn — a single long-running prompt
+ * reconnect window over a chatty turn -- a single long-running prompt
  * can emit hundreds of frames (test plan reports 13 for a short
- * turn, real workloads can be 10× that or more once tool-call /
+ * turn, real workloads can be 10* that or more once tool-call /
  * thought streams pile up). 1000 was the original default and could
  * be exhausted by a moderate turn before the client reconnected;
- * 8000 matches the target set in #3803 §02 for chatty Stage 1
- * sessions, with ~30–60× headroom over a typical-but-busy turn at
+ * 8000 matches the target set in #3803 02 for chatty Stage 1
+ * sessions, with ~30-60* headroom over a typical-but-busy turn at
  * the cost of a few hundred KB of RAM per session. Operators can
  * override per-daemon via `qwen serve --event-ring-size <n>`.
  */
@@ -79,7 +79,7 @@ export const DEFAULT_RING_SIZE = 8000;
  * frame is force-pushed to the at-risk subscriber. The warning fires
  * ONCE per overflow episode (tracked via `sub.warned`); the queue
  * must drain below `WARN_RESET_RATIO * maxQueued` before another
- * warning can fire — small hysteresis prevents flap-near-threshold
+ * warning can fire -- small hysteresis prevents flap-near-threshold
  * spam when a subscriber oscillates around 75% full.
  */
 const WARN_THRESHOLD_RATIO = 0.75;
@@ -88,11 +88,11 @@ const WARN_RESET_RATIO = 0.375;
 /**
  * Per-bus subscriber cap. With per-subscriber `maxQueued` defaulting to
  * 256 frames, 64 concurrent subscribers caps the per-session subscriber
- * memory at ~64 × 256 = 16k queued frames (worst case). Keeps a single
+ * memory at ~64 * 256 = 16k queued frames (worst case). Keeps a single
  * session from being opened thousands of times by an attacker to amplify
  * each `publish()` (which is O(N) over subscribers) into a CPU/memory
  * DoS. Daemon's HTTP listener also wants `server.maxConnections`
- * configured at the listener level — see `runQwenServe.ts`.
+ * configured at the listener level -- see `runQwenServe.ts`.
  */
 const DEFAULT_MAX_SUBSCRIBERS = 64;
 
@@ -110,7 +110,7 @@ interface InternalSub {
    * state (after the `!warned` short-circuit).
    */
   warnThreshold: number;
-  /** Pre-computed `WARN_RESET_RATIO * maxQueued` — see `warnThreshold`. */
+  /** Pre-computed `WARN_RESET_RATIO * maxQueued` -- see `warnThreshold`. */
   warnResetThreshold: number;
   /**
    * True once `slow_client_warning` has been force-pushed to this
@@ -120,10 +120,10 @@ interface InternalSub {
    */
   warned: boolean;
   /**
-   * BmJT1: cleanup hook for the eviction path (overflow → close queue
-   * → remove from `subs`). Without this, the abort listener registered
+   * BmJT1: cleanup hook for the eviction path (overflow -> close queue
+   * -> remove from `subs`). Without this, the abort listener registered
    * in `subscribe()` would stay attached against the consumer's
-   * AbortSignal — and the consumer is by definition stalled (that's
+   * AbortSignal -- and the consumer is by definition stalled (that's
    * what caused the overflow), so `next()` / `return()` / consumer's
    * own abort never fire to detach it. Closures over the queue +
    * signal stay live until the AbortSignal itself goes out of scope.
@@ -187,7 +187,7 @@ export class EventBus {
    * is the only abnormal path and is handled as a return-undefined
    * no-op; subscriber-enqueue failures are caught internally and
    * translated to per-subscriber eviction. Call sites can rely on
-   * this — the historical `try { publish(...) } catch {}` blocks in
+   * this -- the historical `try { publish(...) } catch {}` blocks in
    * `httpAcpBridge.ts` are defense-in-depth, not load-bearing, and
    * may be removed in a future cleanup pass without changing
    * behavior. Don't add new try/catch wrappers around `publish()`.
@@ -198,7 +198,7 @@ export class EventBus {
     // `channel.kill()`, which leaves a small window where the agent can
     // still emit a `sessionUpdate` notification or fire a
     // `requestPermission`. Throwing here would force every call site to
-    // wrap publish in try/catch — and would corrupt state in
+    // wrap publish in try/catch -- and would corrupt state in
     // `BridgeClient.requestPermission`, where the daemon-wide pending
     // map mutation runs *before* the publish (see executor in
     // `httpAcpBridge.ts`). Returning undefined keeps callers
@@ -212,8 +212,8 @@ export class EventBus {
     };
     this.ring.push(event);
     // Eviction-by-shift is O(n) once the ring is full. At the current
-    // default `ringSize=8000` (#3803 §02) the per-publish shift work
-    // measures in low milliseconds on chatty sessions — still well
+    // default `ringSize=8000` (#3803 02) the per-publish shift work
+    // measures in low milliseconds on chatty sessions -- still well
     // below per-frame latency budgets. A circular-buffer refactor
     // would push it to O(1) but adds index bookkeeping; deferred until
     // profiling actually flags it, or the operator bumps
@@ -228,10 +228,10 @@ export class EventBus {
         sub.evicted = true;
         // Synthetic terminal frame: NO `id` field. Otherwise it would
         // burn a slot in the per-session monotonic sequence (`nextId++`)
-        // visible to every OTHER subscriber as a gap (3 → 5, missing 4).
+        // visible to every OTHER subscriber as a gap (3 -> 5, missing 4).
         // Healthy subscribers would see the gap on the live stream and
         // on `Last-Event-ID: 3` resume the ring has no record of 4
-        // either — silently broken contiguity contradicts the
+        // either -- silently broken contiguity contradicts the
         // `BridgeEvent.id` doc-comment. Same pattern as `stream_error`
         // in server.ts; `formatSseFrame` omits the `id:` line when
         // `id` is absent.
@@ -249,7 +249,7 @@ export class EventBus {
         // AbortSignal listener that `subscribe()` registered. Pre-
         // fix the eviction path only did `this.subs.delete(sub)`,
         // leaving the abort listener attached against the stalled
-        // consumer's signal — the queue + sub closures were
+        // consumer's signal -- the queue + sub closures were
         // retained until the AbortSignal itself went out of scope.
         // Under attack (thousands of stalled SSE clients) this
         // amplified into significant heap retention.
@@ -260,7 +260,7 @@ export class EventBus {
       // the at-risk subscriber when its live backlog crosses
       // `WARN_THRESHOLD_RATIO`. Fires ONCE per overflow episode (the
       // `warned` flag clears only after `WARN_RESET_RATIO` hysteresis
-      // drain). Like `client_evicted` the frame carries no `id` — it
+      // drain). Like `client_evicted` the frame carries no `id` -- it
       // is private to this subscriber and must not burn a sequence
       // slot the replay ring would otherwise be missing for other
       // healthy subscribers. Force-push so the warning bypasses the
@@ -270,12 +270,12 @@ export class EventBus {
       // the FRONT was considered to maximize lead-time, but (a) the
       // forward-position invariant in `BoundedAsyncQueue.next()`'s
       // `forcedInBuf` accounting is sized for "replay at front, live
-      // at back" — mid-stream front-insertion would mis-count the
+      // at back" -- mid-stream front-insertion would mis-count the
       // live backlog cap; and (b) when a consumer is actively
       // `await`ing `next()`, `forcePush`'s `resolvers.shift()`
       // shortcut delivers the warning immediately without ever
       // touching `buf`. The back-of-queue case only matters for
-      // stalled consumers — and a stalled consumer can't drain
+      // stalled consumers -- and a stalled consumer can't drain
       // regardless of warning position, so the ordering is
       // informational by the time they finally pull it.
       //
@@ -293,7 +293,7 @@ export class EventBus {
           data: {
             queueSize: liveSize,
             maxQueued: sub.maxQueued,
-            // `event.id` is always defined here — the just-published
+            // `event.id` is always defined here -- the just-published
             // `event` is constructed at the top of `publish()` with
             // `id: this.nextId++`. No `??` fallback needed.
             lastEventId: event.id as number,
@@ -310,14 +310,14 @@ export class EventBus {
   }
 
   /**
-   * Note: registration is synchronous — by the time `subscribe()` returns,
+   * Note: registration is synchronous -- by the time `subscribe()` returns,
    * the subscriber is already attached and will receive any subsequent
    * `publish()` even if the consumer hasn't started iterating yet. (A
    * generator-style implementation would defer registration to the first
    * `next()` call, which races with publishes that happen before the
    * consumer's first await.)
    *
-   * The returned iterator is NOT safe to drive from concurrent callers —
+   * The returned iterator is NOT safe to drive from concurrent callers --
    * two simultaneous `.next()` calls would race for the same event from
    * the underlying queue. Daemon usage is sequential (`for await ... of`
    * inside the SSE route), so this is safe in production. Callers that
@@ -333,7 +333,7 @@ export class EventBus {
     // allocation + the per-publish iteration cost. Throw a typed
     // error so the SSE route can surface a `stream_error` frame to
     // the rejected client (rather than returning an empty iterable
-    // that closes silently — that left oncall blind to "some
+    // that closes silently -- that left oncall blind to "some
     // clients get events, some don't" under load).
     if (this.subs.size >= this.maxSubscribers) {
       throw new SubscriberLimitExceededError(this.maxSubscribers);
@@ -344,7 +344,7 @@ export class EventBus {
     // `dispose` is assigned below (mutable so the closure can reference
     // `sub.dispose`); placeholder no-op covers the brief window between
     // `subs.add(sub)` and the real assignment so an absurdly fast
-    // `publish() → forcePush → close → dispose()` race can't crash.
+    // `publish() -> forcePush -> close -> dispose()` race can't crash.
     const sub: InternalSub = {
       queue,
       evicted: false,
@@ -366,7 +366,7 @@ export class EventBus {
       for (const e of this.ring) {
         // The ring only ever contains live events (publish() always
         // assigns an id before pushing to ring), so `e.id` is never
-        // undefined here — but the type system can't see that since
+        // undefined here -- but the type system can't see that since
         // BridgeEvent.id is optional for synthetic terminal frames.
         // Guard explicitly to keep narrow typing without runtime cost.
         if (e.id !== undefined && e.id > opts.lastEventId) {
@@ -385,13 +385,13 @@ export class EventBus {
     sub.dispose = dispose;
 
     // Abort tears the subscription down immediately, even if the consumer
-    // never iterates again — without this the entry would linger in
+    // never iterates again -- without this the entry would linger in
     // `this.subs` until somebody called `next()`/`return()`. Idempotent
     // through `disposed`, so a double-abort or race with `return()` is
     // safe.
     //
     // `{ drain: false }` so the consumer doesn't keep yielding
-    // already-queued events after the abort — the subscribe doc says
+    // already-queued events after the abort -- the subscribe doc says
     // abort closes the iterator "promptly". Draining first contradicts
     // that contract and adds post-abort work to the SSE route (each
     // drained event ends up serialized over a socket nobody is
@@ -447,7 +447,7 @@ function emptyAsyncIterable<T>(): AsyncIterable<T> {
 
 /**
  * Promise-based bounded queue. `push` returns false (instead of blocking or
- * throwing) when full so callers can decide how to react — the EventBus uses
+ * throwing) when full so callers can decide how to react -- the EventBus uses
  * that signal to evict slow subscribers.
  *
  * The cap (`maxSize`) applies only to LIVE items pushed via `push()`. Items
@@ -457,7 +457,7 @@ function emptyAsyncIterable<T>(): AsyncIterable<T> {
  * count toward the cap. Without this split, a reconnect with a large
  * backlog would force-push ~ringSize entries into `buf`, push `buf.length`
  * past `maxSize`, and the very next live publish would evict the
- * just-resumed subscriber — defeating the resume contract.
+ * just-resumed subscriber -- defeating the resume contract.
  *
  * Previously this class tracked `forcedInBuf` as a count, which was
  * correct only when forced frames stayed contiguous at the FRONT of the
@@ -484,7 +484,7 @@ class BoundedAsyncQueue<T> {
    * Maintained directly by `push()`/`next()`: any time a forced entry
    * is added or removed `liveCount` is untouched; any time a live entry
    * is added or removed `liveCount` moves with it. Replaces the
-   * position-dependent `forcedInBuf` heuristic — `liveCount` is correct
+   * position-dependent `forcedInBuf` heuristic -- `liveCount` is correct
    * no matter where in the queue the forced entries are.
    */
   private liveCount = 0;
@@ -529,14 +529,14 @@ class BoundedAsyncQueue<T> {
 
   /**
    * Mark the queue closed. By default `next()` continues to drain
-   * any items already in `buf` before returning `done: true` —
+   * any items already in `buf` before returning `done: true` --
    * that's what the eviction path relies on (the synthetic
    * `client_evicted` frame is force-pushed THEN close is called,
    * and we want the consumer to see the terminal frame before the
    * iterator unwinds).
    *
    * Pass `{ drain: false }` to drop buffered items immediately
-   * (the AbortSignal-driven unsubscribe path uses this — the
+   * (the AbortSignal-driven unsubscribe path uses this -- the
    * subscribe docstring says abort should close the iterator
    * promptly, but draining hundreds of queued events first
    * contradicts that and adds post-abort work to the SSE route).
@@ -559,7 +559,7 @@ class BoundedAsyncQueue<T> {
   }
 
   next(): Promise<IteratorResult<T>> {
-    // Length check first — `buf.shift() !== undefined` would mis-handle a
+    // Length check first -- `buf.shift() !== undefined` would mis-handle a
     // queue whose element type legitimately includes `undefined`. The bus
     // never pushes undefined today, but the queue is generic.
     if (this.buf.length > 0) {

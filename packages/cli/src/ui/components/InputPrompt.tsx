@@ -90,7 +90,7 @@ export interface InputPromptProps {
   /**
    * Reports autocomplete-dropdown visibility specifically. Composer uses
    * this to hide the Footer / KeyboardShortcuts when the dropdown would
-   * overlap their vertical space. Must stay narrow — followup suggestions
+   * overlap their vertical space. Must stay narrow -- followup suggestions
    * and mid-input ghost text don't take Footer's space and shouldn't hide
    * it. See #4171 / #4308 review.
    */
@@ -163,7 +163,7 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
     setSelectedIndex: setBgSelectedIndex,
   } = useBackgroundTaskViewActions();
   const hasAgents = agents.size > 0;
-  // Includes terminal entries — the pill stays open so users can reopen
+  // Includes terminal entries -- the pill stays open so users can reopen
   // the dialog to inspect final state after the last agent finishes.
   const hasBgAgents = bgEntries.length > 0;
   const bgAgentCount = useMemo(
@@ -509,8 +509,8 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
       // Printable characters fall through to BaseTextInput's default
       // handler so the first keystroke appears in the input immediately
       // (each surface's own handler releases focus on the same event).
-      // LiveAgentPanel keyboard navigation: ↓/↑ move selection,
-      // Enter opens dialog for selected agent, Esc/↑-at-top returns
+      // LiveAgentPanel keyboard navigation: / move selection,
+      // Enter opens dialog for selected agent, Esc/-at-top returns
       // focus to composer. Printable chars type through (auto-unfocus).
       if (livePanelFocused) {
         if (key.name === 'down' || (key.ctrl && key.name === 'n')) {
@@ -565,7 +565,7 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
       }
 
       // When the Background tasks dialog is open, swallow every key so
-      // nothing reaches the composer buffer — the dialog's own keypress
+      // nothing reaches the composer buffer -- the dialog's own keypress
       // handler owns selection, open/close, and stop actions. Unlike
       // the tab bar we do NOT let printable chars type through, because
       // the dialog doesn't auto-close on printable input and users
@@ -755,7 +755,7 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
             resetEscapeState();
             return true;
           }
-          // returned false (queue already cleared) — fall through
+          // returned false (queue already cleared) -- fall through
         }
 
         // Handle double ESC for clearing input
@@ -1056,14 +1056,14 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
             (buffer.visualCursor[0] === 0 && buffer.visualScrollRow === 0))
         ) {
           if (popQueueIntoInput()) return true;
-          // returned false (queue already cleared) — fall through to history
+          // returned false (queue already cleared) -- fall through to history
         }
 
         if (keyMatchers[Command.HISTORY_UP](key)) {
           // Two-step edge transition (matches Claude Code):
-          // 1. If not on first visual row → move cursor up one row
-          // 2. Else if cursor not at col 0 → snap to col 0 (no history change)
-          // 3. Else → navigate to older history; cursor lands at offset 0
+          // 1. If not on first visual row -> move cursor up one row
+          // 2. Else if cursor not at col 0 -> snap to col 0 (no history change)
+          // 3. Else -> navigate to older history; cursor lands at offset 0
           const onFirstRow =
             buffer.visualCursor[0] === 0 && buffer.visualScrollRow === 0;
           if (!onFirstRow) {
@@ -1081,9 +1081,9 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
         }
         if (keyMatchers[Command.HISTORY_DOWN](key)) {
           // Two-step edge transition (matches Claude Code):
-          // 1. If not on last visual row → move cursor down one row
-          // 2. Else if cursor not at end of line → snap to end (no history change)
-          // 3. Else → navigate to newer history; cursor lands at end (setText default)
+          // 1. If not on last visual row -> move cursor down one row
+          // 2. Else if cursor not at end of line -> snap to end (no history change)
+          // 3. Else -> navigate to newer history; cursor lands at end (setText default)
           const lastRowIdx = buffer.allVisualLines.length - 1;
           const onLastRow = buffer.visualCursor[0] === lastRowIdx;
           if (!onLastRow) {
@@ -1140,8 +1140,8 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
             return true;
           }
           // Focus order on Down from an empty composer:
-          // team tab bar (if any Arena agents) → Background tasks
-          // dialog (if any bg agents) → otherwise stay put.
+          // team tab bar (if any Arena agents) -> Background tasks
+          // dialog (if any bg agents) -> otherwise stay put.
           if (hasAgents) {
             setAgentTabBarFocused(true);
             return true;
@@ -1174,7 +1174,7 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
           followup.state.suggestion
         ) {
           const text = followup.state.suggestion;
-          // Skip onAccept (buffer.insert) — we pass the text directly to
+          // Skip onAccept (buffer.insert) -- we pass the text directly to
           // handleSubmitAndClear which clears the buffer synchronously.
           // Without skipOnAccept the microtask in accept() would re-insert
           // the suggestion into the buffer after it was already cleared.
@@ -1249,17 +1249,17 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
             return true;
           }
         }
-        // No placeholder matched — fall through to BaseTextInput's default backspace
+        // No placeholder matched -- fall through to BaseTextInput's default backspace
       }
 
-      // Ctrl+U (clear-line) — reset export cycling state so a subsequent
+      // Ctrl+U (clear-line) -- reset export cycling state so a subsequent
       // manual typing of "/export <fmt>" doesn't mistakenly show the
       // persistent suggestion panel as if the user had cycled.
       if (key.ctrl && key.name === 'u') {
         exportCompletion.reset();
       }
 
-      // Ctrl+C with completion active — also reset completion state
+      // Ctrl+C with completion active -- also reset completion state
       if (keyMatchers[Command.CLEAR_INPUT](key)) {
         exportCompletion.reset();
         if (buffer.text.length > 0) {
@@ -1295,7 +1295,7 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
       }
       // NOTE: the former unconditional
       //   `exportCompletion.reset();`
-      // at this fallthrough was removed — the phase-2 buffer-text guard above
+      // at this fallthrough was removed -- the phase-2 buffer-text guard above
       // already prevents stale state from affecting non-/export input, and
       // the blanket reset was wiping selection on cursor-only keys such as
       // Home / End / Ctrl+A.
@@ -1499,14 +1499,14 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
   // Note on reverse/command-search: when those overlays have matches, their
   // `showSuggestions` flag flows into `shouldShowSuggestions` above and Tab IS
   // consumed (ACCEPT_SUGGESTION_REVERSE_SEARCH). When they are active with no
-  // matches, Tab is not consumed — so the bare `reverseSearchActive` /
+  // matches, Tab is not consumed -- so the bare `reverseSearchActive` /
   // `commandSearchActive` flags are intentionally NOT included here.
   const hasTabConsumer =
     shouldShowSuggestions ||
     (followup.state.isVisible && Boolean(followup.state.suggestion)) ||
     Boolean(completion.midInputGhostText?.acceptText);
 
-  // Narrow signal — autocomplete dropdown only. Composer hides Footer /
+  // Narrow signal -- autocomplete dropdown only. Composer hides Footer /
   // KeyboardShortcuts when this is true because the dropdown competes for
   // the same vertical space. Followup / ghost text are inline within the
   // input box and must NOT hide the Footer (#4308 review).
@@ -1514,7 +1514,7 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
     onSuggestionsVisibilityChange?.(shouldShowSuggestions);
   }, [shouldShowSuggestions, onSuggestionsVisibilityChange]);
 
-  // Broad signal — any Tab consumer. Reset to false on unmount (e.g. when
+  // Broad signal -- any Tab consumer. Reset to false on unmount (e.g. when
   // InputPrompt unmounts during streaming) so AppContainer's stale
   // `hasTabConsumer` doesn't keep blocking Windows Tab approval-mode cycling
   // while there is no input area to consume the keystroke.
@@ -1635,8 +1635,8 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
         <Box marginLeft={2} marginRight={2}>
           <Text color={theme.text.secondary}>
             {isAttachmentMode
-              ? t('← → select, Delete to remove, ↓ to exit')
-              : t('↑ to manage attachments')}
+              ? t('<- -> select, Delete to remove,  to exit')
+              : t(' to manage attachments')}
           </Text>
         </Box>
       )}

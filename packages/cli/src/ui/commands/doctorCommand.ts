@@ -317,7 +317,7 @@ function formatHeapSpaces(
       `  - ${space.name}: used ${formatMemoryUsage(space.used)} / size ${formatMemoryUsage(space.size)}`,
   );
   if (spaces.length > top.length) {
-    lines.push(`  - … ${spaces.length - top.length} more`);
+    lines.push(`  - ... ${spaces.length - top.length} more`);
   }
   return lines.join('\n');
 }

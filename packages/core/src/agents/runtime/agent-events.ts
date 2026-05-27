@@ -9,7 +9,7 @@
  *
  * Defines the observation/notification contracts for the agent runtime:
  * - Event types emitted during agent execution (streaming, tool calls, etc.)
- * - AgentEventEmitter — typed wrapper around EventEmitter
+ * - AgentEventEmitter -- typed wrapper around EventEmitter
  * - Lifecycle hooks (pre/post tool use, stop) for synchronous callbacks
  */
 
@@ -22,7 +22,7 @@ import type {
 import type { Part, GenerateContentResponseUsageMetadata } from '@google/genai';
 import type { AgentStatus } from './agent-types.js';
 
-// ─── Event Types ────────────────────────────────────────────
+// --- Event Types --------------------------------------------
 
 export type AgentEvent =
   | 'start'
@@ -59,7 +59,7 @@ export enum AgentEventType {
   STATUS_CHANGE = 'status_change',
 }
 
-// ─── Event Payloads ─────────────────────────────────────────
+// --- Event Payloads -----------------------------------------
 
 export interface AgentStartEvent {
   subagentId: string;
@@ -134,7 +134,7 @@ export interface AgentToolOutputUpdateEvent {
   callId: string;
   /** Latest accumulated output for this tool call (replaces previous). */
   outputChunk: ToolResultDisplay;
-  /** PTY process PID — present when the tool runs in an interactive shell. */
+  /** PTY process PID -- present when the tool runs in an interactive shell. */
   pid?: number;
   /**
    * Wall-clock timestamp (ms since epoch) when the tool transitioned into
@@ -200,7 +200,7 @@ export interface AgentStatusChangeEvent {
   timestamp: number;
 }
 
-// ─── Event Map ──────────────────────────────────────────────
+// --- Event Map ----------------------------------------------
 
 /**
  * Maps each event type to its payload type for type-safe emit/on.
@@ -222,7 +222,7 @@ export interface AgentEventMap {
   [AgentEventType.STATUS_CHANGE]: AgentStatusChangeEvent;
 }
 
-// ─── Event Emitter ──────────────────────────────────────────
+// --- Event Emitter ------------------------------------------
 
 export class AgentEventEmitter {
   private ee = new EventEmitter();
@@ -249,7 +249,7 @@ export class AgentEventEmitter {
   }
 }
 
-// ─── Lifecycle Hooks ────────────────────────────────────────
+// --- Lifecycle Hooks ----------------------------------------
 
 export interface PreToolUsePayload {
   subagentId: string;

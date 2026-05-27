@@ -161,8 +161,8 @@ describe('SessionMessageHandler', () => {
 
   it('sends formatted prompt text so session restore can reconstruct pasted images', async () => {
     mockProcessImageAttachments.mockResolvedValue({
-      formattedText: '这是什么内容\n\n@/tmp/clipboard/clipboard-123.png',
-      displayText: '这是什么内容\n\n@/tmp/clipboard/clipboard-123.png',
+      formattedText: '\n\n@/tmp/clipboard/clipboard-123.png',
+      displayText: '\n\n@/tmp/clipboard/clipboard-123.png',
       savedImageCount: 1,
       promptImages: [
         {
@@ -196,7 +196,7 @@ describe('SessionMessageHandler', () => {
     await handler.handle({
       type: 'sendMessage',
       data: {
-        text: '这是什么内容',
+        text: '',
         attachments: [
           {
             id: 'img-1',
@@ -213,7 +213,7 @@ describe('SessionMessageHandler', () => {
     expect(agentManager.sendMessage).toHaveBeenCalledWith([
       {
         type: 'text',
-        text: '这是什么内容\n\n@/tmp/clipboard/clipboard-123.png',
+        text: '\n\n@/tmp/clipboard/clipboard-123.png',
       },
       {
         type: 'resource_link',
@@ -1164,7 +1164,7 @@ describe('SessionMessageHandler', () => {
     });
   });
 
-  describe('handleSetModel — discontinued model defensive validation (Issue #3745)', () => {
+  describe('handleSetModel -- discontinued model defensive validation (Issue #3745)', () => {
     it('rejects a non-runtime Qwen OAuth model and surfaces an error', async () => {
       const setModelFromUi = vi.fn();
       const agentManager = {
@@ -1227,7 +1227,7 @@ describe('SessionMessageHandler', () => {
       expect(mockShowErrorMessage).not.toHaveBeenCalled();
     });
 
-    it('passes through other-provider models (regression — no false positives)', async () => {
+    it('passes through other-provider models (regression -- no false positives)', async () => {
       const setModelFromUi = vi.fn().mockResolvedValue(undefined);
       const agentManager = {
         isConnected: true,

@@ -7,11 +7,11 @@
 /**
  * Warnings we know about and want to keep out of the user-facing terminal.
  * Listener accumulation on long-lived AbortSignals during multi-round agent
- * sessions is structural, not a real memory leak — the listeners are removed
+ * sessions is structural, not a real memory leak -- the listeners are removed
  * (via {once:true} + reverse-cleanup in utils/abortController.ts) but a few
  * extreme cases (e.g. OpenAI retry storms layered with multiple wrappers) can
  * still graze the per-signal cap. Match any MaxListenersExceededWarning that
- * mentions AbortSignal so we cover every shape Node ≥20 emits — `[AbortSignal]`,
+ * mentions AbortSignal so we cover every shape Node >=20 emits -- `[AbortSignal]`,
  * `[AbortSignal{...}]`, `[AbortSignal { ... }]`. We deliberately don't match
  * the generic `EventTarget` token so unrelated EventTarget leaks stay visible.
  */
@@ -34,7 +34,7 @@ function isDebugMode(): boolean {
 let installedHandler: ((warning: Error) => void) | null = null;
 
 /**
- * For tests only — uninstall the handler and reset internal state.
+ * For tests only -- uninstall the handler and reset internal state.
  */
 export function resetWarningHandlerForTests(): void {
   if (installedHandler) {
@@ -46,13 +46,13 @@ export function resetWarningHandlerForTests(): void {
 /**
  * Install a process-level `warning` handler that swallows the well-known
  * `MaxListenersExceededWarning` for AbortSignal while letting every other
- * warning through — including generic EventTarget leak warnings, which we
+ * warning through -- including generic EventTarget leak warnings, which we
  * leave visible because they likely indicate a real leak elsewhere. In
  * debug mode (NODE_ENV=development, or DEBUG / QWEN_DEBUG set), all
  * warnings are forwarded so developers can still see them.
  *
  * Implementation note: simply adding a `warning` listener does NOT prevent
- * Node's default printer from writing to stderr — the default handler is
+ * Node's default printer from writing to stderr -- the default handler is
  * registered as an ordinary listener (`lib/internal/process/warning.js`).
  * To actually suppress targeted warnings, we capture the existing listeners
  * (which include the default printer and any third-party telemetry hooks),
@@ -60,7 +60,7 @@ export function resetWarningHandlerForTests(): void {
  * warnings get fanned out to the captured listeners so the default printer
  * still fires for them; suppressed warnings stop here.
  *
- * Idempotent — repeated calls are a no-op.
+ * Idempotent -- repeated calls are a no-op.
  */
 export function initializeWarningHandler(): void {
   if (installedHandler) return;
@@ -75,7 +75,7 @@ export function initializeWarningHandler(): void {
   //    directly and bypass the suppression filter. Node's default printer
   //    is in our snapshot (not added later), so stderr stays clean; late
   //    telemetry will see the full warning stream including AbortSignal
-  //    leaks. This is intentional — telemetry should see what's happening.
+  //    leaks. This is intentional -- telemetry should see what's happening.
   //  - Listeners REMOVED via `process.removeListener('warning', fn)` after
   //    this init have no effect: we hold our own strong reference in the
   //    snapshot. Re-snapshotting per warning doesn't fix this because the

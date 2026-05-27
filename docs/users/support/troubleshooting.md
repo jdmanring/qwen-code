@@ -11,7 +11,7 @@ This guide provides solutions to common issues and debugging tips, including top
 
 - **Error: `Qwen OAuth free tier was discontinued on 2026-04-15`**
   - **Cause:** Qwen OAuth is no longer available as of April 15, 2026.
-  - **Solution:** Switch to a different authentication method. Run `qwen` → `/auth` and choose one of:
+  - **Solution:** Switch to a different authentication method. Run `qwen` -> `/auth` and choose one of:
     - **API Key**: Use an API key from Alibaba Cloud Model Studio ([Beijing](https://bailian.console.aliyun.com/) / [intl](https://modelstudio.console.alibabacloud.com/)). See the API setup guide ([Beijing](https://bailian.console.aliyun.com/cn-beijing/?tab=doc#/doc/?type=model&url=3023091) / [intl](https://modelstudio.console.alibabacloud.com/ap-southeast-1?tab=doc#/doc/?type=model&url=2974721)).
     - **Alibaba Cloud Coding Plan**: Subscribe for a fixed monthly fee with higher quotas. See the Coding Plan guide ([Beijing](https://bailian.console.aliyun.com/cn-beijing/?tab=coding-plan#/efm/coding-plan-index) / [intl](https://modelstudio.console.alibabacloud.com/?tab=coding-plan#/efm/coding-plan-index)).
 
@@ -91,7 +91,7 @@ This guide provides solutions to common issues and debugging tips, including top
   - `QWEN_CODE_IDE_WORKSPACE_PATH`
   - `QWEN_CODE_IDE_SERVER_PORT`
 - If running in a container, verify `host.docker.internal` resolves. Otherwise, map the host appropriately.
-- Reinstall the companion with `/ide install` and use “Qwen Code: Run” in the Command Palette to verify it launches.
+- Reinstall the companion with `/ide install` and use "Qwen Code: Run" in the Command Palette to verify it launches.
 
 ## Exit Codes
 

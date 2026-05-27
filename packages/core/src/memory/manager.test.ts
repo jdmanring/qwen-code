@@ -17,7 +17,7 @@ import {
 } from './paths.js';
 import type { Config } from '../config/config.js';
 
-// ─── Mocks ────────────────────────────────────────────────────────────────────
+// --- Mocks --------------------------------------------------------------------
 
 vi.mock('./extract.js', () => ({
   runAutoMemoryExtract: vi.fn(),
@@ -35,7 +35,7 @@ import { runAutoMemoryExtract } from './extract.js';
 import { runManagedAutoMemoryDream } from './dream.js';
 import { runSkillReviewByAgent } from './skillReviewAgentPlanner.js';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// --- Helpers ------------------------------------------------------------------
 
 function makeMockConfig(overrides: Partial<Config> = {}): Config {
   return {
@@ -48,7 +48,7 @@ function makeMockConfig(overrides: Partial<Config> = {}): Config {
   } as unknown as Config;
 }
 
-// ─── MemoryManager ────────────────────────────────────────────────────────────
+// --- MemoryManager ------------------------------------------------------------
 
 describe('MemoryManager', () => {
   describe('globalMemoryManager', () => {
@@ -57,7 +57,7 @@ describe('MemoryManager', () => {
     });
   });
 
-  // ─── drain() ──────────────────────────────────────────────────────────────
+  // --- drain() --------------------------------------------------------------
 
   describe('drain()', () => {
     it('resolves true immediately when there are no in-flight tasks', async () => {
@@ -95,7 +95,7 @@ describe('MemoryManager', () => {
     });
   });
 
-  // ─── scheduleExtract() ────────────────────────────────────────────────────
+  // --- scheduleExtract() ----------------------------------------------------
 
   describe('scheduleExtract()', () => {
     let tempDir: string;
@@ -186,7 +186,7 @@ describe('MemoryManager', () => {
         history: [{ role: 'user', parts: [{ text: 'first' }] }],
       });
 
-      // Second call while first is in-flight — should be queued
+      // Second call while first is in-flight -- should be queued
       const queued = await mgr.scheduleExtract({
         projectRoot,
         sessionId: 'sess-1',
@@ -227,7 +227,7 @@ describe('MemoryManager', () => {
     });
   });
 
-  // ─── Skill review ─────────────────────────────────────────────────────────
+  // --- Skill review ---------------------------------------------------------
 
   describe('scheduleSkillReview()', () => {
     beforeEach(() => {
@@ -348,7 +348,7 @@ describe('MemoryManager', () => {
     });
   });
 
-  // ─── listTasksByType() ────────────────────────────────────────────────────
+  // --- listTasksByType() ----------------------------------------------------
 
   describe('listTasksByType()', () => {
     it('returns empty array when no tasks of that type exist', () => {
@@ -387,7 +387,7 @@ describe('MemoryManager', () => {
     });
   });
 
-  // ─── subscribe() filter ──────────────────────────────────────────────────
+  // --- subscribe() filter --------------------------------------------------
 
   describe('subscribe() taskType filter', () => {
     // The filter exists so high-frequency consumers (the bg-tasks UI
@@ -424,7 +424,7 @@ describe('MemoryManager', () => {
     });
 
     it('returns an unsubscribe function that drops the filtered listener even when later notifies fire', async () => {
-      // Verify the unsubscribe actually severs the listener — the
+      // Verify the unsubscribe actually severs the listener -- the
       // earlier version of this test only asserted "not called yet"
       // without ever firing a notify, so the listener could have
       // remained attached and the test would still pass.
@@ -458,7 +458,7 @@ describe('MemoryManager', () => {
     });
   });
 
-  // ─── scheduleDream() ─────────────────────────────────────────────────────
+  // --- scheduleDream() -----------------------------------------------------
 
   describe('scheduleDream()', () => {
     let tempDir: string;
@@ -513,7 +513,7 @@ describe('MemoryManager', () => {
     });
 
     it('skips when params.config is omitted entirely', async () => {
-      // Without config, runManagedAutoMemoryDream throws — surfacing
+      // Without config, runManagedAutoMemoryDream throws -- surfacing
       // a noisy failed entry in the bg-tasks dialog. The early skip
       // converts the omitted-config case to the same disabled-skip
       // path so callers can't accidentally produce visible failures
@@ -526,7 +526,7 @@ describe('MemoryManager', () => {
         now: new Date('2026-04-02T10:00:00.000Z'),
       });
       expect(result).toEqual({ status: 'skipped', skippedReason: 'disabled' });
-      // Crucially — no record was stored for this skip.
+      // Crucially -- no record was stored for this skip.
       expect(mgr.listTasksByType('dream', projectRoot)).toEqual([]);
     });
 
@@ -594,7 +594,7 @@ describe('MemoryManager', () => {
     });
 
     it('skips when session count is below threshold (via session scanner)', async () => {
-      // Only 1 session — need 5
+      // Only 1 session -- need 5
       const mgr = new MemoryManager(async () => ['sess-0']);
 
       const result = await mgr.scheduleDream({
@@ -647,7 +647,7 @@ describe('MemoryManager', () => {
     });
   });
 
-  // ─── scheduleSkillReview: concurrent extract ──────────────────────────────
+  // --- scheduleSkillReview: concurrent extract ------------------------------
 
   describe('scheduleSkillReview(): concurrent extract (checklist 6)', () => {
     it('schedules skill review independently even when extract is already running', async () => {
@@ -711,7 +711,7 @@ describe('MemoryManager', () => {
     });
   });
 
-  // ─── cancelTask() ────────────────────────────────────────────────────────
+  // --- cancelTask() --------------------------------------------------------
 
   describe('cancelTask()', () => {
     let tempDir: string;
@@ -738,7 +738,7 @@ describe('MemoryManager', () => {
 
     it('aborts the dream fork agent and marks the record cancelled', async () => {
       // The fork's abort signal is captured here so the test can assert
-      // both the status flip AND the actual signal propagation — only
+      // both the status flip AND the actual signal propagation -- only
       // the latter guarantees runForkedAgent will unwind.
       let capturedSignal: AbortSignal | undefined;
       let resolveDreamStarted!: () => void;
@@ -780,7 +780,7 @@ describe('MemoryManager', () => {
       expect(result.status).toBe('scheduled');
       const taskId = result.taskId!;
 
-      // Wait for the fork to actually enter — scheduleDream returns
+      // Wait for the fork to actually enter -- scheduleDream returns
       // before lock acquisition + the fork-agent invocation actually
       // run. Cancelling before the fork enters would race the abort
       // signal capture and produce a flaky undefined.
@@ -794,7 +794,7 @@ describe('MemoryManager', () => {
       expect(capturedSignal?.aborted).toBe(true);
 
       // Drain so the fork-agent rejection lands and runDream's catch
-      // path runs — the user-cancel guard must NOT overwrite to
+      // path runs -- the user-cancel guard must NOT overwrite to
       // 'failed'. (Without the guard, the rejected promise sets the
       // record to failed with error="aborted".)
       await mgr.drain({ timeoutMs: 1000 });
@@ -808,7 +808,7 @@ describe('MemoryManager', () => {
       // rethrow that case, but the manager carries an additional
       // signal.aborted check after the await as defense in depth.
       // This test simulates the "resolved despite cancel" scenario by
-      // having the mock RESOLVE on abort instead of rejecting — without
+      // having the mock RESOLVE on abort instead of rejecting -- without
       // the guard, runDream's success path would overwrite the
       // user-cancelled record to 'completed' and bump dream metadata
       // for an aborted run.
@@ -850,7 +850,7 @@ describe('MemoryManager', () => {
       await mgr.drain({ timeoutMs: 1000 });
 
       expect(mgr.getTask(taskId)?.status).toBe('cancelled');
-      // Metadata write must NOT have happened — lastDreamAt should
+      // Metadata write must NOT have happened -- lastDreamAt should
       // still be the scaffold's initial value, not the cancelled-run's
       // `now`. (Bumping it would suppress the next legitimate dream.)
       const metaRaw = await fs.readFile(
@@ -903,7 +903,7 @@ describe('MemoryManager', () => {
     });
   });
 
-  // ─── resetExtractStateForTests() ─────────────────────────────────────────
+  // --- resetExtractStateForTests() -----------------------------------------
 
   describe('resetExtractStateForTests()', () => {
     it('clears in-flight extract state so subsequent calls are not blocked', async () => {

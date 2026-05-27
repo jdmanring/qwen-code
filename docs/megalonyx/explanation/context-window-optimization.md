@@ -1,4 +1,4 @@
-# 🧠 Session-Level Resource Optimization and Architectural Precision
+#  Session-Level Resource Optimization and Architectural Precision
 
 This document outlines the theoretical foundation and practical implementation of the "Session-Level Resource Optimization" strategy used within the Megalonyx project. The goal is to maximize the **Signal-to-Noise Ratio (SNR)** of the LLM's context window, ensuring that architectural rules are followed with deterministic precision while minimizing total session cost.
 
@@ -6,7 +6,7 @@ This document outlines the theoretical foundation and practical implementation o
 
 ## 1. The Resource Economy: Cognitive Integrity
 
-The Qwen Code project prioritizes **Cognitive Integrity**—the assurance that every decision is based on complete, verified information—over per-turn token savings.
+The Qwen Code project prioritizes **Cognitive Integrity**--the assurance that every decision is based on complete, verified information--over per-turn token savings.
 
 ### 1.1 The Incomplete-Information Waste (The Redo Loop Tax)
 Attempting to save tokens by accepting truncated data or avoiding pagination creates a "Redo Loop Tax." This is the systemic waste of tokens and time that occurs when an agent:
@@ -41,9 +41,9 @@ LLMs process text as a sequence of weights. In high-complexity prompts, the "sig
 We use **Attention Landmarks**--highly distinct tokens that create spikes in the model's attention map. These act as "bookmarks," allowing the model to jump between sections of the context window without losing track of the current state.
 
 - **Category Anchors**: Specific emojis are used to prime the model for a specific domain of reasoning:
-    - 🏛️ => **Architectural Constraints** (Triggers structural reasoning)
-    - 🧠 => **Logic/Reasoning Flow** (Triggers analytical reasoning)
-    - ⚙️ => **Operational Rules** (Triggers constraint enforcement)
+    -  => **Architectural Constraints** (Triggers structural reasoning)
+    -  => **Logic/Reasoning Flow** (Triggers analytical reasoning)
+    -  => **Operational Rules** (Triggers constraint enforcement)
 - **Header Mirroring**: Consistent use of `[M-RULE]` and `[S-ROOT]` ensures the model recognizes the *type* of information before it even reads the content.
 
 ---
@@ -80,12 +80,12 @@ Mirroring provides a built-in consistency check. If a configuration exists witho
 
 ---
 
-## 🛠️ Practical Guide for Contributors
+##  Practical Guide for Contributors
 
 When adding new rules or personas, adhere to the following **Cognitive Integrity Checklist**:
 
 1. [ ] **ASCII Only**: Did you use `=>` instead of $\to$?
-2. [ ] **Anchor the Domain**: Did you use the correct category emoji (🏛️, 🧠, ⚙️)?
+2. [ ] **Anchor the Domain**: Did you use the correct category emoji (, , )?
 3. [ ] **Rule-Based**: Did you replace narrative suggestions with a formal `[S-MANDATE]` or `[A-RULE]`?
 4. [ ] **Mirror**: Is there a 1:1 mirror between the new config and the new doc?
 5. [ ] **Prime for Rigor**: Is the tone "Institutional" and "Formal" rather than "Conversational"?

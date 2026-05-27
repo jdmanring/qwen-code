@@ -1225,7 +1225,7 @@ describe('subagent.ts', () => {
       it('should not set finalText from thought-only response', async () => {
         const { config } = await createMockConfig();
 
-        // First call: only thought text (no regular text → nudge)
+        // First call: only thought text (no regular text -> nudge)
         // Second call: regular text response
         let callIndex = 0;
         mockSendMessageStream = vi.fn().mockImplementation(async () => {
@@ -1651,7 +1651,7 @@ describe('subagent.ts', () => {
         );
         expect(writeResult).toBeDefined();
         // After retry the wasOutputTruncated flag must have been cleared, so
-        // the call should NOT be rejected with a truncation error — even if
+        // the call should NOT be rejected with a truncation error -- even if
         // execution fails for unrelated reasons (e.g. mock filesystem).
         expect(writeResult!.error).not.toContain(
           'truncated due to max_tokens limit',

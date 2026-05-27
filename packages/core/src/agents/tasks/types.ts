@@ -12,13 +12,13 @@
  * extend this base; their per-kind state is layered on via intersection.
  *
  * The base envelope is intentionally narrow:
- *   - `id` / `kind` — registry key + discriminator
- *   - `description` — human label for pill/panel/dialog
- *   - `status` / `startTime` / `endTime` — lifecycle
- *   - `outputFile` / `outputOffset` — reserved path for the per-task
+ *   - `id` / `kind` -- registry key + discriminator
+ *   - `description` -- human label for pill/panel/dialog
+ *   - `status` / `startTime` / `endTime` -- lifecycle
+ *   - `outputFile` / `outputOffset` -- reserved path for the per-task
  *     primary stream and a byte cursor for incremental reads
- *   - `notified` — terminal-notification idempotency flag
- *   - `abortController` — unified cancellation handle
+ *   - `notified` -- terminal-notification idempotency flag
+ *   - `abortController` -- unified cancellation handle
  *
  * `outputFile` is mandatory but treated as a *reserved path*, not a
  * guaranteed file. Each kind decides whether it materializes the file:
@@ -34,7 +34,7 @@
  * union member; see `TaskState`.
  *
  * Dream tasks (`MemoryManager`) are intentionally outside this union
- * for now — they have a separate lifecycle and their inclusion is
+ * for now -- they have a separate lifecycle and their inclusion is
  * deferred to a follow-up.
  */
 export type TaskKind = 'agent' | 'shell' | 'monitor';
@@ -77,7 +77,7 @@ export interface TaskBase {
    * Note this is "first append", not "first runtime event": the agent
    * writer seeds the launch prompt as its first record at attach time,
    * so a foreground/background subagent with a prompt materializes its
-   * JSONL immediately — before any tool call or model turn. A subagent
+   * JSONL immediately -- before any tool call or model turn. A subagent
    * cancelled before any event therefore still leaves a JSONL (prompt
    * only) plus the meta sidecar, not meta alone.
    */
@@ -96,10 +96,10 @@ export interface TaskBase {
 
 /**
  * Shape callers pass to a registry's `register()`. The four `TaskBase`
- * fields the registry derives — `id`, `kind`, `outputOffset`, `notified`
- * — are omitted; everything else (including `outputFile`) is the
+ * fields the registry derives -- `id`, `kind`, `outputOffset`, `notified`
+ * -- are omitted; everything else (including `outputFile`) is the
  * caller's responsibility unless the per-kind registration narrows it
- * further (e.g. shells let the registry alias `outputPath` →
+ * further (e.g. shells let the registry alias `outputPath` ->
  * `outputFile`).
  */
 export type TaskRegistration<T extends TaskBase> = Omit<

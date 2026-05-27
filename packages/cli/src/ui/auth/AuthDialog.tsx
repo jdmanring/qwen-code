@@ -107,8 +107,8 @@ function getStepLabel(step: string | null, p: ProviderConfig): string {
 
 const VIEW_TITLES: Record<string, string> = {
   main: t('Connect a Provider'),
-  'alibaba-select': t('Alibaba ModelStudio · Access Method'),
-  'thirdparty-select': t('Third-party Providers · Provider'),
+  'alibaba-select': t('Alibaba ModelStudio  Access Method'),
+  'thirdparty-select': t('Third-party Providers  Provider'),
 };
 
 // ---------------------------------------------------------------------------
@@ -270,7 +270,7 @@ export function AuthDialog(): React.JSX.Element {
     if (!p) return t('Provider Setup');
     const flowTitle = p.uiLabels?.flowTitle ?? p.label;
     const { stepIndex, totalSteps, step } = setupFlow.state;
-    return t('{{flowTitle}} · Step {{step}}/{{total}} · {{stepLabel}}', {
+    return t('{{flowTitle}}  Step {{step}}/{{total}}  {{stepLabel}}', {
       flowTitle,
       step: String(stepIndex),
       total: String(totalSteps),
@@ -326,7 +326,7 @@ export function AuthDialog(): React.JSX.Element {
           </Box>
           <Box marginTop={1}>
             <Text color={theme?.text?.secondary}>
-              {t('Enter to select, ↑↓ to navigate, Esc to go back')}
+              {t('Enter to select,  to navigate, Esc to go back')}
             </Text>
           </Box>
         </>
@@ -345,7 +345,7 @@ export function AuthDialog(): React.JSX.Element {
       {viewLevel === 'main' && (
         <>
           <Box marginY={1}>
-            <Text color={theme.border.default}>{'─'.repeat(80)}</Text>
+            <Text color={theme.border.default}>{'-'.repeat(80)}</Text>
           </Box>
           <Box>
             <Text color={theme.text.primary}>

@@ -1,8 +1,8 @@
-# 🛠️ Source System Audit: The Standalone Plumbing
+#  Source System Audit: The Standalone Plumbing
 
 This document provides a detailed technical audit of how the Standalone stack operates from input to output. This serves as the primary reference for the migration to the monorepo structure.
 
-## 🔄 The Execution Lifecycle
+##  The Execution Lifecycle
 
 The system operates as a deterministic state machine following the **Act $\to$ Observe $\to$ Verify $\to$ Correct** loop.
 
@@ -42,7 +42,7 @@ The system does not assume a tool call was successful just because it didn't cra
 
 ---
 
-## 🖥️ User Interface & Communication
+##  User Interface & Communication
 
 ### Input/Output Channels
 - **Primary Channel**: `stdout` (Terminal).
@@ -56,7 +56,7 @@ The system distinguishes between two types of output:
 
 ---
 
-## 🔗 System Component Map
+##  System Component Map
 
 | Component | Responsibility | Key File/Module | State |
 | :--- | :--- | :--- | :--- |

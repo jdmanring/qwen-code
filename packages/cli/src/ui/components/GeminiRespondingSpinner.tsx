@@ -81,7 +81,7 @@ export const GeminiSpinner: React.FC<GeminiSpinnerProps> = ({
   }
 
   if (isTmux) {
-    // Note: must NOT wrap in <Box> here — GeminiSpinner is rendered inside a
+    // Note: must NOT wrap in <Box> here -- GeminiSpinner is rendered inside a
     // <Text> in Footer.tsx (`<Text>...<GeminiSpinner /> {msg}</Text>`), and
     // Ink forbids <Box> nested inside <Text>. The 3-char fixed-width frames
     // already give us stable layout without an explicit width container.

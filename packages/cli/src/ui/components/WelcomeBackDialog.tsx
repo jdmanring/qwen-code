@@ -68,7 +68,7 @@ export function WelcomeBackDialog({
     >
       <Box flexDirection="column" marginBottom={1}>
         <Text color={Colors.AccentBlue} bold>
-          {t('👋 Welcome back! (Last updated: {{timeAgo}})', {
+          {t(' Welcome back! (Last updated: {{timeAgo}})', {
             timeAgo: timeAgo || '',
           })}
         </Text>
@@ -78,7 +78,7 @@ export function WelcomeBackDialog({
       {goalContent && (
         <Box flexDirection="column" marginBottom={1}>
           <Text color={Colors.Foreground} bold>
-            {t('🎯 Overall Goal:')}
+            {t(' Overall Goal:')}
           </Text>
           <Box marginTop={1} paddingLeft={2}>
             <Text color={Colors.Gray}>{goalContent}</Text>
@@ -90,7 +90,7 @@ export function WelcomeBackDialog({
       {totalTasks > 0 && (
         <Box flexDirection="column" marginBottom={1}>
           <Text color={Colors.Foreground} bold>
-            📋 {t('Current Plan:')}
+             {t('Current Plan:')}
           </Text>
           <Box marginTop={1} paddingLeft={2}>
             <Text color={Colors.Gray}>
@@ -112,7 +112,7 @@ export function WelcomeBackDialog({
               </Text>
               {pendingTasks.map((task: string, index: number) => (
                 <Text key={index} color={Colors.Gray}>
-                  • {task}
+                   {task}
                 </Text>
               ))}
             </Box>

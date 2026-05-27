@@ -121,7 +121,7 @@ class ReadFileToolInvocation extends BaseToolInvocation<
       workspaceContext.isPathWithinWorkspace(filePath) ||
       isSubpaths(allowedRoots, filePath) ||
       // isAutoMemPath uses the narrower managed auto-memory root for this
-      // project — not the broad getMemoryBaseDir() — to avoid exposing
+      // project -- not the broad getMemoryBaseDir() -- to avoid exposing
       // sensitive ~/.qwen files such as settings.json or OAuth credentials.
       isAutoMemPath(filePath, this.config.getTargetDir())
     ) {
@@ -135,7 +135,7 @@ class ReadFileToolInvocation extends BaseToolInvocation<
     const projectRoot = this.config.getTargetDir();
     // Auto-memory files (AGENTS.md and friends under the auto-memory
     // root) get a per-read freshness `<system-reminder>` prepended in
-    // the slow path — the signal that tells the model to treat the
+    // the slow path -- the signal that tells the model to treat the
     // contents as a point-in-time snapshot. Returning the
     // file_unchanged placeholder would skip that prepend, silently
     // dropping the staleness warning for the rest of the session.
@@ -143,14 +143,14 @@ class ReadFileToolInvocation extends BaseToolInvocation<
     const isAutoMem = isAutoMemPath(absPath, projectRoot);
     // The cache can be disabled at the Config level (escape hatch for
     // sessions where the "model has already seen the prior tool result"
-    // assumption breaks down — e.g. after context compaction or
+    // assumption breaks down -- e.g. after context compaction or
     // transcript transformation). When disabled we bypass both the
     // fast-path lookup and the post-read record so behaviour matches
     // the pre-cache implementation byte-for-byte.
     //
     // Auto-memory files are *recorded* in the cache (so prior-read
     // enforcement on Edit / WriteFile recognises them as read) but
-    // never serve the file_unchanged placeholder — those files own a
+    // never serve the file_unchanged placeholder -- those files own a
     // per-read freshness `<system-reminder>` that must be re-emitted
     // on every read.
     const cacheEnabled = !this.config.getFileReadCacheDisabled();
@@ -222,19 +222,19 @@ class ReadFileToolInvocation extends BaseToolInvocation<
     //
     // Two independent flags are recorded:
     //
-    //  - `cacheable` — whether the content is plain text (not binary /
+    //  - `cacheable` -- whether the content is plain text (not binary /
     //    image / audio / video / PDF / notebook). This is the flag
     //    `priorReadEnforcement.ts` consults to decide whether the
     //    model has seen a payload that Edit / WriteFile can mutate as
     //    text. It must NOT include "was the read truncated", because
-    //    a truncated text read still produced text — bundling those
+    //    a truncated text read still produced text -- bundling those
     //    two concerns is what produced the issue #3964 regression
     //    where a partial Read of a regular `.kt` / `.cpp` / `.py`
     //    file caused the next Edit to be rejected with the
     //    misleading "binary / image / audio / video / PDF / notebook
     //    payload" error.
     //
-    //  - `full` — whether the model has seen every byte of the
+    //  - `full` -- whether the model has seen every byte of the
     //    current file. This now gates ONLY the file_unchanged
     //    fast-path; PR #4002 removed WriteFile's `requireFullRead`
     //    (the truncate-tool-output limit made "fully read" an
@@ -261,7 +261,7 @@ class ReadFileToolInvocation extends BaseToolInvocation<
     //
     // Race residue: the internal-stat-to-actual-read window is still
     // a few microseconds wide. Closing it completely needs a content
-    // hash on the read pipeline (deferred follow-up — see Risk
+    // hash on the read pipeline (deferred follow-up -- see Risk
     // section in the PR description).
     if (cacheEnabled && (result.stats ?? stats)) {
       const cacheable =
@@ -300,7 +300,7 @@ class ReadFileToolInvocation extends BaseToolInvocation<
           llmContent = note + llmContent;
         }
       } catch {
-        // Best-effort — if stat fails, omit the note silently.
+        // Best-effort -- if stat fails, omit the note silently.
       }
     }
 
@@ -339,7 +339,7 @@ class ReadFileToolInvocation extends BaseToolInvocation<
    *  1. The full content was emitted *earlier in this conversation*.
    *     If the conversation has been compacted, summarised, or the
    *     model is a subagent receiving a transformed transcript, the
-   *     prior content may no longer be retrievable — the model should
+   *     prior content may no longer be retrievable -- the model should
    *     re-read with explicit offset/limit in that case.
    *  2. External mutations the cache cannot observe (shell writes via
    *     run_shell_command, MCP tool writes, other processes touching
@@ -357,7 +357,7 @@ class ReadFileToolInvocation extends BaseToolInvocation<
       makeRelative(absPath, this.config.getTargetDir()),
     );
     const llmContent =
-      `[File ${relativePath} unchanged since last read in this session — ` +
+      `[File ${relativePath} unchanged since last read in this session -- ` +
       `the full content was provided earlier in this conversation. ` +
       `If you cannot retrieve that prior content (e.g. after context ` +
       `compaction) or you suspect the file was modified outside the read/edit ` +
@@ -417,7 +417,7 @@ export class ReadFileTool extends BaseDeclarativeTool<
   protected override validateToolParamValues(
     params: ReadFileToolParams,
   ): string | null {
-    // Normalize shell-escaped paths (e.g. "my\ file.txt" → "my file.txt")
+    // Normalize shell-escaped paths (e.g. "my\ file.txt" -> "my file.txt")
     // that may reach the LLM via at-completion or manual typing.
     const filePath = unescapePath(params.file_path.trim());
     params.file_path = filePath;

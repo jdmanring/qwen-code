@@ -206,7 +206,7 @@ describe('sessionStorageUtils', () => {
       // Tail-first + head-fallback strategy: the title record sits in
       // the first 64KB but is pushed out of the last 64KB by enough
       // filler. The reader resolves it via the head scan without ever
-      // touching the middle of the file — bounded I/O regardless of
+      // touching the middle of the file -- bounded I/O regardless of
       // file size. (Modern sessions don't reach this branch; the
       // ChatRecordingService re-anchor invariant keeps the title in
       // the tail. This is the legacy / pre-invariant safety net.)
@@ -231,9 +231,9 @@ describe('sessionStorageUtils', () => {
 
     it('returns undefined when title is buried beyond both head and tail windows', () => {
       // Anti-test for the previous Phase-2 full-file scan: a title
-      // record stranded in the middle of a >2× tail-window file is
-      // intentionally NOT found. The contract changed — listing
-      // latency is bounded to 2 × LITE_READ_BUF_SIZE per file at the
+      // record stranded in the middle of a >2* tail-window file is
+      // intentionally NOT found. The contract changed -- listing
+      // latency is bounded to 2 * LITE_READ_BUF_SIZE per file at the
       // cost of giving up on legacy sessions whose writer never
       // re-anchored the title. Callers downgrade to firstPrompt.
       const padTo = (label: string, byteCount: number) => {
@@ -277,7 +277,7 @@ describe('sessionStorageUtils', () => {
     });
 
     it('returns undefined when neither head nor tail contains the field', () => {
-      // Same shape as the legacy "no title anywhere" case — the
+      // Same shape as the legacy "no title anywhere" case -- the
       // file is a long stream of user records with no metadata.
       // Both windows scan in vain; we return undefined cheaply
       // instead of paying for a full-file scan.
@@ -303,7 +303,7 @@ describe('sessionStorageUtils', () => {
     });
 
     it('does not pick up a customTitle from a partial trailing line in the head window', () => {
-      // The head buffer is a fixed 64KB slice — its last bytes can fall
+      // The head buffer is a fixed 64KB slice -- its last bytes can fall
       // mid-record. Without trimming to the last newline, the extractor
       // sees a partial line whose `customTitle` value happens to be
       // closed within the buffer, picks it up as the latest match, and
@@ -318,7 +318,7 @@ describe('sessionStorageUtils', () => {
       //          fully visible (and a closed value), but whose body
       //          extends >64KB so its trailing `\n` is past the head
       //          boundary
-      //   filler: pads file size past 2× LITE_READ_BUF_SIZE so head
+      //   filler: pads file size past 2* LITE_READ_BUF_SIZE so head
       //          fallback runs and tail has no match
       const line1 =
         '{"type":"system","subtype":"custom_title","customTitle":"complete"}\n';
@@ -328,7 +328,7 @@ describe('sessionStorageUtils', () => {
       // window (LITE_READ_BUF_SIZE = 64KB). 70KB of `x` guarantees that.
       const line2 =
         line2Prefix + 'x'.repeat(LITE_READ_BUF_SIZE + 8 * 1024) + '"}\n';
-      // Push file size past 2 × LITE_READ_BUF_SIZE so listSessions-style
+      // Push file size past 2 * LITE_READ_BUF_SIZE so listSessions-style
       // callers go through head fallback (tail has no match).
       const tailFiller =
         '{"type":"user","message":"' +
@@ -353,7 +353,7 @@ describe('sessionStorageUtils', () => {
       // function must produce the same result as the no-buffer path.
       // The same buffer backs the tail read AND the head fallback, so
       // a tail-then-head sequence on different file sizes must not
-      // leak data between reads — bytes-read bounds the decode, never
+      // leak data between reads -- bytes-read bounds the decode, never
       // the buffer's full capacity.
       const big = writeFile(
         'big.jsonl',
@@ -465,7 +465,7 @@ describe('sessionStorageUtils', () => {
     it('never lets titleSource from an OLDER line leak into a NEWER primary match', () => {
       // Older record has both fields; newer record (wins) has only customTitle.
       // If the implementation did two separate scans, titleSource would leak
-      // from the older line — the single-pass contract forbids this.
+      // from the older line -- the single-pass contract forbids this.
       const text = [
         '{"subtype":"custom_title","customTitle":"old","titleSource":"auto"}',
         '{"subtype":"custom_title","customTitle":"new"}',
@@ -480,7 +480,7 @@ describe('sessionStorageUtils', () => {
       expect(hit).toEqual({ customTitle: 'new', titleSource: undefined });
     });
 
-    it('respects lineContains — matches on non-tagged lines are ignored', () => {
+    it('respects lineContains -- matches on non-tagged lines are ignored', () => {
       // A user message happens to contain a customTitle substring; the line
       // doesn't include "custom_title" so it's filtered out.
       const text = [
@@ -577,7 +577,7 @@ describe('sessionStorageUtils', () => {
     it('falls through to head window when tail has no match and finds the pair', () => {
       // Primary+secondary near start, filler > LITE_READ_BUF_SIZE
       // pushes them out of the tail. The head window catches the
-      // pair atomically — both fields come from the same line, the
+      // pair atomically -- both fields come from the same line, the
       // whole point of the multi-field variant.
       const header =
         '{"subtype":"custom_title","customTitle":"X","titleSource":"auto"}\n';
@@ -597,7 +597,7 @@ describe('sessionStorageUtils', () => {
     it('returns all-undefined when the pair is buried beyond both head and tail windows', () => {
       // Anti-test mirroring the single-field variant: the multi-field
       // reader intentionally scans only the head and tail windows. A
-      // matching record stranded in the middle of a >2× window file must
+      // matching record stranded in the middle of a >2* window file must
       // not be found, and every requested field should keep the empty
       // result shape.
       const padTo = (label: string, byteCount: number) => {

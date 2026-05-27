@@ -12,8 +12,8 @@
  * even after the originating prompt has already returned.
  *
  * The two tests share one ACP session to stay within 2 minutes total:
- *   1. Fast smoke test — cron tools available (no cron fire needed)
- *   2. Combined test — create job, verify session responsive, wait for
+ *   1. Fast smoke test -- cron tools available (no cron fire needed)
+ *   2. Combined test -- create job, verify session responsive, wait for
  *      cron fire, check content + _meta.source, then clean up
  */
 

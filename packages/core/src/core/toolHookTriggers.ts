@@ -121,7 +121,7 @@ export async function firePreToolUseHook(
     if (!response.success || !response.output) {
       // Hook runner reported failure (URL validation, fn exception,
       // prompt-runner crash, ...). The `response.error` from the runner
-      // is the canonical cause — forward it so telemetry and operators
+      // is the canonical cause -- forward it so telemetry and operators
       // see the actual failure instead of a fake "allow" success
       // (#4321 review silent-failure-hunter HIGH).
       //
@@ -131,7 +131,7 @@ export async function firePreToolUseHook(
       // with empty telemetry (#4321 review-7 silent-failure-hunter HIGH-1).
       // `||` (revert from `??`): downstream consumers in
       // coreToolScheduler.ts gate on `r.hookError ? ...`, so an
-      // empty-string message would be silently dropped — the previous
+      // empty-string message would be silently dropped -- the previous
       // `??` change defeated its own intent. Empty-string error
       // messages carry no operator value; the sentinel is more
       // actionable. (#4321 review-9 wenshao Suggestion refines
@@ -241,7 +241,7 @@ export async function firePostToolUseHook(
       // See firePreToolUseHook for the rationale.
       // `||` (revert from `??`): downstream consumers in
       // coreToolScheduler.ts gate on `r.hookError ? ...`, so an
-      // empty-string message would be silently dropped — the previous
+      // empty-string message would be silently dropped -- the previous
       // `??` change defeated its own intent. Empty-string error
       // messages carry no operator value; the sentinel is more
       // actionable. (#4321 review-9 wenshao Suggestion refines
@@ -331,7 +331,7 @@ export async function firePostToolUseFailureHook(
       // See firePreToolUseHook for the rationale.
       // `||` (revert from `??`): downstream consumers in
       // coreToolScheduler.ts gate on `r.hookError ? ...`, so an
-      // empty-string message would be silently dropped — the previous
+      // empty-string message would be silently dropped -- the previous
       // `??` change defeated its own intent. Empty-string error
       // messages carry no operator value; the sentinel is more
       // actionable. (#4321 review-9 wenshao Suggestion refines
@@ -538,7 +538,7 @@ export function appendAdditionalContext(
 
   // Single non-array Part (e.g. ReadFile returning `{ inlineData: {...} }`
   // for an image or PDF). Wrap in an array so the additional context still
-  // reaches the model — the previous "return as-is" silently dropped
+  // reaches the model -- the previous "return as-is" silently dropped
   // hook-injected reminders for any tool whose llmContent is a single Part.
   return [content, { text: additionalContext } as Part];
 }

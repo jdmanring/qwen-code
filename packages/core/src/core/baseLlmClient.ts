@@ -39,8 +39,8 @@ const debugLogger = createDebugLogger('BASE_LLM_CLIENT');
  * The pair of generator and retry-authType to use for a request targeting
  * a specific model. When the requested model differs from the main session
  * model, both fields are resolved against that model's provider so that
- * per-model `extra_body` / `samplingParams` / reasoning settings — and
- * provider-specific retry/quota behaviour — do not leak from the main
+ * per-model `extra_body` / `samplingParams` / reasoning settings -- and
+ * provider-specific retry/quota behaviour -- do not leak from the main
  * session.
  */
 export interface ResolvedGeneratorForModel {
@@ -291,7 +291,7 @@ export class BaseLlmClient {
    *
    * Distinct from `GeminiClient.generateContent`: this calls the underlying
    * `ContentGenerator` directly, so the caller's `systemInstruction` is sent
-   * through verbatim — no `getCustomSystemPrompt` wrapping (which would append
+   * through verbatim -- no `getCustomSystemPrompt` wrapping (which would append
    * user memory) and no main-session-prompt fallback when omitted. Side queries
    * need that contract; the main turn does not.
    */
@@ -407,7 +407,7 @@ export class BaseLlmClient {
    * constructor-injected generator and the main session's authType. When it
    * differs (e.g. a fast model on a different provider), constructs and caches
    * a per-model generator with that provider's auth, baseUrl, sampling, and
-   * extra_body settings — and reports the target provider as the retry
+   * extra_body settings -- and reports the target provider as the retry
    * authType so quota detection and provider-specific retry logic line up.
    *
    * Falls back to the main generator when the target model is not registered

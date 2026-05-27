@@ -512,7 +512,7 @@ describe('GitWorktreeService', () => {
         worktreeNames: ['a'],
       });
 
-      // Setup should still succeed — dirty state failure is non-fatal
+      // Setup should still succeed -- dirty state failure is non-fatal
       expect(result.success).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
@@ -532,7 +532,7 @@ describe('GitWorktreeService', () => {
         worktreeNames: ['a'],
       });
 
-      // Setup should still succeed — stash create failure is non-fatal
+      // Setup should still succeed -- stash create failure is non-fatal
       expect(result.success).toBe(true);
       expect(result.errors).toHaveLength(0);
     });

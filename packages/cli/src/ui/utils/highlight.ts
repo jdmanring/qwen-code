@@ -55,7 +55,7 @@ export function parseInputForHighlighting(
       if (slashCommands) {
         type = validSlashTokenStarts.has(matchIndex) ? 'command' : 'default';
       } else if (match[1] !== undefined) {
-        // Group 1: line-start slash command — only highlight on logical line 0
+        // Group 1: line-start slash command -- only highlight on logical line 0
         type = index === 0 ? 'command' : 'default';
       } else {
         // Backwards-compatible fallback when no command metadata is provided.

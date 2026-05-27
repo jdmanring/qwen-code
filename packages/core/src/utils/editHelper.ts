@@ -18,7 +18,7 @@
 /* -------------------------------------------------------------------------- */
 
 const UNICODE_EQUIVALENT_MAP: Record<string, string> = {
-  // Hyphen variations → ASCII hyphen-minus.
+  // Hyphen variations -> ASCII hyphen-minus.
   '\u2010': '-',
   '\u2011': '-',
   '\u2012': '-',
@@ -26,17 +26,17 @@ const UNICODE_EQUIVALENT_MAP: Record<string, string> = {
   '\u2014': '-',
   '\u2015': '-',
   '\u2212': '-',
-  // Curly single quotes → straight apostrophe.
+  // Curly single quotes -> straight apostrophe.
   '\u2018': "'",
   '\u2019': "'",
   '\u201A': "'",
   '\u201B': "'",
-  // Curly double quotes → straight double quote.
+  // Curly double quotes -> straight double quote.
   '\u201C': '"',
   '\u201D': '"',
   '\u201E': '"',
   '\u201F': '"',
-  // Whitespace variants → normal space.
+  // Whitespace variants -> normal space.
   '\u00A0': ' ',
   '\u2002': ' ',
   '\u2003': ' ',

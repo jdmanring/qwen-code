@@ -9,7 +9,7 @@ export const metadata = {
 };
 
 const banner = (
-  <Banner storageKey="some-key">Qwen Code 0.5.0 is released 🎉</Banner>
+  <Banner storageKey="some-key">Qwen Code 0.5.0 is released </Banner>
 );
 const navbar = (
   <Navbar
@@ -17,7 +17,7 @@ const navbar = (
     // ... Your additional navbar options
   />
 );
-const footer = <Footer>MIT {new Date().getFullYear()} © Qwen Team.</Footer>;
+const footer = <Footer>MIT {new Date().getFullYear()}  Qwen Team.</Footer>;
 
 export default async function RootLayout({ children }) {
   return (

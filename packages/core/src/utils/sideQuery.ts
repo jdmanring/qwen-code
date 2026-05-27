@@ -21,7 +21,7 @@ export interface SideQueryJsonOptions<TResponse> {
   /**
    * Override the model used for this query. Defaults to
    * `config.getFastModel?.() ?? config.getModel() ?? DEFAULT_QWEN_MODEL`
-   * — side queries run on the fast model when one is configured, including
+   * -- side queries run on the fast model when one is configured, including
    * fast models registered under a different authType than the main session.
    * Pass an explicit value to pin to the main model (e.g. long-form
    * summarization in web-fetch).
@@ -56,7 +56,7 @@ export interface SideQueryTextOptions {
   contents: Content[];
   /**
    * Marker that disambiguates this overload from the JSON-mode options.
-   * Callers never set this — the type forces TS to pick the JSON overload
+   * Callers never set this -- the type forces TS to pick the JSON overload
    * when an actual schema is present.
    */
   schema?: never;
@@ -64,7 +64,7 @@ export interface SideQueryTextOptions {
   /**
    * Override the model used for this query. Defaults to
    * `config.getFastModel?.() ?? config.getModel() ?? DEFAULT_QWEN_MODEL`
-   * — side queries run on the fast model when one is configured, including
+   * -- side queries run on the fast model when one is configured, including
    * fast models registered under a different authType than the main session.
    * Pass an explicit value to pin to the main model (e.g. long-form
    * summarization in web-fetch).

@@ -98,7 +98,7 @@ export function BaseSelectionList<
         <Text
           color={scrollOffset > 0 ? theme.text.primary : theme.text.secondary}
         >
-          ▲
+          
         </Text>
       )}
 
@@ -138,7 +138,7 @@ export function BaseSelectionList<
                 color={isSelected ? theme.status.success : theme.text.primary}
                 aria-hidden
               >
-                {isSelected ? '›' : ' '}
+                {isSelected ? '' : ' '}
               </Text>
             </Box>
 
@@ -174,7 +174,7 @@ export function BaseSelectionList<
               : theme.text.secondary
           }
         >
-          ▼
+          
         </Text>
       )}
     </Box>

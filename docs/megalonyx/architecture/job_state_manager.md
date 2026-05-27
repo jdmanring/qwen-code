@@ -1,4 +1,4 @@
-🏛️ 
+ 
 # JobStateManager Architectural Documentation
 
 ## 1. Identity & Role

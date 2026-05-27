@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # =============================================================================
-# test-rewind-e2e.sh — tmux-based E2E verification for the conversation rewind
+# test-rewind-e2e.sh -- tmux-based E2E verification for the conversation rewind
 # feature (PR #3441).
 #
 # Covers all 5 manual test items from the PR description:
-#   1. /rewind command → pick turn → UI truncated, input pre-populated
-#   2. Double-ESC on empty prompt → selector opens → rewind → continue
-#   3. ESC during streaming → cancels request, does NOT open selector
-#   4. /rewind with no history → selector does not open
+#   1. /rewind command -> pick turn -> UI truncated, input pre-populated
+#   2. Double-ESC on empty prompt -> selector opens -> rewind -> continue
+#   3. ESC during streaming -> cancels request, does NOT open selector
+#   4. /rewind with no history -> selector does not open
 #   5. After rewind, model does not reference removed turns
 #
 # Prerequisites:
@@ -48,7 +48,7 @@ cleanup() {
 trap cleanup EXIT
 
 start_session() {
-  # Deliver ESC immediately — without this, tmux holds ESC for up to 500ms
+  # Deliver ESC immediately -- without this, tmux holds ESC for up to 500ms
   # thinking it might be the start of an escape sequence, which breaks
   # double-ESC detection and other ESC-dependent interactions.
   # Must be set as a server option (not session) in tmux 2.6+.
@@ -339,7 +339,7 @@ test_double_esc() {
   sleep 0.5
   wait_for "Esc again to rewind" 15 || return 1
 
-  # Third ESC within 800ms — should open selector
+  # Third ESC within 800ms -- should open selector
   send_keys Escape
   wait_for "Rewind Conversation" || return 1
 
@@ -349,7 +349,7 @@ test_double_esc() {
   send_keys y
   wait_for "Conversation rewound" || return 1
 
-  # Continue conversation after rewind — verify model still works
+  # Continue conversation after rewind -- verify model still works
   send "say exactly ZETA6 and nothing else"
   wait_idle || return 1
   assert_scrollback "ZETA6" || return 1
@@ -370,7 +370,7 @@ test_esc_during_streaming() {
   # Wait for streaming to start (prompt disappears)
   sleep 4
 
-  # Single ESC while streaming — should cancel, NOT open rewind
+  # Single ESC while streaming -- should cancel, NOT open rewind
   send_keys Escape
 
   # Verify rewind selector did NOT open
@@ -392,8 +392,8 @@ test_rewind_no_history() {
 
   # Immediately try /rewind with no conversation history.
   # The /rewind text itself gets recorded as a user turn before the slash
-  # command handler runs, so the guard (≥1 user turn) passes and the
-  # selector opens showing only the "/rewind" entry — which is not a
+  # command handler runs, so the guard (>=1 user turn) passes and the
+  # selector opens showing only the "/rewind" entry -- which is not a
   # meaningful rewindable turn. We verify the selector has only 1 turn.
   send "/rewind"
   sleep 3

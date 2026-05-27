@@ -1,8 +1,8 @@
-# 🏛️ Layer Manifest: The Runtime Zoning Law
+#  Layer Manifest: The Runtime Zoning Law
 
 This document defines the architectural boundaries and "zoning laws" for the Megacode monorepo. All code migration and new development must adhere to these constraints to ensure modularity and prevent circular dependencies.
 
-## 🗺️ Monorepo Structure
+##  Monorepo Structure
 
 The monorepo is divided into two primary pillars: **Apps** and **Packages**.
 
@@ -14,8 +14,8 @@ The monorepo is divided into two primary pillars: **Apps** and **Packages**.
     - User interface logic (CLI, Web, etc.).
     - High-level orchestrators (e.g., `qwen-orchestrator`).
 - **Dependency Rule**: 
-    - ✅ May depend on any `package/`.
-    - ❌ May NOT be depended upon by any `package/`.
+    -  May depend on any `package/`.
+    -  May NOT be depended upon by any `package/`.
 
 ---
 
@@ -31,8 +31,8 @@ The package layer is further divided into functional tiers to enforce a strict h
     - Memory management and RAG logic.
     - Shared types and constants.
 - **Dependency Rule**: 
-    - ❌ Zero dependencies on other internal packages.
-    - ❌ Zero dependencies on `apps/`.
+    -  Zero dependencies on other internal packages.
+    -  Zero dependencies on `apps/`.
 
 #### B. Infrastructure Packages (`packages/infra`)
 **Purpose**: System Adapters and Hardware Integration.
@@ -43,8 +43,8 @@ The package layer is further divided into functional tiers to enforce a strict h
     - External API clients.
     - OS-level utilities.
 - **Dependency Rule**: 
-    - ✅ May depend on `packages/core` (primarily for types).
-    - ❌ May NOT depend on `apps/`.
+    -  May depend on `packages/core` (primarily for types).
+    -  May NOT depend on `apps/`.
 
 #### C. SDK Packages (`packages/sdk-*`)
 **Purpose**: Programmatic Bridges and Language Wrappers.
@@ -54,12 +54,12 @@ The package layer is further divided into functional tiers to enforce a strict h
     - API definitions.
     - Client-side validation.
 - **Dependency Rule**: 
-    - ✅ May depend on `packages/core` and `packages/infra`.
-    - ❌ May NOT depend on `apps/`.
+    -  May depend on `packages/core` and `packages/infra`.
+    -  May NOT depend on `apps/`.
 
 ---
 
-## 🔄 Dependency Flow Summary
+##  Dependency Flow Summary
 
 The allowed flow of dependencies is strictly one-way:
 

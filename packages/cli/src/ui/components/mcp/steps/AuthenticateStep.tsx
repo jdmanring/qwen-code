@@ -34,7 +34,7 @@ const COPY_FEEDBACK_MS = 2000;
  * sequence. Works through SSH and most web terminals (iTerm2, Windows
  * Terminal, xterm.js-based emulators) without spawning a subprocess.
  * Returns true if the sequence was written to a TTY; false otherwise.
- * A return of true does not guarantee the terminal accepted the write —
+ * A return of true does not guarantee the terminal accepted the write --
  * some terminals disable OSC 52 by default.
  */
 function copyToClipboardViaOsc52(text: string): boolean {
@@ -281,7 +281,7 @@ export const AuthenticateStep: React.FC<AuthenticateStepProps> = ({
                   'Copy request sent to your terminal. If paste is empty, copy the URL above manually.',
                 )
               : copyState.status === 'unsupported'
-                ? t('Cannot write to terminal — copy the URL above manually.')
+                ? t('Cannot write to terminal -- copy the URL above manually.')
                 : t('Press c to copy the authorization URL to your clipboard.')}
           </Text>
         )}

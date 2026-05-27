@@ -259,7 +259,7 @@ describe('tasksCommand', () => {
     expect(result.content).toContain(
       '[mon_fail] failed: spawn ENOENT (0 events)',
     );
-    // No on-disk output file for monitors — events stream via
+    // No on-disk output file for monitors -- events stream via
     // task_notification, so the "output:" line should not appear for
     // any monitor entry.
     expect(result.content).not.toContain('output: ');
@@ -294,7 +294,7 @@ describe('tasksCommand', () => {
   it('shows the dialog hint only in interactive mode', async () => {
     getShells.mockReturnValue([entry({ shellId: 'bg_x' })]);
 
-    // non_interactive (default in beforeEach) — no hint.
+    // non_interactive (default in beforeEach) -- no hint.
     const noHint = await tasksCommand.action!(context, '');
     if (!noHint || noHint.type !== 'message') throw new Error('no result');
     expect(noHint.content).not.toContain('Tip:');
@@ -316,7 +316,7 @@ describe('tasksCommand', () => {
     // Pin the actual key path so a regression that goes back to the
     // wrong `Ctrl+T` text (which is bound to the MCP descriptions
     // toggle, not the Background tasks dialog) fails loudly.
-    expect(withHint.content).toContain('↓');
+    expect(withHint.content).toContain('');
     expect(withHint.content).toContain('Enter');
     expect(withHint.content).not.toContain('Ctrl+T');
     expect(withHint.content).toContain('Background tasks (1 total)');
@@ -324,7 +324,7 @@ describe('tasksCommand', () => {
 
   it('suppresses the dialog hint in acp mode (no dialog to point at)', async () => {
     // ACP / IDE-bridge consumers (Zed, etc.) have no TTY for the
-    // dialog — same suppression rationale as non_interactive. Pinning
+    // dialog -- same suppression rationale as non_interactive. Pinning
     // this so a future regression that switches to `!== 'non_interactive'`
     // (which would wrongly show the hint to ACP) fails loudly.
     getShells.mockReturnValue([entry({ shellId: 'bg_x' })]);
@@ -394,7 +394,7 @@ describe('tasksCommand', () => {
     const order = ['bg_early', 'mon_mid', 'a_late'].map((id) =>
       result.content.indexOf(`[${id}]`),
     );
-    // All present and strictly increasing — proves startTime sort.
+    // All present and strictly increasing -- proves startTime sort.
     expect(order.every((i) => i >= 0)).toBe(true);
     expect(order[0]).toBeLessThan(order[1]);
     expect(order[1]).toBeLessThan(order[2]);

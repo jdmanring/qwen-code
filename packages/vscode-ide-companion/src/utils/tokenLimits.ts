@@ -87,7 +87,7 @@ function normalize(model: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Input context-window patterns (most specific → most general)
+// Input context-window patterns (most specific -> most general)
 // ---------------------------------------------------------------------------
 
 const INPUT_PATTERNS: Array<[RegExp, TokenCount]> = [

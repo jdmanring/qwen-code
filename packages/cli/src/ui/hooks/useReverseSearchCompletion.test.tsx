@@ -250,7 +250,7 @@ describe('useReverseSearchCompletion', () => {
     it('hides suggestions when there are no matches', () => {
       const history = ['alpha', 'beta'];
       const { result } = renderHook(() =>
-        useReverseSearchCompletion(useTextBufferForTest('γ'), history, true),
+        useReverseSearchCompletion(useTextBufferForTest(''), history, true),
       );
 
       expect(result.current.suggestions).toEqual([]);

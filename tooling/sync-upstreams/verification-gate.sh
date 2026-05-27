@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# Verification Gate — standalone runner for the three quality gates.
+# Verification Gate -- standalone runner for the three quality gates.
 # Mirrors the gate logic in upstream_ingest_pipeline.py for use outside the full pipeline.
 #
 # Usage:
@@ -19,7 +19,7 @@ log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
 log_error()   { echo -e "${RED}[FAIL]${NC} $1" >&2; }
 
 # Resolves ruff using the same priority as upstream_ingest_pipeline.py:
-#   1. uv run ruff  (project-pinned version — preferred)
+#   1. uv run ruff  (project-pinned version -- preferred)
 #   2. $RUFF_BIN    (explicit CI override)
 #   3. PATH ruff    (last resort)
 run_ruff() {
@@ -45,7 +45,7 @@ gate_lint() {
 }
 
 gate_symmetry() {
-    log_info "Gate 2/3: Symmetry check (config ↔ docs)..."
+    log_info "Gate 2/3: Symmetry check (config <-> docs)..."
     if ! python3 tooling/symmetry_check.py; then
         log_error "Symmetry gate failed. config/ and docs/ are out of sync."
         return 1
@@ -56,7 +56,7 @@ gate_symmetry() {
 gate_boot() {
     log_info "Gate 3/3: Boot test (uv lock --check)..."
     if ! uv lock --check; then
-        log_error "Boot gate failed — lockfile out of sync. Run: uv lock"
+        log_error "Boot gate failed -- lockfile out of sync. Run: uv lock"
         return 1
     fi
     log_success "Boot gate passed."

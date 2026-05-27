@@ -740,7 +740,7 @@ const RenderMathBlockInternal: React.FC<RenderMathBlockProps> = ({
           flexShrink={0}
         >
           <Text bold color={theme.text.accent}>
-            LaTeX block · source: {sourceCopyCommand}
+            LaTeX block  source: {sourceCopyCommand}
           </Text>
           {previewLines.map((line, index) => (
             <Text key={index} color={theme.text.secondary} wrap="truncate-end">
@@ -762,7 +762,7 @@ const RenderMathBlockInternal: React.FC<RenderMathBlockProps> = ({
       flexShrink={0}
     >
       <Text bold color={theme.text.accent}>
-        LaTeX block · source: {sourceCopyCommand}
+        LaTeX block  source: {sourceCopyCommand}
       </Text>
       <Text color={theme.text.accent} wrap="wrap">
         {rendered}
@@ -785,7 +785,7 @@ const RenderBlockquoteInternal: React.FC<RenderBlockquoteProps> = ({
   enableInlineMath = true,
 }) => (
   <Box paddingLeft={BLOCKQUOTE_PREFIX_PADDING} flexDirection="row">
-    <Text color={theme.text.secondary}>│ </Text>
+    <Text color={theme.text.secondary}>| </Text>
     <Box flexGrow={LIST_ITEM_TEXT_FLEX_GROW}>
       <Text wrap="wrap" color={textColor} italic>
         <RenderInline
@@ -822,7 +822,7 @@ const RenderListItemInternal: React.FC<RenderListItemProps> = ({
   const isTaskChecked = taskMatch?.[1]?.toLowerCase() === 'x';
   const effectiveItemText = isTaskItem ? taskMatch[2] : itemText;
   const prefix = isTaskItem
-    ? `${isTaskChecked ? '✓' : '○'} `
+    ? `${isTaskChecked ? '' : ''} `
     : type === 'ol'
       ? `${marker}. `
       : `${marker} `;

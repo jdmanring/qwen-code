@@ -96,7 +96,7 @@ describe('AgentTool', () => {
     // Create mock config. The outer describe covers foreground execution
     // paths, which now register/unregister in the BackgroundTaskRegistry
     // to surface the run in the pill+dialog. A no-op stub registry is
-    // enough for these tests — they don't assert on registry behavior.
+    // enough for these tests -- they don't assert on registry behavior.
     const stubRegistry = {
       assertCanStartBackgroundAgent: vi.fn(),
       register: vi.fn(),
@@ -358,7 +358,7 @@ describe('AgentTool', () => {
   // would silently run the subagent against pre-edit HEAD. This test
   // exercises the actual provisioning path against a real temp git
   // repo and asserts the failure shape.
-  describe('isolation — round-7 parent-dirty guard', () => {
+  describe('isolation -- round-7 parent-dirty guard', () => {
     it('refuses isolation when parent has uncommitted edits', async () => {
       const fs = await import('node:fs/promises');
       const pathMod = await import('node:path');
@@ -494,7 +494,7 @@ describe('AgentTool', () => {
         formatCompactResult: vi
           .fn()
           .mockReturnValue(
-            '✅ Success: Search files completed with GOAL termination',
+            ' Success: Search files completed with GOAL termination',
           ),
         getExecutionSummary: vi.fn().mockReturnValue({
           rounds: 2,
@@ -699,7 +699,7 @@ describe('AgentTool', () => {
 
     it("L3 default is 'ask' so AUTO mode routes through the classifier", async () => {
       // Previously this returned 'allow', but launching a sub-agent
-      // hands control to a new instance with its own tool access — a
+      // hands control to a new instance with its own tool access -- a
       // privileged sink. The AUTO scheduler short-circuits at L4 when
       // finalPermission === 'allow', so without this override the
       // classifier projection added in PR #4151 would never be reached
@@ -771,7 +771,7 @@ describe('AgentTool', () => {
 
       MockedContextState.mockImplementation(() => mockContextState);
 
-      // Parent conversation history: empty (first-turn fork — falls back to
+      // Parent conversation history: empty (first-turn fork -- falls back to
       // the fork agent's own systemPrompt + wildcard tools because no
       // cache params have been captured yet).
       vi.mocked(config.getGeminiClient).mockReturnValue({
@@ -813,7 +813,7 @@ describe('AgentTool', () => {
 
       // Fork returns the placeholder synchronously.
       const llmText = partToString(result.llmContent);
-      expect(llmText).toBe('Fork started — processing in background');
+      expect(llmText).toBe('Fork started -- processing in background');
 
       // Drain the background executeSubagent() promise so its assertions
       // become visible before the test ends.
@@ -978,7 +978,7 @@ describe('AgentTool', () => {
         result: 'Task completed successfully',
         terminateMode: AgentTerminateMode.GOAL,
         getFinalText: vi.fn().mockReturnValue('Task completed successfully'),
-        formatCompactResult: vi.fn().mockReturnValue('✅ Success'),
+        formatCompactResult: vi.fn().mockReturnValue(' Success'),
         getExecutionSummary: vi.fn().mockReturnValue({
           rounds: 1,
           totalDurationMs: 500,
@@ -1046,7 +1046,7 @@ describe('AgentTool', () => {
         'file-search',
         PermissionMode.AutoEdit,
         // Foreground subagents now run with a composed signal (so the
-        // dialog can cancel just this child) — the hook receives the
+        // dialog can cancel just this child) -- the hook receives the
         // composed signal, not the caller-supplied one.
         expect.any(AbortSignal),
       );
@@ -1160,7 +1160,7 @@ describe('AgentTool', () => {
         result: 'Task completed successfully',
         terminateMode: AgentTerminateMode.GOAL,
         getFinalText: vi.fn().mockReturnValue('Task completed successfully'),
-        formatCompactResult: vi.fn().mockReturnValue('✅ Success'),
+        formatCompactResult: vi.fn().mockReturnValue(' Success'),
         getExecutionSummary: vi.fn().mockReturnValue({
           rounds: 1,
           totalDurationMs: 500,
@@ -1499,7 +1499,7 @@ describe('AgentTool', () => {
         result: 'Done',
         terminateMode: AgentTerminateMode.GOAL,
         getFinalText: vi.fn().mockReturnValue('Done'),
-        formatCompactResult: vi.fn().mockReturnValue('✅ Success'),
+        formatCompactResult: vi.fn().mockReturnValue(' Success'),
         getExecutionSummary: vi.fn().mockReturnValue({
           rounds: 1,
           totalDurationMs: 100,
@@ -1563,7 +1563,7 @@ describe('AgentTool', () => {
           timestamp: Date.now(),
         } satisfies AgentToolCallEvent);
 
-        // Tool needs approval → pendingConfirmation is set
+        // Tool needs approval -> pendingConfirmation is set
         emitter.emit(AgentEventType.TOOL_WAITING_APPROVAL, {
           subagentId: 'sub-1',
           round: 1,
@@ -1583,7 +1583,7 @@ describe('AgentTool', () => {
           respond: vi.fn(),
         } as unknown as AgentApprovalRequestEvent);
 
-        // IDE diff-tab accepted → TOOL_RESULT arrives without onConfirm
+        // IDE diff-tab accepted -> TOOL_RESULT arrives without onConfirm
         emitter.emit(AgentEventType.TOOL_RESULT, {
           subagentId: 'sub-1',
           round: 1,
@@ -2166,7 +2166,7 @@ describe('AgentTool', () => {
       // isBackgrounded: false so the pill+dialog can surface them while
       // the parent's tool-call awaits, then unregister in the finally
       // path once the call returns. (The tool-result is the durable
-      // record — the entry does not persist.)
+      // record -- the entry does not persist.)
       expect(mockRegistry.register).toHaveBeenCalledWith(
         expect.objectContaining({
           isBackgrounded: false,
@@ -2329,7 +2329,7 @@ describe('AgentTool', () => {
           description: 'Search files',
         }),
       );
-      // Finally block patches the sidecar to the terminal status —
+      // Finally block patches the sidecar to the terminal status --
       // without this a completed foreground run leaves the on-disk meta
       // frozen at `running`.
       expect(patchMetaSpy).toHaveBeenCalledWith(
@@ -2350,11 +2350,11 @@ describe('AgentTool', () => {
     ] as const)(
       'foreground %s terminate mode patches meta as %s',
       async (mode, expectedStatus) => {
-        // The fgTerminalStatus ternary maps GOAL → completed, CANCELLED →
-        // cancelled, and *everything else* → failed. GOAL is covered by
+        // The fgTerminalStatus ternary maps GOAL -> completed, CANCELLED ->
+        // cancelled, and *everything else* -> failed. GOAL is covered by
         // the "foreground subagent reserves a JSONL+meta path" test above;
         // CANCELLED and the fallback branch are covered here. A regression
-        // that flipped CANCELLED → 'failed' or the fallback back to
+        // that flipped CANCELLED -> 'failed' or the fallback back to
         // 'completed' (an earlier fallback bug shipped and was fixed in
         // d67db4c50) would now fail at least one of these cases.
         const fgSubagent: SubagentConfig = {

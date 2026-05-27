@@ -627,7 +627,7 @@ describe('mcp-client', () => {
       // Now let the rejected connect propagate.
       await expect(connectPromise).rejects.toThrow('connect failed');
 
-      // The entry must remain absent — no resurrection.
+      // The entry must remain absent -- no resurrection.
       expect(getAllMCPServerStatuses().has('racy-server')).toBe(false);
     });
 
@@ -667,7 +667,7 @@ describe('mcp-client', () => {
 
       await client.disconnect();
       // After an intentional disconnect, the global registry MUST reflect
-      // DISCONNECTED — otherwise downstream code (failure banner, health
+      // DISCONNECTED -- otherwise downstream code (failure banner, health
       // pill) treats the server as still healthy.
       expect(getMCPServerStatus('healthy-server')).toBe(
         MCPServerStatus.DISCONNECTED,

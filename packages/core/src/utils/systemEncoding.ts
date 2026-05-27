@@ -42,7 +42,7 @@ export function getCachedEncodingForBuffer(buffer: Buffer): string {
     return 'utf-8';
   }
 
-  // Buffer is not valid UTF-8 — try chardet, then system encoding
+  // Buffer is not valid UTF-8 -- try chardet, then system encoding
   const detected = detectEncodingFromBuffer(buffer);
   if (detected) {
     return detected;
@@ -176,7 +176,7 @@ export function windowsCodePageToEncoding(cp: number): string | null {
  * @return The detected encoding as a lowercase string, or null if detection fails.
  */
 export function detectEncodingFromBuffer(buffer: Buffer): string | null {
-  // Try chardet statistical detection first — works well for larger files
+  // Try chardet statistical detection first -- works well for larger files
   try {
     const detected = chardetDetect(buffer);
     if (detected && typeof detected === 'string') {

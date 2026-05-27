@@ -236,7 +236,7 @@ describe('createRuntimeContentGeneratorView', () => {
 
   it('should bind the new ContentGenerator to contentGeneratorOwner, not base', async () => {
     const baseConfig = createMockConfig(parentConfig);
-    // Distinct instance — represents the per-agent override Config.
+    // Distinct instance -- represents the per-agent override Config.
     const ownerConfig = createMockConfig(parentConfig);
     const fakeGenerator = { generateContentStream: vi.fn() };
     vi.mocked(createContentGenerator).mockResolvedValueOnce(

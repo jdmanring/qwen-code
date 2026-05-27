@@ -1,8 +1,8 @@
-# 🧪 Testing Pyramid
+#  Testing Pyramid
 
 This document defines the multi-layered testing strategy for the Qwen Code project. We employ a "Testing Pyramid" approach to ensure high confidence in system stability, from individual component logic to full end-to-end user workflows.
 
-## 🏗️ The Pyramid Structure
+##  The Pyramid Structure
 
 The testing suite is organized into four distinct levels, each with increasing scope and fidelity.
 
@@ -15,7 +15,7 @@ The testing suite is organized into four distinct levels, each with increasing s
 
 ---
 
-## 🔍 Level Details
+##  Level Details
 
 ### 1. Unit Tests
 *   **Goal**: Verify the correctness of isolated algorithms and logic.
@@ -43,7 +43,7 @@ The testing suite is organized into four distinct levels, each with increasing s
 
 ---
 
-## 🚀 Testing Standards
+##  Testing Standards
 
 To maintain high quality, all new features must be accompanied by tests that adhere to these standards:
 

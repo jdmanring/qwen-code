@@ -73,7 +73,7 @@ describe('FileReadCache', () => {
       expect(result.state).toBe('stale');
     });
 
-    it('returns unknown — not stale — when only the inode differs', () => {
+    it('returns unknown -- not stale -- when only the inode differs', () => {
       // rm + recreate scenario: same path, brand-new inode. The cache is
       // keyed by inode, so the new file is genuinely a stranger. Edit /
       // WriteFile callers will treat this as "must read first", which is
@@ -138,11 +138,11 @@ describe('FileReadCache', () => {
 
     it('preserves earlier lastReadWasFull on a subsequent partial read (sticky-on-true)', () => {
       // Prior-read enforcement asks "has the model seen these
-      // bytes (or fully authored them)?" — once a full read has
+      // bytes (or fully authored them)?" -- once a full read has
       // happened, a follow-up offset/limit read should not revoke
       // the model's right to mutate the file. Pre-fix this was
-      // the cause of the `WriteFile(create) → ReadFile(offset/limit)
-      // → Edit` regression flagged by the maintainer review.
+      // the cause of the `WriteFile(create) -> ReadFile(offset/limit)
+      // -> Edit` regression flagged by the maintainer review.
       const cache = new FileReadCache();
       const stats = makeStats();
       cache.recordRead('/x/foo.ts', stats, { full: true, cacheable: true });
@@ -156,7 +156,7 @@ describe('FileReadCache', () => {
 
     it('does NOT preserve lastReadWasFull when a drifted (mutated) fingerprint arrives', () => {
       // Maintainer-review regression: T0 full read at fingerprint
-      // X → T1 external write advances on-disk to Y → T2 partial
+      // X -> T1 external write advances on-disk to Y -> T2 partial
       // read records at Y. Sticky-on-true used to silently keep
       // lastReadWasFull=true from T0 even though it described
       // different bytes; a follow-up Edit then ran against bytes
@@ -183,7 +183,7 @@ describe('FileReadCache', () => {
     it('preserves earlier lastReadCacheable on a subsequent non-cacheable read', () => {
       // Symmetric to lastReadWasFull. A model that once read a
       // file as text and later read it as a structured payload
-      // (image, PDF, etc. — though uncommon in practice for a
+      // (image, PDF, etc. -- though uncommon in practice for a
       // single inode) keeps the right to edit the bytes it saw
       // as text.
       const cache = new FileReadCache();
@@ -220,7 +220,7 @@ describe('FileReadCache', () => {
     it('flips cacheable to true on a subsequent text read of the same inode', () => {
       // Pathological-but-possible: file was first read as PDF base64, then
       // its bytes were rewritten to plain text and re-Read (the rewrite
-      // path goes through stale → fresh via a new recordRead). Verify the
+      // path goes through stale -> fresh via a new recordRead). Verify the
       // cacheable flag tracks the most recent Read, not a previous one.
       const cache = new FileReadCache();
       const stats = makeStats();
@@ -263,10 +263,10 @@ describe('FileReadCache', () => {
     });
 
     it('seeds read metadata when recording a write on a brand-new entry', () => {
-      // The model authored the bytes it just wrote — for the purposes
+      // The model authored the bytes it just wrote -- for the purposes
       // of prior-read enforcement on the *next* Edit, that counts as
       // having seen the full text content. Without this seeding a
-      // create→edit→edit chain would reject the second edit because
+      // create->edit->edit chain would reject the second edit because
       // lastReadWasFull / lastReadCacheable would still be unset on
       // the entry recordWrite created.
       const cache = new FileReadCache();
@@ -292,7 +292,7 @@ describe('FileReadCache', () => {
       );
     });
 
-    it('refreshes lastReadAt to match the write — the author saw all bytes', () => {
+    it('refreshes lastReadAt to match the write -- the author saw all bytes', () => {
       // recordWrite always re-stamps the read metadata: the model
       // authored the bytes it just wrote, so for prior-read
       // enforcement purposes it now counts as having seen the full
@@ -313,7 +313,7 @@ describe('FileReadCache', () => {
 
     it('upgrades lastReadWasFull / lastReadCacheable after a full write', () => {
       // Reproduction for the gap reviewer flagged: ReadFile(limit=10)
-      // → WriteFile(full) → Edit. Pre-fix, the partial read's
+      // -> WriteFile(full) -> Edit. Pre-fix, the partial read's
       // lastReadWasFull=false persisted through the write and the
       // Edit would be rejected with EDIT_REQUIRES_PRIOR_READ.
       const cache = new FileReadCache();
@@ -354,7 +354,7 @@ describe('FileReadCache', () => {
       vi.useRealTimers();
     });
 
-    it('records lastWriteAt === lastReadAt after Read → Write', () => {
+    it('records lastWriteAt === lastReadAt after Read -> Write', () => {
       // recordWrite refreshes the read metadata to the write time
       // because the model authored the bytes it just wrote and now
       // counts as having seen them. ReadFile's file_unchanged
@@ -379,7 +379,7 @@ describe('FileReadCache', () => {
       }
     });
 
-    it('records lastReadAt > lastWriteAt after Read → Write → Read', () => {
+    it('records lastReadAt > lastWriteAt after Read -> Write -> Read', () => {
       const cache = new FileReadCache();
       cache.recordRead('/x/foo.ts', makeStats({ mtimeMs: 1000 }), {
         full: true,
@@ -494,7 +494,7 @@ describe('FileReadCache', () => {
         full: true,
         cacheable: true,
       });
-      // Same inode reached via a different path — must hit the same entry.
+      // Same inode reached via a different path -- must hit the same entry.
       expect(cache.check(fs.statSync(link)).state).toBe('fresh');
     });
 
@@ -556,7 +556,7 @@ describe('FileReadCache', () => {
     it('returns false (caller must fall back to clear) when there is no entry for the stats', () => {
       const cache = new FileReadCache();
       // No entry, or stats resolved to a different inode than recorded
-      // — the caller treats this like an unstattable path.
+      // -- the caller treats this like an unstattable path.
       expect(cache.markReadEvictedFromHistory(makeStats())).toBe(false);
       expect(cache.check(makeStats()).state).toBe('unknown');
 
@@ -606,7 +606,7 @@ describe('FileReadCache', () => {
       // Regression for the Codex P2: after microcompaction blanks a
       // full read, a later partial read of the unchanged file used to
       // unconditionally re-arm readResidentInHistory while
-      // lastReadWasFull stayed sticky-true — so a follow-up full Read
+      // lastReadWasFull stayed sticky-true -- so a follow-up full Read
       // would get a file_unchanged placeholder pointing at bytes no
       // longer in history (only a slice is resident).
       const cache = new FileReadCache();
@@ -620,7 +620,7 @@ describe('FileReadCache', () => {
       const result = cache.check(stats);
       expect(result.state).toBe('fresh');
       if (result.state === 'fresh') {
-        // Still disarmed — the full bytes are NOT back in history.
+        // Still disarmed -- the full bytes are NOT back in history.
         expect(result.entry.readResidentInHistory).toBe(false);
         // lastReadWasFull stays sticky-true (read-rights preserved).
         expect(result.entry.lastReadWasFull).toBe(true);
@@ -631,7 +631,7 @@ describe('FileReadCache', () => {
       const cache = new FileReadCache();
       const stats = makeStats();
       cache.recordRead('/x/foo.ts', stats, { full: true, cacheable: true });
-      // No eviction — the full read is still in history.
+      // No eviction -- the full read is still in history.
       cache.recordRead('/x/foo.ts', stats, { full: false, cacheable: true });
 
       const result = cache.check(stats);
@@ -683,7 +683,7 @@ describe('FileReadCache', () => {
         });
       }
 
-      // Frequently update ino=0 — after bump lands this moves it to the
+      // Frequently update ino=0 -- after bump lands this moves it to the
       // back of the eviction queue.
       for (let i = 0; i < 10; i++) {
         cache.recordRead('/x/file-0.ts', makeStats({ ino: 0 }), {
@@ -692,7 +692,7 @@ describe('FileReadCache', () => {
         });
       }
 
-      // Add 50 new entries — they push the *least* recently bumped out.
+      // Add 50 new entries -- they push the *least* recently bumped out.
       for (let i = 4096; i < 4146; i++) {
         cache.recordRead(`/x/file-${i}.ts`, makeStats({ ino: i }), {
           full: true,

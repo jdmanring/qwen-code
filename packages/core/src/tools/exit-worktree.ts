@@ -38,8 +38,8 @@ export interface ExitWorktreeParams {
   name: string;
   /**
    * What to do with the worktree:
-   * - `'keep'` — leave the worktree directory and branch intact for later use.
-   * - `'remove'` — delete the worktree directory and branch.
+   * - `'keep'` -- leave the worktree directory and branch intact for later use.
+   * - `'remove'` -- delete the worktree directory and branch.
    */
   action: 'keep' | 'remove';
   /**
@@ -53,8 +53,8 @@ const exitWorktreeDescription = `Exits a worktree previously created by ${ToolNa
 
 ## Behavior
 
-- \`action='keep'\` — preserves the worktree directory and branch on disk so it can be revisited later. Use when work is in progress and the user might come back to it.
-- \`action='remove'\` — deletes the worktree directory and branch. **Refuses to run** if the worktree contains uncommitted changes (tracked or untracked) unless \`discard_changes: true\` is set. Use when the work is committed (or intentionally being discarded).
+- \`action='keep'\` -- preserves the worktree directory and branch on disk so it can be revisited later. Use when work is in progress and the user might come back to it.
+- \`action='remove'\` -- deletes the worktree directory and branch. **Refuses to run** if the worktree contains uncommitted changes (tracked or untracked) unless \`discard_changes: true\` is set. Use when the work is committed (or intentionally being discarded).
 
 ## When to Use
 
@@ -105,7 +105,7 @@ class ExitWorktreeInvocation extends BaseToolInvocation<
    * any tool whose `confirmationDetails.type` is `'edit'` or `'info'`
    * when the session is in `AUTO_EDIT`. The base `BaseToolInvocation`
    * returns `type: 'info'` by default, which means a `getDefaultPermission`
-   * of `'ask'` still gets bypassed in AUTO_EDIT — the data-loss path
+   * of `'ask'` still gets bypassed in AUTO_EDIT -- the data-loss path
    * we explicitly closed for `DEFAULT` mode. Returning `type: 'exec'`
    * (the same bucket `run_shell_command` lives in) keeps the
    * confirmation prompt for AUTO_EDIT users too. `keep` falls through
@@ -156,7 +156,7 @@ class ExitWorktreeInvocation extends BaseToolInvocation<
 
     // Confirm the worktree directory actually exists before doing anything.
     // Distinguish ENOENT ("not found", legitimate) from any other I/O
-    // failure (permission, EIO, ENOTDIR) — the previous bare `catch`
+    // failure (permission, EIO, ENOTDIR) -- the previous bare `catch`
     // collapsed all of them into "Worktree not found" with no log,
     // making it impossible to diagnose a real filesystem problem.
     let exists = false;
@@ -184,7 +184,7 @@ class ExitWorktreeInvocation extends BaseToolInvocation<
     if (this.params.action === 'keep') {
       // Phase C update: preserve the sidecar on `keep`. `keep` means
       // "the worktree directory and branch remain on disk so it can be
-      // revisited later" — clearing the persisted binding would force
+      // revisited later" -- clearing the persisted binding would force
       // a subsequent `--resume` (or interactive Footer / WorktreeExitDialog)
       // to forget the worktree the user just chose to retain. The model
       // can still reference the absolute path from the tool result;
@@ -204,7 +204,7 @@ class ExitWorktreeInvocation extends BaseToolInvocation<
       };
     }
 
-    // action === 'remove' — three independent guards:
+    // action === 'remove' -- three independent guards:
     //
     // 0. Session ownership: refuse to drop a worktree that was created
     //    by a different session. Without this, a prompt injection (or
@@ -219,7 +219,7 @@ class ExitWorktreeInvocation extends BaseToolInvocation<
     const currentSessionId = this.config.getSessionId();
     if (owner !== null && owner !== currentSessionId) {
       return errorResult(
-        `Refusing to remove worktree "${this.params.name}" — it was ` +
+        `Refusing to remove worktree "${this.params.name}" -- it was ` +
           `created by a different session (owner=${owner}). Resume the ` +
           `owning session to drop it, or remove it manually with ` +
           `\`git worktree remove ${worktreePath}\`.`,
@@ -236,28 +236,28 @@ class ExitWorktreeInvocation extends BaseToolInvocation<
     //    `discard_changes: true`.
     // 2. Commits on the worktree branch that no other local branch or
     //    remote ref points at. Deleting the branch would lose them, so
-    //    we refuse unconditionally — the user must merge, push, or
+    //    we refuse unconditionally -- the user must merge, push, or
     //    rename the branch elsewhere first. There is no "discard
     //    commits" flag because losing committed work is rarely what the
     //    user means by "remove worktree".
     if (!this.params.discard_changes) {
       const counts = await service.countWorktreeChanges(worktreePath);
       if (counts === null) {
-        // Inspecting the worktree itself failed — most likely a corrupt
+        // Inspecting the worktree itself failed -- most likely a corrupt
         // git index, a permission problem, or the worktree dir was
         // mutated under us. Refuse rather than suggesting
         // `discard_changes: true`, which would tell the user to bypass
         // a safety check whose precondition is unknown. The user should
         // diagnose the underlying repo problem first.
         return errorResult(
-          `Cannot inspect worktree "${this.params.name}" — git status failed against ${worktreePath}. ` +
+          `Cannot inspect worktree "${this.params.name}" -- git status failed against ${worktreePath}. ` +
             `Check filesystem permissions and repository integrity, then call ${ToolNames.EXIT_WORKTREE} again.`,
         );
       }
       const total = counts.tracked + counts.untracked;
       if (total > 0) {
         return errorResult(
-          `Refusing to remove worktree "${this.params.name}" — it has ` +
+          `Refusing to remove worktree "${this.params.name}" -- it has ` +
             `${counts.tracked} tracked change(s) and ${counts.untracked} untracked file(s). ` +
             `Commit or stash first, or call again with \`discard_changes: true\`.`,
         );
@@ -271,14 +271,14 @@ class ExitWorktreeInvocation extends BaseToolInvocation<
       // Service-level helper logs its own failures, but the caller
       // context is what an operator would grep for ("why did
       // exit_worktree refuse?"). Add a second log here so the chain
-      // (caller → reason it asked → underlying git error) is intact.
+      // (caller -> reason it asked -> underlying git error) is intact.
       debugLogger.warn(
         `exit_worktree: hasUnmergedWorktreeCommits failed for ${branch}: ${error}`,
       );
     }
     if (hasUnmerged) {
       return errorResult(
-        `Refusing to remove worktree "${this.params.name}" — its branch ` +
+        `Refusing to remove worktree "${this.params.name}" -- its branch ` +
           `\`${branch}\` has commits that no other branch or remote ref ` +
           `points at, and deleting the branch would lose them. Merge, ` +
           `push, or rename the branch first, then call ${ToolNames.EXIT_WORKTREE} again.`,
@@ -293,7 +293,7 @@ class ExitWorktreeInvocation extends BaseToolInvocation<
     }
     if (result.branchPreserved) {
       // Status check passed and unmerged check passed, but the safe
-      // delete still refused — most likely a race where new commits
+      // delete still refused -- most likely a race where new commits
       // landed between the checks. Be loud rather than force-deleting.
       await this.maybeClearWorktreeSession();
       const output: ExitWorktreeOutput = {
@@ -302,7 +302,7 @@ class ExitWorktreeInvocation extends BaseToolInvocation<
         worktreeBranch: branch,
         message:
           `Removed worktree directory "${this.params.name}" but kept branch ${branch} ` +
-          `(git refused a safe delete at the last moment — possibly a race with another ` +
+          `(git refused a safe delete at the last moment -- possibly a race with another ` +
           `process). Recover with \`git branch -D ${branch}\` if you really want to discard it.`,
       };
       return {
@@ -332,7 +332,7 @@ class ExitWorktreeInvocation extends BaseToolInvocation<
    * Clears the WorktreeSession sidecar file iff its `slug` matches the
    * worktree being exited. We skip the clear when the sidecar names a
    * different slug because the user might have multiple worktrees on
-   * disk while the sidecar tracks only one — wiping it on every exit
+   * disk while the sidecar tracks only one -- wiping it on every exit
    * would orphan the currently-tracked worktree from the CLI's view.
    *
    * Best-effort: failures are logged, never raised.
@@ -400,7 +400,7 @@ export class ExitWorktreeTool extends BaseDeclarativeTool<
       },
       true, // isOutputMarkdown
       false, // canUpdateOutput
-      true, // shouldDefer — only invoked when the user explicitly asks to leave a worktree
+      true, // shouldDefer -- only invoked when the user explicitly asks to leave a worktree
       false, // alwaysLoad
       'worktree exit leave remove keep cleanup',
     );

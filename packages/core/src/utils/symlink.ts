@@ -26,7 +26,7 @@ export interface UpdateSymlinkOptions {
  * The symlink uses a relative target so it stays valid even when the
  * parent directory is moved.
  *
- * All errors are swallowed — the operation is strictly best-effort.
+ * All errors are swallowed -- the operation is strictly best-effort.
  */
 export async function updateSymlink(
   linkPath: string,

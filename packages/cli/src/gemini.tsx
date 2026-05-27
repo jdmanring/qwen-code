@@ -229,7 +229,7 @@ export async function startInteractiveUI(
   // map the running PID back to its session id and work directory.
   // Best-effort: a read-only filesystem must not prevent the UI from
   // starting up. Marking the runtime status as enabled is what arms the
-  // session-swap refresh in `Config.refreshSessionId()` — without this
+  // session-swap refresh in `Config.refreshSessionId()` -- without this
   // call, the sidecar would never update on `/clear` or `/resume`.
   try {
     const sessionId = config.getSessionId();
@@ -276,7 +276,7 @@ export async function startInteractiveUI(
   } catch (err) {
     debugLogger.error('Failed to initialize dual output bridge:', err);
     writeStderrLine(
-      `Warning: dual output disabled — ${err instanceof Error ? err.message : String(err)}`,
+      `Warning: dual output disabled -- ${err instanceof Error ? err.message : String(err)}`,
     );
   }
 
@@ -291,7 +291,7 @@ export async function startInteractiveUI(
     } catch (err) {
       debugLogger.error('Failed to initialize remote input watcher:', err);
       writeStderrLine(
-        `Warning: remote input disabled — ${err instanceof Error ? err.message : String(err)}`,
+        `Warning: remote input disabled -- ${err instanceof Error ? err.message : String(err)}`,
       );
     }
   }
@@ -361,7 +361,7 @@ export async function startInteractiveUI(
   // `first_paint` for backward compatibility with previously-collected
   // profile files; the value is best read as "render call returned"
   // rather than literal pixel paint. AppContainer's mount effect runs
-  // after this — it carries the `config_initialize_*` and
+  // after this -- it carries the `config_initialize_*` and
   // `input_enabled` checkpoints that complete the first-screen picture.
   profileCheckpoint('first_paint');
 
@@ -410,7 +410,7 @@ export async function main() {
     process.env[QWEN_CODE_SIMPLE_ENV_VAR] = '1';
   }
 
-  // Run before yargs parses subcommands — handlers like `channel status`/`stop`
+  // Run before yargs parses subcommands -- handlers like `channel status`/`stop`
   // call `process.exit` before `loadSettings()` would otherwise bootstrap.
   preResolveHomeEnvOverrides();
 
@@ -505,7 +505,7 @@ export async function main() {
           process.exit(1);
         }
       }
-      // For stream-json and ACP modes, don't read stdin here — stdin carries
+      // For stream-json and ACP modes, don't read stdin here -- stdin carries
       // protocol data (not a user prompt) and should be forwarded to the sandbox
       // intact via stdio: 'inherit'.
       const inputFormat = argv.inputFormat as string | undefined;
@@ -597,16 +597,16 @@ export async function main() {
     let resolvedSessionId: string | undefined;
 
     if (argv.resume === '') {
-      // No argument — show picker
+      // No argument -- show picker
       resolvedSessionId = await showResumeSessionPicker();
     } else if (!cliConfig.isValidSessionId(argv.resume)) {
-      // Non-UUID argument — treat as custom title search
+      // Non-UUID argument -- treat as custom title search
       const sessionService = new SessionService(process.cwd());
       const matches = await sessionService.findSessionsByTitle(argv.resume);
       if (matches.length === 1) {
         resolvedSessionId = matches[0].sessionId;
       } else if (matches.length > 1) {
-        // Multiple matches — show picker to let user choose
+        // Multiple matches -- show picker to let user choose
         writeStderrLine(
           `Multiple sessions found with title "${argv.resume}". Please select one:`,
         );
@@ -615,7 +615,7 @@ export async function main() {
           matches,
         );
       }
-      // matches.length === 0 → resolvedSessionId stays undefined, handled below
+      // matches.length === 0 -> resolvedSessionId stays undefined, handled below
     }
 
     if (resolvedSessionId !== undefined) {
@@ -782,12 +782,12 @@ export async function main() {
         );
         // Run cleanup so MCP subprocesses + telemetry exporters that the
         // earlier initializeApp() / loadCliConfig() registered get shut
-        // down — process.exit() doesn't drain them on its own.
+        // down -- process.exit() doesn't drain them on its own.
         await runExitCleanup();
         process.exit(1);
       }
       // For the interactive path, the profile is finalized by AppContainer
-      // after `config.initialize()` and `input_enabled` are recorded — that's
+      // after `config.initialize()` and `input_enabled` are recorded -- that's
       // the only way `first_paint`, `config_initialize_*`, `input_enabled`,
       // and the MCP events are captured. See AppContainer's mount effect.
       setInteractiveMode(true);
@@ -848,7 +848,7 @@ export async function main() {
       // init. Under PR-A's progressive MCP availability,
       // `config.initialize()` returns BEFORE MCP servers settle, so
       // without this wait the first sendMessage would see only built-in
-      // tools — a silent regression versus the legacy synchronous
+      // tools -- a silent regression versus the legacy synchronous
       // behavior. Interactive paths skip this (AppContainer's batch-flush
       // subscriber updates the tool list as MCP servers come online).
       await config.waitForMcpReady();
@@ -862,7 +862,7 @@ export async function main() {
       // `discoverAllMcpToolsIncremental` and never reach a TTY. This
       // helper closes that gap without re-introducing blocking.
       // Defensive against tests that pass a stubbed Config without
-      // `getFailedMcpServerNames` — the warning is best-effort visibility
+      // `getFailedMcpServerNames` -- the warning is best-effort visibility
       // and never gates startup.
       const failedMcpServers =
         typeof config.getFailedMcpServerNames === 'function'

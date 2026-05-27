@@ -50,7 +50,7 @@ function canonicaliseForHash(content: string): string {
     content.length > 0 && content.charCodeAt(0) === 0xfeff
       ? content.slice(1)
       : content;
-  // Normalise CRLF → LF. writeTextFile writes CRLF when the file's
+  // Normalise CRLF -> LF. writeTextFile writes CRLF when the file's
   // detected line-ending is CRLF; AI's recordEdit input is typically
   // LF-normalised (Edit's `currentContent.replace(/\r\n/g, '\n')`
   // happens before recordEdit fires).
@@ -72,7 +72,7 @@ function computeContentHash(content: string): string {
  * report either form) won't line up unless we normalise both sides.
  *
  * For DELETED leaves (file no longer exists on disk), realpathSync
- * throws — but the parent directory is still resolvable. Canonicalise
+ * throws -- but the parent directory is still resolvable. Canonicalise
  * the parent and rejoin the missing basename so a deleted file's
  * lookup still hits the canonical key recordEdit stored before the
  * file was removed. Without this, a `getFileAttribution(deletedPath)`
@@ -121,7 +121,7 @@ export interface FileAttribution {
  * Field naming caveat: `aiChars` and `humanChars` look like literal
  * UTF-16/UTF-8 character counts, but they are NOT. Both are
  * heuristic diff-size proxies derived from `git diff --numstat`:
- * for text files the value is `(addedLines + deletedLines) × 40`
+ * for text files the value is `(addedLines + deletedLines) * 40`
  * (the 40-char/line heuristic), and for binary files both sides
  * are reported as a flat `1024`. The per-file AI accumulator from
  * `recordEdit` is then clamped against this same line-based ceiling.
@@ -130,17 +130,17 @@ export interface FileAttribution {
  * and one adding 1000 thousand-character lines both report
  * `aiChars = 40000`; a 5 MB image change and a 1-byte binary tweak
  * both report `1024`. `percent` (and `summary.aiPercent`) is
- * largely insulated from this — both numerator and denominator use
- * the same heuristic — but consumers aggregating raw
+ * largely insulated from this -- both numerator and denominator use
+ * the same heuristic -- but consumers aggregating raw
  * `aiChars`/`humanChars` for compliance reporting will get
  * systematically biased numbers and should treat these fields as
  * "approximate change size in proxy-chars" rather than literal
  * char counts.
  */
 export interface FileAttributionDetail {
-  /** Heuristic diff-size proxy (NOT a literal char count — see interface doc). */
+  /** Heuristic diff-size proxy (NOT a literal char count -- see interface doc). */
   aiChars: number;
-  /** Heuristic diff-size proxy (NOT a literal char count — see interface doc). */
+  /** Heuristic diff-size proxy (NOT a literal char count -- see interface doc). */
   humanChars: number;
   /**
    * AI share of the per-file diff, rounded to integer percent.
@@ -187,7 +187,7 @@ export interface CommitAttributionNote {
    * the true total.
    */
   excludedGenerated: string[];
-  /** Total count of excluded files (≥ excludedGenerated.length). */
+  /** Total count of excluded files (>= excludedGenerated.length). */
   excludedGeneratedCount: number;
   promptCount: number;
 }
@@ -338,7 +338,7 @@ export class CommitAttributionService {
    * Uses prefix/suffix matching for precise character-level contribution.
    *
    * `filePath` is canonicalised via `fs.realpathSync` before being used
-   * as a key, so symlinked paths (e.g. `/var/...` ↔ `/private/var/...`
+   * as a key, so symlinked paths (e.g. `/var/...` <-> `/private/var/...`
    * on macOS) collapse to the same entry instead of silently producing
    * two parallel records.
    *
@@ -366,11 +366,11 @@ export class CommitAttributionService {
     // Fresh-file lifetime: if we have a prior tracked state for this
     // path BUT the caller is reporting `oldContent === null` (the file
     // didn't exist on disk at edit time), the previous tracking was
-    // for a since-deleted file at the same path — accumulating across
+    // for a since-deleted file at the same path -- accumulating across
     // distinct file lifetimes would credit AI for chars from the old
     // file that no longer exist. Reset before counting the new
-    // contribution. Common path: AI creates `foo.ts` → user / shell
-    // `rm foo.ts` → AI re-creates `foo.ts` from scratch.
+    // contribution. Common path: AI creates `foo.ts` -> user / shell
+    // `rm foo.ts` -> AI re-creates `foo.ts` from scratch.
     if (existing && isNewFile) {
       aiContribution = 0;
       aiCreated = false;
@@ -410,7 +410,7 @@ export class CommitAttributionService {
    * Re-hash each tracked file's content via a caller-supplied reader
    * and drop entries whose hash doesn't match what AI's last write
    * recorded. Catches the cases recordEdit's input-hash check can't
-   * see — i.e. the user (or another tool) modified the file entirely
+   * see -- i.e. the user (or another tool) modified the file entirely
    * outside the Edit/Write tools, then committed it. Without this,
    * the AI's stale aiContribution would attach to the human-only
    * diff at commit time and credit AI for human work.
@@ -431,7 +431,7 @@ export class CommitAttributionService {
    */
   validateAgainst(getContent: (absPath: string) => string | null): void {
     for (const [key, attr] of this.fileAttributions) {
-      // Skip legacy entries that have no recorded post-write hash —
+      // Skip legacy entries that have no recorded post-write hash --
       // we can't tell stale from fresh, so leave them alone.
       if (!attr.contentHash) continue;
       const current = getContent(key);
@@ -510,7 +510,7 @@ export class CommitAttributionService {
    *
    * Inputs must already be canonical absolute paths. The caller
    * should resolve repo-relative diff entries against a canonical
-   * (realpath'd) repo root rather than realpathing each leaf — at
+   * (realpath'd) repo root rather than realpathing each leaf -- at
    * cleanup time the leaf for a just-deleted file no longer exists,
    * so per-leaf `fs.realpathSync` would fail and fall back to a
    * non-canonical path that misses the stored canonical key.
@@ -529,7 +529,7 @@ export class CommitAttributionService {
    * chain we won't write a note for, attribution toggle off, diff
    * analysis failed). Wholesale-clearing in those branches would
    * silently wipe pending AI edits for *unrelated* files the user
-   * didn't stage — a worse failure mode than the small risk of
+   * didn't stage -- a worse failure mode than the small risk of
    * stale per-file state for files that did just land.
    */
   noteCommitWithoutClearing(): void {
@@ -546,7 +546,7 @@ export class CommitAttributionService {
    * approach that handles all of: deleted files (where realpathSync
    * throws), intermediate-symlink directories (where path.resolve only
    * canonicalises the base), and renamed files (where the diff-time
-   * relative path differs from the recordEdit-time absolute path —
+   * relative path differs from the recordEdit-time absolute path --
    * still no match here, that's a rename-tracking concern handled
    * separately). Each tracked key is canonical (recordEdit ran it
    * through `realpathOrSelf`), so its computed relative form against
@@ -646,7 +646,7 @@ export class CommitAttributionService {
   restoreFromSnapshot(snapshot: AttributionSnapshot): void {
     // The resume-time caller (client.ts) passes `snapshot` as a
     // structural cast from `unknown`, so its TS-typed shape is only
-    // a hint — the actual runtime value can be anything (corrupted
+    // a hint -- the actual runtime value can be anything (corrupted
     // JSONL line, hand-edited session file, schema drift). Bail to
     // a clean reset on any envelope-level shape mismatch:
     //   - non-object / null / array
@@ -674,7 +674,7 @@ export class CommitAttributionService {
     // existing on-disk snapshots restore cleanly.
     const snapshotVersion = snapshot.version ?? 1;
     if (snapshotVersion !== ATTRIBUTION_SNAPSHOT_VERSION) {
-      // Don't trust a stale shape — its fields may have moved or
+      // Don't trust a stale shape -- its fields may have moved or
       // changed semantics. Reset to a fresh state rather than
       // splice incompatible data.
       this.fileAttributions.clear();
@@ -725,7 +725,7 @@ export class CommitAttributionService {
       // symlinked and canonical forms were stored under separate
       // keys (e.g. a session straddling the canonicalisation fix),
       // collapsing them onto the same canonical key MUST merge their
-      // attribution rather than overwrite — otherwise the second
+      // attribution rather than overwrite -- otherwise the second
       // entry to land wins and the AI's accumulated contribution from
       // the first form is silently dropped.
       const canonicalKey = realpathOrSelf(k);
@@ -772,11 +772,11 @@ export class CommitAttributionService {
     let totalAiChars = 0;
     let totalHumanChars = 0;
 
-    // Build lookup: relative path → tracked AI contribution. Keys in
+    // Build lookup: relative path -> tracked AI contribution. Keys in
     // `fileAttributions` are already canonical (recordEdit runs them
     // through realpath); we only need to canonicalise `baseDir`,
     // which comes from `git rev-parse --show-toplevel` and may be a
-    // symlink (e.g. macOS `/var` → `/private/var`). Without that
+    // symlink (e.g. macOS `/var` -> `/private/var`). Without that
     // canonicalisation `path.relative` would produce a `../...` key
     // that never matches the diff output. Normalize separators to
     // forward slashes so git paths line up on Windows.
@@ -821,7 +821,7 @@ export class CommitAttributionService {
       } else if (isDeleted) {
         // Deleted files with no AI tracking are attributed entirely to
         // the human. diffSize comes from `git diff --numstat` so empty
-        // deletions legitimately have diffSize=0 — a magic fallback
+        // deletions legitimately have diffSize=0 -- a magic fallback
         // would only inflate totals.
         aiChars = 0;
         humanChars = diffSize;

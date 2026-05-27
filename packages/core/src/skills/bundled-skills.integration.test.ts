@@ -13,7 +13,7 @@ import { parseSkillContent } from './skill-load.js';
 // Bundled skills are loaded from disk at runtime by SkillManager. A typo in
 // frontmatter (missing `description`, malformed YAML, broken `---` delimiter,
 // `allowedTools` written as a scalar instead of a list, ...) currently fails
-// only when a user invokes the skill — `skill-manager.ts` swallows the parse
+// only when a user invokes the skill -- `skill-manager.ts` swallows the parse
 // error and emits a debug log, so CI stays green. This integration test parses
 // every shipped SKILL.md against the real loader so any frontmatter regression
 // fails CI immediately.

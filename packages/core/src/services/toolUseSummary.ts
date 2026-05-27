@@ -107,7 +107,7 @@ export async function generateToolUseSummary(
 
   const model = config.getFastModel();
   if (!model) {
-    debugLogger.debug('No fast model configured — skipping summary generation');
+    debugLogger.debug('No fast model configured -- skipping summary generation');
     return null;
   }
 
@@ -131,7 +131,7 @@ export async function generateToolUseSummary(
     const userPrompt = `${contextPrefix}Tools completed:\n\n${toolSummaries}\n\nLabel:`;
 
     if (!config.getGeminiClient()) {
-      debugLogger.debug('No gemini client available — skipping');
+      debugLogger.debug('No gemini client available -- skipping');
       return null;
     }
 
@@ -179,7 +179,7 @@ export async function generateToolUseSummary(
  * Claude Code's `truncateJson` behavior (including the `...` suffix).
  *
  * For large string inputs, pre-truncates BEFORE serialization to avoid
- * allocating the full JSON representation on the interactive turn path —
+ * allocating the full JSON representation on the interactive turn path --
  * a 10MB ReadFile result would otherwise be fully stringified just to be
  * sliced down to 300 chars and discarded.
  *
@@ -225,7 +225,7 @@ function preTruncate(value: unknown, maxLength: number, depth = 0): unknown {
 
 /**
  * Strips markdown, quotes, and common prefix noise from the model's raw
- * response. Enforces `MAX_SUMMARY_LENGTH` as a hard cap — the mobile UI
+ * response. Enforces `MAX_SUMMARY_LENGTH` as a hard cap -- the mobile UI
  * truncates around 30 chars, but we allow some slack so unusual-but-useful
  * labels (e.g. CJK phrases) survive. Returns empty string if the result is
  * unusable (error message, prefixed label, etc.).
@@ -236,7 +236,7 @@ function preTruncate(value: unknown, maxLength: number, depth = 0): unknown {
  * U+201C/U+201D (curly double), U+300C-F (CJK corner brackets). Bounded
  * quantifier keeps the regex linear (js/polynomial-redos).
  */
-const QUOTE_CHARS = '"\'`‘’“”「」『』';
+const QUOTE_CHARS = '"\'`''""';
 const LEADING_QUOTES_RE = new RegExp(`^[${QUOTE_CHARS}]{1,10}`);
 const TRAILING_QUOTES_RE = new RegExp(`[${QUOTE_CHARS}]{1,10}$`);
 
@@ -247,28 +247,28 @@ const TRAILING_QUOTES_RE = new RegExp(`[${QUOTE_CHARS}]{1,10}$`);
  */
 const REFUSAL_PREFIXES = [
   /^api error\b/i,
-  /^error[:：]/i,
-  // Match "I can't" (ASCII U+0027 apostrophe), "I can’t" (curly U+2019),
+  /^error[::]/i,
+  // Match "I can't" (ASCII U+0027 apostrophe), "I can't" (curly U+2019),
   // and "I cannot" as a single pattern.
-  /^i can(?:['’]t|not)\b/i,
+  /^i can(?:['']t|not)\b/i,
   /^unable to\b/i,
   /^failed to\b/i,
-  /^sorry[,，]/i,
+  /^sorry[,]/i,
   /^request failed\b/i,
-  /^我无法/,
-  /^我不能/,
-  /^抱歉[,，]?/,
-  /^无法/,
+  /^/,
+  /^/,
+  /^[,]?/,
+  /^/,
 ];
 
 export function cleanSummary(raw: string): string {
   // Take first line only
   let text = raw.split('\n')[0]?.trim() ?? '';
 
-  // Strip leading bullet/dash first — otherwise a bulleted quoted label like
+  // Strip leading bullet/dash first -- otherwise a bulleted quoted label like
   // `- "Searched auth/"` would keep its leading quote after the trailing one
   // is stripped.
-  text = text.replace(/^[-*•]\s+/, '').trim();
+  text = text.replace(/^[-*]\s+/, '').trim();
 
   // Strip markdown emphasis (`**bold**`, `__bold__`, `_italic_`). Bounded
   // quantifiers keep the regex linear.
@@ -284,7 +284,7 @@ export function cleanSummary(raw: string): string {
     .trim();
 
   // Strip common prefix labels like "Label:" "Summary:"
-  text = text.replace(/^(label|summary|result|output)\s*[:：]\s*/i, '').trim();
+  text = text.replace(/^(label|summary|result|output)\s*[::]\s*/i, '').trim();
 
   if (!text) return '';
 

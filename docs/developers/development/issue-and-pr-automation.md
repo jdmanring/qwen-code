@@ -40,8 +40,8 @@ This workflow ensures that all changes meet our quality standards before they ca
   - **Test**: Runs our full suite of automated tests across macOS, Windows, and Linux, and on multiple Node.js versions. This is the most time-consuming part of the CI process.
   - **Post Coverage Comment**: After all tests have successfully passed, a bot will post a comment on your PR. This comment provides a summary of how well your changes are covered by tests.
 - **What you should do**:
-  - Ensure all CI checks pass. A green checkmark ✅ will appear next to your commit when everything is successful.
-  - If a check fails (a red "X" ❌), click the "Details" link next to the failed check to view the logs, identify the problem, and push a fix.
+  - Ensure all CI checks pass. A green checkmark  will appear next to your commit when everything is successful.
+  - If a check fails (a red "X" ), click the "Details" link next to the failed check to view the logs, identify the problem, and push a fix.
 
 ### 3. Ongoing Triage for Pull Requests: `PR Auditing and Label Sync`
 

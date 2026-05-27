@@ -141,7 +141,7 @@ describe('keyMatchers', () => {
         createKey('backspace', { ctrl: true }),
         createKey('backspace', { meta: true }),
         // MinTTY (Git Bash on Windows) emits a bare \x1f byte for
-        // Ctrl+Backspace — see the matching comment in keyBindings.ts
+        // Ctrl+Backspace -- see the matching comment in keyBindings.ts
         // on the DELETE_WORD_BACKWARD default-binding array.
         createKey('', { sequence: '\x1f' }),
       ],
@@ -294,7 +294,7 @@ describe('keyMatchers', () => {
         createKey('p'),
         createKey('n', { ctrl: true }),
         createKey('u'),
-        // ctrl: false on k — Ctrl+K must NOT match (would conflict with KILL_LINE_RIGHT)
+        // ctrl: false on k -- Ctrl+K must NOT match (would conflict with KILL_LINE_RIGHT)
         createKey('k', { ctrl: true }),
       ],
     },
@@ -309,7 +309,7 @@ describe('keyMatchers', () => {
         createKey('n'),
         createKey('p', { ctrl: true }),
         createKey('d'),
-        // ctrl: false on j — Ctrl+J must NOT match (preserves Ctrl+J = newline in some terminals)
+        // ctrl: false on j -- Ctrl+J must NOT match (preserves Ctrl+J = newline in some terminals)
         createKey('j', { ctrl: true }),
       ],
     },
@@ -341,14 +341,14 @@ describe('keyMatchers', () => {
       negative: [
         createKey('m'),
         createKey('m', { ctrl: true }),
-        createKey('', { sequence: 'µ' }),
-        createKey('', { sequence: 'µ', paste: true }),
+        createKey('', { sequence: 'u' }),
+        createKey('', { sequence: 'u', paste: true }),
       ],
     },
     {
       command: Command.PROMOTE_SHELL_TO_BACKGROUND,
       positive: [createKey('b', { ctrl: true })],
-      // No bare `b`, no Ctrl+other, no meta+b — Ctrl is required so
+      // No bare `b`, no Ctrl+other, no meta+b -- Ctrl is required so
       // typing `b` mid-prompt isn't accidentally swallowed.
       negative: [
         createKey('b'),

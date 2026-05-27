@@ -1,8 +1,8 @@
-# 🛠️ Project Scripts: Utility & Automation
+#  Project Scripts: Utility & Automation
 
 This document catalogs the scripts available in the `scripts/` directory and their functions.
 
-## 📋 Script Registry
+##  Script Registry
 
 | Script | Purpose | Usage |
 | :--- | :--- | :--- |
@@ -11,7 +11,7 @@ This document catalogs the scripts available in the `scripts/` directory and the
 
 ---
 
-## 🔄 Automation Patterns
+##  Automation Patterns
 
 The project uses these scripts to maintain the monorepo's structural integrity:
 1. **Package Scaffolding**: Ensures new packages follow the same directory structure and configuration as existing ones.

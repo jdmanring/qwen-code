@@ -57,7 +57,7 @@ vi.mock('./ToolMessage.js', () => ({
       (resultDisplay as { type?: string }).type === 'task_execution'
     ) {
       // `forceShowResult` is the gate that lets `SubagentScrollbackSummary`
-      // render in compact mode — surfaced in the mock so tests can
+      // render in compact mode -- surfaced in the mock so tests can
       // assert it was passed for terminal subagent tools.
       return (
         <Text>
@@ -458,7 +458,7 @@ describe('<ToolGroupMessage />', () => {
         />,
       );
 
-      // Direct tool confirmation active → subagent gets no shortcut focus
+      // Direct tool confirmation active -> subagent gets no shortcut focus
       expect(lastFrame()).toContain(
         'MockSubagent[agent-running]: focused=false',
       );
@@ -587,7 +587,7 @@ describe('<ToolGroupMessage />', () => {
     // Helper that wraps the group with `compactMode: true` so the
     // `showCompact` branch is exercised. Verifies the safety net that
     // forces the group to expand when it carries a committed terminal
-    // subagent — without it, `CompactToolGroupDisplay` would skip the
+    // subagent -- without it, `CompactToolGroupDisplay` would skip the
     // ToolMessage path and `SubagentScrollbackSummary` would never
     // surface in scrollback. The committed-summary handoff promised
     // by the LiveAgentPanel design depends on this.
@@ -623,7 +623,7 @@ describe('<ToolGroupMessage />', () => {
       });
 
     it('compact mode: committed group with completed subagent forces expand', () => {
-      // isPending=false (committed) + completed subagent → expand,
+      // isPending=false (committed) + completed subagent -> expand,
       // routing through ToolMessage so the scrollback summary lands
       // in the persistent record.
       const { lastFrame } = renderCompact(
@@ -641,7 +641,7 @@ describe('<ToolGroupMessage />', () => {
     });
 
     it('compact mode: live group with running subagent stays compact', () => {
-      // isPending=true (live) → panel below the composer owns the
+      // isPending=true (live) -> panel below the composer owns the
       // row; staying compact keeps scrollback quiet until the parent
       // turn commits.
       const { lastFrame } = renderCompact(
@@ -660,7 +660,7 @@ describe('<ToolGroupMessage />', () => {
       // The subagent terminated mid-turn while the parent is still
       // running. After #3921 swapped the order in
       // `unregisterForeground` (delete-then-emit), the panel snapshot
-      // has already evicted the row by the time we render — so if the
+      // has already evicted the row by the time we render -- so if the
       // group stayed compact, the user would see NOTHING for the run
       // until the parent commits. Force-expand here so
       // `SubagentScrollbackSummary` lands inline immediately and
@@ -678,8 +678,8 @@ describe('<ToolGroupMessage />', () => {
       expect(lastFrame() ?? '').toContain('MockSubagent[task-completed]');
     });
 
-    it('live phase (non-compact): running subagent tool entry is hidden — panel owns the row', () => {
-      // Without this filter the user sees the same subagent twice —
+    it('live phase (non-compact): running subagent tool entry is hidden -- panel owns the row', () => {
+      // Without this filter the user sees the same subagent twice --
       // once as the parent tool group's `task` row, once as the
       // `LiveAgentPanel` row beneath the composer. Hide the inline
       // entry while `isPending=true` so the panel is the single
@@ -691,14 +691,14 @@ describe('<ToolGroupMessage />', () => {
           isPending={true}
         />,
       );
-      // Pure-subagent group with everything panel-owned → entire
+      // Pure-subagent group with everything panel-owned -> entire
       // group is hidden so an empty bordered container doesn't
       // float above the panel.
       expect(lastFrame() ?? '').toBe('');
     });
 
     it('live phase (non-compact): mixed group still renders sibling tools', () => {
-      // Only the subagent entry is hidden in live phase — sibling
+      // Only the subagent entry is hidden in live phase -- sibling
       // tools (Read / Edit / Bash) keep rendering normally so the
       // parent's tool stream stays continuous.
       const sibling = createToolCall({
@@ -717,7 +717,7 @@ describe('<ToolGroupMessage />', () => {
       const frame = lastFrame() ?? '';
       // Sibling shown.
       expect(frame).toContain('read_file');
-      // Subagent hidden — panel owns the live row.
+      // Subagent hidden -- panel owns the live row.
       expect(frame).not.toContain('MockSubagent[task-running]');
     });
 
@@ -757,7 +757,7 @@ describe('<ToolGroupMessage />', () => {
       // foreground entry from the panel snapshot the moment the
       // subagent finishes. If the inline path also stayed hidden in
       // the live phase, the user would see nothing for the run
-      // until the parent commits — `SubagentScrollbackSummary` has
+      // until the parent commits -- `SubagentScrollbackSummary` has
       // to bridge that gap. Live-phase hide applies only to
       // running / paused / background entries.
       const { lastFrame } = renderWithProviders(
@@ -767,7 +767,7 @@ describe('<ToolGroupMessage />', () => {
           isPending={true}
         />,
       );
-      // Terminal entry rendered → MockSubagent sentinel from the
+      // Terminal entry rendered -> MockSubagent sentinel from the
       // ToolMessage mock; if the entry were still hidden the frame
       // would be empty.
       expect(lastFrame() ?? '').toContain('MockSubagent[task-completed]');
@@ -788,7 +788,7 @@ describe('<ToolGroupMessage />', () => {
     });
 
     it('terminal subagent tool receives forceShowResult so the summary renders in compact mode', () => {
-      // Force-expanding the group is necessary but not sufficient —
+      // Force-expanding the group is necessary but not sufficient --
       // `ToolMessage`'s own compact-mode gate
       // (`!compactMode || forceShowResult`) would otherwise drop the
       // result block, so the inner SubagentScrollbackSummary never
@@ -807,7 +807,7 @@ describe('<ToolGroupMessage />', () => {
     });
 
     it('compact mode: committed group with failed subagent forces expand', () => {
-      // Same as the completed case — the scrollback summary needs to
+      // Same as the completed case -- the scrollback summary needs to
       // land for failed / cancelled foreground subagents too so the
       // user has a permanent record of the run's outcome.
       const { lastFrame } = renderCompact(
@@ -853,7 +853,7 @@ describe('<ToolGroupMessage />', () => {
       // returned BEFORE. So a mixed live group (running subagent +
       // sibling tool) sent the unfiltered list to
       // `CompactToolGroupDisplay`, where the running subagent could
-      // (a) inflate the count to N (`× N` suffix), and (b) win
+      // (a) inflate the count to N (`* N` suffix), and (b) win
       // `getActiveTool` (Executing beats sibling's Success / Pending),
       // overriding the header with the subagent's name. The fix
       // derives `inlineToolCalls` ONCE before any compact decision so
@@ -873,10 +873,10 @@ describe('<ToolGroupMessage />', () => {
         />,
       );
       const frame = lastFrame() ?? '';
-      // Sibling is the only inline survivor → wins active-tool, count
-      // collapses to 1 (no `× N` suffix).
+      // Sibling is the only inline survivor -> wins active-tool, count
+      // collapses to 1 (no `* N` suffix).
       expect(frame).toContain('read_file');
-      expect(frame).not.toMatch(/× 2/);
+      expect(frame).not.toMatch(/* 2/);
       // Sibling description should appear; subagent description
       // should not.
       expect(frame).toContain('read config.yaml');

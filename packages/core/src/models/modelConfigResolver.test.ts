@@ -855,7 +855,7 @@ describe('modelConfigResolver', () => {
     });
   });
 
-  describe('[Regression] issue-4219 — env-var-only path must call defaultModalities()', () => {
+  describe('[Regression] issue-4219 -- env-var-only path must call defaultModalities()', () => {
     it('[Regression] env-var-only path: modalities auto-detected for qwen3.6-35b-a3b', () => {
       // REPRODUCES issue-4219:
       // When the model is supplied only via OPENAI_MODEL (no modelProviders entry),
@@ -876,13 +876,13 @@ describe('modelConfigResolver', () => {
           OPENAI_BASE_URL: 'http://localhost:8000/v1',
           OPENAI_MODEL: 'qwen3.6-35b-a3b',
         },
-        // No modelProvider — this is the env-var-only path
+        // No modelProvider -- this is the env-var-only path
       });
 
       expect(result.config.model).toBe('qwen3.6-35b-a3b');
 
       // The qwen3.6-35b pattern in modalityDefaults.ts maps to { image: true, video: true }.
-      // The env-var-only path must auto-detect this — just as the modelProviders path does
+      // The env-var-only path must auto-detect this -- just as the modelProviders path does
       // in modelsConfig.ts applyResolvedModelDefaults() lines 791-797.
       expect(result.config.modalities).toBeDefined();
       expect(result.config.modalities?.image).toBe(true);
@@ -935,7 +935,7 @@ describe('modelConfigResolver', () => {
     it('env-var-only path: explicit settings.generationConfig.modalities is not overridden by fallback', () => {
       // Locks the `=== undefined` guard: when user explicitly configures
       // modalities in settings, the fallback must not clobber them with
-      // defaultModalities() — even for a model whose name would otherwise
+      // defaultModalities() -- even for a model whose name would otherwise
       // auto-resolve to multimodal.
       const result = resolveModelConfig({
         authType: AuthType.USE_OPENAI,
@@ -953,7 +953,7 @@ describe('modelConfigResolver', () => {
         env: {
           OPENAI_API_KEY: 'test-key',
           OPENAI_BASE_URL: 'http://localhost:8000/v1',
-          OPENAI_MODEL: 'qwen3.6-35b-a3b', // defaultModalities → { image: true, video: true }
+          OPENAI_MODEL: 'qwen3.6-35b-a3b', // defaultModalities -> { image: true, video: true }
         },
       });
 

@@ -20,7 +20,7 @@ export const resumeCommand: SlashCommand = {
   action: async (context, args): Promise<SlashCommandActionReturn> => {
     const arg = args.trim();
 
-    // No argument — show picker
+    // No argument -- show picker
     if (!arg) {
       return { type: 'dialog', dialog: 'resume' };
     }
@@ -61,7 +61,7 @@ export const resumeCommand: SlashCommand = {
     }
 
     if (matches.length > 1) {
-      // Multiple matches — show picker with only the matching sessions
+      // Multiple matches -- show picker with only the matching sessions
       return { type: 'dialog', dialog: 'resume', matchedSessions: matches };
     }
 

@@ -1171,7 +1171,7 @@ describe('DataProcessor', () => {
 
     it('should return partial qualitative data when some LLM calls fail', async () => {
       // Schema validation rejects partial objects, so build a fully-populated
-      // response — only the explicitly-rejected calls should land as undefined.
+      // response -- only the explicitly-rejected calls should land as undefined.
       let callIndex = 0;
       mockGenerateJson.mockImplementation(() => {
         callIndex++;

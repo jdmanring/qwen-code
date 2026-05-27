@@ -20,7 +20,7 @@ function truncateIndexLine(text: string): string {
   if (text.length <= MAX_INDEX_LINE_CHARS) {
     return text;
   }
-  return `${text.slice(0, MAX_INDEX_LINE_CHARS - 1).trimEnd()}…`;
+  return `${text.slice(0, MAX_INDEX_LINE_CHARS - 1).trimEnd()}...`;
 }
 
 export function buildManagedAutoMemoryIndex(
@@ -33,7 +33,7 @@ export function buildManagedAutoMemoryIndex(
   const raw = docs
     .map((doc) =>
       truncateIndexLine(
-        `- [${doc.title}](${doc.relativePath}) — ${doc.description || doc.type}`,
+        `- [${doc.title}](${doc.relativePath}) -- ${doc.description || doc.type}`,
       ),
     )
     .join('\n');

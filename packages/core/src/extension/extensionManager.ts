@@ -1362,10 +1362,10 @@ export class ExtensionManager {
     await this.config.getToolRegistry().restartMcpServers();
     // Refresh skills + subagents in parallel. Both `refreshCache` calls
     // now resolve only after their async change-listener chain settles
-    // — for skills, that includes `SkillTool.refreshSkills()` rebuilding
+    // -- for skills, that includes `SkillTool.refreshSkills()` rebuilding
     // the model-facing tool description and updating `geminiClient`'s
     // tool list. allSettled (rather than Promise.all) so a rejection
-    // from one leg does not cascade — the other leg's result is still
+    // from one leg does not cascade -- the other leg's result is still
     // applied, refreshHierarchicalMemory below still runs, and the
     // `refreshTools` callers (`enableExtension`, etc.) don't unwind
     // because of an unrelated transient failure.
@@ -1382,7 +1382,7 @@ export class ExtensionManager {
         );
       }
     }
-    // Hierarchical memory refresh is now awaited too — the previous
+    // Hierarchical memory refresh is now awaited too -- the previous
     // fire-and-forget defeated the rest of the function's "wait until
     // refresh is done" contract. Wrap in try/catch so a transient
     // failure doesn't propagate up to `enableExtension` /

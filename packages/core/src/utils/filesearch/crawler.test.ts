@@ -1334,7 +1334,7 @@ describe('crawler', () => {
       warnSpy.mockRestore();
     });
 
-    it('should warn on git→rg→fdir degradation when git listing then rg fail', async () => {
+    it('should warn on git->rg->fdir degradation when git listing then rg fail', async () => {
       tmpDir = await createTmpDir({ 'only-fdir.js': '' });
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 

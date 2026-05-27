@@ -1,4 +1,4 @@
-# 🔬 Source Analysis & Absorption Protocol
+#  Source Analysis & Absorption Protocol
 
 This document provides the detailed technical implementation for the **Config-Doc Sync Framework (CSF) Ingestion Protocol**. It defines how to analyze external source material (the "Source") for the purpose of importing its intelligence, patterns, or functionality into the Qwen Code project (the "Target").
 
@@ -35,7 +35,7 @@ This section details the technical execution of the [CSF-Ingestion Protocol](doc
 
 ### Phase 2: Structural Mapping $\to$ Pure Specification
 - **Goal**: Create high-fidelity technical specifications of the source's logic.
-- **Requirement**: These specs must be "Pure"—derived exclusively from the source code.
+- **Requirement**: These specs must be "Pure"--derived exclusively from the source code.
 - **Format**: Use `spec-*.md` files. Each spec must:
   - Map class responsibilities and state transitions.
   - Trace the lifecycle of a request (The "Turn").

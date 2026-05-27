@@ -13,7 +13,7 @@ const MINIMAX_KNOWN_HOSTS = ['api.minimaxi.com', 'api.minimax.io'] as const;
 
 /**
  * Suffix patterns for custom MiniMax OpenAI-compatible API hosts.
- * Note: suffix matching is intentionally permissive — it enables
+ * Note: suffix matching is intentionally permissive -- it enables
  * tagged thinking parsing for any subdomain under minimaxi.com /
  * minimax.io. If a user configures a proxy at a minimaxi subdomain
  * that points to a non-MiniMax backend, tagged thinking parsing

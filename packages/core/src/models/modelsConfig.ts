@@ -451,7 +451,7 @@ export class ModelsConfig {
    * Extract RuntimeModelSnapshot ID from modelId if it's a runtime model reference.
    *
    * Supports the following formats:
-   * - Direct snapshot ID: `$runtime|${authType}|${modelId}` → returns as-is if exists in Map
+   * - Direct snapshot ID: `$runtime|${authType}|${modelId}` -> returns as-is if exists in Map
    * - Direct snapshot ID match: returns if exists in Map
    *
    * Note: When called from ACP integration via setModel, the modelId has already
@@ -896,12 +896,12 @@ export class ModelsConfig {
       // resolveCliGenerationConfig. Save it so we can restore it if
       // applyResolvedModelDefaults clears it (i.e. process.env[envKey] is
       // absent). For cross-provider switches (different modelId), we must
-      // NOT preserve the previous key — it may belong to a different
+      // NOT preserve the previous key -- it may belong to a different
       // service. Also detect hot-reload scenarios where the provider
       // config changed in place (same modelId, different envKey/baseUrl)
       // by comparing fields that applyResolvedModelDefaults sets. Use
       // baseUrl source === 'modelProviders' as the "has been applied"
-      // signal — it covers both envKey and no-envKey models, and avoids
+      // signal -- it covers both envKey and no-envKey models, and avoids
       // false positives when startup baseUrl differs from registry
       // default. (See #3417)
       const hasBeenApplied =

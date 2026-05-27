@@ -56,7 +56,7 @@ describe('MemoryDialog', () => {
   it('moves selection with down arrow key events', () => {
     const { lastFrame } = render(<MemoryDialog onClose={vi.fn()} />);
 
-    expect(lastFrame()).toContain('› 1. User memory');
+    expect(lastFrame()).toContain(' 1. User memory');
 
     const keypressHandler = mockedUseKeypress.mock.calls[0][0];
 
@@ -64,13 +64,13 @@ describe('MemoryDialog', () => {
       keypressHandler({ name: 'down' } as never);
     });
 
-    expect(lastFrame()).toContain('› 2. Project memory');
+    expect(lastFrame()).toContain(' 2. Project memory');
   });
 
   it('moves selection with Ctrl+N/P readline aliases', () => {
     const { lastFrame } = render(<MemoryDialog onClose={vi.fn()} />);
 
-    expect(lastFrame()).toContain('› 1. User memory');
+    expect(lastFrame()).toContain(' 1. User memory');
 
     const pressKey = (key: { name: string; ctrl?: boolean }) => {
       const keypressHandler =
@@ -83,9 +83,9 @@ describe('MemoryDialog', () => {
     };
 
     pressKey({ name: 'n', ctrl: true });
-    expect(lastFrame()).toContain('› 2. Project memory');
+    expect(lastFrame()).toContain(' 2. Project memory');
 
     pressKey({ name: 'p', ctrl: true });
-    expect(lastFrame()).toContain('› 1. User memory');
+    expect(lastFrame()).toContain(' 1. User memory');
   });
 });

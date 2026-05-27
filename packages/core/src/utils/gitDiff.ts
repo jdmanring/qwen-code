@@ -10,7 +10,7 @@ import { execFile } from 'node:child_process';
 // blow up in strict-mock mode just because they transitively load this
 // file via `@qwen-code/qwen-code-core`. The `constants?.X ?? 0` accesses
 // below absorb a missing `constants` field by falling through to plain
-// `O_RDONLY` (= 0 on POSIX) — harmless in mock environments where no
+// `O_RDONLY` (= 0 on POSIX) -- harmless in mock environments where no
 // real `open()` ever runs.
 import * as nodeFs from 'node:fs';
 import { access, lstat, open, readFile, stat } from 'node:fs/promises';
@@ -60,7 +60,7 @@ export const MAX_DIFF_SIZE_BYTES = 1_000_000;
 export const MAX_LINES_PER_FILE = 400;
 /** Skip per-file parsing when the diff touches more than this many files. */
 export const MAX_FILES_FOR_DETAILS = 500;
-/** Sentinel used when `git diff --shortstat` returns nothing — most often
+/** Sentinel used when `git diff --shortstat` returns nothing -- most often
  *  because there are no tracked changes at all. The fast-path threshold
  *  is then driven entirely by the untracked count. */
 const EMPTY_STATS: GitDiffStats = {
@@ -77,7 +77,7 @@ const UNTRACKED_READ_CHUNK_BYTES = 64 * 1024;
 /** Scan the first N bytes for NUL to detect binary files (matches git's heuristic). */
 const BINARY_SNIFF_BYTES = 8 * 1024;
 /** Memoized open flags for line counting. `O_NOFOLLOW` closes the TOCTOU
- *  window between the `lstat` symlink check and `open` — if the path is
+ *  window between the `lstat` symlink check and `open` -- if the path is
  *  replaced with a symlink in that gap, `open` rejects with `ELOOP` instead
  *  of silently dereferencing it. Falls back to plain `O_RDONLY` on platforms
  *  that don't expose the flag (Windows constants omit `O_NOFOLLOW`).
@@ -103,13 +103,13 @@ function getUntrackedOpenFlags(): number {
  *
  * Returns `null` when not inside a git repo, when git itself fails, or when
  * the working tree is in a transient state (merge, rebase, cherry-pick,
- * revert) — those states carry incoming changes that weren't intentionally
+ * revert) -- those states carry incoming changes that weren't intentionally
  * made by the user.
  */
 export async function fetchGitDiff(cwd: string): Promise<GitDiffResult | null> {
   // Walk ancestors once to find the worktree root; reuse the result for the
   // transient-state probe and every git invocation below. `findGitRoot`
-  // doubles as the "is this a git repo" check — a non-null return implies a
+  // doubles as the "is this a git repo" check -- a non-null return implies a
   // repo. `git diff` already emits repo-root-relative paths regardless of
   // cwd, but `git ls-files --others` is scoped to cwd, so pinning everything
   // to the same root keeps the path keys consistent and ensures untracked
@@ -119,7 +119,7 @@ export async function fetchGitDiff(cwd: string): Promise<GitDiffResult | null> {
   if (!gitRoot) return null;
   if (await isInTransientGitState(gitRoot)) return null;
 
-  // Shortstat probe + untracked scan run in parallel — both are needed
+  // Shortstat probe + untracked scan run in parallel -- both are needed
   // regardless of which path we take, and shortstat is O(1) memory so it can
   // short-circuit huge generated workspaces before we pay the per-file
   // numstat cost. For untracked we hold the raw stdout rather than the parsed
@@ -133,7 +133,7 @@ export async function fetchGitDiff(cwd: string): Promise<GitDiffResult | null> {
   // filter that .gitattributes + `diff.<name>.textconv` register (e.g.
   // `pdftotext` to render PDFs). In practice the stats variants
   // (`--shortstat`, `--numstat`, `--name-status`) do not invoke either
-  // mechanism, but pinning both flags everywhere is defense-in-depth —
+  // mechanism, but pinning both flags everywhere is defense-in-depth --
   // git's behavior around these drivers has shifted between versions
   // before.
   const [shortstatOut, untrackedOut] = await Promise.all([
@@ -167,7 +167,7 @@ export async function fetchGitDiff(cwd: string): Promise<GitDiffResult | null> {
   // with 0 tracked + 501 untracked files would slip past the guardrail:
   // shortstat would be empty, parseShortstat would return null, and the
   // slow path would only line-count the first MAX_FILES untracked
-  // entries — leaving `filesCount: 501` paired with a `linesAdded` that
+  // entries -- leaving `filesCount: 501` paired with a `linesAdded` that
   // missed the other 451 files.
   const quickStats =
     (shortstatOut != null && parseShortstat(shortstatOut)) || EMPTY_STATS;
@@ -232,7 +232,7 @@ export async function fetchGitDiff(cwd: string): Promise<GitDiffResult | null> {
     // `>MAX_FILES_FOR_DETAILS` fast-path filter (so up to ~500 files at the
     // outer cap, not just the first MAX_FILES). Otherwise a workspace with
     // 51-500 untracked files would surface in the header as e.g. "60 files
-    // changed, +50 lines" — the +50 only covering the first 50 files,
+    // changed, +50 lines" -- the +50 only covering the first 50 files,
     // bypassing the contributions of the remaining 10. Concurrency is
     // bounded to MAX_FILES so peak heap stays around
     // `MAX_FILES * UNTRACKED_READ_CHUNK_BYTES` (~3.2 MB) regardless of how
@@ -244,7 +244,7 @@ export async function fetchGitDiff(cwd: string): Promise<GitDiffResult | null> {
     );
     for (const s of lineStats) stats.linesAdded += s.added;
 
-    // Per-file rendering still caps at MAX_FILES — only the first
+    // Per-file rendering still caps at MAX_FILES -- only the first
     // `remainingSlots` untracked entries become visible rows. The rest are
     // already folded into `linesAdded` above and into `filesCount`, so
     // `hiddenCount` covers them faithfully on the renderer side.
@@ -294,7 +294,7 @@ export async function fetchGitDiffHunks(
 
   // Plain `git diff` honors both `GIT_EXTERNAL_DIFF` / `diff.<name>.command`
   // (blocked by `--no-ext-diff`) AND .gitattributes-driven textconv filters
-  // like `diff.<name>.textconv` (blocked by `--no-textconv`) — independent
+  // like `diff.<name>.textconv` (blocked by `--no-textconv`) -- independent
   // command-execution surfaces, both of which we have to disable on this
   // read-only utility. The stats variants in `fetchGitDiff` already bypass
   // both, but plain diff fires both unless told not to.
@@ -354,7 +354,7 @@ export function parseGitNumstat(stdout: string): GitDiffResult {
       continue;
     }
 
-    // Index-based parse — `split('\t')` is unsafe because `-z` preserves
+    // Index-based parse -- `split('\t')` is unsafe because `-z` preserves
     // literal tabs inside filenames.
     const firstTab = token.indexOf('\t');
     if (firstTab < 0) continue;
@@ -368,7 +368,7 @@ export function parseGitNumstat(stdout: string): GitDiffResult {
     const fileRemoved = isBinary ? 0 : parseInt(remStr, 10) || 0;
 
     if (filePath === '') {
-      // Rename header — wait for oldPath and newPath tokens.
+      // Rename header -- wait for oldPath and newPath tokens.
       pending = { added: fileAdded, removed: fileRemoved, isBinary };
       continue;
     }
@@ -429,7 +429,7 @@ export function parseGitDiff(stdout: string): Map<string, Hunk[]> {
     // ` b/` (e.g. `a b/c.txt` yields `diff --git a/a b/c.txt b/a b/c.txt`).
     // Prefer the unambiguous metadata that follows: `rename to`, `copy to`,
     // or the `+++ b/<path>` / `--- a/<path>` lines. Git appends a trailing
-    // TAB to those paths when they contain whitespace — that's our real
+    // TAB to those paths when they contain whitespace -- that's our real
     // end-of-path marker.
     const filePath = extractFilePath(lines);
     if (filePath === null) continue;
@@ -483,7 +483,7 @@ export function parseGitDiff(stdout: string): Map<string, Hunk[]> {
 }
 
 /**
- * Decode a path field from a `diff --git` header — handles both unquoted
+ * Decode a path field from a `diff --git` header -- handles both unquoted
  * (`b/foo.txt`) and C-style quoted (`"b/tab\there.txt"`) forms.
  *
  * Git wraps a path in `"..."` and applies C-style escaping (`\t`, `\n`,
@@ -494,7 +494,7 @@ export function parseGitDiff(stdout: string): Map<string, Hunk[]> {
  * must decode them ourselves to preserve the real on-disk filename.
  *
  * Octal escapes are decoded as raw byte values then UTF-8-decoded en
- * masse so multi-byte sequences like `\346\226\207` (文) round-trip
+ * masse so multi-byte sequences like `\346\226\207` () round-trip
  * correctly even though we never set quotepath=true ourselves.
  */
 function unquoteCStylePath(s: string): string {
@@ -590,11 +590,11 @@ function unquoteCStylePath(s: string): string {
  * ambiguity of `diff --git a/X b/Y` when `X` itself contains ` b/`.
  *
  * Preference order:
- *   1. `rename to <path>` / `copy to <path>` — the authoritative new name.
- *   2. `+++ b/<path>` — the new-side path for in-place modifications. When
+ *   1. `rename to <path>` / `copy to <path>` -- the authoritative new name.
+ *   2. `+++ b/<path>` -- the new-side path for in-place modifications. When
  *      the file was deleted the line reads `+++ /dev/null`; we then fall back
  *      to `--- a/<path>` for the old name.
- *   3. `--- a/<path>` alone — for the rare case where `+++` is absent.
+ *   3. `--- a/<path>` alone -- for the rare case where `+++` is absent.
  *
  * Each candidate path goes through `stripTab` (cut at the trailing TAB git
  * appends after whitespace-containing paths) and `unquoteCStylePath`
@@ -622,7 +622,7 @@ function extractFilePath(lines: string[]): string | null {
     const t = s.indexOf('\t');
     return t >= 0 ? s.slice(0, t) : s;
   };
-  // Strip the TAB-end-of-path marker first, then C-unquote — git emits the
+  // Strip the TAB-end-of-path marker first, then C-unquote -- git emits the
   // TAB AFTER the closing quote on quoted paths.
   const normalize = (s: string): string => unquoteCStylePath(stripTab(s));
   if (renameTo !== null) return normalize(renameTo);
@@ -630,7 +630,7 @@ function extractFilePath(lines: string[]): string | null {
   if (plus !== null) {
     const p = normalize(plus);
     if (p !== '/dev/null' && p.startsWith('b/')) return p.slice(2);
-    // Deleted file — fall back to the old path.
+    // Deleted file -- fall back to the old path.
     if (minus !== null) {
       const m = normalize(minus);
       if (m !== '/dev/null' && m.startsWith('a/')) return m.slice(2);
@@ -672,7 +672,7 @@ export function parseShortstat(stdout: string): GitDiffStats | null {
  * Wire format with `-z`: `<status>\0<path>\0` per entry, except renames and
  * copies which span three tokens: `R<score>\0<oldpath>\0<newpath>\0` (and
  * `C<score>\0...`). We only care about deletions here, so renames/copies
- * are walked past — neither half of a rename pair is "deleted" in the
+ * are walked past -- neither half of a rename pair is "deleted" in the
  * user-facing sense (the file still exists under the new name).
  */
 export function parseDeletedFromNameStatus(stdout: string): Set<string> {
@@ -728,7 +728,7 @@ interface UntrackedLineStats {
  * `fstat(size) > bytesRead`, so the UI can mark partial counts honestly
  * instead of silently under-reporting a 10 MB log as `+20k`.
  *
- * Uses `lstat` before `open` to gate on regular files only — git's
+ * Uses `lstat` before `open` to gate on regular files only -- git's
  * `ls-files --others` can list FIFOs (whose `open()` would block forever
  * waiting on a writer) and symlinks (whose target may live outside the
  * worktree). Symlinks and non-regular files render as binary `~` rows.
@@ -742,7 +742,7 @@ async function countUntrackedLines(
   } catch {
     // File raced out from under ls-files (deleted, permission revoked, etc.).
     // Surface it as a binary row to be consistent with the open-failure /
-    // non-regular-file branches below — `+0 (new)` would lie about it being
+    // non-regular-file branches below -- `+0 (new)` would lie about it being
     // an empty text file when we genuinely have no signal.
     return { added: 0, isBinary: true, truncated: false };
   }
@@ -816,7 +816,7 @@ async function countUntrackedLines(
     return { added: lines, isBinary: false, truncated };
   } catch {
     // Mid-read failure (EIO, fh.stat throwing, etc.). Discard the partial
-    // count and surface as binary — same opaque marker as every other
+    // count and surface as binary -- same opaque marker as every other
     // "we couldn't read this" branch in this function.
     return { added: 0, isBinary: true, truncated: false };
   } finally {
@@ -885,7 +885,7 @@ async function isInTransientGitState(gitRoot: string): Promise<boolean> {
  * Run an async mapper over `items` with at most `limit` operations in
  * flight at once. Used for untracked-file line counting so a workspace with
  * a few hundred untracked files doesn't open 500 file descriptors in
- * parallel — peak heap stays at `limit * UNTRACKED_READ_CHUNK_BYTES`
+ * parallel -- peak heap stays at `limit * UNTRACKED_READ_CHUNK_BYTES`
  * regardless of `items.length`.
  *
  * Order-preserving: `results[i]` corresponds to `items[i]`. Failures

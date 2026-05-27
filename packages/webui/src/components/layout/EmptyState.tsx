@@ -53,7 +53,7 @@ export const EmptyState: FC<EmptyStateProps> = ({
   const iconUri = logoUrl ?? platform.getResourceUrl?.('icon.png');
 
   const description = loadingMessage
-    ? `Preparing ${appName}…`
+    ? `Preparing ${appName}...`
     : isAuthenticated
       ? 'What would you like to do? Ask about this codebase or we can start writing code.'
       : `Welcome! Please log in to start using ${appName}.`;

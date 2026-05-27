@@ -31,7 +31,7 @@ export function formatScope(scope: string): string {
  * Key characteristics:
  * - Linear chain execution: migrations are applied in registration order
  * - Idempotent: already-migrated versions return false from shouldMigrate
- * - Adjacent versions only: each migration handles N → N+1
+ * - Adjacent versions only: each migration handles N -> N+1
  * - Pure functions: migrations don't modify input objects
  */
 export class MigrationScheduler {
@@ -71,7 +71,7 @@ export class MigrationScheduler {
       try {
         if (migration.shouldMigrate(current)) {
           debugLogger.debug(
-            `MigrationScheduler: Executing migration ${migration.fromVersion} → ${migration.toVersion}`,
+            `MigrationScheduler: Executing migration ${migration.fromVersion} -> ${migration.toVersion}`,
           );
 
           const formattedScope = formatScope(this.scope);
@@ -85,12 +85,12 @@ export class MigrationScheduler {
           });
 
           debugLogger.debug(
-            `MigrationScheduler: Migration ${migration.fromVersion} → ${migration.toVersion} completed successfully`,
+            `MigrationScheduler: Migration ${migration.fromVersion} -> ${migration.toVersion} completed successfully`,
           );
         }
       } catch (error) {
         debugLogger.error(
-          `MigrationScheduler: Migration ${migration.fromVersion} → ${migration.toVersion} failed:`,
+          `MigrationScheduler: Migration ${migration.fromVersion} -> ${migration.toVersion} failed:`,
           error,
         );
         throw error;

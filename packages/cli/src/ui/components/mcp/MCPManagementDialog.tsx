@@ -655,17 +655,17 @@ export const MCPManagementDialog: React.FC<MCPManagementDialogProps> = ({
         if (servers.length === 0) {
           footerText = t('Esc to close');
         } else {
-          footerText = t('↑↓ to navigate · Enter to select · Esc to close');
+          footerText = t(' to navigate  Enter to select  Esc to close');
         }
         break;
       case MCP_MANAGEMENT_STEPS.SERVER_DETAIL:
-        footerText = t('↑↓ to navigate · Enter to select · Esc to back');
+        footerText = t(' to navigate  Enter to select  Esc to back');
         break;
       case MCP_MANAGEMENT_STEPS.DISABLE_SCOPE_SELECT:
-        footerText = t('↑↓ to navigate · Enter to confirm · Esc to back');
+        footerText = t(' to navigate  Enter to confirm  Esc to back');
         break;
       case MCP_MANAGEMENT_STEPS.TOOL_LIST:
-        footerText = t('↑↓ to navigate · Enter to select · Esc to back');
+        footerText = t(' to navigate  Enter to select  Esc to back');
         break;
       case MCP_MANAGEMENT_STEPS.TOOL_DETAIL:
         footerText = t('Esc to back');

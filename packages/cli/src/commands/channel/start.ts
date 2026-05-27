@@ -26,10 +26,10 @@ const RESTART_DELAY_MS = 3000;
 /**
  * Resolve and apply proxy settings for the channel service process.
  *
- * The normal CLI path applies proxy via loadCliConfig → Config constructor →
+ * The normal CLI path applies proxy via loadCliConfig -> Config constructor ->
  * setGlobalDispatcher, but `channel start` never calls loadCliConfig. This
- * replicates the same resolution logic (--proxy flag → settings.proxy →
- * HTTPS_PROXY → HTTP_PROXY) and applies the global dispatcher for native
+ * replicates the same resolution logic (--proxy flag -> settings.proxy ->
+ * HTTPS_PROXY -> HTTP_PROXY) and applies the global dispatcher for native
  * fetch() calls. The resolved URL is also passed to channels via
  * ChannelBaseOptions so adapters can configure their own HTTP clients (e.g.
  * grammy uses node-fetch which needs a separate agent).
@@ -101,7 +101,7 @@ async function loadChannelsFromExtensions(): Promise<number> {
 
           if (plugin.channelType !== channelType) {
             writeStderrLine(
-              `[Extensions] "${ext.name}": channelType mismatch — manifest says "${channelType}", plugin says "${plugin.channelType}"`,
+              `[Extensions] "${ext.name}": channelType mismatch -- manifest says "${channelType}", plugin says "${plugin.channelType}"`,
             );
             continue;
           }
@@ -303,7 +303,7 @@ async function startAll(proxy?: string): Promise<void> {
     process.exit(1);
   }
 
-  // Parse all configs upfront — fail fast on bad config
+  // Parse all configs upfront -- fail fast on bad config
   const parsed: Array<{
     name: string;
     config: Awaited<ReturnType<typeof parseChannelConfig>>;

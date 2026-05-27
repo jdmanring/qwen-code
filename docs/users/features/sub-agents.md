@@ -14,7 +14,7 @@ Subagents are independent AI assistants that:
 
 ## Fork Subagent (Implicit Fork)
 
-In addition to named subagents, Qwen Code supports **implicit forking** — when the AI omits the `subagent_type` parameter, it triggers a fork that inherits the parent's full conversation context.
+In addition to named subagents, Qwen Code supports **implicit forking** -- when the AI omits the `subagent_type` parameter, it triggers a fork that inherits the parent's full conversation context.
 
 ### How Fork Differs from Named Subagents
 
@@ -35,11 +35,11 @@ The AI automatically uses fork when it needs to:
 
 ### Prompt Cache Sharing
 
-All forks share the parent's exact API request prefix (system prompt, tools, conversation history), enabling DashScope prompt cache hits. When 3 forks run in parallel, the shared prefix is cached once and reused — saving 80%+ token costs compared to independent subagents.
+All forks share the parent's exact API request prefix (system prompt, tools, conversation history), enabling DashScope prompt cache hits. When 3 forks run in parallel, the shared prefix is cached once and reused -- saving 80%+ token costs compared to independent subagents.
 
 ### Recursive Fork Prevention
 
-Fork children cannot create further forks. This is enforced at runtime — if a fork attempts to spawn another fork, it receives an error instructing it to execute tasks directly.
+Fork children cannot create further forks. This is enforced at runtime -- if a fork attempts to spawn another fork, it receives an error instructing it to execute tasks directly.
 
 ### Current Limitations
 
@@ -59,7 +59,7 @@ Fork children cannot create further forks. This is enforced at runtime — if a 
 ## How Subagents Work
 
 1. **Configuration**: You create Subagents configurations that define their behavior, tools, and system prompts
-2. **Delegation**: The main AI can automatically delegate tasks to appropriate Subagents — or implicitly fork when no specific subagent type is needed
+2. **Delegation**: The main AI can automatically delegate tasks to appropriate Subagents -- or implicitly fork when no specific subagent type is needed
 3. **Execution**: Subagents work independently, using their configured tools to complete tasks
 4. **Results**: They return results and execution summaries back to the main conversation
 
@@ -97,9 +97,9 @@ AI: I'll delegate this to your testing specialist Subagents.
 
 Subagents are managed through the `/agents` slash command and its subcommands:
 
-**Usage:**：`/agents create`。Creates a new Subagent through a guided step wizard.
+**Usage:**:`/agents create`Creates a new Subagent through a guided step wizard.
 
-**Usage:**：`/agents manage`。Opens an interactive management dialog for viewing and managing existing Subagents.
+**Usage:**:`/agents manage`Opens an interactive management dialog for viewing and managing existing Subagents.
 
 ### Storage Locations
 
@@ -199,7 +199,7 @@ model ID.
 Use the optional `approvalMode` frontmatter field to control how a subagent's tool calls are approved. Valid values:
 
 - `default`: Tools require interactive approval (same as the main session default)
-- `plan`: Analyze-only mode — the agent plans but does not execute changes
+- `plan`: Analyze-only mode -- the agent plans but does not execute changes
 - `auto-edit`: Tools are auto-approved without prompting (recommended for most agents)
 - `yolo`: All tools auto-approved, including potentially destructive ones
 
@@ -263,8 +263,8 @@ If both `tools` and `disallowedTools` are set, the allowlist is applied first, t
 
 The `disallowedTools` field supports MCP server-level patterns:
 
-- `mcp__server__tool_name` — blocks a specific MCP tool
-- `mcp__server` — blocks all tools from that MCP server
+- `mcp__server__tool_name` -- blocks a specific MCP tool
+- `mcp__server` -- blocks all tools from that MCP server
 
 ```
 ---
@@ -355,9 +355,9 @@ Focus on both positive and negative test cases.
 
 **Use Cases:**
 
-- “Write unit tests for the authentication service”
-- “Create integration tests for the payment processing workflow”
-- “Add test coverage for edge cases in the data validation module”
+- "Write unit tests for the authentication service"
+- "Create integration tests for the payment processing workflow"
+- "Add test coverage for edge cases in the data validation module"
 
 #### Documentation Writer
 
@@ -407,9 +407,9 @@ the actual implementation. Use clear headings, bullet points, and examples.
 
 **Use Cases:**
 
-- “Create API documentation for the user management endpoints”
-- “Write a comprehensive README for this project”
-- “Document the deployment process with troubleshooting steps”
+- "Create API documentation for the user management endpoints"
+- "Write a comprehensive README for this project"
+- "Document the deployment process with troubleshooting steps"
 
 #### Code Reviewer
 
@@ -449,9 +449,9 @@ Prioritize issues by impact and provide rationale for recommendations.
 
 **Use Cases:**
 
-- “Review this authentication implementation for security issues”
-- “Check the performance implications of this database query logic”
-- “Evaluate the code structure and suggest improvements”
+- "Review this authentication implementation for security issues"
+- "Check the performance implications of this database query logic"
+- "Evaluate the code structure and suggest improvements"
 
 ### Technology-Specific Agents
 
@@ -496,9 +496,9 @@ Focus on accessibility and user experience considerations.
 
 **Use Cases:**
 
-- “Create a reusable data table component with sorting and filtering”
-- “Implement a custom hook for API data fetching with caching”
-- “Refactor this class component to use modern React patterns”
+- "Create a reusable data table component with sorting and filtering"
+- "Implement a custom hook for API data fetching with caching"
+- "Refactor this class component to use modern React patterns"
 
 #### Python Expert
 
@@ -542,9 +542,9 @@ Focus on writing clean, maintainable Python code that follows community standard
 
 **Use Cases:**
 
-- “Create a FastAPI service for user authentication with JWT tokens”
-- “Implement a data processing pipeline with pandas and error handling”
-- “Write a CLI tool using argparse with comprehensive help documentation”
+- "Create a FastAPI service for user authentication with JWT tokens"
+- "Implement a data processing pipeline with pandas and error handling"
+- "Write a CLI tool using argparse with comprehensive help documentation"
 
 ## Best Practices
 
@@ -554,7 +554,7 @@ Focus on writing clean, maintainable Python code that follows community standard
 
 Each Subagent should have a clear, focused purpose.
 
-**✅ Good:**
+** Good:**
 
 ```
 ---
@@ -563,7 +563,7 @@ description: Writes comprehensive unit tests and integration tests
 ---
 ```
 
-**❌ Avoid:**
+** Avoid:**
 
 ```
 ---
@@ -578,7 +578,7 @@ description: Helps with testing, documentation, code review, and deployment
 
 Define specific expertise areas rather than broad capabilities.
 
-**✅ Good:**
+** Good:**
 
 ```
 ---
@@ -587,7 +587,7 @@ description: Optimizes React applications for performance using profiling and be
 ---
 ```
 
-**❌ Avoid:**
+** Avoid:**
 
 ```
 ---
@@ -602,13 +602,13 @@ description: Works on frontend development tasks
 
 Write descriptions that clearly indicate when to use the agent.
 
-**✅ Good:**
+** Good:**
 
 ```
 description: Reviews code for security vulnerabilities, performance issues, and maintainability concerns
 ```
 
-**❌ Avoid:**
+** Avoid:**
 
 ```
 description: A helpful code reviewer

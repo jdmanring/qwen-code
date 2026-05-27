@@ -857,7 +857,7 @@ export function recordSubagentExecutionMetrics(
   subagentExecutionCounter.add(1, attributes);
 }
 
-// ─── Arena Metric Recording Functions ───────────────────────────
+// --- Arena Metric Recording Functions ---------------------------
 
 export function recordArenaSessionStartedMetrics(config: Config): void {
   if (!isMetricsInitialized) return;
@@ -939,7 +939,7 @@ export function recordArenaSessionEndedMetrics(
   }
 }
 
-// ─── Auto-Memory Metric Recording Functions ─────────────────────────────────
+// --- Auto-Memory Metric Recording Functions ---------------------------------
 
 export function recordMemoryExtractMetrics(
   config: Config,

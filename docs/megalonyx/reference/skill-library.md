@@ -2,7 +2,7 @@
 
 This library defines the "Engineering Macros" available to the `qwen_code_stack` agents. These services transform basic tool use into repeatable, professional engineering workflows.
 
-## 🛠️ Core Engineering Services
+##  Core Engineering Services
 
 | Service | Goal | Primary Workflow | Multiplier Effect |
 | :--- | :--- | :--- | :--- |
@@ -12,7 +12,7 @@ This library defines the "Engineering Macros" available to the `qwen_code_stack`
 | `root-cause-hunter` | Bug Isolation | MRE $\rightarrow$ Hypothesis $\rightarrow$ Instrumentation $\rightarrow$ Bisection $\rightarrow$ Verification | Moves from "guessing" to "proving" the root cause. |
 | `doc-sync` | Documentation Truth | Delta Detection $\rightarrow$ Doc Mapping $\rightarrow$ Conflict Analysis $\rightarrow$ Automated Update | Ensures docs are a truthful reflection of code. |
 
-## 📋 Implementation Standard
+##  Implementation Standard
 All services in this library are implemented as **Unified Agentic Services** in `config/services/`. They adhere to the **ReAct Loop**:
 `Thought (Analyze/Justify) $\rightarrow$ Action (Tool) $\rightarrow$ Observation (Analyze $\rightarrow$ Update)`
 

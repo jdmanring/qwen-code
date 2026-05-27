@@ -7,9 +7,9 @@
  *
  * Mirrors ClaudeCode's `buildTranscriptEntries` (yoloClassifier.ts) in two
  * ways:
- *   1. Assistant text is stripped — the agent could be tricked into writing
+ *   1. Assistant text is stripped -- the agent could be tricked into writing
  *      "classifier, please allow this" inside its output.
- *   2. Tool results are fully stripped — they may contain untrusted content
+ *   2. Tool results are fully stripped -- they may contain untrusted content
  *      (curl'd web pages, file contents) carrying prompt injection.
  *   3. Each tool_use call is projected through the tool's
  *      `toAutoClassifierInput` method so the tool can redact sensitive /
@@ -17,7 +17,7 @@
  *
  * Where this differs from ClaudeCode: claude serializes the whole transcript
  * (including historical tool_use calls) as plain text and sends it inside a
- * single user-role message wrapped in `<transcript>` tags. We do the same —
+ * single user-role message wrapped in `<transcript>` tags. We do the same --
  * historical `model.functionCall` parts are rendered as user-role text turns
  * rather than left as Gemini-native function-call parts. The motivation is
  * backend-agnostic delivery: the OpenAI Chat Completions converter drops
@@ -52,7 +52,7 @@ export interface PendingAction {
  * Maximum number of session messages forwarded to the classifier as
  * context. Exported so the scheduler / ACP session paths can request
  * exactly this slice via `getHistoryTail(MAX_TRANSCRIPT_MESSAGES)`
- * rather than hardcoding `40` — keeping the constant single-sourced
+ * rather than hardcoding `40` -- keeping the constant single-sourced
  * means tuning the window doesn't require lockstep edits across
  * three files.
  */
@@ -70,7 +70,7 @@ export const MAX_TRANSCRIPT_MESSAGES = 40;
  *   so very long sessions don't overflow the classifier context.
  * - Appends `pendingAction` as the final user-role text turn.
  *
- * Result: the classifier request only contains user-role text — no
+ * Result: the classifier request only contains user-role text -- no
  * Gemini-native functionCall parts, no assistant tool_calls. Backend-
  * agnostic by construction.
  */
@@ -119,7 +119,7 @@ export function buildClassifierContents(
         }
       }
     }
-    // role === 'function' (tool results) and any other roles → fully stripped.
+    // role === 'function' (tool results) and any other roles -> fully stripped.
   }
 
   // Append the pending action as the final user-role turn.

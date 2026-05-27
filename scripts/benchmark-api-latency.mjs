@@ -60,7 +60,7 @@ async function fetchOnce(url, dispatcher, method = 'HEAD') {
       dispatcher,
     });
   } catch (err) {
-    // Timeouts and non-2xx are fine — we only care about connection timing
+    // Timeouts and non-2xx are fine -- we only care about connection timing
     if (err?.name === 'TimeoutError') {
       return performance.now() - start; // still records the time spent
     }
@@ -83,7 +83,7 @@ async function measureCold(url) {
  */
 async function measureWarm(url) {
   const dispatcher = newDispatcher();
-  // Preconnect — mirrors apiPreconnect.ts behaviour
+  // Preconnect -- mirrors apiPreconnect.ts behaviour
   await fetchOnce(url, dispatcher, 'HEAD').catch(() => {});
   // Measured request reuses the warmed connection from the same pool
   return fetchOnce(url, dispatcher, 'HEAD');
@@ -151,10 +151,10 @@ console.log(
   'Saved'.padStart(10) +
   'Improvement'.padStart(13),
 );
-console.log('─'.repeat(83));
+console.log('-'.repeat(83));
 
 for (const r of results) {
-  const status = r.pct >= 30 ? '✓' : r.pct >= 10 ? '~' : '✗';
+  const status = r.pct >= 30 ? '' : r.pct >= 10 ? '~' : '';
   console.log(
     r.label.slice(0, 35).padEnd(36) +
     fmt(r.avgCold).padStart(12) +
@@ -164,4 +164,4 @@ for (const r of results) {
   );
 }
 
-console.log('\nLegend: ✓ ≥30% improvement   ~ 10–30%   ✗ <10%');
+console.log('\nLegend:  >=30% improvement   ~ 10-30%    <10%');

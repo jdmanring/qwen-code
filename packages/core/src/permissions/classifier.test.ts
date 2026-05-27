@@ -45,7 +45,7 @@ beforeEach(() => {
   runSideQueryMock.mockReset();
 });
 
-describe('classifyAction — stage 1 happy path', () => {
+describe('classifyAction -- stage 1 happy path', () => {
   it('returns allow without calling stage 2 when stage 1 says shouldBlock=false', async () => {
     runSideQueryMock.mockResolvedValueOnce({ shouldBlock: false });
 
@@ -66,7 +66,7 @@ describe('classifyAction — stage 1 happy path', () => {
   });
 });
 
-describe('classifyAction — stage 1 escalates to stage 2', () => {
+describe('classifyAction -- stage 1 escalates to stage 2', () => {
   it('returns stage 2 verdict (block + reason) when stage 2 confirms block', async () => {
     runSideQueryMock
       .mockResolvedValueOnce({ shouldBlock: true })
@@ -113,7 +113,7 @@ describe('classifyAction — stage 1 escalates to stage 2', () => {
   });
 });
 
-describe('classifyAction — fail-closed on stage 1 failure', () => {
+describe('classifyAction -- fail-closed on stage 1 failure', () => {
   it('returns unavailable=true when stage 1 throws an API error', async () => {
     runSideQueryMock.mockRejectedValueOnce(new Error('API 500'));
     const result = await classifyAction(makeInput());
@@ -145,7 +145,7 @@ describe('classifyAction — fail-closed on stage 1 failure', () => {
   });
 });
 
-describe('classifyAction — fail-closed on stage 2 failure', () => {
+describe('classifyAction -- fail-closed on stage 2 failure', () => {
   it('honors stage 1 block when stage 2 fails (unavailable=true)', async () => {
     runSideQueryMock
       .mockResolvedValueOnce({ shouldBlock: true })
@@ -204,7 +204,7 @@ describe('classifier configuration', () => {
     expect(opts.config?.thinkingConfig?.includeThoughts).toBe(true);
   });
 
-  it('does not pin a model — defaults to the fast model via sideQuery', async () => {
+  it('does not pin a model -- defaults to the fast model via sideQuery', async () => {
     runSideQueryMock.mockResolvedValueOnce({ shouldBlock: false });
     await classifyAction(makeInput());
     const opts = runSideQueryMock.mock.calls[0]?.[1] as { model?: string };
@@ -231,11 +231,11 @@ describe('sanitizeClassifierReason', () => {
     );
   });
 
-  it('iterates strip until stable — no complete <...> tag can survive', () => {
+  it('iterates strip until stable -- no complete <...> tag can survive', () => {
     // The threat is a pseudo-tag like `<system>...` confusing the
     // downstream model. A single /<[^>]*>/g pass on a nested input
     // like `<scr<script>extra>` leaves `>` orphaned tokens which is
-    // fine — what must NOT survive is any complete `<...>` pair.
+    // fine -- what must NOT survive is any complete `<...>` pair.
     const result = sanitizeClassifierReason('<scr<script>extra>payload');
     expect(result).not.toMatch(/<[^>]*>/);
   });

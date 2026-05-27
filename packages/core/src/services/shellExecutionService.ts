@@ -39,24 +39,24 @@ const PROMOTE_DRAIN_TIMEOUT_MS = 200;
 /**
  * Read the `kind` discriminator off `abortSignal.reason` defensively:
  *   - Reject non-object reasons (DOMException, strings, numbers).
- *   - Read the `kind` property as an OWN property only — without
+ *   - Read the `kind` property as an OWN property only -- without
  *     `hasOwnProperty`, a polluted `Object.prototype.kind = 'background'`
  *     would force the kill path through the promote branch on any plain
  *     `abortController.abort({})`. Lifecycle/safety branches deserve the
  *     extra check.
- *   - Wrap the property read in try/catch — an own getter or a `Proxy`
+ *   - Wrap the property read in try/catch -- an own getter or a `Proxy`
  *     trap may throw during inspection. A throw here would propagate up
  *     past the abort handler (which is dispatched async and not awaited
  *     by AbortSignal), leaving the shell process alive instead of being
  *     killed on cancel. We swallow the throw and fall back to 'cancel'.
- *   - Whitelist the value against the known union — anything else (typos,
+ *   - Whitelist the value against the known union -- anything else (typos,
  *     future-untyped variants) defaults to `'cancel'` so the historical
  *     kill behavior is preserved as the safe fallback.
  *
  * Exported for direct unit testing of all eight cases (null /
  * undefined / non-object / `{}` no own kind / prototype-only kind /
  * unknown kind / throwing-accessor / Proxy trap, plus the two
- * happy-path inputs) — the integration tests only exercise the three
+ * happy-path inputs) -- the integration tests only exercise the three
  * happy-path scenarios.
  */
 export function getShellAbortReasonKind(
@@ -67,12 +67,12 @@ export function getShellAbortReasonKind(
       // Both `hasOwnProperty.call` AND the `kind` read are inside the
       // try: `hasOwnProperty.call` triggers the `[[GetOwnProperty]]`
       // Proxy trap (`getOwnPropertyDescriptor` handler), so a Proxy
-      // whose `getOwnPropertyDescriptor` throws — separate from a
-      // throwing `get` trap — would otherwise propagate past the
+      // whose `getOwnPropertyDescriptor` throws -- separate from a
+      // throwing `get` trap -- would otherwise propagate past the
       // helper.
       if (Object.prototype.hasOwnProperty.call(reason, 'kind')) {
         const kind = (reason as { kind?: unknown }).kind;
-        // INVARIANT — three points must be kept in sync when extending
+        // INVARIANT -- three points must be kept in sync when extending
         // `ShellAbortReason`:
         //   (1) the discriminated union below (`type ShellAbortReason`),
         //   (2) the value-equality whitelist on this line, and
@@ -86,7 +86,7 @@ export function getShellAbortReasonKind(
       }
     } catch {
       // Throwing accessor / Proxy trap (either `get` or
-      // `getOwnPropertyDescriptor`) — fall back to safe kill below.
+      // `getOwnPropertyDescriptor`) -- fall back to safe kill below.
     }
   }
   return 'cancel';
@@ -109,7 +109,7 @@ function applyPowerShellUtf8Prefix(command: string, shell: string): string {
  * Default behavior (no reason set, or `{ kind: 'cancel' }`) is the historical
  * tree-kill on abort. `{ kind: 'background' }` is a takeover signal: the
  * caller has accepted ownership of the child process and wants execute() to
- * relinquish it without killing — used by the foreground-shell → background
+ * relinquish it without killing -- used by the foreground-shell -> background
  * promote path so the in-flight child keeps running.
  *
  * Callers MUST attach their own listeners (data / exit / error) to the live
@@ -137,15 +137,15 @@ export interface ShellExecutionResult {
   aborted: boolean;
   /**
    * True iff execute() returned because of a background-promote abort
-   * (`signal.reason.kind === 'background'`) — the child process is still
+   * (`signal.reason.kind === 'background'`) -- the child process is still
    * alive and the caller has taken over its lifecycle. Callers receiving
-   * `promoted: true` must NOT treat exitCode/signal as terminal — the
+   * `promoted: true` must NOT treat exitCode/signal as terminal -- the
    * underlying process has not exited.
    *
    * Note on the result shape: when `promoted: true`, `aborted` is set to
    * `false` even though the AbortSignal fired. The contract is that
    * `aborted` answers "should the caller emit a cancel/timeout
-   * message?" — and a promoted shell is neither cancelled nor timed
+   * message?" -- and a promoted shell is neither cancelled nor timed
    * out (the child kept running, ownership simply transferred). This
    * lets existing `if (result.aborted)` branches stay unchanged; new
    * promote handling lives in a separate `if (result.promoted)` arm.
@@ -189,7 +189,7 @@ export interface ShellExecutionConfig {
  * `'completed'` / `'failed'` on natural child exit.
  *
  * Backwards compat: if `postPromote` is unset on the options bag the
- * service falls back to the PR-2 detach-everything contract — no
+ * service falls back to the PR-2 detach-everything contract -- no
  * regressions for callers that don't opt in.
  */
 export interface ShellPostPromoteHandlers {
@@ -202,7 +202,7 @@ export interface ShellPostPromoteHandlers {
    */
   onData?: (event: ShellOutputEvent) => void;
   /**
-   * Fired exactly once when the post-promote child settles — natural
+   * Fired exactly once when the post-promote child settles -- natural
    * exit (`exitCode` set, `signal: null`), signal kill (`exitCode:
    * null`, `signal` set), or spawn-side error (`error` set). NOT
    * fired for the promote-time resolve itself (that's the
@@ -579,11 +579,11 @@ export class ShellExecutionService {
             }
           }
 
-          // Binary sniff applies in both modes — even streaming consumers
+          // Binary sniff applies in both modes -- even streaming consumers
           // (e.g. background shell output file) shouldn't pile up text-decoded
           // garbage when the command actually emits binary (`cat /bin/ls`,
           // image dumps, etc.). Track sniffed bytes by running sum so the
-          // accumulator is truly byte-bounded — the previous version recomputed
+          // accumulator is truly byte-bounded -- the previous version recomputed
           // sniffedBytes from `slice(0, 20)` on every call, which never grew
           // past the first 20 chunks' total and let the chunk array leak on
           // line-sized streams.
@@ -600,7 +600,7 @@ export class ShellExecutionService {
                 outputChunks.length = 0;
               }
             } else if (streamStdout && sniffedBytes >= MAX_SNIFF_SIZE) {
-              // Sniff passed in streaming mode — text confirmed, drop the
+              // Sniff passed in streaming mode -- text confirmed, drop the
               // accumulator. Subsequent chunks fall through to the streaming
               // emit path below without ever touching outputChunks.
               outputChunks.length = 0;
@@ -624,7 +624,7 @@ export class ShellExecutionService {
           if (streamStdout) {
             // Streaming text mode: push through immediately, no string
             // accumulation. (Up to ~4KB may already have been emitted
-            // before binary detection trips — bounded, acceptable.)
+            // before binary detection trips -- bounded, acceptable.)
             onOutputEvent({ type: 'data', chunk: decodedChunk });
             return;
           }
@@ -674,7 +674,7 @@ export class ShellExecutionService {
         // Named handler refs so the background-promote branch below can
         // detach them all and hand ownership of the child cleanly to the
         // caller. Anonymous arrows here would leak: the still-running child
-        // would keep firing into our handlers (using a finalized decoder →
+        // would keep firing into our handlers (using a finalized decoder ->
         // TypeError, or duplicating events the caller now also receives).
         const stdoutHandler = (data: Buffer) => handleOutput(data, 'stdout');
         const stderrHandler = (data: Buffer) => handleOutput(data, 'stderr');
@@ -710,7 +710,7 @@ export class ShellExecutionService {
           // child_process events on the next microtask). Promoting in
           // that window would detach our exit listener, leak the
           // already-terminal exit code, and report `promoted: true` to
-          // the caller for a process that's already dead — they'd hold
+          // the caller for a process that's already dead -- they'd hold
           // an inert pid expecting to take over. Check exitCode /
           // signalCode before detaching: if either is non-null the
           // child is gone, so leave the listeners alone and let the
@@ -768,7 +768,7 @@ export class ShellExecutionService {
           // the foreground listeners that just got removed; attach
           // BEFORE `resolve()` so a sub-millisecond data burst right
           // after promote still lands on the caller. The new listeners
-          // are direct stdout/stderr listeners (not service-managed) —
+          // are direct stdout/stderr listeners (not service-managed) --
           // ownership is the caller's from this point. We also attach
           // a fresh exit listener (the foreground exitHandler is also
           // detached by detachServiceListeners) so the caller can
@@ -783,7 +783,7 @@ export class ShellExecutionService {
           // `handleOutput` from `getCachedEncodingForBuffer(data)` on
           // the first chunk; if they're still null at promote time
           // (no bytes yet), fall back to `'utf-8'`. Capture the
-          // detected encoding rather than the decoder instance — the
+          // detected encoding rather than the decoder instance -- the
           // foreground decoder has already seen pre-promote bytes
           // (its multibyte state machine is at an arbitrary midpoint)
           // and may have accumulated continuation-byte state that the
@@ -857,9 +857,9 @@ export class ShellExecutionService {
             // `onData`. The foreground stdout/stderr listeners were
             // detached above; without ANY data listener the Readable
             // streams stay paused (on Windows they may already be
-            // flowing — `resume()` is a no-op in that case), the OS
+            // flowing -- `resume()` is a no-op in that case), the OS
             // pipe buffer fills (~64KB on Linux), and
-            // `child.stdout.write` in the child blocks —
+            // `child.stdout.write` in the child blocks --
             // potentially forever. `'close'` then never fires and
             // `onSettle` is never called. `.resume()` puts the stream
             // back in flowing mode (data arrives + is dropped) so the
@@ -876,13 +876,13 @@ export class ShellExecutionService {
           // PR-2.5 wave-4: single-fire latch shared by
           // 'close' and 'error' (both branches funnel through here).
           // Without it the child_process path could fire onSettle
-          // twice — once from `error`, then again from the `close`
-          // that immediately follows — violating the exactly-once
+          // twice -- once from `error`, then again from the `close`
+          // that immediately follows -- violating the exactly-once
           // settle contract and racing the caller's `transitionRegistry`.
           //
           // PR-2.5 wave-4: the helper also performs the
           // decoder flush so any caller with `onData` set gets the
-          // trailing multibyte bytes surfaced — independent of
+          // trailing multibyte bytes surfaced -- independent of
           // whether `onSettle` is also set.
           let postPromoteSettleFired = false;
           const flushPostPromoteDecoders = (): void => {
@@ -946,7 +946,7 @@ export class ShellExecutionService {
           //
           //  2. T3 / T7: `onData`-only callers need the close handler
           //     to flush trailing decoder bytes; an `onSettle`-only
-          //     caller needs `'close'` to fire onSettle — both share
+          //     caller needs `'close'` to fire onSettle -- both share
           //     the same close hook now.
           if (postPromote) {
             try {
@@ -961,7 +961,7 @@ export class ShellExecutionService {
                   // have buffered bytes pending). Without this, late
                   // chunks emitted between 'exit' and 'close' land in
                   // the caller's onData AFTER onSettle already closed
-                  // the output stream and transitioned the registry —
+                  // the output stream and transitioned the registry --
                   // they'd be dropped silently and `/tasks` would
                   // show a truncated log.
                   firePostSettle({
@@ -992,10 +992,10 @@ export class ShellExecutionService {
             signal: null,
             error: null,
             // `aborted: false` (despite the abort signal having fired) is
-            // intentional — this is the result-shape decision settled in
+            // intentional -- this is the result-shape decision settled in
             // #3831 design question 7 (raised by @tanzhenxin in the PR-1
             // review). The flag answers "should the caller emit cancel /
-            // timeout copy?" not "did the abort signal fire?" — and a
+            // timeout copy?" not "did the abort signal fire?" -- and a
             // promoted shell did NOT cancel (the child kept running), so
             // existing `if (result.aborted)` branches in callers (e.g.
             // `tools/shell.ts`) fall through naturally to the success-shape
@@ -1028,12 +1028,12 @@ export class ShellExecutionService {
         };
 
         const abortHandler = async () => {
-          // Default reason (none set) is treated as cancel — historical
+          // Default reason (none set) is treated as cancel -- historical
           // behavior. Switch on `kind` so any future ShellAbortReason
           // variant fails the type-check at the `never` default rather
           // than silently falling through to the kill path. (Earlier
           // if-else form would have silently killed the process for
-          // e.g. a future `{ kind: 'suspend' }` — review feedback.)
+          // e.g. a future `{ kind: 'suspend' }` -- review feedback.)
           const kind = getShellAbortReasonKind(abortSignal.reason);
           switch (kind) {
             case 'background':
@@ -1046,7 +1046,7 @@ export class ShellExecutionService {
               // Unreachable at runtime: getShellAbortReasonKind whitelists
               // the return to the union members, so this branch only
               // exists to force a TS error if the `ShellAbortReason` union
-              // ever gains a new variant — that error directs the
+              // ever gains a new variant -- that error directs the
               // developer to (1) extend the helper's whitelist and
               // (2) add a `case` here. Without this exhaustiveness check
               // the helper's whitelist and the switch could drift apart
@@ -1184,7 +1184,7 @@ export class ShellExecutionService {
         // processingChain callback or pending render short-circuits instead
         // of emitting onOutputEvent / writing to the (now caller-owned)
         // headlessTerminal. The PTY data disposable is also disposed in the
-        // same branch so no NEW work is enqueued — this guard handles the
+        // same branch so no NEW work is enqueued -- this guard handles the
         // already-scheduled chain items.
         let listenersDetached = false;
 
@@ -1260,7 +1260,7 @@ export class ShellExecutionService {
           }
 
           if (!renderTimeout) {
-            // No active throttle — render now and start throttle window
+            // No active throttle -- render now and start throttle window
             renderFn();
             renderTimeout = setTimeout(() => {
               renderTimeout = null;
@@ -1270,7 +1270,7 @@ export class ShellExecutionService {
               }
             }, RENDER_THROTTLE_MS);
           } else {
-            // Throttled — mark that we need a trailing render
+            // Throttled -- mark that we need a trailing render
             pendingTrailingRender = true;
           }
         };
@@ -1322,7 +1322,7 @@ export class ShellExecutionService {
                   const decodedChunk = decoder!.decode(data, { stream: true });
                   isWriting = true;
                   // Allow in-flight writes to LAND in the headlessTerminal
-                  // even after a background promote — the snapshot we'll
+                  // even after a background promote -- the snapshot we'll
                   // serialize next reads from this buffer. The render()
                   // callback (and renderFn) is already guarded by
                   // listenersDetached, so no onOutputEvent fires.
@@ -1347,9 +1347,9 @@ export class ShellExecutionService {
         // Capture the IDisposables that node-pty returns so the
         // background-promote branch below can hand the live PTY to the
         // caller cleanly. Without dispose(), post-promote PTY data would
-        // continue calling our handleOutput → render → onOutputEvent (the
+        // continue calling our handleOutput -> render -> onOutputEvent (the
         // foreground caller's downstream consumer that no longer owns this
-        // child) and post-promote PTY errors would `throw err` → process
+        // child) and post-promote PTY errors would `throw err` -> process
         // crash.
         const dataDisposable = ptyProcess.onData((data: string) => {
           const bufferData = Buffer.from(data, 'utf-8');
@@ -1444,7 +1444,7 @@ export class ShellExecutionService {
           if (!ptyProcess.pid || exited) return;
           // Race guard mirroring the child_process path: the PTY may
           // have already exited but `exitDisposable` (our onExit
-          // handler) has not yet run — node-pty delivers the exit
+          // handler) has not yet run -- node-pty delivers the exit
           // event asynchronously after the PTY's native SIGCHLD. The
           // IPty interface doesn't expose an `exitCode` field we can
           // read directly, so use `process.kill(pid, 0)` as a
@@ -1475,7 +1475,7 @@ export class ShellExecutionService {
           //
           // PR-2.5: if `postPromote.onData` / `postPromote.onSettle` were
           // provided, ATTACH NEW listeners after disposing the
-          // foreground ones — bytes from the still-running child route
+          // foreground ones -- bytes from the still-running child route
           // to the caller (typically shell.ts's append-to-bg_xxx.output
           // path), and the eventual natural-exit transitions the
           // registry entry to `'completed'` / `'failed'` instead of
@@ -1484,7 +1484,7 @@ export class ShellExecutionService {
           exited = true;
           listenersDetached = true;
           abortSignal.removeEventListener('abort', abortHandler);
-          // Each dispose() in its own try/catch — node-pty's IDisposable
+          // Each dispose() in its own try/catch -- node-pty's IDisposable
           // contract doesn't guarantee no-throw, and we must run all
           // teardown steps even if one throws (otherwise activePtys.delete
           // / drain / resolve could be skipped and the caller would hang).
@@ -1505,7 +1505,7 @@ export class ShellExecutionService {
           try {
             // @lydell/node-pty's IPty exposes `removeListener` (Node's
             // EventEmitter API), not the modern `off` alias. Calling
-            // `off` here used to throw TypeError at runtime — caught
+            // `off` here used to throw TypeError at runtime -- caught
             // and logged but the handler stayed registered, so a
             // post-promote PTY error would still run our foreground
             // handler's `throw err` and break the handoff contract.
@@ -1524,7 +1524,7 @@ export class ShellExecutionService {
           // PR-2.5: re-attach minimal listeners that forward to the
           // caller's post-promote handlers. Attach BEFORE the drain so
           // late bytes the PTY emits during the drain window flow to
-          // the caller instead of falling on the floor — strictly an
+          // the caller instead of falling on the floor -- strictly an
           // improvement; without this they'd be dropped on the way to
           // the snapshot anyway.
           //
@@ -1543,7 +1543,7 @@ export class ShellExecutionService {
           //
           // Guard so `onSettle` fires AT MOST ONCE. Both `onExit` and
           // the post-promote `error` listener below funnel through
-          // this latch — a PTY error during the read-exit race could
+          // this latch -- a PTY error during the read-exit race could
           // otherwise fire onSettle twice (once for the error, once
           // for the immediately-following exit) and the caller's
           // `transitionRegistry` would race itself.
@@ -1588,13 +1588,13 @@ export class ShellExecutionService {
           const firePostSettle = (info: ShellPostPromoteSettleInfo) => {
             if (postPromoteSettleFired) return;
             postPromoteSettleFired = true;
-            // Dispose BEFORE invoking the caller — even if the caller
+            // Dispose BEFORE invoking the caller -- even if the caller
             // throws, the listeners are gone (and idempotent if we
             // come back through the error path).
             // Known limitation: node-pty may have queued onData
             // callbacks not yet delivered when onExit fires; disposing
             // the data listener here means those trailing bytes (<4KB)
-            // are lost. Bounded and low severity — a setImmediate
+            // are lost. Bounded and low severity -- a setImmediate
             // delay could recover them but would complicate the
             // single-fire latch.
             disposePostPromoteListeners();
@@ -1614,7 +1614,7 @@ export class ShellExecutionService {
                 try {
                   onPostData({ type: 'data', chunk: data });
                 } catch (cbErr) {
-                  // Caller's handler threw — don't let it crash the
+                  // Caller's handler threw -- don't let it crash the
                   // child's data loop. Log + drop.
                   debugLogger.warn(
                     `postPromote.onData threw: ${cbErr instanceof Error ? cbErr.message : String(cbErr)}`,
@@ -1675,11 +1675,11 @@ export class ShellExecutionService {
           // Bounded by PROMOTE_DRAIN_TIMEOUT_MS so the caller's await
           // never blocks indefinitely if a write callback is stuck.
           // The drain side may reject (a prior chain item threw); swallow
-          // via .catch — abort handlers run via addEventListener which
+          // via .catch -- abort handlers run via addEventListener which
           // doesn't await our return, so a leaked rejection here would
           // become unhandled and the caller would hang waiting on resolve.
           // Race result is observed (not just discarded) so we can warn
-          // when the timeout side won — without that the snapshot may be
+          // when the timeout side won -- without that the snapshot may be
           // truncated with no diagnostic trail.
           const TIMEOUT_SENTINEL = Symbol('drain-timeout');
           const drain = () =>
@@ -1728,7 +1728,7 @@ export class ShellExecutionService {
               snapshot = serializeTerminalToText(headlessTerminal) ?? '';
             }
           } catch (serErr) {
-            // Best-effort snapshot — re-decode + replay may fail (encoding
+            // Best-effort snapshot -- re-decode + replay may fail (encoding
             // detection error, terminal write throw, etc.). Empty snapshot
             // is acceptable since the caller has rawOutput, but log so
             // the failure leaves a diagnostic trail (otherwise an empty
@@ -1742,7 +1742,7 @@ export class ShellExecutionService {
             try {
               snapshot = serializeTerminalToText(headlessTerminal) ?? '';
             } catch {
-              // Both paths failed — leave snapshot empty.
+              // Both paths failed -- leave snapshot empty.
             }
           }
           resolve({
@@ -1751,7 +1751,7 @@ export class ShellExecutionService {
             exitCode: null,
             signal: null,
             error,
-            // See childProcessFallback for the full rationale — promoted
+            // See childProcessFallback for the full rationale -- promoted
             // results are NOT user-cancellations, so callers' `if
             // (result.aborted)` branches must NOT trigger.
             aborted: false,
@@ -1788,7 +1788,7 @@ export class ShellExecutionService {
           // Switch on the discriminated `kind` so any future
           // ShellAbortReason variant fails the type-check at the
           // `never` default rather than silently falling through to the
-          // kill path (review feedback — earlier if-else form would have
+          // kill path (review feedback -- earlier if-else form would have
           // silently killed for e.g. a future `{ kind: 'suspend' }`).
           const kind = getShellAbortReasonKind(abortSignal.reason);
           switch (kind) {
@@ -1802,7 +1802,7 @@ export class ShellExecutionService {
               // Unreachable at runtime: getShellAbortReasonKind whitelists
               // the return to the union members, so this branch only
               // exists to force a TS error if the `ShellAbortReason` union
-              // ever gains a new variant — that error directs the
+              // ever gains a new variant -- that error directs the
               // developer to (1) extend the helper's whitelist and
               // (2) add a `case` here. Without this exhaustiveness check
               // the helper's whitelist and the switch could drift apart

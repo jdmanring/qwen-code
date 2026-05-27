@@ -112,7 +112,7 @@ describe('SessionPreview', () => {
     expect(frame).toContain('REPLY-MARKER');
   });
 
-  it('renders footer metadata (messageCount · time · branch)', async () => {
+  it('renders footer metadata (messageCount  time  branch)', async () => {
     const svc = mockService(fakeResumedData());
     const { lastFrame } = render(
       <KeypressProvider kittyProtocolEnabled={false}>

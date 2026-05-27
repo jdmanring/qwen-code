@@ -78,7 +78,7 @@ export class Logger {
   private lastLoggedUserEntry: LogEntry | null = null; // Tracks the most recently persisted USER entry for cancel-undo (mirrors claude-code's lastAddedEntry).
   // Per-instance write queue for the log-history file (logs.json).
   // Only `logMessage` and `removeLastUserMessage` chain on this queue;
-  // their read → splice/append → writeFile cycle is otherwise non-atomic
+  // their read -> splice/append -> writeFile cycle is otherwise non-atomic
   // and a fast cancel + resubmit could make removeLast clobber the
   // just-appended entry. Checkpoint ops (saveCheckpoint /
   // deleteCheckpoint / loadCheckpoint) write to *separate* files and are
@@ -98,14 +98,14 @@ export class Logger {
    * Serializes a log-history mutation against every previously enqueued
    * op on this Logger. Errors propagate to the caller but do NOT poison
    * the queue (the next op runs regardless). Scope: only `logMessage`
-   * and `removeLastUserMessage` go through here — checkpoint ops touch
+   * and `removeLastUserMessage` go through here -- checkpoint ops touch
    * separate files and don't share this queue. Single-instance only:
    * a separate Logger pointing at the same file would have its own
    * queue, which is why callers should share one Logger per session.
    */
   private serialize<T>(op: () => Promise<T>): Promise<T> {
     // The queue's tail is always sourced from `.catch(() => undefined)`
-    // below, so writeQueue never rejects — `.then(op)` is sufficient and
+    // below, so writeQueue never rejects -- `.then(op)` is sufficient and
     // the earlier `then(op, op)` would have wrongly implied "retry op on
     // rejection". `op`'s return Promise is what propagates to the
     // caller; the queue itself swallows errors so subsequent ops run
@@ -317,20 +317,20 @@ export class Logger {
         // wrote an entry with the same (sessionId, messageId, timestamp,
         // message). `_updateLogFile` mutated `newEntryObject.messageId`
         // in-place to match disk, so the 5-tuple identifies the row that
-        // IS on disk — adopt it as the undo target. Leaving the tracker
+        // IS on disk -- adopt it as the undo target. Leaving the tracker
         // pointing at the previous USER would let cancel/auto-restore
         // delete an older, unrelated row.
         this.lastLoggedUserEntry = newEntryObject;
       }
     } catch (_error) {
       // Persist failed. Only invalidate the undo tracker when the FAILED
-      // attempt was itself a USER write — that's the case where the
+      // attempt was itself a USER write -- that's the case where the
       // tracker would otherwise lie about the most recent user entry
       // (logMessage("A" USER) succeeds, logMessage("B" USER) throws,
-      // user cancels B → without this guard removeLastUserMessage would
+      // user cancels B -> without this guard removeLastUserMessage would
       // delete A's row). A failed non-USER write (e.g., MODEL_SWITCH
       // disk error) doesn't change which row was the last user prompt,
-      // so leave the tracker alone — the prior USER undo target is
+      // so leave the tracker alone -- the prior USER undo target is
       // still valid.
       if (type === MessageSenderType.USER) {
         this.lastLoggedUserEntry = null;
@@ -340,10 +340,10 @@ export class Logger {
   }
 
   /**
-   * Undo the most recent {@link logMessage} call for a USER entry — used by
+   * Undo the most recent {@link logMessage} call for a USER entry -- used by
    * the auto-restore-on-cancel flow when the user hits ESC right after submit
    * and the model produced nothing meaningful. Without this, the cancelled
-   * prompt would still surface in cross-session ↑-history via
+   * prompt would still surface in cross-session -history via
    * {@link getPreviousUserMessages}.
    *
    * Mirrors claude-code's `removeLastFromHistory` (history.ts): one-shot,
@@ -353,11 +353,11 @@ export class Logger {
    * remove the wrong row.
    *
    * Two-phase semantics:
-   *   1. Synchronous in-memory removal of the entry from `this.logs` —
+   *   1. Synchronous in-memory removal of the entry from `this.logs` --
    *      runs before this method even returns its Promise. Consumers
    *      that read `getPreviousUserMessages()` on the same render
    *      observe the removal immediately.
-   *   2. Async serialized disk reconciliation — read, splice, writeFile.
+   *   2. Async serialized disk reconciliation -- read, splice, writeFile.
    *      The returned Promise resolves to whether *the disk write*
    *      succeeded (not whether the in-memory removal happened).
    *
@@ -374,7 +374,7 @@ export class Logger {
    *     (e.g. another logger instance rotated/cleared the file): the
    *     in-memory cache is re-synced to the fresh disk snapshot, so
    *     both sides agree the entry is gone. Returning `false` here is
-   *     truthful — we didn't perform a write — but the entry will NOT
+   *     truthful -- we didn't perform a write -- but the entry will NOT
    *     be observable in-memory either.
    *
    * @returns true when the disk row was actually removed; false otherwise.
@@ -397,13 +397,13 @@ export class Logger {
     // Optimistic in-memory removal BEFORE the async serialize queue runs.
     // AppContainer's userMessages effect reads `getPreviousUserMessages()`
     // (which reads `this.logs`) on the same render that history truncation
-    // fires. Without this sync update, ↑-history in the current session
+    // fires. Without this sync update, -history in the current session
     // would still surface the cancelled prompt until some unrelated
     // future history change forced the effect to re-run.
     //
     // If the disk path fails (read or write), restore the removed entry
     // from the snapshot so the in-memory state stays consistent with
-    // disk — without rollback the caller gets `false` but the in-memory
+    // disk -- without rollback the caller gets `false` but the in-memory
     // logs show the entry already removed, contract-violating drift.
     const optimisticIdx = this.logs.findIndex(matchesTarget);
     if (optimisticIdx >= 0) {
@@ -418,7 +418,7 @@ export class Logger {
       // is no longer present (i.e. concurrent code didn't re-add it
       // by some other path). Re-insert at the original index when
       // possible, otherwise append (insertion order isn't a
-      // load-bearing invariant downstream — `getPreviousUserMessages`
+      // load-bearing invariant downstream -- `getPreviousUserMessages`
       // sorts by timestamp / index).
       if (optimisticIdx >= 0 && this.logs.findIndex(matchesTarget) === -1) {
         const insertAt = Math.min(optimisticIdx, this.logs.length);

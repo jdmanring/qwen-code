@@ -75,7 +75,7 @@ describe('isGeneratedFile', () => {
     expect(isGeneratedFile('src/dist.ts')).toBe(false);
   });
 
-  // `.lock` is no longer a blanket exclusion — only the explicit
+  // `.lock` is no longer a blanket exclusion -- only the explicit
   // EXCLUDED_FILENAMES (yarn.lock etc.) are dropped.
   it('should NOT exclude unknown .lock files (only well-known ones)', () => {
     expect(isGeneratedFile('config/feature.lock')).toBe(false);

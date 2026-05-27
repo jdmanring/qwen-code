@@ -16,13 +16,13 @@ export const GOOGLE_ACCOUNTS_FILENAME = 'google_accounts.json';
 
 /**
  * Cache for `validatePath`'s isDirectory check. Only positive results are
- * cached — ENOENT and other errors fall through every time so a freshly
+ * cached -- ENOENT and other errors fall through every time so a freshly
  * created file is picked up immediately. Same path validated by back-to-back
  * tool calls (very common: model reads several files in one dir) used to
  * cost one syscall each.
  *
  * **Known tradeoff:** if a path is deleted and recreated as a different
- * type (dir→file or file→dir) within the same process, the cache returns
+ * type (dir->file or file->dir) within the same process, the cache returns
  * the stale type. The downstream tool will then hit a meaningful error
  * (e.g., "not a directory") instead of a clean "does not exist", but no
  * files are corrupted. This is rare enough in model-driven workflows that
@@ -33,7 +33,7 @@ const VALIDATE_PATH_CACHE_MAX = 1024;
 
 /**
  * Test-only: clear the validatePath stat cache. Module-level state would
- * otherwise leak across vitest cases — `beforeEach(() => _resetValidatePathCacheForTest())`.
+ * otherwise leak across vitest cases -- `beforeEach(() => _resetValidatePathCacheForTest())`.
  */
 export function _resetValidatePathCacheForTest(): void {
   isDirectoryCache.clear();
@@ -56,7 +56,7 @@ export const PATH_ARG_KEYS = [
   'notebook_path',
 ] as const;
 
-/** Compiled regex for unescapePath — hoisted to avoid re-compilation per call. */
+/** Compiled regex for unescapePath -- hoisted to avoid re-compilation per call. */
 const UNESCAPE_REGEX = (() => {
   const inner = SHELL_SPECIAL_CHARS.source.slice(1, -1);
   return new RegExp(`\\\\([${inner}])`, 'g');

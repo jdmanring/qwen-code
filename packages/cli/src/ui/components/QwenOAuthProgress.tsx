@@ -70,7 +70,7 @@ export function QwenOAuthProgress({
     return () => clearInterval(timer);
   }, [onTimeout]);
 
-  // Animated dots — cycle through fixed-width patterns to avoid layout shift
+  // Animated dots -- cycle through fixed-width patterns to avoid layout shift
   useEffect(() => {
     const dotFrames = ['.  ', '.. ', '...'];
     let frameIndex = 0;

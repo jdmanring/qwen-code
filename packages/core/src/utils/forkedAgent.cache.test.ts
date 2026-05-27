@@ -76,7 +76,7 @@ describe('CacheSafeParams', () => {
 
       saveCacheSafeParams(config, [], 'model');
 
-      // Mutate original — should not affect saved params
+      // Mutate original -- should not affect saved params
       (
         config.tools![0] as { functionDeclarations: unknown[] }
       ).functionDeclarations.push({ name: 'tool2' });
@@ -219,7 +219,7 @@ describe('runForkedAgent (cache path)', () => {
     });
 
     // Verify GeminiChat was constructed with the full generationConfig
-    // (including tools) — createForkedChat retains tools for speculation callers
+    // (including tools) -- createForkedChat retains tools for speculation callers
     expect(GeminiChat).toHaveBeenCalledOnce();
     const ctorArgs = vi.mocked(GeminiChat).mock.calls[0];
     const chatGenerationConfig = ctorArgs[1] as GenerateContentConfig;

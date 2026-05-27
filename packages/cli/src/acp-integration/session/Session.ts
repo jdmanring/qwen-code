@@ -258,7 +258,7 @@ export class Session implements SessionContext {
   /**
    * Tracks the completion of the current prompt so that the next prompt
    * can await it.  This prevents a new prompt from reading chat history
-   * before the previous prompt's tool results have been added —
+   * before the previous prompt's tool results have been added --
    * a race condition that causes malformed history on Windows where
    * process termination is slow.
    */
@@ -289,7 +289,7 @@ export class Session implements SessionContext {
    * resumed session has a live worktree sidecar; prepended to the next
    * #executePrompt call as a <system-reminder>, then cleared.
    *
-   * One-shot by design — after the first prompt the worktree path is
+   * One-shot by design -- after the first prompt the worktree path is
    * already in the conversation context (the reminder we just sent + any
    * subsequent tool calls), so re-injecting on every turn would clutter
    * the history without adding signal. TUI uses historyManager.addItem(INFO)
@@ -654,7 +654,7 @@ export class Session implements SessionContext {
             const blockReason =
               hookOutput?.getEffectiveReason() || 'No reason provided';
             await this.messageEmitter.emitAgentMessage(
-              `🚫 **UserPromptSubmit blocked**: ${blockReason}`,
+              ` **UserPromptSubmit blocked**: ${blockReason}`,
             );
             return { stopReason: 'end_turn' };
           }
@@ -1353,7 +1353,7 @@ export class Session implements SessionContext {
    */
   async #drainCronQueue(): Promise<void> {
     if (this.cronProcessing) return;
-    // Don't process cron while a user prompt is active — the queue will be
+    // Don't process cron while a user prompt is active -- the queue will be
     // drained after the prompt completes (see end of prompt()).
     if (this.pendingPrompt) return;
     this.cronProcessing = true;
@@ -1727,7 +1727,7 @@ export class Session implements SessionContext {
   /**
    * Assemble the per-turn system reminders the model needs to see at the
    * start of a user query or cron fire. Mirrors the subagent/plan/arena
-   * branches in `GeminiClient.sendMessageStream` (`client.ts:848-878`) —
+   * branches in `GeminiClient.sendMessageStream` (`client.ts:848-878`) --
    * the ACP path bypasses that code, so without this helper plan mode is
    * silently inert (#1151) and subagent/arena sessions lose context.
    *
@@ -1762,7 +1762,7 @@ export class Session implements SessionContext {
         const configPath = `${sessionDir}/config.json`;
         reminders.push({ text: getArenaSystemReminder(configPath) });
       } catch {
-        // Arena config not yet initialized — skip (matches client.ts).
+        // Arena config not yet initialized -- skip (matches client.ts).
       }
     }
 
@@ -1872,7 +1872,7 @@ export class Session implements SessionContext {
       // invocation (`agent.ts:392`). Be defensive about the `undefined`
       // case too so an incomplete/custom AgentTool invocation degrades
       // gracefully (no sub-agent event forwarding) instead of throwing
-      // inside SubAgentTracker.setup — the `'eventEmitter' in invocation`
+      // inside SubAgentTracker.setup -- the `'eventEmitter' in invocation`
       // key-presence check passed for `{ eventEmitter: undefined }` and
       // the ensuing `eventEmitter.on(...)` blew up.
       const taskEventEmitter = (
@@ -1900,7 +1900,7 @@ export class Session implements SessionContext {
         );
       }
 
-      // L3→L4→L5 Permission Flow (aligned with coreToolScheduler)
+      // L3->L4->L5 Permission Flow (aligned with coreToolScheduler)
       //
       // L3: Tool's intrinsic default permission
       // L4: PermissionManager rule override
@@ -1910,7 +1910,7 @@ export class Session implements SessionContext {
       // The VS Code extension is just a UI layer for requestPermission.
       const isAskUserQuestionTool = fc.name === ToolNames.ASK_USER_QUESTION;
 
-      // ---- L3→L4: Shared permission flow ----
+      // ---- L3->L4: Shared permission flow ----
       const toolParams = invocation.params as Record<string, unknown>;
       const flowResult = await evaluatePermissionFlow(
         this.config,
@@ -1931,7 +1931,7 @@ export class Session implements SessionContext {
       }
 
       // Explicit allow (user rule matched, or tool's L3 default is 'allow')
-      // is authoritative — AUTO classifier must not be allowed to override
+      // is authoritative -- AUTO classifier must not be allowed to override
       // it. Parallels coreToolScheduler.ts:1337-1366; without this, an ACP
       // session in AUTO mode could see a user-written `Bash(git push *)`
       // allow rule reach the classifier and get blocked by a conservative
@@ -1945,7 +1945,7 @@ export class Session implements SessionContext {
         );
       }
 
-      // ── L5: AUTO mode three-layer filter (duplicated from
+      // -- L5: AUTO mode three-layer filter (duplicated from
       // coreToolScheduler.ts; ACP routes through this Session path).
       // Returns 'allowed' / 'blocked' / 'fallback'. Blocked early-returns;
       // allowed skips requestPermission; fallback drops through to the
@@ -1971,7 +1971,7 @@ export class Session implements SessionContext {
           skipClassifier: shouldFallback(denialState).fallback,
         });
 
-        // Apply decision via shared helper — eliminates ~40 lines of
+        // Apply decision via shared helper -- eliminates ~40 lines of
         // line-for-line duplication with coreToolScheduler.ts and makes
         // the CLI / ACP paths share one source of truth for the
         // switch + denial-tracking state updates + exhaustiveness
@@ -2064,14 +2064,14 @@ export class Session implements SessionContext {
         }
 
         // AUTO_EDIT mode: auto-approve edit and info tools
-        // (same as coreToolScheduler L5 — NOT delegated to the extension)
+        // (same as coreToolScheduler L5 -- NOT delegated to the extension)
         if (
           approvalMode === ApprovalMode.AUTO_EDIT &&
           (confirmationDetails.type === 'edit' ||
             confirmationDetails.type === 'info')
         ) {
           // Auto-approve, skip requestPermission.
-          // didRequestPermission stays false → emitStart below.
+          // didRequestPermission stays false -> emitStart below.
         } else if (!hookHandled) {
           // Show permission dialog via ACP requestPermission
           didRequestPermission = true;
@@ -2123,7 +2123,7 @@ export class Session implements SessionContext {
           // fallback. Without this, a single block-streak permanently
           // downgrades the rest of the session to manual approval until the
           // mode is toggled. Parallels coreToolScheduler.ts:1705-1717.
-          // Cancel / abort do NOT reset — treating rejection as a signal
+          // Cancel / abort do NOT reset -- treating rejection as a signal
           // the classifier was right to block.
           if (approvalMode === ApprovalMode.AUTO && isApproveOutcome(outcome)) {
             this.config.setAutoModeDenialState(
@@ -2193,7 +2193,7 @@ export class Session implements SessionContext {
 
       if (!didRequestPermission && !isTodoWriteTool) {
         // Auto-approved (L3 allow / L4 PM allow / L5 YOLO|AUTO_EDIT)
-        // → emit tool_call start notification
+        // -> emit tool_call start notification
         const startParams: ToolCallStartParams = {
           callId,
           toolName: fc.name,
@@ -2223,7 +2223,7 @@ export class Session implements SessionContext {
           const blockReason =
             preHookResult.blockReason || 'Blocked by PreToolUse hook';
           await this.messageEmitter.emitAgentMessage(
-            `🚫 **PreToolUse blocked**: ${fc.name} - ${blockReason}`,
+            ` **PreToolUse blocked**: ${fc.name} - ${blockReason}`,
           );
           return earlyErrorResponse(new Error(blockReason), fc.name);
         }
@@ -2491,7 +2491,7 @@ export class Session implements SessionContext {
           chunks.push(msg.content || '');
         }
         // Write a system/slash_command record for history replay (same reason as
-        // 'message' case — system records are invisible to model history).
+        // 'message' case -- system records are invisible to model history).
         if (chunks.length > 0) {
           this.config.getChatRecordingService()?.recordSlashCommand({
             phase: 'result',

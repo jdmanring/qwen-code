@@ -294,7 +294,7 @@ describe('useAuthCommand', () => {
     expect(result.current.isAuthenticating).toBe(false);
     expect(addItem).not.toHaveBeenCalled();
     // pendingAuthType was set before applyProviderInstallPlan ran, so
-    // handleAuthFailure had it available — the AuthEvent path is no longer
+    // handleAuthFailure had it available -- the AuthEvent path is no longer
     // silently dropped on failure. (We can't assert the telemetry sink
     // directly here, but the visible side effects above all depend on
     // handleAuthFailure having seen pendingAuthType.)

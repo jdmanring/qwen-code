@@ -2,8 +2,8 @@
 
 Dual Output is a sidecar mode for the interactive TUI: while Qwen Code keeps
 rendering normally on `stdout`, it concurrently emits a structured JSON event
-stream to a separate channel so an external program — an IDE extension, a web
-frontend, a CI pipeline, an automation script — can observe and steer the
+stream to a separate channel so an external program -- an IDE extension, a web
+frontend, a CI pipeline, an automation script -- can observe and steer the
 session.
 
 It also provides a reverse channel: an external program can write JSONL
@@ -24,7 +24,7 @@ The flagship use case. A web or desktop ChatUI hosts the TUI inside a PTY
 and renders a parallel conversation view driven by the structured event
 stream:
 
-- User can type in either surface — the TUI (for terminal-native power-users)
+- User can type in either surface -- the TUI (for terminal-native power-users)
   or the web UI (for richer UX, shareable links, mobile). Both views stay
   in sync because every message flows through the same JSON events.
 - Tool-approval prompts appear in both places; whoever approves first wins.
@@ -101,7 +101,7 @@ rejected to prevent corrupting the TUI's own output.
 
 ## Why two output flags? (`--json-fd` vs `--json-file`)
 
-At first glance `--json-fd` looks sufficient — the caller spawns Qwen Code
+At first glance `--json-fd` looks sufficient -- the caller spawns Qwen Code
 with an extra file descriptor, the TUI writes events to it, done. In
 practice, fd passing breaks down under the most important embedding
 scenario: running the TUI inside a pseudo-terminal (PTY). That is why
@@ -119,7 +119,7 @@ const child = spawn('qwen', ['--json-fd', '3'], {
 
 Node's spawn supports arbitrary `stdio` entries; fd 3 is inherited by the
 child, which can write to it directly. Zero-copy, zero-buffer, zero
-filesystem — the fastest path.
+filesystem -- the fastest path.
 
 ### Why `--json-fd` does **not** work under PTY
 
@@ -130,7 +130,7 @@ interactive TUI. They cannot forward extra fds to the child, for three
 reinforcing reasons:
 
 1. **API surface.** `node-pty.spawn(file, args, options)` accepts `cwd`,
-   `env`, `cols`, `rows`, `encoding`, etc. — but **no `stdio` array**. There
+   `env`, `cols`, `rows`, `encoding`, etc. -- but **no `stdio` array**. There
    is simply no place in the API to say "also attach this fd as fd 3 in
    the child". `bun-pty` exposes the same shape.
 2. **`forkpty(3)` semantics.** Under the hood, PTY wrappers call
@@ -146,9 +146,9 @@ reinforcing reasons:
    need the slave for its output. You would end up with two independent
    transports anyway.
 
-In short: the moment an embedder needs a real TTY for TUI rendering —
+In short: the moment an embedder needs a real TTY for TUI rendering --
 which is every IDE extension, every web terminal, every desktop chat
-app — fd inheritance is off the table.
+app -- fd inheritance is off the table.
 
 ### `--json-file` fills the gap
 
@@ -194,7 +194,7 @@ note:
 
 The general rule: **if you need the TUI to render correctly, you need a
 PTY, which means you need `--json-file`.** `--json-fd` is for simpler
-embedders that do not care about TUI fidelity — typically programmatic
+embedders that do not care about TUI fidelity -- typically programmatic
 wrappers that throw away stdout anyway.
 
 ## Quick start
@@ -303,7 +303,7 @@ Behavior:
   underlying `onConfirm` handler without waiting for any earlier `submit`.
 - Whichever side approves a tool first wins; the other side's late response
   is harmlessly dropped.
-- Lines that fail to parse as JSON are logged and skipped — they do not
+- Lines that fail to parse as JSON are logged and skipped -- they do not
   stop the watcher.
 
 ## Latency notes
@@ -313,7 +313,7 @@ so worst-case round-trip latency for a remote `submit` is about half a
 second. This is intentional: polling is portable across platforms and
 filesystems (including macOS / network mounts), and matches the typical
 human-in-the-loop pacing the feature targets. The output channel has no
-polling — events are written synchronously as the TUI emits them.
+polling -- events are written synchronously as the TUI emits them.
 
 ## Failure modes
 
@@ -370,7 +370,7 @@ Precedence rules:
 
 - CLI flag **wins** over settings. Passing `--json-file /foo` on the
   command line overrides `dualOutput.jsonFile` in settings.
-- `--json-fd` has no settings equivalent — fd passing is a spawn-time
+- `--json-fd` has no settings equivalent -- fd passing is a spawn-time
   concern that cannot be statically declared.
 - If neither flag nor setting is present, dual output stays disabled
   (identical to today's default).
@@ -385,7 +385,7 @@ Every script below is copy-paste ready. Start with POC&nbsp;1 to verify
 the build has dual output; POC&nbsp;4 is the closest analogue to a real
 IDE-extension integration.
 
-### POC 1 — observe the event stream
+### POC 1 -- observe the event stream
 
 Watch every structured event the TUI emits while a human uses it
 normally:
@@ -407,7 +407,7 @@ Expected first line in terminal A:
 { "type": "system", "subtype": "session_start" }
 ```
 
-### POC 2 — inject prompts from outside
+### POC 2 -- inject prompts from outside
 
 Drive the TUI from a second terminal without touching the keyboard of
 the first:
@@ -417,17 +417,17 @@ the first:
 touch /tmp/qwen-in.jsonl
 qwen --input-file /tmp/qwen-in.jsonl
 
-# Terminal B — the TUI responds as if you typed it
+# Terminal B -- the TUI responds as if you typed it
 echo '{"type":"submit","text":"list files in the current directory"}' \
   >> /tmp/qwen-in.jsonl
 ```
 
-### POC 3 — remote tool-permission bridge
+### POC 3 -- remote tool-permission bridge
 
 Approve or deny tool calls from a separate process:
 
 ```bash
-# Terminal A — observe control_requests
+# Terminal A -- observe control_requests
 mkfifo /tmp/qwen-out.jsonl
 touch /tmp/qwen-in.jsonl
 (cat /tmp/qwen-out.jsonl \
@@ -458,7 +458,7 @@ consumer can log it or retry:
 }
 ```
 
-### POC 4 — Node embedder (IDE-like)
+### POC 4 -- Node embedder (IDE-like)
 
 The most realistic shape: a parent process spawns Qwen Code, tails
 events, and injects prompts on its own schedule.
@@ -529,7 +529,7 @@ npx tsx demo-embedder.ts
 # handshake + turn-end + session_end events to the parent's stdout.
 ```
 
-### POC 5 — capability handshake feature detection
+### POC 5 -- capability handshake feature detection
 
 Older Qwen Code versions won't emit `protocol_version`. Treat the field
 as optional and feature-detect:
@@ -551,7 +551,7 @@ rl.on('line', (line) => {
 });
 ```
 
-### POC 6 — session_end as a clean termination signal
+### POC 6 -- session_end as a clean termination signal
 
 ```ts
 rl.on('line', (line) => {
@@ -566,15 +566,15 @@ rl.on('line', (line) => {
 If the TUI crashes before `session_end`, the output stream closes
 (`EPIPE` on next write); embedders should handle both paths.
 
-### POC 7 — failure drills (prove the flags never break the TUI)
+### POC 7 -- failure drills (prove the flags never break the TUI)
 
 ```bash
 qwen --json-fd 1
-# stderr: "Warning: dual output disabled — ..."
+# stderr: "Warning: dual output disabled -- ..."
 # TUI still launches normally.
 
 qwen --json-fd 9999
-# stderr: "Warning: dual output disabled — fd 9999 not open"
+# stderr: "Warning: dual output disabled -- fd 9999 not open"
 # TUI still launches normally.
 
 qwen --json-fd 3 --json-file /tmp/x.jsonl
@@ -589,5 +589,5 @@ qwen --json-file /nonexistent/dir/x.jsonl
 
 Claude Code exposes a similar stream-json event format under
 `--print --output-format stream-json`, but only in non-interactive mode
-— it has no equivalent of running the TUI and a structured sidecar
+-- it has no equivalent of running the TUI and a structured sidecar
 channel at the same time. Dual Output fills that gap.

@@ -392,7 +392,7 @@ describe('convertClaudePluginPackage', () => {
     // Create source agents directory.
     // (Previously named `src-agents` to dodge a skip-logic bug in
     // collectResources where file entries like `./agents/foo.md` would be
-    // silently dropped — fixed; the directory name is now incidental.)
+    // silently dropped -- fixed; the directory name is now incidental.)
     const agentsDir = path.join(pluginSourceDir, 'src-agents');
     fs.mkdirSync(agentsDir, { recursive: true });
 
@@ -553,7 +553,7 @@ describe('convertClaudePluginPackage', () => {
 
   it('should populate resources when marketplace references whole folder with trailing slash variants', async () => {
     // `./commands/` (with trailing slash) and `./commands` (without) should
-    // both resolve identically — the bug fix shouldn't be sensitive to the
+    // both resolve identically -- the bug fix shouldn't be sensitive to the
     // exact form marketplace authors write.
     const pluginSourceDir = path.join(testDir, 'trailing-slash');
     fs.mkdirSync(pluginSourceDir, { recursive: true });

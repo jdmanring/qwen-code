@@ -319,7 +319,7 @@ export class SessionMessageHandler extends BaseMessageHandler {
    * @param reason  Optional reason string (e.g. 'user_cancelled').
    * @param forRequestId  When provided, the call is scoped to a specific
    *   request invocation.  If a newer request has since overwritten
-   *   `this.currentRequestId`, the call is silently dropped — this
+   *   `this.currentRequestId`, the call is silently dropped -- this
    *   prevents a stale `handleSendMessage` invocation (resumed after
    *   cancellation) from emitting a streamEnd tagged as the newer request.
    */

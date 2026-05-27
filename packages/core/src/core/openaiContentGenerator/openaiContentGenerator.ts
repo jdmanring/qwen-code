@@ -99,7 +99,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
 
       // Fallback to original simple method
       const content = JSON.stringify(request.contents);
-      const totalTokens = Math.ceil(content.length / 4); // Rough estimate: 1 token ≈ 4 characters
+      const totalTokens = Math.ceil(content.length / 4); // Rough estimate: 1 token  4 characters
 
       return {
         totalTokens,

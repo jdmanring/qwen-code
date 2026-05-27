@@ -34,7 +34,7 @@ export const ShellInputPrompt: React.FC<ShellInputPromptProps> = ({
       if (!focus || !activeShellPtyId) {
         return;
       }
-      // Don't forward Ctrl+F to the PTY — it's used to toggle shell focus.
+      // Don't forward Ctrl+F to the PTY -- it's used to toggle shell focus.
       // Without this, the raw ^F control character gets written to the shell.
       if (keyMatchers[Command.TOGGLE_SHELL_INPUT_FOCUS](key)) {
         return;

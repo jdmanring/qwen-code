@@ -1,10 +1,10 @@
-# ✍️ Authoring and Extending Templates
+#  Authoring and Extending Templates
 
 This guide provides instructions for developers on how to author, extend, and integrate new templates into the Megalonyx. Templates are the fundamental building blocks used to maintain consistency across agent personas, command workflows, and skill definitions.
 
 ---
 
-## 🧩 Template Taxonomy
+##  Template Taxonomy
 
 The stack utilizes several distinct types of templates, each serving a specific purpose within the Cognitive-Symmetry Framework.
 
@@ -17,7 +17,7 @@ The stack utilizes several distinct types of templates, each serving a specific 
 
 ---
 
-## 🛠️ Authoring Workflow
+##  Authoring Workflow
 
 To ensure all new templates are properly integrated and maintain system symmetry, follow this standardized workflow.
 
@@ -50,9 +50,9 @@ Templates are not active on the Machine until they are deployed.
 
 ---
 
-## 💡 Best Practices
+##  Best Practices
 
-* **Maintain High Density**: Use ASCII logic (e.g., `=>`, `<=>`, `AND`/`OR`) and specific emojis (🏛️, 🧠, ⚙️) to optimize token usage and provide visual anchors.
+* **Maintain High Density**: Use ASCII logic (e.g., `=>`, `<=>`, `AND`/`OR`) and specific emojis (, , ) to optimize token usage and provide visual anchors.
 * **Avoid Absolute Paths**: Always use relative paths or placeholders (e.g., `${STACK_ROOT}`) within your templates to ensure they are location-agnostic.
 * **Strict Markdown**: Use consistent Markdown formatting (headers, lists, tables) to ensure the templates are easily readable by both humans and LLMs.
 * **Atomic Design**: Keep templates focused and modular. Instead of one massive template, create several small, specialized ones that can be composed.

@@ -252,7 +252,7 @@ function getGitShortHash() {
   } catch (error) {
     if (isTimeoutError(error)) {
       throw new Error(
-        `git rev-parse timed out after ${LOCAL_COMMAND_TIMEOUT_MS / 1000}s — local git may be unresponsive`,
+        `git rev-parse timed out after ${LOCAL_COMMAND_TIMEOUT_MS / 1000}s -- local git may be unresponsive`,
       );
     }
     throw error;
@@ -294,7 +294,7 @@ async function getReleaseState(
   } catch (error) {
     if (isTimeoutError(error)) {
       throw new Error(
-        `git tag -l timed out after ${LOCAL_COMMAND_TIMEOUT_MS / 1000}s — local git may be unresponsive`,
+        `git tag -l timed out after ${LOCAL_COMMAND_TIMEOUT_MS / 1000}s -- local git may be unresponsive`,
       );
     }
     throw new Error(`Failed to check git tags for conflicts: ${error.message}`);
@@ -311,11 +311,11 @@ async function getReleaseState(
       state.githubReleaseExists = true;
     }
   } catch (error) {
-    // Timeout check must precede isExpectedMissingGitHubRelease — a timed-out
+    // Timeout check must precede isExpectedMissingGitHubRelease -- a timed-out
     // process may emit partial stderr matching "release not found".
     if (isTimeoutError(error)) {
       throw new Error(
-        `gh release view timed out after ${NETWORK_COMMAND_TIMEOUT_MS / 1000}s checking "${fullTag}" — GitHub API may be unavailable`,
+        `gh release view timed out after ${NETWORK_COMMAND_TIMEOUT_MS / 1000}s checking "${fullTag}" -- GitHub API may be unavailable`,
       );
     }
     if (!isExpectedMissingGitHubRelease(error)) {
@@ -375,7 +375,7 @@ function getStableVersion(args, versions) {
     if (latestStable && compareVersions(overrideVersion, latestStable) < 0) {
       throw new Error(
         `stable_version_override ${overrideVersion} is older than latest stable ${latestStable}. ` +
-          `Publishing an older stable version is unusual — provide a newer version or contact a maintainer.`,
+          `Publishing an older stable version is unusual -- provide a newer version or contact a maintainer.`,
       );
     }
     return {

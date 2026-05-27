@@ -341,7 +341,7 @@ export const ChatViewer = forwardRef<ChatViewerHandle, ChatViewerProps>(
             <div className="chat-viewer-empty">
               {showEmptyIcon && (
                 <div className="chat-viewer-empty-icon" aria-hidden="true">
-                  💬
+                  
                 </div>
               )}
               <div className="chat-viewer-empty-text">{emptyMessage}</div>

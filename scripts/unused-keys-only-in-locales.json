@@ -64,7 +64,7 @@
     "Enable an extension",
     "Error sharing conversation: {{error}}",
     "Error: No checkpoint found with tag '{{tag}}'.",
-    "Example: /language output Português",
+    "Example: /language output Portugus",
     "Extension \"{{name}}\" disabled for scope \"{{scope}}\"",
     "Extension \"{{name}}\" disabled successfully.",
     "Extension \"{{name}}\" enabled for scope \"{{scope}}\"",
@@ -148,7 +148,7 @@
     "Please enter your OpenAI configuration. You can get an API key from",
     "Press ? again to close",
     "Press Enter or Esc to go back",
-    "Press Enter to continue, Tab/↑↓ to navigate, Esc to cancel",
+    "Press Enter to continue, Tab/ to navigate, Esc to cancel",
     "Press Enter to start authentication, Esc to go back",
     "Press Y/Enter to confirm, N/Esc to cancel",
     "Pro quota limit reached for {{model}}.",
@@ -156,7 +156,7 @@
     "Project memory file not found or is currently empty.",
     "Project memory is currently empty.",
     "Project settings (local)",
-    "Qwen 3.6 Plus — efficient hybrid model with leading coding performance",
+    "Qwen 3.6 Plus -- efficient hybrid model with leading coding performance",
     "Qwen OAuth authentication cancelled.",
     "Qwen OAuth authentication timed out. Please try again.",
     "Qwen OAuth free tier was discontinued on 2026-04-15. Run /auth to switch provider.",
@@ -220,10 +220,10 @@
     "Yes, always allow tool \"{{tool}}\" from server \"{{server}}\"",
     "change the auth method",
     "compact mode: on (Ctrl+O off)",
-    "↑/↓: Navigate | Space/Enter: Toggle | Esc: Cancel",
-    "↑/↓: Navigate | ←/→: Switch tabs | Space/Enter: Toggle | Esc: Cancel",
-    "✓ Enabled",
-    "✗ Disabled"
+    "/: Navigate | Space/Enter: Toggle | Esc: Cancel",
+    "/: Navigate | <-/->: Switch tabs | Space/Enter: Toggle | Esc: Cancel",
+    " Enabled",
+    " Disabled"
   ],
   "count": 223
 }

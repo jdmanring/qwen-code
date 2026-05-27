@@ -19,7 +19,7 @@ interface NewArgs {
 // Anchor the bundled extension-examples directory at the on-disk sibling of
 // `cli.js` (i.e. `dist/examples/`, populated by `prepare-package.js`). Today
 // this module is bundled into `cli.js` itself, so the `chunks/` strip in
-// `resolveBundleDir` is a no-op — but using the same helper as the other
+// `resolveBundleDir` is a no-op -- but using the same helper as the other
 // asset-anchor sites means this code stays correct if esbuild later hoists
 // this module into a shared chunk.
 const EXAMPLES_PATH = join(resolveBundleDir(import.meta.url), 'examples');

@@ -1,18 +1,18 @@
 # Tool-Use Summary Design
 
-> Fast-model labels for parallel tool batches — motivation, competitive analysis with Claude Code, architecture, and the append-only-Static rationale that drove the current full-mode render.
+> Fast-model labels for parallel tool batches -- motivation, competitive analysis with Claude Code, architecture, and the append-only-Static rationale that drove the current full-mode render.
 >
 > User documentation: [Tool-Use Summaries](../../users/features/tool-use-summaries.md).
 
 ## 1. Executive Summary
 
-After each tool batch completes, Qwen Code fires a short fast-model call that returns a git-commit-subject-style label summarizing the batch. The label shows as an inline dim `● <label>` line in full mode and replaces the generic `Tool × N` header in compact mode. Generation runs fire-and-forget in parallel with the next turn's API stream, so its ~1s latency is hidden behind main-model streaming.
+After each tool batch completes, Qwen Code fires a short fast-model call that returns a git-commit-subject-style label summarizing the batch. The label shows as an inline dim ` <label>` line in full mode and replaces the generic `Tool * N` header in compact mode. Generation runs fire-and-forget in parallel with the next turn's API stream, so its ~1s latency is hidden behind main-model streaming.
 
 | Dimension             | Claude Code                                                           | Qwen Code                                                                                  |
 | --------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Trigger point         | `query.ts` — after a tool batch finalizes                             | `useGeminiStream.ts` → `handleCompletedTools` — same lifecycle point                       |
+| Trigger point         | `query.ts` -- after a tool batch finalizes                             | `useGeminiStream.ts` -> `handleCompletedTools` -- same lifecycle point                       |
 | Generation model      | Haiku via `queryHaiku`                                                | Configured `fastModel` via `GeminiClient.generateContent`                                  |
-| Subagent behavior     | `!toolUseContext.agentId` — main session only                         | Implicit — subagents run through `agents/runtime/`, not `useGeminiStream`                  |
+| Subagent behavior     | `!toolUseContext.agentId` -- main session only                         | Implicit -- subagents run through `agents/runtime/`, not `useGeminiStream`                  |
 | Scheduling            | Fire-and-forget, awaited right before the next turn's stream emits    | Fire-and-forget, appended to history when resolved                                         |
 | Output shape          | `ToolUseSummaryMessage` yielded into the SDK stream                   | `HistoryItemToolUseSummary` added to UI history + factory exported for future SDK use      |
 | Gate                  | `CLAUDE_CODE_EMIT_TOOL_USE_SUMMARIES` env, default **off**            | `experimental.emitToolUseSummaries` setting (default **on**) + env override                |
@@ -28,17 +28,17 @@ After each tool batch completes, Qwen Code fires a short fast-model call that re
 
 ### 2.1 Flow
 
-Claude Code runs the tool loop in `query.ts`. After a tool batch executes and its results are normalized, the generator function forks a Haiku call, keeps the pending promise on `nextPendingToolUseSummary`, and continues with the next turn's API call. The Haiku latency (~1s) overlaps the main model's streaming (5–30s), so the user sees zero added latency. Right before emitting the next turn's content, the generator awaits the pending summary and yields a `tool_use_summary` message into the stream.
+Claude Code runs the tool loop in `query.ts`. After a tool batch executes and its results are normalized, the generator function forks a Haiku call, keeps the pending promise on `nextPendingToolUseSummary`, and continues with the next turn's API call. The Haiku latency (~1s) overlaps the main model's streaming (5-30s), so the user sees zero added latency. Right before emitting the next turn's content, the generator awaits the pending summary and yields a `tool_use_summary` message into the stream.
 
 ```
-tool_batch_complete → fork queryHaiku (fire-and-forget)
-                          ↓
+tool_batch_complete -> fork queryHaiku (fire-and-forget)
+                          
                next_turn_stream_starts
-                          ↓
-       ← summary Promise resolves during streaming →
-                          ↓
-       await pendingToolUseSummary → yield ToolUseSummaryMessage
-                          ↓
+                          
+       <- summary Promise resolves during streaming ->
+                          
+       await pendingToolUseSummary -> yield ToolUseSummaryMessage
+                          
                 continue with next turn
 ```
 
@@ -56,9 +56,9 @@ tool_batch_complete → fork queryHaiku (fire-and-forget)
 
 1. **Always generate when the gate is on, regardless of compact/detail state.** The summary is a stream-level artifact; the UI decides whether to render it.
 2. **Emit as a first-class message type.** `tool_use_summary` sits alongside `user`, `assistant`, `tool_result` in the SDK stream with a `precedingToolUseIds` field for consumers to correlate against the batch.
-3. **Subagents are excluded.** `!toolUseContext.agentId` — subagent output is aggregated upstream; individual subagent batches would produce noisy labels that never surface in the primary UI.
+3. **Subagents are excluded.** `!toolUseContext.agentId` -- subagent output is aggregated upstream; individual subagent batches would produce noisy labels that never surface in the primary UI.
 4. **Default off.** The env-only gate keeps cost at zero unless a downstream SDK consumer opts in. The CC terminal itself does not render the message.
-5. **Input truncation at 300 chars per field.** Covers the dominant cost risk — a single large tool result blowing up the prompt — while keeping enough signal for the label.
+5. **Input truncation at 300 chars per field.** Covers the dominant cost risk -- a single large tool result blowing up the prompt -- while keeping enough signal for the label.
 
 ## 3. Qwen Code Implementation
 
@@ -68,20 +68,20 @@ Qwen Code hooks the same lifecycle point (`useGeminiStream.handleCompletedTools`
 
 ```
 tool_batch_complete (handleCompletedTools)
-           ↓
+           
   config.getEmitToolUseSummaries()?
-           ↓
+           
    fork generateToolUseSummary (fire-and-forget)
-           ↓
+           
   submitQuery() for next turn (streaming starts)
-           ↓
-   ← summary Promise resolves during streaming →
-           ↓
+           
+   <- summary Promise resolves during streaming ->
+           
   addItem({type:'tool_use_summary', summary, precedingToolUseIds})
-           ↓
+           
   HistoryItemDisplay renders:
-    compactMode=false → ● <label> standalone line
-    compactMode=true  → hidden; MainContent lookup injects into CompactToolGroupDisplay header
+    compactMode=false ->  <label> standalone line
+    compactMode=true  -> hidden; MainContent lookup injects into CompactToolGroupDisplay header
 ```
 
 ### 3.2 Key source files
@@ -89,11 +89,11 @@ tool_batch_complete (handleCompletedTools)
 | Component           | File                                                                  | Key logic                                                                 |
 | ------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------- |
 | Service             | `packages/core/src/services/toolUseSummary.ts`                        | `generateToolUseSummary`, `truncateJson`, `cleanSummary`, message factory |
-| Config gate         | `packages/core/src/config/config.ts:getEmitToolUseSummaries`          | Env override → settings → default (true)                                  |
+| Config gate         | `packages/core/src/config/config.ts:getEmitToolUseSummaries`          | Env override -> settings -> default (true)                                  |
 | Trigger             | `packages/cli/src/ui/hooks/useGeminiStream.ts:handleCompletedTools`   | Fires fast-model call, addItem on resolve                                 |
-| Full-mode render    | `packages/cli/src/ui/components/HistoryItemDisplay.tsx`               | Renders `● <label>` line when `!compactMode`                              |
-| Compact-mode lookup | `packages/cli/src/ui/components/MainContent.tsx`                      | `summaryByCallId` map → `compactLabel` prop to each tool_group            |
-| Compact header      | `packages/cli/src/ui/components/messages/CompactToolGroupDisplay.tsx` | Replaces default `Tool × N` with `<Summary> · N tools` when label present |
+| Full-mode render    | `packages/cli/src/ui/components/HistoryItemDisplay.tsx`               | Renders ` <label>` line when `!compactMode`                              |
+| Compact-mode lookup | `packages/cli/src/ui/components/MainContent.tsx`                      | `summaryByCallId` map -> `compactLabel` prop to each tool_group            |
+| Compact header      | `packages/cli/src/ui/components/messages/CompactToolGroupDisplay.tsx` | Replaces default `Tool * N` with `<Summary>  N tools` when label present |
 | Merge handling      | `packages/cli/src/ui/utils/mergeCompactToolGroups.ts`                 | Treats `tool_use_summary` as hidden-in-compact for adjacency              |
 | UI type             | `packages/cli/src/ui/types.ts:HistoryItemToolUseSummary`              | `{ type: 'tool_use_summary', summary, precedingToolUseIds }`              |
 
@@ -101,49 +101,49 @@ tool_batch_complete (handleCompletedTools)
 
 The central architectural decision in this PR is **why the full-mode label is a standalone history item and not a decoration on the tool_group itself**.
 
-Qwen Code renders the transcript via Ink's `<Static>`. Static is append-only: once an item is committed to the terminal buffer, Ink will not repaint that region unless `refreshStatic()` is called to clear and re-render the entire transcript. This is the performance model the CLI depends on — static items don't re-render on every keystroke.
+Qwen Code renders the transcript via Ink's `<Static>`. Static is append-only: once an item is committed to the terminal buffer, Ink will not repaint that region unless `refreshStatic()` is called to clear and re-render the entire transcript. This is the performance model the CLI depends on -- static items don't re-render on every keystroke.
 
 Now consider the fast-model call's timing:
 
 ```
 T0   tool batch completes, tool_group is pushed to history
-T0+ε tool_group renders through <Static> and is committed to the buffer
+T0+ tool_group renders through <Static> and is committed to the buffer
 T0+1s fast-model call resolves with a label
 ```
 
 At T0+1s, we cannot retroactively add the label to the already-committed tool_group. Two options exist:
 
-1. **Update the tool_group's props + call `refreshStatic()`.** Works, but causes a full transcript repaint on every batch — one of the most expensive UI operations in the app. Visible flash. Unacceptable for a cosmetic label.
-2. **Render the summary as its own new history item appended _after_ the tool_group.** Static handles this natively — new items append cleanly, no repaint.
+1. **Update the tool_group's props + call `refreshStatic()`.** Works, but causes a full transcript repaint on every batch -- one of the most expensive UI operations in the app. Visible flash. Unacceptable for a cosmetic label.
+2. **Render the summary as its own new history item appended _after_ the tool_group.** Static handles this natively -- new items append cleanly, no repaint.
 
-This PR takes option 2 in full mode. The `tool_use_summary` entry is a real history item, rendered as a single dim `● <label>` line by `HistoryItemDisplay`. No `refreshStatic` needed.
+This PR takes option 2 in full mode. The `tool_use_summary` entry is a real history item, rendered as a single dim ` <label>` line by `HistoryItemDisplay`. No `refreshStatic` needed.
 
-Compact mode is different because of `mergeCompactToolGroups`. When consecutive tool*groups merge, `MainContent` already calls `refreshStatic()` — that's an existing codepath, and it re-renders the merged group with the label looked up from history. So compact mode \_does* get the label as a header replacement. To avoid rendering the same label twice (once as the compact header, once as a trailing `● <label>` line), `HistoryItemDisplay` hides the standalone line when `compactMode` is true.
+Compact mode is different because of `mergeCompactToolGroups`. When consecutive tool*groups merge, `MainContent` already calls `refreshStatic()` -- that's an existing codepath, and it re-renders the merged group with the label looked up from history. So compact mode \_does* get the label as a header replacement. To avoid rendering the same label twice (once as the compact header, once as a trailing ` <label>` line), `HistoryItemDisplay` hides the standalone line when `compactMode` is true.
 
 ```
 Full mode              Compact mode (with merge)
-───────────            ─────────────────────────
-[tool_group]           [merged tool_group — header replaced via lookup]
-● <label>              (● <label> line is hidden)
+-----------            -------------------------
+[tool_group]           [merged tool_group -- header replaced via lookup]
+ <label>              ( <label> line is hidden)
 ```
 
 ### 3.4 Gate semantics
 
 Three layers, resolved in order of precedence:
 
-1. `QWEN_CODE_EMIT_TOOL_USE_SUMMARIES=0|1|true|false` — env override, highest priority.
-2. `experimental.emitToolUseSummaries` in `settings.json` — default `true`.
-3. Implicit skip — if `config.getFastModel()` returns `undefined`, generation is skipped regardless of the gate. No error, no user-visible change.
+1. `QWEN_CODE_EMIT_TOOL_USE_SUMMARIES=0|1|true|false` -- env override, highest priority.
+2. `experimental.emitToolUseSummaries` in `settings.json` -- default `true`.
+3. Implicit skip -- if `config.getFastModel()` returns `undefined`, generation is skipped regardless of the gate. No error, no user-visible change.
 
 ### 3.5 Output cleaning
 
 `cleanSummary` runs on every model response before it is added to history:
 
 1. Take the first line only (drops model reasoning preambles).
-2. Strip bullet prefixes (`-`, `*`, `•`) — models sometimes return the label as a list item.
+2. Strip bullet prefixes (`-`, `*`, ``) -- models sometimes return the label as a list item.
 3. Strip surrounding quotes/backticks via a bounded `{1,10}` regex (CodeQL-safe; no real label has more than a handful of wrapping quotes).
 4. Strip prefix labels (`Label:`, `Summary:`, `Result:`, `Output:`) that some models prepend.
-5. Reject error-message shapes (`API error: ...`, `Error: ...`, `I cannot ...`, `I can't ...`, `Unable to ...`) — returns empty string so no history item is added.
+5. Reject error-message shapes (`API error: ...`, `Error: ...`, `I cannot ...`, `I can't ...`, `Unable to ...`) -- returns empty string so no history item is added.
 6. Hard-cap length at 100 characters (mobile UI truncates around 30; the slack covers CJK phrases).
 
 ### 3.6 Telemetry

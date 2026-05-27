@@ -131,7 +131,7 @@ export function useFollowupSuggestionsCLI(
     [],
   );
 
-  // Create the controller once — it is stable across renders
+  // Create the controller once -- it is stable across renders
   const controller = useMemo(
     () =>
       createFollowupController({

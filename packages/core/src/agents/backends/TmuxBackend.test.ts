@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type { AgentSpawnConfig } from './types.js';
 
-// ─── Hoisted mocks for tmux-commands ────────────────────────────
+// --- Hoisted mocks for tmux-commands ----------------------------
 const hoistedVerifyTmux = vi.hoisted(() => vi.fn());
 const hoistedTmuxCurrentPaneId = vi.hoisted(() => vi.fn());
 const hoistedTmuxCurrentWindowTarget = vi.hoisted(() => vi.fn());
@@ -139,7 +139,7 @@ describe('TmuxBackend', () => {
     }
   });
 
-  // ─── Initialization ─────────────────────────────────────────
+  // --- Initialization -----------------------------------------
 
   it('throws if spawnAgent is called before init', async () => {
     await expect(backend.spawnAgent(makeConfig('a1'))).rejects.toThrow(
@@ -158,7 +158,7 @@ describe('TmuxBackend', () => {
     expect(hoistedVerifyTmux).toHaveBeenCalledTimes(1);
   });
 
-  // ─── Spawning (outside tmux) ──────────────────────────────
+  // --- Spawning (outside tmux) ------------------------------
 
   it('spawns first agent outside tmux by respawning the initial pane', async () => {
     await backend.init();
@@ -197,7 +197,7 @@ describe('TmuxBackend', () => {
     );
   });
 
-  // ─── Spawning (inside tmux) ───────────────────────────────
+  // --- Spawning (inside tmux) -------------------------------
 
   it('spawns first agent inside tmux by splitting from main pane', async () => {
     process.env['TMUX'] = '/tmp/tmux-1000/default,12345,0';
@@ -220,7 +220,7 @@ describe('TmuxBackend', () => {
     expect(hoistedTmuxSelectPane).toHaveBeenCalledWith('%0');
   });
 
-  // ─── Navigation ───────────────────────────────────────────
+  // --- Navigation -------------------------------------------
 
   it('switchTo changes active agent', async () => {
     await backend.init();
@@ -267,7 +267,7 @@ describe('TmuxBackend', () => {
     expect(backend.getActiveAgentId()).toBe('solo');
   });
 
-  // ─── Stop & Cleanup ──────────────────────────────────────
+  // --- Stop & Cleanup --------------------------------------
 
   it('stopAgent kills the pane', async () => {
     await backend.init();
@@ -318,7 +318,7 @@ describe('TmuxBackend', () => {
     expect(hoistedTmuxKillSession).not.toHaveBeenCalled();
   });
 
-  // ─── Exit Detection (Bug #1: missing pane → exited) ──────
+  // --- Exit Detection (Bug #1: missing pane -> exited) ------
 
   it('marks agent as exited when pane disappears from tmux', async () => {
     await backend.init();
@@ -327,7 +327,7 @@ describe('TmuxBackend', () => {
     const exitCallback = vi.fn();
     backend.setOnAgentExit(exitCallback);
 
-    // Polling returns no panes → agent's pane is gone
+    // Polling returns no panes -> agent's pane is gone
     hoistedTmuxListPanes.mockResolvedValue([]);
 
     // Advance timer to trigger poll
@@ -353,7 +353,7 @@ describe('TmuxBackend', () => {
     expect(exitCallback).toHaveBeenCalledWith('a', 42, null);
   });
 
-  // ─── waitForAll (Bug #3: cleanup resolves waiters) ────────
+  // --- waitForAll (Bug #3: cleanup resolves waiters) --------
 
   it('waitForAll resolves when all agents exit', async () => {
     await backend.init();
@@ -375,7 +375,7 @@ describe('TmuxBackend', () => {
     await backend.init();
     await spawnWithTimers(backend, makeConfig('a'));
 
-    // Pane stays alive — without cleanup, waitForAll would hang
+    // Pane stays alive -- without cleanup, waitForAll would hang
     hoistedTmuxListPanes.mockResolvedValue([
       { paneId: '%0', dead: false, deadStatus: 0 },
     ]);
@@ -414,7 +414,7 @@ describe('TmuxBackend', () => {
     expect(result).toBe(false);
   });
 
-  // ─── Input ────────────────────────────────────────────────
+  // --- Input ------------------------------------------------
 
   it('forwardInput sends literal keys to active agent pane', async () => {
     await backend.init();
@@ -435,7 +435,7 @@ describe('TmuxBackend', () => {
     expect(backend.forwardInput('hello')).toBe(false);
   });
 
-  // ─── Snapshots ────────────────────────────────────────────
+  // --- Snapshots --------------------------------------------
 
   it('getActiveSnapshot returns null (tmux handles rendering)', async () => {
     await backend.init();
@@ -449,7 +449,7 @@ describe('TmuxBackend', () => {
     expect(backend.getAgentScrollbackLength('a')).toBe(0);
   });
 
-  // ─── getAttachHint ────────────────────────────────────────
+  // --- getAttachHint ----------------------------------------
 
   it('returns attach command when outside tmux', async () => {
     await backend.init();
@@ -464,7 +464,7 @@ describe('TmuxBackend', () => {
     expect(backend.getAttachHint()).toBeNull();
   });
 
-  // ─── Spawn failure handling ───────────────────────────────
+  // --- Spawn failure handling -------------------------------
 
   it('registers failed agent and fires exit callback on spawn error', async () => {
     await backend.init();

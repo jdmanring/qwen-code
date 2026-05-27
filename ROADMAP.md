@@ -1,4 +1,4 @@
-# Megalonyx Monorepo — Roadmap
+# Megalonyx Monorepo -- Roadmap
 
 Tracks the evolution of the Megalonyx stack. Distinguishes what is fully implemented and
 verified from what is an architectural target not yet in code.
@@ -41,7 +41,7 @@ verified from what is an architectural target not yet in code.
 
 ---
 
-## In progress — Phase 3
+## In progress -- Phase 3
 
 - Installer unification: `install-megalonyx-stack.sh`, `install-megalonyx-full.sh`, `docs/megalonyx/installation.md`
 - Remaining test migration: `tests/fidelity/`, `tests/debug/`, `tests/validators/` from qwen_code_stack
@@ -56,12 +56,12 @@ verified from what is an architectural target not yet in code.
 
 ### Enhanced ingestion
 - Automated cognitive mapping: move from structural mirroring to semantic mapping of external repositories on ingest
-- Runtime artifact isolation: strict separation of transient artifacts (`tmp/`), persistent audit logs (`logs/`), and ephemeral trace data — prevents tmpfs exhaustion and improves portability
+- Runtime artifact isolation: strict separation of transient artifacts (`tmp/`), persistent audit logs (`logs/`), and ephemeral trace data -- prevents tmpfs exhaustion and improves portability
 
 ### Context compression (CEAP v2)
 - Skeleton-first discovery: `read_skeleton` capability returning only structural metadata (imports, signatures) before implementation
 - Semantic state checkpointing: periodic high-density session checkpoints compressing conversational history into summaries
-- Contextual pruning: "local neighborhood" loading — only the target function and its immediate dependencies
+- Contextual pruning: "local neighborhood" loading -- only the target function and its immediate dependencies
 - Hierarchical context loading: enforce top-down protocol (Blueprint -> Module -> Implementation)
 - Token-aware search: search results ranked by semantic proximity rather than textual match count
 
@@ -88,21 +88,21 @@ verified from what is an architectural target not yet in code.
 
 | Phase | Description |
 | :--- | :--- |
-| Stages 1–3 | Codebase audit, pipeline design, upstream sync implementation (pipeline, gates, LKG tags) |
+| Stages 1-3 | Codebase audit, pipeline design, upstream sync implementation (pipeline, gates, LKG tags) |
 | Phase 2 | `qwen_code_stack` migration into monorepo: intake normalization, package creation, naming pass |
 | Phase 3 | Integration, documentation, boot verification |
 | Phase 4 | Installer unification |
-| Phase 4.5–4.9 | CI hardening, TypeScript fixes, test infrastructure, pnpm DX hardening, upstream sync |
-| Dep campaign H | vitest 3→4, vite 5→6 |
-| Dep campaign I | web-tree-sitter 0.24→0.26 |
-| Dep campaign M | TypeScript 5.3→6.0 |
-| Dep campaign 54 | ESLint 9→10 with `@eslint/compat` bridge, react-hooks v7 |
+| Phase 4.5-4.9 | CI hardening, TypeScript fixes, test infrastructure, pnpm DX hardening, upstream sync |
+| Dep campaign H | vitest 3->4, vite 5->6 |
+| Dep campaign I | web-tree-sitter 0.24->0.26 |
+| Dep campaign M | TypeScript 5.3->6.0 |
+| Dep campaign 54 | ESLint 9->10 with `@eslint/compat` bridge, react-hooks v7 |
 
 ---
 
 ## Maintenance notes
 
-- Do not modify `ci.yml` — upstream content, overwritten on sync
-- Do not commit `config/settings.json` or `config/megalonyx/.env` — contain live API keys
+- Do not modify `ci.yml` -- upstream content, overwritten on sync
+- Do not commit `config/settings.json` or `config/megalonyx/.env` -- contain live API keys
 - Upstream sync runs against `QwenLM/qwen-code` via `tooling/sync-upstreams/upstream_ingest_pipeline.py`
-- Active work tracked in task board (TaskList/TaskCreate/TaskUpdate). `ROADMAP.md` is strategic reference only — no task-level items here.
+- Active work tracked in task board (TaskList/TaskCreate/TaskUpdate). `ROADMAP.md` is strategic reference only -- no task-level items here.

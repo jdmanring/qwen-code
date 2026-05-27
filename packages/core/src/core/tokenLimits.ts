@@ -12,7 +12,7 @@ export const DEFAULT_TOKEN_LIMIT: TokenCount = 131_072; // 128K (power-of-two)
 export const DEFAULT_OUTPUT_TOKEN_LIMIT: TokenCount = 32_000; // 32K tokens
 
 // Capped default for slot-reservation optimization. 99% of outputs are under 5K
-// tokens, so 32K defaults over-reserve 4-6× slot capacity. With the cap
+// tokens, so 32K defaults over-reserve 4-6* slot capacity. With the cap
 // enabled, <1% of requests hit the limit; those get one clean retry at 64K
 // (see geminiChat.ts max_output_tokens escalation).
 export const CAPPED_DEFAULT_MAX_TOKENS: TokenCount = 8_000;
@@ -71,7 +71,7 @@ export function normalize(model: string): string {
     //   \d+x\d+b - Match patterns like 4x8b, -7b, -70b
     //   v\d+(?:\.\d+)* - Match version patterns starting with 'v' like -v1, -v1.2, -v2.1.3
     //   (?<=-[^-]+-)\d+(?:\.\d+)+ - Match version numbers with dots that are preceded by another dash,
-    //     like -1.1, -2.0.1 but only when they are preceded by another dash, Example: model-test-1.1 → model-test;
+    //     like -1.1, -2.0.1 but only when they are preceded by another dash, Example: model-test-1.1 -> model-test;
     //     Note: this does NOT match 4.1 in gpt-4.1 because there's no dash before -4.1 in that context.
     //   latest|exp - Match the literal string "latest" or "exp"
     s = s.replace(

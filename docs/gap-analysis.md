@@ -1,7 +1,7 @@
 # System Gap Analysis
 
 This document maps what Megalonyx inherited from QwenLM/qwen-code, what was added, where
-the two systems overlap, and what the plan is for each overlap. It is a living reference —
+the two systems overlap, and what the plan is for each overlap. It is a living reference --
 update it when architectural decisions are made.
 
 ---
@@ -28,7 +28,7 @@ These systems exist in upstream but we override or extend them.
 
 | System | What it does | What we replace/extend | Why | Status |
 |---|---|---|---|---|
-| Memory bridge (original `packages/core/src/stdio_socket_relay.py` reference) | Stub for a memory MCP server | Replaced by `agent-memory` — a full Python MCP server with Qdrant | The upstream stub references a path that doesn't exist; we provide a working implementation | Complete |
+| Memory bridge (original `packages/core/src/stdio_socket_relay.py` reference) | Stub for a memory MCP server | Replaced by `agent-memory` -- a full Python MCP server with Qdrant | The upstream stub references a path that doesn't exist; we provide a working implementation | Complete |
 | Model provider list | Default set of Qwen-series and compatible models | Extended with LongCat and additional Gemini models in `config/settings.json` | We use providers not in the upstream defaults | Complete |
 | `ci.yml` (upstream CI) | Runs upstream test suite | Replaced by `python-quality.yml` | Upstream CI is for their repo structure, not ours | Complete |
 
@@ -54,15 +54,15 @@ These don't exist in qwen-code. We built them.
 
 | System | What it does | Depends on Qwen Code? | Status |
 |---|---|---|---|
-| `control-plane-daemon` | Classifies intent, decomposes tasks, routes jobs to models | Yes — reads settings.json; can spawn CLI subagents | Implemented; boot test pending |
-| `agent-memory` | Persistent vector memory via Qdrant; MCP server | Yes — registers as MCP server in CLI | Implemented; boot test pending |
+| `control-plane-daemon` | Classifies intent, decomposes tasks, routes jobs to models | Yes -- reads settings.json; can spawn CLI subagents | Implemented; boot test pending |
+| `agent-memory` | Persistent vector memory via Qdrant; MCP server | Yes -- registers as MCP server in CLI | Implemented; boot test pending |
 | `agent-infra` | Shared logging and infrastructure utilities | No | Implemented; used by both services |
-| `ExecutionProfileSelector` | Matches task to execution profile from `.qwen/agents/` | Indirect — profiles list CLI skills | Implemented; integration test pending |
+| `ExecutionProfileSelector` | Matches task to execution profile from `.qwen/agents/` | Indirect -- profiles list CLI skills | Implemented; integration test pending |
 | Upstream ingest pipeline | Quality-gated sync from QwenLM/qwen-code | No | Complete, operational |
 | Project standards linter | Enforces naming, config symmetry, code standards | No | Complete, runs in CI |
 | Pre-commit hook | Catches lint/standards violations before commit | No | Complete, installed locally |
-| 21 custom skills | Task-specific instruction sets in `.qwen/skills/` | Yes — loaded by CLI skills system | Migrated; not yet integration-tested |
-| 20 execution profiles | Model+tool configs per task type in `.qwen/agents/` | Indirect — profiles configure CLI behavior | Migrated; not yet integration-tested |
+| 21 custom skills | Task-specific instruction sets in `.qwen/skills/` | Yes -- loaded by CLI skills system | Migrated; not yet integration-tested |
+| 20 execution profiles | Model+tool configs per task type in `.qwen/agents/` | Indirect -- profiles configure CLI behavior | Migrated; not yet integration-tested |
 
 ---
 
@@ -70,15 +70,15 @@ These don't exist in qwen-code. We built them.
 
 Places where Megalonyx code and Qwen Code code meet:
 
-1. **Memory MCP server** — `agent-memory` runs as an MCP subprocess. The CLI's `McpClientManager` starts it by calling `mega-memory`. Tool calls from the model (`store_memory`, `search_memory`) cross this boundary.
+1. **Memory MCP server** -- `agent-memory` runs as an MCP subprocess. The CLI's `McpClientManager` starts it by calling `mega-memory`. Tool calls from the model (`store_memory`, `search_memory`) cross this boundary.
 
-2. **Settings file** — `config/settings.json` is a project-level settings file that the CLI's settings loader picks up automatically. We use it to inject our model providers, MCP server definitions, and CLI preferences.
+2. **Settings file** -- `config/settings.json` is a project-level settings file that the CLI's settings loader picks up automatically. We use it to inject our model providers, MCP server definitions, and CLI preferences.
 
-3. **Skills** — Files in `.qwen/skills/` are loaded by the CLI's `SkillTool`. Megalonyx skills appear as callable tools in every CLI session without any code change.
+3. **Skills** -- Files in `.qwen/skills/` are loaded by the CLI's `SkillTool`. Megalonyx skills appear as callable tools in every CLI session without any code change.
 
-4. **Execution profiles** — The control-plane-daemon reads `.qwen/agents/` profiles. These profiles list CLI skill names. The skill names must exist in `.qwen/skills/` for the coupling to work.
+4. **Execution profiles** -- The control-plane-daemon reads `.qwen/agents/` profiles. These profiles list CLI skill names. The skill names must exist in `.qwen/skills/` for the coupling to work.
 
-5. **SubAgent delegation** — The control-plane-daemon can instruct the CLI to spawn a subagent via the `AgentTool`. This is the main mechanism for the daemon to run work inside a CLI session context.
+5. **SubAgent delegation** -- The control-plane-daemon can instruct the CLI to spawn a subagent via the `AgentTool`. This is the main mechanism for the daemon to run work inside a CLI session context.
 
 ---
 

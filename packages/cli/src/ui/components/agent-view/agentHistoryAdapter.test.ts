@@ -12,7 +12,7 @@ import type {
 } from '@qwen-code/qwen-code-core';
 import { ToolCallStatus } from '../../types.js';
 
-// ─── Helpers ────────────────────────────────────────────────
+// --- Helpers ------------------------------------------------
 
 function msg(
   role: AgentMessage['role'],
@@ -59,9 +59,9 @@ function toolResultMsg(
   });
 }
 
-// ─── Role mapping ────────────────────────────────────────────
+// --- Role mapping --------------------------------------------
 
-describe('agentMessagesToHistoryItems — role mapping', () => {
+describe('agentMessagesToHistoryItems -- role mapping', () => {
   it('maps user message', () => {
     const items = agentMessagesToHistoryItems(
       [msg('user', 'hello')],
@@ -98,7 +98,7 @@ describe('agentMessagesToHistoryItems — role mapping', () => {
     expect(items[0]).toMatchObject({ type: 'error', text: 'oops' });
   });
 
-  it('maps info message with no level → type info', () => {
+  it('maps info message with no level -> type info', () => {
     const items = agentMessagesToHistoryItems(
       [msg('info', 'note')],
       noApprovals,
@@ -118,7 +118,7 @@ describe('agentMessagesToHistoryItems — role mapping', () => {
     expect(items[0]).toMatchObject({ type: expectedType });
   });
 
-  it('maps unknown info level → type info', () => {
+  it('maps unknown info level -> type info', () => {
     const items = agentMessagesToHistoryItems(
       [msg('info', 'x', { metadata: { level: 'verbose' } })],
       noApprovals,
@@ -142,9 +142,9 @@ describe('agentMessagesToHistoryItems — role mapping', () => {
   });
 });
 
-// ─── Tool grouping ───────────────────────────────────────────
+// --- Tool grouping -------------------------------------------
 
-describe('agentMessagesToHistoryItems — tool grouping', () => {
+describe('agentMessagesToHistoryItems -- tool grouping', () => {
   it('merges a tool_call + tool_result pair into one tool_group', () => {
     const items = agentMessagesToHistoryItems(
       [toolCallMsg('c1', 'read_file'), toolResultMsg('c1', 'read_file')],
@@ -235,9 +235,9 @@ describe('agentMessagesToHistoryItems — tool grouping', () => {
   });
 });
 
-// ─── Tool status ─────────────────────────────────────────────
+// --- Tool status ---------------------------------------------
 
-describe('agentMessagesToHistoryItems — tool status', () => {
+describe('agentMessagesToHistoryItems -- tool status', () => {
   it('Executing: tool_call with no result yet', () => {
     const items = agentMessagesToHistoryItems(
       [toolCallMsg('c1', 'shell')],
@@ -296,7 +296,7 @@ describe('agentMessagesToHistoryItems — tool status', () => {
   });
 
   it('Confirming takes priority over Executing', () => {
-    // pending approval AND no result yet → Confirming, not Executing
+    // pending approval AND no result yet -> Confirming, not Executing
     const approvals = new Map([['c1', {} as ToolCallConfirmationDetails]]);
     const items = agentMessagesToHistoryItems(
       [toolCallMsg('c1', 'shell')],
@@ -310,9 +310,9 @@ describe('agentMessagesToHistoryItems — tool status', () => {
   });
 });
 
-// ─── Tool metadata ───────────────────────────────────────────
+// --- Tool metadata -------------------------------------------
 
-describe('agentMessagesToHistoryItems — tool metadata', () => {
+describe('agentMessagesToHistoryItems -- tool metadata', () => {
   it('forwards resultDisplay from tool_result', () => {
     const items = agentMessagesToHistoryItems(
       [
@@ -359,9 +359,9 @@ describe('agentMessagesToHistoryItems — tool metadata', () => {
   });
 });
 
-// ─── liveOutputs overlay ─────────────────────────────────────
+// --- liveOutputs overlay -------------------------------------
 
-describe('agentMessagesToHistoryItems — liveOutputs', () => {
+describe('agentMessagesToHistoryItems -- liveOutputs', () => {
   it('uses liveOutput as resultDisplay for Executing tools', () => {
     const liveOutputs = new Map([['c1', 'live stdout so far']]);
     const items = agentMessagesToHistoryItems(
@@ -411,9 +411,9 @@ describe('agentMessagesToHistoryItems — liveOutputs', () => {
   });
 });
 
-// ─── shellPids overlay ───────────────────────────────────────
+// --- shellPids overlay ---------------------------------------
 
-describe('agentMessagesToHistoryItems — shellPids', () => {
+describe('agentMessagesToHistoryItems -- shellPids', () => {
   it('sets ptyId for Executing tools with a known PID', () => {
     const shellPids = new Map([['c1', 12345]]);
     const items = agentMessagesToHistoryItems(
@@ -460,9 +460,9 @@ describe('agentMessagesToHistoryItems — shellPids', () => {
   });
 });
 
-// ─── executionStartTimes overlay ─────────────────────────────
+// --- executionStartTimes overlay -----------------------------
 
-describe('agentMessagesToHistoryItems — executionStartTimes', () => {
+describe('agentMessagesToHistoryItems -- executionStartTimes', () => {
   it('sets executionStartTime for Executing tools with a known start time', () => {
     const starts = new Map([['c1', 1_700_000_000_000]]);
     const items = agentMessagesToHistoryItems(
@@ -511,9 +511,9 @@ describe('agentMessagesToHistoryItems — executionStartTimes', () => {
   });
 });
 
-// ─── ID stability ────────────────────────────────────────────
+// --- ID stability --------------------------------------------
 
-describe('agentMessagesToHistoryItems — ID stability', () => {
+describe('agentMessagesToHistoryItems -- ID stability', () => {
   it('assigns monotonically increasing IDs', () => {
     const items = agentMessagesToHistoryItems(
       [

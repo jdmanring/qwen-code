@@ -266,9 +266,9 @@ export function PermissionsDialog({
       value: string;
       key: string;
     }> = [];
-    // 'Add directory…' always FIRST
+    // 'Add directory...' always FIRST
     items.push({
-      label: t('Add directory…'),
+      label: t('Add directory...'),
       value: '__add_dir__',
       key: '__add_dir__',
     });
@@ -292,7 +292,7 @@ export function PermissionsDialog({
         setView('ws-add-dir-input');
         return;
       }
-      // Selecting a directory → offer to remove if not initial
+      // Selecting a directory -> offer to remove if not initial
       if (!initialDirs.has(value)) {
         setRemoveDirTarget(value);
         setView('ws-remove-confirm');
@@ -421,7 +421,7 @@ export function PermissionsDialog({
       key: string;
     }> = [
       {
-        label: t('Add a new rule…'),
+        label: t('Add a new rule...'),
         value: '__add__',
         key: '__add__',
       },
@@ -460,7 +460,7 @@ export function PermissionsDialog({
         setView('add-rule-input');
         return;
       }
-      // Selecting an existing rule → offer to delete
+      // Selecting an existing rule -> offer to delete
       const found = filteredRules.find((r) => r.rule.raw === value);
       if (found) {
         setDeleteTarget(found);
@@ -520,7 +520,7 @@ export function PermissionsDialog({
     // Remove from PermissionManager in-memory
     pm.removePersistentRule(deleteTarget.rule.raw, ruleType);
 
-    // Persist removal — find and remove from settings
+    // Persist removal -- find and remove from settings
     // We try both User and Workspace scopes
     for (const scope of [SettingScope.User, SettingScope.Workspace]) {
       const scopeSettings = settings.forScope(scope).settings;
@@ -676,12 +676,12 @@ export function PermissionsDialog({
             onDown={
               dirCompletions.length > 0 ? handleDirCompletionDown : undefined
             }
-            placeholder={t('Enter directory path…')}
+            placeholder={t('Enter directory path...')}
             isActive={true}
             validationErrors={dirInputError ? [dirInputError] : []}
           />
         </Box>
-        {/* Filesystem completions: ↑/↓ to navigate, Tab to apply */}
+        {/* Filesystem completions: / to navigate, Tab to apply */}
         {dirCompletions.length > 0 && (
           <Box flexDirection="column" marginTop={1} paddingLeft={2}>
             {dirCompletions.map((completion, idx) => {
@@ -705,7 +705,7 @@ export function PermissionsDialog({
         )}
         <Box marginTop={1}>
           <Text color={theme.text.secondary}>
-            {t('Tab to complete · Enter to add · Esc to cancel')}
+            {t('Tab to complete  Enter to add  Esc to cancel')}
           </Text>
         </Box>
       </Box>
@@ -740,7 +740,7 @@ export function PermissionsDialog({
         </Box>
         <Box marginTop={1} marginLeft={1}>
           <Text color={theme.text.secondary}>
-            {t('Enter to confirm · Esc to cancel')}
+            {t('Enter to confirm  Esc to cancel')}
           </Text>
         </Box>
       </Box>
@@ -771,7 +771,7 @@ export function PermissionsDialog({
             </Text>
           </Box>
         ))}
-        {/* Selectable list: runtime-added dirs + 'Add directory…' at end */}
+        {/* Selectable list: runtime-added dirs + 'Add directory...' at end */}
         <RadioButtonSelect
           items={dirListItems}
           onSelect={handleDirListSelect}
@@ -820,7 +820,7 @@ export function PermissionsDialog({
               value={newRuleInput}
               onChange={setNewRuleInput}
               onSubmit={handleAddRuleSubmit}
-              placeholder={t('Enter permission rule…')}
+              placeholder={t('Enter permission rule...')}
               isActive={true}
             />
           </Box>
@@ -833,7 +833,7 @@ export function PermissionsDialog({
         </Box>
         <Box marginTop={1} marginLeft={1}>
           <Text color={theme.text.secondary}>
-            {t('Enter to submit · Esc to cancel')}
+            {t('Enter to submit  Esc to cancel')}
           </Text>
         </Box>
       </Box>
@@ -875,7 +875,7 @@ export function PermissionsDialog({
         </Box>
         <Box marginTop={1} marginLeft={1}>
           <Text color={theme.text.secondary}>
-            {t('Enter to confirm · Esc to cancel')}
+            {t('Enter to confirm  Esc to cancel')}
           </Text>
         </Box>
       </Box>
@@ -911,7 +911,7 @@ export function PermissionsDialog({
         </Box>
         <Box marginTop={1} marginLeft={1}>
           <Text color={theme.text.secondary}>
-            {t('Enter to confirm · Esc to cancel')}
+            {t('Enter to confirm  Esc to cancel')}
           </Text>
         </Box>
       </Box>
@@ -936,7 +936,7 @@ export function PermissionsDialog({
         {searchQuery ? (
           <Text>{searchQuery}</Text>
         ) : (
-          <Text color={Colors.Gray}>{t('Search…')}</Text>
+          <Text color={Colors.Gray}>{t('Search...')}</Text>
         )}
       </Box>
       <Box height={1} />
@@ -985,7 +985,7 @@ function TabBar({
           )}
         </Box>
       ))}
-      <Text color={theme.text.secondary}>{t('(←/→ or tab to cycle)')}</Text>
+      <Text color={theme.text.secondary}>{t('(<-/-> or tab to cycle)')}</Text>
     </Box>
   );
 }
@@ -996,7 +996,7 @@ function FooterHint({ view }: { view: DialogView }): React.JSX.Element {
     <Box marginTop={1}>
       <Text color={theme.text.secondary}>
         {t(
-          'Press ↑↓ to navigate · Enter to select · Type to search · Esc to cancel',
+          'Press  to navigate  Enter to select  Type to search  Esc to cancel',
         )}
       </Text>
     </Box>

@@ -115,7 +115,7 @@ describe('handleSlashCommand', () => {
       name: 'help',
       description: 'Show help',
       kind: CommandKind.BUILT_IN,
-      // No supportedModes → BUILT_IN fallback → interactive only
+      // No supportedModes -> BUILT_IN fallback -> interactive only
       action: vi.fn(),
     };
     mockGetCommands.mockReturnValue([mockHelpCommand]);

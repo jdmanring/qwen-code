@@ -7,7 +7,7 @@
 
 Agent Arena lets you pit multiple AI models against each other on the same task. Each model runs as a fully independent agent in its own isolated Git worktree, so file operations never interfere. When all agents finish, you compare results and select a winner to merge back into your main workspace.
 
-Unlike [subagents](/users/features/sub-agents), which delegate focused subtasks within a single session, Arena agents are complete, top-level agent instances — each with its own model, context window, and full tool access.
+Unlike [subagents](/users/features/sub-agents), which delegate focused subtasks within a single session, Arena agents are complete, top-level agent instances -- each with its own model, context window, and full tool access.
 
 This page covers:
 
@@ -23,7 +23,7 @@ Agent Arena is most effective when you want to **evaluate or compare** how diffe
 
 - **Model benchmarking**: Evaluate different models' capabilities on real tasks in your actual codebase, not synthetic benchmarks
 - **Best-of-N selection**: Get multiple independent solutions and pick the best implementation
-- **Exploring approaches**: See how different models reason about and solve the same problem — useful for learning and insight
+- **Exploring approaches**: See how different models reason about and solve the same problem -- useful for learning and insight
 - **Risk reduction**: For critical changes, validate that multiple models converge on a similar approach before committing
 
 Agent Arena uses significantly more tokens than a single session (each agent has its own context window and model calls). It works best when the value of comparison justifies the cost. For routine tasks where you trust your default model, a single session is more efficient.
@@ -40,7 +40,7 @@ If you omit `--models`, an interactive model selection dialog appears, letting y
 
 ### What happens when you start
 
-1. **Worktree setup**: Qwen Code creates isolated Git worktrees for each agent at `~/.qwen/arena/<session-id>/worktrees/<model-name>/`. Each worktree mirrors your current working directory state exactly — including staged changes, unstaged changes, and untracked files.
+1. **Worktree setup**: Qwen Code creates isolated Git worktrees for each agent at `~/.qwen/arena/<session-id>/worktrees/<model-name>/`. Each worktree mirrors your current working directory state exactly -- including staged changes, unstaged changes, and untracked files.
 2. **Agent spawning**: Each agent starts in its own worktree with full tool access and its configured model. Agents are launched sequentially but execute in parallel.
 3. **Execution**: All agents work on the task independently with no shared state or communication. You can monitor their progress and interact with any of them.
 4. **Completion**: When all agents finish (or fail), you enter the result comparison phase.
@@ -69,18 +69,18 @@ The tab bar shows each agent's current status:
 
 | Indicator | Meaning                |
 | :-------- | :--------------------- |
-| `●`       | Running or idle        |
-| `✓`       | Completed successfully |
-| `✗`       | Failed                 |
-| `○`       | Cancelled              |
+| ``       | Running or idle        |
+| ``       | Completed successfully |
+| ``       | Failed                 |
+| ``       | Cancelled              |
 
 ### Interact with individual agents
 
 When viewing an agent's tab, you can:
 
-- **Send messages** — type in the input area to give the agent additional instructions
-- **Approve tool calls** — if an agent requests tool approval, the confirmation dialog appears in its tab
-- **View full history** — scroll through the agent's complete conversation, including model output, tool calls, and results
+- **Send messages** -- type in the input area to give the agent additional instructions
+- **Approve tool calls** -- if an agent requests tool approval, the confirmation dialog appears in its tab
+- **View full history** -- scroll through the agent's complete conversation, including model output, tool calls, and results
 
 Each agent is a full, independent session. Anything you can do with the main agent, you can do with an arena agent.
 
@@ -140,7 +140,7 @@ Arena agents work independently with no communication. Tasks should be fully des
 
 **Good**: "Refactor the payment module to use the strategy pattern. Update all tests."
 
-**Less effective**: "Let's discuss how to improve the payment module" — this benefits from conversation, which is better suited to a single session.
+**Less effective**: "Let's discuss how to improve the payment module" -- this benefits from conversation, which is better suited to a single session.
 
 ### Limit the number of agents
 
@@ -179,13 +179,13 @@ For routine changes like renaming a variable or updating a config file, a single
 ### Agent takes too long
 
 - Increase the timeout: set `arena.timeoutSeconds` in settings
-- Reduce task complexity — Arena tasks should be focused and well-defined
+- Reduce task complexity -- Arena tasks should be focused and well-defined
 - Lower `arena.maxRoundsPerAgent` if agents are spending too many rounds
 
 ### Applying winner fails
 
 - Check for uncommitted changes in your main working directory that might conflict
-- The diff is applied as a patch — merge conflicts are possible if your working directory changed during the session
+- The diff is applied as a patch -- merge conflicts are possible if your working directory changed during the session
 
 ## Limitations
 
@@ -200,7 +200,7 @@ Agent Arena is experimental. Current limitations:
 
 ## Comparison with other multi-agent modes
 
-Agent Arena is one of several planned multi-agent modes in Qwen Code. **Agent Team** and **Agent Swarm** are not yet implemented — the table below describes their intended design for reference.
+Agent Arena is one of several planned multi-agent modes in Qwen Code. **Agent Team** and **Agent Swarm** are not yet implemented -- the table below describes their intended design for reference.
 
 |                   | **Agent Arena**                                        | **Agent Team** (planned)                           | **Agent Swarm** (planned)                                |
 | :---------------- | :----------------------------------------------------- | :------------------------------------------------- | :------------------------------------------------------- |
@@ -215,5 +215,5 @@ Agent Arena is one of several planned multi-agent modes in Qwen Code. **Agent Te
 
 Explore related approaches for parallel and delegated work:
 
-- **Lightweight delegation**: [Subagents](/users/features/sub-agents) handle focused subtasks within your session — better when you don't need model comparison
+- **Lightweight delegation**: [Subagents](/users/features/sub-agents) handle focused subtasks within your session -- better when you don't need model comparison
 - **Manual parallel sessions**: Run multiple Qwen Code sessions yourself in separate terminals with [Git worktrees](https://git-scm.com/docs/git-worktree) for full manual control

@@ -16,7 +16,7 @@ import * as dns from 'dns';
  * project-configured HTTP hooks from reaching cloud metadata endpoints
  * (169.254.169.254) or internal infrastructure.
  *
- * Loopback (127.0.0.0/8, ::1) is intentionally ALLOWED — local dev policy
+ * Loopback (127.0.0.0/8, ::1) is intentionally ALLOWED -- local dev policy
  * servers are a primary HTTP hook use case.
  *
  * NOTE: Node.js native `fetch` does not support a custom `lookup` option
@@ -56,7 +56,7 @@ export function isBlockedAddress(address: string): boolean {
   if (v === 6) {
     return isBlockedV6(address);
   }
-  // Not a valid IP literal — let the real DNS path handle it
+  // Not a valid IP literal -- let the real DNS path handle it
   return false;
 }
 
@@ -79,11 +79,11 @@ function isBlockedV4(address: string): boolean {
   if (a === 0) return true;
   // 10.0.0.0/8
   if (a === 10) return true;
-  // 169.254.0.0/16 — link-local, cloud metadata
+  // 169.254.0.0/16 -- link-local, cloud metadata
   if (a === 169 && b === 254) return true;
   // 172.16.0.0/12
   if (a === 172 && b >= 16 && b <= 31) return true;
-  // 100.64.0.0/10 — shared address space (RFC 6598, CGNAT)
+  // 100.64.0.0/10 -- shared address space (RFC 6598, CGNAT)
   if (a === 100 && b >= 64 && b <= 127) return true;
   // 192.168.0.0/16
   if (a === 192 && b === 168) return true;
@@ -107,12 +107,12 @@ function isBlockedV6(address: string): boolean {
     return isBlockedV4(mappedV4);
   }
 
-  // fc00::/7 — unique local addresses (fc00:: through fdff::)
+  // fc00::/7 -- unique local addresses (fc00:: through fdff::)
   if (lower.startsWith('fc') || lower.startsWith('fd')) {
     return true;
   }
 
-  // fe80::/10 — link-local. The /10 means fe80 through febf.
+  // fe80::/10 -- link-local. The /10 means fe80 through febf.
   const firstHextet = lower.split(':')[0];
   if (
     firstHextet &&

@@ -18,9 +18,9 @@ import type {
 import { t } from '../../../i18n/index.js';
 
 // Progress bar characters
-const FILLED = '\u2588'; // █ - filled block
-const BUFFER = '\u2592'; // ▒ - medium shade (autocompact buffer)
-const EMPTY = '\u2591'; // ░ - light shade (free space)
+const FILLED = '\u2588'; //  - filled block
+const BUFFER = '\u2592'; //  - medium shade (autocompact buffer)
+const EMPTY = '\u2591'; //  - light shade (free space)
 
 const CONTENT_WIDTH = 56;
 
@@ -40,7 +40,7 @@ interface ContextUsageProps {
 }
 
 /**
- * Truncate a string to maxLen, appending '…' if truncated.
+ * Truncate a string to maxLen, appending '...' if truncated.
  */
 function truncateName(name: string, maxLen: number): string {
   if (name.length <= maxLen) return name;
@@ -157,7 +157,7 @@ const ThresholdRow: React.FC<{
     <Box width={CONTENT_WIDTH}>
       <Box width={2}>
         <Text color={isCurrent ? theme.status.warning : theme.text.secondary}>
-          {isCurrent ? '▶' : ' '}
+          {isCurrent ? '' : ' '}
         </Text>
       </Box>
       <Box width={22}>
@@ -174,7 +174,7 @@ const ThresholdRow: React.FC<{
 };
 
 /**
- * Color associated with each compaction tier — green for safe, escalating to
+ * Color associated with each compaction tier -- green for safe, escalating to
  * red for hard. Keep these aligned with how `theme.status.*` is used elsewhere
  * so the tier badge feels native to the existing design.
  */
@@ -316,7 +316,7 @@ export const ContextUsage: React.FC<ContextUsageProps> = ({
 
       {isEstimated ? (
         <>
-          {/* No API data yet — show hint instead of progress bar */}
+          {/* No API data yet -- show hint instead of progress bar */}
           <Box marginBottom={1}>
             <Text color={theme.status.warning} italic>
               {t('No API response yet. Send a message to see actual usage.')}
@@ -349,7 +349,7 @@ export const ContextUsage: React.FC<ContextUsageProps> = ({
               </Text>
             </Box>
           </Box>
-          {/* Progress bar — three segments: used | free | buffer */}
+          {/* Progress bar -- three segments: used | free | buffer */}
           <Box width={CONTENT_WIDTH}>
             <ProgressBar
               usedPercentage={Math.min(percentage, 100)}
@@ -370,7 +370,7 @@ export const ContextUsage: React.FC<ContextUsageProps> = ({
             </Box>
           )}
           <Box height={1} />
-          {/* Legend — same layout as CategoryRow for alignment */}
+          {/* Legend -- same layout as CategoryRow for alignment */}
           <CategoryRow
             symbol={FILLED}
             label={t('Used')}
@@ -450,7 +450,7 @@ export const ContextUsage: React.FC<ContextUsageProps> = ({
         />
       )}
 
-      {/* Three-tier compaction thresholds — visible even when isEstimated so
+      {/* Three-tier compaction thresholds -- visible even when isEstimated so
           the user can see the auto-compact landscape before any API call. */}
       {breakdown.thresholds && breakdown.currentTier && (
         <CompactionThresholds

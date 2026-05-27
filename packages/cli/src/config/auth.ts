@@ -78,7 +78,7 @@ function hasApiKeyForAuth(
   // --openai-api-key), env vars, settings.security.auth.apiKey, and
   // modelProvider envKey lookups into this single value, so it is the same
   // key that refreshAuth will actually use at runtime. Validating against it
-  // keeps pre-flight checks consistent with runtime behavior — without this,
+  // keeps pre-flight checks consistent with runtime behavior -- without this,
   // CLI-provided credentials are silently ignored when no env var is set
   // (issue #3171).
   const resolvedApiKey = config

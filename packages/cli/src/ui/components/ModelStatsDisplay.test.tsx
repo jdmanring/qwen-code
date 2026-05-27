@@ -504,7 +504,7 @@ describe('<ModelStatsDisplay />', () => {
         // Use larger numbers to make the difference visible
       });
 
-      it('should include thoughts tokens — larger numbers to expose difference', () => {
+      it('should include thoughts tokens -- larger numbers to expose difference', () => {
         // 1000 prompt, 2000 candidates, 500 thoughts
         // With thoughts: (1000*1 + 2500*2)/1M = 0.001 + 0.005 = 0.006
         // Without thoughts: (1000*1 + 2000*2)/1M = 0.001 + 0.004 = 0.005

@@ -55,8 +55,8 @@ export function CommandFormatMigrationNudge({
   const count = tomlFiles.length;
   const fileList =
     count <= 3
-      ? tomlFiles.map((f) => `  • ${f}`).join('\n')
-      : `  • ${tomlFiles.slice(0, 2).join('\n  • ')}\n  • ${t('... and {{count}} more', { count: String(count - 2) })}`;
+      ? tomlFiles.map((f) => `   ${f}`).join('\n')
+      : `   ${tomlFiles.slice(0, 2).join('\n   ')}\n   ${t('... and {{count}} more', { count: String(count - 2) })}`;
 
   return (
     <Box
@@ -69,7 +69,7 @@ export function CommandFormatMigrationNudge({
     >
       <Box marginBottom={1} flexDirection="column">
         <Text>
-          <Text color={theme.status.warning}>{'⚠️  '}</Text>
+          <Text color={theme.status.warning}>{'  '}</Text>
           <Text bold>{t('Command Format Migration')}</Text>
         </Text>
         <Text color={theme.text.secondary}>

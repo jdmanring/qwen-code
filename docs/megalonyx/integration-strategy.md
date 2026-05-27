@@ -11,7 +11,7 @@ QwenLM/qwen-code CLI into a single versioned repository with a controlled upstre
 ## Architecture: monorepo with upstream sync
 
 All components live in one repository. The upstream QwenLM/qwen-code project is tracked as a
-remote and pulled through a quality-gated pipeline — not forked and abandoned.
+remote and pulled through a quality-gated pipeline -- not forked and abandoned.
 
 **Why monorepo:**
 - A single commit updates both the agent stack and the memory system in sync
@@ -63,13 +63,13 @@ Flow: `upstream/main` -> `upstream-mirror` -> pipeline gates -> `integration` ->
 
 ## Implementation phases
 
-### Phase 1 — Foundation (complete)
+### Phase 1 -- Foundation (complete)
 - Base repository established from QwenLM/qwen-code fork
 - Upstream remote configured and sync pipeline operational
 - `packages/`, `apps/`, `tooling/` directory structure in place
 - Branch architecture (`upstream-mirror`, `integration`, `develop`, `main`) enforced
 
-### Phase 2 — Standardization (complete)
+### Phase 2 -- Standardization (complete)
 - All qwen_code_stack packages migrated into monorepo with renamed modules:
   - `packages/core/src/` -> `apps/control-plane-daemon/src/control_plane_daemon/`
   - `packages/memory/` -> `packages/agent-memory/src/agent_memory/`
@@ -79,14 +79,14 @@ Flow: `upstream/main` -> `upstream-mirror` -> pipeline gates -> `integration` ->
 - Pre-commit hook and CI pipeline both run the full quality gate
 - All three packages importable via `uv sync --all-packages`
 
-### Phase 3 — Integration (in progress)
+### Phase 3 -- Integration (in progress)
 - Execution pipeline wired end-to-end: intent classify -> profile select -> tool execute
 - Smoke tests cover boot verification, profile routing, and memory round-trip
 - Integration CI workflow with Qdrant service container
 - Installer unification: `install-megalonyx-stack.sh` (in progress)
 - Remaining test migration from qwen_code_stack: fidelity/, debug/, validators/
 
-### Phase 4 — Verification (planned)
+### Phase 4 -- Verification (planned)
 - Full end-to-end test suite passing against live services
 - Mirroring audit: all new config mirrored in docs
 - Deployment validation: install-megalonyx-stack.sh verified on clean machine
@@ -97,9 +97,9 @@ Flow: `upstream/main` -> `upstream-mirror` -> pipeline gates -> `integration` ->
 
 ## What we do not modify
 
-- `scripts/installation/` — upstream Qwen Code installers, overwritten on sync
-- `packages/sdk-python/` — upstream Python SDK, tracked but not modified
-- `ci.yml` — upstream CI, overwritten on sync
+- `scripts/installation/` -- upstream Qwen Code installers, overwritten on sync
+- `packages/sdk-python/` -- upstream Python SDK, tracked but not modified
+- `ci.yml` -- upstream CI, overwritten on sync
 - Any file on the `upstream-mirror` branch
 
 ---
@@ -115,5 +115,5 @@ installer and then `install-megalonyx-stack.sh` in sequence. We do not extend th
 installer directly, which would create a merge conflict on every sync.
 
 **README.md per directory over custom context files**: Earlier design used `.qwen-context` files
-(our own invention). Replaced with `README.md` per directory — the same standard used by
+(our own invention). Replaced with `README.md` per directory -- the same standard used by
 Kubernetes, VS Code, etc. GitHub renders it when browsing; AI agents disambiguate by full path.

@@ -37,7 +37,7 @@ const MAX_THOUGHT_HISTORY = 50;
 // while still catching pathological read-only churn. Combined with the
 // cold-start exemption below (see `hasSeenNonReadTool`), a turn that has
 // only ever performed read-like actions is treated as exploration, not a
-// loop — once any non-read tool lands, the detector activates.
+// loop -- once any non-read tool lands, the detector activates.
 const FILE_READ_THRESHOLD = 8;
 const FILE_READ_WINDOW = 15;
 
@@ -136,7 +136,7 @@ export class LoopDetectionService {
         this.resetContentTracking();
         // Thought repetition is only meaningful within a single contiguous
         // reasoning stream. Once a tool call lands, the model has made
-        // observable progress — any prior thoughts should not carry over.
+        // observable progress -- any prior thoughts should not carry over.
         this.thoughtHistory = [];
 
         const toolCallLoop = this.checkToolCallLoop(event.value);
@@ -318,7 +318,7 @@ export class LoopDetectionService {
    * 2. Verify actual content matches to prevent hash collisions
    * 3. Track all positions where this chunk appears
    * 4. A loop is detected when the same chunk appears CONTENT_LOOP_THRESHOLD times
-   *    within a small average distance (≤ 1.5 * chunk size)
+   *    within a small average distance (<= 1.5 * chunk size)
    */
   private isLoopDetectedForChunk(chunk: string, hash: string): boolean {
     const existingIndices = this.contentStats.get(hash);

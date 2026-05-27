@@ -78,7 +78,7 @@ export interface PermissionManagerConfig {
    * Returns the legacy coreTools allowlist.
    *
    * When non-empty, only the tools in this list will be considered enabled at
-   * the registry level — all other tools will be excluded from registration.
+   * the registry level -- all other tools will be excluded from registration.
    * This preserves the original `tools.core` whitelist semantic inside
    * PermissionManager, so `createToolRegistry` can use a single
    * `pm.isToolEnabled()` check without any legacy fallback.
@@ -94,10 +94,10 @@ export interface PermissionManagerConfig {
  * prioritised rules against allow / ask / deny lists.
  *
  * Rule evaluation order (highest priority first):
- *   1. deny rules  → PermissionDecision.deny
- *   2. ask  rules  → PermissionDecision.ask
- *   3. allow rules → PermissionDecision.allow
- *   4. (no match)  → PermissionDecision.default
+ *   1. deny rules  -> PermissionDecision.deny
+ *   2. ask  rules  -> PermissionDecision.ask
+ *   3. allow rules -> PermissionDecision.allow
+ *   4. (no match)  -> PermissionDecision.default
  *
  * Rules can come from three sources, checked in order within each type:
  *   - Session rules  (in-memory only, added during the current session)
@@ -126,7 +126,7 @@ export class PermissionManager {
    * Populated by `stripDangerousRulesForAutoMode` (called from
    * `Config.setApprovalMode` on AUTO entry) and drained by
    * `restoreDangerousRules` (called on AUTO exit). `undefined` means
-   * "not currently in AUTO mode" — distinct from "no rules stripped".
+   * "not currently in AUTO mode" -- distinct from "no rules stripped".
    */
   private strippedAllowRules?: {
     persistent: PermissionRule[];
@@ -158,7 +158,7 @@ export class PermissionManager {
 
     // Build the coreTools allowlist (legacy whitelist semantic).
     // Each entry may be a bare name ("Bash", "read_file") or include a specifier
-    // ("Bash(ls -l)") – we normalise to canonical tool names and ignore specifiers
+    // ("Bash(ls -l)") - we normalise to canonical tool names and ignore specifiers
     // because the registry check is at the tool level, not the invocation level.
     const rawCoreTools = this.config.getCoreTools?.();
     if (rawCoreTools && rawCoreTools.length > 0) {
@@ -224,8 +224,8 @@ export class PermissionManager {
    * of:
    *   1. The base decision from Bash / command-pattern rules.
    *   2. The decision derived from virtual file / network operations extracted
-   *      via `extractShellOperations` — allows Read/Edit/Write/WebFetch rules
-   *      to match equivalent shell commands (e.g. `cat` → Read, `curl` → WebFetch).
+   *      via `extractShellOperations` -- allows Read/Edit/Write/WebFetch rules
+   *      to match equivalent shell commands (e.g. `cat` -> Read, `curl` -> WebFetch).
    */
   private evaluateSingle(ctx: PermissionCheckContext): PermissionDecision {
     const { toolName, command, cwd, filePath, domain, specifier } = ctx;
@@ -275,14 +275,14 @@ export class PermissionManager {
       return 'default';
     })();
 
-    // `deny` is the most restrictive result — no further checks needed.
+    // `deny` is the most restrictive result -- no further checks needed.
     if (baseDecision === 'deny') return 'deny';
 
     // For shell commands: evaluate virtual file/network operations extracted
     // from the command string against Read/Edit/Write/WebFetch/ListFiles rules.
     //
     // Virtual ops can only ESCALATE a decision (to 'ask' or 'deny').
-    // A 'default' virtual result means "shell semantics have no opinion" — it
+    // A 'default' virtual result means "shell semantics have no opinion" -- it
     // must never downgrade an explicit 'allow' decision from a Bash rule.
     // Example: `git status` has no file ops; an allow rule for `Bash(git *)`
     // should return 'allow', not be downgraded to 'default'.
@@ -322,7 +322,7 @@ export class PermissionManager {
 
     for (const op of ops) {
       // Evaluate the virtual operation using the standard rule-matching path.
-      // Since op.virtualTool ≠ 'run_shell_command', this will not recurse back
+      // Since op.virtualTool  'run_shell_command', this will not recurse back
       // into the shell-semantics branch.
       const opDecision = this.evaluateSingle({
         toolName: op.virtualTool,
@@ -348,14 +348,14 @@ export class PermissionManager {
    *
    * When a sub-command returns 'default' (no rule matches), it is resolved to
    * the actual default permission using AST analysis:
-   *   - Command substitution detected → 'deny'
-   *   - Read-only command (cd, ls, git status, etc.) → 'allow'
-   *   - Otherwise → 'ask'
+   *   - Command substitution detected -> 'deny'
+   *   - Read-only command (cd, ls, git status, etc.) -> 'allow'
+   *   - Otherwise -> 'ask'
    *
    * Example: with rules `allow: [git checkout *]`
-   *   - "cd /path && git checkout -b feature" → allow (cd) + allow (rule) → allow
-   *   - "rm /path && git checkout -b feature" → ask (rm) + allow (rule) → ask
-   *   - "evil-cmd && git checkout" (deny: [evil-cmd]) → deny + allow → deny
+   *   - "cd /path && git checkout -b feature" -> allow (cd) + allow (rule) -> allow
+   *   - "rm /path && git checkout -b feature" -> ask (rm) + allow (rule) -> ask
+   *   - "evil-cmd && git checkout" (deny: [evil-cmd]) -> deny + allow -> deny
    */
   private async evaluateCompoundCommand(
     ctx: PermissionCheckContext,
@@ -408,7 +408,7 @@ export class PermissionManager {
   private async resolveDefaultPermission(
     command: string,
   ): Promise<'allow' | 'ask' | 'deny'> {
-    // Security: command substitution ($(), ``, <(), >()) → deny
+    // Security: command substitution ($(), ``, <(), >()) -> deny
     if (detectCommandSubstitution(command)) {
       return 'deny';
     }
@@ -436,8 +436,8 @@ export class PermissionManager {
     // Note on cwd: callers wired through `buildPermissionCheckContext`
     // already populate `ctx.cwd` from the monitor's `directory` parameter
     // (see permission-helpers.ts), and the spread below preserves it. That
-    // is what makes relative-path rules — including those derived from
-    // virtual shell ops in evaluateSingle() — resolve against the monitor's
+    // is what makes relative-path rules -- including those derived from
+    // virtual shell ops in evaluateSingle() -- resolve against the monitor's
     // working directory rather than the global config cwd. Direct callers
     // of `evaluate()` that bypass that helper must pass `cwd` themselves.
     return {
@@ -456,7 +456,7 @@ export class PermissionManager {
    * Tools NOT in this set bypass the check. Two categories live outside:
    * - Dynamically discovered tools (MCP, Skill).
    * - Synthetic system tools that the framework injects when a feature is
-   *   opted into and that have no meaning when missing — `agent`,
+   *   opted into and that have no meaning when missing -- `agent`,
    *   `exit_plan_mode`, `ask_user_question`, `task_stop`, `send_message`,
    *   `structured_output` (registered only when `--json-schema` is set).
    *   Excluding `structured_output` from `--core-tools` would leave a
@@ -495,7 +495,7 @@ export class PermissionManager {
    *
    * A tool is disabled (returns false) when a `deny` rule without a specifier
    * (i.e. a whole-tool deny) matches.  Specifier-based deny rules such as
-   * `"Bash(rm -rf *)"` do NOT remove the tool from the registry – they only
+   * `"Bash(rm -rf *)"` do NOT remove the tool from the registry - they only
    * deny specific invocations at runtime.
    *
    * Non-core tools (MCP, Skill, Agent, etc.) skip the coreTools allowlist
@@ -601,11 +601,11 @@ export class PermissionManager {
    * has a specifier, it also matches the context's command/filePath/domain.
    *
    * Examples for Shell executing `git clone xxx`:
-   *   - "Bash"               → matches (tool-level rule, no specifier)
-   *   - "Bash(git *)"        → matches (git sub-command wildcard)
-   *   - "Bash(git clone *)"  → matches (exact sub-command wildcard)
-   *   - "Bash(git add *)"    → no match (different sub-command)
-   *   - "Edit"               → no match (different tool)
+   *   - "Bash"               -> matches (tool-level rule, no specifier)
+   *   - "Bash(git *)"        -> matches (git sub-command wildcard)
+   *   - "Bash(git clone *)"  -> matches (exact sub-command wildcard)
+   *   - "Bash(git add *)"    -> no match (different sub-command)
+   *   - "Edit"               -> no match (different tool)
    *
    * @param ctx - Permission check context.
    * @returns true if at least one rule matches.
@@ -769,7 +769,7 @@ export class PermissionManager {
       // every subsequent AUTO call would bypass the classifier. See
       // dangerousRules.ts for the classifier-bypass criteria.
       if (this.strippedAllowRules && isDangerousAllowRule(rule)) {
-        // Deduplicate on raw string — matches the persistent-stash branch
+        // Deduplicate on raw string -- matches the persistent-stash branch
         // in addPersistentRule. A repeated "Always allow" choice for the
         // same rule must not pile copies into the session stash.
         const exists = this.strippedAllowRules.session.some(
@@ -842,7 +842,7 @@ export class PermissionManager {
     }
     // AUTO mode invariant: see addSessionAllowRule above. A dangerous
     // allow rule persisted while in AUTO must not become active until
-    // the user exits AUTO — otherwise an "Always allow" choice on a
+    // the user exits AUTO -- otherwise an "Always allow" choice on a
     // fallback prompt would bypass the classifier from that point on.
     // The settings.json write is still performed by the caller (this
     // method only manages the in-memory ruleset), so the rule reaches
@@ -967,7 +967,7 @@ export class PermissionManager {
   /**
    * Remove any allow rules whose breadth would defeat the AUTO classifier
    * (see {@link findDangerousAllowRules}) and stash them for restore.
-   * Idempotent — calling twice while in AUTO is a no-op. Deny rules are
+   * Idempotent -- calling twice while in AUTO is a no-op. Deny rules are
    * never stripped; users intend deny rules as hard blocks regardless of
    * mode.
    */

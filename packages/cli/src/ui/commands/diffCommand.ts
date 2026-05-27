@@ -75,7 +75,7 @@ async function diffAction(
     return {
       type: 'message',
       messageType: 'info',
-      content: t('Clean working tree — no changes against HEAD.'),
+      content: t('Clean working tree -- no changes against HEAD.'),
     };
   }
 
@@ -96,7 +96,7 @@ async function diffAction(
  * `Map` and therefore preserves insertion order: tracked numstat entries
  * first (alphabetical, as git emits them), then untracked entries appended
  * by `fetchGitDiff` in their `ls-files --others` order. Renderers depend on
- * this — if `perFileStats` ever switches to a different container, the row
+ * this -- if `perFileStats` ever switches to a different container, the row
  * sequence must continue to be stable across runs.
  */
 export function buildDiffRenderModel(result: GitDiffResult): DiffRenderModel {
@@ -189,7 +189,7 @@ export function renderDiffModelText(model: DiffRenderModel): string {
   const lines = formatRowsText(rows);
   const capNote =
     hiddenCount > 0 && rows.length > 0
-      ? `\n  ${t('…and {{hidden}} more (showing first {{shown}})', {
+      ? `\n  ${t('...and {{hidden}} more (showing first {{shown}})', {
           hidden: String(hiddenCount),
           shown: String(rows.length),
         })}`

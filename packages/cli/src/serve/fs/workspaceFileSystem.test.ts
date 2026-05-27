@@ -194,8 +194,8 @@ describe('WorkspaceFileSystem - readBytes', () => {
   it('truncates returned buffer to opts.maxBytes (window read, matches API name)', async () => {
     // Earlier semantics threw `file_too_large` here, but `maxBytes`
     // in the parameter name promises window-read behavior. Files
-    // above the HARD `MAX_READ_BYTES` cap still throw — see
-    // separate test below — but a caller-supplied tighter cap
+    // above the HARD `MAX_READ_BYTES` cap still throw -- see
+    // separate test below -- but a caller-supplied tighter cap
     // truncates rather than rejects.
     const target = path.join(h.workspace, 'small.bin');
     await fsp.writeFile(target, Buffer.alloc(2048, 0xab));
@@ -321,7 +321,7 @@ describe('WorkspaceFileSystem - glob', () => {
 
   it('prunes node_modules and .git at glob walk time (no traversal cost)', async () => {
     // The `ignore` option passed to `globAsync` short-circuits
-    // traversal at the directory level — files under
+    // traversal at the directory level -- files under
     // node_modules/.git never reach our per-hit realpath +
     // shouldIgnore filter. Simulate a workspace with deps and
     // assert the deeply-nested `node_modules` file is absent
@@ -475,7 +475,7 @@ describe('WorkspaceFileSystem - write/edit', () => {
     // JS `''.indexOf('')` returns 0, so without the empty-check
     // `current.slice(0, 0) + newText + current.slice(0)` would
     // silently prepend `newText` to the entire file with a success
-    // audit event — textbook silent data corruption. Reject up-front.
+    // audit event -- textbook silent data corruption. Reject up-front.
     const target = path.join(h.workspace, 'silent.txt');
     await fsp.writeFile(target, 'original\n');
     const r = await h.fs.resolve('silent.txt', 'edit');
@@ -512,7 +512,7 @@ describe('WorkspaceFileSystem - write/edit', () => {
       Buffer.concat([bom, Buffer.from('foo=1\nbar=2\n', 'utf-8')]),
     );
     const r = await h.fs.resolve('bom.txt', 'edit');
-    // oldText is `'foo=1'` WITHOUT BOM — must still match.
+    // oldText is `'foo=1'` WITHOUT BOM -- must still match.
     const out = await h.fs.edit(r, 'foo=1', 'foo=42');
     expect(out.writtenBytes).toBeGreaterThan(0);
     const after = await fsp.readFile(target);
@@ -540,7 +540,7 @@ describe('WorkspaceFileSystem - write/edit', () => {
     await fsp.writeFile(target, 'one\ntwo\nthree\n');
     const r = await h.fs.resolve('lines.txt', 'read');
     const out = await h.fs.readText(r, { line: 1, limit: 1 });
-    // 1-based line 1 → 0-based slice index 0 → first line "one"
+    // 1-based line 1 -> 0-based slice index 0 -> first line "one"
     expect(out.content.split('\n')[0]).toBe('one');
   });
 
@@ -688,16 +688,16 @@ describe('WorkspaceFileSystem - TOCTOU + UTF-8 + cwd hardening', () => {
   it('safeUtf8Truncate keeps multi-byte codepoints intact at the boundary', async () => {
     // 4-char Chinese string, each char 3 bytes UTF-8 = 12 bytes.
     // A naive slice at 7 bytes would split the 3rd char.
-    const src = '中文测试';
+    const src = '';
     const target = path.join(h.workspace, 'cjk.txt');
     await fsp.writeFile(target, src, 'utf-8');
     const r = await h.fs.resolve('cjk.txt', 'read');
     const out = await h.fs.readText(r, { maxBytes: 7 });
     expect(out.meta.truncated).toBe(true);
     // Result must be a valid prefix (no U+FFFD); 7 bytes / 3 bytes
-    // per char → 2 complete chars.
-    expect(out.content).toBe('中文');
-    expect(out.content).not.toMatch(/�/);
+    // per char -> 2 complete chars.
+    expect(out.content).toBe('');
+    expect(out.content).not.toMatch(//);
   });
 
   it('glob rejects opts.cwd that lies outside boundWorkspace', async () => {
@@ -713,7 +713,7 @@ describe('WorkspaceFileSystem - TOCTOU + UTF-8 + cwd hardening', () => {
 
   it('glob rejects opts.cwd that is a symlink resolving outside the workspace', async () => {
     // The textual `path.resolve` + `isWithinRoot` check admits
-    // `<ws>/link` even when `<ws>/link → /scratch` is a symlink
+    // `<ws>/link` even when `<ws>/link -> /scratch` is a symlink
     // to outside. `realpath` on cwd follows the chain so the
     // containment check sees the actual walk root and rejects.
     const link = path.join(h.workspace, 'link-to-scratch');
@@ -726,7 +726,7 @@ describe('WorkspaceFileSystem - TOCTOU + UTF-8 + cwd hardening', () => {
   });
 
   it('writeText rejects when path was swapped to a symlink between resolve and write', async () => {
-    // resolve a path → swap target with a symlink to outside →
+    // resolve a path -> swap target with a symlink to outside ->
     // writeText should reject with `symlink_escape` rather than
     // letting `atomicWriteFile`'s symlink-following code write
     // outside the workspace.
@@ -748,7 +748,7 @@ describe('WorkspaceFileSystem - TOCTOU + UTF-8 + cwd hardening', () => {
     // inode check, an attacker could in theory swap to a symlink
     // before the writeTextFile call. The pre-write guard catches
     // that. We approximate: write a file, resolve, edit-pattern
-    // setup, then mid-operation we can't easily inject — instead
+    // setup, then mid-operation we can't easily inject -- instead
     // we test the boundary directly by setting up a symlink that
     // matches a pre-existing inode but points outside, similar
     // shape to the writeText test above.
@@ -828,7 +828,7 @@ describe('WorkspaceFileSystem - audit always emits on body errors', () => {
 
   it('wraps a raw ENOENT from edit() and emits fs.denied', async () => {
     // edit() reads via fsp.readFile; against a non-existent file the
-    // raw ENOENT used to escape uncategorized — the wrapper now
+    // raw ENOENT used to escape uncategorized -- the wrapper now
     // converts it to FsError(path_not_found) and records denial.
     const r = await h.fs.resolve('vanished.txt', 'write');
     const err = await h.fs.edit(r, 'a', 'b').catch((e: unknown) => e);
@@ -857,9 +857,9 @@ describe('WorkspaceFileSystem - audit always emits on body errors', () => {
     // Default (privacy) mode: `message` MUST be absent because the
     // underlying `FsError.message` embeds `${p}` absolute paths
     // that would otherwise leak workspace structure to audit
-    // consumers — even when operators explicitly disabled
+    // consumers -- even when operators explicitly disabled
     // raw-path logging via not-setting `QWEN_AUDIT_RAW_PATHS`.
-    // See `audit.ts:recordDenied` — message gates on
+    // See `audit.ts:recordDenied` -- message gates on
     // `includeRawPaths`.
     const err = (await h.fs
       .resolve('../escape', 'read')
@@ -938,7 +938,7 @@ describe('WorkspaceFileSystem - glob escape audit', () => {
     expect(access).toBeDefined();
     const data = access!.data as { pathHash: string; pattern?: string };
     expect(data.pattern).toBe('*.ts');
-    // Hash equals sha256(boundWorkspace) sliced to 16 hex chars —
+    // Hash equals sha256(boundWorkspace) sliced to 16 hex chars --
     // every glob audit row in this workspace shares the same
     // pathHash, and `pattern` is the per-call signal.
     const expectedHash = createHash('sha256')
@@ -964,7 +964,7 @@ describe('WorkspaceFileSystem - glob escape audit', () => {
 describe('WorkspaceFileSystem - glob audit privacy default', () => {
   // Default factory has `includeRawPaths: false`. The orchestrator
   // still passes the pattern, but the audit publisher must strip it
-  // — same gate as `relPath` / `message`. Locks the privacy regression
+  // -- same gate as `relPath` / `message`. Locks the privacy regression
   // surfaced by the round-1 review on PR #4269.
   let h: Harness;
   beforeEach(async () => {

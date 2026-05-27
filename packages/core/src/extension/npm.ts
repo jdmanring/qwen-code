@@ -36,9 +36,9 @@ interface NpmPackageMetadata {
 /**
  * Parse a scoped npm package source string into name and optional version.
  * Examples:
- *   "@ali/openclaw-tmcp-dingtalk" → { name: "@ali/openclaw-tmcp-dingtalk" }
- *   "@ali/openclaw-tmcp-dingtalk@1.2.0" → { name: "@ali/openclaw-tmcp-dingtalk", version: "1.2.0" }
- *   "@ali/openclaw-tmcp-dingtalk@latest" → { name: "@ali/openclaw-tmcp-dingtalk", version: "latest" }
+ *   "@ali/openclaw-tmcp-dingtalk" -> { name: "@ali/openclaw-tmcp-dingtalk" }
+ *   "@ali/openclaw-tmcp-dingtalk@1.2.0" -> { name: "@ali/openclaw-tmcp-dingtalk", version: "1.2.0" }
+ *   "@ali/openclaw-tmcp-dingtalk@latest" -> { name: "@ali/openclaw-tmcp-dingtalk", version: "latest" }
  */
 export function parseNpmPackageSource(source: string): {
   name: string;
@@ -354,7 +354,7 @@ export async function downloadFromNpmRegistry(
     cwd: destination,
   });
 
-  // npm tarballs contain a `package/` wrapper directory — flatten it
+  // npm tarballs contain a `package/` wrapper directory -- flatten it
   const packageDir = path.join(destination, 'package');
   if (fs.existsSync(packageDir)) {
     const entries = await fs.promises.readdir(packageDir);

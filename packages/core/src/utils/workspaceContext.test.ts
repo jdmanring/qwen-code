@@ -456,7 +456,7 @@ describe('WorkspaceContext removeDirectory', () => {
 
   it('should allow removing an additional directory passed at construction', () => {
     const ctx = new WorkspaceContext(cwd, [addedDir]);
-    // additionalDirectories are NOT initial — they can be removed
+    // additionalDirectories are NOT initial -- they can be removed
     const result = ctx.removeDirectory(addedDir);
     expect(result).toBe(true);
     expect(ctx.getDirectories()).not.toContain(addedDir);

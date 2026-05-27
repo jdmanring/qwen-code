@@ -5,12 +5,12 @@
  */
 
 /**
- * @fileoverview useArenaInProcess — bridges ArenaManager in-process events
+ * @fileoverview useArenaInProcess -- bridges ArenaManager in-process events
  * to AgentViewContext agent registration.
  *
  * Subscribes to `config.onArenaManagerChange()` to react immediately when
  * the arena manager is set or cleared. Event listeners are attached to the
- * manager's emitter as soon as it appears — the backend is resolved lazily
+ * manager's emitter as soon as it appears -- the backend is resolved lazily
  * inside the AGENT_START handler, which only fires after the backend is
  * initialized.
  */
@@ -41,7 +41,7 @@ const AGENT_COLORS = [
 /**
  * Bridge arena in-process events to agent tab registration/unregistration.
  *
- * Called by AgentViewProvider — accepts config and actions directly so the
+ * Called by AgentViewProvider -- accepts config and actions directly so the
  * hook has no dependency on AgentViewContext (avoiding a circular import).
  */
 export function useArenaInProcess(
@@ -67,7 +67,7 @@ export function useArenaInProcess(
     };
 
     /** Attach to an arena manager's event emitter. The backend is resolved
-     *  lazily — we only need it when registering agents, not at subscribe
+     *  lazily -- we only need it when registering agents, not at subscribe
      *  time. This avoids the race where setArenaManager fires before
      *  manager.start() initializes the backend. */
     const attachSession = (manager: ArenaManager) => {
@@ -135,7 +135,7 @@ export function useArenaInProcess(
 
       const onSessionComplete = (event: ArenaSessionCompleteEvent) => {
         // IDLE means agents finished but the session is still alive for
-        // follow-up interaction — keep the tab bar.
+        // follow-up interaction -- keep the tab bar.
         if (event.result.status === ArenaSessionStatus.IDLE) return;
         detachSession();
       };

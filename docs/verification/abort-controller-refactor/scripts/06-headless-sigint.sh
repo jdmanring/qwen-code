@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Scenario 06 — headless --prompt + SIGINT. Verifies the agent shuts down
+# Scenario 06 -- headless --prompt + SIGINT. Verifies the agent shuts down
 # cleanly when an external signal aborts the in-flight stream.
 set -uo pipefail
 WT="${WT:-$(git rev-parse --show-toplevel)}"

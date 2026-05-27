@@ -79,7 +79,7 @@ describe('GitWorktreeService.validateUserWorktreeSlug', () => {
       GitWorktreeService.validateUserWorktreeSlug('agent-12345678'), // 8 hex (too long)
     ).toMatch(/reserved/i);
     // Exact `agent-<7hex>` is the shape `generateAgentWorktreeSlug`
-    // produces — it must validate so AgentTool isolation can create
+    // produces -- it must validate so AgentTool isolation can create
     // its own slugs through the same code path.
     expect(
       GitWorktreeService.validateUserWorktreeSlug('agent-aabbccd'),
@@ -264,7 +264,7 @@ describe('GitWorktreeService.getUserWorktreesDir / getUserWorktreePath', () => {
     const root = process.cwd();
     const service = new GitWorktreeService(root);
     // Build expected paths via path.join so the separator matches the
-    // platform — the implementation uses path.join, so on Windows the
+    // platform -- the implementation uses path.join, so on Windows the
     // separator is `\`, not `/`.
     expect(service.getUserWorktreesDir()).toBe(
       path.join(root, '.qwen', 'worktrees'),
@@ -295,7 +295,7 @@ describe('EnterWorktreeTool metadata', () => {
 
   it('accepts an empty-string name (treated as auto-generate)', () => {
     // Some models pass `{ name: '' }` when the schema marks `name` as
-    // optional. Validation should not reject this — `execute` falls back
+    // optional. Validation should not reject this -- `execute` falls back
     // to an auto-generated slug.
     const tool = new EnterWorktreeTool(makeMockConfig());
     expect(tool.validateToolParams({ name: '' })).toBeNull();

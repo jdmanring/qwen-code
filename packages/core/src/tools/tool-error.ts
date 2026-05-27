@@ -78,7 +78,7 @@ export enum ToolErrorType {
   // has read a file because `fs.stat` itself failed for a reason
   // other than ENOENT (typically EACCES, EBUSY, or an NFS hiccup).
   // Distinct from EDIT_REQUIRES_PRIOR_READ ("definitely not read")
-  // because the model may have legitimately read the file — we just
+  // because the model may have legitimately read the file -- we just
   // cannot verify. Operators monitoring on error codes can route this
   // separately.
   PRIOR_READ_VERIFICATION_FAILED = 'prior_read_verification_failed',

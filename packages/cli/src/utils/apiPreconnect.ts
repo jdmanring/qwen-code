@@ -93,7 +93,7 @@ function isDefaultBaseUrl(baseUrl: string): boolean {
  * Uses the already-resolved base URL from the model config, falling back
  * to default URLs by authType.
  *
- * Only preconnects to known default URLs — custom URLs may not accept HEAD
+ * Only preconnects to known default URLs -- custom URLs may not accept HEAD
  * requests or may require mTLS / private deployment configurations.
  */
 function getPreconnectTargetUrl(
@@ -159,7 +159,7 @@ export function preconnectApi(
     return;
   }
 
-  // Skip on non-Node runtimes (e.g. Bun) — they use independent connection
+  // Skip on non-Node runtimes (e.g. Bun) -- they use independent connection
   // pools, so warming undici's pool provides no benefit.
   if (detectRuntime() !== 'node') {
     debugLogger.debug('Skipping preconnect: unsupported runtime');
@@ -184,7 +184,7 @@ export function preconnectApi(
     return;
   }
 
-  // Mark as fired before async operation — prevents duplicate fires.
+  // Mark as fired before async operation -- prevents duplicate fires.
   // If the request fails, we don't retry (fire-and-forget semantics).
   preconnectFired = true;
   debugLogger.debug(`Preconnecting to: ${targetUrl}`);
@@ -196,7 +196,7 @@ export function preconnectApi(
 
     // Fire HEAD request to warm connection (fire-and-forget).
     // Use undici's own fetch (not Node's built-in fetch) so the dispatcher
-    // and fetch come from the same undici version — Node's bundled undici
+    // and fetch come from the same undici version -- Node's bundled undici
     // may differ in major version from the bundled one (e.g. v8 vs v6),
     // causing handler-interface mismatches like `invalid onError method`.
     undiciFetch(targetUrl, {

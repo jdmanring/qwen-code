@@ -61,15 +61,15 @@ function getRipgrepJsonPath(match: RipgrepJsonMatch): string | undefined {
 
 /**
  * Per-process cache for `.qwenignore` discovery. The same directories show
- * up across many Grep invocations in a typical session — without caching,
+ * up across many Grep invocations in a typical session -- without caching,
  * each invocation pays 2-3 sync syscalls per searchPath. Bounded so a
  * pathologically long session can't grow without limit.
  *
- * `dirIsDir`: searchPath → boolean (is the path itself a directory?)
- * `qwenIgnore`: dir → string | null (cached `.qwenignore` path or null)
+ * `dirIsDir`: searchPath -> boolean (is the path itself a directory?)
+ * `qwenIgnore`: dir -> string | null (cached `.qwenignore` path or null)
  *
  * **Known staleness window:** a `.qwenignore` created mid-session, or a
- * searchPath whose type flips (dir→file or vice versa), will not be
+ * searchPath whose type flips (dir->file or vice versa), will not be
  * picked up until the entry rotates out of the FIFO (256 entries). Users
  * rarely add ignore files mid-session; a process restart resets the cache.
  */
@@ -165,7 +165,7 @@ class GrepToolInvocation extends BaseToolInvocation<
       let searchDirDisplay: string;
 
       if (this.params.path) {
-        // User specified a path — search only that path
+        // User specified a path -- search only that path
         const searchDirAbs = resolveAndValidatePath(
           this.config,
           this.params.path,
@@ -174,7 +174,7 @@ class GrepToolInvocation extends BaseToolInvocation<
         searchPaths.push(searchDirAbs);
         searchDirDisplay = this.params.path;
       } else {
-        // No path specified — search all workspace directories
+        // No path specified -- search all workspace directories
         const workspaceDirs = this.config
           .getWorkspaceContext()
           .getDirectories();

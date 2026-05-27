@@ -72,7 +72,7 @@ describe('computeApiTruncationIndex', () => {
         userContent('prompt 3'),
         modelContent('response 3'),
       ];
-      // Rewind to turn 1 → keep 0 entries before it
+      // Rewind to turn 1 -> keep 0 entries before it
       expect(computeApiTruncationIndex(ui, 1, api)).toBe(0);
     });
 
@@ -89,7 +89,7 @@ describe('computeApiTruncationIndex', () => {
         userContent('prompt 3'),
         modelContent('response 3'),
       ];
-      // Rewind to turn 3 → keep entries before the second user Content
+      // Rewind to turn 3 -> keep entries before the second user Content
       expect(computeApiTruncationIndex(ui, 3, api)).toBe(2);
     });
 
@@ -122,7 +122,7 @@ describe('computeApiTruncationIndex', () => {
         userContent('prompt 1'),
         modelContent('response 1'),
       ];
-      // Rewind to turn 1 → keep startup pair (2 entries)
+      // Rewind to turn 1 -> keep startup pair (2 entries)
       expect(computeApiTruncationIndex(ui, 1, api)).toBe(2);
     });
 
@@ -157,13 +157,13 @@ describe('computeApiTruncationIndex', () => {
       const api: Content[] = [
         userContent('prompt 1'),
         modelContent('response with tool call'),
-        functionResponseContent(), // tool result — should be skipped
+        functionResponseContent(), // tool result -- should be skipped
         modelContent('response after tool'),
         userContent('prompt 5'),
         modelContent('response 5'),
       ];
-      // Rewind to turn 5: 1 user turn before it → find the 2nd user text
-      // API walk: idx 0 = user text (count=1), idx 4 = user text (count=2 > 1) → return 4
+      // Rewind to turn 5: 1 user turn before it -> find the 2nd user text
+      // API walk: idx 0 = user text (count=1), idx 4 = user text (count=2 > 1) -> return 4
       expect(computeApiTruncationIndex(ui, 5, api)).toBe(4);
     });
   });
@@ -184,7 +184,7 @@ describe('computeApiTruncationIndex', () => {
         userContent('prompt 5'),
         modelContent('response 5'),
       ];
-      // Rewind to turn 5 → 2 user turns before it, but API only has 1 user text
+      // Rewind to turn 5 -> 2 user turns before it, but API only has 1 user text
       expect(computeApiTruncationIndex(ui, 5, api)).toBe(-1);
     });
   });
@@ -194,7 +194,7 @@ describe('computeApiTruncationIndex', () => {
       const ui: HistoryItem[] = [
         userItem(1, 'hello'),
         geminiItem(2),
-        userItem(3, '/help'), // slash command — should be skipped
+        userItem(3, '/help'), // slash command -- should be skipped
         userItem(5, 'world'),
         geminiItem(6),
       ];
@@ -213,7 +213,7 @@ describe('computeApiTruncationIndex', () => {
       const ui: HistoryItem[] = [
         userItem(1, 'hello'),
         geminiItem(2),
-        userItem(3, '/api/apiFunction/接口的实现'),
+        userItem(3, '/api/apiFunction/'),
         geminiItem(4),
         userItem(5, 'world'),
         geminiItem(6),
@@ -221,7 +221,7 @@ describe('computeApiTruncationIndex', () => {
       const api: Content[] = [
         userContent('hello'),
         modelContent('response 1'),
-        userContent('/api/apiFunction/接口的实现'),
+        userContent('/api/apiFunction/'),
         modelContent('response 2'),
         userContent('world'),
         modelContent('response 3'),
@@ -255,10 +255,10 @@ describe('isRealUserTurn', () => {
   });
 
   it('returns true for path-like slash prompts', () => {
-    expect(isRealUserTurn(userItem(1, '/api/apiFunction/接口的实现'))).toBe(
+    expect(isRealUserTurn(userItem(1, '/api/apiFunction/'))).toBe(
       true,
     );
-    expect(isRealUserTurn(userItem(1, '/Users/name/project 帮我安装'))).toBe(
+    expect(isRealUserTurn(userItem(1, '/Users/name/project '))).toBe(
       true,
     );
   });

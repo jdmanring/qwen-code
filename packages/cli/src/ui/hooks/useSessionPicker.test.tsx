@@ -75,7 +75,7 @@ describe('useSessionPicker invariants', () => {
   it('throws when enableMultiSelect is on without onConfirmMulti', () => {
     // Without onConfirmMulti the Enter handler skips the multi-select
     // branch and silently falls through to single-select on the cursor
-    // row — Space still toggles checkboxes and the footer reads
+    // row -- Space still toggles checkboxes and the footer reads
     // "N selected", so the user thinks N items will be deleted but only
     // one is. Refuse the misconfiguration loudly.
     const renderFn = () =>
@@ -233,7 +233,7 @@ describe('useSessionPicker multi-select state', () => {
   it('Enter commits checked ids even when hidden by the branch filter', () => {
     // Filter is navigation, not a selection gate. If the user checks s2
     // (on branch 'feature') and then turns on Ctrl+B branch filter
-    // (current branch 'main'), Enter must still commit s2 — not silently
+    // (current branch 'main'), Enter must still commit s2 -- not silently
     // drop it because it's no longer visible, and not fall through to
     // single-select on the cursor (which would delete s1, the *wrong*
     // session and the data-loss regression the round-2 fix sealed).
@@ -263,7 +263,7 @@ describe('useSessionPicker multi-select state', () => {
     pressKey({ name: 'space', sequence: ' ' });
     expect(result.current.checkedIds.has('s2')).toBe(true);
 
-    // Toggle branch filter — s2 ('feature') drops out of view, s1 stays.
+    // Toggle branch filter -- s2 ('feature') drops out of view, s1 stays.
     pressKey({ name: 'b', sequence: '\x02', ctrl: true });
     expect(result.current.filterByBranch).toBe(true);
     expect(result.current.filteredSessions.map((s) => s.sessionId)).toEqual([

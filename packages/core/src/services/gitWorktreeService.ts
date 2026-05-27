@@ -64,7 +64,7 @@ export async function writeWorktreeSessionMarker(
     try {
       existing = await fs.readFile(excludePath, 'utf8');
     } catch {
-      // File missing — fall through to fresh write.
+      // File missing -- fall through to fresh write.
     }
     const rule = WORKTREE_SESSION_FILE;
     if (!existing.split(/\r?\n/).includes(rule)) {
@@ -73,7 +73,7 @@ export async function writeWorktreeSessionMarker(
     }
   } catch {
     // Best-effort: if we can't write the exclude rule (read-only fs,
-    // unusual worktree layout), the marker is still functional —
+    // unusual worktree layout), the marker is still functional --
     // `git add -A` would just stage it. The ownership guard remains
     // intact either way.
   }
@@ -81,7 +81,7 @@ export async function writeWorktreeSessionMarker(
 
 /**
  * Reads the owning session id stored at worktree provisioning time.
- * Returns `null` when the marker is missing or unreadable — callers
+ * Returns `null` when the marker is missing or unreadable -- callers
  * decide whether to treat that as "owner unknown, refuse" or "owner
  * unknown, allow with explicit override".
  */
@@ -94,7 +94,7 @@ export async function readWorktreeSessionMarker(
     const trimmed = raw.trim();
     return trimmed.length > 0 ? trimmed : null;
   } catch (error) {
-    // Distinguish "marker missing" (legitimate — worktree predates the
+    // Distinguish "marker missing" (legitimate -- worktree predates the
     // session-ownership guard) from "marker unreadable" (disk error,
     // permission, corrupt NFS). Both still return `null`, but the
     // unreadable case logs so an operator chasing a "wrong session
@@ -112,25 +112,25 @@ export async function readWorktreeSessionMarker(
  * Commit message used for the baseline snapshot in worktrees.
  * After overlaying the user's dirty state (tracked changes + untracked files),
  * a commit with this message is created so that later diffs only capture the
- * agent's changes — not the pre-existing local edits.
+ * agent's changes -- not the pre-existing local edits.
  */
 export const BASELINE_COMMIT_MESSAGE = 'baseline (dirty state overlay)';
 
 /**
  * Default directory and branch-prefix name used for worktrees.
  * Changing this value affects the on-disk layout (`~/.qwen/<WORKTREES_DIR>/`)
- * **and** the default git branch prefix (`<WORKTREES_DIR>/<sessionId>/…`).
+ * **and** the default git branch prefix (`<WORKTREES_DIR>/<sessionId>/...`).
  */
 export const WORKTREES_DIR = 'worktrees';
 
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 // Ephemeral agent-worktree slug format. Shared between the producer
 // (`AgentTool isolation: 'worktree'`), the consumer
 // (`cleanupStaleAgentWorktrees`) and the validator
 // (`validateUserWorktreeSlug` reserves the prefix). Changing any of
 // these constants must be done in one place so a regex / generator
 // mismatch can never silently leak or destroy work.
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 
 /** Slug prefix used for worktrees created by `AgentTool isolation:'worktree'`. */
 export const AGENT_WORKTREE_PREFIX = 'agent';
@@ -281,7 +281,7 @@ export class GitWorktreeService {
    * Resolves the absolute path of the enclosing git repository's top
    * directory. Used by callers that need to anchor general-purpose
    * worktrees at the *repo* root rather than the cwd they were invoked
-   * from — otherwise running `qwen` from a monorepo subdirectory would
+   * from -- otherwise running `qwen` from a monorepo subdirectory would
    * scatter `.qwen/worktrees/` under each subdirectory instead of
    * gathering them under the repo root.
    *
@@ -295,7 +295,7 @@ export class GitWorktreeService {
       return top.length > 0 ? top : null;
     } catch (error) {
       // Caller falls back to its cwd via `?? cwd`. Log so a corrupt
-      // repo / permission failure leaves a trail — otherwise the
+      // repo / permission failure leaves a trail -- otherwise the
       // worktree creator and startup sweep can disagree silently about
       // where worktrees live, and the sweep would never find them.
       debugLogger.warn(
@@ -315,9 +315,9 @@ export class GitWorktreeService {
         return true;
       }
     } catch {
-      // IS_REPO_ROOT check failed — fall through to the general check
+      // IS_REPO_ROOT check failed -- fall through to the general check
     }
-    // Not the root (or root check threw) — check if we're inside a git repo
+    // Not the root (or root check threw) -- check if we're inside a git repo
     try {
       return await this.git.checkIsRepo();
     } catch {
@@ -517,7 +517,7 @@ export class GitWorktreeService {
     try {
       dirtyStateSnapshot = (await this.git.stash(['create'])).trim();
     } catch {
-      // Ignore — proceed without dirty state if stash create fails
+      // Ignore -- proceed without dirty state if stash create fails
     }
 
     // Discover untracked files so they can be copied into each worktree.
@@ -978,12 +978,12 @@ export class GitWorktreeService {
     }
   }
 
-  // ──────────────────────────────────────────────────────────────────────
+  // ----------------------------------------------------------------------
   // User-facing worktree APIs (used by EnterWorktree / ExitWorktree tools
   // and AgentTool `isolation: 'worktree'`). These create worktrees under
   // `<projectRoot>/.qwen/worktrees/<slug>` rather than under the
   // session-scoped Arena baseDir.
-  // ──────────────────────────────────────────────────────────────────────
+  // ----------------------------------------------------------------------
 
   /**
    * Returns the directory holding all general-purpose worktrees for this
@@ -1004,12 +1004,12 @@ export class GitWorktreeService {
    * Generates an auto-slug `{adj}-{noun}-{6hex}` for an unnamed worktree.
    *
    * Uses `randomInt` for the word-list indices (uniform by construction
-   * via rejection sampling — `randomBytes[i] % len` would be biased
+   * via rejection sampling -- `randomBytes[i] % len` would be biased
    * whenever `len` doesn't divide `2^8`, and CodeQL's
    * `js/biased-cryptographic-random` rule flags it even when it
    * happens to be exact). Uses `randomBytes` for the suffix because
-   * hex encoding of raw bytes is unbiased. ~16M combinations × 8 adj
-   * × 8 noun ≈ 1B distinct slugs.
+   * hex encoding of raw bytes is unbiased. ~16M combinations * 8 adj
+   * * 8 noun  1B distinct slugs.
    */
   static generateAutoSlug(): string {
     const ADJECTIVES = [
@@ -1033,7 +1033,7 @@ export class GitWorktreeService {
    * Validates a worktree slug. Returns null on success, or an error message.
    *
    * Rules (mirrors claude-code's `validateWorktreeSlug`):
-   * - Non-empty, ≤ 64 chars
+   * - Non-empty, <= 64 chars
    * - Only `[a-zA-Z0-9._-]` characters; no path separators
    * - No `..` or leading/trailing dots (would resolve outside the worktrees dir)
    * - Must not start with `agent-`: that prefix is reserved for the
@@ -1058,7 +1058,7 @@ export class GitWorktreeService {
     }
     if (slug.startsWith(`${AGENT_WORKTREE_PREFIX}-`)) {
       // The exact `agent-<7hex>` slugs that `generateAgentWorktreeSlug`
-      // produces ARE allowed — those are the legitimate ephemeral
+      // produces ARE allowed -- those are the legitimate ephemeral
       // shape that the cleanup sweep is built around. Only reject
       // user-chosen names with the same prefix that don't match the
       // canonical pattern (e.g. `agent-feature`, `agent-1234567890`):
@@ -1084,7 +1084,7 @@ export class GitWorktreeService {
    * exists (e.g., from a manual `git checkout -b worktree-foo` or a
    * teammate's push), the call fails with a clear error rather than
    * silently resetting the branch. The previous `-B` form would have
-   * dropped any commits unique to that branch — see review #4073.
+   * dropped any commits unique to that branch -- see review #4073.
    */
   async createUserWorktree(
     slug: string,
@@ -1111,7 +1111,7 @@ export class GitWorktreeService {
 
       // Keep the worktrees directory and its contents out of the parent
       // repo's `git status` and any subsequent glob/grep that walks from
-      // the parent root. Only writes when the file is missing — never
+      // the parent root. Only writes when the file is missing -- never
       // touches an existing user-managed `.qwen/.gitignore`.
       await this.ensureWorktreesGitignored();
 
@@ -1119,7 +1119,7 @@ export class GitWorktreeService {
       const branchName = worktreeBranchForSlug(slug);
 
       // Refuse to clobber a pre-existing branch with the same name. Use
-      // `git show-ref --verify --quiet refs/heads/<branch>` (exit 0 →
+      // `git show-ref --verify --quiet refs/heads/<branch>` (exit 0 ->
       // branch exists). The previous `-B` form would have force-reset
       // such a branch and silently dropped unmerged commits.
       const branchExists = await this.localBranchExists(branchName);
@@ -1175,7 +1175,7 @@ export class GitWorktreeService {
    * configures `core.hooksPath=.husky` in the main repo).
    *
    * Skips the `git config` write subprocess when the value already
-   * matches the desired one — common when this method runs against a
+   * matches the desired one -- common when this method runs against a
    * worktree that already inherits the same `core.hooksPath` from a
    * prior creation cycle. The probe read itself is still a subprocess
    * (claude-code's `parseGitConfigValue` reads the config file
@@ -1198,7 +1198,7 @@ export class GitWorktreeService {
     }
 
     // Fall back to the canonical hooks dir. Construct `<sourceRepoPath>/.git/hooks`
-    // assumes `.git` is a directory — but when Qwen itself is launched
+    // assumes `.git` is a directory -- but when Qwen itself is launched
     // from a linked worktree, `.git` is a FILE pointing at the real
     // gitdir, and the constructed path ENOTDIRs. Use `git rev-parse
     // --git-common-dir` to get the canonical hooks parent regardless
@@ -1228,19 +1228,19 @@ export class GitWorktreeService {
     let existing = '';
     try {
       // Saves the write subprocess when value already matches. The probe
-      // read is also a subprocess — claude-code skips even that via
+      // read is also a subprocess -- claude-code skips even that via
       // parseGitConfigValue, but the read runs once per worktree
       // creation so the extra ~14ms isn't worth the file-parser tax.
       existing = (
         await worktreeGit.raw(['config', '--local', 'core.hooksPath'])
       ).trim();
     } catch {
-      // Key not set — empty string means "proceed with the write".
+      // Key not set -- empty string means "proceed with the write".
     }
     // Only write when the key is unset. A non-empty existing value is
     // either inherited (system / global / local config from the user
     // or from a previous Qwen run) or an explicit user policy override
-    // — in both cases overwriting silently replaces the user's choice.
+    // -- in both cases overwriting silently replaces the user's choice.
     // (PR #4174 review #3259975242.)
     if (existing === '') {
       // simple-git 3.36+ blocks core.hooksPath writes via its unsafe-operations
@@ -1260,7 +1260,7 @@ export class GitWorktreeService {
    * Returns true if a local branch with the given name exists.
    *
    * Uses `for-each-ref` because `simple-git.raw` swallows the non-zero
-   * exit of `show-ref --quiet` and always resolves with empty stdout —
+   * exit of `show-ref --quiet` and always resolves with empty stdout --
    * so the previous `show-ref` form would always return `true` and
    * permanently block worktree creation. `for-each-ref` instead prints
    * the ref name when it exists and prints nothing when it does not,
@@ -1301,7 +1301,7 @@ export class GitWorktreeService {
       const qwenDir = path.join(this.sourceRepoPath, '.qwen');
       await fs.mkdir(qwenDir, { recursive: true });
       const gitignorePath = path.join(qwenDir, '.gitignore');
-      // `flag: 'wx'` is "open for write, fail if exists" — one atomic
+      // `flag: 'wx'` is "open for write, fail if exists" -- one atomic
       // syscall that handles the "preserve user-curated file" case
       // without the `fs.access` + `fs.writeFile` TOCTOU race two
       // concurrent agent invocations would otherwise hit.
@@ -1333,7 +1333,7 @@ export class GitWorktreeService {
    * have commits not merged into HEAD), so a worktree whose tree was
    * left "clean" because the agent committed its work doesn't lose
    * those commits when the cleanup helper sweeps it. Set
-   * `forceDeleteBranch: true` to bypass — callers must have already
+   * `forceDeleteBranch: true` to bypass -- callers must have already
    * confirmed there is nothing of value on the branch.
    */
   async removeUserWorktree(
@@ -1358,7 +1358,7 @@ export class GitWorktreeService {
 
     // Try a safe (non-force) delete first. `git branch -d` refuses to
     // remove branches whose tip is not reachable from HEAD or any
-    // upstream — preserving any commits the subagent made before
+    // upstream -- preserving any commits the subagent made before
     // ending with a clean working tree.
     try {
       await this.git.branch(['-d', branchName]);
@@ -1396,7 +1396,7 @@ export class GitWorktreeService {
 
   /**
    * Reports whether the tip of a user worktree's branch is reachable
-   * only from itself — i.e. the branch carries commits that no other
+   * only from itself -- i.e. the branch carries commits that no other
    * local branch or remote ref points at, so dropping the branch would
    * silently destroy them. Used by callers that want to decide whether
    * removing the worktree would lose work the subagent committed but
@@ -1475,7 +1475,7 @@ export class GitWorktreeService {
       const wtGit = simpleGit(worktreePath);
       const status = await wtGit.status();
       // `conflicted` is mutually exclusive with the other arrays in
-      // simple-git's status — a worktree mid-merge with no other
+      // simple-git's status -- a worktree mid-merge with no other
       // edits would otherwise read as `{tracked: 0, untracked: 0}`
       // and slip past the dirty-state guard in `exit_worktree`,
       // discarding the merge resolution. Treat as tracked changes.

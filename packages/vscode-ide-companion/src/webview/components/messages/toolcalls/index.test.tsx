@@ -64,7 +64,7 @@ vi.mock('@qwen-code/webui', async () => {
   };
 
   // Wrap getToolCallComponent to return the label-mock instead of the real
-  // component — the routing logic is real, only the rendering is mocked.
+  // component -- the routing logic is real, only the rendering is mocked.
   const getToolCallComponent = (
     toolCall: Parameters<typeof realGetToolCallComponent>[0],
   ) => {

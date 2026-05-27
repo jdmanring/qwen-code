@@ -14,7 +14,7 @@
  * Lift origin (#4175 PR 22b/2): the inline `buildDaemonPreflightCells`
  * function moved here from `httpAcpBridge.ts`; `buildEnvStatusFromProcess`
  * stays in `envSnapshot.ts` and is wrapped here. Mode A consumers can
- * omit this provider entirely — the bridge falls back to idle placeholders.
+ * omit this provider entirely -- the bridge falls back to idle placeholders.
  */
 
 import { promises as fs } from 'node:fs';
@@ -44,7 +44,7 @@ export function createDaemonStatusProvider(): DaemonStatusProvider {
       boundWorkspace: string,
       acpChannelLive: boolean,
     ): Promise<ServeWorkspaceEnvStatus> {
-      // `buildEnvStatusFromProcess` is synchronous (no I/O) — wrap
+      // `buildEnvStatusFromProcess` is synchronous (no I/O) -- wrap
       // in a resolved Promise to match the async `DaemonStatusProvider`
       // contract. Future async-needing implementations (e.g. reading
       // a config file) get the seam without changing the bridge.
@@ -81,7 +81,7 @@ async function buildDaemonPreflightCells(
   // so that synchronous throws from any builder become rejected promises
   // instead of escaping out of `Promise.all`'s array construction. A throw
   // there would propagate up to the route handler and turn the whole
-  // `/workspace/preflight` envelope into a 500 — directly contradicting the
+  // `/workspace/preflight` envelope into a 500 -- directly contradicting the
   // design promise that "daemon cells always render even when ACP is sick"
   // (see the route handler's catch ladder).
   //
@@ -197,7 +197,7 @@ async function buildDaemonPreflightCells(
           // `true`, so `canUseRipgrep(true)` reports the *bundled* binary
           // when no system `rg` is installed. Passing `false` here would
           // tell users "ripgrep missing" while the runtime can still use
-          // the bundled one — a misleading warning.
+          // the bundled one -- a misleading warning.
           const ok = await canUseRipgrep(true);
           return ok
             ? { status: 'ok' as const }

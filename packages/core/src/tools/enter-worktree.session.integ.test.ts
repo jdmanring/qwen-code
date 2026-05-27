@@ -5,7 +5,7 @@
  */
 
 /**
- * Integration tests for `EnterWorktreeTool.execute()` — specifically the
+ * Integration tests for `EnterWorktreeTool.execute()` -- specifically the
  * WorktreeSession sidecar persistence introduced in Phase C.
  */
 
@@ -21,7 +21,7 @@ import type { Config } from '../config/config.js';
 
 // Real git invocations + user-global hooks can take 10-20s on slow
 // runners; bump per-test and per-hook timeouts. (Phase C #4174.)
-describe('EnterWorktreeTool — WorktreeSession sidecar', () => {
+describe('EnterWorktreeTool -- WorktreeSession sidecar', () => {
   vi.setConfig({ testTimeout: 30000, hookTimeout: 30000 });
 
   let repoRoot: string;
@@ -29,7 +29,7 @@ describe('EnterWorktreeTool — WorktreeSession sidecar', () => {
   let sessionId: string;
 
   beforeEach(async () => {
-    // Resolve via realpath so macOS `/var` → `/private/var` symlink
+    // Resolve via realpath so macOS `/var` -> `/private/var` symlink
     // matches what `git rev-parse --show-toplevel` returns.
     const raw = await fs.mkdtemp(path.join(os.tmpdir(), 'qwen-enter-sess-'));
     repoRoot = await fs.realpath(raw);
@@ -88,7 +88,7 @@ describe('EnterWorktreeTool — WorktreeSession sidecar', () => {
     const tool = new EnterWorktreeTool(makeConfig());
     await tool.build({ name: 'first' }).execute(new AbortController().signal);
     // Note: in practice the model would have to exit the first worktree
-    // before entering a second; here we just verify the write semantics —
+    // before entering a second; here we just verify the write semantics --
     // a fresh `enter_worktree` overwrites any stale sidecar.
     //
     // (The nested-worktree guard in execute() rejects this when cwd is

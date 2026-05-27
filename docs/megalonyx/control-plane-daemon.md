@@ -14,11 +14,11 @@ Package name: `control-plane-daemon` (installed as `control_plane_daemon`)
 
 When a task arrives, the daemon runs it through a pipeline:
 
-1. **Intent classification** — categorizes the task into one of six types (see below)
-2. **Task decomposition** — breaks it into a sequence of atomic jobs with dependency ordering
-3. **Profile selection** — picks an execution profile from `.qwen/agents/` that matches the task context
-4. **Model routing** — assigns a specific model to each job based on its profile
-5. **Tool execution** — calls the model with the resolved prompt and context; handles retries
+1. **Intent classification** -- categorizes the task into one of six types (see below)
+2. **Task decomposition** -- breaks it into a sequence of atomic jobs with dependency ordering
+3. **Profile selection** -- picks an execution profile from `.qwen/agents/` that matches the task context
+4. **Model routing** -- assigns a specific model to each job based on its profile
+5. **Tool execution** -- calls the model with the resolved prompt and context; handles retries
 
 ---
 
@@ -30,7 +30,7 @@ Classifies a raw task prompt into one of six intent types using an LLM call:
 
 | Intent | What it means |
 |---|---|
-| Exploratory | User wants to understand something — read-only, low risk |
+| Exploratory | User wants to understand something -- read-only, low risk |
 | Surgical Fix | Narrow, targeted change to a specific known location |
 | Feature Synthesis | New capability that spans multiple files or systems |
 | Structural Evolution | Refactoring, architecture changes, large-scale reorganization |
@@ -50,13 +50,13 @@ Uses an LLM call to do the decomposition. Reads available skill profiles from `.
 
 ### `job_state_manager.py`
 
-Tracks the lifecycle of every job: `pending` → `in_progress` → `completed` or `failed` or `retrying`.
+Tracks the lifecycle of every job: `pending` -> `in_progress` -> `completed` or `failed` or `retrying`.
 
-Maintains dependency awareness — a job only becomes eligible when all jobs it depends on are complete. Provides the next executable job when polled.
+Maintains dependency awareness -- a job only becomes eligible when all jobs it depends on are complete. Provides the next executable job when polled.
 
 ### `execution_context.py`
 
-A container for the ephemeral state of one job execution: file cache, config overrides, any data passed from a prior job. Uses the Prototype pattern so each job starts with a clean copy — state from one job cannot accidentally affect the next.
+A container for the ephemeral state of one job execution: file cache, config overrides, any data passed from a prior job. Uses the Prototype pattern so each job starts with a clean copy -- state from one job cannot accidentally affect the next.
 
 ### `execution_profile_selector.py`
 
@@ -96,7 +96,7 @@ Defines the core data schemas using **Pydantic** to prevent type erosion and ens
 ### `command_manager.py`
 
 Loads slash-command definitions from Markdown frontmatter files. Slash commands are shortcuts
-that expand to multi-step job sequences — `/deploy` might expand to lint + test + build + push.
+that expand to multi-step job sequences -- `/deploy` might expand to lint + test + build + push.
 
 ### `agent_generator.py`
 
@@ -110,15 +110,15 @@ the system prompt, skill list, and "when to use" examples.
 
 ```python
 ControlPlane.__init__()
-  → load settings.json
-  → IntentClassifier(settings)
-  → TaskDecomposer(settings, skill_dir=".qwen/agents/")
-  → JobStateManager()
-  → CommandManager(command_dir=".qwen/commands/")
-  → ExecutionProfileSelector(profile_dir=".qwen/agents/")
-  → VerificationEngine()
-  → PolicyEngine()
-  → ready
+  -> load settings.json
+  -> IntentClassifier(settings)
+  -> TaskDecomposer(settings, skill_dir=".qwen/agents/")
+  -> JobStateManager()
+  -> CommandManager(command_dir=".qwen/commands/")
+  -> ExecutionProfileSelector(profile_dir=".qwen/agents/")
+  -> VerificationEngine()
+  -> PolicyEngine()
+  -> ready
 ```
 
 ---

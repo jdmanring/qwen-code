@@ -1,8 +1,8 @@
-# 🛠️ The Skill System: Persona-Based Orchestration
+#  The Skill System: Persona-Based Orchestration
 
 This document describes the Skill System, a declarative orchestration layer that allows the Runtime Stack to dynamically switch between specialized agent behaviors based on the current task context.
 
-## 🧩 Skill Definition & Registration
+##  Skill Definition & Registration
 
 Skills are not hardcoded logic but are declarative configurations.
 
@@ -23,7 +23,7 @@ The `SkillOrchestrator` (`packages/core/src/skill_selector.py`) handles the life
 
 ---
 
-## 🚦 The Selection Logic (STRMAC Scoring)
+##  The Selection Logic (STRMAC Scoring)
 
 The system uses a weighted scoring function to determine which skill should be active. This prevents "Persona Drift" and ensures the right expert is used for the right task.
 
@@ -38,7 +38,7 @@ The system uses a weighted scoring function to determine which skill should be a
 
 ---
 
-## ⚖️ Skills vs. Tools: The Distinction
+##  Skills vs. Tools: The Distinction
 
 It is critical to distinguish between these two layers of the system:
 
@@ -52,7 +52,7 @@ It is critical to distinguish between these two layers of the system:
 
 ---
 
-## 🛠️ Skill Creation Workflow
+##  Skill Creation Workflow
 
 To add a new capability to the Runtime Stack:
 1. **Define the Trigger**: Identify the keywords or file types that should activate the skill.

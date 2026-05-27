@@ -1,8 +1,8 @@
 # Compact Mode Design: Competitive Analysis & Optimization
 
-> Ctrl+O compact/verbose mode toggle — competitive analysis with Claude Code, current implementation review, and optimization recommendations.
+> Ctrl+O compact/verbose mode toggle -- competitive analysis with Claude Code, current implementation review, and optimization recommendations.
 >
-> User documentation: [Settings — ui.compactMode](../../users/configuration/settings.md).
+> User documentation: [Settings -- ui.compactMode](../../users/configuration/settings.md).
 
 ## 1. Executive Summary
 
@@ -13,7 +13,7 @@ Qwen Code and Claude Code both provide a Ctrl+O shortcut for toggling between co
 | Default mode         | Compact (verbose=false)                     | Verbose (compactMode=false)                   |
 | Toggle semantics     | Temporary peek at details                   | Persistent preference switch                  |
 | Persistence          | Session-only, resets on restart             | Persisted to settings.json                    |
-| Scope                | Global screen switch (prompt ↔ transcript) | Per-component rendering toggle                |
+| Scope                | Global screen switch (prompt <-> transcript) | Per-component rendering toggle                |
 | Frozen snapshot      | None (no concept)                           | None (removed)                                |
 | Per-tool expand hint | Yes ("ctrl+o to expand")                    | Yes ("Press Ctrl+O to show full tool output") |
 
@@ -24,22 +24,22 @@ Qwen Code and Claude Code both provide a Ctrl+O shortcut for toggling between co
 Claude Code uses a **screen-based** approach rather than a component-level rendering toggle:
 
 ```
-┌──────────────────────────────────┐
-│         AppState (Zustand)       │
-│  verbose: boolean (default: false)│
-│  screen: 'prompt' | 'transcript' │
-└──────────┬───────────────────────┘
-           │
-     ┌─────┴──────┐
-     │  Ctrl+O    │  toggles screen mode
-     │  Handler    │  NOT a rendering flag
-     └─────┬──────┘
-           │
-     ┌─────▼──────────────┐
-     │    REPL.tsx         │
-     │  screen='prompt'  → compact view (default)
-     │  screen='transcript'→ detailed view
-     └────────────────────┘
++------------------------------------+--
+|         AppState (Zustand)       |
+|  verbose: boolean (default: false)|
+|  screen: 'prompt' | 'transcript' |
+\_------------------------------------
+           |
+     +-------------+--
+     |  Ctrl+O    |  toggles screen mode
+     |  Handler    |  NOT a rendering flag
+     \_--------------
+           |
+     +---------------------+--
+     |    REPL.tsx         |
+     |  screen='prompt'  -> compact view (default)
+     |  screen='transcript'-> detailed view
+     \_-----------------------
 ```
 
 ### 2.2 Key Source Files
@@ -56,7 +56,7 @@ Claude Code uses a **screen-based** approach rather than a component-level rende
 ### 2.3 Design Decisions
 
 1. **Compact is the default.** Users see a clean interface out of the box; detail is opt-in.
-2. **Session-scoped.** `verbose` resets to `false` on every new session — Claude Code assumes users generally prefer the compact view and only need details temporarily.
+2. **Session-scoped.** `verbose` resets to `false` on every new session -- Claude Code assumes users generally prefer the compact view and only need details temporarily.
 3. **Screen-level toggle.** Ctrl+O doesn't change how components render; it switches the entire display between a "prompt" screen (compact) and a "transcript" screen (detailed).
 4. **No frozen snapshot.** There is no snapshot freezing concept. When toggling, the display updates immediately with current state.
 5. **Permission dialogs are separate.** Tool approvals are rendered in a dedicated overlay layer that is never affected by the verbose/compact toggle.
@@ -65,19 +65,19 @@ Claude Code uses a **screen-based** approach rather than a component-level rende
 ### 2.4 User Flow
 
 ```
-Session start → compact mode (default)
-     │
-     ├─ Tool outputs are summarized in a single line
-     ├─ Large tool output shows "(ctrl+o to expand)" hint
-     │
-     ├─ User presses Ctrl+O
-     │     └─→ Screen switches to transcript (detailed view)
-     │         └─ User sees all tool output, thinking, etc.
-     │
-     ├─ User presses Ctrl+O again
-     │     └─→ Screen switches back to prompt (compact)
-     │
-     └─ Session ends → verbose resets to false
+Session start -> compact mode (default)
+     |
+     |--- Tool outputs are summarized in a single line
+     |--- Large tool output shows "(ctrl+o to expand)" hint
+     |
+     |--- User presses Ctrl+O
+     |     \_--> Screen switches to transcript (detailed view)
+     |         \_- User sees all tool output, thinking, etc.
+     |
+     |--- User presses Ctrl+O again
+     |     \_--> Screen switches back to prompt (compact)
+     |
+     \_- Session ends -> verbose resets to false
 ```
 
 ## 3. Qwen Code Implementation Analysis
@@ -87,31 +87,31 @@ Session start → compact mode (default)
 Qwen Code uses a **component-level rendering flag** that each UI component reads from context:
 
 ```
-┌─────────────────────────────────────┐
-│      CompactModeContext             │
-│  compactMode: boolean (default: false)│
-│  setCompactMode: (v) => void        │
-└──────────┬──────────────────────────┘
-           │
-     ┌─────┴──────┐
-     │  Ctrl+O    │  toggles compactMode
-     │  Handler    │  persists to settings
-     └─────┬──────┘
-           │
-     ┌─────▼──────────────────┐
-     │  Each component reads  │
-     │  compactMode and       │
-     │  decides how to render │
-     └────────────────────────┘
-           │
-     ┌─────▼──────────────────────────────┐
-     │  ToolGroupMessage                   │
-     │    showCompact = compactMode        │
-     │      && !hasConfirmingTool          │
-     │      && !hasErrorTool               │
-     │      && !isEmbeddedShellFocused     │
-     │      && !isUserInitiated            │
-     └────────────────────────────────────┘
++---------------------------------------+--
+|      CompactModeContext             |
+|  compactMode: boolean (default: false)|
+|  setCompactMode: (v) => void        |
+\_---------------------------------------
+           |
+     +-------------+--
+     |  Ctrl+O    |  toggles compactMode
+     |  Handler    |  persists to settings
+     \_--------------
+           |
+     +-------------------------+--
+     |  Each component reads  |
+     |  compactMode and       |
+     |  decides how to render |
+     \_---------------------------
+           |
+     +-------------------------------------+--
+     |  ToolGroupMessage                   |
+     |    showCompact = compactMode        |
+     |      && !hasConfirmingTool          |
+     |      && !hasErrorTool               |
+     |      && !isEmbeddedShellFocused     |
+     |      && !isUserInitiated            |
+     \_---------------------------------------
 ```
 
 ### 3.2 Key Source Files
@@ -135,28 +135,28 @@ Qwen Code uses a **component-level rendering flag** that each UI component reads
 2. **Persistent preference.** `compactMode` is saved to `settings.json` and survives across sessions.
 3. **Component-level rendering.** Each component reads `compactMode` from context and adjusts its own rendering.
 4. **Force-expand protection.** Four conditions override compact mode to ensure critical UI elements are always visible (confirmations, errors, shell, user-initiated).
-5. **No snapshot freezing.** The toggle always shows live output — no frozen snapshots.
+5. **No snapshot freezing.** The toggle always shows live output -- no frozen snapshots.
 6. **Settings dialog sync.** Toggling compact mode from Settings updates React state immediately via `setCompactMode`.
 7. **Non-intrusive discoverability.** Compact mode is introduced via the startup Tips rotation rather than a persistent footer indicator, avoiding UI clutter.
 
 ### 3.4 User Flow
 
 ```
-Session start → verbose mode (default)
-     │
-     ├─ All tool outputs, thinking, details visible
-     │
-     ├─ User presses Ctrl+O (or toggles in Settings)
-     │     └─→ compactMode = true, persisted
-     │         ├─ Tool groups show single-line summary
-     │         ├─ Thinking/thought content hidden
-     │         └─ Confirmations, errors, shell still expanded
-     │
-     ├─ User presses Ctrl+O again
-     │     └─→ compactMode = false, persisted
-     │         └─ All details visible again
-     │
-     └─ Next session → same mode as last session
+Session start -> verbose mode (default)
+     |
+     |--- All tool outputs, thinking, details visible
+     |
+     |--- User presses Ctrl+O (or toggles in Settings)
+     |     \_--> compactMode = true, persisted
+     |         |--- Tool groups show single-line summary
+     |         |--- Thinking/thought content hidden
+     |         \_- Confirmations, errors, shell still expanded
+     |
+     |--- User presses Ctrl+O again
+     |     \_--> compactMode = false, persisted
+     |         \_- All details visible again
+     |
+     \_- Next session -> same mode as last session
 ```
 
 ## 4. Key Differences Deep Dive
@@ -165,7 +165,7 @@ Session start → verbose mode (default)
 
 | Aspect               | Claude Code (compact default)         | Qwen Code (verbose default)                   |
 | -------------------- | ------------------------------------- | --------------------------------------------- |
-| First impression     | Clean, minimal — professional feel    | Information-rich — full transparency          |
+| First impression     | Clean, minimal -- professional feel    | Information-rich -- full transparency          |
 | Learning curve       | User must learn Ctrl+O to see details | User can immediately see everything           |
 | Target audience      | Experienced users who trust the tool  | Users who want to understand what's happening |
 | Information overload | Avoided by default                    | Possible for new users                        |
@@ -177,18 +177,18 @@ Session start → verbose mode (default)
 
 | Aspect           | Claude Code               | Qwen Code                  |
 | ---------------- | ------------------------- | -------------------------- |
-| Persisted?       | No — session-only         | Yes — to settings.json     |
+| Persisted?       | No -- session-only         | Yes -- to settings.json     |
 | Rationale        | Verbose is temporary peek | Mode is user preference    |
 | Restart behavior | Always starts compact     | Starts with last-used mode |
 
-**Analysis:** Claude Code treats detail viewing as a momentary need — you look, then go back. Qwen Code treats it as a stable preference — some users always want details, others always want compact. Both are valid; Qwen Code's approach is more flexible.
+**Analysis:** Claude Code treats detail viewing as a momentary need -- you look, then go back. Qwen Code treats it as a stable preference -- some users always want details, others always want compact. Both are valid; Qwen Code's approach is more flexible.
 
 ### 4.3 Confirmation Protection
 
 | Aspect                  | Claude Code                                 | Qwen Code                                            |
 | ----------------------- | ------------------------------------------- | ---------------------------------------------------- |
 | Mechanism               | Overlay/modal layer (structurally separate) | Force-expand conditions in `showCompact`             |
-| Coverage                | Complete — approvals can never be hidden    | Complete — 4 conditions cover all interactive states |
+| Coverage                | Complete -- approvals can never be hidden    | Complete -- 4 conditions cover all interactive states |
 | Compact confirmation UI | N/A (overlay is always full)                | Simplified 3-option RadioButtonSelect                |
 
 **Analysis:** Claude Code's architectural separation (overlay layer) is more robust. Qwen Code's force-expand approach is effective but requires each new interactive state to be explicitly added to the condition list.
@@ -197,16 +197,16 @@ Session start → verbose mode (default)
 
 | Aspect       | Claude Code                         | Qwen Code                                  |
 | ------------ | ----------------------------------- | ------------------------------------------ |
-| Toggle scope | Screen-level (prompt ↔ transcript) | Component-level (each component decides)   |
+| Toggle scope | Screen-level (prompt <-> transcript) | Component-level (each component decides)   |
 | Granularity  | All-or-nothing                      | Fine-grained per component                 |
-| Flexibility  | Low — global switch                 | High — components can override             |
+| Flexibility  | Low -- global switch                 | High -- components can override             |
 | Consistency  | Guaranteed                          | Depends on each component's implementation |
 
 **Analysis:** Qwen Code's component-level approach is more flexible (e.g., force-expand for specific conditions) but requires more discipline to maintain consistency. Claude Code's screen-level approach is simpler and guarantees consistent behavior.
 
 ## 5. Optimization Recommendations
 
-### 5.1 [P0] Keep Verbose as Default — No Change Needed
+### 5.1 [P0] Keep Verbose as Default -- No Change Needed
 
 Qwen Code's verbose default is the right choice for its current stage. Users who are new to the tool need transparency to build trust. As the product matures, consider making compact the default (like Claude Code).
 
@@ -221,9 +221,9 @@ Claude Code shows "(ctrl+o to expand)" on individual tools that produce large ou
 
 Some users may want compact mode as their default but occasionally need verbose for a specific session. Consider supporting both:
 
-- `settings.json` → persistent default (current behavior)
-- Ctrl+O during session → temporary override for current session only (Claude Code behavior)
-- On session restart → revert to settings.json value
+- `settings.json` -> persistent default (current behavior)
+- Ctrl+O during session -> temporary override for current session only (Claude Code behavior)
+- On session restart -> revert to settings.json value
 
 This gives users the best of both worlds. Implementation would require separating "settings default" from "session override" state.
 

@@ -32,7 +32,7 @@ const OVERALL_CLEANUP_TIMEOUT_MS = 5_000;
 
 /**
  * Awaits `promise`, but resolves to `undefined` if `ms` elapses first.
- * Rejection collapses to the same undefined resolution — caller treats
+ * Rejection collapses to the same undefined resolution -- caller treats
  * cleanup errors as best-effort. Timer is unrefed so it can't keep the
  * event loop alive on its own.
  */
@@ -54,9 +54,9 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | void> {
 }
 
 export interface RunExitCleanupOptions {
-  /** TEST ONLY — override per-cleanup-function timeout (default 2s). */
+  /** TEST ONLY -- override per-cleanup-function timeout (default 2s). */
   _testPerFnTimeoutMs?: number;
-  /** TEST ONLY — override overall wall-clock timeout (default 5s). */
+  /** TEST ONLY -- override overall wall-clock timeout (default 5s). */
   _testOverallTimeoutMs?: number;
 }
 
@@ -93,7 +93,7 @@ export async function runExitCleanup(
 
 /**
  * Test-only: clear the registered cleanup functions array. Module-private
- * state otherwise leaks across vitest cases — the previous test isolation
+ * state otherwise leaks across vitest cases -- the previous test isolation
  * via `global['cleanupFunctions']` was a no-op (the array isn't on global)
  * and only happened to work because `runExitCleanup` itself clears at the
  * end. Naming follows the `_reset*ForTest` convention from

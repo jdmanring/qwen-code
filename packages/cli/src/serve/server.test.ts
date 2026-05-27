@@ -130,7 +130,7 @@ const EXPECTED_STAGE1_FEATURES = [
   'workspace_tool_toggle',
   'workspace_init',
   'workspace_mcp_restart',
-  // Issue #4175 PR 21 — auth device-flow surface advertised unconditionally.
+  // Issue #4175 PR 21 -- auth device-flow surface advertised unconditionally.
   // Registry order on origin/main has PR 21 appended last, so the
   // baseline assertion below mirrors that even though PR 21 landed
   // before PR 17 chronologically.
@@ -707,7 +707,7 @@ function fakeBridge(opts: FakeBridgeOpts = {}): FakeBridge {
       return heartbeatStateImpl(sessionId);
     },
     publishWorkspaceEvent(_event) {
-      // Issue #4175 PR 16 — fakeBridge default is a no-op. Tests that
+      // Issue #4175 PR 16 -- fakeBridge default is a no-op. Tests that
       // assert on workspace fan-out override this through the dedicated
       // route-level test files (workspaceMemory.test.ts /
       // workspaceAgents.test.ts) where the real fan-out behavior is
@@ -773,10 +773,10 @@ describe('createServeApp', () => {
       );
     });
 
-    it('honors every entry in CONDITIONAL_SERVE_FEATURES (PR #4236 review #3254467192 — drift insurance)', () => {
+    it('honors every entry in CONDITIONAL_SERVE_FEATURES (PR #4236 review #3254467192 -- drift insurance)', () => {
       // Iterate the Map so any future conditional tag added here whose
       // predicate isn't honored by `getAdvertisedServeFeatures` fails
-      // the suite — the test is the adoption-of-record for the
+      // the suite -- the test is the adoption-of-record for the
       // "conditional features advertise via predicate" contract,
       // replacing the previous hand-maintained Set + branch shape that
       // could fail-CLOSED silently.
@@ -784,7 +784,7 @@ describe('createServeApp', () => {
       // For each entry: synthesize toggles that the predicate accepts
       // and toggles that it rejects. The predicate must be deterministic
       // and only read from `AdvertiseFeatureToggles` fields (no global
-      // state, no Date.now() etc.) — that's the contract any future
+      // state, no Date.now() etc.) -- that's the contract any future
       // entry must keep. We also assert the inverse: with toggles {} the
       // predicate must be false, otherwise the tag would fail the
       // "default-off" property baseline tags get for free.
@@ -807,7 +807,7 @@ describe('createServeApp', () => {
         // matching test rather than relying on the Map shape alone.
         throw new Error(
           `CONDITIONAL_SERVE_FEATURES added "${feature}" without an ` +
-            `assertion branch in this test — add one (synthesize toggles ` +
+            `assertion branch in this test -- add one (synthesize toggles ` +
             `the predicate accepts AND rejects) so drift insurance stays ` +
             `enforced.`,
         );
@@ -825,7 +825,7 @@ describe('createServeApp', () => {
 
     it('exposes `modes` metadata on mcp_guardrails (#4175 PR 14)', () => {
       // `modes` is currently registry-only documentation (no wire
-      // surface yet) — a client wanting to feature-detect `enforce`
+      // surface yet) -- a client wanting to feature-detect `enforce`
       // semantics reads `caps.features.includes('mcp_guardrails')`,
       // not a separate `featureModes` field. The descriptor still
       // carries `modes` so future PRs that DO expose it on the wire
@@ -837,7 +837,7 @@ describe('createServeApp', () => {
     });
 
     it('registers mcp_guardrail_events as a baseline tag (#4175 PR 14b)', () => {
-      // PR 14b's push events are unconditional once advertised — there's
+      // PR 14b's push events are unconditional once advertised -- there's
       // no operator toggle. So no `modes`, no entry in
       // `CONDITIONAL_SERVE_FEATURES`. SDK consumers feature-detect via
       // `caps.features.includes('mcp_guardrail_events')` before
@@ -885,7 +885,7 @@ describe('createServeApp', () => {
       expect(res.body.modelServices).toEqual([]);
     });
 
-    it('reports the bound workspace (#3803 §02)', async () => {
+    it('reports the bound workspace (#3803 02)', async () => {
       const app = createServeApp({ ...baseOpts, workspace: WS_BOUND });
       const res = await request(app)
         .get('/capabilities')
@@ -912,7 +912,7 @@ describe('createServeApp', () => {
     it('omits the `require_auth` feature tag by default (#4175 PR 15)', async () => {
       // Default loopback no-token daemon: existing clients see the
       // bit-for-bit pre-PR feature list. This is the backward-compat
-      // anchor — adding the tag unconditionally would make every
+      // anchor -- adding the tag unconditionally would make every
       // daemon look like it required auth.
       const app = createServeApp(baseOpts);
       const res = await request(app)
@@ -1285,7 +1285,7 @@ describe('createServeApp', () => {
     });
   });
 
-  describe('middleware order — auth runs before body parser', () => {
+  describe('middleware order -- auth runs before body parser', () => {
     it('rejects unauthorized POST without parsing the (possibly huge) body', async () => {
       // If auth ran AFTER body-parsing, an unauthenticated client could
       // force the daemon to JSON.parse a 10MB payload before the 401.
@@ -1304,7 +1304,7 @@ describe('createServeApp', () => {
         .set('content-type', 'application/json')
         .send(fakeBigBody);
       expect(res.status).toBe(401);
-      // Bridge must NOT have been touched — auth short-circuited.
+      // Bridge must NOT have been touched -- auth short-circuited.
       expect(bridge.calls).toHaveLength(0);
     });
   });
@@ -1343,7 +1343,7 @@ describe('createServeApp', () => {
   });
 
   describe('POST /session', () => {
-    it('200 when cwd is omitted (falls back to bound workspace, #3803 §02)', async () => {
+    it('200 when cwd is omitted (falls back to bound workspace, #3803 02)', async () => {
       // 1 daemon = 1 workspace: the daemon binds to
       // `opts.workspace ?? process.cwd()` at boot, so clients may
       // omit `cwd` and the route falls back to the bound path.
@@ -1376,13 +1376,13 @@ describe('createServeApp', () => {
       expect(bridge.calls).toHaveLength(0);
     });
 
-    it('400 when cwd is present but not a string (#3803 §02 — distinguishes omitted vs malformed)', async () => {
+    it('400 when cwd is present but not a string (#3803 02 -- distinguishes omitted vs malformed)', async () => {
       // Three non-string shapes a buggy client / orchestrator could
       // serialize for the `cwd` field: `null`, a number, an object.
       // Pre-fix the route treated all three the same as "omitted" and
       // fell back to `boundWorkspace`, silently masking client bugs.
-      // Now the route distinguishes "absent" (legitimate §02 fallback)
-      // from "present but malformed" (client-side bug → 400 + actionable
+      // Now the route distinguishes "absent" (legitimate 02 fallback)
+      // from "present but malformed" (client-side bug -> 400 + actionable
       // error message). Empty string still falls through to the
       // `path.isAbsolute` check (and 400s there with the
       // "absolute path when provided" message).
@@ -1400,7 +1400,7 @@ describe('createServeApp', () => {
           .send({ cwd });
         expect(res.status).toBe(400);
         expect(res.body.error).toMatch(/must be a string absolute path/);
-        // Bridge must NOT be touched — silent fallback regressions
+        // Bridge must NOT be touched -- silent fallback regressions
         // would otherwise let the malformed input hit `spawnOrAttach`.
         expect(bridge.calls).toHaveLength(0);
       }
@@ -1412,7 +1412,7 @@ describe('createServeApp', () => {
       // "must be an absolute path when provided" branch catches it.
       // Important: the `'cwd' in body` presence test means an empty
       // string is NOT treated as omitted (which would fall back to
-      // boundWorkspace) — empty-string is the strongest "client
+      // boundWorkspace) -- empty-string is the strongest "client
       // explicitly passed nothing useful" signal we have.
       const bridge = fakeBridge();
       const app = createServeApp(
@@ -1431,11 +1431,11 @@ describe('createServeApp', () => {
     it('400 when cwd exceeds MAX_WORKSPACE_PATH_LENGTH (memory amplification guard)', async () => {
       // Real filesystem paths fit well under PATH_MAX (4096 on Linux).
       // A multi-MB `cwd` is either a malformed client or a memory-
-      // amplification attempt — `WorkspaceMismatchError` interpolates
+      // amplification attempt -- `WorkspaceMismatchError` interpolates
       // `requested` into `.message` twice, `sendBridgeError` writes it
       // to stderr, and `res.json` echoes it again, so a ~10 MB body
       // (right under express.json's 10 MB cap) would amplify to
-      // ~60 MB/request × maxConnections. The route caps the input
+      // ~60 MB/request * maxConnections. The route caps the input
       // before any of those echoes.
       const bridge = fakeBridge();
       const app = createServeApp(
@@ -1445,7 +1445,7 @@ describe('createServeApp', () => {
       );
       // Build an absolute path of MAX+1 chars. `path.isAbsolute`
       // sees the leading `/` and the length cap fires before the
-      // isAbsolute branch — verifying both invariants in one go.
+      // isAbsolute branch -- verifying both invariants in one go.
       const longCwd = `/${'a'.repeat(4096)}`;
       const res = await request(app)
         .post('/session')
@@ -1453,12 +1453,12 @@ describe('createServeApp', () => {
         .send({ cwd: longCwd });
       expect(res.status).toBe(400);
       expect(res.body.error).toMatch(/exceeds the 4096-character limit/);
-      // Bridge must NOT be touched — silent fallback or pass-through
+      // Bridge must NOT be touched -- silent fallback or pass-through
       // would defeat the cap.
       expect(bridge.calls).toHaveLength(0);
     });
 
-    it('400 workspace_mismatch when bridge rejects cross-workspace cwd (#3803 §02)', async () => {
+    it('400 workspace_mismatch when bridge rejects cross-workspace cwd (#3803 02)', async () => {
       // Single-workspace mode: bridge throws WorkspaceMismatchError
       // when the route forwards a non-bound cwd. Route translates
       // to 400 with code `workspace_mismatch` + both paths in the
@@ -1562,7 +1562,7 @@ describe('createServeApp', () => {
       // Anything outside the enum (`'user'`, `null`, a number, an object)
       // must 4xx with a typed `code` so HTTP clients can branch on the
       // failure shape rather than parsing the message. Bridge must NOT
-      // be invoked — surfacing the invalid value as a clear 400 beats
+      // be invoked -- surfacing the invalid value as a clear 400 beats
       // throwing inside the bridge later.
       const malformed: unknown[] = ['user', '', 'SINGLE', null, 123, {}];
       for (const sessionScope of malformed) {
@@ -1630,7 +1630,7 @@ describe('createServeApp', () => {
       expect(res.status).toBe(200);
       expect(bridge.calls[0]?.workspaceCwd).toBe('/work/a');
       // No prototype pollution: Object.prototype.polluted is
-      // undefined. (This is the core security property — if the
+      // undefined. (This is the core security property -- if the
       // dangerous key landed via spread, this check would fail.)
       expect(({} as Record<string, unknown>)['polluted']).toBeUndefined();
     });
@@ -1747,7 +1747,7 @@ describe('createServeApp', () => {
 
     it('400s a cwd longer than MAX_WORKSPACE_PATH_LENGTH before touching the bridge', async () => {
       // Same length cap as `POST /session` (matches Linux PATH_MAX
-      // 4096) — defends downstream interpolations from
+      // 4096) -- defends downstream interpolations from
       // amplification on the loopback-default-no-token path.
       const longCwd = `/${'a'.repeat(MAX_WORKSPACE_PATH_LENGTH)}`;
       for (const action of ['load', 'resume'] as const) {
@@ -1973,7 +1973,7 @@ describe('createServeApp', () => {
         .set('Host', `127.0.0.1:${baseOpts.port}`)
         .send({ prompt: [{ type: 'text', text: 'hi' }] });
       expect(res.status).toBe(200);
-      // The route always supplies a signal — the AbortController it wires
+      // The route always supplies a signal -- the AbortController it wires
       // to req.on('close'). The bridge must receive it so a future client
       // disconnect can be routed into an ACP cancel. (Capture happens at
       // call time; supertest's later connection close would flip the
@@ -1985,7 +1985,7 @@ describe('createServeApp', () => {
     it('aborting the signal mid-prompt asks the bridge to wind down', async () => {
       // Bridge waits forever unless aborted, then resolves with a
       // cancelled stop reason. Verifies the route's
-      // req.on('close') → abort.abort() flow propagates.
+      // req.on('close') -> abort.abort() flow propagates.
       let promptStarted: (() => void) | undefined;
       const promptStartedPromise = new Promise<void>((r) => {
         promptStarted = r;
@@ -2005,7 +2005,7 @@ describe('createServeApp', () => {
       );
       try {
         const port = (localHandle.server.address() as { port: number }).port;
-        // Use Node's `http` directly — vitest's jsdom env replaces
+        // Use Node's `http` directly -- vitest's jsdom env replaces
         // AbortController with a polyfill that undici's fetch rejects.
         const http = await import('node:http');
         const reqBody = JSON.stringify({
@@ -2028,7 +2028,7 @@ describe('createServeApp', () => {
         // Wait for the bridge to receive the prompt before destroying.
         await promptStartedPromise;
         httpReq.destroy();
-        // Give the daemon a moment to register the close → propagate.
+        // Give the daemon a moment to register the close -> propagate.
         await new Promise((r) => setTimeout(r, 100));
         expect(bridge.promptCalls).toHaveLength(1);
         expect(bridge.promptCalls[0]?.signal?.aborted).toBe(true);
@@ -2040,7 +2040,7 @@ describe('createServeApp', () => {
 
   describe('GET /workspace/:id/sessions', () => {
     it('returns the list returned by the bridge', async () => {
-      // #3803 §02 (commit 0c6e963cd): the route now rejects
+      // #3803 02 (commit 0c6e963cd): the route now rejects
       // cross-workspace queries with 400 workspace_mismatch (so
       // orchestrators don't mistake "no sessions here" for
       // "workspace is idle"). Bind the daemon to the same workspace
@@ -2106,13 +2106,13 @@ describe('createServeApp', () => {
       expect(res.body).toEqual({ sessions: [] });
     });
 
-    it('400 workspace_mismatch when querying a cross-workspace path (#3803 §02)', async () => {
-      // Pin the §02 cross-workspace rejection: querying any path
+    it('400 workspace_mismatch when querying a cross-workspace path (#3803 02)', async () => {
+      // Pin the 02 cross-workspace rejection: querying any path
       // that doesn't canonicalize to the bound workspace gets a 400
       // with `code: 'workspace_mismatch'` and both paths in the
-      // body — so an orchestrator-aware client can route to / spawn
+      // body -- so an orchestrator-aware client can route to / spawn
       // the right daemon. The bridge MUST NOT be touched (a silent
-      // fallback would defeat the whole purpose of §02).
+      // fallback would defeat the whole purpose of 02).
       const bridge = fakeBridge();
       const app = createServeApp(
         { ...baseOpts, workspace: WS_BOUND },
@@ -2211,7 +2211,7 @@ describe('createServeApp', () => {
 
   describe('POST /session/:id/approval-mode (#4175 Wave 4 PR 17)', () => {
     // Strict-gated route: refuses on no-token loopback defaults. All
-    // tests configure a token and forward `Authorization: Bearer …`.
+    // tests configure a token and forward `Authorization: Bearer ...`.
     const tokenOpts: ServeOptions = { ...baseOpts, token: 'secret' };
     const auth = (req: request.Test): request.Test =>
       req
@@ -2674,11 +2674,11 @@ describe('createServeApp', () => {
     });
 
     it('trims surrounding whitespace before persisting (#4282 fold-in 4 C3)', async () => {
-      // The disk read path (`loadCliConfig` → `Set` of trimmed strings)
+      // The disk read path (`loadCliConfig` -> `Set` of trimmed strings)
       // applies `.trim()` when consuming `tools.disabled`. Without
       // matching the route's write path, disabling URL-encoded
       // `%20Bash%20` would persist `" Bash "` verbatim and the next
-      // ACP child spawn would key on `"Bash"` — leaving the entry
+      // ACP child spawn would key on `"Bash"` -- leaving the entry
       // permanently stuck because re-enable for `"Bash"` would
       // `.delete("Bash")` on a Set containing `" Bash "`.
       const bridge = fakeBridge();
@@ -2693,7 +2693,7 @@ describe('createServeApp', () => {
     it('400 when whitespace-only path parameter trims to empty', async () => {
       const bridge = fakeBridge();
       const app = createServeApp(tokenOpts, undefined, { bridge });
-      // `%20%20` is two spaces — survives the path-segment guard but
+      // `%20%20` is two spaces -- survives the path-segment guard but
       // collapses to '' after trim. Surface the same 400 the
       // routing layer would return for an empty segment.
       const res = await auth(
@@ -2924,7 +2924,7 @@ describe('createServeApp', () => {
 
     it('400 when selected outcome has an empty-string optionId', async () => {
       // An empty string passes `typeof === 'string'` but isn't a meaningful
-      // selection — would push a malformed vote to the agent which would
+      // selection -- would push a malformed vote to the agent which would
       // reject with an opaque "unknown option" error.
       const bridge = fakeBridge();
       const app = createServeApp(baseOpts, undefined, { bridge });
@@ -3298,7 +3298,7 @@ describe('createServeApp', () => {
     });
 
     it('exempts /health from bearer auth so liveness probes work without credentials', async () => {
-      // Per #3889 review A8dZT — the registration order in
+      // Per #3889 review A8dZT -- the registration order in
       // `createServeApp` puts `/health` BEFORE `bearerAuth`, so a
       // probe with no credentials still gets 200 even when the daemon
       // was started with a token. CORS deny + Host allowlist still
@@ -3401,7 +3401,7 @@ describe('createServeApp', () => {
     });
   });
 
-  describe('session limit (chiga0 Rec 3 — --max-sessions)', () => {
+  describe('session limit (chiga0 Rec 3 -- --max-sessions)', () => {
     it('503 + Retry-After + structured error when bridge throws SessionLimitExceededError', async () => {
       const bridge = fakeBridge({
         spawnImpl: async () => {
@@ -3495,7 +3495,7 @@ describe('runQwenServe', () => {
   // Round 6 (wenshao R5 line 216): replaced the R3 `process.env`
   // mutation tests. `runQwenServe` now passes per-handle env
   // overrides via `BridgeOptions.childEnvOverrides`, NOT by mutating
-  // global `process.env` — so concurrent embedded daemons don't
+  // global `process.env` -- so concurrent embedded daemons don't
   // cross-contaminate each other's MCP budget env. The two tests
   // below assert (a) runQwenServe doesn't touch process.env and
   // (b) a pre-existing process.env value survives runQwenServe
@@ -3513,7 +3513,7 @@ describe('runQwenServe', () => {
       mcpBudgetMode: 'warn',
     });
     // Pre-R6 this leaked into global process.env. Post-R6 the values
-    // travel via `BridgeOptions.childEnvOverrides` closure → only
+    // travel via `BridgeOptions.childEnvOverrides` closure -> only
     // the spawned ACP child sees them.
     expect(process.env['QWEN_SERVE_MCP_CLIENT_BUDGET']).toBeUndefined();
     expect(process.env['QWEN_SERVE_MCP_BUDGET_MODE']).toBeUndefined();
@@ -3534,7 +3534,7 @@ describe('runQwenServe', () => {
         hostname: '127.0.0.1',
         port: 0,
         mode: 'http-bridge',
-        // No mcpClientBudget — override will scrub the var on spawn.
+        // No mcpClientBudget -- override will scrub the var on spawn.
       });
       expect(process.env['QWEN_SERVE_MCP_CLIENT_BUDGET']).toBe('99');
     } finally {
@@ -3666,7 +3666,7 @@ describe('runQwenServe', () => {
   });
 
   it('strips brackets from `[::1]` before passing to app.listen()', async () => {
-    // Node's app.listen wants the unbracketed IPv6 literal — `[::1]`
+    // Node's app.listen wants the unbracketed IPv6 literal -- `[::1]`
     // would fail with ENOTFOUND. The fixup is in runQwenServe's
     // bind-time normalization.
     handle = await runQwenServe({
@@ -3677,7 +3677,7 @@ describe('runQwenServe', () => {
     const addr = handle.server.address();
     expect(typeof addr).toBe('object');
     if (typeof addr === 'object' && addr) {
-      // Successfully bound — the string the OS reports is `::1` (no
+      // Successfully bound -- the string the OS reports is `::1` (no
       // brackets).
       expect(
         addr.address === '::1' || addr.address === '::ffff:127.0.0.1',
@@ -3732,7 +3732,7 @@ describe('runQwenServe', () => {
 
   it('rejects empty-bracket `[]` --hostname (would bind to all interfaces)', async () => {
     // Node's `listen('')` is interpreted as "all interfaces". An operator
-    // typing `[]` clearly meant something specific, not wildcard — fail
+    // typing `[]` clearly meant something specific, not wildcard -- fail
     // loudly instead of silently exposing the daemon on every interface.
     await expect(
       runQwenServe({
@@ -3744,8 +3744,8 @@ describe('runQwenServe', () => {
     ).rejects.toThrow(/Invalid --hostname/);
   });
 
-  it('--workspace flows end-to-end and surfaces on /capabilities (#3803 §02)', async () => {
-    // Use process.cwd() so the boot-time existence check passes — any
+  it('--workspace flows end-to-end and surfaces on /capabilities (#3803 02)', async () => {
+    // Use process.cwd() so the boot-time existence check passes -- any
     // real absolute directory works. The bridge canonicalizes this
     // once at boot; `/capabilities.workspaceCwd` returns the canonical
     // form, NOT the raw input. Tests inject a fake bridge here so we
@@ -3766,15 +3766,15 @@ describe('runQwenServe', () => {
     const caps = await (
       await fetch(`http://127.0.0.1:${port}/capabilities`)
     ).json();
-    // Canonical form per `canonicalizeWorkspace` — realpath of cwd
-    // (handles symlinks like `/var` → `/private/var` on macOS).
+    // Canonical form per `canonicalizeWorkspace` -- realpath of cwd
+    // (handles symlinks like `/var` -> `/private/var` on macOS).
     const expected = await import('node:fs').then((m) =>
       m.realpathSync.native(process.cwd()),
     );
     expect(caps.workspaceCwd).toBe(expected);
   });
 
-  it('rejects --workspace pointing at a non-existent directory (BkUyD followup — boot-loud over opaque ENOENT)', async () => {
+  it('rejects --workspace pointing at a non-existent directory (BkUyD followup -- boot-loud over opaque ENOENT)', async () => {
     // Without the boot-time stat check, `canonicalizeWorkspace`'s
     // ENOENT fallback to `path.resolve` would let the daemon boot
     // pointed at a non-existent directory; every `POST /session`
@@ -3792,10 +3792,10 @@ describe('runQwenServe', () => {
 
   it('rejects --workspace pointing at a regular file', async () => {
     // Pointing the daemon at a file (vs. a directory) is operator error
-    // — the agent would fail at child-spawn time with ENOTDIR. Catch
+    // -- the agent would fail at child-spawn time with ENOTDIR. Catch
     // it at boot for a clearer error message.
     //
-    // `fileURLToPath` (not `new URL(...).pathname`) — on Windows the
+    // `fileURLToPath` (not `new URL(...).pathname`) -- on Windows the
     // latter returns `/C:/path/...` with a leading slash, which
     // `statSync` resolves as path-from-current-drive-root and the
     // test would then see ENOENT instead of the expected
@@ -3891,7 +3891,7 @@ describe('runQwenServe', () => {
     // resolve `a.txt` against `process.cwd()`, find no such file,
     // and return 404 `path_not_found`. The sentinel-throwing
     // factory ensures we see 400 with `sentinel-from-fake-factory`
-    // in the body — proof the override actually drives the request.
+    // in the body -- proof the override actually drives the request.
     const sentinelMessage = 'sentinel-from-fake-factory';
     const fsFactory: WorkspaceFileSystemFactory = {
       forRequest: () => ({
@@ -3997,14 +3997,14 @@ describe('runQwenServe', () => {
     // assert the gate trips. The contract is: when
     // `deps.trustedWorkspace = false`, the factory's
     // `assertTrustedForIntent` rejects writes with
-    // `untrusted_workspace` — exactly what PR 20 will rely on.
+    // `untrusted_workspace` -- exactly what PR 20 will rely on.
     const wsRoot = await fsp.mkdtemp(
       path.join(os.tmpdir(), 'qwen-runqwen-untrust-'),
     );
     try {
       // Mirror runQwenServe's construction. If `runQwenServe`
       // changes the call shape (different deps order, different
-      // fields), this test will start failing to type-check —
+      // fields), this test will start failing to type-check --
       // which is the point: the failure is the audit trail.
       const { createWorkspaceFileSystemFactory } = await import(
         './fs/index.js'
@@ -4015,7 +4015,7 @@ describe('runQwenServe', () => {
         emit: () => undefined,
       });
       const fsApi = factory.forRequest({ route: 'TEST /op' });
-      // Read still passes — read intents are always trusted.
+      // Read still passes -- read intents are always trusted.
       await fsp.writeFile(path.join(wsRoot, 'a.txt'), 'a');
       const r = await fsApi.resolve('a.txt', 'read');
       const out = await fsApi.readText(r);
@@ -4030,13 +4030,13 @@ describe('runQwenServe', () => {
     }
   });
 
-  it('handle.close() is idempotent — concurrent + repeat calls share one drain cycle', async () => {
+  it('handle.close() is idempotent -- concurrent + repeat calls share one drain cycle', async () => {
     const bridge = fakeBridge();
     handle = await runQwenServe(
       { hostname: '127.0.0.1', port: 0, mode: 'http-bridge' },
       { bridge },
     );
-    // Three overlapping callers — without the cached promise each would
+    // Three overlapping callers -- without the cached promise each would
     // arm its own force-close timer and call bridge.shutdown again.
     const a = handle.close();
     const b = handle.close();
@@ -4062,7 +4062,7 @@ describe('runQwenServe', () => {
     const sseFetch = fetch(`http://127.0.0.1:${port}/session/dangle/events`);
 
     // close() is expected to resolve in well under the 5s force-close
-    // window — but well above 0ms because the timer arms after bridge
+    // window -- but well above 0ms because the timer arms after bridge
     // shutdown. Just assert it resolves at all and observe roughly when.
     const start = Date.now();
     await handle.close();
@@ -4251,7 +4251,7 @@ describe('GET /session/:id/events (SSE)', () => {
 
     const res = await fetch(`http://127.0.0.1:${port}/session/sess-A/events`);
     await readSseFrames(res.body!, 1);
-    // Empty param ≡ missing — bridge sees `undefined` so the bus
+    // Empty param  missing -- bridge sees `undefined` so the bus
     // applies its default cap (256).
     expect(seen).toEqual([undefined]);
   });
@@ -4365,7 +4365,7 @@ describe('GET /session/:id/events (SSE)', () => {
     const frames = await readSseFrames(res.body!, 1);
     expect(frames).toHaveLength(1);
     // readSseFrames calls reader.cancel() once the requested frame count is
-    // reached, which severs the underlying connection — the daemon's
+    // reached, which severs the underlying connection -- the daemon's
     // `req.on('close')` handler then aborts the bridge subscription.
 
     // Wait briefly for the close handler to propagate to the bridge.
@@ -4403,7 +4403,7 @@ describe('GET /session/:id/events (SSE)', () => {
     const bridge = fakeBridge({
       subscribeImpl: (_sessionId, opts) => {
         seen = opts?.lastEventId;
-        // Empty stream — close immediately so the test doesn't hang.
+        // Empty stream -- close immediately so the test doesn't hang.
         return (async function* () {
           /* no events */
         })();
@@ -4626,7 +4626,7 @@ describe('createServeApp ServeAppDeps.fsFactory wiring (#4175 PR 18)', () => {
     ).fsFactory;
     expect(fsFactory).toBeDefined();
     expect(typeof fsFactory!.forRequest).toBe('function');
-    // The factory is functional — it can build a per-request boundary.
+    // The factory is functional -- it can build a per-request boundary.
     const fs = fsFactory!.forRequest({ route: 'TEST /op' });
     expect(fs).toBeDefined();
   });
@@ -4676,7 +4676,7 @@ describe('createServeApp ServeAppDeps.fsFactory wiring (#4175 PR 18)', () => {
       expect(fsFactory).toBeDefined();
       const fs = fsFactory!.forRequest({ route: 'TEST /op' });
       // Resolve a write target inside the workspace; the resolve
-      // succeeds but writeText must throw `untrusted_workspace` —
+      // succeeds but writeText must throw `untrusted_workspace` --
       // that's the safe-default behavior the strict-default factory
       // exists to enforce.
       const resolved = await fs.resolve('child.txt', 'write');
@@ -4691,7 +4691,7 @@ describe('createServeApp ServeAppDeps.fsFactory wiring (#4175 PR 18)', () => {
   });
 });
 
-// -- Issue #4175 PR 21 — auth device-flow integration tests ----------------
+// -- Issue #4175 PR 21 -- auth device-flow integration tests ----------------
 
 describe('auth device-flow routes', () => {
   // Build a fake provider whose `start` returns deterministic values and
@@ -4724,7 +4724,7 @@ describe('auth device-flow routes', () => {
           };
         },
         async poll(_state: unknown, _opts: { signal: AbortSignal }) {
-          // Stays pending forever — tests don't need the upstream to
+          // Stays pending forever -- tests don't need the upstream to
           // succeed for the route-layer assertions to be meaningful.
           return { kind: 'pending' as const };
         },
@@ -4786,7 +4786,7 @@ describe('auth device-flow routes', () => {
     expect(res.body.supportedProviders).toContain('qwen-oauth');
   });
 
-  it('POST is idempotent take-over for the same providerId — second POST returns 200 + attached:true', async () => {
+  it('POST is idempotent take-over for the same providerId -- second POST returns 200 + attached:true', async () => {
     const { app, fakeProvider } = buildApp({ token: 'tkn' });
     const first = await request(app)
       .post('/workspace/auth/device-flow')
@@ -4802,7 +4802,7 @@ describe('auth device-flow routes', () => {
     expect(second.status).toBe(200);
     expect(second.body.attached).toBe(true);
     expect(second.body.deviceFlowId).toBe(first.body.deviceFlowId);
-    // Critical: provider.start is NOT called twice — the take-over is
+    // Critical: provider.start is NOT called twice -- the take-over is
     // a daemon-internal operation, not a re-auth round trip.
     expect(fakeProvider.startCount()).toBe(1);
   });
@@ -4810,7 +4810,7 @@ describe('auth device-flow routes', () => {
   it('POST take-over only echoes userCode/verificationUri/initiatorClientId to caller matching the initiator (#4291 follow-up review)', async () => {
     // PR #4291 follow-up review (gpt-5.5, #3): policy consistency.
     // The closed-out GET redaction (don't echo userCode to non-
-    // initiator callers) was bypassable via POST take-over —
+    // initiator callers) was bypassable via POST take-over --
     // any bearer-token holder POSTing the same `providerId` got
     // `attached: true` AND the original starter's verification
     // material. Now the same caller-clientId gate applies. Fresh
@@ -4825,13 +4825,13 @@ describe('auth device-flow routes', () => {
       .set('X-Qwen-Client-Id', 'sdk-A')
       .send({ providerId: 'qwen-oauth' });
     expect(first.status).toBe(201);
-    // Fresh starter MUST see the verification material — they ARE
+    // Fresh starter MUST see the verification material -- they ARE
     // the initiator.
     expect(first.body.userCode).toBe('USER-1');
     expect(first.body.verificationUri).toBe('https://idp.example/verify');
     expect(first.body.initiatorClientId).toBe('sdk-A');
 
-    // Different SDK take-over — must NOT see verification fields.
+    // Different SDK take-over -- must NOT see verification fields.
     const takeoverDifferent = await request(app)
       .post('/workspace/auth/device-flow')
       .set('Authorization', 'Bearer tkn')
@@ -4848,7 +4848,7 @@ describe('auth device-flow routes', () => {
     );
     expect(takeoverDifferent.body).not.toHaveProperty('initiatorClientId');
 
-    // Anonymous take-over against an identified-start — must NOT see
+    // Anonymous take-over against an identified-start -- must NOT see
     // verification fields either (mismatched: identified vs anonymous).
     const takeoverAnon = await request(app)
       .post('/workspace/auth/device-flow')
@@ -4859,7 +4859,7 @@ describe('auth device-flow routes', () => {
     expect(takeoverAnon.body.attached).toBe(true);
     expect(takeoverAnon.body).not.toHaveProperty('userCode');
 
-    // Same-id take-over (sdk-A again) — DOES see the material.
+    // Same-id take-over (sdk-A again) -- DOES see the material.
     const takeoverSame = await request(app)
       .post('/workspace/auth/device-flow')
       .set('Authorization', 'Bearer tkn')
@@ -4872,7 +4872,7 @@ describe('auth device-flow routes', () => {
     expect(takeoverSame.body.initiatorClientId).toBe('sdk-A');
   });
 
-  it('POST take-over preserves the anonymous-start → anonymous-reattach use case', async () => {
+  it('POST take-over preserves the anonymous-start -> anonymous-reattach use case', async () => {
     // PR #4291 follow-up review (gpt-5.5, #3): the both-undefined
     // branch of `callerIsInitiator` keeps the legitimate "anonymous
     // start, anonymous re-attach (e.g., process restart, no
@@ -4895,7 +4895,7 @@ describe('auth device-flow routes', () => {
     expect(reattach.status).toBe(200);
     expect(reattach.body.attached).toBe(true);
     expect(reattach.body.deviceFlowId).toBe(first.body.deviceFlowId);
-    // Both-undefined: anonymous initiator, anonymous re-attach → same
+    // Both-undefined: anonymous initiator, anonymous re-attach -> same
     // caller. Verification fields ARE returned.
     expect(reattach.body.userCode).toBe('USER-1');
     expect(reattach.body.verificationUri).toBe('https://idp.example/verify');
@@ -4927,7 +4927,7 @@ describe('auth device-flow routes', () => {
     expect(missing.body.code).toBe('device_flow_not_found');
   });
 
-  it('DELETE on pending → 204; idempotent on already-cancelled → 204; unknown → 404', async () => {
+  it('DELETE on pending -> 204; idempotent on already-cancelled -> 204; unknown -> 404', async () => {
     const { app } = buildApp({ token: 'tkn' });
     const post = await request(app)
       .post('/workspace/auth/device-flow')
@@ -4986,7 +4986,7 @@ describe('auth device-flow routes', () => {
     expect(res.body.features).toContain('auth_device_flow');
   });
 
-  it('upstream provider.start failure → 502 upstream_error, not 500', async () => {
+  it('upstream provider.start failure -> 502 upstream_error, not 500', async () => {
     // PR 21 fold-in 0 P1-14: provider throwing UpstreamDeviceFlowError
     // must surface as 502 with code:'upstream_error' instead of falling
     // through `sendBridgeError`'s generic 500 path. Build a fake
@@ -5085,7 +5085,7 @@ describe('auth device-flow routes', () => {
     registry.dispose();
   });
 
-  // PR #4255 fold-in 10 #4 — HTTP route contract coverage. Round-8
+  // PR #4255 fold-in 10 #4 -- HTTP route contract coverage. Round-8
   // wenshao thread `Cvx93` flagged that the existing 4 it()'s
   // covered the happy paths but missed the malformed-input,
   // resource-cap, and strict-bearer error envelopes that SDK
@@ -5163,7 +5163,7 @@ describe('auth device-flow routes', () => {
     // The two GETs have ASYMMETRIC auth posture by design:
     // - `GET /workspace/auth/device-flow/:id` returns `userCode` for
     //   pending entries (only when caller's clientId matches the
-    //   initiator — see follow-up review thread test below). fold-in
+    //   initiator -- see follow-up review thread test below). fold-in
     //   (round-4 #1) added `mutate({strict:true})` to close the
     //   info-disclosure asymmetry vs. the strict POST/DELETE.
     // - `GET /workspace/auth/status` intentionally redacts userCode
@@ -5187,7 +5187,7 @@ describe('auth device-flow routes', () => {
     // response shape is symmetrized with the POST take-over response.
     // An anonymous caller, or a caller identifying as a different
     // client, only sees the public envelope (status/timestamps/error
-    // fields) — never the verification code or the initiator id.
+    // fields) -- never the verification code or the initiator id.
     const { app } = buildApp({ token: 'tkn' });
     const post = await request(app)
       .post('/workspace/auth/device-flow')
@@ -5237,8 +5237,8 @@ describe('auth device-flow routes', () => {
 
   it('GET /workspace/auth/device-flow/:id returns 400 invalid_client_id when X-Qwen-Client-Id is malformed (qwen-latest review N3)', async () => {
     // PR #4291 follow-up review (qwen-latest, N3): the GET handler's
-    // strict-clientId behavior — added in this PR to drive the
-    // `callerIsInitiator` gate — was documented in JSDoc but not
+    // strict-clientId behavior -- added in this PR to drive the
+    // `callerIsInitiator` gate -- was documented in JSDoc but not
     // pinned in CI. A future refactor that removes or reorders the
     // `parseClientIdHeader` call would silently revert the contract
     // change. Pin: a malformed header (>128 chars or invalid chars)
@@ -5261,7 +5261,7 @@ describe('auth device-flow routes', () => {
     expect(tooLongRes.status).toBe(400);
     expect(tooLongRes.body.code).toBe('invalid_client_id');
 
-    // Invalid characters (spaces / quotes — anything outside the
+    // Invalid characters (spaces / quotes -- anything outside the
     // allowed token charset).
     const badChars = await request(app)
       .get(`/workspace/auth/device-flow/${id}`)
@@ -5275,7 +5275,7 @@ describe('auth device-flow routes', () => {
   it('GET /workspace/auth/device-flow/:id returns userCode for an anonymously-started flow when the GET caller is also anonymous', async () => {
     // PR #4291 follow-up review (qwen-latest, #3): the original
     // gate required both `initiatorClientId` AND `callerClientId`
-    // to be defined and equal — which silently locked anonymous-
+    // to be defined and equal -- which silently locked anonymous-
     // started flows out of their own data (the SDK that didn't
     // pass `X-Qwen-Client-Id` on POST also doesn't pass it on
     // GET, but the response body switched from "useful" to
@@ -5292,7 +5292,7 @@ describe('auth device-flow routes', () => {
       .send({ providerId: 'qwen-oauth' });
     const id = post.body.deviceFlowId as string;
     expect(typeof id).toBe('string');
-    // Anonymous GET — must still see the verification fields.
+    // Anonymous GET -- must still see the verification fields.
     const anonGet = await request(app)
       .get(`/workspace/auth/device-flow/${id}`)
       .set('Authorization', 'Bearer tkn')
@@ -5301,9 +5301,9 @@ describe('auth device-flow routes', () => {
     expect(anonGet.body.deviceFlowId).toBe(id);
     expect(anonGet.body.userCode).toBe('USER-1');
     expect(anonGet.body.verificationUri).toBe('https://idp.example/verify');
-    // No initiatorClientId — there wasn't one (anonymous start).
+    // No initiatorClientId -- there wasn't one (anonymous start).
     expect(anonGet.body).not.toHaveProperty('initiatorClientId');
-    // An IDENTIFIED caller, however, is NOT the same caller —
+    // An IDENTIFIED caller, however, is NOT the same caller --
     // they don't get the verification fields.
     const identified = await request(app)
       .get(`/workspace/auth/device-flow/${id}`)

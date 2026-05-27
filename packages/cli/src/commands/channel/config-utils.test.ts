@@ -140,7 +140,7 @@ describe('parseChannelConfig', () => {
     expect((result as Record<string, unknown>)['customField']).toBe(42);
   });
 
-  it('expands tilde in cwd (~/x → $HOME/x)', async () => {
+  it('expands tilde in cwd (~/x -> $HOME/x)', async () => {
     const result = await parseChannelConfig('bot', {
       type: 'bare',
       cwd: '~/xomo',

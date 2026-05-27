@@ -132,14 +132,14 @@ export function AgentCreationWizard({
         return t('Press Enter to save, e to save and edit, Esc to go back');
       }
 
-      // Steps that have ↑↓ navigation (RadioButtonSelect components)
+      // Steps that have  navigation (RadioButtonSelect components)
       const kindForNav = getStepKind(state.generationMethod, state.currentStep);
       const hasNavigation =
         kindForNav === 'LOCATION' ||
         kindForNav === 'GEN_METHOD' ||
         kindForNav === 'TOOLS' ||
         kindForNav === 'COLOR';
-      const navigationPart = hasNavigation ? t('↑↓ to navigate, ') : '';
+      const navigationPart = hasNavigation ? t(' to navigate, ') : '';
 
       const escAction =
         state.currentStep === WIZARD_STEPS.LOCATION_SELECTION

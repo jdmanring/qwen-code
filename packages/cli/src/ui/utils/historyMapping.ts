@@ -12,11 +12,11 @@ import { isSlashCommand } from './commandUtils.js';
 /**
  * Returns true when the history item represents a real user prompt that was
  * sent to the model, as opposed to a slash-command invocation (`/help`,
- * `/stats`, …) which is stored with `type: 'user'` in the UI but never
+ * `/stats`, ...) which is stored with `type: 'user'` in the UI but never
  * reaches the API history or `turnParentUuids`.
  *
  * Typed as a type predicate so callers can drop their `as HistoryItemUser`
- * casts — a regression that loosened either side of the narrowing would now
+ * casts -- a regression that loosened either side of the narrowing would now
  * be caught by tsc instead of silently bypassing it.
  */
 export function isRealUserTurn(

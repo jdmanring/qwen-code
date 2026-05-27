@@ -55,7 +55,7 @@ describe('Skill Nudge E2E Integration Tests', () => {
     await fs.rm(tempDir, { recursive: true, force: true });
   });
 
-  // ─── Test 1: Low Tool Call Density Not Trigger ───────────────────────────
+  // --- Test 1: Low Tool Call Density Not Trigger ---------------------------
 
   describe('Test 1: Low tool call density should not trigger skill review', () => {
     it('should skip when toolCallCount < threshold', () => {
@@ -92,7 +92,7 @@ describe('Skill Nudge E2E Integration Tests', () => {
     });
   });
 
-  // ─── Test 2: At Threshold Should Trigger ──────────────────────────────────
+  // --- Test 2: At Threshold Should Trigger ----------------------------------
 
   describe('Test 2: At or above threshold should trigger skill review', () => {
     it('should schedule when toolCallCount exactly equals threshold', () => {
@@ -146,7 +146,7 @@ describe('Skill Nudge E2E Integration Tests', () => {
     });
   });
 
-  // ─── Test 3: Skills Modified In Session ──────────────────────────────────
+  // --- Test 3: Skills Modified In Session ----------------------------------
 
   describe('Test 3: skills modified in session should prevent nudge', () => {
     it('should skip when skillsModified is true', () => {
@@ -181,7 +181,7 @@ describe('Skill Nudge E2E Integration Tests', () => {
     });
   });
 
-  // ─── Test 4: Config Enable/Disable Gate ────────────────────────────────────
+  // --- Test 4: Config Enable/Disable Gate ------------------------------------
 
   describe('Test 4: Configuration enable/disable gate', () => {
     it('should skip when memory.enableAutoSkill is false', () => {
@@ -228,7 +228,7 @@ describe('Skill Nudge E2E Integration Tests', () => {
     });
   });
 
-  // ─── Test 5: Merge Detection ──────────────────────────────────────────────
+  // --- Test 5: Merge Detection ----------------------------------------------
 
   describe('Test 5: Extract + Skill Review merge detection', () => {
     it('should return valid result when skill review is scheduled', () => {
@@ -268,7 +268,7 @@ describe('Skill Nudge E2E Integration Tests', () => {
       });
 
       // While first is in-flight, the second call for the same project is
-      // deduped — it returns skipped with the existing taskId.
+      // deduped -- it returns skipped with the existing taskId.
       const result2WhileRunning = mgr.scheduleSkillReview({
         projectRoot,
         sessionId: 'session-2',
@@ -310,7 +310,7 @@ describe('Skill Nudge E2E Integration Tests', () => {
     });
   });
 
-  // ─── Test 6: Task Record Tracking ────────────────────────────────────────
+  // --- Test 6: Task Record Tracking ----------------------------------------
 
   describe('Test 6: Task record tracking and metadata', () => {
     it('should create task record with correct metadata', () => {
@@ -363,7 +363,7 @@ describe('Skill Nudge E2E Integration Tests', () => {
     });
   });
 
-  // ─── Test 7: Threshold Boundary Cases ──────────────────────────────────────
+  // --- Test 7: Threshold Boundary Cases --------------------------------------
 
   describe('Test 7: Threshold boundary cases', () => {
     it('should not trigger at threshold - 1', () => {
@@ -412,7 +412,7 @@ describe('Skill Nudge E2E Integration Tests', () => {
     });
   });
 
-  // ─── Test 8: Project Skills Directory Structure ────────────────────────────
+  // --- Test 8: Project Skills Directory Structure ----------------------------
 
   describe('Test 8: Project skills directory validation', () => {
     it('should verify project skills root exists when scheduled', async () => {

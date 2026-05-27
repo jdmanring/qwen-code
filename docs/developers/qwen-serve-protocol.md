@@ -12,15 +12,15 @@ Authorization: Bearer <token>
 
 Without a configured token (loopback dev default) the header is optional. Token comparison is constant-time. 401 responses are uniform across `missing header` / `wrong scheme` / `wrong token`.
 
-**`/health` exemption** (Bctum): on loopback binds (`127.0.0.1` / `localhost` / `::1` / `[::1]`) `/health` is registered BEFORE the bearer middleware, so liveness probes inside the pod don't need to carry the token even when the daemon was started with `--token`. Non-loopback binds (`--hostname 0.0.0.0` etc.) gate `/health` behind the bearer like every other route — see the [`GET /health`](#get-health) section for the rationale.
+**`/health` exemption** (Bctum): on loopback binds (`127.0.0.1` / `localhost` / `::1` / `[::1]`) `/health` is registered BEFORE the bearer middleware, so liveness probes inside the pod don't need to carry the token even when the daemon was started with `--token`. Non-loopback binds (`--hostname 0.0.0.0` etc.) gate `/health` behind the bearer like every other route -- see the [`GET /health`](#get-health) section for the rationale.
 
-**`--require-auth` (#4175 PR 15).** Pass this flag at boot to extend the "must have a token" rule to loopback as well. Boot fails without a token; the `/health` exemption is dropped (so `/health` also requires `Authorization: Bearer …`).
+**`--require-auth` (#4175 PR 15).** Pass this flag at boot to extend the "must have a token" rule to loopback as well. Boot fails without a token; the `/health` exemption is dropped (so `/health` also requires `Authorization: Bearer ...`).
 
-When the flag is on, the global `bearerAuth` middleware gates **every** route — including `/capabilities`. An **unauthenticated** client therefore cannot pre-flight `caps.features` to discover that auth is required: the discovery surface for that case is the **401 response body** itself (uniform across all routes per the [Authentication](#authentication) section). The `require_auth` capability tag is a **post-authentication confirmation** — once a client successfully authenticates and reads `/capabilities`, the tag's presence confirms the daemon was started with `--require-auth` (useful for audit / compliance UIs and for SDK clients to surface "this deployment is hardened" in a settings panel). Mutation routes that opt into per-route strict mode (Wave 4 follow-ups) refuse with `401 { code: "token_required", error: "…" }` when reached on a no-token loopback default — but with `--require-auth` enabled the global bearer middleware short-circuits the request before the per-route gate, so the legacy `Unauthorized` body is what unauthenticated callers actually see.
+When the flag is on, the global `bearerAuth` middleware gates **every** route -- including `/capabilities`. An **unauthenticated** client therefore cannot pre-flight `caps.features` to discover that auth is required: the discovery surface for that case is the **401 response body** itself (uniform across all routes per the [Authentication](#authentication) section). The `require_auth` capability tag is a **post-authentication confirmation** -- once a client successfully authenticates and reads `/capabilities`, the tag's presence confirms the daemon was started with `--require-auth` (useful for audit / compliance UIs and for SDK clients to surface "this deployment is hardened" in a settings panel). Mutation routes that opt into per-route strict mode (Wave 4 follow-ups) refuse with `401 { code: "token_required", error: "..." }` when reached on a no-token loopback default -- but with `--require-auth` enabled the global bearer middleware short-circuits the request before the per-route gate, so the legacy `Unauthorized` body is what unauthenticated callers actually see.
 
 ## Common error shape
 
-5xx responses carry the original error's `code` and `data` when present (JSON-RPC style — the ACP SDK forwards `{code, message, data}` from the agent):
+5xx responses carry the original error's `code` and `data` when present (JSON-RPC style -- the ACP SDK forwards `{code, message, data}` from the agent):
 
 ```json
 {
@@ -46,11 +46,11 @@ with status `400`.
 
 with status `404`.
 
-`WorkspaceMismatchError` for a `POST /session` whose `cwd` doesn't canonicalize to the daemon's bound workspace (#3803 §02 — 1 daemon = 1 workspace) returns `400` with:
+`WorkspaceMismatchError` for a `POST /session` whose `cwd` doesn't canonicalize to the daemon's bound workspace (#3803 02 -- 1 daemon = 1 workspace) returns `400` with:
 
 ```json
 {
-  "error": "Workspace mismatch: daemon is bound to \"…\" but request asked for \"…\". …",
+  "error": "Workspace mismatch: daemon is bound to \"...\" but request asked for \"...\". ...",
   "code": "workspace_mismatch",
   "boundWorkspace": "/path/the/daemon/binds",
   "requestedWorkspace": "/path/in/the/request"
@@ -71,7 +71,7 @@ Use this to detect mismatch pre-flight: read `workspaceCwd` off `/capabilities` 
 
 Attaches to existing sessions are NOT counted toward the cap, so an idle daemon's reconnects keep working even when at-capacity.
 
-`RestoreInProgressError` — only emitted by `POST /session/:id/load` and `POST /session/:id/resume` — returns `409` with a `Retry-After: 5` header (matching `session_limit_exceeded`) and:
+`RestoreInProgressError` -- only emitted by `POST /session/:id/load` and `POST /session/:id/resume` -- returns `409` with a `Retry-After: 5` header (matching `session_limit_exceeded`) and:
 
 ```json
 {
@@ -83,13 +83,13 @@ Attaches to existing sessions are NOT counted toward the cap, so an idle daemon'
 }
 ```
 
-Fired when a `session/load` is issued for an id that already has a `session/resume` in flight (or vice versa). Wait at least `Retry-After` seconds and retry — the underlying restore completes within `initTimeoutMs` (default 10s). Same-action races (`load` vs `load`, `resume` vs `resume`) coalesce instead of erroring.
+Fired when a `session/load` is issued for an id that already has a `session/resume` in flight (or vice versa). Wait at least `Retry-After` seconds and retry -- the underlying restore completes within `initTimeoutMs` (default 10s). Same-action races (`load` vs `load`, `resume` vs `resume`) coalesce instead of erroring.
 
 ## Capabilities
 
 The daemon advertises its supported feature tags from the serve capability
 registry. Clients **must** gate UI off `features`, not off `mode` (per design
-§10).
+10).
 
 ```
 ['health', 'capabilities', 'session_create', 'session_scope_override',
@@ -109,9 +109,9 @@ registry. Clients **must** gate UI off `features`, not off `mode` (per design
 
 `session_scope_override` is the negotiation handle for the per-request `sessionScope` field on `POST /session` (see below). Older daemons silently ignore the field, so SDK clients should pre-flight `caps.features` for this tag before sending it.
 
-`session_load` and `unstable_session_resume` advertise the explicit-restore routes (`POST /session/:id/load` and `POST /session/:id/resume`). Older daemons return `404` for these paths, so SDK clients should pre-flight `caps.features` before calling. The `unstable_` prefix on `unstable_session_resume` mirrors the underlying ACP method (`connection.unstable_resumeSession`) — the daemon's wire shape is committed for v1, but the ACP method name itself may change before ACP marks resume stable.
+`session_load` and `unstable_session_resume` advertise the explicit-restore routes (`POST /session/:id/load` and `POST /session/:id/resume`). Older daemons return `404` for these paths, so SDK clients should pre-flight `caps.features` before calling. The `unstable_` prefix on `unstable_session_resume` mirrors the underlying ACP method (`connection.unstable_resumeSession`) -- the daemon's wire shape is committed for v1, but the ACP method name itself may change before ACP marks resume stable.
 
-`slow_client_warning` covers two co-released SSE backpressure knobs introduced in #4175 Wave 2.5 PR 10: (a) the daemon emits a `slow_client_warning` synthetic event-stream frame when a subscriber's queue crosses 75% full, once per overflow episode (rearmed after the queue drains below 37.5%); (b) `GET /session/:id/events` accepts a `?maxQueued=N` query param (range `[16, 2048]`) to pre-size the per-subscriber backlog for cold reconnects against a large replay ring. The daemon-wide ring size is controlled by `--event-ring-size` (default **8000**, per #3803 §02). Old daemons silently lack both — pre-flight this tag before opting in.
+`slow_client_warning` covers two co-released SSE backpressure knobs introduced in #4175 Wave 2.5 PR 10: (a) the daemon emits a `slow_client_warning` synthetic event-stream frame when a subscriber's queue crosses 75% full, once per overflow episode (rearmed after the queue drains below 37.5%); (b) `GET /session/:id/events` accepts a `?maxQueued=N` query param (range `[16, 2048]`) to pre-size the per-subscriber backlog for cold reconnects against a large replay ring. The daemon-wide ring size is controlled by `--event-ring-size` (default **8000**, per #3803 02). Old daemons silently lack both -- pre-flight this tag before opting in.
 
 `typed_event_schema` advertises daemon event payloads that match the SDK's `KnownDaemonEvent` schema. Older daemons may still stream compatible frames, but SDK clients should pre-flight this tag before assuming typed event coverage.
 
@@ -121,9 +121,9 @@ registry. Clients **must** gate UI off `features`, not off `mode` (per design
 
 `session_approval_mode_control`, `workspace_tool_toggle`, `workspace_init`, and `workspace_mcp_restart` (issue [#4175](https://github.com/QwenLM/qwen-code/issues/4175) PR 17) advertise the four mutation control routes documented under "Mutation: approval, tools, init, MCP restart" below. All four are strict-gated by the PR 15 mutation gate (a daemon configured without a bearer token rejects them with 401 `token_required`). Older daemons return `404`; pre-flight each tag before exposing the corresponding affordance.
 
-`mcp_guardrails` (issue [#4175](https://github.com/QwenLM/qwen-code/issues/4175) PR 14) covers the MCP budget surface: the `clientCount` / `clientBudget` / `budgetMode` / `budgets[]` fields on `GET /workspace/mcp`, the `disabledReason` field on per-server cells, and the `--mcp-client-budget` / `--mcp-budget-mode` CLI flags. Older daemons omit the new fields entirely; SDK clients pre-flight this tag before relying on `budgets[]` semantics. The registry descriptor also carries `modes: ['warn', 'enforce']` for future feature-modes exposure — for now, clients infer mode from the snapshot's `budgetMode` field. Server refusal under `enforce` mode is deterministic by `Object.entries(mcpServers)` declaration order; a future scope-precedence layer (if qwen-code adopts one) would shift this to "lowest-precedence first" to mirror claude-code's `plugin < user < project < local` convention.
+`mcp_guardrails` (issue [#4175](https://github.com/QwenLM/qwen-code/issues/4175) PR 14) covers the MCP budget surface: the `clientCount` / `clientBudget` / `budgetMode` / `budgets[]` fields on `GET /workspace/mcp`, the `disabledReason` field on per-server cells, and the `--mcp-client-budget` / `--mcp-budget-mode` CLI flags. Older daemons omit the new fields entirely; SDK clients pre-flight this tag before relying on `budgets[]` semantics. The registry descriptor also carries `modes: ['warn', 'enforce']` for future feature-modes exposure -- for now, clients infer mode from the snapshot's `budgetMode` field. Server refusal under `enforce` mode is deterministic by `Object.entries(mcpServers)` declaration order; a future scope-precedence layer (if qwen-code adopts one) would shift this to "lowest-precedence first" to mirror claude-code's `plugin < user < project < local` convention.
 
-> ⚠️ **PR 14 v1 scope: per-session, not per-workspace.** Each ACP session inside the daemon constructs its own `Config` + `McpClientManager` (via `acpAgent.newSessionConfig`). The budget caps live MCP clients **per session**; each session independently reads `QWEN_SERVE_MCP_CLIENT_BUDGET` from the forwarded env. With `--mcp-client-budget=10` and 5 concurrent ACP sessions, the actual live MCP client count can reach 5 × 10 = 50 across the daemon. The `GET /workspace/mcp` snapshot reads the **bootstrap session's** `McpClientManager` accounting only — the `budgets[0].scope: 'session'` value is the honest signal that this is per-session, not aggregated. **Wave 5 PR 23 (shared MCP pool)** will introduce a workspace-scoped manager and add a `scope: 'workspace'` cell alongside the per-session cell for true cross-session aggregation. v1 is the in-process counter + soft enforcement foundation that PR 23 builds on.
+>  **PR 14 v1 scope: per-session, not per-workspace.** Each ACP session inside the daemon constructs its own `Config` + `McpClientManager` (via `acpAgent.newSessionConfig`). The budget caps live MCP clients **per session**; each session independently reads `QWEN_SERVE_MCP_CLIENT_BUDGET` from the forwarded env. With `--mcp-client-budget=10` and 5 concurrent ACP sessions, the actual live MCP client count can reach 5 * 10 = 50 across the daemon. The `GET /workspace/mcp` snapshot reads the **bootstrap session's** `McpClientManager` accounting only -- the `budgets[0].scope: 'session'` value is the honest signal that this is per-session, not aggregated. **Wave 5 PR 23 (shared MCP pool)** will introduce a workspace-scoped manager and add a `scope: 'workspace'` cell alongside the per-session cell for true cross-session aggregation. v1 is the in-process counter + soft enforcement foundation that PR 23 builds on.
 
 `workspace_file_read` covers the text/list/stat/glob workspace file routes
 (`GET /file`, `GET /list`, `GET /glob`, `GET /stat`). `workspace_file_bytes`
@@ -136,24 +136,24 @@ routes and require a configured bearer token even on loopback.
 
 **Conditional tags.** A small number of feature tags are advertised only when the matching deployment toggle is on. Tag presence = behavior is on; absence = either an older daemon predating the tag, OR a current daemon where the operator did not opt in. Currently:
 
-| Tag            | Advertised when …                                                                                                                                                            |
+| Tag            | Advertised when ...                                                                                                                                                            |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `require_auth` | the daemon was started with `--require-auth` (or `requireAuth: true` via the embedded API). Bearer token is mandatory on every route, including `/health` on loopback binds. |
 
-`mcp_guardrails` is **not** in this conditional table — it's an always-on tag, advertised whenever the binary supports the new `/workspace/mcp` budget fields, regardless of whether the operator configured a budget. Operators who haven't set `--mcp-client-budget` still get the new fields (with `budgetMode: 'off'`, `budgets: []`).
+`mcp_guardrails` is **not** in this conditional table -- it's an always-on tag, advertised whenever the binary supports the new `/workspace/mcp` budget fields, regardless of whether the operator configured a budget. Operators who haven't set `--mcp-client-budget` still get the new fields (with `budgetMode: 'off'`, `budgets: []`).
 
 `mcp_guardrail_events` (issue [#4175](https://github.com/QwenLM/qwen-code/issues/4175) PR 14b) advertises the typed SSE push events that surface MCP budget state crossings without a poll loop. Two frame types arrive on `GET /session/:id/events`:
 
-- `mcp_budget_warning` — fires once on the upward 75% crossing of `reservedSlots.size / clientBudget`. Re-arms only after the ratio drops below 37.5% (`MCP_BUDGET_REARM_FRACTION`). Mirrors PR 10's `slow_client_warning` hysteresis, but at the manager level rather than the per-subscriber backlog level. Payload: `{ liveCount, reservedCount, budget, thresholdRatio: 0.75, mode: 'warn' | 'enforce' }`. Fires under both `warn` and `enforce` modes; never under `off`.
-- `mcp_child_refused_batch` — fires at end of each `discoverAllMcpTools*` pass when one or more servers were refused, AND as a length-1 batch on the `readResource` lazy-spawn refusal path. Payload: `{ refusedServers: [{ name, transport, reason: 'budget_exhausted' }, ...], budget, liveCount, reservedCount, mode: 'enforce' }`. `mode` is the literal `'enforce'` because `warn` mode never refuses.
+- `mcp_budget_warning` -- fires once on the upward 75% crossing of `reservedSlots.size / clientBudget`. Re-arms only after the ratio drops below 37.5% (`MCP_BUDGET_REARM_FRACTION`). Mirrors PR 10's `slow_client_warning` hysteresis, but at the manager level rather than the per-subscriber backlog level. Payload: `{ liveCount, reservedCount, budget, thresholdRatio: 0.75, mode: 'warn' | 'enforce' }`. Fires under both `warn` and `enforce` modes; never under `off`.
+- `mcp_child_refused_batch` -- fires at end of each `discoverAllMcpTools*` pass when one or more servers were refused, AND as a length-1 batch on the `readResource` lazy-spawn refusal path. Payload: `{ refusedServers: [{ name, transport, reason: 'budget_exhausted' }, ...], budget, liveCount, reservedCount, mode: 'enforce' }`. `mode` is the literal `'enforce'` because `warn` mode never refuses.
 
-Both events live in the per-session SSE replay ring (they carry an `id`) so a client reconnecting with `Last-Event-ID` resumes through them; the snapshot at `GET /workspace/mcp` is still the source-of-truth for state-after-extended-disconnect. Always-on once advertised — there is no conditional toggle. SDK reducer state (`DaemonSessionViewState`) exposes `mcpBudgetWarningCount`, `lastMcpBudgetWarning`, `mcpChildRefusedBatchCount`, `lastMcpChildRefusedBatch` for adapters that want simple lag-style UI.
+Both events live in the per-session SSE replay ring (they carry an `id`) so a client reconnecting with `Last-Event-ID` resumes through them; the snapshot at `GET /workspace/mcp` is still the source-of-truth for state-after-extended-disconnect. Always-on once advertised -- there is no conditional toggle. SDK reducer state (`DaemonSessionViewState`) exposes `mcpBudgetWarningCount`, `lastMcpBudgetWarning`, `mcpChildRefusedBatchCount`, `lastMcpChildRefusedBatch` for adapters that want simple lag-style UI.
 
 ## Routes
 
 ### `GET /health`
 
-Liveness probe. Default form returns `200 {"status":"ok"}` if the listener is up — cheap, no bridge access, suitable for high-frequency k8s/Compose liveness probes.
+Liveness probe. Default form returns `200 {"status":"ok"}` if the listener is up -- cheap, no bridge access, suitable for high-frequency k8s/Compose liveness probes.
 
 Pass `?deep=1` (also accepts `?deep=true` or bare `?deep`) for a probe that exposes bridge **counters** (informational only, not a true liveness check):
 
@@ -161,9 +161,9 @@ Pass `?deep=1` (also accepts `?deep=true` or bare `?deep`) for a probe that expo
 { "status": "ok", "sessions": 3, "pendingPermissions": 1 }
 ```
 
-> ⚠️ The deep probe is **informational**, not a real liveness verification. It reads counter accessors (`bridge.sessionCount`, `bridge.pendingPermissionCount`) which are simple Map-size getters; they don't ping individual child processes / channels and so won't detect a wedged-but-still-counted session. Use it for capacity dashboards (current concurrency vs. `--max-sessions`, queue depth) rather than as the trigger for "pull this daemon out of rotation". A `503 {"status":"degraded"}` response is theoretically possible if a custom bridge implementation's getters throw, but the real bridge's getters never do — under normal operation the deep probe always returns 200. For real liveness, rely on whether the listener accepts a TCP connection at all (i.e. the default `/health` without `?deep`).
+>  The deep probe is **informational**, not a real liveness verification. It reads counter accessors (`bridge.sessionCount`, `bridge.pendingPermissionCount`) which are simple Map-size getters; they don't ping individual child processes / channels and so won't detect a wedged-but-still-counted session. Use it for capacity dashboards (current concurrency vs. `--max-sessions`, queue depth) rather than as the trigger for "pull this daemon out of rotation". A `503 {"status":"degraded"}` response is theoretically possible if a custom bridge implementation's getters throw, but the real bridge's getters never do -- under normal operation the deep probe always returns 200. For real liveness, rely on whether the listener accepts a TCP connection at all (i.e. the default `/health` without `?deep`).
 
-**Auth:** required **only on non-loopback binds**. On loopback (`127.0.0.1`, `::1`, `[::1]`) `/health` is registered before the bearer middleware so k8s/Compose probes inside the pod don't need to carry the token. On non-loopback (`--hostname 0.0.0.0` etc.) the route is registered after the bearer middleware and returns 401 without a valid token — otherwise an unauthenticated caller could probe arbitrary addresses to confirm a `qwen serve` exists, a low-severity info leak that combines poorly with port scanning. CORS deny + Host allowlist still apply on the loopback exemption.
+**Auth:** required **only on non-loopback binds**. On loopback (`127.0.0.1`, `::1`, `[::1]`) `/health` is registered before the bearer middleware so k8s/Compose probes inside the pod don't need to carry the token. On non-loopback (`--hostname 0.0.0.0` etc.) the route is registered after the bearer middleware and returns 401 without a valid token -- otherwise an unauthenticated caller could probe arbitrary addresses to confirm a `qwen serve` exists, a low-severity info leak that combines poorly with port scanning. CORS deny + Host allowlist still apply on the loopback exemption.
 
 ### `GET /capabilities`
 
@@ -187,7 +187,7 @@ Stable contract: when `v` increments the frame layout has changed in a backwards
 
 > **`modelServices` is always `[]` in Stage 1.** The agent uses its single default model service and doesn't enumerate it over the wire. Stage 2 will populate this from registered model adapters so SDK clients can build service-pickers; until then, do NOT rely on this field being non-empty.
 
-> **`workspaceCwd`** is the canonical absolute path this daemon binds to (#3803 §02 — 1 daemon = 1 workspace). Use it to (a) detect mismatch before posting `/session` and (b) omit `cwd` on `POST /session` (the route falls back to this path). Multi-workspace deployments expose multiple daemons on different ports, each with its own `workspaceCwd`. Additive to v=1: pre-§02 v=1 daemons omit the field — clients that target older builds should null-check before consuming it.
+> **`workspaceCwd`** is the canonical absolute path this daemon binds to (#3803 02 -- 1 daemon = 1 workspace). Use it to (a) detect mismatch before posting `/session` and (b) omit `cwd` on `POST /session` (the route falls back to this path). Multi-workspace deployments expose multiple daemons on different ports, each with its own `workspaceCwd`. Additive to v=1: pre-02 v=1 daemons omit the field -- clients that target older builds should null-check before consuming it.
 
 ### Read-only runtime status routes
 
@@ -201,13 +201,13 @@ ids.
 
 Capability tags:
 
-- `workspace_mcp` → `GET /workspace/mcp`
-- `workspace_skills` → `GET /workspace/skills`
-- `workspace_providers` → `GET /workspace/providers`
-- `workspace_env` → `GET /workspace/env`
-- `workspace_preflight` → `GET /workspace/preflight`
-- `session_context` → `GET /session/:id/context`
-- `session_supported_commands` → `GET /session/:id/supported-commands`
+- `workspace_mcp` -> `GET /workspace/mcp`
+- `workspace_skills` -> `GET /workspace/skills`
+- `workspace_providers` -> `GET /workspace/providers`
+- `workspace_env` -> `GET /workspace/env`
+- `workspace_preflight` -> `GET /workspace/preflight`
+- `session_context` -> `GET /session/:id/context`
+- `session_supported_commands` -> `GET /session/:id/supported-commands`
 
 Common status cell:
 
@@ -334,22 +334,22 @@ vars only; proxy URLs are stripped of credentials and reduced to
 }
 ```
 
-`budgetMode` is one of `enforce`, `warn`, or `off`. `clientBudget` is absent when no budget was set. `budgets[]` is **always an array** on post-PR-14 daemons (possibly empty when `budgetMode === 'off'`); pre-PR-14 daemons omit the field entirely. v1 emits one cell with `scope: 'session'` (per-session enforcement — see the capabilities section above for why). Consumers MUST tolerate additional `budgets[]` entries with unrecognized `scope` values — Wave 5 PR 23 will add `scope: 'workspace'` (or `'pool'`) alongside the per-session cell without a schema bump.
+`budgetMode` is one of `enforce`, `warn`, or `off`. `clientBudget` is absent when no budget was set. `budgets[]` is **always an array** on post-PR-14 daemons (possibly empty when `budgetMode === 'off'`); pre-PR-14 daemons omit the field entirely. v1 emits one cell with `scope: 'session'` (per-session enforcement -- see the capabilities section above for why). Consumers MUST tolerate additional `budgets[]` entries with unrecognized `scope` values -- Wave 5 PR 23 will add `scope: 'workspace'` (or `'pool'`) alongside the per-session cell without a schema bump.
 
-`disabledReason` on per-server cells distinguishes operator-disabled (`'config'` — `disabledMcpServers` config list) from budget-refused (`'budget'` — discovered but never connected due to `enforce` mode). Refusals are deterministic by `Object.entries(mcpServers)` declaration order. The per-server `status: 'error', errorKind: 'budget_exhausted'` shadows the raw `mcpStatus: 'disconnected'` (which is true but not the operator-facing severity).
+`disabledReason` on per-server cells distinguishes operator-disabled (`'config'` -- `disabledMcpServers` config list) from budget-refused (`'budget'` -- discovered but never connected due to `enforce` mode). Refusals are deterministic by `Object.entries(mcpServers)` declaration order. The per-server `status: 'error', errorKind: 'budget_exhausted'` shadows the raw `mcpStatus: 'disconnected'` (which is true but not the operator-facing severity).
 
-Budget enforcement in PR 14 v1 is **per-session, not per-workspace**. Although Mode B daemons are `1 daemon = 1 workspace × N sessions` post-#4113 at the process level, the `McpClientManager` is constructed inside each ACP session's `Config` via `acpAgent.newSessionConfig`, so N sessions each enforce their own copy of the cap. The snapshot represents the bootstrap session's view. Wave 5 PR 23 introduces a workspace-scoped shared MCP pool that graduates this to true per-workspace enforcement.
+Budget enforcement in PR 14 v1 is **per-session, not per-workspace**. Although Mode B daemons are `1 daemon = 1 workspace * N sessions` post-#4113 at the process level, the `McpClientManager` is constructed inside each ACP session's `Config` via `acpAgent.newSessionConfig`, so N sessions each enforce their own copy of the cap. The snapshot represents the bootstrap session's view. Wave 5 PR 23 introduces a workspace-scoped shared MCP pool that graduates this to true per-workspace enforcement.
 
 **Detecting budget pressure.** Two surfaces, both populated post-PR-14b:
 
 - **Push events** (advertised via `mcp_guardrail_events`): subscribe to `GET /session/:id/events` and narrow `mcp_budget_warning` / `mcp_child_refused_batch` frames through `KnownDaemonEvent`. The state machine fires once per upward 75% crossing (re-armed below 37.5%); refusals are coalesced once per discovery pass under `enforce` mode.
 - **Snapshot poll** (advertised via `mcp_guardrails`): `GET /workspace/mcp` and inspect the per-session budget cell (`budgets[0]`):
 
-- `budgets[0].status === 'warning'` ⇔ `liveCount >= 0.75 * clientBudget` (matches the hysteresis threshold PR 14b's push event will use).
-- `budgets[0].status === 'error'` ⇔ `refusedCount > 0` (one or more servers refused this discovery pass).
-- `budgets[0].status === 'ok'` ⇔ below the 75% threshold AND no refusals.
+- `budgets[0].status === 'warning'`  `liveCount >= 0.75 * clientBudget` (matches the hysteresis threshold PR 14b's push event will use).
+- `budgets[0].status === 'error'`  `refusedCount > 0` (one or more servers refused this discovery pass).
+- `budgets[0].status === 'ok'`  below the 75% threshold AND no refusals.
 
-Recommended poll cadence: aligned with whatever already polls `/workspace/mcp`; the snapshot is cheap and the budget cell carries no extra discovery cost. SDK clients that subscribe to push events still benefit from the snapshot for state-after-extended-disconnect (the SSE replay ring depth is finite — `--event-ring-size`, default 8000 — so a client offline longer than the ring's coverage falls back to snapshot resync).
+Recommended poll cadence: aligned with whatever already polls `/workspace/mcp`; the snapshot is cheap and the budget cell carries no extra discovery cost. SDK clients that subscribe to push events still benefit from the snapshot for state-after-extended-disconnect (the SSE replay ring depth is finite -- `--event-ring-size`, default 8000 -- so a client offline longer than the ring's coverage falls back to snapshot resync).
 
 ### `GET /workspace/skills`
 
@@ -414,7 +414,7 @@ when snapshot construction succeeds.
 
 Reports the daemon process's runtime, platform, sandbox, proxy, and the
 **presence** of whitelisted secret environment variables. Always answers
-from `process.*` state — the daemon never spawns an ACP child to serve
+from `process.*` state -- the daemon never spawns an ACP child to serve
 this route, and the response is identical whether ACP is up or idle. The
 `acpChannelLive` field is informational only.
 
@@ -496,7 +496,7 @@ Reports daemon readiness checks. **Daemon-level cells** (`node_version`,
 `cli_entry`, `workspace_dir`, `ripgrep`, `git`, `npm`) are always
 populated from `process.*` and `node:fs`. **ACP-level cells** (`auth`,
 `mcp_discovery`, `skills`, `providers`, `tool_registry`, `egress`)
-require a live ACP child — when the daemon is idle they emit
+require a live ACP child -- when the daemon is idle they emit
 `status: 'not_started'` placeholders. The route never spawns ACP solely
 to populate cells; the corresponding cells fall back to `not_started`.
 
@@ -606,23 +606,23 @@ interface DaemonPreflightCell extends DaemonStatusCell {
 
 `errorKind` semantics:
 
-- `missing_binary` — Node version below required, missing `QWEN_CLI_ENTRY`,
+- `missing_binary` -- Node version below required, missing `QWEN_CLI_ENTRY`,
   ripgrep / git / npm not on PATH (warnings rather than errors for the
   optional binaries).
-- `missing_file` — `boundWorkspace` does not exist or is not a directory;
+- `missing_file` -- `boundWorkspace` does not exist or is not a directory;
   skill parse error pointing at a missing or unreadable file.
-- `parse_error` — `SKILL.md` parse failure, malformed config JSON.
-- `auth_env_error` — `validateAuthMethod` returned a non-null failure
+- `parse_error` -- `SKILL.md` parse failure, malformed config JSON.
+- `auth_env_error` -- `validateAuthMethod` returned a non-null failure
   string, or a `ModelConfigError` subclass propagated from provider
   resolution.
-- `init_timeout` — `withTimeout` reject in the bridge (an actual timeout
+- `init_timeout` -- `withTimeout` reject in the bridge (an actual timeout
   while waiting on an ACP roundtrip). Recognized via the
   `BridgeTimeoutError` typed class. Note: a transient `mcp_discovery`
-  `warning` cell with `connecting > 0` does NOT carry this kind — that's
+  `warning` cell with `connecting > 0` does NOT carry this kind -- that's
   a normal handshake-in-progress state, distinct from a real timeout.
-- `protocol_error` — ACP `extMethod` rejected because the channel closed
+- `protocol_error` -- ACP `extMethod` rejected because the channel closed
   mid-request, or because tool registry was unexpectedly absent.
-- `blocked_egress` — reserved for PR 14 (#4175). PR 13 leaves the
+- `blocked_egress` -- reserved for PR 14 (#4175). PR 13 leaves the
   `egress` cell as `status: 'not_started'`.
 
 If the bridge fails to reach the ACP child while serving a preflight
@@ -854,9 +854,9 @@ Request:
 
 | Field            | Required | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | ---------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `cwd`            | no       | Absolute path matching the daemon's bound workspace. If omitted, the route falls back to `boundWorkspace` (read it off `/capabilities.workspaceCwd`). A mismatched non-empty `cwd` returns `400 workspace_mismatch` (#3803 §02 — 1 daemon = 1 workspace). Workspace paths are canonicalized via `realpathSync.native` (with a resolve-only fallback for non-existent paths) so case-insensitive filesystems don't reject sessions per spelling.                                                                                                                                                                          |
-| `modelServiceId` | no       | Selects which configured _model service_ the agent will route through (the back-end provider — Alibaba ModelStudio, OpenRouter, etc). If omitted the agent uses its default. If the workspace already has a session, this calls `setSessionModel` on the existing one and broadcasts `model_switched`. Distinct from `modelId` on `POST /session/:id/model`, which selects the model **within** an already-bound service. The `modelServices` array on `/capabilities` is reserved for advertising configured services; in Stage 1 it is always `[]` (the agent's default service is used and not enumerated over HTTP). |
-| `sessionScope`   | no       | Per-request override for session sharing. `'single'` (the daemon-wide default) makes a second same-workspace `POST /session` reuse the existing session (`attached: true`); `'thread'` forces a fresh distinct session every call. Omit to inherit the daemon-wide default. Values outside the enum return `400 { code: 'invalid_session_scope' }`. Old daemons (pre-#4175 PR 5) silently ignore the field — pre-flight `caps.features.session_scope_override` before sending. The daemon-wide default is hardcoded to `'single'` in production today; #4175 may add a `--sessionScope` CLI flag in a follow-up.         |
+| `cwd`            | no       | Absolute path matching the daemon's bound workspace. If omitted, the route falls back to `boundWorkspace` (read it off `/capabilities.workspaceCwd`). A mismatched non-empty `cwd` returns `400 workspace_mismatch` (#3803 02 -- 1 daemon = 1 workspace). Workspace paths are canonicalized via `realpathSync.native` (with a resolve-only fallback for non-existent paths) so case-insensitive filesystems don't reject sessions per spelling.                                                                                                                                                                          |
+| `modelServiceId` | no       | Selects which configured _model service_ the agent will route through (the back-end provider -- Alibaba ModelStudio, OpenRouter, etc). If omitted the agent uses its default. If the workspace already has a session, this calls `setSessionModel` on the existing one and broadcasts `model_switched`. Distinct from `modelId` on `POST /session/:id/model`, which selects the model **within** an already-bound service. The `modelServices` array on `/capabilities` is reserved for advertising configured services; in Stage 1 it is always `[]` (the agent's default service is used and not enumerated over HTTP). |
+| `sessionScope`   | no       | Per-request override for session sharing. `'single'` (the daemon-wide default) makes a second same-workspace `POST /session` reuse the existing session (`attached: true`); `'thread'` forces a fresh distinct session every call. Omit to inherit the daemon-wide default. Values outside the enum return `400 { code: 'invalid_session_scope' }`. Old daemons (pre-#4175 PR 5) silently ignore the field -- pre-flight `caps.features.session_scope_override` before sending. The daemon-wide default is hardcoded to `'single'` in production today; #4175 may add a `--sessionScope` CLI flag in a follow-up.         |
 
 Response:
 
@@ -870,11 +870,11 @@ Response:
 
 `attached: true` means a session for that workspace already existed and you're now sharing it.
 
-Concurrent `POST /session` calls for the same workspace are **coalesced** to one spawn — both callers get the same `sessionId`, exactly one reports `attached: false`. If the underlying spawn fails (init timeout, malformed agent output, OOM), **all coalesced callers receive the same error** — the in-flight slot is cleared so a follow-up call can retry from scratch.
+Concurrent `POST /session` calls for the same workspace are **coalesced** to one spawn -- both callers get the same `sessionId`, exactly one reports `attached: false`. If the underlying spawn fails (init timeout, malformed agent output, OOM), **all coalesced callers receive the same error** -- the in-flight slot is cleared so a follow-up call can retry from scratch.
 
-> ⚠️ **`modelServiceId` rejection on a fresh session is silent on the
+>  **`modelServiceId` rejection on a fresh session is silent on the
 > HTTP response.** A bad `modelServiceId` (typo, unconfigured service)
-> does NOT 500 the create — the session stays operational on the
+> does NOT 500 the create -- the session stays operational on the
 > agent's default model so the caller still gets a `sessionId` they
 > can retry the model switch against (via `POST /session/:id/model`).
 > The visible failure signal is a `model_switch_failed` event on the
@@ -887,7 +887,7 @@ Concurrent `POST /session` calls for the same workspace are **coalesced** to one
 
 ### `POST /session/:id/load`
 
-Restore a persisted ACP session by id and replay its history through SSE. The path id is authoritative; any `sessionId` field in the body is ignored. Pre-flight `caps.features.session_load` — older daemons return `404` for this route.
+Restore a persisted ACP session by id and replay its history through SSE. The path id is authoritative; any `sessionId` field in the body is ignored. Pre-flight `caps.features.session_load` -- older daemons return `404` for this route.
 
 Request:
 
@@ -899,7 +899,7 @@ Request:
 
 | Field | Required | Notes                                                                                                                                                                                                                                |
 | ----- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `cwd` | no       | Same canonicalization + `workspace_mismatch` rules as `POST /session`. Omit to inherit `/capabilities.workspaceCwd`. `mcpServers` is intentionally NOT accepted here — daemon-wide MCP is settings-driven (matches `POST /session`). |
+| `cwd` | no       | Same canonicalization + `workspace_mismatch` rules as `POST /session`. Omit to inherit `/capabilities.workspaceCwd`. `mcpServers` is intentionally NOT accepted here -- daemon-wide MCP is settings-driven (matches `POST /session`). |
 
 Response:
 
@@ -916,28 +916,28 @@ Response:
 }
 ```
 
-`state` mirrors ACP's `LoadSessionResponse` — `models` is a `SessionModelState`, `modes` a `SessionModeState`, `configOptions` an array of `SessionConfigOption`. Missing fields are agent-decided. Late attachers (the `attached: true` paths below) get the SAME `state` snapshot the original load caller saw — the daemon caches it on the entry; runtime mutations (e.g. `model_switched`) are delivered on the SSE stream, not on subsequent attach responses.
+`state` mirrors ACP's `LoadSessionResponse` -- `models` is a `SessionModelState`, `modes` a `SessionModeState`, `configOptions` an array of `SessionConfigOption`. Missing fields are agent-decided. Late attachers (the `attached: true` paths below) get the SAME `state` snapshot the original load caller saw -- the daemon caches it on the entry; runtime mutations (e.g. `model_switched`) are delivered on the SSE stream, not on subsequent attach responses.
 
 `attached: true` means the session was already live (either from a prior `session/load`/`session/resume`, or because a coalesced concurrent caller raced just ahead).
 
-**History replay over SSE.** While `loadSession` is in flight on the agent side, the agent emits `session_update` notifications for every persisted turn. The daemon buffers them onto the session's event-bus before the route response returns, so subscribers that immediately call `GET /session/:id/events` with `Last-Event-ID: 0` see the full replay. **The replay ring is bounded** (default 4000 frames per session). Long histories with many tool-call / thought-stream turns can exceed that — the oldest frames are dropped silently. Clients that need full history should subscribe immediately after `load` returns; alternatively they can persist the SSE event ids and use `Last-Event-ID` to resume from a later turn boundary.
+**History replay over SSE.** While `loadSession` is in flight on the agent side, the agent emits `session_update` notifications for every persisted turn. The daemon buffers them onto the session's event-bus before the route response returns, so subscribers that immediately call `GET /session/:id/events` with `Last-Event-ID: 0` see the full replay. **The replay ring is bounded** (default 4000 frames per session). Long histories with many tool-call / thought-stream turns can exceed that -- the oldest frames are dropped silently. Clients that need full history should subscribe immediately after `load` returns; alternatively they can persist the SSE event ids and use `Last-Event-ID` to resume from a later turn boundary.
 
 **Errors:**
 
-- `404` — persisted session id doesn't exist (`SessionNotFoundError`).
-- `400` — `workspace_mismatch` (same shape as `POST /session`).
-- `503` — `session_limit_exceeded` (counts against `--max-sessions`; in-flight restores are accounted for too).
-- `409` — `restore_in_progress` (a `session/resume` for the same id is already in flight). `Retry-After: 5`. Same-action races (two concurrent `session/load` for the same id) coalesce — exactly one returns `attached: false`, the rest return `attached: true` with the same `state`.
+- `404` -- persisted session id doesn't exist (`SessionNotFoundError`).
+- `400` -- `workspace_mismatch` (same shape as `POST /session`).
+- `503` -- `session_limit_exceeded` (counts against `--max-sessions`; in-flight restores are accounted for too).
+- `409` -- `restore_in_progress` (a `session/resume` for the same id is already in flight). `Retry-After: 5`. Same-action races (two concurrent `session/load` for the same id) coalesce -- exactly one returns `attached: false`, the rest return `attached: true` with the same `state`.
 
 ### `POST /session/:id/resume`
 
 Restore a persisted ACP session by id WITHOUT replaying history through SSE. The model context is restored internally on the agent side (via `geminiClient.initialize` reading `config.getResumedSessionData`); the SSE stream stays clean for clients that already have history rendered. Pre-flight `caps.features.unstable_session_resume`.
 
-Same request shape as `/load`. Same response shape — `state` mirrors ACP's `ResumeSessionResponse`. Same error envelope, including `409 restore_in_progress` (which fires when a `session/load` is in flight; `session/resume` racing behind another `session/resume` coalesces).
+Same request shape as `/load`. Same response shape -- `state` mirrors ACP's `ResumeSessionResponse`. Same error envelope, including `409 restore_in_progress` (which fires when a `session/load` is in flight; `session/resume` racing behind another `session/resume` coalesces).
 
-Use `/load` when the client has no history rendered (cold reconnect, picker → open). Use `/resume` when the client already has the turns on screen and only needs the daemon-side handle back.
+Use `/load` when the client has no history rendered (cold reconnect, picker -> open). Use `/resume` when the client already has the turns on screen and only needs the daemon-side handle back.
 
-> ⚠️ **Why `unstable_` on the capability tag?** The route is wire-stable for the daemon's v1, but it's backed by ACP's `connection.unstable_resumeSession` which is still subject to ACP-side breaking changes. The daemon insulates the wire shape from those changes; the prefix is a courtesy signal so SDK consumers know the underlying agent contract is not yet locked.
+>  **Why `unstable_` on the capability tag?** The route is wire-stable for the daemon's v1, but it's backed by ACP's `connection.unstable_resumeSession` which is still subject to ACP-side breaking changes. The daemon insulates the wire shape from those changes; the prefix is a courtesy signal so SDK consumers know the underlying agent contract is not yet locked.
 
 ### `GET /workspace/:id/sessions`
 
@@ -964,7 +964,7 @@ Response:
 }
 ```
 
-Empty array (not 404) when no sessions exist — a session-picker UI shouldn't error just because the workspace is idle.
+Empty array (not 404) when no sessions exist -- a session-picker UI shouldn't error just because the workspace is idle.
 
 ### `POST /session/:id/prompt`
 
@@ -990,7 +990,7 @@ Other stop reasons: `cancelled`, `max_tokens`, `error`, `length` (per ACP spec).
 
 If the HTTP client disconnects mid-prompt, the daemon sends an ACP `cancel` notification to the agent, which winds the prompt down with `stopReason: "cancelled"`.
 
-> **Stage 1 limitation — no server-side prompt timeout.** The bridge
+> **Stage 1 limitation -- no server-side prompt timeout.** The bridge
 > only races the agent's `prompt()` against `transportClosedReject`
 > (the agent child crashing) and the caller's HTTP-disconnect
 > AbortSignal. A wedged-but-alive agent (e.g. a model call that
@@ -1004,22 +1004,22 @@ If the HTTP client disconnects mid-prompt, the daemon sends an ACP `cancel` noti
 
 ### `POST /session/:id/cancel`
 
-Cancel the **currently active** prompt on the session. ACP-side this is a notification, not a request — the agent acknowledges by resolving the active `prompt()` with `cancelled`.
+Cancel the **currently active** prompt on the session. ACP-side this is a notification, not a request -- the agent acknowledges by resolving the active `prompt()` with `cancelled`.
 
 ```bash
 curl -X POST http://127.0.0.1:4170/session/$SID/cancel
-# → 204 No Content
+# -> 204 No Content
 ```
 
 > **Multi-prompt contract:** cancel only affects the active prompt. Any prompts the same client previously POSTed and are still queued behind the active one will continue to execute. Multi-prompt queueing is a daemon-introduced behavior (not in ACP spec); the contract for queued prompts is "they keep running unless you cancel each, or kill the session via channel exit".
 
 ### `DELETE /session/:id`
 
-Explicitly close a live session. Force-closes even when other clients are attached — cancels any active prompt, resolves pending permissions as cancelled, publishes `session_closed` event, closes the EventBus, and removes the session from daemon maps. On-disk persisted sessions are NOT deleted — they can be reloaded via `POST /session/:id/load`. Pre-flight `caps.features.session_close`.
+Explicitly close a live session. Force-closes even when other clients are attached -- cancels any active prompt, resolves pending permissions as cancelled, publishes `session_closed` event, closes the EventBus, and removes the session from daemon maps. On-disk persisted sessions are NOT deleted -- they can be reloaded via `POST /session/:id/load`. Pre-flight `caps.features.session_close`.
 
 ```bash
 curl -X DELETE http://127.0.0.1:4170/session/$SID
-# → 204 No Content
+# -> 204 No Content
 ```
 
 Idempotent: returns `404` for unknown sessions (same `SessionNotFoundError` shape as other routes).
@@ -1058,7 +1058,7 @@ Headers:
 | ------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `X-Qwen-Client-Id` | no       | Echoes the daemon-issued id from `POST /session`. Identified clients also bump their per-client timestamp; anonymous heartbeats only bump the per-session watermark. Must satisfy the same `[A-Za-z0-9._:-]{1,128}` shape as elsewhere. |
 
-Request body is empty (`{}` is fine — no fields are read today).
+Request body is empty (`{}` is fine -- no fields are read today).
 
 Response:
 
@@ -1074,8 +1074,8 @@ Response:
 
 Errors:
 
-- `400` — `{ code: 'invalid_client_id' }` when the header is malformed (header-shape rule) or when it carries a `clientId` that isn't registered for this session (the bridge throws `InvalidClientIdError` before bumping any timestamp).
-- `404` — unknown session.
+- `400` -- `{ code: 'invalid_client_id' }` when the header is malformed (header-shape rule) or when it carries a `clientId` that isn't registered for this session (the bridge throws `InvalidClientIdError` before bumping any timestamp).
+- `404` -- unknown session.
 
 Capability gating: pre-flight `caps.features.client_heartbeat`. Older daemons return `404` for this path.
 
@@ -1083,7 +1083,7 @@ Capability gating: pre-flight `caps.features.client_heartbeat`. Older daemons re
 
 Switch the active model **within** the session's currently bound model service. Serialized through the per-session model-change queue.
 
-(For switching the _service_ itself — Alibaba ModelStudio vs OpenRouter etc — pass `modelServiceId` on `POST /session` for a fresh session. Stage 1 has no live service-switch route.)
+(For switching the _service_ itself -- Alibaba ModelStudio vs OpenRouter etc -- pass `modelServiceId` on `POST /session` for a fresh session. Stage 1 has no live service-switch route.)
 
 Request:
 
@@ -1111,9 +1111,9 @@ Three of the four routes (`tools/:name/enable`, `init`, `mcp/:server/restart`) e
 
 #### `POST /session/:id/approval-mode`
 
-Capability tag: `session_approval_mode_control`. Bridge → ACP extMethod `qwen/control/session/approval_mode`.
+Capability tag: `session_approval_mode_control`. Bridge -> ACP extMethod `qwen/control/session/approval_mode`.
 
-Change the approval mode of a live session. The new mode lands inside the ACP child's per-session `Config` immediately. Settings are NOT written to disk by default — pass `persist: true` to also write `tools.approvalMode` to workspace settings.
+Change the approval mode of a live session. The new mode lands inside the ACP child's per-session `Config` immediately. Settings are NOT written to disk by default -- pass `persist: true` to also write `tools.approvalMode` to workspace settings.
 
 Request:
 
@@ -1136,22 +1136,22 @@ Response (200):
 
 Errors:
 
-- `400 {code: 'invalid_approval_mode', allowed: [...]}` — unknown mode literal.
-- `400 {code: 'invalid_persist_flag'}` — `persist` is non-boolean.
-- `403 {code: 'trust_gate', errorKind: 'auth_env_error'}` — the requested mode requires a trusted folder (privileged modes in untrusted workspaces are rejected by core's `Config.setApprovalMode`).
-- `404` — session unknown.
+- `400 {code: 'invalid_approval_mode', allowed: [...]}` -- unknown mode literal.
+- `400 {code: 'invalid_persist_flag'}` -- `persist` is non-boolean.
+- `403 {code: 'trust_gate', errorKind: 'auth_env_error'}` -- the requested mode requires a trusted folder (privileged modes in untrusted workspaces are rejected by core's `Config.setApprovalMode`).
+- `404` -- session unknown.
 
 SSE event (session-scoped): `approval_mode_changed` with `{sessionId, previous, next, persisted, originatorClientId?}`.
 
 #### `POST /workspace/tools/:name/enable`
 
-Capability tag: `workspace_tool_toggle`. Pure file IO — no ACP roundtrip.
+Capability tag: `workspace_tool_toggle`. Pure file IO -- no ACP roundtrip.
 
 Toggle a tool name in the workspace's `tools.disabled` settings list. Tools listed there are **not registered** at all (distinct from `permissions.deny`, which keeps the tool registered and rejects invocation). Both built-in tools and MCP-discovered tools flow through `ToolRegistry.registerTool`, which consults the disabled set.
 
-> ⚠️ **Names must match the registry's exposed identifier exactly.** No alias resolution happens — the route stores whatever string is in the path parameter into `tools.disabled`, and the next ACP child compares against `tool.name` at register time. Built-ins use their canonical registry name (snake_case verb form): `run_shell_command`, `read_file`, `write_file`, `list_directory`, `glob`, `search_file_content`, `ripgrep`, `web_fetch`, etc. — NOT the display labels (`Shell`, `Read`, `Write`) that the CLI surfaces. MCP-discovered tools use the qualified `mcp__<server>__<name>` form (which is also the form `tool_toggled` events broadcast and what `GET /workspace/mcp` lists). Disabling `Bash` will NOT prevent `run_shell_command` from registering on the next session.
+>  **Names must match the registry's exposed identifier exactly.** No alias resolution happens -- the route stores whatever string is in the path parameter into `tools.disabled`, and the next ACP child compares against `tool.name` at register time. Built-ins use their canonical registry name (snake_case verb form): `run_shell_command`, `read_file`, `write_file`, `list_directory`, `glob`, `search_file_content`, `ripgrep`, `web_fetch`, etc. -- NOT the display labels (`Shell`, `Read`, `Write`) that the CLI surfaces. MCP-discovered tools use the qualified `mcp__<server>__<name>` form (which is also the form `tool_toggled` events broadcast and what `GET /workspace/mcp` lists). Disabling `Bash` will NOT prevent `run_shell_command` from registering on the next session.
 
-Live ACP children retain already-registered tools — the toggle takes effect on the **next** ACP child spawn. Combine with `POST /workspace/mcp/:server/restart` (for MCP-sourced tools) or new-session creation to make the change effective in the current daemon.
+Live ACP children retain already-registered tools -- the toggle takes effect on the **next** ACP child spawn. Combine with `POST /workspace/mcp/:server/restart` (for MCP-sourced tools) or new-session creation to make the change effective in the current daemon.
 
 Unknown tool names are accepted: pre-disabling a not-yet-installed MCP tool is a legitimate use case.
 
@@ -1169,16 +1169,16 @@ Response (200):
 
 Errors:
 
-- `400 {code: 'invalid_tool_name'}` — empty path parameter, or path parameter exceeds the 256-character cap.
-- `400 {code: 'invalid_enabled_flag'}` — `enabled` missing or non-boolean.
+- `400 {code: 'invalid_tool_name'}` -- empty path parameter, or path parameter exceeds the 256-character cap.
+- `400 {code: 'invalid_enabled_flag'}` -- `enabled` missing or non-boolean.
 
 SSE event (workspace-scoped): `tool_toggled` with `{toolName, enabled, originatorClientId?}`.
 
 #### `POST /workspace/init`
 
-Capability tag: `workspace_init`. Pure file IO — no ACP roundtrip, **no LLM invocation**.
+Capability tag: `workspace_init`. Pure file IO -- no ACP roundtrip, **no LLM invocation**.
 
-Scaffold an empty `QWEN.md` (or whatever `getCurrentGeminiMdFilename()` returns under `--memory-file-name` overrides) at the daemon's bound workspace root. Mechanical only — for AI-driven content fill, follow up with `POST /session/:id/prompt`.
+Scaffold an empty `QWEN.md` (or whatever `getCurrentGeminiMdFilename()` returns under `--memory-file-name` overrides) at the daemon's bound workspace root. Mechanical only -- for AI-driven content fill, follow up with `POST /session/:id/prompt`.
 
 Default refuses to overwrite when the target file exists with non-whitespace content. Whitespace-only files are treated as absent (matches the local `/init` slash command).
 
@@ -1194,24 +1194,24 @@ Response (200):
 { "path": "/work/bound/QWEN.md", "action": "created" }
 ```
 
-`action` is `'created'` for fresh creates, `'noop'` when an existing whitespace-only file was left untouched (no write performed), and `'overwrote'` when `force: true` replaced non-empty content. The `workspace_initialized` SSE event mirrors the response action — observers can filter for `action !== 'noop'` to react only to actual on-disk changes.
+`action` is `'created'` for fresh creates, `'noop'` when an existing whitespace-only file was left untouched (no write performed), and `'overwrote'` when `force: true` replaced non-empty content. The `workspace_initialized` SSE event mirrors the response action -- observers can filter for `action !== 'noop'` to react only to actual on-disk changes.
 
 Errors:
 
-- `400 {code: 'invalid_force_flag'}` — `force` is non-boolean.
-- `409 {code: 'workspace_init_conflict', path, existingSize}` — file exists with non-whitespace content and `force` is omitted/false. Body carries the absolute path and size (bytes) so SDK clients can render an "overwrite N bytes?" prompt without re-stat'ing.
+- `400 {code: 'invalid_force_flag'}` -- `force` is non-boolean.
+- `409 {code: 'workspace_init_conflict', path, existingSize}` -- file exists with non-whitespace content and `force` is omitted/false. Body carries the absolute path and size (bytes) so SDK clients can render an "overwrite N bytes?" prompt without re-stat'ing.
 
 SSE event (workspace-scoped): `workspace_initialized` with `{path, action, originatorClientId?}`.
 
 #### `POST /workspace/mcp/:server/restart`
 
-Capability tag: `workspace_mcp_restart`. Bridge → ACP extMethod `qwen/control/workspace/mcp/restart`.
+Capability tag: `workspace_mcp_restart`. Bridge -> ACP extMethod `qwen/control/workspace/mcp/restart`.
 
 Restart a configured MCP server through the ACP child's `McpClientManager.discoverMcpToolsForServer` (disconnect + reconnect + rediscover). Pre-checks the live budget snapshot from PR 14 v1's accounting so a restart on a budget-saturated workspace returns a soft refusal rather than triggering a `BudgetExhaustedError` cascade.
 
 Request body is empty (`{}`). The path parameter is the URL-encoded server name as it appears in `mcpServers` config.
 
-Response (200) — discriminated union on `restarted`:
+Response (200) -- discriminated union on `restarted`:
 
 ```json
 { "serverName": "docs", "restarted": true, "durationMs": 1234 }
@@ -1236,9 +1236,9 @@ Soft skip reasons (all return 200):
 
 Errors (non-2xx):
 
-- `400 {code: 'invalid_server_name'}` — empty path parameter.
-- `404` — server name not in `mcpServers` config, or no live ACP channel exists (restart inherently requires a live `McpClientManager` instance).
-- `500` — internal error (e.g. `ToolRegistry` not initialized).
+- `400 {code: 'invalid_server_name'}` -- empty path parameter.
+- `404` -- server name not in `mcpServers` config, or no live ACP channel exists (restart inherently requires a live `McpClientManager` instance).
+- `500` -- internal error (e.g. `ToolRegistry` not initialized).
 
 SSE events (workspace-scoped): `mcp_server_restarted` with `{serverName, durationMs, originatorClientId?}` on success; `mcp_server_restart_refused` with `{serverName, reason, originatorClientId?}` on soft skip.
 
@@ -1250,29 +1250,29 @@ Headers:
 
 ```
 Accept: text/event-stream
-Last-Event-ID: 42        ← optional, replays from after id 42
+Last-Event-ID: 42        <- optional, replays from after id 42
 ```
 
 Query params:
 
 | Param       | Required | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | ----------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `maxQueued` | no       | Per-subscriber **live-backlog** cap. Range `[16, 2048]`, default 256. Replay frames force-pushed at subscribe time are exempt from the cap; what actually consumes it is live events that arrive while the subscriber is still draining a large `Last-Event-ID: 0` replay. Bump for cold reconnects so the live tail doesn't trip the slow-client warning / eviction before the consumer catches up. Out-of-range / non-decimal / present-but-empty values return `400 invalid_max_queued` before the SSE handshake opens. Pre-flight `caps.features.slow_client_warning` — old daemons silently ignore the param. |
+| `maxQueued` | no       | Per-subscriber **live-backlog** cap. Range `[16, 2048]`, default 256. Replay frames force-pushed at subscribe time are exempt from the cap; what actually consumes it is live events that arrive while the subscriber is still draining a large `Last-Event-ID: 0` replay. Bump for cold reconnects so the live tail doesn't trip the slow-client warning / eviction before the consumer catches up. Out-of-range / non-decimal / present-but-empty values return `400 invalid_max_queued` before the SSE handshake opens. Pre-flight `caps.features.slow_client_warning` -- old daemons silently ignore the param. |
 
-Frame format. The `data:` line is the **full event envelope**, JSON-stringified on a single line — `{id?, v, type, data, originatorClientId?}`. The ACP-specific payload (`sessionUpdate`, `requestPermission` arguments, etc.) sits under the envelope's `data` field; the envelope's own `type` matches the SSE `event:` line.
+Frame format. The `data:` line is the **full event envelope**, JSON-stringified on a single line -- `{id?, v, type, data, originatorClientId?}`. The ACP-specific payload (`sessionUpdate`, `requestPermission` arguments, etc.) sits under the envelope's `data` field; the envelope's own `type` matches the SSE `event:` line.
 
 ```
 id: 7
 event: session_update
-data: {"id":7,"v":1,"type":"session_update","data":{"sessionUpdate":"agent_message_chunk","content":{"type":"text","text":"…"}}}
+data: {"id":7,"v":1,"type":"session_update","data":{"sessionUpdate":"agent_message_chunk","content":{"type":"text","text":"..."}}}
 
 id: 8
 event: permission_request
 data: {"id":8,"v":1,"type":"permission_request","data":{"requestId":"<uuid>","sessionId":"<sid>","toolCall":{...},"options":[...]}}
 
-: heartbeat              ← every 15s, no payload
+: heartbeat              <- every 15s, no payload
 
-event: client_evicted    ← terminal frame, no id (synthetic)
+event: client_evicted    <- terminal frame, no id (synthetic)
 data: {"v":1,"type":"client_evicted","data":{"reason":"queue_overflow","droppedAfter":42}}
 ```
 
@@ -1286,34 +1286,34 @@ The SSE-level `id:` / `event:` lines duplicate `envelope.id` / `envelope.type` f
 | `model_switched`      | `POST /session/:id/model` succeeded                                                                                                                                                                                                                                                                                      |
 | `model_switch_failed` | `POST /session/:id/model` rejected                                                                                                                                                                                                                                                                                       |
 | `session_died`        | Agent child crashed unexpectedly. **Terminal: SSE stream closes after this frame; the session is gone from `byId`.** Subscribers should reconnect via `POST /session` to spawn a fresh one.                                                                                                                              |
-| `slow_client_warning` | Subscriber-local: queue ≥ 75% full. **Non-terminal** — the stream continues; the warning is a heads-up before eviction. Carries `{queueSize, maxQueued, lastEventId}`. Fires ONCE per overflow episode; re-arms after the queue drains below 37.5%. No `id` (synthetic). Pre-flight `caps.features.slow_client_warning`. |
-| `client_evicted`      | Subscriber-local: queue overflow. **Terminal: SSE stream closes after this frame** (no `id` — synthetic). Other subscribers on the same session continue.                                                                                                                                                                |
-| `stream_error`        | Daemon-side error during fan-out. **Terminal: SSE stream closes after this frame** (no `id` — synthetic).                                                                                                                                                                                                                |
+| `slow_client_warning` | Subscriber-local: queue >= 75% full. **Non-terminal** -- the stream continues; the warning is a heads-up before eviction. Carries `{queueSize, maxQueued, lastEventId}`. Fires ONCE per overflow episode; re-arms after the queue drains below 37.5%. No `id` (synthetic). Pre-flight `caps.features.slow_client_warning`. |
+| `client_evicted`      | Subscriber-local: queue overflow. **Terminal: SSE stream closes after this frame** (no `id` -- synthetic). Other subscribers on the same session continue.                                                                                                                                                                |
+| `stream_error`        | Daemon-side error during fan-out. **Terminal: SSE stream closes after this frame** (no `id` -- synthetic).                                                                                                                                                                                                                |
 
 Reconnect semantics:
 
 - Send `Last-Event-ID: <n>` to replay events with `id > n` from the per-session ring (default depth **8000**, tunable via `qwen serve --event-ring-size <n>`)
-- **Gap detection (client-side):** if `<n>` predates the oldest event still in the ring (e.g. you reconnect with `Last-Event-ID: 50` but the ring now holds 200–1199), the daemon replays from the oldest available event without raising. Compare the first replayed event's `id` against `n + 1`; any difference is the size of the lost window. Stage 2 will inject an explicit `stream_gap` synthetic frame on the daemon side; in Stage 1 detection is the client's responsibility.
+- **Gap detection (client-side):** if `<n>` predates the oldest event still in the ring (e.g. you reconnect with `Last-Event-ID: 50` but the ring now holds 200-1199), the daemon replays from the oldest available event without raising. Compare the first replayed event's `id` against `n + 1`; any difference is the size of the lost window. Stage 2 will inject an explicit `stream_gap` synthetic frame on the daemon side; in Stage 1 detection is the client's responsibility.
 - IDs are monotonic per session, starting at 1
 - Synthetic frames (`client_evicted`, `slow_client_warning`, `stream_error`) intentionally omit `id` so they don't burn a sequence slot for other subscribers
 
 Backpressure:
 
 - Per-subscriber queue defaults to `maxQueued: 256` live items (replay frames during reconnect bypass the cap). Override via `?maxQueued=N` (range `[16, 2048]`) on the SSE request.
-- When a subscriber's queue crosses 75% full the bus force-pushes a `slow_client_warning` synthetic frame to that subscriber (once per overflow episode; re-armed after drain below 37.5%). The stream stays open — the warning is a heads-up so the client can drain faster or detach + reconnect cleanly.
+- When a subscriber's queue crosses 75% full the bus force-pushes a `slow_client_warning` synthetic frame to that subscriber (once per overflow episode; re-armed after drain below 37.5%). The stream stays open -- the warning is a heads-up so the client can drain faster or detach + reconnect cleanly.
 - If the queue actually overflows the warning, the bus emits the `client_evicted` terminal frame and closes the subscription.
 
 ### `POST /permission/:requestId`
 
-Cast a vote on a pending `permission_request`. **First responder wins** — once one client answers, every other client trying to answer the same id gets `404`.
+Cast a vote on a pending `permission_request`. **First responder wins** -- once one client answers, every other client trying to answer the same id gets `404`.
 
-> **Stage 1 limitation — no permission timeout.** A `permission_request`
+> **Stage 1 limitation -- no permission timeout.** A `permission_request`
 > stays pending until: (a) some client votes here, (b) `POST /session/:id/cancel`
 > fires, (c) the HTTP client driving the prompt
 > disconnects (mid-prompt cancel resolves outstanding permissions as
 > `cancelled`), (d) the session is killed, or (e) the daemon shuts
 > down. **In a fully-headless deployment with no SSE subscriber,
-> `requestPermission` blocks the agent indefinitely** — there's nothing
+> `requestPermission` blocks the agent indefinitely** -- there's nothing
 > to time out the wait. Stage 2 will add a configurable
 > `permissionTimeoutMs`. Until then, headless callers should keep an
 > SSE subscription open or wrap their prompt loop in their own timeout
@@ -1333,27 +1333,27 @@ Request:
 
 Outcomes:
 
-- `{ "outcome": "selected", "optionId": "<one-of-the-options>" }` — accept / reject / proceed-once / etc, per the agent's offered choices
-- `{ "outcome": "cancelled" }` — drop the request (matches what `cancelSession` / `shutdown` do internally)
+- `{ "outcome": "selected", "optionId": "<one-of-the-options>" }` -- accept / reject / proceed-once / etc, per the agent's offered choices
+- `{ "outcome": "cancelled" }` -- drop the request (matches what `cancelSession` / `shutdown` do internally)
 
 Response:
 
-- `200 {}` — your vote was accepted
-- `404 { "error": "..." }` — the requestId is unknown (already resolved, never existed, or session torn down)
+- `200 {}` -- your vote was accepted
+- `404 { "error": "..." }` -- the requestId is unknown (already resolved, never existed, or session torn down)
 
 After a successful vote, every connected client sees `permission_resolved` with the same `requestId` and the chosen `outcome`.
 
 ### Auth device-flow routes (issue #4175 PR 21)
 
-The daemon brokers an OAuth 2.0 Device Authorization Grant (RFC 8628) so a remote SDK client can trigger a login whose tokens land on the **daemon** filesystem — not on the client. The daemon polls the IdP itself; the client's only job is to display the verification URL + user code and (optionally) subscribe to SSE for completion events.
+The daemon brokers an OAuth 2.0 Device Authorization Grant (RFC 8628) so a remote SDK client can trigger a login whose tokens land on the **daemon** filesystem -- not on the client. The daemon polls the IdP itself; the client's only job is to display the verification URL + user code and (optionally) subscribe to SSE for completion events.
 
 Capability tag: `auth_device_flow` (always advertised). Supported providers in v1: `qwen-oauth`.
 
-**Runtime locality.** The daemon never spawns a browser — even if it can. The client decides whether to call `open(verificationUri)` locally; on a headless pod (the canonical Mode B deployment) the user opens the URL on whatever device they have a browser on. See `docs/users/qwen-serve.md` for the recommended UX.
+**Runtime locality.** The daemon never spawns a browser -- even if it can. The client decides whether to call `open(verificationUri)` locally; on a headless pod (the canonical Mode B deployment) the user opens the URL on whatever device they have a browser on. See `docs/users/qwen-serve.md` for the recommended UX.
 
 **No token leakage in events.** `auth_device_flow_started` carries `{deviceFlowId, providerId, expiresAt}` only. The user code and verification URL come back point-to-point in the POST 201 body and via `GET /workspace/auth/device-flow/:id`; they are never broadcast on SSE.
 
-**Per-provider singleton.** A second `POST` for the same provider while a flow is pending is an idempotent take-over — it returns the existing entry with `attached: true` rather than starting a fresh IdP request.
+**Per-provider singleton.** A second `POST` for the same provider while a flow is pending is an idempotent take-over -- it returns the existing entry with `attached: true` rather than starting a fresh IdP request.
 
 #### `POST /workspace/auth/device-flow`
 
@@ -1369,7 +1369,7 @@ Response (`201` fresh start, `200` idempotent take-over):
 
 ```json
 {
-  "deviceFlowId": "fa07c61b-…",
+  "deviceFlowId": "fa07c61b-...",
   "providerId": "qwen-oauth",
   "status": "pending",
   "userCode": "USER-1",
@@ -1383,10 +1383,10 @@ Response (`201` fresh start, `200` idempotent take-over):
 
 Errors:
 
-- `400 unsupported_provider` — unknown `providerId` (response includes `supportedProviders`)
-- `409 too_many_active_flows` — workspace cap (4) reached; cancel one with `DELETE`
-- `401 token_required` — strict gate denied a token-less request
-- `502 upstream_error` — IdP returned an unexpected error
+- `400 unsupported_provider` -- unknown `providerId` (response includes `supportedProviders`)
+- `409 too_many_active_flows` -- workspace cap (4) reached; cancel one with `DELETE`
+- `401 token_required` -- strict gate denied a token-less request
+- `502 upstream_error` -- IdP returned an unexpected error
 
 #### `GET /workspace/auth/device-flow/:id`
 
@@ -1398,9 +1398,9 @@ Returns `404 device_flow_not_found` for unknown ids and post-grace evicted entri
 
 Idempotent cancel:
 
-- pending entry → `204` + emit `auth_device_flow_cancelled`
-- terminal entry → `204` no-op (no event re-emit)
-- unknown id → `404`
+- pending entry -> `204` + emit `auth_device_flow_cancelled`
+- terminal entry -> `204` no-op (no event re-emit)
+- unknown id -> `404`
 
 #### `GET /workspace/auth/status`
 
@@ -1413,7 +1413,7 @@ Snapshot of pending flows + supported providers:
   "providers": [],
   "pendingDeviceFlows": [
     {
-      "deviceFlowId": "fa07c61b-…",
+      "deviceFlowId": "fa07c61b-...",
       "providerId": "qwen-oauth",
       "expiresAt": 1700000600000
     }
@@ -1426,13 +1426,13 @@ Snapshot of pending flows + supported providers:
 
 Five typed events (workspace-scoped, fanned out to every active session bus):
 
-- `auth_device_flow_started` `{deviceFlowId, providerId, expiresAt}` — POST succeeded; SDK should subscribe (no userCode here, fetch via GET if needed)
-- `auth_device_flow_throttled` `{deviceFlowId, intervalMs}` — daemon honored upstream `slow_down`; clients polling GET should bump their interval to match
-- `auth_device_flow_authorized` `{deviceFlowId, providerId, expiresAt?, accountAlias?}` — credentials persisted; `accountAlias` is a non-PII label (never email/phone)
-- `auth_device_flow_failed` `{deviceFlowId, errorKind, hint?}` — terminal; `errorKind` is one of `expired_token | access_denied | invalid_grant | upstream_error | persist_failed`. `persist_failed` is daemon-internal: the IdP exchange succeeded but the daemon couldn't durably store credentials (EACCES / EROFS / ENOSPC). The user should retry once the underlying disk condition is fixed.
-- `auth_device_flow_cancelled` `{deviceFlowId}` — DELETE succeeded against a pending entry
+- `auth_device_flow_started` `{deviceFlowId, providerId, expiresAt}` -- POST succeeded; SDK should subscribe (no userCode here, fetch via GET if needed)
+- `auth_device_flow_throttled` `{deviceFlowId, intervalMs}` -- daemon honored upstream `slow_down`; clients polling GET should bump their interval to match
+- `auth_device_flow_authorized` `{deviceFlowId, providerId, expiresAt?, accountAlias?}` -- credentials persisted; `accountAlias` is a non-PII label (never email/phone)
+- `auth_device_flow_failed` `{deviceFlowId, errorKind, hint?}` -- terminal; `errorKind` is one of `expired_token | access_denied | invalid_grant | upstream_error | persist_failed`. `persist_failed` is daemon-internal: the IdP exchange succeeded but the daemon couldn't durably store credentials (EACCES / EROFS / ENOSPC). The user should retry once the underlying disk condition is fixed.
+- `auth_device_flow_cancelled` `{deviceFlowId}` -- DELETE succeeded against a pending entry
 
-> **Not MCP-compatible.** The MCP authorization spec (2025-06-18) mandates OAuth 2.1 + PKCE auth-code with a redirect callback, which doesn't work for headless-pod daemons. Mode B's device-flow surface is daemon-private — clients targeting MCP-compliant servers should use a different auth path.
+> **Not MCP-compatible.** The MCP authorization spec (2025-06-18) mandates OAuth 2.1 + PKCE auth-code with a redirect callback, which doesn't work for headless-pod daemons. Mode B's device-flow surface is daemon-private -- clients targeting MCP-compliant servers should use a different auth path.
 
 ## Streaming wire format
 

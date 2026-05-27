@@ -1,4 +1,4 @@
-# 🛡️ Adversarial Test Matrix
+#  Adversarial Test Matrix
 
 This document defines the "Expected Failure" scenarios for the Qwen Code project. The goal is to move from "Testing if it works" to "Proving it cannot be broken in predictable ways."
 

@@ -24,9 +24,9 @@ interface StickyTodoListProps {
 }
 
 const STATUS_ICONS = {
-  pending: '○',
-  in_progress: '◐',
-  completed: '●',
+  pending: '',
+  in_progress: '',
+  completed: '',
 } as const;
 
 function clampVisibleTodoCount(value: number): number {

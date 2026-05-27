@@ -59,20 +59,20 @@ For a complete working example, see [`@qwen-code/channel-plugin-example`](../plu
 
 ```
 Inbound:  Platform message
-            → Envelope (with attachments)
-            → GroupGate (group policy + mention gating)
-            → SenderGate (allowlist / pairing / open)
-            → Slash commands (/clear, /help, /status)
-            → SessionRouter (resolve or create ACP session)
-            → Resolve attachments (images → bridge, files → prompt text)
-            → AcpBridge.prompt() → agent
+            -> Envelope (with attachments)
+            -> GroupGate (group policy + mention gating)
+            -> SenderGate (allowlist / pairing / open)
+            -> Slash commands (/clear, /help, /status)
+            -> SessionRouter (resolve or create ACP session)
+            -> Resolve attachments (images -> bridge, files -> prompt text)
+            -> AcpBridge.prompt() -> agent
 
 Outbound: Agent response
-            → BlockStreamer (if enabled: split into blocks at paragraph boundaries)
-            → sendMessage() → platform
+            -> BlockStreamer (if enabled: split into blocks at paragraph boundaries)
+            -> sendMessage() -> platform
 ```
 
-Everything between `handleInbound()` and `sendMessage()` is handled by the base class — your adapter only deals with platform I/O.
+Everything between `handleInbound()` and `sendMessage()` is handled by the base class -- your adapter only deals with platform I/O.
 
 ## Exports
 
@@ -80,7 +80,7 @@ Everything between `handleInbound()` and `sendMessage()` is handled by the base 
 
 | Class           | Purpose                                                          |
 | --------------- | ---------------------------------------------------------------- |
-| `ChannelBase`   | Abstract base class — extend this to build a channel adapter     |
+| `ChannelBase`   | Abstract base class -- extend this to build a channel adapter     |
 | `AcpBridge`     | Spawns and communicates with the `qwen-code --acp` agent process |
 | `BlockStreamer` | Progressive multi-message delivery for block streaming           |
 | `SessionRouter` | Maps senders to ACP sessions with configurable scoping           |
@@ -114,9 +114,9 @@ constructor(name: string, config: ChannelConfig, bridge: AcpBridge, options?: Ch
 
 | Method          | Signature                                                                    |
 | --------------- | ---------------------------------------------------------------------------- |
-| `connect()`     | `() => Promise<void>` — Connect to the platform and start receiving messages |
-| `sendMessage()` | `(chatId: string, text: string) => Promise<void>` — Deliver agent response   |
-| `disconnect()`  | `() => void` — Clean up on shutdown                                          |
+| `connect()`     | `() => Promise<void>` -- Connect to the platform and start receiving messages |
+| `sendMessage()` | `(chatId: string, text: string) => Promise<void>` -- Deliver agent response   |
+| `disconnect()`  | `() => void` -- Clean up on shutdown                                          |
 
 **Provided methods:**
 
@@ -125,9 +125,9 @@ constructor(name: string, config: ChannelConfig, bridge: AcpBridge, options?: Ch
 | `handleInbound(envelope)`                         | Route an inbound message through the full pipeline (gate checks, commands, session, prompt). Call this from your message handler. |
 | `setBridge(bridge)`                               | Replace the ACP bridge after crash recovery                                                                                       |
 | `registerCommand(name, handler)`                  | Register a custom slash command (e.g. `/mycommand`)                                                                               |
-| `onToolCall(chatId, event)`                       | Hook called on agent tool invocations — override to show indicators                                                               |
-| `onResponseChunk(chatId, chunk, sessionId)`       | Hook called per streaming text chunk — override for progressive display (default: no-op)                                          |
-| `onResponseComplete(chatId, fullText, sessionId)` | Hook called when full response is ready — override to customize delivery (default: `sendMessage()`)                               |
+| `onToolCall(chatId, event)`                       | Hook called on agent tool invocations -- override to show indicators                                                               |
+| `onResponseChunk(chatId, chunk, sessionId)`       | Hook called per streaming text chunk -- override for progressive display (default: no-op)                                          |
+| `onResponseComplete(chatId, fullText, sessionId)` | Hook called when full response is ready -- override to customize delivery (default: `sendMessage()`)                               |
 
 **Block streaming:** When `blockStreaming: "on"` is set in the channel config, the base class automatically splits the agent's streaming response into multiple messages at paragraph boundaries. See [Block Streaming](#block-streaming) below.
 
@@ -177,7 +177,7 @@ constructor(bridge: AcpBridge, defaultCwd: string, scope?: SessionScope, persist
 | Method                                                    | Description                                                 |
 | --------------------------------------------------------- | ----------------------------------------------------------- |
 | `resolve(channelName, senderId, chatId, threadId?, cwd?)` | Get or create a session for the given sender                |
-| `removeSession(channelName, senderId, chatId?)`           | Remove session(s) — used by `/clear`                        |
+| `removeSession(channelName, senderId, chatId?)`           | Remove session(s) -- used by `/clear`                        |
 | `restoreSessions()`                                       | Reload sessions from disk after bridge restart              |
 | `clearAll()`                                              | Clear all sessions and delete persist file (clean shutdown) |
 
@@ -251,8 +251,8 @@ interface Envelope {
   isMentioned: boolean; // true if bot was @mentioned
   isReplyToBot: boolean; // true if replying to bot's message
   referencedText?: string; // quoted message text
-  imageBase64?: string; // base64-encoded image (legacy — prefer attachments)
-  imageMimeType?: string; // e.g. 'image/jpeg' (legacy — prefer attachments)
+  imageBase64?: string; // base64-encoded image (legacy -- prefer attachments)
+  imageMimeType?: string; // e.g. 'image/jpeg' (legacy -- prefer attachments)
   attachments?: Attachment[]; // structured file/image/audio/video attachments
 }
 
@@ -287,9 +287,9 @@ When `blockStreaming: "on"` is set in a channel's config, the agent's response i
 4. If the agent goes quiet for `idleMs`, the buffer is flushed (as long as it's past `minChars`)
 5. When the agent finishes, any remaining text is sent immediately regardless of `minChars`
 
-Block streaming and `onResponseChunk` work independently — plugins can override `onResponseChunk` for their own purposes while block streaming handles delivery.
+Block streaming and `onResponseChunk` work independently -- plugins can override `onResponseChunk` for their own purposes while block streaming handles delivery.
 
 ## Further reading
 
 - [Channel Plugin Developer Guide](../../docs/developers/channel-plugins.md)
-- [`@qwen-code/channel-plugin-example`](../plugin-example/) — working reference implementation
+- [`@qwen-code/channel-plugin-example`](../plugin-example/) -- working reference implementation

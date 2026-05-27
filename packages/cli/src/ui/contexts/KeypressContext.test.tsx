@@ -91,7 +91,7 @@ describe('KeypressContext - Kitty Protocol', () => {
   });
 
   describe('Enter key handling', () => {
-    it('preserves typed µ as printable text', () => {
+    it('preserves typed u as printable text', () => {
       const keyHandler = vi.fn();
 
       const { result } = renderHook(() => useKeypressContext(), {
@@ -104,20 +104,20 @@ describe('KeypressContext - Kitty Protocol', () => {
 
       act(() => {
         stdin.pressKey({
-          name: 'µ',
+          name: 'u',
           ctrl: false,
           meta: false,
           shift: false,
           paste: false,
-          sequence: 'µ',
+          sequence: 'u',
         });
       });
 
       expect(keyHandler).toHaveBeenCalledWith(
         expect.objectContaining({
-          name: 'µ',
+          name: 'u',
           meta: false,
-          sequence: 'µ',
+          sequence: 'u',
         }),
       );
     });
@@ -266,7 +266,7 @@ describe('KeypressContext - Kitty Protocol', () => {
       // Regression test for the "must restart terminal" lockup reported by
       // a user on Ghostty + Sogou pinyin: bracketed-paste-start arrived,
       // isPaste was set true, and paste-end never followed. Every
-      // subsequent keystroke — including Ctrl+C — was silently buffered.
+      // subsequent keystroke -- including Ctrl+C -- was silently buffered.
       // This test checks that Ctrl+C is always dispatched regardless of
       // paste mode state.
       const keyHandler = vi.fn();
@@ -279,7 +279,7 @@ describe('KeypressContext - Kitty Protocol', () => {
         result.current.subscribe(keyHandler);
       });
 
-      // Send ONLY the paste-start marker (no paste-end) — this puts the
+      // Send ONLY the paste-start marker (no paste-end) -- this puts the
       // dispatcher into the broken state.
       act(() => {
         stdin.emit('data', Buffer.from('\x1b[200~'));

@@ -1,7 +1,7 @@
 # Customize Banner Area Design
 
 > Allow users to replace the QWEN ASCII art, replace the brand title, and
-> hide the banner entirely — without letting them suppress the operational
+> hide the banner entirely -- without letting them suppress the operational
 > data (version, auth, model, working directory) that makes Qwen Code
 > debuggable and trustworthy.
 
@@ -35,61 +35,61 @@ breaks into the following regions:
 
 ```
   marginX=2                                                           marginX=2
-  │                                                                          │
-  ▼                                                                          ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                                                                             │
-│   ┌──── Logo Column ─────┐  gap=2  ┌──── Info Panel (bordered) ──────────┐  │
-│   │                      │         │                                     │  │
-│   │  ███ QWEN ASCII ███  │         │  ① Title:    >_ Qwen Code (vX.Y.Z)  │  │
-│   │  ███   ART ART  ███  │         │  ② Subtitle: «blank, or override»   │  │
-│   │  ███ QWEN ASCII ███  │         │  ③ Status:   Qwen OAuth | qwen-…    │  │
-│   │                      │         │  ④ Path:     ~/projects/example     │  │
-│   └──────── A ───────────┘         └──────────────── B ──────────────────┘  │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+  |                                                                          |
+                                                                            
++-------------------------------------------------------------------------------+--
+|                                                                             |
+|   +------ Logo Column -----+--  gap=2  +------ Info Panel (bordered) ----------+--  |
+|   |                      |         |                                     |  |
+|   |   QWEN ASCII   |         |   Title:    >_ Qwen Code (vX.Y.Z)  |  |
+|   |     ART ART    |         |   Subtitle: blank, or override   |  |
+|   |   QWEN ASCII   |         |   Status:   Qwen OAuth | qwen-...    |  |
+|   |                      |         |   Path:     ~/projects/example     |  |
+|   \_-------- A --------------         \_---------------- B ---------------------  |
+|                                                                             |
+\_--------------------------------------------------------------------------------
                               region: AppHeader
-                          │ Tips component renders below (governed by ui.hideTips) │
+                          | Tips component renders below (governed by ui.hideTips) |
 ```
 
 The two top-level boxes are:
 
-- **A. Logo column** — a single ASCII art block with a gradient. Sourced
+- **A. Logo column** -- a single ASCII art block with a gradient. Sourced
   today from `shortAsciiLogo` in
   `packages/cli/src/ui/components/AsciiArt.ts`.
-- **B. Info panel** — a bordered box containing four rows. The second
+- **B. Info panel** -- a bordered box containing four rows. The second
   row is a blank visual spacer by default, optionally swapped for a
   caller-supplied subtitle:
-  - **B①** Title: `>_ Qwen Code (vX.Y.Z)` — brand text + version suffix.
-  - **B②** Subtitle / spacer: blank single-space row by default. When
+  - **B** Title: `>_ Qwen Code (vX.Y.Z)` -- brand text + version suffix.
+  - **B** Subtitle / spacer: blank single-space row by default. When
     `ui.customBannerSubtitle` is set, that string takes this row (e.g.
     a fork might use `Built-in DataWorks Official Skills`).
-  - **B③** Status: `<auth display type> | <model> ( /model to change)`.
-  - **B④** Path: a tildeified, shortened working directory.
+  - **B** Status: `<auth display type> | <model> ( /model to change)`.
+  - **B** Path: a tildeified, shortened working directory.
 
 The whole thing is wrapped by `<AppHeader>`, which already gates the
 banner on `showBanner = !config.getScreenReader()` (screen-reader mode
 falls back to plain output).
 
-## Customization rules — what can change, what is locked
+## Customization rules -- what can change, what is locked
 
 | Region                                      | Today's source                      | Customization category          | Rationale                                                                                                                                                                                                    |
 | ------------------------------------------- | ----------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **A. Logo column**                          | `shortAsciiLogo` (`AsciiArt.ts`)    | **Replaceable + auto-hideable** | Pure brand surface. White-label needs full control over the visual. The existing "auto-hide on narrow terminals" fallback is preserved.                                                                      |
-| **B①. Title — brand text** (`>_ Qwen Code`) | Hard-coded in `Header.tsx`          | **Replaceable**                 | Brand surface. The leading `>_` glyph is part of the existing brand; if a user wants it gone, they simply omit it from `customBannerTitle`.                                                                  |
-| **B①. Title — version suffix** (`(vX.Y.Z)`) | `version` prop                      | **Locked**                      | Critical for bug reports. Hiding it makes "what version are you on?" answerable only via `--version`, which is a real cost in support workflows. We trade a small white-label loss for support tractability. |
-| **B②. Subtitle / spacer row**               | blank by default                    | **Replaceable**                 | Pure brand / context surface. Used by white-label forks to label the build (e.g. "Built-in DataWorks Official Skills"). Sanitized like the title; one line only — no layout-breaking newlines.               |
-| **B③. Status line** (auth + model)          | `formattedAuthType`, `model` props  | **Locked**                      | Operational and security signal. Users must always see which credential is in use and which model will spend their tokens. Suppressing it is a footgun even for white-label scenarios.                       |
-| **B④. Path line** (working directory)       | `workingDirectory` prop             | **Locked**                      | Operational. "Which directory am I in?" is a constant question; the banner is its canonical answer.                                                                                                          |
-| **Whole banner** (A + B)                    | `<Header>` mount in `AppHeader.tsx` | **Hideable**                    | A single `ui.hideBanner: true` skips both regions — same shape as the existing screen-reader gate. `<Tips>` continues to be governed independently by `ui.hideTips`.                                         |
+| **B. Title -- brand text** (`>_ Qwen Code`) | Hard-coded in `Header.tsx`          | **Replaceable**                 | Brand surface. The leading `>_` glyph is part of the existing brand; if a user wants it gone, they simply omit it from `customBannerTitle`.                                                                  |
+| **B. Title -- version suffix** (`(vX.Y.Z)`) | `version` prop                      | **Locked**                      | Critical for bug reports. Hiding it makes "what version are you on?" answerable only via `--version`, which is a real cost in support workflows. We trade a small white-label loss for support tractability. |
+| **B. Subtitle / spacer row**               | blank by default                    | **Replaceable**                 | Pure brand / context surface. Used by white-label forks to label the build (e.g. "Built-in DataWorks Official Skills"). Sanitized like the title; one line only -- no layout-breaking newlines.               |
+| **B. Status line** (auth + model)          | `formattedAuthType`, `model` props  | **Locked**                      | Operational and security signal. Users must always see which credential is in use and which model will spend their tokens. Suppressing it is a footgun even for white-label scenarios.                       |
+| **B. Path line** (working directory)       | `workingDirectory` prop             | **Locked**                      | Operational. "Which directory am I in?" is a constant question; the banner is its canonical answer.                                                                                                          |
+| **Whole banner** (A + B)                    | `<Header>` mount in `AppHeader.tsx` | **Hideable**                    | A single `ui.hideBanner: true` skips both regions -- same shape as the existing screen-reader gate. `<Tips>` continues to be governed independently by `ui.hideTips`.                                         |
 
 The matrix translates to four settings, no more:
 
 | Setting                   | Default | Effect                                                                                                                               | Region affected |
 | ------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------- |
 | `ui.hideBanner`           | `false` | Hides the entire banner (regions A + B).                                                                                             | A + B           |
-| `ui.customBannerTitle`    | unset   | Replaces the brand text in B①. The version suffix is still appended. Trimmed; an empty string means "use default".                   | B① brand text   |
-| `ui.customBannerSubtitle` | unset   | Replaces the blank spacer row B② with a one-line subtitle. Sanitized; capped at 160 characters; empty means "keep the blank spacer". | B② spacer       |
+| `ui.customBannerTitle`    | unset   | Replaces the brand text in B. The version suffix is still appended. Trimmed; an empty string means "use default".                   | B brand text   |
+| `ui.customBannerSubtitle` | unset   | Replaces the blank spacer row B with a one-line subtitle. Sanitized; capped at 160 characters; empty means "keep the blank spacer". | B spacer       |
 | `ui.customAsciiArt`       | unset   | Replaces region A. Three accepted shapes (see below). Falls back to default on any error.                                            | A               |
 
 What is **not** offered, by design:
@@ -101,10 +101,10 @@ What is **not** offered, by design:
 - No setting reorders or restructures the info panel.
 
 If the implementation later needs to expose any of those, they should be
-new fields with their own justification — not derived from the three
+new fields with their own justification -- not derived from the three
 fields above.
 
-## User configuration guide — how to modify
+## User configuration guide -- how to modify
 
 ### Limits at a glance
 
@@ -116,11 +116,11 @@ your input.
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Title character count**        | **80 characters max** (post-sanitize). Anything longer is truncated and a `[BANNER]` warn is logged. Newlines and control chars are stripped before this length is counted. |
 | **Subtitle character count**     | **160 characters max** (post-sanitize). Same cleanup pipeline as the title; same `[BANNER]` warn on truncation.                                                             |
-| **ASCII art block size**         | **200 lines × 200 columns max** per tier. Anything larger is truncated to fit and a `[BANNER]` warn is logged.                                                              |
+| **ASCII art block size**         | **200 lines * 200 columns max** per tier. Anything larger is truncated to fit and a `[BANNER]` warn is logged.                                                              |
 | **ASCII art file size on disk**  | **64 KB max**. Larger files are read up to the cap; the rest is ignored.                                                                                                    |
 | **ASCII art width that renders** | Driven by terminal columns at startup, **not** a fixed character count. See "How wide can the logo be?" below for the formula and per-terminal numbers.                     |
 
-There is **no fixed character-count limit on the ASCII art** — only the
+There is **no fixed character-count limit on the ASCII art** -- only the
 column / line caps above and the per-startup width budget. A 17-character
 brand name that would render comfortably in one font may need stacking or
 a denser font in another; the limiting factor is visual width, not letters.
@@ -135,7 +135,7 @@ the project root) are supported with the standard merge precedence
 `customAsciiArt` is special-cased: rather than treating the whole object
 as one value that the higher-precedence scope replaces, the resolver
 walks scopes per-tier. If user settings define `{ small }` and workspace
-settings define `{ large }`, both contribute — `small` from user,
+settings define `{ large }`, both contribute -- `small` from user,
 `large` from workspace. This keeps two things working at once:
 
 1. Each `{ path }` entry resolves against the file that declared it
@@ -191,12 +191,12 @@ place of the blank spacer that normally sits between the title and the
 auth/model line:
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│ DataWorks DataAgent (vX.Y.Z)                            │  ← B① title
-│ Built-in DataWorks Official Skills                      │  ← B② subtitle
-│ Qwen OAuth | qwen-coder ( /model to change)             │  ← B③ status
-│ ~/projects/example                                      │  ← B④ path
-└─────────────────────────────────────────────────────────┘
++-----------------------------------------------------------+--
+| DataWorks DataAgent (vX.Y.Z)                            |  <- B title
+| Built-in DataWorks Official Skills                      |  <- B subtitle
+| Qwen OAuth | qwen-coder ( /model to change)             |  <- B status
+| ~/projects/example                                      |  <- B path
+\_------------------------------------------------------------
 ```
 
 Constraints:
@@ -207,12 +207,12 @@ Constraints:
 - Sanitized capped at 160 characters (looser than the title cap because
   taglines / "powered by" lines often run a bit long).
 - Leave the field unset (or set it to an empty string / whitespace)
-  to keep the existing blank spacer row — back-compat is the default.
+  to keep the existing blank spacer row -- back-compat is the default.
 - The subtitle does not change which lines are locked; auth, model,
   and working directory are always visible regardless of subtitle
   state.
 
-### Replace the ASCII art — inline string
+### Replace the ASCII art -- inline string
 
 ```jsonc
 {
@@ -229,10 +229,10 @@ with the active gradient theme just like the default logo.
 > the result. The simplest path is `figlet`:
 > `npx figlet -f "ANSI Shadow" "xxxCode" > brand.txt` and then point
 > `customAsciiArt: { "path": "./brand.txt" }` at it. The CLI does not
-> render text-to-art at runtime — see the _Out of scope_ section for
+> render text-to-art at runtime -- see the _Out of scope_ section for
 > why.
 
-### Replace the ASCII art — external file
+### Replace the ASCII art -- external file
 
 ```jsonc
 {
@@ -249,9 +249,9 @@ Avoids JSON-escaping a multi-line string. Path resolution rules:
 - **User settings**: relative paths resolve against `~/.qwen/`.
 - Absolute paths are used as-is.
 - The file is read **once at startup**, sanitized, and cached. Editing
-  the file mid-session does not re-render the banner — restart the CLI.
+  the file mid-session does not re-render the banner -- restart the CLI.
 
-### Replace the ASCII art — width-aware
+### Replace the ASCII art -- width-aware
 
 ```jsonc
 {
@@ -269,7 +269,7 @@ is used; otherwise the logo column is hidden (the existing two-column
 fallback). Either tier may be a string or `{ path }`. Either tier may be
 omitted: a missing tier simply falls through to the next step.
 
-### How wide can the logo be? — the size budget
+### How wide can the logo be? -- the size budget
 
 There is no hard character-count limit on the title or art. There is a
 **width budget** driven by terminal columns and an absolute hard cap to
@@ -281,15 +281,15 @@ keep a malformed file from freezing layout:
 | Container outer margin                           | 4 cols (2 left + 2 right).                                            |
 | Gap between logo and info panel                  | 2 cols.                                                               |
 | Info panel minimum width                         | 44 cols (40 path + border + padding).                                 |
-| **Available logo width** (per tier, render-time) | `terminalCols − 4 − 2 − 44 = terminalCols − 50`.                      |
-| Hard cap on each art tier (post-sanitize)        | 200 cols × 200 lines. Anything beyond is truncated + `[BANNER]` warn. |
+| **Available logo width** (per tier, render-time) | `terminalCols  4  2  44 = terminalCols  50`.                      |
+| Hard cap on each art tier (post-sanitize)        | 200 cols * 200 lines. Anything beyond is truncated + `[BANNER]` warn. |
 | Hard cap on `customBannerTitle` (post-sanitize)  | 80 chars. Anything beyond is truncated + `[BANNER]` warn.             |
 
 Reading the budget at common terminal widths:
 
 | Terminal cols | Max logo width that renders | What that means in practice                                           |
 | ------------- | --------------------------- | --------------------------------------------------------------------- |
-| 80            | 30                          | Most figlet "ANSI Shadow" letters are ~7–11 cols — 3 letters max.     |
+| 80            | 30                          | Most figlet "ANSI Shadow" letters are ~7-11 cols -- 3 letters max.     |
 | 100           | 50                          | A short word in ANSI Shadow (~6 letters), or two short words stacked. |
 | 120           | 70                          | Stacked multi-line word art fits comfortably.                         |
 | 200           | 150                         | Long inline strings like full product names in ANSI Shadow fit.       |
@@ -297,16 +297,16 @@ Reading the budget at common terminal widths:
 Two practical implications when designing your art:
 
 1. **A multi-word brand often won't render as a single ANSI Shadow line
-   on most terminals.** At ~7–9 cols per ANSI Shadow letter, even a
+   on most terminals.** At ~7-9 cols per ANSI Shadow letter, even a
    12-character brand like `Custom Agent` is roughly 95 cols of art on
-   one line — already more than a 100-col terminal can spare alongside
+   one line -- already more than a 100-col terminal can spare alongside
    the info panel. Either stack the words on multiple lines, pick a
    denser figlet font, or use a compact single-line text decoration
-   like `▶ Custom Agent ◀`.
+   like ` Custom Agent `.
 2. **Use the width-aware `{ small, large }` form** when a single tier
    would force you to choose between "looks great wide / dies narrow"
    and "looks fine narrow / wastes space wide". The example below
-   stacks the words for a ≥104-col terminal in `large` and falls
+   stacks the words for a >=104-col terminal in `large` and falls
    through to a 16-col single-line decoration in `small`.
 
 ```jsonc
@@ -314,7 +314,7 @@ Two practical implications when designing your art:
   "ui": {
     "customBannerTitle": "Custom Agent",
     "customAsciiArt": {
-      "small": "▶ Custom Agent ◀",
+      "small": " Custom Agent ",
       "large": { "path": "./banner-large.txt" },
     },
   },
@@ -322,7 +322,7 @@ Two practical implications when designing your art:
 ```
 
 Where `banner-large.txt` contains the stacked-words ANSI Shadow output
-(~54 cols × 12 lines), e.g., generated by:
+(~54 cols * 12 lines), e.g., generated by:
 
 ```bash
 ( npx figlet -f "ANSI Shadow" CUSTOM
@@ -346,53 +346,53 @@ Where `banner-large.txt` contains the stacked-words ANSI Shadow output
 
 ### How to verify your change
 
-1. Save `settings.json` and start a fresh `qwen` session — banner
+1. Save `settings.json` and start a fresh `qwen` session -- banner
    resolution runs once at startup.
 2. Resize the terminal to confirm `small` / `large` tiers swap as
    expected, and that the logo column disappears at very narrow widths.
 3. If something does not appear as expected, look at
    `~/.qwen/debug/<sessionId>.txt` (the symlink `latest.txt` points to
-   the current session) and grep for `[BANNER]` — every soft failure
+   the current session) and grep for `[BANNER]` -- every soft failure
    logs a warn line with the underlying reason.
 
 ## Resolution pipeline
 
 ```
    settings.json                              packages/cli/src/ui/components/
-   ─────────────                              ──────────────────────────────
+   -------------                              ------------------------------
    {                                          AppHeader.tsx
-     "ui": {                                    │
-       "hideBanner": false,                     │  showBanner =
-       "customBannerTitle": "Acme",             │      !screenReader
-       "customBannerSubtitle": "Built-in …",    │   && !ui.hideBanner
-       "customAsciiArt": …                      │
-     }                                          │
-   }                                            ▼
-        │                              <Header
-        ▼                                customAsciiArt={resolved.asciiArt}
+     "ui": {                                    |
+       "hideBanner": false,                     |  showBanner =
+       "customBannerTitle": "Acme",             |      !screenReader
+       "customBannerSubtitle": "Built-in ...",    |   && !ui.hideBanner
+       "customAsciiArt": ...                      |
+     }                                          |
+   }                                            
+        |                              <Header
+                                        customAsciiArt={resolved.asciiArt}
    loadSettings()                        customBannerTitle={resolved.title}
    merge user / workspace                customBannerSubtitle={resolved.subtitle}
-        │                                version=… model=… authType=…
-        ▼                                workingDirectory=… />
-   resolveCustomBanner(settings)                  │
-   ┌─────────────────────────┐                    ▼
-   │ 1. normalize to         │         packages/cli/src/ui/components/
-   │    { small, large }     │         Header.tsx
-   │ 2. resolve each tier:   │           │
-   │    string → as-is       │           │  pick tier by
-   │    {path} → fs.read     │           │    availableTerminalWidth
-   │      O_NOFOLLOW         │           ▼
-   │      ≤ 64 KB            │         render Logo Column
-   │ 3. sanitize art:        │         render Info Panel:
-   │    stripControlSeqs     │           Title    = customBannerTitle
-   │    ≤ 200 lines × 200    │                   ?? '>_ Qwen Code'
-   │    cols                 │           Subtitle = customBannerSubtitle
-   │ 4. sanitize title +     │                   ?? blank spacer row
-   │    subtitle (single-    │           Status   = locked
-   │    line, ≤ 80 / 160     │           Path     = locked
-   │    chars)               │
-   │ 5. memoize by source    │
-   └─────────────────────────┘
+        |                                version=... model=... authType=...
+                                        workingDirectory=... />
+   resolveCustomBanner(settings)                  |
+   +---------------------------+--                    
+   | 1. normalize to         |         packages/cli/src/ui/components/
+   |    { small, large }     |         Header.tsx
+   | 2. resolve each tier:   |           |
+   |    string -> as-is       |           |  pick tier by
+   |    {path} -> fs.read     |           |    availableTerminalWidth
+   |      O_NOFOLLOW         |           
+   |      <= 64 KB            |         render Logo Column
+   | 3. sanitize art:        |         render Info Panel:
+   |    stripControlSeqs     |           Title    = customBannerTitle
+   |    <= 200 lines * 200    |                   ?? '>_ Qwen Code'
+   |    cols                 |           Subtitle = customBannerSubtitle
+   | 4. sanitize title +     |                   ?? blank spacer row
+   |    subtitle (single-    |           Status   = locked
+   |    line, <= 80 / 160     |           Path     = locked
+   |    chars)               |
+   | 5. memoize by source    |
+   \_----------------------------
 ```
 
 The five-step resolution algorithm runs once when settings are loaded
@@ -403,23 +403,23 @@ and again only on settings reload events:
 2. **Resolve each tier**. For each `AsciiArtSource`:
    - If it is a string, use it as-is.
    - If it is `{ path }`, read the file synchronously with `O_NOFOLLOW`
-     defense (Windows: plain read-only — the constant is not exposed),
+     defense (Windows: plain read-only -- the constant is not exposed),
      capped at 64 KB. Relative paths resolve against the _owning
-     settings file's directory_ — workspace settings against the
+     settings file's directory_ -- workspace settings against the
      workspace `.qwen/`, user settings against `~/.qwen/`. Read failure
      logs `[BANNER]` warn and falls back to default for that tier.
 3. **Sanitize**. A banner-specific stripper drops OSC / CSI / SS2 / SS3
    leaders and replaces every other C0 / C1 control byte (and DEL) with
    a space, while preserving `\n` so multi-line art survives. Trim
-   trailing whitespace per line, then cap at 200 lines × 200 columns.
+   trailing whitespace per line, then cap at 200 lines * 200 columns.
    Anything beyond the cap is truncated and a `[BANNER]` warn is logged.
 4. **Render-time tier selection**. In `Header.tsx`, given the resolved
    `small` and `large`, evaluate the existing width budget
-   (`availableTerminalWidth ≥ logoWidth + logoGap + minInfoPanelWidth`):
+   (`availableTerminalWidth >= logoWidth + logoGap + minInfoPanelWidth`):
    - Prefer `large` if it fits.
    - Else fall back to `small` if it fits.
    - Else, **if the user supplied any custom art**, hide the logo column
-     entirely (the existing `showLogo = false` branch) — falling back to
+     entirely (the existing `showLogo = false` branch) -- falling back to
      the bundled QWEN logo here would silently undo a white-label
      deployment on narrow terminals. The info panel still renders.
    - Else (no custom art was supplied at all) fall through to
@@ -501,7 +501,7 @@ customAsciiArt: {
   // express. The override is emitted verbatim by the JSON-schema generator
   // so VS Code accepts every documented shape (string, {path}, or
   // {small,large}) without flagging the bare-string form.
-  jsonSchemaOverride: { /* string | {path} | {small,large} oneOf … */ },
+  jsonSchemaOverride: { /* string | {path} | {small,large} oneOf ... */ },
 },
 ```
 
@@ -516,13 +516,13 @@ directly.
 The implementation touch points are small. Each is described below with
 the file and line range from the current `main`.
 
-`packages/cli/src/ui/components/AppHeader.tsx:53` — extend `showBanner`:
+`packages/cli/src/ui/components/AppHeader.tsx:53` -- extend `showBanner`:
 
 ```ts
 const showBanner = !config.getScreenReader() && !settings.merged.ui?.hideBanner;
 ```
 
-`packages/cli/src/ui/components/AppHeader.tsx` — pass the resolved
+`packages/cli/src/ui/components/AppHeader.tsx` -- pass the resolved
 banner into `<Header>`:
 
 ```tsx
@@ -537,7 +537,7 @@ banner into `<Header>`:
 />
 ```
 
-`packages/cli/src/ui/components/Header.tsx` — extend `HeaderProps`:
+`packages/cli/src/ui/components/Header.tsx` -- extend `HeaderProps`:
 
 ```ts
 interface HeaderProps {
@@ -551,7 +551,7 @@ interface HeaderProps {
 }
 ```
 
-`packages/cli/src/ui/components/Header.tsx:45-46` — pick the tier before
+`packages/cli/src/ui/components/Header.tsx:45-46` -- pick the tier before
 computing `logoWidth`, with the existing default as the floor:
 
 ```ts
@@ -565,7 +565,7 @@ const tier = pickTier(
 const displayLogo = tier ?? shortAsciiLogo;
 ```
 
-`packages/cli/src/ui/components/Header.tsx` — render the title from
+`packages/cli/src/ui/components/Header.tsx` -- render the title from
 the prop, and use the subtitle prop in place of the blank spacer row
 when set:
 
@@ -573,7 +573,7 @@ when set:
 <Text bold color={theme.text.accent}>
   {customBannerTitle ? customBannerTitle : '>_ Qwen Code'}
 </Text>
-…
+...
 {customBannerSubtitle ? (
   <Text color={theme.text.secondary}>{customBannerSubtitle}</Text>
 ) : (
@@ -581,7 +581,7 @@ when set:
 )}
 ```
 
-**New file**: `packages/cli/src/ui/utils/customBanner.ts` — the resolver.
+**New file**: `packages/cli/src/ui/utils/customBanner.ts` -- the resolver.
 Exports:
 
 ```ts
@@ -608,7 +608,7 @@ Five shapes of this feature were considered. They are listed here so
 future contributors understand the design space and can revisit the
 choice if the constraints change.
 
-### Option 1 — Three flat settings (RECOMMENDED, matches the issue)
+### Option 1 -- Three flat settings (RECOMMENDED, matches the issue)
 
 ```jsonc
 {
@@ -629,7 +629,7 @@ choice if the constraints change.
   aren't grouped; future banner-only knobs (gradient, subtitle) would
   add more siblings to `ui` instead of nesting cleanly.
 
-### Option 2 — Nested `ui.banner` namespace
+### Option 2 -- Nested `ui.banner` namespace
 
 ```jsonc
 {
@@ -651,7 +651,7 @@ choice if the constraints change.
   nest), so consistency is mixed; adds one nesting level for users to
   remember.
 
-### Option 3 — Banner profile presets + slot overrides
+### Option 3 -- Banner profile presets + slot overrides
 
 ```jsonc
 {
@@ -668,7 +668,7 @@ choice if the constraints change.
 - **Cons**: significant complexity; presets are a maintenance
   commitment; the issue asks for raw customization, not curation.
 
-### Option 4 — Whole-banner override (single string template)
+### Option 4 -- Whole-banner override (single string template)
 
 ```jsonc
 {
@@ -684,7 +684,7 @@ choice if the constraints change.
   resilience to terminal width; very easy to write a template that
   breaks on narrow terminals; large blast radius for a small feature.
 
-### Option 5 — Plugin / hook API
+### Option 5 -- Plugin / hook API
 
 Expose a banner-renderer hook through the extensions system.
 
@@ -700,7 +700,7 @@ Expose a banner-renderer hook through the extensions system.
 the existing `ui.*` style, and avoids forcing a nested-namespace
 decision before we know what other banner-only knobs would actually
 look like. If future siblings start accumulating, migrating to Option 2
-is additive — `ui.banner.title` and `ui.customBannerTitle` can coexist
+is additive -- `ui.banner.title` and `ui.customBannerTitle` can coexist
 during a deprecation window.
 
 ## Security & failure handling
@@ -714,7 +714,7 @@ that drives the session-title feature applies here.
 | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ANSI / OSC-8 / CSI injection in art, title, or subtitle | Banner-specific stripper (`sanitizeArt` / `sanitizeSingleLine`): drops OSC / CSI / SS2 / SS3 leaders and replaces every other C0 / C1 control byte (and DEL) with a space. Applied before render and cache write. |
 | Oversize file freezes startup                           | 64 KB hard cap on file reads.                                                                                                                                                                                     |
-| Pathological art freezes layout                         | 200 lines × 200 cols cap on each resolved string. Excess is truncated; a `[BANNER]` warn is logged.                                                                                                               |
+| Pathological art freezes layout                         | 200 lines * 200 cols cap on each resolved string. Excess is truncated; a `[BANNER]` warn is logged.                                                                                                               |
 | Symlink redirect on the path form                       | `O_NOFOLLOW` on file reads (Windows: plain read-only; constant not exposed).                                                                                                                                      |
 | Missing or unreadable file                              | Catch, log `[BANNER]` warn, fall back to default. Never throw into the UI.                                                                                                                                        |
 | Title or subtitle with newlines / excess length         | Newlines folded to spaces; capped at 80 (title) / 160 (subtitle) characters.                                                                                                                                      |
@@ -732,10 +732,10 @@ follow-up if user demand surfaces.
 
 | Item                                                               | Why not                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Text-to-ASCII rendering (`{ text: "xxxCode" }` form)               | Considered and rejected for v1. Adding this would require either a `figlet` runtime dependency (~2–3 MB unpacked once a usable set of fonts is included) or a vendored single-font renderer (~200 lines + a `.flf` font file we'd own). Both options bring ongoing surface area: font selection, font-license tracking, "my font doesn't render right on terminal X" issues, and CJK / wide-character handling. The driving use case for this feature (white-label / multi-tenant) almost always has a designer producing intentional ASCII art, not relying on a default figlet font. Users who want one-line generation can already get it with `npx figlet "xxxCode" > brand.txt` + `customAsciiArt: { "path": "./brand.txt" }` — same outcome, no added dependency, no support burden inside Qwen Code. If demand surfaces later this form is purely additive: extend `AsciiArtSource` to `string \| {path} \| {text, font?}` without breaking any existing config. |
+| Text-to-ASCII rendering (`{ text: "xxxCode" }` form)               | Considered and rejected for v1. Adding this would require either a `figlet` runtime dependency (~2-3 MB unpacked once a usable set of fonts is included) or a vendored single-font renderer (~200 lines + a `.flf` font file we'd own). Both options bring ongoing surface area: font selection, font-license tracking, "my font doesn't render right on terminal X" issues, and CJK / wide-character handling. The driving use case for this feature (white-label / multi-tenant) almost always has a designer producing intentional ASCII art, not relying on a default figlet font. Users who want one-line generation can already get it with `npx figlet "xxxCode" > brand.txt` + `customAsciiArt: { "path": "./brand.txt" }` -- same outcome, no added dependency, no support burden inside Qwen Code. If demand surfaces later this form is purely additive: extend `AsciiArtSource` to `string \| {path} \| {text, font?}` without breaking any existing config. |
 | `/banner` slash command for live editing                           | The settings UI is the canonical edit surface. A live editor for multi-line ASCII art is its own project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | Custom gradient colors / per-line color overrides                  | Theme owns colors. A separate proposal can extend the theme contract; banner customization should not duplicate that surface.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| URL-loaded ASCII art                                               | Network fetch at startup is its own can of worms — failure modes, caching, security review. The file-path form is the lower-risk equivalent.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| URL-loaded ASCII art                                               | Network fetch at startup is its own can of worms -- failure modes, caching, security review. The file-path form is the lower-risk equivalent.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | Animation (spinning logo, marquee title)                           | Adds rendering load and a11y concerns; nothing in the use cases needs it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | VSCode / Web UI banner parity                                      | Those surfaces don't render the Ink banner today. If they grow a banner, this design is the reference.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Dynamic reload on file change                                      | The resolver runs at startup and on settings reload only. Mid-session art changes are rare enough that "restart to take effect" is the acceptable trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
@@ -747,27 +747,27 @@ For the eventual implementation PR, the following end-to-end checks
 should pass.
 
 1. `~/.qwen/settings.json` with `customBannerTitle: "Acme CLI"` and an
-   inline `customAsciiArt` string → `qwen` shows the new title and art;
+   inline `customAsciiArt` string -> `qwen` shows the new title and art;
    version suffix still present.
-2. `customBannerSubtitle: "Built-in Acme Skills"` → the subtitle row
+2. `customBannerSubtitle: "Built-in Acme Skills"` -> the subtitle row
    renders between the title and the auth/model line in the secondary
    text color; auth, model, and path still visible. Unsetting it
    restores the blank spacer row (back-compat).
-3. `hideBanner: true` → `qwen` starts with no banner; tips and chat
+3. `hideBanner: true` -> `qwen` starts with no banner; tips and chat
    render normally.
 4. `customAsciiArt: { "path": "./brand.txt" }` in a workspace
-   `settings.json`, with `brand.txt` next to it in `.qwen/` → loads
+   `settings.json`, with `brand.txt` next to it in `.qwen/` -> loads
    from disk on workspace open.
-5. `customAsciiArt: { "small": "...", "large": "..." }` → resize the
+5. `customAsciiArt: { "small": "...", "large": "..." }` -> resize the
    terminal between wide / medium / narrow; large at wide widths,
    small at medium widths, logo column hidden at narrow widths, info
    panel always visible.
 6. Inject `\x1b[31mhostile` into `customBannerTitle` _and_
-   `customBannerSubtitle` → both render as literal text, not
+   `customBannerSubtitle` -> both render as literal text, not
    interpreted as red.
-7. Point `path` at a missing file → CLI starts; `[BANNER]` warn
+7. Point `path` at a missing file -> CLI starts; `[BANNER]` warn
    appears in `~/.qwen/debug/<sessionId>.txt`; default art renders.
-8. Open the worktree with workspace trust off → workspace-defined
+8. Open the worktree with workspace trust off -> workspace-defined
    `customAsciiArt` (including `{ path }` entries) is silently
    ignored; user-scope settings still apply.
 9. `npm test` and `npm run typecheck` pass for the CLI package; unit

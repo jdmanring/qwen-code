@@ -47,7 +47,7 @@ const normalizeExplicitFileLink = (raw: string): string => {
   // file:// URIs (e.g. from vscode.Uri.file().toString()) encode special
   // characters like # as %23 in the path component. After decoding the
   // full URI we can strip the scheme and return the filesystem path
-  // directly — no fragment splitting needed, because any # in the
+  // directly -- no fragment splitting needed, because any # in the
   // decoded result is a literal filename character, not an anchor.
   if (/^file:\/\//i.test(decoded)) {
     let filePath = decoded.replace(/^file:\/\/\//i, '');
@@ -373,7 +373,7 @@ export const MarkdownRenderer: FC<MarkdownRendererProps> = ({
         return;
       }
 
-      // Skip external links — let browser handle them normally
+      // Skip external links -- let browser handle them normally
       if (/^(https?|mailto|ftp|data):/i.test(href)) {
         return;
       }

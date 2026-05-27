@@ -1,12 +1,12 @@
-# 🎭 Agent Registry: Persona-as-Code
+#  Agent Registry: Persona-as-Code
 
 This document catalogs the specialized agent personas used by the Runtime Stack. Agent behaviors are decoupled from the execution engine and defined as "Persona-as-Code" via Markdown files.
 
-## 📂 Persona Storage
+##  Persona Storage
 All agent personas are stored as standalone Markdown files in the configuration directory:
 `config/agents/*.md`
 
-## 👥 Agent Roles & Orchestration
+##  Agent Roles & Orchestration
 
 The system distinguishes between agent **Personas** (the "Who") and agent **Roles** (the "How").
 
@@ -31,7 +31,7 @@ A single persona may operate in different roles depending on the orchestration p
 
 ---
 
-## 💉 Persona Injection Process
+##  Persona Injection Process
 
 The system injects these personas dynamically during the model call sequence in `packages/core/src/skill_bridge.py`:
 
@@ -40,7 +40,7 @@ The system injects these personas dynamically during the model call sequence in 
 3. **Payload Construction**: The content of the Markdown file is injected as the `system` message in the LLM request payload.
 4. **Contextualization**: The persona is combined with the current `State Context` (Todo list, phase) to ensure the agent is aware of its current progress.
 
-## 🛠️ Creating New Agents
+##  Creating New Agents
 To add a new agent to the registry:
 1. Create a new `.md` file in `config/agents/`.
 2. Define the **Identity**, **Goals**, and **Constraints** of the persona.

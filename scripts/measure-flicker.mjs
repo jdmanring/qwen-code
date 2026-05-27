@@ -2,17 +2,17 @@
 /**
  * Quick-and-dirty TUI flicker quantifier.
  *
- * Counts the ANSI escape sequences that betray flicker — clearing the screen,
- * erasing lines, or jumping the cursor up to redraw — inside a recorded raw
+ * Counts the ANSI escape sequences that betray flicker -- clearing the screen,
+ * erasing lines, or jumping the cursor up to redraw -- inside a recorded raw
  * terminal stream. Useful for "before/after" sanity checks when refactoring
  * TUI components.
  *
  * Recording phase (do this yourself; this script doesn't drive interactive
- * TUIs — it just analyses what you recorded):
+ * TUIs -- it just analyses what you recorded):
  *
  *   # macOS / BSD `script`:
  *   script -q /tmp/qwen.before.raw node dist/cli.js --yolo
- *   # …drive a SubAgent scenario, then exit qwen with /quit or Ctrl-D
+ *   # ...drive a SubAgent scenario, then exit qwen with /quit or Ctrl-D
  *
  *   # Linux / util-linux `script`:
  *   script -q -c 'node dist/cli.js --yolo' /tmp/qwen.before.raw
@@ -28,7 +28,7 @@
  *   node scripts/measure-flicker.mjs /tmp/qwen.before.raw
  *   node scripts/measure-flicker.mjs /tmp/qwen.after.raw /tmp/qwen.before.raw
  *
- * The second form prints both, and the delta — lower clearTerminalPair on
+ * The second form prints both, and the delta -- lower clearTerminalPair on
  * "current" vs "baseline" is the win condition for a flicker fix.
  */
 
@@ -61,7 +61,7 @@ const PATTERNS = [
   },
   {
     name: 'cursorUp',
-    description: 'ESC [ N A  (cursor up — Ink uses this for in-place redraw)',
+    description: 'ESC [ N A  (cursor up -- Ink uses this for in-place redraw)',
     regex: /\x1b\[\d+A/g,
   },
 ];
@@ -95,7 +95,7 @@ function summarize(label, path) {
 
 function render(summary) {
   const { label, path, bytes, counts } = summary;
-  stdout.write(`── ${label}\n`);
+  stdout.write(`-- ${label}\n`);
   stdout.write(`    file:  ${path}\n`);
   stdout.write(`    bytes: ${bytes}\n`);
   for (const p of PATTERNS) {
@@ -104,12 +104,12 @@ function render(summary) {
 }
 
 function renderDelta(current, baseline) {
-  stdout.write('\n── delta (current − baseline)\n');
+  stdout.write('\n-- delta (current  baseline)\n');
   for (const p of PATTERNS) {
     const c = current.counts[p.name];
     const b = baseline.counts[p.name];
     const d = c - b;
-    const arrow = d < 0 ? '↓' : d > 0 ? '↑' : '·';
+    const arrow = d < 0 ? '' : d > 0 ? '' : '';
     stdout.write(`    ${p.name.padEnd(18)} ${d > 0 ? '+' : ''}${d}  ${arrow}\n`);
   }
   stdout.write(

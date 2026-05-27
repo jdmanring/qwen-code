@@ -52,20 +52,20 @@ fi
 
 # --- Execution ---
 
-echo "🚀 Starting CSF-Ingestion for: $REPO_NAME"
+echo " Starting CSF-Ingestion for: $REPO_NAME"
 
 # 1. Create Lab Directory
 TARGET_LAB_PATH="$LABS_DIR/$CATEGORY/$REPO_NAME"
-echo "📂 Cloning into: $TARGET_LAB_PATH"
+echo " Cloning into: $TARGET_LAB_PATH"
 mkdir -p "$LABS_DIR/$CATEGORY"
 if [ -d "$TARGET_LAB_PATH" ]; then
-    echo "⚠️  Directory already exists. Skipping clone."
+    echo "  Directory already exists. Skipping clone."
 else
     git clone "$REPO_URL" "$TARGET_LAB_PATH"
 fi
 
 # 2. Create Mirrored Documentation Scaffolding
-echo "📚 Creating mirrored documentation structure in $DOCS_INGEST_DIR/$REPO_NAME"
+echo " Creating mirrored documentation structure in $DOCS_INGEST_DIR/$REPO_NAME"
 MIRROR_PATH="$DOCS_INGEST_DIR/$REPO_NAME"
 mkdir -p "$MIRROR_PATH"
 
@@ -78,23 +78,23 @@ mkdir -p "$MIRROR_PATH/reference"
 
 # Create the root index for the ingested repo
 cat <<EOF > "$MIRROR_PATH/INDEX.md"
-# 📦 Ingested Asset: $REPO_NAME
+#  Ingested Asset: $REPO_NAME
 Source: $REPO_URL
 Category: $CATEGORY
 Symmetry Status: PENDING
 
-## 🗺️ Cognitive Map
+##  Cognitive Map
 - [Agents](./agents/)
 - [Skills](./skills/)
 - [Architecture](./architecture/)
 - [Reference](./reference/)
 
-## 📜 Integration Status
+##  Integration Status
 - [ ] Phase 1: Physical Ingestion (COMPLETE)
 - [ ] Phase 2: Cognitive Mapping (PENDING)
 - [ ] Phase 3: Axiomatic Distillation (PENDING)
 - [ ] Phase 4: Verification (PENDING)
 EOF
 
-echo "✅ Scaffolding complete."
+echo " Scaffolding complete."
 echo "Next Step: Invoke 'ingestion-specialist' to perform Cognitive Mapping."

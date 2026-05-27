@@ -680,7 +680,7 @@ describe('createToolProgressHandler', () => {
 
     expect(mockAdapter.emitToolProgress).not.toHaveBeenCalled();
 
-    // Also test with a plain string — should not emit
+    // Also test with a plain string -- should not emit
     handler('tool-call-1', 'plain string progress');
 
     expect(mockAdapter.emitToolProgress).not.toHaveBeenCalled();

@@ -43,7 +43,7 @@ export const BUNDLE_CHUNK_DIR = 'chunks';
  * name, never that constant, so this is a no-op there.
  *
  * Centralising the check keeps the coupling to esbuild's `chunkNames`
- * setting in one place — if that ever changes, only `BUNDLE_CHUNK_DIR`
+ * setting in one place -- if that ever changes, only `BUNDLE_CHUNK_DIR`
  * needs updating (and `esbuild.config.js` picks up the new value via the
  * imported constant).
  *

@@ -118,7 +118,7 @@ export function getRateLimitRetryDelayMs(
  * Mirrors the same parsing patterns used by parseAndFormatApiError.
  */
 function getErrorCode(error: unknown): number | null {
-  // ApiError (.error.code) — fall through when the code is not a finite number
+  // ApiError (.error.code) -- fall through when the code is not a finite number
   // (e.g. DashScope `"code":"Throttling.AllocationQuota"`) so later handlers
   // can still recover a status from `.status` or the message.
   if (isApiError(error)) {
@@ -126,7 +126,7 @@ function getErrorCode(error: unknown): number | null {
     if (Number.isFinite(n) && n > 0) return n;
   }
 
-  // JSON in string / Error.message — check BEFORE isStructuredError because
+  // JSON in string / Error.message -- check BEFORE isStructuredError because
   // Error instances also satisfy isStructuredError (both have .message).
   const msg =
     error instanceof Error
@@ -149,7 +149,7 @@ function getErrorCode(error: unknown): number | null {
     }
   }
 
-  // StructuredError (.status) — plain objects from Gemini SDK.
+  // StructuredError (.status) -- plain objects from Gemini SDK.
   // Fall through when .status is missing so the getErrorStatus fallback
   // below can still recover a status from streamed SSE error frames.
   if (isStructuredError(error) && typeof error.status === 'number') {

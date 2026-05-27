@@ -240,7 +240,7 @@ function renderMarkdownToAnsi(text: string, enableInlineMath = false): string {
     : INLINE_MARKDOWN_REGEX;
   inlineRegex.lastIndex = 0;
 
-  // Capability is stable for the duration of one cell render — read it once
+  // Capability is stable for the duration of one cell render -- read it once
   // here instead of per matched token.
   const canHyperlink = supportsHyperlinks();
 
@@ -297,7 +297,7 @@ function renderMarkdownToAnsi(text: string, enableInlineMath = false): string {
       if (linkMatch) {
         const labelText = linkMatch[1] ?? '';
         const url = linkMatch[2] ?? '';
-        // When OSC 8 wraps, show only the label — long URLs in narrow
+        // When OSC 8 wraps, show only the label -- long URLs in narrow
         // table cells were the worst offender for layout cluttering, so
         // this matters especially here. Fall back to the legacy
         // `label (url)` rendering when wrapping is off so the cell is
@@ -317,7 +317,7 @@ function renderMarkdownToAnsi(text: string, enableInlineMath = false): string {
           );
           const envelope = `${osc8Open(url)}${visibleLabel}${osc8Close()}`;
           // When the label looks like a (mismatched) URL, keep the `(url)`
-          // suffix so the user can see where the click actually goes — same
+          // suffix so the user can see where the click actually goes -- same
           // mitigation as the React renderer.
           rendered = labelMayDeceive(safeLabel, safeUrl)
             ? `${envelope} ${applyColor(`(${safeUrl})`, theme.text.link)}`
@@ -364,7 +364,7 @@ function renderMarkdownToAnsi(text: string, enableInlineMath = false): string {
 
 /**
  * Pad `content` to `targetWidth` according to alignment.
- * `displayWidth` is the visible width of `content` — caller computes this
+ * `displayWidth` is the visible width of `content` -- caller computes this
  * via stringWidth so ANSI codes in `content` don't affect padding.
  */
 function padAligned(
@@ -431,12 +431,12 @@ export const TableRenderer: React.FC<TableRendererProps> = ({
 }) => {
   const colCount = headers.length;
 
-  // Empty table — nothing to render
+  // Empty table -- nothing to render
   if (colCount === 0) {
     return <Box />;
   }
 
-  // ── Precompute per-cell metrics to avoid repeated renderMarkdownToAnsi calls ──
+  // -- Precompute per-cell metrics to avoid repeated renderMarkdownToAnsi calls --
   const computeMetrics = (text: string) => {
     const rendered = renderMarkdownToAnsi(text, enableInlineMath);
     const visible = stripAnsi(rendered);
@@ -459,7 +459,7 @@ export const TableRenderer: React.FC<TableRendererProps> = ({
     Array.from({ length: colCount }, (_, i) => computeMetrics(row[i] || '')),
   );
 
-  // ── Step 1: Calculate min (longest word) and ideal (full content) widths ──
+  // -- Step 1: Calculate min (longest word) and ideal (full content) widths --
   const minColumnWidths = headers.map((_, colIndex) => {
     let maxMin = headerMetrics[colIndex]!.minWordWidth;
     for (const row of rowMetrics) {
@@ -479,18 +479,18 @@ export const TableRenderer: React.FC<TableRendererProps> = ({
     return maxIdeal;
   });
 
-  // ── Step 2: Calculate available space ──
-  // Border overhead: │ content │ content │ = 1 + (width + 3) per column.
+  // -- Step 2: Calculate available space --
+  // Border overhead: | content | content | = 1 + (width + 3) per column.
   // NOTE: this value is reused below in the horizontal-vs-vertical threshold
   // (`minHorizontalTableWidth`). Any change to this formula will silently
-  // shift the layout threshold — adjust both call sites together.
+  // shift the layout threshold -- adjust both call sites together.
   const borderOverhead = 1 + colCount * 3;
   const availableWidth = Math.max(
     contentWidth - borderOverhead - SAFETY_MARGIN,
     colCount * MIN_COLUMN_WIDTH,
   );
 
-  // ── Step 3: Calculate column widths that fit available space ──
+  // -- Step 3: Calculate column widths that fit available space --
   const totalMin = minColumnWidths.reduce((sum, w) => sum + w, 0);
   const totalIdeal = idealWidths.reduce((sum, w) => sum + w, 0);
 
@@ -530,7 +530,7 @@ export const TableRenderer: React.FC<TableRendererProps> = ({
     }
   }
 
-  // ── Step 4: Check max row lines to decide vertical fallback ──
+  // -- Step 4: Check max row lines to decide vertical fallback --
   function calculateMaxRowLines(): number {
     let maxLines = 1;
     for (let i = 0; i < colCount; i++) {
@@ -564,16 +564,16 @@ export const TableRenderer: React.FC<TableRendererProps> = ({
   const useVerticalFormat =
     contentWidth < minHorizontalTableWidth || maxRowLines > MAX_ROW_LINES;
 
-  // ── Helper: Get alignment for a column ──
+  // -- Helper: Get alignment for a column --
   const getAlign = (colIndex: number): ColumnAlign =>
     aligns?.[colIndex] ?? 'left';
 
-  // ── Build horizontal border as pure string ──
+  // -- Build horizontal border as pure string --
   function renderBorderLine(type: 'top' | 'middle' | 'bottom'): string {
     const [left, mid, cross, right] = {
-      top: ['┌', '─', '┬', '┐'],
-      middle: ['├', '─', '┼', '┤'],
-      bottom: ['└', '─', '┴', '┘'],
+      top: ['+--', '-', '', '+--'],
+      middle: ['|--', '-', '---', ''],
+      bottom: ['\_', '-', '', '---'],
     }[type] as [string, string, string, string];
 
     let line = left;
@@ -584,7 +584,7 @@ export const TableRenderer: React.FC<TableRendererProps> = ({
     return applyColor(line, theme.border.default);
   }
 
-  // ── Build row lines as pure strings ──
+  // -- Build row lines as pure strings --
   // renderedCells: pre-rendered ANSI text for each column (already colCount-normalized)
   function renderRowLines(
     renderedCells: string[],
@@ -598,7 +598,7 @@ export const TableRenderer: React.FC<TableRendererProps> = ({
     // Vertical centering offset per cell
     const offsets = cellLines.map((l) => Math.floor((maxLines - l.length) / 2));
 
-    const borderPipe = applyColor('│', theme.border.default);
+    const borderPipe = applyColor('|', theme.border.default);
     const result: string[] = [];
     for (let lineIdx = 0; lineIdx < maxLines; lineIdx++) {
       let line = borderPipe;
@@ -649,11 +649,11 @@ export const TableRenderer: React.FC<TableRendererProps> = ({
     return result;
   }
 
-  // ── Vertical format (key-value pairs) for narrow terminals ──
+  // -- Vertical format (key-value pairs) for narrow terminals --
   function renderVerticalFormat(): string {
     const lines: string[] = [];
     const separatorWidth = Math.max(Math.min(contentWidth - 1, 40), 0);
-    const separator = separatorWidth > 0 ? '─'.repeat(separatorWidth) : '';
+    const separator = separatorWidth > 0 ? '-'.repeat(separatorWidth) : '';
 
     rowMetrics.forEach((row, rowIndex) => {
       if (rowIndex > 0) {
@@ -686,7 +686,7 @@ export const TableRenderer: React.FC<TableRendererProps> = ({
     return lines.join('\n');
   }
 
-  // ── Choose format ──
+  // -- Choose format --
   if (useVerticalFormat) {
     return (
       <Box marginY={1}>
@@ -695,7 +695,7 @@ export const TableRenderer: React.FC<TableRendererProps> = ({
     );
   }
 
-  // ── Build the complete horizontal table as strings ──
+  // -- Build the complete horizontal table as strings --
   const headerRendered = headerMetrics.map((m) => m.rendered);
   const tableLines: string[] = [];
   tableLines.push(renderBorderLine('top'));
@@ -714,7 +714,7 @@ export const TableRenderer: React.FC<TableRendererProps> = ({
   });
   tableLines.push(renderBorderLine('bottom'));
 
-  // ── Safety check: verify no line exceeds content width ──
+  // -- Safety check: verify no line exceeds content width --
   const maxLineWidth = Math.max(
     ...tableLines.map((line) => getCachedStringWidth(stripAnsi(line))),
   );

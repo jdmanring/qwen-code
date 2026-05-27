@@ -77,7 +77,7 @@ Split the discovered files into chunks based on these rules:
 - Maximum chunk size: 15 files (ensure reasonable work per agent)
 - Maximum parallel agents: 5 (API rate limit consideration)
 
-Example: 24 files → 3 chunks of ~8 files each
+Example: 24 files -> 3 chunks of ~8 files each
 
 ## Step 3: Launch Parallel Worker Agents
 
@@ -220,7 +220,7 @@ For each failed file, include:
 
 **Flow**:
 
-1. glob `src/**/*.ts` → find 45 files
+1. glob `src/**/*.ts` -> find 45 files
 2. Split into 4 chunks
 3. Launch 4 parallel agents
 4. Each agent adds the license header to its assigned files
@@ -234,7 +234,7 @@ For each failed file, include:
 
 **Flow**:
 
-1. glob `utils/**/*.js` → find 12 files
+1. glob `utils/**/*.js` -> find 12 files
 2. Split into 2 chunks
 3. Launch 2 parallel agents
 4. Each agent converts files and renames to .ts

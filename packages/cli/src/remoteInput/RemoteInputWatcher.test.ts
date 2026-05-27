@@ -83,7 +83,7 @@ describe('RemoteInputWatcher', () => {
       JSON.stringify({ type: 'submit', text: 'queued' }) + '\n',
     );
 
-    // Trigger read — command will be queued then submitted, but TUI rejects (busy)
+    // Trigger read -- command will be queued then submitted, but TUI rejects (busy)
     await watcher.checkForNewInput();
     // processQueue runs async; give it a tick
     await new Promise((r) => setTimeout(r, 50));

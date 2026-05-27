@@ -66,7 +66,7 @@ export const statsCommand: SlashCommand = {
           `Session duration: ${formatDuration(wallDuration)}`,
           `Prompts: ${promptCount}`,
           `API requests: ${totalRequests}`,
-          `Tokens — prompt: ${totalPromptTokens}, output: ${totalCandidateTokens}`,
+          `Tokens -- prompt: ${totalPromptTokens}, output: ${totalCandidateTokens}`,
           `Tool calls: ${metrics.tools.totalCalls} (${metrics.tools.totalSuccess} ok, ${metrics.tools.totalFail} fail)`,
           `Files: +${metrics.files.totalLinesAdded} / -${metrics.files.totalLinesRemoved} lines`,
         ].join('\n'),

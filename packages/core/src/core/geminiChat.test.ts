@@ -672,7 +672,7 @@ describe('GeminiChat', async () => {
             p.text === 'next user prompt after a stream-error-mid-tool_use',
         ),
       ).toBe(true);
-      // tool_result block must come BEFORE the text — Anthropic-
+      // tool_result block must come BEFORE the text -- Anthropic-
       // compatible backends reject a user message whose first content
       // block isn't the tool_result answering the immediately preceding
       // tool_use. Mirrors upstream Claude Code's `hoistToolResults`.
@@ -686,7 +686,7 @@ describe('GeminiChat', async () => {
       // array): the user-supplied tool_result must close the pair before
       // the inline repair pass sees it, so no synthetic error is
       // injected. Otherwise the wire payload would carry two
-      // functionResponse parts for the same callId — the real one and a
+      // functionResponse parts for the same callId -- the real one and a
       // bogus synthetic.
       chat.setHistory([
         { role: 'user', parts: [{ text: 'do the read' }] },
@@ -737,7 +737,7 @@ describe('GeminiChat', async () => {
 
       const userTurn = chat.getHistory()[2]!;
       const frParts = userTurn.parts!.filter((p) => p.functionResponse);
-      // Exactly ONE functionResponse — the real one. No synthetic.
+      // Exactly ONE functionResponse -- the real one. No synthetic.
       expect(frParts.length).toBe(1);
       expect(frParts[0]!.functionResponse?.id).toBe('call_retry_real_fr');
       expect(
@@ -852,9 +852,9 @@ describe('GeminiChat', async () => {
       // `functionCall` part on `content_block_stop`; the SSE may then drop
       // before `message_stop`. The yielded chunk is enough for `Turn.run`
       // to queue a `ToolCallRequest`, the tool scheduler will eventually
-      // submit a `functionResponse` user turn — without a matching
+      // submit a `functionResponse` user turn -- without a matching
       // tool_use in history, the next request body shows
-      // `user → user[tool_result]` and DeepSeek/Anthropic rejects with
+      // `user -> user[tool_result]` and DeepSeek/Anthropic rejects with
       // "tool_use_id ... must have a corresponding tool_use block in the
       // previous message". `processStreamResponse` must persist the
       // partial model turn before re-throwing so the pairing is intact.
@@ -973,7 +973,7 @@ describe('GeminiChat', async () => {
       const modelTurn = history[1]!;
       expect(modelTurn.role).toBe('model');
       const parts = modelTurn.parts!;
-      // The thinking part must come before the functionCall — Anthropic
+      // The thinking part must come before the functionCall -- Anthropic
       // requires thinking blocks first in the assistant content array.
       expect(parts[0]!.thought).toBe(true);
       expect(parts[0]!.text).toBe('planning the read');
@@ -986,8 +986,8 @@ describe('GeminiChat', async () => {
       // error: the Retry path pops the trailing user prompt and re-issues
       // it, so a stale partial-text model turn between them would bias
       // the retry or surface as duplicate output. Only tool_use turns
-      // need the partial-history bridge to preserve the tool_use →
-      // tool_result invariant — text alone has no such invariant.
+      // need the partial-history bridge to preserve the tool_use ->
+      // tool_result invariant -- text alone has no such invariant.
       mockRetryWithBackoff.mockImplementation(async (apiCall) => apiCall());
       const networkError = new Error('connection reset');
       const streamThatThrowsAfterText = (async function* () {
@@ -1021,7 +1021,7 @@ describe('GeminiChat', async () => {
       ).rejects.toBe(networkError);
 
       const history = chat.getHistory();
-      // Only the user turn is in history — the partial-text model turn is
+      // Only the user turn is in history -- the partial-text model turn is
       // intentionally not persisted.
       expect(history.length).toBe(1);
       expect(history[0]!.role).toBe('user');
@@ -1378,7 +1378,7 @@ describe('GeminiChat', async () => {
       );
 
       // Verify that token counting is called when usageMetadata is present.
-      // The Footer-driving counter must reflect *prompt* size only — output
+      // The Footer-driving counter must reflect *prompt* size only -- output
       // tokens for the in-flight round are not yet in history. The mock
       // returns promptTokenCount=42, so that's what should be reported.
       expect(uiTelemetryService.setLastPromptTokenCount).toHaveBeenCalledWith(
@@ -1593,7 +1593,7 @@ describe('GeminiChat', async () => {
       // The hard-tier rescue calls getHistoryShallow(true) (when
       // lastPromptTokenCount=0) for its estimator; the post-compression
       // history-load is getRequestHistory(). The "after compression" failure
-      // scenario this test targets is the latter — mock that call to throw.
+      // scenario this test targets is the latter -- mock that call to throw.
       vi.spyOn(
         chat as unknown as { getRequestHistory: () => Content[] },
         'getRequestHistory',
@@ -1640,7 +1640,7 @@ describe('GeminiChat', async () => {
       expect(subagentChat.getLastPromptTokenCount()).toBe(123_456);
 
       // The compression service receives the seeded count, so the threshold
-      // check sees the inherited size — not the constructor default of 0.
+      // check sees the inherited size -- not the constructor default of 0.
       const compressSpy = vi
         .spyOn(ChatCompressionService.prototype, 'compress')
         .mockResolvedValue({
@@ -1770,9 +1770,9 @@ describe('GeminiChat', async () => {
       // mocks the service entirely, so the real cheap-gate (the actual
       // estimatePromptTokens fallback branch when lastPromptTokenCount===0)
       // never runs. Exercise the full chain here:
-      //   sendMessageStream → tryCompress → service.compress (REAL) →
-      //   cheap-gate (real estimate via getHistory + userMessage) →
-      //   splitter (real) → runSideQuery (mocked at baseLlmClient) →
+      //   sendMessageStream -> tryCompress -> service.compress (REAL) ->
+      //   cheap-gate (real estimate via getHistory + userMessage) ->
+      //   splitter (real) -> runSideQuery (mocked at baseLlmClient) ->
       //   persistence.
       const largeChars = 'x'.repeat(400_000); // ~100K estimated tokens
       const inheritedHistory: Content[] = [
@@ -1784,7 +1784,7 @@ describe('GeminiChat', async () => {
       chat.setHistory(inheritedHistory);
       expect(chat.getLastPromptTokenCount()).toBe(0);
 
-      // Default DEFAULT_TOKEN_LIMIT = 128K → auto ≈ 95K. 100K estimate
+      // Default DEFAULT_TOKEN_LIMIT = 128K -> auto  95K. 100K estimate
       // crosses, so cheap-gate must let compaction proceed.
       const generateText = vi.fn().mockResolvedValue({
         text: '<state_snapshot>compressed</state_snapshot>',
@@ -1830,7 +1830,7 @@ describe('GeminiChat', async () => {
         'compress',
       );
 
-      // Step 1: auto-compression fails — counter increments on the chat.
+      // Step 1: auto-compression fails -- counter increments on the chat.
       compressSpy.mockResolvedValueOnce({
         newHistory: null,
         info: {
@@ -2431,7 +2431,7 @@ describe('GeminiChat', async () => {
     it('forwards latched consecutiveFailures into hard-rescue (no pre-call reset); success recovers via the post-call branch', async () => {
       // Hard-rescue uses force=true, which already bypasses the
       // chatCompressionService breaker (the `!force` check in compress's
-      // cheap-gate) regardless of the counter value — so a pre-call reset
+      // cheap-gate) regardless of the counter value -- so a pre-call reset
       // is unnecessary for "let the latched breaker recover".
       //
       // Pre-resetting would in fact DEFEAT the breaker on
@@ -2440,7 +2440,7 @@ describe('GeminiChat', async () => {
       // the failure branch), and only the reactive overflow handler
       // explicitly increments. If hard-rescue zeroed the counter on every
       // send, the reactive-overflow increment would be wiped next send
-      // and the counter would oscillate 0↔1 indefinitely.
+      // and the counter would oscillate 0<->1 indefinitely.
       //
       // Correct behavior asserted here: hard-rescue forwards the existing
       // counter value as-is; on COMPRESSED success the post-call branch
@@ -2510,7 +2510,7 @@ describe('GeminiChat', async () => {
 
       expect(compressSpy).toHaveBeenCalledTimes(1);
       expect(compressSpy.mock.calls[0][1].force).toBe(true);
-      // Counter forwarded as-is — the LATCHED value, NOT zero.
+      // Counter forwarded as-is -- the LATCHED value, NOT zero.
       expect(compressSpy.mock.calls[0][1].consecutiveFailures).toBe(
         MAX_CONSECUTIVE_FAILURES,
       );
@@ -2556,7 +2556,7 @@ describe('GeminiChat', async () => {
         makeStreamResponse(),
       );
 
-      // Well below 177K hard threshold — normal auto path.
+      // Well below 177K hard threshold -- normal auto path.
       chat.setLastPromptTokenCount(50_000);
       const stream = await chat.sendMessageStream(
         'test-model',
@@ -3100,7 +3100,7 @@ describe('GeminiChat', async () => {
       // `processStreamResponse`), then throws a retryable error (e.g.
       // a TPM 429 `StreamContentError`). The outer retry loop must
       // drop the partial before issuing the
-      // retry — otherwise the retry's response lands as a SECOND
+      // retry -- otherwise the retry's response lands as a SECOND
       // consecutive `model` entry and the failed-attempt `tool_use`
       // becomes orphan on the wire (invalid alternation +
       // tool_use_id-with-no-matching-tool_use 400).
@@ -3160,7 +3160,7 @@ describe('GeminiChat', async () => {
         const history = chat.getHistory();
         // History must NOT contain the failed attempt's partial
         // model[functionCall]. Expected shape: [user, model(success
-        // text)] — exactly two entries, alternation intact.
+        // text)] -- exactly two entries, alternation intact.
         expect(history.length).toBe(2);
         expect(history[0]!.role).toBe('user');
         expect(history[1]!.role).toBe('model');
@@ -3178,7 +3178,7 @@ describe('GeminiChat', async () => {
     it('rolls back the partial assistant turn when an InvalidStreamError fires after a tool_use chunk on the transient-stream retry budget', async () => {
       // Counterpart to the rate-limit rollback above. The
       // transient-stream retry budget (NO_FINISH_REASON /
-      // NO_RESPONSE_TEXT) has its own popPartialIfPushed call site —
+      // NO_RESPONSE_TEXT) has its own popPartialIfPushed call site --
       // separate from the rate-limit branch the existing test
       // covers. Without a regression test, that call could be
       // accidentally removed and the rate-limit test would still
@@ -3203,7 +3203,7 @@ describe('GeminiChat', async () => {
               },
             ],
           } as unknown as GenerateContentResponse;
-          // Mid-tool_use cut without a finish reason — the transient-
+          // Mid-tool_use cut without a finish reason -- the transient-
           // stream retry budget catches this and retries with delay.
           throw new InvalidStreamError(
             'Model stream ended without a finish reason.',
@@ -3356,15 +3356,15 @@ describe('GeminiChat', async () => {
       }
     });
 
-    it('flushes the chat-recording entry on the unretryable break path (kept partial → durable JSONL)', async () => {
+    it('flushes the chat-recording entry on the unretryable break path (kept partial -> durable JSONL)', async () => {
       // Counterpart to the rollback test: when the retry budget is
       // exhausted (or the error is unretryable from the start), the
-      // partial assistant turn IS kept in `this.history` — and the
+      // partial assistant turn IS kept in `this.history` -- and the
       // chat-recording JSONL must match. Without the deferred-flush
       // path firing at the rethrow site, the JSONL silently drops a
       // partial that's still in live history, and the orphan-tool_use
       // repair pass at session-load has no dangling functionCall to
-      // close → `--resume` first send 400s with the very wedge the
+      // close -> `--resume` first send 400s with the very wedge the
       // repair was supposed to escape.
       vi.useFakeTimers();
       try {
@@ -3639,7 +3639,7 @@ describe('GeminiChat', async () => {
         expect(first.value.type).toBe(StreamEventType.RETRY);
         const skipDelay = first.value.retryInfo!.skipDelay!;
 
-        // Resume generator — it's now awaiting the 60s delay.
+        // Resume generator -- it's now awaiting the 60s delay.
         // Call skipDelay() to resolve it immediately instead of advancing timers.
         const secondPromise = iterator.next();
         skipDelay();
@@ -3690,7 +3690,7 @@ describe('GeminiChat', async () => {
 
         vi.mocked(mockContentGenerator.generateContentStream)
           .mockResolvedValueOnce(failingStreamGenerator())
-          // Should never be called — abort should prevent the second attempt
+          // Should never be called -- abort should prevent the second attempt
           .mockResolvedValueOnce(failingStreamGenerator());
 
         const stream = await chat.sendMessageStream(
@@ -3718,7 +3718,7 @@ describe('GeminiChat', async () => {
 
         // Verify the next sendMessageStream is not blocked by the old delay.
         // If sendPromise were still pending, this would hang until the 60s
-        // timer fires — which never happens under fake timers, causing a timeout.
+        // timer fires -- which never happens under fake timers, causing a timeout.
         const nextStream = (async function* () {
           yield {
             candidates: [
@@ -3760,7 +3760,7 @@ describe('GeminiChat', async () => {
 
       try {
         const glmError = new StreamContentError(
-          '{"error":{"code":"1302","message":"您的账户已达到速率限制，请您控制请求频率"}}',
+          '{"error":{"code":"1302","message":""}}',
         );
         async function* failingStreamGenerator() {
           throw glmError;
@@ -4520,19 +4520,19 @@ describe('GeminiChat', async () => {
   describe('partial-push marker invariants on history mutation', () => {
     // The whole partial-push lifecycle relies on the invariant
     //   "every history-mutation method clears the partial-push markers"
-    // — six sites enforce it (clearHistory, addHistory, setHistory,
+    // -- six sites enforce it (clearHistory, addHistory, setHistory,
     // truncateHistory, stripThoughtsFromHistory,
     // stripOrphanedUserEntriesFromHistory). If any site forgets, a
     // stale `pendingPartialAssistantTurnIndex` could line up with an
     // unrelated model turn in the post-mutation history and cause
-    // `popPartialIfPushed` to splice the WRONG entry — silently losing
+    // `popPartialIfPushed` to splice the WRONG entry -- silently losing
     // a real assistant response.
     //
     // The markers are ephemeral within a single sendMessageStream
     // call: the `finally` block flushes the deferred JSONL record
     // and calls `clearPendingPartialState()` before the generator
     // unwinds. So we can't observe non-null markers after a real
-    // mid-stream error completes — by that point the lifecycle has
+    // mid-stream error completes -- by that point the lifecycle has
     // already cleared them. Instead, we plant the markers directly
     // via the same private-field assignment the production code uses,
     // then call each mutation method and verify both fields are reset
@@ -4581,7 +4581,7 @@ describe('GeminiChat', async () => {
 
     it('addHistory() clears the partial-push markers (violation path)', () => {
       // addHistory is documented to be called between sends, NOT
-      // mid-send. Calling it with markers active is a violation —
+      // mid-send. Calling it with markers active is a violation --
       // the implementation logs a warn so the offending caller is
       // visible in diagnostics, then clears the markers.
       chat.setHistory([
@@ -4652,7 +4652,7 @@ describe('GeminiChat', async () => {
     });
 
     it('stripOrphanedUserEntriesFromHistory() clears the partial-push markers', () => {
-      // History tail is a model turn — strip is a no-op on history,
+      // History tail is a model turn -- strip is a no-op on history,
       // but the marker reset must still fire so all six mutation
       // sites stay uniform.
       chat.setHistory([
@@ -4676,7 +4676,7 @@ describe('GeminiChat', async () => {
     // Verifies the inverse-of-strip pass: every `model[functionCall]`
     // without a matching `user[functionResponse]` in the next turn gets
     // a synthesized error functionResponse. This closes the
-    // tool_use ↔ tool_result wire invariant for the residual races
+    // tool_use <-> tool_result wire invariant for the residual races
     // (`--resume` of a crashed session, Ctrl+Y before in-flight tool
     // finishes, scheduler abort before submitQuery, manual JSONL edits).
 
@@ -4722,7 +4722,7 @@ describe('GeminiChat', async () => {
       // model[functionCall] in place (trailing entry is model), then the
       // Retry pushes a fresh user turn with the user prompt. Repair must
       // splice the synthetic response onto that user turn so it sits
-      // immediately after the model[tool_use] — NOT create a stray
+      // immediately after the model[tool_use] -- NOT create a stray
       // synthetic user turn between them. Crucially the synthetic
       // functionResponse must come BEFORE the text part: Anthropic-
       // compatible backends require tool_result blocks to be first in
@@ -4761,7 +4761,7 @@ describe('GeminiChat', async () => {
 
     it('hoists synthetic functionResponse AFTER pre-existing real ones (parallel partial submit)', () => {
       // Parallel tool_use with one real functionResponse already in the
-      // user turn — synthetic for the missing callId must slot in
+      // user turn -- synthetic for the missing callId must slot in
       // between the real fr and any non-fr parts so the user message
       // shape stays `[real_fr, synthetic_fr, text]` (every tool_result
       // before any other content, preserving the real-fr order).
@@ -4805,7 +4805,7 @@ describe('GeminiChat', async () => {
       // Common shape after #4176's partial-history push: the stream
       // emitted multiple `content_block_stop`s for parallel tool_uses,
       // but the React scheduler only submitted some before the user hit
-      // Ctrl+Y. The Retry path's repair must close every missing pair —
+      // Ctrl+Y. The Retry path's repair must close every missing pair --
       // the present `functionResponse` for A must NOT be duplicated.
       chat.setHistory([
         { role: 'user', parts: [{ text: 'batch read' }] },
@@ -4854,7 +4854,7 @@ describe('GeminiChat', async () => {
       const injectedIds = result.injected.map((e) => e.callId);
       expect(injectedIds.sort()).toEqual(['call_B', 'call_C']);
       const history = chat.getHistory();
-      // Same shape — synthetics merge into the existing user turn.
+      // Same shape -- synthetics merge into the existing user turn.
       expect(history.length).toBe(3);
       const fr = history[2]!.parts!.map((p) => p.functionResponse?.id);
       expect(fr).toEqual(['call_A', 'call_B', 'call_C']);
@@ -4992,19 +4992,19 @@ describe('GeminiChat', async () => {
 
     it('hoists the real functionResponse from a non-adjacent later user turn into the adjacent one', () => {
       // Regression for the shape
-      // `[user, model[fc], user[text], user[fr_real]]` — arises when
+      // `[user, model[fc], user[text], user[fr_real]]` -- arises when
       // the user aborts a long-running tool, types a follow-up text
       // turn, and the React scheduler's late submitQuery then appends
       // the real tool_result as a SEPARATE user entry.
       //
       // Forward scanning alone prevents the *synthesis* duplicate,
       // but the wire layout is still
-      // `model[tool_use] → user[text] → user[tool_result]`, which
+      // `model[tool_use] -> user[text] -> user[tool_result]`, which
       // Anthropic-compatible backends reject because the tool_result
       // is not at the head of the IMMEDIATELY following user message.
       // The repair must MOVE the real fr from history[3] into
       // history[2] (before the text part) so the wire format becomes
-      // `model[tool_use] → user[tool_result, text]`.
+      // `model[tool_use] -> user[tool_result, text]`.
       chat.setHistory([
         { role: 'user', parts: [{ text: 'open /tmp/long.txt' }] },
         {
@@ -5036,7 +5036,7 @@ describe('GeminiChat', async () => {
 
       const result = chat.repairOrphanedToolUseTurns();
 
-      // No synthesis (the fr is real, just relocated) — `injected`
+      // No synthesis (the fr is real, just relocated) -- `injected`
       // stays empty so the React scheduler dedup doesn't see it as a
       // synthesized callId.
       expect(result.injected).toEqual([]);
@@ -5061,7 +5061,7 @@ describe('GeminiChat', async () => {
       // Counterpart to the hoist case: when the real fr only covers
       // SOME callIds in a parallel tool_use, and the real one is in a
       // non-adjacent later user turn, BOTH fix-ups apply on the same
-      // model turn — synthesize the missing callId AND hoist the real
+      // model turn -- synthesize the missing callId AND hoist the real
       // fr from the non-adjacent location into the adjacent turn.
       chat.setHistory([
         { role: 'user', parts: [{ text: 'fan out two reads' }] },
@@ -5094,11 +5094,11 @@ describe('GeminiChat', async () => {
       const result = chat.repairOrphanedToolUseTurns();
 
       // cid_b synthesized (no real fr anywhere). cid_a is hoisted, not
-      // synthesized — `injected` only contains the synthetic.
+      // synthesized -- `injected` only contains the synthetic.
       expect(result.injected).toEqual([{ callId: 'cid_b', name: 'read_file' }]);
       const history = chat.getHistory();
       // The non-adjacent turn that held cid_a's real fr is now empty
-      // and removed → 3 entries instead of the original 4.
+      // and removed -> 3 entries instead of the original 4.
       expect(history.length).toBe(3);
       // Adjacent user turn now leads with the synthesized fr_b, then
       // the hoisted real fr_a, then the text. Both tool_results sit
@@ -5119,7 +5119,7 @@ describe('GeminiChat', async () => {
     it('hoists real fr but preserves the source user turn when it carries other content', () => {
       // Edge case for the hoist path: if the source turn for the real
       // fr ALSO carries text (or any non-fr part), removing the fr
-      // alone must NOT delete the turn — the remaining text is the
+      // alone must NOT delete the turn -- the remaining text is the
       // user's real message and must be preserved at its original
       // position. Confirms the empty-turn cleanup only deletes turns
       // whose parts list goes to zero after the splice.
@@ -5154,7 +5154,7 @@ describe('GeminiChat', async () => {
       expect(result.injected).toEqual([]);
       const history = chat.getHistory();
       // The source turn lost its fr but kept its trailing text, so
-      // history is still 4 entries — the source turn survives as a
+      // history is still 4 entries -- the source turn survives as a
       // text-only user message.
       expect(history.length).toBe(4);
       expect(history[2]!.parts![0]!.functionResponse?.id).toBe('cid_mix');
@@ -5213,7 +5213,7 @@ describe('GeminiChat', async () => {
 
       expect(result.injected).toEqual([]);
       const history = chat.getHistory();
-      // 5 → 3: both source turns held only the duplicate fr, so both
+      // 5 -> 3: both source turns held only the duplicate fr, so both
       // are removed; the canonical fr is hoisted into history[2] and
       // sits at the head before the text part.
       expect(history.length).toBe(3);
@@ -5234,7 +5234,7 @@ describe('GeminiChat', async () => {
       // Variant of the duplicate case where the FIRST fr lands in the
       // immediate next user turn (no hoist needed) but a second
       // duplicate copy is in a later user turn. The hoist branch is
-      // skipped, but duplicate cleanup must still fire — otherwise the
+      // skipped, but duplicate cleanup must still fire -- otherwise the
       // wire payload still has two `tool_result` blocks for the same id.
       chat.setHistory([
         { role: 'user', parts: [{ text: 'kick off' }] },
@@ -5278,7 +5278,7 @@ describe('GeminiChat', async () => {
       expect(result.injected).toEqual([]);
       const history = chat.getHistory();
       // The source duplicate turn loses its fr but keeps its text part
-      // → 4 entries preserved, but the duplicate fr is gone.
+      // -> 4 entries preserved, but the duplicate fr is gone.
       expect(history.length).toBe(4);
       expect(history[2]!.parts![0]!.functionResponse?.id).toBe('cid_adj_dup');
       expect(history[2]!.parts!.length).toBe(1);
@@ -5323,7 +5323,7 @@ describe('GeminiChat', async () => {
     }
 
     it('should enter recovery loop when escalated response is also truncated', async () => {
-      // Three streams: initial (MAX_TOKENS) → escalated (MAX_TOKENS) →
+      // Three streams: initial (MAX_TOKENS) -> escalated (MAX_TOKENS) ->
       // recovery (STOP).
       const streams = [
         makeStream([makeChunk([{ text: 'Hello' }], 'MAX_TOKENS')]),
@@ -5410,8 +5410,8 @@ describe('GeminiChat', async () => {
               {
                 text: [
                   'Intro',
-                  '### 常用语法速查',
-                  '| 语法 | 说明 |',
+                  '### ',
+                  '|  |  |',
                   'tail that was truncated',
                 ].join('\n'),
               },
@@ -5424,8 +5424,8 @@ describe('GeminiChat', async () => {
             [
               {
                 text: [
-                  '### 常用语法速查',
-                  '| 语法 | 说明 |',
+                  '### ',
+                  '|  |  |',
                   'new suffix',
                 ].join('\n'),
               },
@@ -5458,8 +5458,8 @@ describe('GeminiChat', async () => {
       expect(text).toBe(
         [
           'Intro',
-          '### 常用语法速查',
-          '| 语法 | 说明 |',
+          '### ',
+          '|  |  |',
           'tail that was truncated',
           'new suffix',
         ].join('\n'),
@@ -5501,7 +5501,7 @@ describe('GeminiChat', async () => {
       const text = lastEntry.parts
         ?.map((part) => ('text' in part ? part.text : ''))
         .join('');
-      // Continuation must be appended verbatim — no silent strip of
+      // Continuation must be appended verbatim -- no silent strip of
       // "In summary, " or "In summary, th".
       expect(text).toBe(previous + continuation);
     });
@@ -5588,7 +5588,7 @@ describe('GeminiChat', async () => {
     it('should preserve prose continuation that opens with a single-cell pipe expression matching mid-tail', async () => {
       // Regression: `startsWithMarkdownStructuralAnchor` must reject
       // single-cell pipe patterns like `|expression|` in technical/math
-      // prose. A real GFM table row has ≥3 pipes (≥2 cells) or is a
+      // prose. A real GFM table row has >=3 pipes (>=2 cells) or is a
       // separator row (`|---|`). Without this tightening, prose continuation
       // that coincidentally starts with `|x| more text` and happens to
       // re-appear at a line boundary mid-tail of the previous response would
@@ -5596,7 +5596,7 @@ describe('GeminiChat', async () => {
       //
       // Setup: the suspect prose fragment `|expression| evaluates to a
       // scalar value.` appears at a line boundary in the middle of
-      // `previous`, but `previous` itself ends with a different line — so
+      // `previous`, but `previous` itself ends with a different line -- so
       // the suffix-anchored scan in `getRecoveryContinuationSuffix` cannot
       // match. The only path that could strip the continuation is the
       // contained-prefix fallback, which now correctly refuses to anchor on
@@ -5677,7 +5677,7 @@ describe('GeminiChat', async () => {
         ?.map((part) => ('text' in part ? part.text : ''))
         .join('');
       // No duplicated `### Section`, and the heading is separated from the
-      // body prose by exactly one newline — the normalization branch fired.
+      // body prose by exactly one newline -- the normalization branch fired.
       expect(text).toBe(`${previous}\nbody prose continuation`);
     });
 
@@ -5783,7 +5783,7 @@ describe('GeminiChat', async () => {
       // `appendRecoveryContinuationParts` only looked at `nextParts[0]`. For
       // thinking models the first part is the recovery turn's thought, the
       // plain-text predicate returned false on it, and the entire dedup
-      // block was skipped — leaking the replayed overlap into history.
+      // block was skipped -- leaking the replayed overlap into history.
       const streams = [
         makeStream([makeChunk([{ text: 'discarded initial' }], 'MAX_TOKENS')]),
         makeStream([
@@ -5792,7 +5792,7 @@ describe('GeminiChat', async () => {
         makeStream([
           makeChunk(
             [
-              // Thought first — recovery dedup must scan past it on the
+              // Thought first -- recovery dedup must scan past it on the
               // continuation side instead of giving up.
               { text: 'planning the rest', thought: true },
               { text: 'shared recovery suffix and continuation' },
@@ -5885,14 +5885,14 @@ describe('GeminiChat', async () => {
     it('should preserve a coincidental 2-character CJK overlap (byte floor insufficient for CJK)', async () => {
       // Regression: `RECOVERY_OVERLAP_MIN_BYTES = 6` admits a 2-character
       // CJK overlap (each Chinese char is 3 UTF-8 bytes). Two-character
-      // boundary coincidences such as "我们" / "但是" are extremely common
+      // boundary coincidences such as "" / "" are extremely common
       // across unrelated Chinese sentences. The companion char-floor must
-      // require ≥4 code points so a 2-char CJK collision does not silently
-      // strip legitimate continuation. The longer "需要" tail of `previous`
+      // require >=4 code points so a 2-char CJK collision does not silently
+      // strip legitimate continuation. The longer "" tail of `previous`
       // is meaningful continuation, NOT a replayed suffix of the previous
-      // turn — the continuation must survive verbatim.
-      const previous = '在分析数据之前我们';
-      const continuation = '我们需要先完成准备工作。';
+      // turn -- the continuation must survive verbatim.
+      const previous = '';
+      const continuation = '';
       const streams = [
         makeStream([makeChunk([{ text: 'discarded initial' }], 'MAX_TOKENS')]),
         makeStream([makeChunk([{ text: previous }], 'MAX_TOKENS')]),
@@ -5905,7 +5905,7 @@ describe('GeminiChat', async () => {
 
       const stream = await chat.sendMessageStream(
         'gemini-3-pro',
-        { message: '帮我分析数据' },
+        { message: '' },
         'prompt-recovery-cjk-floor',
       );
       for await (const _event of stream) {
@@ -5924,10 +5924,10 @@ describe('GeminiChat', async () => {
       // Regression: the structural-anchor check tolerates leading whitespace
       // (some providers re-emit the replayed block with extra spaces/tabs),
       // but the substring-match loop must also strip that whitespace before
-      // matching against the previous tail — otherwise the replayed block
+      // matching against the previous tail -- otherwise the replayed block
       // never finds its mirror in `previousTail` and the duplicate leaks
       // into history.
-      const replayedBlock = '### 常用语法速查\n| 语法 | 说明 |';
+      const replayedBlock = '### \n|  |  |';
       const previous = ['Intro', replayedBlock, 'tail that was truncated'].join(
         '\n',
       );
@@ -5957,7 +5957,7 @@ describe('GeminiChat', async () => {
       const text = lastEntry.parts
         ?.map((part) => ('text' in part ? part.text : ''))
         .join('');
-      // The duplicated `### 常用语法速查\n| 语法 | 说明 |` block must NOT
+      // The duplicated `### \n|  |  |` block must NOT
       // appear twice; only the new suffix should follow the previous tail.
       expect(text).toBe(`${previous}\nnew suffix`);
     });
@@ -6137,7 +6137,7 @@ describe('GeminiChat', async () => {
         p.includes('Output token limit hit'),
       );
       expect(recoveryMessage).toBeDefined();
-      // Exactly one opening and one closing delimiter — the recovery prompt's
+      // Exactly one opening and one closing delimiter -- the recovery prompt's
       // own pair. The model's literal opening tag inside the embedded tail
       // must have been neutralized via a zero-width space.
       const openCount = (
@@ -6150,7 +6150,7 @@ describe('GeminiChat', async () => {
       expect(closeCount).toBe(1);
       // The neutralized variant (with a zero-width space between '<' and the
       // tag name) must appear inside the embedded tail.
-      expect(recoveryMessage).toContain('<​previous_response_suffix>');
+      expect(recoveryMessage).toContain('<previous_response_suffix>');
       // The block must still parse with a single well-formed match and
       // preserve the surrounding prose.
       const match = recoveryMessage!.match(
@@ -6304,7 +6304,7 @@ describe('GeminiChat', async () => {
       // Critical regression for the recovery catch's pop ordering.
       // When the recovery stream yields a `functionCall` chunk and
       // then throws, `processStreamResponse` pushes a partial `model`
-      // turn into history BEFORE re-throwing — so by the time the
+      // turn into history BEFORE re-throwing -- so by the time the
       // recovery catch runs, the trailing entries are
       //   [..., user(OUTPUT_RECOVERY_MESSAGE), model(partial fc)]
       // The naive "if last is user, pop" check would no-op here (last
@@ -6314,9 +6314,9 @@ describe('GeminiChat', async () => {
       // clear the partial-push markers so the outer `finally` JSONL
       // flush doesn't resurrect the partial we just deleted.
       const streams = [
-        // Initial: text + MAX_TOKENS → triggers escalation.
+        // Initial: text + MAX_TOKENS -> triggers escalation.
         makeStream([makeChunk([{ text: 'initial' }], 'MAX_TOKENS')]),
-        // Escalated: text + MAX_TOKENS → triggers recovery iteration 1.
+        // Escalated: text + MAX_TOKENS -> triggers recovery iteration 1.
         makeStream([makeChunk([{ text: 'escalated' }], 'MAX_TOKENS')]),
         // Recovery iter 1: yields functionCall chunk, then throws.
         // processStreamResponse pushes a partial model turn before
@@ -6369,7 +6369,7 @@ describe('GeminiChat', async () => {
       expect(flattened).not.toContain('Resume directly');
 
       // The partial model[functionCall] from the recovery throw must
-      // also be popped — leaving it would create a dangling tool_use
+      // also be popped -- leaving it would create a dangling tool_use
       // that the inline repair on the next sendMessageStream would
       // synthesize an `error` functionResponse for, and the React
       // scheduler's late real result would be dropped by the
@@ -6474,7 +6474,7 @@ describe('GeminiChat', async () => {
       }
 
       const history = chat.getHistory();
-      // Exactly one user turn + one model turn — the recovery pairs should
+      // Exactly one user turn + one model turn -- the recovery pairs should
       // be folded back into the preceding model entry.
       expect(history.length).toBe(2);
       expect(history[0]!.role).toBe('user');
@@ -6486,7 +6486,7 @@ describe('GeminiChat', async () => {
       expect(flattened).not.toContain('Output token limit hit');
 
       // All escalation + recovery content must be preserved in the merged
-      // model turn, in order (B escalation → C recovery-1 → D recovery-2).
+      // model turn, in order (B escalation -> C recovery-1 -> D recovery-2).
       const mergedText = (history[1]!.parts ?? [])
         .map((p) => ('text' in p ? ((p as { text?: string }).text ?? '') : ''))
         .join('');
@@ -6495,17 +6495,17 @@ describe('GeminiChat', async () => {
 
     it('flushes the JSONL record when escalated stream throws mid-tool_use', async () => {
       // Critical regression for the max-tokens escalation path:
-      // 1) initial stream succeeds with text + MAX_TOKENS → triggers
+      // 1) initial stream succeeds with text + MAX_TOKENS -> triggers
       //    escalation, no partial set, deferred record clean.
       // 2) escalated stream throws AFTER yielding a functionCall chunk
-      //    → processStreamResponse pushes a partial model[fc] into
+      //    -> processStreamResponse pushes a partial model[fc] into
       //    `this.history` and stashes a NEW `pendingPartialAssistantRecord`.
       // 3) The throw escapes through the for-await on the escalated
       //    stream, propagates past the (now-passed) retry loop, and
       //    lands in the outer `finally` block.
       //
       // BEFORE the fix: the flush only ran BEFORE the escalation block,
-      // so the new record set in step 2 was never appended to JSONL —
+      // so the new record set in step 2 was never appended to JSONL --
       // live history disagreed with disk; `--resume` rehydrated a
       // truncated transcript and `repairOrphanedToolUseTurnsInHistory`
       // had nothing to repair, leaving the React scheduler's late real
@@ -6526,7 +6526,7 @@ describe('GeminiChat', async () => {
       );
 
       // Stream 1: text + MAX_TOKENS (success, triggers escalation).
-      // Stream 2: yields a functionCall chunk THEN throws — simulates a
+      // Stream 2: yields a functionCall chunk THEN throws -- simulates a
       // mid-tool_use stream cut on the escalated request.
       const streams = [
         makeStream([makeChunk([{ text: 'partial answer' }], 'MAX_TOKENS')]),
@@ -6686,7 +6686,7 @@ describe('GeminiChat', async () => {
     /**
      * Mock a successful compression: the service returns COMPRESSED with a
      * fresh history. We don't go through the real
-     * `config.getContentGenerator().generateContent` path here — the service
+     * `config.getContentGenerator().generateContent` path here -- the service
      * is mocked at the boundary.
      */
     function mockCompressionService(
@@ -6772,7 +6772,7 @@ describe('GeminiChat', async () => {
       // The next unforced call should reach the service with
       // consecutiveFailures=1 (incremented after the first failure). The
       // important thing here is that GeminiChat actually forwards the
-      // updated counter — the service's own threshold logic is tested
+      // updated counter -- the service's own threshold logic is tested
       // separately in chatCompressionService.test.ts.
       compressSpy.mockClear();
       compressSpy.mockResolvedValue({
@@ -6815,7 +6815,7 @@ describe('GeminiChat', async () => {
       // Mock the service to "fail" every call (the chat's counter increments
       // each time). After (MAX - 1) failures, the next tryCompress should
       // still call the service. The actual NOOP-at-threshold gating is the
-      // service's job (and verified separately) — here we just observe that
+      // service's job (and verified separately) -- here we just observe that
       // GeminiChat keeps forwarding the incremented counter.
       const compressSpy = vi.spyOn(
         ChatCompressionService.prototype,
@@ -6882,7 +6882,7 @@ describe('GeminiChat', async () => {
 
     it('resets the counter to 0 on a successful (forced) compress', async () => {
       // After two failures, a successful force compress should reset the
-      // counter — the next unforced send tries again with consecutiveFailures=0.
+      // counter -- the next unforced send tries again with consecutiveFailures=0.
       const compressSpy = vi.spyOn(
         ChatCompressionService.prototype,
         'compress',
@@ -6923,12 +6923,12 @@ describe('GeminiChat', async () => {
           },
         });
 
-      // Two failures → counter is 2.
+      // Two failures -> counter is 2.
       await chat.tryCompress('p1', 'm1');
       await chat.tryCompress('p2', 'm1');
       expect(compressSpy.mock.calls[1][1].consecutiveFailures).toBe(1);
 
-      // Forced successful compress → counter resets to 0.
+      // Forced successful compress -> counter resets to 0.
       await chat.tryCompress('p-force', 'm1', true);
       expect(compressSpy.mock.calls[2][1].consecutiveFailures).toBe(2);
 

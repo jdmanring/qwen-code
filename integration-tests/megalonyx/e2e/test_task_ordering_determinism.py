@@ -39,11 +39,11 @@ def test_no_roadmap_jitter() -> None:
 
     if "Strategic Goal 1" in content and len(content.split("\n")) <= 3:
         print(
-            "\n✅ SUCCESS: No roadmap jitter detected. Only the strategic goal remains."
+            "\n SUCCESS: No roadmap jitter detected. Only the strategic goal remains."
         )
     else:
         print(
-            "\n❌ FAILURE: Roadmap jitter detected. Atomic jobs were written to TODO.md."
+            "\n FAILURE: Roadmap jitter detected. Atomic jobs were written to TODO.md."
         )
         exit(1)
 

@@ -336,7 +336,7 @@ describe('runDoctorChecks', () => {
     const results = await runDoctorChecks(mockContext);
     const mcpCheck = results.find((r) => r.name === 'my-server');
     expect(mcpCheck).toBeDefined();
-    // In non-interactive mode, servers are never connected — must not report as fail
+    // In non-interactive mode, servers are never connected -- must not report as fail
     expect(mcpCheck!.status).toBe('pass');
   });
 });

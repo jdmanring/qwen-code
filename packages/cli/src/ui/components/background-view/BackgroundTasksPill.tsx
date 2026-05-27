@@ -43,7 +43,7 @@ export function getPillLabel(entries: readonly DialogEntry[]): string {
       ? '1 local agent paused'
       : `${pausedAgents.length} local agents paused`;
   }
-  // All terminal — collapse into a single tally; per-kind detail isn't
+  // All terminal -- collapse into a single tally; per-kind detail isn't
   // useful at this point and would clutter the footer.
   return entries.length === 1 ? '1 task done' : `${entries.length} tasks done`;
 }
@@ -77,11 +77,11 @@ export const BackgroundTasksPill: React.FC = () => {
       // `return`, down, and the readline-style Ctrl+N all open the dialog.
       // This is focus-chain handling rather than selection-list handling
       // (see keyBindings.ts SELECTION_DOWN), so keep the matcher inline.
-      // Down completes the focus chain Composer ↓ → AgentTabBar ↓ → Pill ↓ → Dialog,
-      // so users can `↓ ↓ (↓)` their way from an empty composer
+      // Down completes the focus chain Composer  -> AgentTabBar  -> Pill  -> Dialog,
+      // so users can `  ()` their way from an empty composer
       // straight into the roster without having to remember the
       // Enter shortcut. The LiveAgentPanel's overflow callout
-      // (`↓ to view all`) relies on this; without a Down handler
+      // (` to view all`) relies on this; without a Down handler
       // the chain dead-ends at the highlighted pill.
       if (
         key.name === 'return' ||
@@ -115,7 +115,7 @@ export const BackgroundTasksPill: React.FC = () => {
 
   return (
     <>
-      <Text color={theme.text.secondary}> · </Text>
+      <Text color={theme.text.secondary}>  </Text>
       <Text inverse={pillFocused}>{label}</Text>
     </>
   );

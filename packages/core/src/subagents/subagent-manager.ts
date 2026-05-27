@@ -702,16 +702,16 @@ export class SubagentManager {
    * (`Object.create(runtimeContext)`): no method changes, but a distinct
    * instance triggers the lazy own-property init in
    * `Config.getFileReadCache()` so the subagent gets its own cache
-   * rather than inheriting the parent's recorded reads — which would
+   * rather than inheriting the parent's recorded reads -- which would
    * silently weaken prior-read enforcement on its mutation paths.
    *
    * The tool registry is also rebuilt on the override so `EditTool` /
    * `WriteFileTool` / `ReadFileTool` resolve `this.config` to the
-   * subagent — without that step, the parent's cached tool instances
+   * subagent -- without that step, the parent's cached tool instances
    * still reach the parent's FileReadCache. The rebuild is skipped when
    * a wrapper above `runtimeContext` already rebuilt one (typically
    * `agent.ts:createApprovalModeOverride`, which marks itself via a
-   * Symbol-keyed flag — Symbol lookup walks the prototype chain, so
+   * Symbol-keyed flag -- Symbol lookup walks the prototype chain, so
    * this also catches wrapper-on-wrapper layering like
    * `bgConfig = Object.create(agentConfig)` from the background path).
    * Rebuilding twice would waste work, leak listeners on shared
@@ -732,11 +732,11 @@ export class SubagentManager {
    * When a subagent's model selector resolves to a concrete model, build a
    * dedicated ContentGenerator and the view the agent runtime should publish
    * via AsyncLocalStorage during the run. Returns `undefined` when no
-   * override is needed — including `inherit`, an unset `fast` selector, or
+   * override is needed -- including `inherit`, an unset `fast` selector, or
    * any selector that fails to resolve to a configured model.
    *
    * FileReadCache isolation and tool-registry rebuilding are handled
-   * separately in {@link buildSubagentContextOverride} — every subagent
+   * separately in {@link buildSubagentContextOverride} -- every subagent
    * (inherit or explicit) gets that, regardless of whether a runtime
    * view is built here.
    */
@@ -982,7 +982,7 @@ export class SubagentManager {
           subagents.push(config);
         } catch (error) {
           // Skip invalid files but surface the reason. Before this warning
-          // was added, invalid subagent files failed silently — a user who
+          // was added, invalid subagent files failed silently -- a user who
           // mistyped frontmatter or used a reserved name had no way to see
           // why their agent wasn't loading.
           warnInvalidSubagentFile(filePath, error);
@@ -1211,7 +1211,7 @@ function parseSubagentContent(
 
 /**
  * Log an invalid-subagent-file error via the debug logger. Before this was
- * added, the loader swallowed these errors entirely — users running with
+ * added, the loader swallowed these errors entirely -- users running with
  * debug logging enabled had no way to tell why their subagent wasn't loading.
  * Kept on the debug channel so the TUI stays quiet during normal startup.
  */

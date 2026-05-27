@@ -13,7 +13,7 @@ import stringWidth from 'string-width';
  * Calculates the maximum *visual* width (terminal cells) of a multi-line
  * ASCII art string. Uses `string-width` semantics via `getCachedStringWidth`
  * so CJK fullwidth characters count as 2 cells and emoji are sized
- * correctly — `.length` would undercount these and let oversized art slip
+ * correctly -- `.length` would undercount these and let oversized art slip
  * past the width budget that `pickAsciiArtTier` applies.
  * @param asciiArt The ASCII art string.
  * @returns The widest line's terminal-cell width.
@@ -28,8 +28,8 @@ export const getAsciiArtWidth = (asciiArt: string): number => {
 
 /*
  * -------------------------------------------------------------------------
- *  Unicode‑aware helpers (work at the code‑point level rather than UTF‑16
- *  code units so that surrogate‑pair emoji count as one "column".)
+ *  Unicodeaware helpers (work at the codepoint level rather than UTF16
+ *  code units so that surrogatepair emoji count as one "column".)
  * ---------------------------------------------------------------------- */
 
 // Cache for code points to reduce GC pressure
@@ -72,7 +72,7 @@ export function cpLen(str: string): number {
 }
 
 export function cpSlice(str: string, start: number, end?: number): string {
-  // Slice by code‑point indices and re‑join.
+  // Slice by codepoint indices and rejoin.
   const arr = toCodePoints(str).slice(start, end);
   return arr.join('');
 }

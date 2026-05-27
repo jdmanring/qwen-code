@@ -76,11 +76,11 @@ Each run creates an isolated output directory:
 
 ```
 outputs/
-├── {run_id}/
-│   ├── stdout.txt        # CLI stdout
-│   ├── stderr.txt        # CLI stderr
-│   └── logs/             # OpenAI API logs
-│       └── openai-*.json
+|---- {run_id}/
+|   |---- stdout.txt        # CLI stdout
+|   |---- stderr.txt        # CLI stderr
+|   \_-- logs/             # OpenAI API logs
+|       \_-- openai-*.json
 ```
 
 ## results.json
@@ -110,7 +110,7 @@ outputs/
 
 ## Execution Flow
 
-1. **Generate Matrix**: Create N×M run combinations (tasks × models)
+1. **Generate Matrix**: Create N*M run combinations (tasks * models)
 2. **Create Worktree**: Git worktree add from source repo
 3. **Initialize**: npm install && npm run build
 4. **Execute**: Run qwen CLI with captured output (logs go to run-specific folder)

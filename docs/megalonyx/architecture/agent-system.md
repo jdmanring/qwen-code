@@ -1,4 +1,4 @@
-🏛️ 
+ 
 # Architectural Mandate: Agentic Cognitive Systems
 
 This document defines the formal requirements for the design, deployment, and operation of cognitive modules within the Megalonyx. Transitioning from "prompt-based" agents to "Axiomatic Personas" is mandatory to ensure deterministic behavior and architectural symmetry.
@@ -77,6 +77,6 @@ To maintain cognitive consistency, all agents must adhere to the **Recall => Ana
 
 ---
 
-## 🔗 Symmetry Link
+##  Symmetry Link
 This mandate governs the configuration of all agents in:
 `../../config/agents/` <=> `agent-system.md`

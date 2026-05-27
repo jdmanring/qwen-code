@@ -1,6 +1,6 @@
 # Quickstart
 
-> 👏 Welcome to Qwen Code!
+>  Welcome to Qwen Code!
 
 This quickstart guide will have you using AI-powered coding assistance in just a few minutes. By the end, you'll understand how to use Qwen Code for common development tasks.
 
@@ -71,7 +71,7 @@ Choose your preferred authentication method:
 - **Alibaba Cloud Coding Plan**: Select `Alibaba Cloud Coding Plan` for a fixed monthly fee with diverse model options. See the [Coding Plan guide](https://bailian.console.aliyun.com/cn-beijing/?tab=coding-plan#/efm/coding-plan-index) ([intl](https://modelstudio.console.alibabacloud.com/?tab=coding-plan#/efm/coding-plan-index)) for setup instructions.
 - **API Key**: Select `API Key`, then enter your API key from Alibaba Cloud Model Studio ([Beijing](https://bailian.console.aliyun.com/) / [intl](https://modelstudio.console.alibabacloud.com/)). See the API setup guide ([Beijing](https://bailian.console.aliyun.com/cn-beijing/?tab=doc#/doc/?type=model&url=3023091) / [intl](https://modelstudio.console.alibabacloud.com/ap-southeast-1?tab=doc#/doc/?type=model&url=2974721)) for details.
 
-> ⚠️ **Note**: Qwen OAuth was discontinued on April 15, 2026. If you were previously using Qwen OAuth, please switch to one of the methods above.
+>  **Note**: Qwen OAuth was discontinued on April 15, 2026. If you were previously using Qwen OAuth, please switch to one of the methods above.
 
 > [!note]
 >
@@ -228,8 +228,8 @@ Here are the most important commands for daily use:
 | `/clear`              | Clear terminal screen content                    | `/clear` (shortcut: `Ctrl+L`) |
 | `/theme`              | Change Qwen Code visual theme                    | `/theme`                      |
 | `/language`           | View or change language settings                 | `/language`                   |
-| → `ui [language]`     | Set UI interface language                        | `/language ui zh-CN`          |
-| → `output [language]` | Set LLM output language                          | `/language output Chinese`    |
+| -> `ui [language]`     | Set UI interface language                        | `/language ui zh-CN`          |
+| -> `output [language]` | Set LLM output language                          | `/language output Chinese`    |
 | `/quit`               | Exit Qwen Code immediately                       | `/quit` or `/exit`            |
 
 See the [CLI reference](./features/commands) for a complete list of commands.
@@ -267,7 +267,7 @@ build a dashboard showing products that are most frequently returned by our UK c
 
 - Press `?` to see all available keyboard shortcuts
 - Use Tab for command completion
-- Press ↑ for command history
+- Press  for command history
 - Type `/` to see all slash commands
 
 ## Getting help

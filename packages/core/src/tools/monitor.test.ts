@@ -347,7 +347,7 @@ describe('MonitorTool', () => {
         permissionRules?: string[];
       };
 
-      // pm.isCommandAllowed must NOT be called — monitor maintains its own
+      // pm.isCommandAllowed must NOT be called -- monitor maintains its own
       // permission boundary separate from run_shell_command
       expect(pm.isCommandAllowed).not.toHaveBeenCalled();
       // Both subcommands remain in confirmation scope
@@ -636,8 +636,8 @@ describe('MonitorTool', () => {
 
       const result = await invocation.execute(new AbortController().signal);
 
-      expect(invocation.getDescription()).toBe(`Monitor: ${'x'.repeat(79)}…`);
-      expect(result.returnDisplay).toContain(`${'x'.repeat(79)}…`);
+      expect(invocation.getDescription()).toBe(`Monitor: ${'x'.repeat(79)}...`);
+      expect(result.returnDisplay).toContain(`${'x'.repeat(79)}...`);
       expect(result.returnDisplay).not.toContain(longDescription);
       expect(result.llmContent).toContain(`description: ${longDescription}`);
     });
@@ -1102,7 +1102,7 @@ describe('MonitorTool', () => {
 
       // Send partial line on stdout
       mockChild.stdout.emit('data', Buffer.from('partial'));
-      // Send complete line on stderr — should not mix with stdout buffer
+      // Send complete line on stderr -- should not mix with stdout buffer
       mockChild.stderr.emit('data', Buffer.from('err line\n'));
       // Complete stdout line
       mockChild.stdout.emit('data', Buffer.from(' complete\n'));
@@ -1140,7 +1140,7 @@ describe('MonitorTool', () => {
       await invocation.execute(new AbortController().signal);
 
       // MAX_LINE_LENGTH is 4096; send five 1000-byte chunks with no newline.
-      // Total accumulated bytes = 5000, which exceeds 4096 — the guard must
+      // Total accumulated bytes = 5000, which exceeds 4096 -- the guard must
       // force-emit a single truncated event and reset the buffer instead of
       // growing without bound.
       const chunk = 'A'.repeat(1000);
@@ -1217,7 +1217,7 @@ describe('MonitorTool', () => {
         mockChild.stdout.emit('data', Buffer.from('l6\n'));
         expect(callback).toHaveBeenCalledTimes(5);
 
-        // Advance 1s — one token refills.
+        // Advance 1s -- one token refills.
         vi.setSystemTime(1000);
         mockChild.stdout.emit('data', Buffer.from('l7\n'));
         expect(callback).toHaveBeenCalledTimes(6);
@@ -1226,7 +1226,7 @@ describe('MonitorTool', () => {
         mockChild.stdout.emit('data', Buffer.from('l8\n'));
         expect(callback).toHaveBeenCalledTimes(6);
 
-        // Advance another second — another token refills.
+        // Advance another second -- another token refills.
         vi.setSystemTime(2000);
         mockChild.stdout.emit('data', Buffer.from('l9\n'));
         expect(callback).toHaveBeenCalledTimes(7);
@@ -1250,7 +1250,7 @@ describe('MonitorTool', () => {
         mockChild.stdout.emit('data', Buffer.from('l1\nl2\nl3\nl4\nl5\n'));
         expect(callback).toHaveBeenCalledTimes(5);
 
-        // Idle for 100 seconds — without a cap, refill would yield 100
+        // Idle for 100 seconds -- without a cap, refill would yield 100
         // tokens. The bucket must cap at 5.
         vi.setSystemTime(100_000);
         mockChild.stdout.emit('data', Buffer.from('b1\nb2\nb3\nb4\nb5\nb6\n'));
@@ -1274,7 +1274,7 @@ describe('MonitorTool', () => {
         const invocation = createInvocation({ command: 'noisy-cmd' });
         await invocation.execute(new AbortController().signal);
 
-        // 10 empty/whitespace lines then 5 real lines — all 5 real lines
+        // 10 empty/whitespace lines then 5 real lines -- all 5 real lines
         // should emit because the empties do not spend budget.
         mockChild.stdout.emit(
           'data',
@@ -1318,13 +1318,13 @@ describe('MonitorTool', () => {
         // stays starved. With the guard, lastRefill resets to 2000.
         mockTime = 2000;
 
-        // Emit while clock is in the past — guard has just reset
+        // Emit while clock is in the past -- guard has just reset
         // lastRefill to 2000, so elapsed = 0, no refill, bucket still 0.
         // l12a is dropped (confirming bucket is empty after the reset).
         mockChild.stdout.emit('data', Buffer.from('l12a\n'));
         expect(callback).toHaveBeenCalledTimes(10);
 
-        // Advance 1s past the reset point — one token refills.
+        // Advance 1s past the reset point -- one token refills.
         mockTime = 3000;
         mockChild.stdout.emit('data', Buffer.from('l12b\n'));
         expect(callback).toHaveBeenCalledTimes(11);
@@ -1355,14 +1355,14 @@ describe('sanitizeMonitorLine', () => {
     expect(sanitizeMonitorLine('x\x1By')).toBe('xy');
     // Tab is preserved.
     expect(sanitizeMonitorLine('a\tb')).toBe('a\tb');
-    // Newline (0x0A) is also a C0 control — stripped here because by the
+    // Newline (0x0A) is also a C0 control -- stripped here because by the
     // time a line reaches sanitizeMonitorLine it has already been split on
     // newlines and trimmed.
     expect(sanitizeMonitorLine('a\nb')).toBe('ab');
   });
 
   it('strips C1 control characters', () => {
-    // 0x80–0x9F range
+    // 0x80-0x9F range
     expect(sanitizeMonitorLine('a\u0080b\u009Fc')).toBe('abc');
   });
 

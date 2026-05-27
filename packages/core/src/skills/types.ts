@@ -89,7 +89,7 @@ export interface SkillConfig {
   argumentHint?: string;
 
   /**
-   * Describes when to invoke this skill — shown to the model in the SkillTool
+   * Describes when to invoke this skill -- shown to the model in the SkillTool
    * description so it can decide whether to use it. Parsed from the
    * `when_to_use` frontmatter field in SKILL.md.
    */
@@ -152,7 +152,7 @@ export function parseModelField(
  * Parse the `paths` field from skill frontmatter into normalized glob
  * patterns. Returns `undefined` when the field is omitted, explicitly
  * `null` (YAML `paths:` with no value), an empty array, or contains only
- * blank entries — those cases all mean "no path gating, treat as
+ * blank entries -- those cases all mean "no path gating, treat as
  * unconditional". Throws only when `paths` is present with a clearly
  * wrong shape (e.g. a scalar string or an object).
  */
@@ -187,14 +187,14 @@ export function parsePathsField(
   //   2. Reject anything starting with `/` (POSIX absolute) or
   //      matching `^[A-Za-z]:` (Windows drive letter).
   //   3. Reject any path segment equal to `..` (catches `../`,
-  //      `./../`, `src/../../**`, etc.). Segment-based — substring
+  //      `./../`, `src/../../**`, etc.). Segment-based -- substring
   //      checks would false-positive on things like `..bar` (a real
   //      filename starting with two dots).
   for (const pattern of cleaned) {
     const normalized = pattern.replace(/\\/g, '/');
     if (normalized.startsWith('/') || /^[A-Za-z]:/.test(normalized)) {
       throw new Error(
-        `"paths" entry "${pattern}" looks absolute; patterns are project-root-relative — drop the leading slash / drive letter`,
+        `"paths" entry "${pattern}" looks absolute; patterns are project-root-relative -- drop the leading slash / drive letter`,
       );
     }
     const segments = normalized.split('/');
@@ -216,7 +216,7 @@ export function parsePathsField(
  * sink.
  *
  * Charset uses Unicode property classes so non-ASCII names (CJK, Cyrillic,
- * accented Latin, etc.) keep working — the original `[a-zA-Z0-9_:.-]+`
+ * accented Latin, etc.) keep working -- the original `[a-zA-Z0-9_:.-]+`
  * silently dropped any such skill on upgrade, which is a real
  * backwards-compat regression for the project's CJK userbase. The
  * structurally unsafe characters (`<>/\"'\n\r\t`, whitespace) are still
@@ -226,7 +226,7 @@ export const SKILL_NAME_PATTERN = /^[\p{L}\p{N}_:.-]+$/u;
 
 /**
  * Validate that a skill `name` is safe to embed into prompts and reminders
- * verbatim. Throws with a descriptive message if not — the surrounding
+ * verbatim. Throws with a descriptive message if not -- the surrounding
  * parser converts this into a `parseErrors` entry and skips the skill,
  * matching the existing "missing field" / "wrong type" error behavior.
  */

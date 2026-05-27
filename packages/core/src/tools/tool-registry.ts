@@ -178,9 +178,9 @@ Signal: Signal number or \`(none)\` if no signal was received.
 export class ToolRegistry {
   // The tools keyed by tool name as seen by the LLM.
   private tools: Map<string, AnyDeclarativeTool> = new Map();
-  // Lazy tool factories keyed by tool name — resolved on first use.
+  // Lazy tool factories keyed by tool name -- resolved on first use.
   private factories: Map<string, ToolFactory> = new Map();
-  // In-flight factory promises — ensures concurrent ensureTool() calls for the
+  // In-flight factory promises -- ensures concurrent ensureTool() calls for the
   // same name share one promise instead of running the factory multiple times.
   private inflight: Map<string, Promise<AnyDeclarativeTool>> = new Map();
   // Deferred tools that ToolSearch has loaded this session. Once revealed, a
@@ -229,7 +229,7 @@ export class ToolRegistry {
     }
     // A name collision can happen against either the eager `tools` map
     // (already-instantiated tools) or the lazy `factories` map (registered
-    // but not yet constructed — `structured_output` lives here when
+    // but not yet constructed -- `structured_output` lives here when
     // `--json-schema` is set, but the same is true for every other lazy
     // built-in). Without considering factories, an MCP server registering
     // a tool with a name that shadows a built-in factory would silently
@@ -253,7 +253,7 @@ export class ToolRegistry {
     // #4282 fold-in 2 (gpt-5.5 CV3): re-check the disabled set against
     // the FINAL registration name. Without this, an MCP tool that
     // collides with a lazy factory and gets renamed via
-    // `asFullyQualifiedTool()` (e.g. `structured_output` →
+    // `asFullyQualifiedTool()` (e.g. `structured_output` ->
     // `mcp__server__structured_output`) would slip past the up-front
     // `isToolDisabled(tool.name)` gate above when the operator
     // disabled the renamed-and-exposed name. Re-evaluating after the
@@ -362,7 +362,7 @@ export class ToolRegistry {
     for (const tool of this.tools.values()) {
       if (tool instanceof DiscoveredTool || tool instanceof DiscoveredMCPTool) {
         this.tools.delete(tool.name);
-        // Drop reveal state too — see `removeMcpToolsByServer`. Without
+        // Drop reveal state too -- see `removeMcpToolsByServer`. Without
         // this a re-discovered tool of the same name would inherit
         // stale "revealed" state across the disconnect/reconnect.
         this.revealedDeferred.delete(tool.name);
@@ -379,9 +379,9 @@ export class ToolRegistry {
       if (tool instanceof DiscoveredMCPTool && tool.serverName === serverName) {
         this.tools.delete(name);
         // Drop reveal state for the removed tool. Otherwise a server
-        // disconnect → reconnect cycle that re-registers a tool of
+        // disconnect -> reconnect cycle that re-registers a tool of
         // the same name would inherit `revealed: true` from the prior
-        // session — `getFunctionDeclarations` would emit it (since it
+        // session -- `getFunctionDeclarations` would emit it (since it
         // checks reveal state) before the model has any way to know
         // the tool exists this session.
         this.revealedDeferred.delete(name);
@@ -434,8 +434,8 @@ export class ToolRegistry {
           this.config.setExcludedMcpServers([...currentExcluded, serverName]);
         }
       } finally {
-        // Always drop the server from the global status registry — even
-        // if disconnect or the exclusion-list update throws — so the
+        // Always drop the server from the global status registry -- even
+        // if disconnect or the exclusion-list update throws -- so the
         // Footer's MCP health pill stops counting it as "offline". A
         // leftover entry would resurrect the bug from #3895.
         removeMCPServerStatus(serverName);
@@ -684,7 +684,7 @@ export class ToolRegistry {
 
   /**
    * Removes a single tool from the revealed-deferred set. Used for rollback
-   * when a `setTools()` re-sync fails after revealing — leaving the tool
+   * when a `setTools()` re-sync fails after revealing -- leaving the tool
    * "revealed" in the registry while the chat's declaration list never
    * received the schema would mean future ToolSearch keyword queries
    * exclude the tool (per `collectCandidates`'s isDeferredToolRevealed
@@ -702,7 +702,7 @@ export class ToolRegistry {
   /**
    * Clears the set of revealed deferred tools. Called by {@link GeminiClient}
    * when a chat session is reset (e.g. `/clear`) so the new session starts
-   * with no revealed tools — the same state as any fresh session.
+   * with no revealed tools -- the same state as any fresh session.
    */
   clearRevealedDeferredTools(): void {
     this.revealedDeferred.clear();

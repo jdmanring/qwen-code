@@ -5,7 +5,7 @@
  */
 
 /**
- * `qwen serve` daemon — performance baseline harness.
+ * `qwen serve` daemon -- performance baseline harness.
  *
  * First implementation PR of the Mode B v0.16 rollout (issue #4175 Wave 1
  * PR 1). Captures reference metrics for: RSS curve across session counts,
@@ -20,7 +20,7 @@
  * or improved performance. This file owns the reference-snapshot output
  * (`.integration-tests/<timestamp>/perf-baseline.json` + `.md`).
  *
- * No optimization in this PR — measurement only. Assertions are
+ * No optimization in this PR -- measurement only. Assertions are
  * catastrophic-regression upper bounds (e.g. RSS at 1 session < 500 MB);
  * everything else is reported into the snapshot.
  *
@@ -28,7 +28,7 @@
  * table. Windows is skipped (no `ps`/`pgrep`); Docker/Podman sandbox is
  * also skipped because the daemon's `qwen --acp` child and its MCP
  * grandchildren run inside the sandbox container's PID namespace, which
- * host-side `pgrep -P` cannot observe — the descendant walk would always
+ * host-side `pgrep -P` cannot observe -- the descendant walk would always
  * see zero MCP grandchildren and time out. Same rationale and skip shape
  * as `acp-integration.test.ts` / `cron-tools.test.ts`.
  */
@@ -53,7 +53,7 @@ import {
   type Percentiles,
 } from './_daemon-harness.js';
 
-// Minimal type-shape for the SSE backpressure unit suite — we only assert
+// Minimal type-shape for the SSE backpressure unit suite -- we only assert
 // `.type`, so we avoid coupling tests to the full BridgeEvent surface.
 interface BridgeEventLike {
   type: string;
@@ -61,7 +61,7 @@ interface BridgeEventLike {
 
 // Skip on Windows (helpers shell out to `ps` / `pgrep`) and under
 // Docker/Podman sandbox (the daemon subtree runs in a separate PID
-// namespace the host `pgrep` can't observe — matches the existing
+// namespace the host `pgrep` can't observe -- matches the existing
 // `acp-integration.test.ts` / `cron-tools.test.ts` skip precedent).
 const SKIP =
   process.platform === 'win32' ||
@@ -112,7 +112,7 @@ const OUTPUT_DIR =
   process.env['INTEGRATION_TEST_FILE_DIR'] ??
   path.join(process.cwd(), '.integration-tests', `baseline-${RUN_TS}`);
 
-// Catastrophic-regression upper bounds. These are intentionally loose —
+// Catastrophic-regression upper bounds. These are intentionally loose --
 // tightening them is a deliberate one-line PR after a regression is
 // observed. Numbers chosen per #4175 PR 1 plan.
 const THRESH = {
@@ -121,12 +121,12 @@ const THRESH = {
   promptP99MaxMs: 60_000,
   attachLatencyMaxMs: 1_000,
   // P1 baseline: pre-M2, MCP children grow ~linearly with session count.
-  // We assert "not worse than 2× linear" so a regression that doubles
+  // We assert "not worse than 2* linear" so a regression that doubles
   // the per-session spawn count gets caught even before M2 lands.
   mcpAmplificationFactor: 2,
 };
 
-// Snapshot accumulator — populated as each describe block runs, written
+// Snapshot accumulator -- populated as each describe block runs, written
 // in afterAll.
 interface SnapshotShape {
   version: 1;
@@ -197,7 +197,7 @@ const snapshot: SnapshotShape = {
     'After Wave 2 PR 5 (per-request sessionScope override) lands, this ' +
       'harness will be updated to optionally pass sessionScope: "thread" ' +
       'so the same metrics expose per-session cost and surface the P1 ' +
-      'MCP N×M amplification before M2 fixes it.',
+      'MCP N*M amplification before M2 fixes it.',
   ],
   config: {
     promptIterations: PROMPT_ITERATIONS,
@@ -361,8 +361,8 @@ async function measureRssAtSessionCount(sessionCount: number): Promise<{
           expect(r10.peakRssMB).toBeLessThan(THRESH.rss10SessionsMaxMB);
         },
         // Each session-count needs daemon spawn + N session creates +
-        // RSS_SAMPLE_DURATION_MS sampling + dispose. ~3 × 15s budget per
-        // count in heavy mode → 90s base; pad for slow CI.
+        // RSS_SAMPLE_DURATION_MS sampling + dispose. ~3 * 15s budget per
+        // count in heavy mode -> 90s base; pad for slow CI.
         HEAVY ? 600_000 : 180_000,
       );
     });
@@ -438,7 +438,7 @@ async function measureRssAtSessionCount(sessionCount: number): Promise<{
           const expectedMaxAt5 =
             MCP_SERVERS_CONFIGURED * 5 * THRESH.mcpAmplificationFactor;
           const linear =
-            at5.mcpGrandchildren.length >= MCP_SERVERS_CONFIGURED * 5 * 0.5; // ≥50% of linear → confirmed amplification
+            at5.mcpGrandchildren.length >= MCP_SERVERS_CONFIGURED * 5 * 0.5; // >=50% of linear -> confirmed amplification
 
           snapshot.mcpAmplification = {
             mcpServersConfigured: MCP_SERVERS_CONFIGURED,
@@ -453,7 +453,7 @@ async function measureRssAtSessionCount(sessionCount: number): Promise<{
           expect(at1.mcpGrandchildren.length).toBeGreaterThanOrEqual(
             MCP_SERVERS_CONFIGURED,
           );
-          // Catastrophic bound: not worse than 2× linear.
+          // Catastrophic bound: not worse than 2* linear.
           expect(at5.mcpGrandchildren.length).toBeLessThanOrEqual(
             expectedMaxAt5,
           );
@@ -466,19 +466,19 @@ async function measureRssAtSessionCount(sessionCount: number): Promise<{
       // PR 14b cross-check: validate the daemon's in-process MCP
       // accounting on `GET /workspace/mcp` (`clientCount`, the field
       // SDK consumers and dashboards see, and the same source the
-      // push-event channel — `mcp_budget_warning` /
-      // `mcp_child_refused_batch` — reads) against external `pgrep -P`
+      // push-event channel -- `mcp_budget_warning` /
+      // `mcp_child_refused_batch` -- reads) against external `pgrep -P`
       // measurement.
       //
       // Architectural note (PR 22a): a `qwen serve` ACP child runs
       // two `Config` objects, each carrying its own
-      // `McpClientManager`. The bootstrap Config (`runAcpAgent` →
+      // `McpClientManager`. The bootstrap Config (`runAcpAgent` ->
       // `config.initialize`) discovers MCP servers when the child
       // starts, and `/workspace/mcp` reads its manager via
       // `buildWorkspaceMcpStatus(this.config)` (`acpAgent.ts:1399`).
-      // The per-session Config (`newSessionConfig` →
+      // The per-session Config (`newSessionConfig` ->
       // `config.initialize`) spawns a SECOND set of MCP children for
-      // the SAME servers — its accounting is NOT what the
+      // the SAME servers -- its accounting is NOT what the
       // workspace-level snapshot reflects. So pgrep observes
       // `(1 + sessionCount) * MCP_SERVERS_CONFIGURED` grandchildren
       // while `clientCount` stays at `MCP_SERVERS_CONFIGURED`.
@@ -486,12 +486,12 @@ async function measureRssAtSessionCount(sessionCount: number): Promise<{
       // What this test validates:
       // 1. `clientCount` is exactly the configured server count
       //    (bootstrap manager accounting is honest).
-      // 2. pgrep observes the architectural 2×N grandchildren after
-      //    one session is created — encoded literally so a future
+      // 2. pgrep observes the architectural 2*N grandchildren after
+      //    one session is created -- encoded literally so a future
       //    refactor that unifies bootstrap + session managers (#4175
       //    follow-up to drop the duplicate discovery) fails this
       //    assertion and forces a deliberate test update.
-      // 3. `clientCount` NEVER exceeds the observed pgrep count —
+      // 3. `clientCount` NEVER exceeds the observed pgrep count --
       //    the original "snapshot must never over-report" guard.
       //
       // Skip-gated like the parent describe (POSIX, non-sandbox);
@@ -512,7 +512,7 @@ async function measureRssAtSessionCount(sessionCount: number): Promise<{
           await daemon.client.createOrAttachSession({ workspaceCwd: ws });
 
           // Wait until the OS sees the FULL post-session set
-          // (`MCP_SERVERS_CONFIGURED * 2` grandchildren — see the
+          // (`MCP_SERVERS_CONFIGURED * 2` grandchildren -- see the
           // architectural note above), then read the snapshot.
           // pgrep first to lock the comparison floor; snapshot
           // second so the daemon can't sneak in a new connect
@@ -532,7 +532,7 @@ async function measureRssAtSessionCount(sessionCount: number): Promise<{
           // note above).
           expect(observed.mcpGrandchildren.length).toBe(expectedGrandchildren);
           // (3) Snapshot never over-reports OS reality. Holds under
-          // both the current 2× regime and the unified 1× future.
+          // both the current 2* regime and the unified 1* future.
           expect(snapshot.clientCount).toBeLessThanOrEqual(
             observed.mcpGrandchildren.length,
           );
@@ -545,7 +545,7 @@ async function measureRssAtSessionCount(sessionCount: number): Promise<{
 
     describe('SSE backpressure (unit)', () => {
       // Note: EventBus is the daemon's per-session fan-out primitive. It
-      // doesn't take a sessionId in publish/subscribe — the bus instance
+      // doesn't take a sessionId in publish/subscribe -- the bus instance
       // itself is per-session, owned upstream. We use it directly here for
       // deterministic backpressure invariants without needing a live HTTP
       // round-trip; pattern matches `packages/cli/src/serve/eventBus.test.ts`.
@@ -559,7 +559,7 @@ async function measureRssAtSessionCount(sessionCount: number): Promise<{
         // Publish 3 events into a 2-deep queue:
         //   - event 2 fills the queue to 100% (above the 75% warn threshold),
         //     so the bus force-pushes a `slow_client_warning` synthetic frame.
-        //   - event 3 trips the eviction path → terminal `client_evicted` frame.
+        //   - event 3 trips the eviction path -> terminal `client_evicted` frame.
         // Resulting order: tick(1), tick(2), slow_client_warning, client_evicted.
         bus.publish({ type: 'tick', data: { i: 1 } });
         bus.publish({ type: 'tick', data: { i: 2 } });
@@ -589,7 +589,7 @@ async function measureRssAtSessionCount(sessionCount: number): Promise<{
         for (let i = 1; i <= 5; i++) {
           bus.publish({ type: 'tick', data: { i } });
         }
-        // Subscribe with lastEventId=2 → should replay events 3..5.
+        // Subscribe with lastEventId=2 -> should replay events 3..5.
         const ac = new AbortController();
         const iter = bus.subscribe({ lastEventId: 2, signal: ac.signal });
         const replayed: number[] = [];
@@ -724,7 +724,7 @@ function renderMarkdown(s: SnapshotShape): string {
       ? `p50=${p.p50.toFixed(0)} p90=${p.p90.toFixed(0)} p99=${p.p99.toFixed(0)} mean=${p.mean.toFixed(0)} (n=${p.count})`
       : 'n/a';
   return [
-    `# qwen serve daemon — perf baseline`,
+    `# qwen serve daemon -- perf baseline`,
     ``,
     `Captured: ${s.capturedAt}`,
     `Git: ${s.gitCommit ?? 'unknown'}`,

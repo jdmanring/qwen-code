@@ -12,8 +12,8 @@ set -euo pipefail
 #   1. pnpm install
 #   2. node packages/web-templates/build.mjs   (generate TS assets)
 #   3. node scripts/build_package.js            (tsc --build each internal dep)
-#   4. node esbuild.config.js                   (bundle → dist/cli.js)
-#   5. node scripts/copy_bundle_assets.js       (vendor, skills, locales → dist/)
+#   4. node esbuild.config.js                   (bundle -> dist/cli.js)
+#   5. node scripts/copy_bundle_assets.js       (vendor, skills, locales -> dist/)
 #
 # Prerequisites: node 22+, pnpm 11+, uv, curl
 #
@@ -69,7 +69,7 @@ trap '_cleanup_partial_dist' ERR
 # Run a build step with a label; exit non-zero if the command fails.
 run_step() {
   local label="$1"; shift
-  echo "  → $label"
+  echo "  -> $label"
   if ! "$@"; then
     die "Step failed: $label"
   fi
@@ -117,17 +117,17 @@ else
     export PATH="$REPO_ROOT/node_modules/.bin:$PATH"
 
     # --- 1b. Full build via pnpm ---
-    # Runs: generate-git-commit-info → nx build (web-templates, tsc for all
-    # packages via project references) → esbuild bundle → copy bundle assets.
+    # Runs: generate-git-commit-info -> nx build (web-templates, tsc for all
+    # packages via project references) -> esbuild bundle -> copy bundle assets.
     run_step "pnpm build" \
         pnpm --dir "$REPO_ROOT" build
 
     verify_file "$CLI_BUNDLE" "esbuild output"
 
     # --- 1f. Smoke-test the bundle ---
-    echo "  → verifying bundle runs"
+    echo "  -> verifying bundle runs"
     CLI_VERSION=$(node "$CLI_BUNDLE" --version 2>&1) \
-        || die "'node dist/cli.js --version' failed — check build output above"
+        || die "'node dist/cli.js --version' failed -- check build output above"
     echo "  [OK] dist/cli.js reports version: $CLI_VERSION"
 
     # --- 1g. Install wrapper into PATH ---
@@ -137,7 +137,7 @@ else
 exec node "$CLI_BUNDLE" "\$@"
 EOF
     chmod +x "$BIN_DIR/qwen"
-    echo "  [OK] installed qwen → $CLI_BUNDLE"
+    echo "  [OK] installed qwen -> $CLI_BUNDLE"
 
     if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
         echo ""
@@ -171,7 +171,7 @@ if git -C "$REPO_ROOT" remote get-url upstream >/dev/null 2>&1; then
     CURRENT_URL="$(git -C "$REPO_ROOT" remote get-url upstream)"
     if [ "$CURRENT_URL" = "$UPSTREAM_HTTPS" ]; then
         git -C "$REPO_ROOT" remote set-url upstream "$UPSTREAM_SSH"
-        echo "  [OK] upstream remote corrected: HTTPS → SSH"
+        echo "  [OK] upstream remote corrected: HTTPS -> SSH"
     else
         echo "  [OK] upstream remote already configured: $CURRENT_URL"
     fi
@@ -190,8 +190,8 @@ echo " FULL INSTALLATION COMPLETE"
 echo "=========================================="
 echo ""
 echo "CLI:    qwen (bundled from packages/cli/ via esbuild)"
-echo "Stack:  mega-stack {start|stop|restart|status}  — manage Qdrant + memory daemon"
-echo "        mega-db                                  — start Qdrant directly"
+echo "Stack:  mega-stack {start|stop|restart|status}  -- manage Qdrant + memory daemon"
+echo "        mega-db                                  -- start Qdrant directly"
 echo ""
 echo "Restart your shell (or source your RC file) so QWEN_HOME takes effect."
 echo "See docs/megalonyx/installation.md for next steps."

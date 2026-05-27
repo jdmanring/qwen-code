@@ -138,7 +138,7 @@ async function selectByModel(
     ] as Content[],
     schema: FORGET_SELECTION_RESPONSE_SCHEMA,
     // /forget acts on the selection without confirmation, so pin selection to
-    // the main model rather than the runSideQuery fast-model default — a
+    // the main model rather than the runSideQuery fast-model default -- a
     // weaker fast model could pick the wrong entries and silently delete.
     model: config.getModel(),
     abortSignal: AbortSignal.timeout(8_000),
@@ -266,7 +266,7 @@ export async function forgetManagedAutoMemoryMatches(
       const fmMatch = rawContent.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
 
       if (!fmMatch) {
-        // No frontmatter — delete the whole file.
+        // No frontmatter -- delete the whole file.
         await fs.unlink(filePath);
         removedEntries.push(...fileMatches);
         for (const m of fileMatches) touchedTopics.add(m.topic);

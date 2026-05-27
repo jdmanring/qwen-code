@@ -357,7 +357,7 @@ describe('InputPrompt', () => {
     // transition by SUGGESTION_DELAY_MS (300ms) before flipping
     // followup.state.isVisible to true. The Enter handler reads that flag
     // synchronously, so we must wait for the timer to fire before pressing
-    // Enter — otherwise the suggestion path is skipped and onSubmit never
+    // Enter -- otherwise the suggestion path is skipped and onSubmit never
     // runs. 350ms left only ~50ms margin and was eaten by ink 7 / React 19.2
     // mount overhead on slow Windows CI runners. Keep this wait > 300ms +
     // generous buffer (renderWithProviders cold start can be 100-200ms).
@@ -373,7 +373,7 @@ describe('InputPrompt', () => {
       await wait();
 
       expect(props.onSubmit).toHaveBeenCalledWith('commit this');
-      // Enter path must NOT call buffer.insert — it passes text directly to
+      // Enter path must NOT call buffer.insert -- it passes text directly to
       // handleSubmitAndClear. Calling insert would re-fill the buffer after
       // it was already cleared (the microtask race bug).
       expect(mockBuffer.insert).not.toHaveBeenCalled();
@@ -433,7 +433,7 @@ describe('InputPrompt', () => {
 
   // Regression for #4171: `onTabConsumerChange` (consumed by AppContainer
   // as `shouldBlockTab`) must report `true` whenever ANY input-side handler
-  // would consume Tab — autocomplete dropdown, followup suggestion, or
+  // would consume Tab -- autocomplete dropdown, followup suggestion, or
   // mid-input ghost text. Otherwise on Windows the bare-Tab approval-mode
   // fallback double-fires alongside the input-side handler.
   describe('onTabConsumerChange reporting (issue #4171)', () => {
@@ -497,7 +497,7 @@ describe('InputPrompt', () => {
       );
       await wait();
 
-      // Pin the actual value (not just "never true") — the mount-time effect
+      // Pin the actual value (not just "never true") -- the mount-time effect
       // must report false when nothing in the input area wants Tab.
       expect(onTabConsumerChange).toHaveBeenCalledWith(false);
       expect(onTabConsumerChange).not.toHaveBeenCalledWith(true);
@@ -523,7 +523,7 @@ describe('InputPrompt', () => {
       await wait();
       expect(onTabConsumerChange).toHaveBeenLastCalledWith(true);
 
-      // Dismiss the dropdown and re-render — Windows Tab cycling must be
+      // Dismiss the dropdown and re-render -- Windows Tab cycling must be
       // re-enabled. Without this transition signal, the parent would keep
       // suppressing the approval-mode fallback after the dropdown closed.
       mockedUseCommandCompletion.mockReturnValue(mockCommandCompletion);
@@ -560,7 +560,7 @@ describe('InputPrompt', () => {
       expect(onTabConsumerChange).toHaveBeenLastCalledWith(true);
 
       unmount();
-      // Last call after unmount must be false — the cleanup function fires.
+      // Last call after unmount must be false -- the cleanup function fires.
       expect(onTabConsumerChange).toHaveBeenLastCalledWith(false);
     });
   });
@@ -569,7 +569,7 @@ describe('InputPrompt', () => {
   // narrow (autocomplete dropdown only). Composer uses this signal to hide
   // the Footer / KeyboardShortcuts when the dropdown competes for vertical
   // space. Followup suggestions and mid-input ghost text are inline within
-  // the input box and must NOT hide the Footer — broadening this signal
+  // the input box and must NOT hide the Footer -- broadening this signal
   // would cause Footer churn on all platforms.
   describe('onSuggestionsVisibilityChange stays narrow (autocomplete only)', () => {
     const SUGGESTION_VISIBLE_WAIT_MS = 700;
@@ -587,9 +587,9 @@ describe('InputPrompt', () => {
       );
       await wait(SUGGESTION_VISIBLE_WAIT_MS);
 
-      // Tab consumer signal flips true (followup is a Tab consumer)…
+      // Tab consumer signal flips true (followup is a Tab consumer)...
       expect(onTabConsumerChange).toHaveBeenCalledWith(true);
-      // …but the narrow signal must NOT — Footer should stay visible.
+      // ...but the narrow signal must NOT -- Footer should stay visible.
       expect(onSuggestionsVisibilityChange).not.toHaveBeenCalledWith(true);
       unmount();
     });
@@ -1480,7 +1480,7 @@ describe('InputPrompt', () => {
     expect(props.buffer.setText).toHaveBeenLastCalledWith('/export md');
     (props.buffer.setText as ReturnType<typeof vi.fn>).mockClear();
 
-    // Press Escape — should reset the cycling state.
+    // Press Escape -- should reset the cycling state.
     stdin.write('\x1B');
     await wait();
 
@@ -1659,7 +1659,7 @@ describe('InputPrompt', () => {
   it('should fall through to generic accept when Tab targets a non-export item in the /export superset popup', async () => {
     // Regression for PR #3701 review: when the active suggestion in the
     // Phase 1 superset popup is a non-export item, ACCEPT_SUGGESTION must
-    // NOT call setExportCompletionInput — it must fall through to the
+    // NOT call setExportCompletionInput -- it must fall through to the
     // generic acceptActiveCompletionSuggestion.
     mockedUseCommandCompletion.mockReturnValue({
       ...mockCommandCompletion,
@@ -1721,7 +1721,7 @@ describe('InputPrompt', () => {
 
   it('should trigger Phase 1 export popup even when /export has trailing spaces', async () => {
     // Regression: trailing whitespace after "/export" must be treated the
-    // same as plain "/export" — trim() should normalise the buffer so
+    // same as plain "/export" -- trim() should normalise the buffer so
     // hasExportFormatSuggestions activates and the popup triggers.
     mockedUseCommandCompletion.mockReturnValue({
       ...mockCommandCompletion,
@@ -1782,8 +1782,8 @@ describe('InputPrompt', () => {
   });
 
   it('should submit directly on Enter after arrow-navigate + backspace + retype to perfect match', async () => {
-    // Regression for PR #3701 review (issue #5): navigate → backspace
-    // → retype → Enter must submit the raw buffer, not autocomplete.
+    // Regression for PR #3701 review (issue #5): navigate -> backspace
+    // -> retype -> Enter must submit the raw buffer, not autocomplete.
     // If the popup persists across backspace+retype and the navigated flag
     // is not cleared on buffer.text changes, Enter would autocomplete the
     // first sub-command instead of submitting the perfect match.
@@ -1812,7 +1812,7 @@ describe('InputPrompt', () => {
     await wait();
     expect(mockCommandCompletion.navigateDown).toHaveBeenCalled();
 
-    // Simulate backspace to /memor — popup stays visible in this test.
+    // Simulate backspace to /memor -- popup stays visible in this test.
     // Use unmount + re-render to force useEffect re-evaluation on the
     // changed buffer.text (direct setText on the mock object doesn't
     // trigger React state updates, so effects don't fire).
@@ -1823,7 +1823,7 @@ describe('InputPrompt', () => {
     );
     await wait();
 
-    // Retype: /memor → /memory.
+    // Retype: /memor -> /memory.
     props.buffer.setText('/memory');
     unmountAfterEdit();
     const { stdin: stdinFinal, unmount: unmountFinal } = renderWithProviders(
@@ -2175,14 +2175,14 @@ describe('InputPrompt', () => {
 
     it('should handle Unicode characters (emojis) correctly in paths', async () => {
       // Test with emoji in path after @
-      mockBuffer.text = '@src/file👍.txt';
-      mockBuffer.lines = ['@src/file👍.txt'];
+      mockBuffer.text = '@src/file.txt';
+      mockBuffer.lines = ['@src/file.txt'];
       mockBuffer.cursor = [0, 14]; // After the emoji character
 
       mockedUseCommandCompletion.mockReturnValue({
         ...mockCommandCompletion,
         showSuggestions: true,
-        suggestions: [{ label: 'file👍.txt', value: 'file👍.txt' }],
+        suggestions: [{ label: 'file.txt', value: 'file.txt' }],
       });
 
       const { unmount } = renderWithProviders(<InputPrompt {...props} />);
@@ -2205,8 +2205,8 @@ describe('InputPrompt', () => {
 
     it('should handle Unicode characters with spaces after them', async () => {
       // Test with emoji followed by space - should NOT trigger completion
-      mockBuffer.text = '@src/file👍.txt hello';
-      mockBuffer.lines = ['@src/file👍.txt hello'];
+      mockBuffer.text = '@src/file.txt hello';
+      mockBuffer.lines = ['@src/file.txt hello'];
       mockBuffer.cursor = [0, 20]; // After the space
 
       mockedUseCommandCompletion.mockReturnValue({
@@ -2357,15 +2357,15 @@ describe('InputPrompt', () => {
 
     it('should handle Unicode characters with escaped spaces', async () => {
       // Test combining Unicode and escaped spaces
-      mockBuffer.text = '@' + path.join('files', 'emoji\\ 👍\\ test.txt');
-      mockBuffer.lines = ['@' + path.join('files', 'emoji\\ 👍\\ test.txt')];
+      mockBuffer.text = '@' + path.join('files', 'emoji\\ \\ test.txt');
+      mockBuffer.lines = ['@' + path.join('files', 'emoji\\ \\ test.txt')];
       mockBuffer.cursor = [0, 25]; // After the escaped space and emoji
 
       mockedUseCommandCompletion.mockReturnValue({
         ...mockCommandCompletion,
         showSuggestions: true,
         suggestions: [
-          { label: 'emoji 👍 test.txt', value: 'emoji 👍 test.txt' },
+          { label: 'emoji  test.txt', value: 'emoji  test.txt' },
         ],
       });
 
@@ -2556,11 +2556,11 @@ describe('InputPrompt', () => {
     });
 
     it('should display cursor correctly for multi-byte unicode characters', async () => {
-      const text = 'hello 👍 world';
+      const text = 'hello  world';
       mockBuffer.text = text;
       mockBuffer.lines = [text];
       mockBuffer.viewportVisualLines = [text];
-      mockBuffer.visualCursor = [0, 6]; // cursor on '👍'
+      mockBuffer.visualCursor = [0, 6]; // cursor on ''
 
       const { stdout, unmount } = renderWithProviders(
         <InputPrompt {...props} />,
@@ -2568,16 +2568,16 @@ describe('InputPrompt', () => {
       await wait();
 
       const frame = stdout.lastFrame();
-      expect(frame).toContain(`hello ${chalk.inverse('👍')} world`);
+      expect(frame).toContain(`hello ${chalk.inverse('')} world`);
       unmount();
     });
 
     it('should display cursor at the end of a line with unicode characters', async () => {
-      const text = 'hello 👍';
+      const text = 'hello ';
       mockBuffer.text = text;
       mockBuffer.lines = [text];
       mockBuffer.viewportVisualLines = [text];
-      mockBuffer.visualCursor = [0, 7]; // cursor after '👍' (emoji is 1 code point, so total is 7)
+      mockBuffer.visualCursor = [0, 7]; // cursor after '' (emoji is 1 code point, so total is 7)
 
       const { stdout, unmount } = renderWithProviders(
         <InputPrompt {...props} />,
@@ -2585,7 +2585,7 @@ describe('InputPrompt', () => {
       await wait();
 
       const frame = stdout.lastFrame();
-      expect(frame).toContain(`hello 👍${chalk.inverse(' ')}`);
+      expect(frame).toContain(`hello ${chalk.inverse(' ')}`);
       unmount();
     });
 
@@ -3352,18 +3352,18 @@ describe('InputPrompt', () => {
       stdin.write('\x12');
       await wait();
 
-      expect(clean(stdout.lastFrame())).toContain('→');
+      expect(clean(stdout.lastFrame())).toContain('->');
 
       stdin.write('\u001B[C');
       await wait();
-      expect(clean(stdout.lastFrame())).toContain('←');
+      expect(clean(stdout.lastFrame())).toContain('<-');
       expect(stdout.lastFrame()).toMatchSnapshot(
         'command-search-expanded-match',
       );
 
       stdin.write('\u001B[D');
       await wait();
-      expect(clean(stdout.lastFrame())).toContain('→');
+      expect(clean(stdout.lastFrame())).toContain('->');
       expect(stdout.lastFrame()).toMatchSnapshot(
         'command-search-collapsed-match',
       );
@@ -3428,8 +3428,8 @@ describe('InputPrompt', () => {
       await wait();
 
       const frame = clean(stdout.lastFrame());
-      expect(frame).not.toContain('→');
-      expect(frame).not.toContain('←');
+      expect(frame).not.toContain('->');
+      expect(frame).not.toContain('<-');
       unmount();
     });
   });
@@ -4022,7 +4022,7 @@ describe('InputPrompt', () => {
 
     it('should fall through to history when pop returns null (race condition)', async () => {
       // Simulate: React state says queue is non-empty, but queueRef was
-      // already drained by another pop/drain — popAllQueuedMessages returns null.
+      // already drained by another pop/drain -- popAllQueuedMessages returns null.
       const mockPopAll = vi.fn(() => null);
       vi.mocked(useUIState).mockReturnValue({
         isFeedbackDialogOpen: false,
@@ -4080,7 +4080,7 @@ describe('InputPrompt', () => {
     });
   });
 
-  // Two-step edge transition: Ctrl+P / Ctrl+N (and arrow ↑/↓) in a non-empty
+  // Two-step edge transition: Ctrl+P / Ctrl+N (and arrow /) in a non-empty
   // buffer first snap the cursor to col 0 (Up) or end-of-line (Down) when the
   // cursor isn't already at that edge, and only on a *second* press do they
   // walk the input history. This mirrors readline / Claude Code parity called

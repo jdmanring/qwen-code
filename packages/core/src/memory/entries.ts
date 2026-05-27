@@ -32,7 +32,7 @@ export function getAutoMemoryBodyHeading(body: string): string {
  *
  * Supports two formats:
  *
- * **New (per-entry file) format** — the body starts with the plain-text summary,
+ * **New (per-entry file) format** -- the body starts with the plain-text summary,
  * followed by optional top-level `Why:` / `How to apply:` lines:
  * ```
  * Use short responses when debugging
@@ -41,7 +41,7 @@ export function getAutoMemoryBodyHeading(body: string): string {
  * How to apply: Keep replies to 3 sentences max.
  * ```
  *
- * **Legacy (multi-entry topic file) format** — each entry begins with a `- bullet`
+ * **Legacy (multi-entry topic file) format** -- each entry begins with a `- bullet`
  * prefix; nested fields use 2-space indent:
  * ```
  * # Feedback Memory
@@ -66,7 +66,7 @@ export function parseAutoMemoryEntries(body: string): ManagedAutoMemoryEntry[] {
       continue;
     }
 
-    // Indented nested field — legacy format: `  - Why: ...` or `  Why: ...`
+    // Indented nested field -- legacy format: `  - Why: ...` or `  Why: ...`
     if (current) {
       const indentedMatch = rawLine.match(
         /^[\t ]{2,}(?:[-*][\t ]+)?(Why|How to apply|How_to_apply):[\t ]*(\S.*)$/i,
@@ -91,7 +91,7 @@ export function parseAutoMemoryEntries(body: string): ManagedAutoMemoryEntry[] {
       }
     }
 
-    // Top-level named field — new format: `Why: ...` or `**How to apply**: ...`
+    // Top-level named field -- new format: `Why: ...` or `**How to apply**: ...`
     const topLevelMatch = trimmed.match(
       /^(?:\*\*)?(Why|How to apply|How_to_apply)(?:\*\*)?:[ \t]*(\S.*)$/i,
     );
@@ -114,7 +114,7 @@ export function parseAutoMemoryEntries(body: string): ManagedAutoMemoryEntry[] {
       continue;
     }
 
-    // Bullet prefix — legacy format: `- Summary text`
+    // Bullet prefix -- legacy format: `- Summary text`
     if (/^[-*]\s+/.test(trimmed)) {
       if (current) {
         entries.push(current);
@@ -125,10 +125,10 @@ export function parseAutoMemoryEntries(body: string): ManagedAutoMemoryEntry[] {
       continue;
     }
 
-    // Plain text — new per-entry format: each plain-text line starts a new
+    // Plain text -- new per-entry format: each plain-text line starts a new
     // entry. If a current entry is already open, close it first so that
     // multi-entry bodies produced by renderAutoMemoryBody can round-trip
-    // correctly through parse→rewrite without losing later entries.
+    // correctly through parse->rewrite without losing later entries.
     if (current) {
       entries.push(current);
     }

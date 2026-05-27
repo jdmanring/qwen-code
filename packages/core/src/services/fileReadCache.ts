@@ -14,7 +14,7 @@ import type { Stats } from 'node:fs';
  * repeated full Reads of an unchanged file can be short-circuited.
  *
  * This is a pure in-memory data structure. Callers are responsible for
- * `fs.stat`-ing the file and passing the resulting Stats in — the cache
+ * `fs.stat`-ing the file and passing the resulting Stats in -- the cache
  * never touches the filesystem itself, which keeps it trivially testable
  * and avoids double-stat overhead at the call sites (Read / Edit /
  * WriteFile already stat for their own reasons).
@@ -22,7 +22,7 @@ import type { Stats } from 'node:fs';
  * Identity: entries are keyed by `${dev}:${ino}`, not by path. This is
  * deliberate: it makes symlinks, hardlinks, and case-variant paths on
  * case-insensitive filesystems all collapse onto the same entry, which
- * is what we want — the cache is reasoning about *files*, not strings.
+ * is what we want -- the cache is reasoning about *files*, not strings.
  *
  * Platform note: on Windows, `Stats.ino` is documented as not guaranteed
  * unique (Node returns it from `_BY_HANDLE_FILE_INFORMATION.nFileIndex`,
@@ -31,19 +31,19 @@ import type { Stats } from 'node:fs';
  * platforms qwen-code primarily runs on (macOS / Linux) are unaffected.
  *
  * Lifecycle: one instance is created per `Config` via the field
- * initializer, so any code that constructs its own Config — notably
- * subagents — automatically gets an independent cache. The cache itself
+ * initializer, so any code that constructs its own Config -- notably
+ * subagents -- automatically gets an independent cache. The cache itself
  * does not enforce isolation; it relies on the Config-per-session
  * invariant maintained by the surrounding code.
  */
 
 /** A single tracked file. Mutated in place by {@link FileReadCache}. */
 export interface FileReadEntry {
-  /** `${stats.dev}:${stats.ino}` — the canonical identity. */
+  /** `${stats.dev}:${stats.ino}` -- the canonical identity. */
   readonly inodeKey: string;
   /**
    * Last absolute path we observed pointing at this inode. Diagnostic
-   * only — it is *not* used for lookup, since multiple paths can resolve
+   * only -- it is *not* used for lookup, since multiple paths can resolve
    * to the same inode (symlinks, case variants).
    */
   realPath: string;
@@ -76,12 +76,12 @@ export interface FileReadEntry {
    * `readFileState`: any prior read clears enforcement, the
    * mtime/size drift check is the safety net. `fileReadCacheDisabled:
    * true` is an OPT-OUT (it bypasses the cache and thus enforcement
-   * entirely so application-level locking can take over) — it is NOT
+   * entirely so application-level locking can take over) -- it is NOT
    * an opt-in to stricter behaviour.
    */
   lastReadWasFull: boolean;
   /**
-   * True iff the most recent Read produced plain-text content — i.e.
+   * True iff the most recent Read produced plain-text content -- i.e.
    * a text payload the Edit / WriteFile tools can mutate as text.
    * False for binary, image, audio, video, PDF, and notebook reads,
    * which produce structured payloads the mutating tools cannot
@@ -107,7 +107,7 @@ export interface FileReadEntry {
   lastReadCacheable: boolean;
   /**
    * True iff the read/write that the fast-path would point at is still
-   * quotable from conversation history — i.e. it has NOT been blanked
+   * quotable from conversation history -- i.e. it has NOT been blanked
    * by idle microcompaction.
    *
    * Sole consumer is the ReadFile fast-path: the `file_unchanged`
@@ -144,14 +144,14 @@ export class FileReadCache {
   /**
    * Record a successful Read of `absPath`.
    *
-   *  - `full`      — the Read produced the entire current content of
+   *  - `full`      -- the Read produced the entire current content of
    *    the file: no offset / limit / pages on the request AND the
    *    output was not truncated. Pass `false` for ranged reads OR
    *    for full-request reads whose content was truncated by the
    *    truncate-tool-output limit; both leave the model without
    *    sight of every current byte. This gates the `file_unchanged`
    *    fast-path and notebook-specific prior-read checks.
-   *  - `cacheable` — the produced content is plain text (vs. binary /
+   *  - `cacheable` -- the produced content is plain text (vs. binary /
    *    image / audio / video / PDF / notebook). This flag is purely
    *    about content type, not about whether the read was complete:
    *    a partial / truncated text read still records `cacheable: true`
@@ -164,14 +164,14 @@ export class FileReadCache {
    * The `lastReadWasFull` and `lastReadCacheable` flags are
    * **sticky-on-true** when the recorded fingerprint matches the
    * existing entry's `(mtimeMs, sizeBytes)`. That preserves the
-   * model's read-rights across `Read full → Read partial` and
-   * `WriteFile(create) → Read partial → Edit` sequences against
+   * model's read-rights across `Read full -> Read partial` and
+   * `WriteFile(create) -> Read partial -> Edit` sequences against
    * the same bytes.
    *
-   * When the fingerprint drifts — i.e. the file was mutated between
-   * the prior record and this one — the flags are **reset** to
+   * When the fingerprint drifts -- i.e. the file was mutated between
+   * the prior record and this one -- the flags are **reset** to
    * exactly what this read produced. Sticky-on-true across drift
-   * would let a `Read full @X → external write → Read partial @Y →
+   * would let a `Read full @X -> external write -> Read partial @Y ->
    * Edit` sequence pass enforcement against bytes the model only
    * saw the first 10 lines of, exactly the regression flagged in
    * the maintainer review.
@@ -202,7 +202,7 @@ export class FileReadCache {
       entry.readResidentInHistory = true;
     }
     if (sameFingerprint) {
-      // Same bytes the entry already described — sticky-on-true
+      // Same bytes the entry already described -- sticky-on-true
       // preserves prior `true` flags from full reads or writes.
       if (opts.full) {
         entry.lastReadWasFull = true;
@@ -213,7 +213,7 @@ export class FileReadCache {
     } else {
       // Drift detected (or fresh entry): the prior flags described
       // different bytes. Reset to what this read actually produced.
-      // `readResidentInHistory` is intentionally NOT reset here — it
+      // `readResidentInHistory` is intentionally NOT reset here -- it
       // tracks whether the read is still quotable from history, which
       // is orthogonal to the on-disk fingerprint and already handled
       // by the `opts.full` branch above.
@@ -258,12 +258,12 @@ export class FileReadCache {
   /**
    * Compare the cached fingerprint against `stats` for the same inode.
    *
-   *  - `unknown` — no entry. The file has never been Read or written in
+   *  - `unknown` -- no entry. The file has never been Read or written in
    *    this session.
-   *  - `stale`   — entry exists but mtime or size differs. The file has
+   *  - `stale`   -- entry exists but mtime or size differs. The file has
    *    been changed by something outside our control (or by us, before
    *    this stats call was taken).
-   *  - `fresh`   — entry exists and mtime + size match. Safe to assume
+   *  - `fresh`   -- entry exists and mtime + size match. Safe to assume
    *    the bytes are what we last saw.
    *
    * Note: mtime + size is a best-effort fingerprint, not a hash. A file
@@ -282,7 +282,7 @@ export class FileReadCache {
 
   /**
    * Mark the entry for `stats` as no longer quotable from conversation
-   * history — its read/edit/write output was blanked by idle
+   * history -- its read/edit/write output was blanked by idle
    * microcompaction.
    *
    * Surgical alternative to {@link clear} for microcompaction: only
@@ -293,7 +293,7 @@ export class FileReadCache {
    *
    * Returns `true` if a matching entry was found and disarmed; `false`
    * if there is no entry for `stats` (never tracked, or `stats`
-   * resolved to a different inode than recorded — file replaced /
+   * resolved to a different inode than recorded -- file replaced /
    * symlink retargeted since the read). A `false` is NOT harmless: the
    * stale entry stays armed, so the caller must fall back to
    * {@link clear} just as it does for an unstattable path.

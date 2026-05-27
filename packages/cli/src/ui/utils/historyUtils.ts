@@ -17,7 +17,7 @@ import type { HistoryItem, HistoryItemWithoutId } from '../types.js';
  * are meaningful.
  *
  * Every member of the {@link HistoryItemWithoutId} union must appear in
- * exactly one branch — the trailing `_exhaustive: never` line gives a
+ * exactly one branch -- the trailing `_exhaustive: never` line gives a
  * compile-time error when a new history item type is added without
  * being explicitly classified, so auto-restore can't silently break.
  */
@@ -31,7 +31,7 @@ export function isSyntheticHistoryItem(
     // `gemini_thought` / `gemini_thought_content` are deliberately
     // CLASSIFIED AS SYNTHETIC even though they're visible to the user:
     // (1) Claude Code's auto-restore behavior treats <thinking> output
-    // identically — auto-restore fires when the model emitted thoughts
+    // identically -- auto-restore fires when the model emitted thoughts
     // but no real `gemini_content` (i.e. the model was still reasoning
     // when the user cancelled);
     // (2) Promoting thoughts to MEANINGFUL would block restore on every
@@ -39,7 +39,7 @@ export function isSyntheticHistoryItem(
     // restore is most valuable (user wanted to abandon the in-flight
     // turn before any committed text). The user can still see the
     // thoughts in scrollback if the terminal preserves them; the
-    // restore only affects the next ↑-history pull and prompt buffer.
+    // restore only affects the next -history pull and prompt buffer.
     case 'info':
     case 'error':
     case 'warning':
@@ -87,10 +87,10 @@ export function isSyntheticHistoryItem(
       return false;
 
     default: {
-      // Compile-time exhaustiveness — adding a new HistoryItem variant
+      // Compile-time exhaustiveness -- adding a new HistoryItem variant
       // without classifying it here triggers a TS2322 on this line.
       // At runtime any genuinely unknown type defaults to "meaningful"
-      // (safe — auto-restore bails rather than wiping content).
+      // (safe -- auto-restore bails rather than wiping content).
       const _exhaustive: never = item;
       void _exhaustive;
       return false;
@@ -104,7 +104,7 @@ export function isSyntheticHistoryItem(
  *
  * Used by the cancel handler: if the user hit ESC right after submitting
  * and the model produced nothing real, the prompt+trailing INFO can be
- * rewound and the prompt text restored to the input box — same UX as
+ * rewound and the prompt text restored to the input box -- same UX as
  * claude-code (REPL.tsx auto-restore branch).
  */
 export function itemsAfterAreOnlySynthetic(

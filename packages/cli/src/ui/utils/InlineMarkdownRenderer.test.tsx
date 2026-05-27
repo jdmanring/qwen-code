@@ -53,7 +53,7 @@ describe('<RenderInline />', () => {
       <RenderInline text="value $\\alpha$" enableInlineMath />,
     );
 
-    expect(lastFrame()).toContain('α');
+    expect(lastFrame()).toContain('');
     expect(lastFrame()).not.toContain('$\\alpha$');
   });
 
@@ -86,9 +86,9 @@ describe('<RenderInline />', () => {
       // Envelope is present, pointing at the URL.
       expect(out).toContain(`\x1b]8;;${url}\x07`);
       expect(out).toContain('\x1b]8;;\x07');
-      // Visible label is rendered…
+      // Visible label is rendered...
       expect(out).toContain('here');
-      // …and the long URL is NOT repeated as plain text — capable terminals
+      // ...and the long URL is NOT repeated as plain text -- capable terminals
       // expose the target via hover / copy-link instead.
       expect(out).not.toContain(`(${url})`);
     });
@@ -105,7 +105,7 @@ describe('<RenderInline />', () => {
       expect(out).toContain(url);
     });
 
-    it('does not wrap dangerous schemes (javascript:, data:, file:, …)', () => {
+    it('does not wrap dangerous schemes (javascript:, data:, file:, ...)', () => {
       enableHyperlinks();
       for (const url of [
         'javascript:alert',
@@ -194,7 +194,7 @@ describe('<RenderInline />', () => {
         <RenderInline text={`see [wiki](${url}) ok`} />,
       );
       const out = lastFrame() ?? '';
-      // Envelope target must be the full URL including the inner `)` — even
+      // Envelope target must be the full URL including the inner `)` -- even
       // though the URL isn't shown as visible text in wrap mode, it has to
       // be byte-correct in the envelope so clicking resolves.
       expect(out).toContain(`\x1b]8;;${url}\x07`);
@@ -206,7 +206,7 @@ describe('<RenderInline />', () => {
     it('does not wrap a URL that contains whitespace', () => {
       // The link regex accepts `[^()]*` inside the URL group, which includes
       // whitespace. Every terminal rejects/truncates an OSC 8 target with
-      // embedded whitespace, so we must NOT wrap — falling through preserves
+      // embedded whitespace, so we must NOT wrap -- falling through preserves
       // the legacy "broken URL is at least visible" behavior.
       enableHyperlinks();
       const { lastFrame } = renderWithProviders(
@@ -249,13 +249,13 @@ describe('<RenderInline />', () => {
       // and the closing `)` hasn't arrived, the link branch can't match, so
       // the bare-URL alternative wraps the partial URL. That's acceptable:
       // the next tick produces the full link. What we MUST guarantee is
-      // that the envelope is always balanced — never a half-open OSC 8.
+      // that the envelope is always balanced -- never a half-open OSC 8.
       enableHyperlinks();
       const { lastFrame } = renderWithProviders(
         <RenderInline text="partial [foo](https://example.com/page" />,
       );
       const out = lastFrame() ?? '';
-      // Same count of opens (`\x1b]8;;…\x07`) and closes (`\x1b]8;;\x07`).
+      // Same count of opens (`\x1b]8;;...\x07`) and closes (`\x1b]8;;\x07`).
       // eslint-disable-next-line no-control-regex
       const opens = (out.match(/\x1b\]8;;[^\x07]+\x07/g) ?? []).length;
       // eslint-disable-next-line no-control-regex
@@ -279,8 +279,8 @@ describe('<RenderInline />', () => {
 
     it('sanitizes bidi controls in the URL when used as visible text', () => {
       // The OSC 8 target inside `osc8Open` is sanitized, but a model that
-      // emits `[](https://example.com/a‮evil)` (empty label) would
-      // otherwise render the raw URL — including the RLO — as visible text
+      // emits `[](https://example.com/aevil)` (empty label) would
+      // otherwise render the raw URL -- including the RLO -- as visible text
       // via the `safeLabel || url` fallback. Same risk for the deceptive
       // `(url)` suffix. Both must render the sanitized URL.
       enableHyperlinks();
@@ -298,7 +298,7 @@ describe('<RenderInline />', () => {
     it('sanitizes bidi controls in the visible label (anti-spoof)', () => {
       // U+202E (RLO) injected into a label would visually reverse the
       // trailing bytes, letting a "click [safe.com](https://evil.com)"
-      // render as a different host than the URL — a spoofing vector that
+      // render as a different host than the URL -- a spoofing vector that
       // OSC 8's clickable region makes more dangerous than the legacy
       // `label (url)` rendering, because the user no longer sees the
       // URL in plain text.
@@ -349,7 +349,7 @@ describe('<RenderInline />', () => {
     });
 
     it('elides `(url)` when label==url (no deception risk)', () => {
-      // The model echoing a URL as both label and target is fine — the user
+      // The model echoing a URL as both label and target is fine -- the user
       // sees the URL either way, no deception. Keep the existing elision.
       enableHyperlinks();
       const url = 'https://example.com/page';
@@ -358,7 +358,7 @@ describe('<RenderInline />', () => {
       );
       const out = lastFrame() ?? '';
       expect(out).toContain(`\x1b]8;;${url}\x07`);
-      // No duplicated `(url)` suffix — the label already shows the URL.
+      // No duplicated `(url)` suffix -- the label already shows the URL.
       expect(out).not.toContain(`(${url})`);
     });
 

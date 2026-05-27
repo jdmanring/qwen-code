@@ -12,7 +12,7 @@ import type {
   BaseInfo,
 } from './types.js';
 
-// ── Error handling ────────────────────────────────────────────────
+// -- Error handling ------------------------------------------------
 
 /** Structured error from WeChat iLink Bot API. */
 export class WeixinApiError extends Error {
@@ -35,15 +35,15 @@ export class WeixinApiError extends Error {
 /** Errors that are safe to retry (transient / network). */
 function isRetryableError(err: unknown): boolean {
   if (err instanceof WeixinApiError) {
-    // Session expired — not retryable (needs re-login)
+    // Session expired -- not retryable (needs re-login)
     if (err.errcode === -14) return false;
     // API-level transient errors (system busy, rate limit)
     if (err.errcode === -1 || err.errcode === 45011) return true;
     // ret field is used by getUploadUrl and other endpoints
     if (err.ret !== undefined && err.ret !== 0) return false;
-    // Client errors (4xx except 429) — not retryable
+    // Client errors (4xx except 429) -- not retryable
     if (err.status >= 400 && err.status < 500) return err.status === 429;
-    // Server errors (5xx) or network errors (status 0) — retryable
+    // Server errors (5xx) or network errors (status 0) -- retryable
     return err.status === 0 || err.status >= 500;
   }
   if (err instanceof TypeError || (err as NodeJS.ErrnoException).code) {
@@ -153,7 +153,7 @@ async function post<T>(
         errcode = errBody.errcode;
         errmsg = errBody.errmsg;
       } catch {
-        // ignore parse errors — use status-based message
+        // ignore parse errors -- use status-based message
       }
       const message = errmsg
         ? `WeChat API error (HTTP ${resp.status}, ret=${ret}, errcode=${errcode}): ${errmsg}`
@@ -385,7 +385,7 @@ export async function uploadToCdn(
         }
         throw new WeixinApiError(
           cdnErrMsg
-            ? `CDN upload failed: HTTP ${resp.status} — ${cdnErrMsg}`
+            ? `CDN upload failed: HTTP ${resp.status} -- ${cdnErrMsg}`
             : `CDN upload failed: HTTP ${resp.status}`,
           resp.status,
           cdnRet,

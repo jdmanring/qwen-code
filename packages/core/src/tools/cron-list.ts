@@ -1,5 +1,5 @@
 /**
- * cron_list tool — lists all active in-session cron jobs.
+ * cron_list tool -- lists all active in-session cron jobs.
  */
 
 import type { ToolInvocation, ToolResult } from './tools.js';
@@ -36,7 +36,7 @@ class CronListInvocation extends BaseToolInvocation<
 
     const llmLines = jobs.map((job) => {
       const type = job.recurring ? 'recurring' : 'one-shot';
-      return `${job.id} — ${job.cronExpr} (${type}) [session-only]: ${job.prompt}`;
+      return `${job.id} -- ${job.cronExpr} (${type}) [session-only]: ${job.prompt}`;
     });
     const llmContent = llmLines.join('\n');
 
@@ -68,7 +68,7 @@ export class CronListTool extends BaseDeclarativeTool<
       },
       true, // isOutputMarkdown
       false, // canUpdateOutput
-      true, // shouldDefer — low-frequency inspection tool
+      true, // shouldDefer -- low-frequency inspection tool
       false, // alwaysLoad
       'cron list scheduled jobs',
     );

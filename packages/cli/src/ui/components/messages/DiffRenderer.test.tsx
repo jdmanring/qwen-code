@@ -27,7 +27,7 @@ describe('<OverflowProvider><DiffRenderer /></OverflowProvider>', () => {
   });
 
   const sanitizeOutput = (output: string | undefined, contentWidth: number) =>
-    output?.replace(/GAP_INDICATOR/g, '═'.repeat(contentWidth));
+    output?.replace(/GAP_INDICATOR/g, ''.repeat(contentWidth));
 
   it('should call colorizeCode with correct language for new file with known extension', () => {
     const newFileDiffContent = `
@@ -215,7 +215,7 @@ index 123..456 100644
       </OverflowProvider>,
     );
     const output = lastFrame();
-    expect(output).toContain('═'); // Check for the border character used in the gap
+    expect(output).toContain(''); // Check for the border character used in the gap
 
     // Verify that lines before and after the gap are rendered
     expect(output).toContain('context line 1');
@@ -253,7 +253,7 @@ index abc..def 100644
       </OverflowProvider>,
     );
     const output = lastFrame();
-    expect(output).not.toContain('═'); // Ensure no separator is rendered
+    expect(output).not.toContain(''); // Ensure no separator is rendered
 
     // Verify that lines before and after the gap are rendered
     expect(output).toContain('context line 5');
@@ -286,7 +286,7 @@ index 123..789 100644
  2 - const oldVar = 1;
  2 + const newVar = 1;
  3   console.log('end of first hunk');
-════════════════════════════════════════════════════════════════════════════════
+
 20   console.log('second hunk');
 21 - const anotherOld = 'test';
 21 + const anotherNew = 'test';
@@ -296,7 +296,7 @@ index 123..789 100644
         contentWidth: 80,
         height: 6,
         expected: `... first 4 lines hidden ...
-════════════════════════════════════════════════════════════════════════════════
+
 20   console.log('second hunk');
 21 - const anotherOld = 'test';
 21 + const anotherNew = 'test';
@@ -362,7 +362,7 @@ fileDiff Index: file.txt
 
     expect(output).toEqual(` 1 - const oldVar = 1;
  1 + const newVar = 1;
-════════════════════════════════════════════════════════════════════════════════
+
 20 - const anotherOld = 'test';
 20 + const anotherNew = 'test';`);
   });

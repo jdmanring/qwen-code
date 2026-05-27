@@ -5,7 +5,7 @@
  */
 
 /**
- * useBackgroundTaskView — subscribes to the three background-task
+ * useBackgroundTaskView -- subscribes to the three background-task
  * registries (background subagents, managed shells, and event monitors)
  * AND to `MemoryManager` for dream consolidation tasks, merging them
  * into a single ordered snapshot of `DialogEntry`s. Each registry fires
@@ -58,7 +58,7 @@ export type AgentDialogEntry = AgentTask;
  */
 export type DreamDialogEntry = {
   kind: 'dream';
-  /** MemoryTaskRecord.id — used as React key + lookup. */
+  /** MemoryTaskRecord.id -- used as React key + lookup. */
   dreamId: string;
   status: 'running' | 'completed' | 'failed' | 'cancelled';
   startTime: number;
@@ -66,22 +66,22 @@ export type DreamDialogEntry = {
    * Wall-clock instant the record's `status` last changed. For
    * `completed` / `failed` this is when the dream actually finished;
    * for `cancelled` this is the moment `cancelTask` ran (NOT when
-   * the fork agent finishes unwinding — that can lag by seconds for
+   * the fork agent finishes unwinding -- that can lag by seconds for
    * agents mid-tool-call). The dialog renders elapsed from this
-   * value, so a freshly-cancelled record snaps to "Stopped · Ns"
+   * value, so a freshly-cancelled record snaps to "Stopped  Ns"
    * even while the underlying fork is still releasing the lock.
    */
   endTime?: number;
   progressText?: string;
   error?: string;
-  /** Number of sessions the dream is reviewing — populated on schedule. */
+  /** Number of sessions the dream is reviewing -- populated on schedule. */
   sessionCount?: number;
-  /** Memory topic files written — populated on completion. */
+  /** Memory topic files written -- populated on completion. */
   touchedTopics?: readonly string[];
   /**
    * Best-effort warnings populated by `runDream` when post-fork
    * housekeeping fails (gating-metadata write or consolidation-lock
-   * release). The dream itself completed successfully — these are
+   * release). The dream itself completed successfully -- these are
    * informational so the user can explain why subsequent dreams may
    * be silently skipped as `'locked'` or why the scheduler gate
    * isn't seeing the most recent dream's timestamp.
@@ -97,7 +97,7 @@ export type DreamDialogEntry = {
  * `'shell'` / `'monitor'` / `'dream'` guard, then access fields directly).
  *
  * The `agent`/`shell`/`monitor` arms are the core `TaskState` union
- * member — `kind` lives on the core entry, so the merge step here no
+ * member -- `kind` lives on the core entry, so the merge step here no
  * longer tags it. `dream` remains adapted from `MemoryManager` and is
  * unioned in here while the dream task placement is decided in PR 2.
  */
@@ -107,7 +107,7 @@ export interface UseBackgroundTaskViewResult {
   entries: readonly DialogEntry[];
 }
 
-/** Stable id of an entry regardless of kind — used as React key + lookup. */
+/** Stable id of an entry regardless of kind -- used as React key + lookup. */
 export function entryId(entry: DialogEntry): string {
   switch (entry.kind) {
     case 'agent':
@@ -154,7 +154,7 @@ export function useBackgroundTaskView(
 
     // refresh accepts a pre-fetched dream snapshot so the memory
     // listener can reuse the same array it computed for its dedup
-    // check — avoids a second listTasksByType call AND eliminates the
+    // check -- avoids a second listTasksByType call AND eliminates the
     // race window where the listener's gate sig and the entries it
     // builds would otherwise come from two separate snapshots.
     const refresh = (dreamSnapshot?: readonly MemoryTaskRecord[]) => {
@@ -165,15 +165,15 @@ export function useBackgroundTaskView(
       // `pending` is a sub-second transition state and `skipped`
       // records arise from the rare race where the schedule-time
       // lock check passed but `acquireDreamLock` then hit EEXIST in
-      // runDream — these never reflect user-visible work, so filter
+      // runDream -- these never reflect user-visible work, so filter
       // them out. (Most gate misses don't create a record at all;
       // scheduleDream returns `{status: 'skipped'}` early without
       // touching the task map.) Extract tasks also intentionally
-      // stay out of this view — they fire on every UserQuery and
+      // stay out of this view -- they fire on every UserQuery and
       // their completion is already covered by the `memory_saved`
       // toast in useGeminiStream.
       //
-      // Cap retained terminal entries — MemoryManager.tasks Map has no
+      // Cap retained terminal entries -- MemoryManager.tasks Map has no
       // eviction path, so completed/failed dreams accumulate forever
       // (every fired dream over the project's lifetime). Without this
       // cap the dialog would grow unbounded; with it the user sees all
@@ -224,12 +224,12 @@ export function useBackgroundTaskView(
       // top" (the literal phrasing of the issue this view-model serves).
       // A pure startTime DESC sort surfaces the newest LAUNCH but lets
       // an older long-running / paused entry fall below a batch of
-      // newer terminal entries — the user opens the dialog wanting to
+      // newer terminal entries -- the user opens the dialog wanting to
       // check the running work, and finds it buried under noise.
       //
-      //   bucket 1 — active (running + paused), sorted by startTime DESC
+      //   bucket 1 -- active (running + paused), sorted by startTime DESC
       //              so the most recent launch sits at the very top.
-      //   bucket 2 — terminal (completed / failed / cancelled), sorted
+      //   bucket 2 -- terminal (completed / failed / cancelled), sorted
       //              by endTime DESC so the most recently FINISHED entry
       //              is the first terminal row (matches "what changed
       //              while I wasn't looking" intuition; startTime would
@@ -253,13 +253,13 @@ export function useBackgroundTaskView(
         if (aActive !== bActive) return aActive ? -1 : 1;
         if (aActive) return b.startTime - a.startTime;
         // Terminal bucket: fall back to startTime when an entry has no
-        // endTime yet (defensive — the registries stamp endTime on
-        // every running → terminal transition, so this only matters
+        // endTime yet (defensive -- the registries stamp endTime on
+        // every running -> terminal transition, so this only matters
         // for synthetic / partially-restored entries).
         return (b.endTime ?? b.startTime) - (a.endTime ?? a.startTime);
       });
       // Cache the dream signature derived from the freshly-built
-      // entries — the memory listener uses this to skip redundant
+      // entries -- the memory listener uses this to skip redundant
       // setEntries calls when an extract notify fires (extract has no
       // dialog surface, so the merged result is identical). Computed
       // from the same `allDreams` snapshot used to build dreamEntries
@@ -279,7 +279,7 @@ export function useBackgroundTaskView(
     shellRegistry.setStatusChangeCallback(refreshFromRegistry);
     monitorRegistry.setStatusChangeCallback(refreshFromRegistry);
 
-    // Memory listener fires only on dream-task transitions —
+    // Memory listener fires only on dream-task transitions --
     // `subscribe({ taskType: 'dream' })` skips the per-extract notify
     // entirely so we don't pay the per-UserQuery O(n) signature cost
     // for transitions we have no surface for. The dream-content

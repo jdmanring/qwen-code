@@ -439,7 +439,7 @@ describe('openInExternalEditor', () => {
     expect(result.current.text).toBe('original');
   });
 
-  it('should not create undo snapshot when editor fails — undo is no-op', async () => {
+  it('should not create undo snapshot when editor fails -- undo is no-op', async () => {
     mockSpawnSync.mockReturnValue({ status: 1, error: null });
     (fs.readFileSync as Mock).mockReturnValue('should not see this');
 

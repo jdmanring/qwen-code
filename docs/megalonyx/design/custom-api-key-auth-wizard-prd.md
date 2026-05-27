@@ -35,10 +35,10 @@ The current ModelStudio Standard API key path already provides a guided setup fl
 
 ```text
 Alibaba Cloud ModelStudio Standard API Key
-└─ Select Region
-   └─ Enter API Key
-      └─ Enter Model IDs
-         └─ Save + authenticate
+\_- Select Region
+   \_- Enter API Key
+      \_- Enter Model IDs
+         \_- Save + authenticate
 ```
 
 Custom API key setup should offer a similar guided experience, while also respecting that Qwen Code supports multiple provider protocols.
@@ -49,20 +49,20 @@ The custom API key path is currently a dead end inside `/auth`:
 
 ```text
 /auth
-└─ Select Authentication Method
-   ├─ Alibaba Cloud Coding Plan
-   ├─ API Key
-   │  └─ Select API Key Type
-   │     ├─ Alibaba Cloud ModelStudio Standard API Key
-   │     │  ├─ Select Region
-   │     │  ├─ Enter API Key
-   │     │  ├─ Enter Model IDs
-   │     │  └─ Save + authenticate
-   │     │
-   │     └─ Custom API Key
-   │        └─ Documentation-only screen
-   │
-   └─ Qwen OAuth
+\_- Select Authentication Method
+   |--- Alibaba Cloud Coding Plan
+   |--- API Key
+   |  \_- Select API Key Type
+   |     |--- Alibaba Cloud ModelStudio Standard API Key
+   |     |  |--- Select Region
+   |     |  |--- Enter API Key
+   |     |  |--- Enter Model IDs
+   |     |  \_- Save + authenticate
+   |     |
+   |     \_- Custom API Key
+   |        \_- Documentation-only screen
+   |
+   \_- Qwen OAuth
 ```
 
 This causes several usability issues:
@@ -125,55 +125,55 @@ Each protocol maps directly to a `modelProviders` key and `security.auth.selecte
 
 ```text
 /auth
-└─ Select Authentication Method
-   ├─ Alibaba Cloud Coding Plan
-   │  └─ Select Region
-   │     └─ Enter API Key
-   │        └─ Save + authenticate
-   │
-   ├─ API Key
-   │  └─ Select API Key Type
-   │     ├─ Alibaba Cloud ModelStudio Standard API Key
-   │     │  ├─ Select Region
-   │     │  ├─ Enter API Key
-   │     │  ├─ Enter Model IDs
-   │     │  └─ Save + authenticate
-   │     │
-   │     └─ Custom API Key
-   │        ├─ Select Protocol
-   │        ├─ Enter Base URL
-   │        ├─ Enter API Key
-   │        ├─ Enter Model IDs
-   │        ├─ Review generated JSON
-   │        └─ Save + authenticate
-   │
-   └─ Qwen OAuth
+\_- Select Authentication Method
+   |--- Alibaba Cloud Coding Plan
+   |  \_- Select Region
+   |     \_- Enter API Key
+   |        \_- Save + authenticate
+   |
+   |--- API Key
+   |  \_- Select API Key Type
+   |     |--- Alibaba Cloud ModelStudio Standard API Key
+   |     |  |--- Select Region
+   |     |  |--- Enter API Key
+   |     |  |--- Enter Model IDs
+   |     |  \_- Save + authenticate
+   |     |
+   |     \_- Custom API Key
+   |        |--- Select Protocol
+   |        |--- Enter Base URL
+   |        |--- Enter API Key
+   |        |--- Enter Model IDs
+   |        |--- Review generated JSON
+   |        \_- Save + authenticate
+   |
+   \_- Qwen OAuth
 ```
 
 ### Custom API Key state machine
 
 ```text
 api-key-type-select
-  │
-  └─ CUSTOM_API_KEY
-      │
-      ▼
+  |
+  \_- CUSTOM_API_KEY
+      |
+      
 custom-protocol-select
-      │ Enter
-      ▼
+      | Enter
+      
 custom-base-url-input
-      │ Enter
-      │ generate envKey from protocol + baseUrl
-      ▼
+      | Enter
+      | generate envKey from protocol + baseUrl
+      
 custom-api-key-input
-      │ Enter
-      ▼
+      | Enter
+      
 custom-model-id-input
-      │ Enter
-      ▼
+      | Enter
+      
 custom-review-json
-      │ Enter
-      ▼
+      | Enter
+      
 save settings + refreshAuth(selectedProtocol)
 ```
 
@@ -201,20 +201,20 @@ custom-protocol-select
 ### Step 1: Select Protocol
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│ Custom API Key · Select Protocol                             │
-│                                                              │
-│  ◉ OpenAI-compatible                                         │
-│    OpenAI, OpenRouter, Fireworks, vLLM, Ollama, LM Studio    │
-│                                                              │
-│  ○ Anthropic-compatible                                      │
-│    Anthropic-compatible endpoints                            │
-│                                                              │
-│  ○ Gemini-compatible                                         │
-│    Gemini-compatible endpoints                               │
-│                                                              │
-│ Enter to select, ↑↓ to navigate, Esc to go back              │
-└──────────────────────────────────────────────────────────────┘
++----------------------------------------------------------------+--
+| Custom API Key  Select Protocol                             |
+|                                                              |
+|   OpenAI-compatible                                         |
+|    OpenAI, OpenRouter, Fireworks, vLLM, Ollama, LM Studio    |
+|                                                              |
+|   Anthropic-compatible                                      |
+|    Anthropic-compatible endpoints                            |
+|                                                              |
+|   Gemini-compatible                                         |
+|    Gemini-compatible endpoints                               |
+|                                                              |
+| Enter to select,  to navigate, Esc to go back              |
+\_-----------------------------------------------------------------
 ```
 
 The selected protocol determines:
@@ -231,56 +231,56 @@ The selected protocol determines:
 For OpenAI-compatible:
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│ Custom API Key · Base URL                                    │
-│                                                              │
-│ Protocol: OpenAI-compatible                                  │
-│                                                              │
-│ Enter the OpenAI-compatible API endpoint.                    │
-│                                                              │
-│ Base URL: https://openrouter.ai/api/v1_                      │
-│                                                              │
-│ Examples:                                                    │
-│   OpenAI:      https://api.openai.com/v1                     │
-│   OpenRouter: https://openrouter.ai/api/v1                   │
-│   Fireworks:  https://api.fireworks.ai/inference/v1          │
-│   Ollama:     http://localhost:11434/v1                      │
-│   LM Studio:  http://localhost:1234/v1                       │
-│                                                              │
-│ Enter to continue, Esc to go back                            │
-└──────────────────────────────────────────────────────────────┘
++----------------------------------------------------------------+--
+| Custom API Key  Base URL                                    |
+|                                                              |
+| Protocol: OpenAI-compatible                                  |
+|                                                              |
+| Enter the OpenAI-compatible API endpoint.                    |
+|                                                              |
+| Base URL: https://openrouter.ai/api/v1_                      |
+|                                                              |
+| Examples:                                                    |
+|   OpenAI:      https://api.openai.com/v1                     |
+|   OpenRouter: https://openrouter.ai/api/v1                   |
+|   Fireworks:  https://api.fireworks.ai/inference/v1          |
+|   Ollama:     http://localhost:11434/v1                      |
+|   LM Studio:  http://localhost:1234/v1                       |
+|                                                              |
+| Enter to continue, Esc to go back                            |
+\_-----------------------------------------------------------------
 ```
 
 For Anthropic-compatible:
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│ Custom API Key · Base URL                                    │
-│                                                              │
-│ Protocol: Anthropic-compatible                               │
-│                                                              │
-│ Enter the Anthropic-compatible API endpoint.                 │
-│                                                              │
-│ Base URL: https://api.anthropic.com/v1_                      │
-│                                                              │
-│ Enter to continue, Esc to go back                            │
-└──────────────────────────────────────────────────────────────┘
++----------------------------------------------------------------+--
+| Custom API Key  Base URL                                    |
+|                                                              |
+| Protocol: Anthropic-compatible                               |
+|                                                              |
+| Enter the Anthropic-compatible API endpoint.                 |
+|                                                              |
+| Base URL: https://api.anthropic.com/v1_                      |
+|                                                              |
+| Enter to continue, Esc to go back                            |
+\_-----------------------------------------------------------------
 ```
 
 For Gemini-compatible:
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│ Custom API Key · Base URL                                    │
-│                                                              │
-│ Protocol: Gemini-compatible                                  │
-│                                                              │
-│ Enter the Gemini-compatible API endpoint.                    │
-│                                                              │
-│ Base URL: https://generativelanguage.googleapis.com_         │
-│                                                              │
-│ Enter to continue, Esc to go back                            │
-└──────────────────────────────────────────────────────────────┘
++----------------------------------------------------------------+--
+| Custom API Key  Base URL                                    |
+|                                                              |
+| Protocol: Gemini-compatible                                  |
+|                                                              |
+| Enter the Gemini-compatible API endpoint.                    |
+|                                                              |
+| Base URL: https://generativelanguage.googleapis.com_         |
+|                                                              |
+| Enter to continue, Esc to go back                            |
+\_-----------------------------------------------------------------
 ```
 
 Validation:
@@ -298,18 +298,18 @@ On valid submit:
 ### Step 3: Enter API Key
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│ Custom API Key · API Key                                     │
-│                                                              │
-│ Protocol: OpenAI-compatible                                  │
-│ Endpoint: https://openrouter.ai/api/v1                       │
-│                                                              │
-│ Enter the API key for this endpoint.                         │
-│                                                              │
-│ API key: sk-or-v1-••••••••••••••••_                          │
-│                                                              │
-│ Enter to continue, Esc to go back                            │
-└──────────────────────────────────────────────────────────────┘
++----------------------------------------------------------------+--
+| Custom API Key  API Key                                     |
+|                                                              |
+| Protocol: OpenAI-compatible                                  |
+| Endpoint: https://openrouter.ai/api/v1                       |
+|                                                              |
+| Enter the API key for this endpoint.                         |
+|                                                              |
+| API key: sk-or-v1-_                          |
+|                                                              |
+| Enter to continue, Esc to go back                            |
+\_-----------------------------------------------------------------
 ```
 
 Validation:
@@ -325,18 +325,18 @@ Notes:
 ### Step 4: Enter Model IDs
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│ Custom API Key · Model IDs                                   │
-│                                                              │
-│ Protocol: OpenAI-compatible                                  │
-│ Endpoint: https://openrouter.ai/api/v1                       │
-│                                                              │
-│ Enter one or more model IDs, separated by commas.            │
-│                                                              │
-│ Model IDs: qwen/qwen3-coder,openai/gpt-4.1_                  │
-│                                                              │
-│ Enter to continue, Esc to go back                            │
-└──────────────────────────────────────────────────────────────┘
++----------------------------------------------------------------+--
+| Custom API Key  Model IDs                                   |
+|                                                              |
+| Protocol: OpenAI-compatible                                  |
+| Endpoint: https://openrouter.ai/api/v1                       |
+|                                                              |
+| Enter one or more model IDs, separated by commas.            |
+|                                                              |
+| Model IDs: qwen/qwen3-coder,openai/gpt-4.1_                  |
+|                                                              |
+| Enter to continue, Esc to go back                            |
+\_-----------------------------------------------------------------
 ```
 
 Validation:
@@ -370,38 +370,38 @@ Before saving, show the generated JSON snippet that will be written or merged in
 OpenAI-compatible example:
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│ Custom API Key · Review                                      │
-│                                                              │
-│ The following JSON will be saved to settings.json:           │
-│                                                              │
-│ {                                                            │
-│   "env": {                                                   │
-│     "QWEN_CUSTOM_API_KEY_OPENAI_HTTPS_OPENROUTER_AI_API_V1":│
-│       "sk-••••••••••••••••"                                  │
-│   },                                                         │
-│   "modelProviders": {                                        │
-│     "openai": [                                              │
-│       {                                                      │
-│         "id": "qwen/qwen3-coder",                           │
-│         "name": "qwen/qwen3-coder",                         │
-│         "baseUrl": "https://openrouter.ai/api/v1",          │
-│         "envKey": "QWEN_CUSTOM_API_KEY_OPENAI_HTTPS_OPENROUTER_AI_API_V1"│
-│       }                                                      │
-│     ]                                                        │
-│   },                                                         │
-│   "security": {                                              │
-│     "auth": {                                                │
-│       "selectedType": "openai"                              │
-│     }                                                        │
-│   },                                                         │
-│   "model": {                                                 │
-│     "name": "qwen/qwen3-coder"                              │
-│   }                                                          │
-│ }                                                            │
-│                                                              │
-│ Enter to save, Esc to go back                                │
-└──────────────────────────────────────────────────────────────┘
++----------------------------------------------------------------+--
+| Custom API Key  Review                                      |
+|                                                              |
+| The following JSON will be saved to settings.json:           |
+|                                                              |
+| {                                                            |
+|   "env": {                                                   |
+|     "QWEN_CUSTOM_API_KEY_OPENAI_HTTPS_OPENROUTER_AI_API_V1":|
+|       "sk-"                                  |
+|   },                                                         |
+|   "modelProviders": {                                        |
+|     "openai": [                                              |
+|       {                                                      |
+|         "id": "qwen/qwen3-coder",                           |
+|         "name": "qwen/qwen3-coder",                         |
+|         "baseUrl": "https://openrouter.ai/api/v1",          |
+|         "envKey": "QWEN_CUSTOM_API_KEY_OPENAI_HTTPS_OPENROUTER_AI_API_V1"|
+|       }                                                      |
+|     ]                                                        |
+|   },                                                         |
+|   "security": {                                              |
+|     "auth": {                                                |
+|       "selectedType": "openai"                              |
+|     }                                                        |
+|   },                                                         |
+|   "model": {                                                 |
+|     "name": "qwen/qwen3-coder"                              |
+|   }                                                          |
+| }                                                            |
+|                                                              |
+| Enter to save, Esc to go back                                |
+\_-----------------------------------------------------------------
 ```
 
 Anthropic-compatible example:
@@ -409,7 +409,7 @@ Anthropic-compatible example:
 ```json
 {
   "env": {
-    "QWEN_CUSTOM_API_KEY_ANTHROPIC_HTTPS_API_ANTHROPIC_COM_V1": "sk-••••"
+    "QWEN_CUSTOM_API_KEY_ANTHROPIC_HTTPS_API_ANTHROPIC_COM_V1": "sk-"
   },
   "modelProviders": {
     "anthropic": [

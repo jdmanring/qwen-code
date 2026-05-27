@@ -218,7 +218,7 @@ describe('<ModelDialog />', () => {
 
     await childOnSelect(`${AuthType.QWEN_OAUTH}::${DEFAULT_QWEN_MODEL}`);
 
-    // qwen-oauth is discontinued — switchModel should NOT be called
+    // qwen-oauth is discontinued -- switchModel should NOT be called
     expect(mockConfig?.switchModel).not.toHaveBeenCalled();
     // Dialog should NOT close (user stays in the dialog to see the error)
     expect(props.onClose).not.toHaveBeenCalled();
@@ -327,7 +327,7 @@ describe('<ModelDialog />', () => {
   it('highlights the cross-auth row for a bare fast-model setting', () => {
     // `/model --fast deepseek-v4-flash` validates across all providers and
     // persists the bare model id. When the dialog re-opens, it must locate
-    // the right row even though the setting carries no authType prefix —
+    // the right row even though the setting carries no authType prefix --
     // otherwise the highlight falls back to the current auth's first row
     // and Enter would silently overwrite the setting.
     const mockSettings = {
@@ -426,7 +426,7 @@ describe('<ModelDialog />', () => {
     const childOnSelect = mockedSelect.mock.calls[0][0].onSelect;
     await childOnSelect(`${AuthType.QWEN_OAUTH}::${DEFAULT_QWEN_MODEL}`);
 
-    // qwen-oauth is discontinued — switchModel should NOT be called
+    // qwen-oauth is discontinued -- switchModel should NOT be called
     expect(switchModel).not.toHaveBeenCalled();
     // Dialog should NOT close
     expect(props.onClose).not.toHaveBeenCalled();

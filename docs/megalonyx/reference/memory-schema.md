@@ -1,4 +1,4 @@
-# 📋 Memory Record Schema
+#  Memory Record Schema
 
 This document defines the structure of the data stored within the Mega Code memory system. Adherence to this schema ensures consistency across local and cloud tiers and enables safe schema evolution.
 

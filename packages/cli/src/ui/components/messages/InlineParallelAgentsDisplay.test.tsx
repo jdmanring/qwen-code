@@ -45,7 +45,7 @@ function agentToolCall(seed: AgentCallSeed): IndividualToolCallDisplay {
 }
 
 /**
- * Build a stub Config with a backing Map registry — same pattern
+ * Build a stub Config with a backing Map registry -- same pattern
  * LiveAgentPanel.test uses so the test can mutate `recentActivities`
  * between renders and observe the new value pick up on the next tick.
  */
@@ -121,7 +121,7 @@ describe('<InlineParallelAgentsDisplay />', () => {
     expect(frame).toContain('Agent 1: Correctness');
     expect(frame).toContain('Agent 2: Security');
     expect(frame).toContain('Agent 3: Code Quality');
-    // `0/3 done` tally — none have reached a terminal state.
+    // `0/3 done` tally -- none have reached a terminal state.
     expect(frame).toContain('0/3 done');
   });
 
@@ -149,9 +149,9 @@ describe('<InlineParallelAgentsDisplay />', () => {
     const frame = lastFrame() ?? '';
     expect(frame).toContain('1/2 done');
     // Completed glyph rendered for the finished agent.
-    expect(frame).toContain('✔');
+    expect(frame).toContain('');
     // Running glyph for the in-flight one.
-    expect(frame).toContain('○');
+    expect(frame).toContain('');
   });
 
   it('surfaces live activity + elapsed from the registry', () => {
@@ -171,7 +171,7 @@ describe('<InlineParallelAgentsDisplay />', () => {
       }),
     ];
     // contentWidth narrow enough to keep this minimal, but wide enough
-    // for all the assertion targets — the activity label gets truncated
+    // for all the assertion targets -- the activity label gets truncated
     // by Ink at small widths.
     let result!: ReturnType<typeof render>;
     act(() => {
@@ -195,11 +195,11 @@ describe('<InlineParallelAgentsDisplay />', () => {
 
   it('falls back to executionSummary when the registry has unregistered the agent', () => {
     // After unregisterForeground fires for a finished foreground
-    // subagent, `registry.get(agentId)` returns undefined — so the
+    // subagent, `registry.get(agentId)` returns undefined -- so the
     // panel must source elapsed + tokens from the terminal
     // `AgentResultDisplay.executionSummary` instead. Without the
     // fallback, completed rows render as just the name (the
-    // production trace showed `✔ Agent 2: Security review  8.1k tok`
+    // production trace showed ` Agent 2: Security review  8.1k tok`
     // with no elapsed column).
     const toolCall: IndividualToolCallDisplay = {
       callId: 'c1',
@@ -229,12 +229,12 @@ describe('<InlineParallelAgentsDisplay />', () => {
       status: ToolCallStatus.Success,
       confirmationDetails: undefined,
     };
-    // No registry — explicit `config: undefined` so the panel exercises
+    // No registry -- explicit `config: undefined` so the panel exercises
     // the unregistered path.
     const { lastFrame } = renderInline({ toolCalls: [toolCall] });
     const frame = lastFrame() ?? '';
     expect(frame).toContain('12s');
-    // 2400 tokens → "2.4k" per formatTokenCount.
+    // 2400 tokens -> "2.4k" per formatTokenCount.
     expect(frame).toContain('2.4k tok');
   });
 

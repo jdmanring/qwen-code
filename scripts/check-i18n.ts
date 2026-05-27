@@ -76,22 +76,22 @@ export function shouldWriteUnusedKeysJson(): boolean {
  *
  * Three categories of regressions we want to catch automatically:
  *   1. Variant Traditional characters that OpenCC s2t produces by default but
- *      Taiwan does not use as primary forms (e.g. 爲, 啓).
+ *      Taiwan does not use as primary forms (e.g. , ).
  *   2. Mainland-Chinese vocabulary whose characters are valid Traditional but
- *      the word itself is not used in Taiwan (e.g. 服務器, 菜單, 鏈接).
+ *      the word itself is not used in Taiwan (e.g. , , ).
  *   3. Pure Simplified Chinese characters that would only appear if OpenCC
- *      was not run at all (e.g. 为, 启, 链).
+ *      was not run at all (e.g. , , ).
  *
  * Deliberately excluded to avoid false positives:
- *   - 禁用 / 配置 / 設置 — standard in Taiwan.
- *   - 文件 — contextual (can legitimately mean "document").
- *   - 打開 — colloquially common in Taiwan even if 開啟 is preferred for UI.
- *   - Bare 鏈 — valid in 區塊鏈 etc.; only the bigram 鏈接 is flagged.
+ *   -  /  /  -- standard in Taiwan.
+ *   -  -- contextual (can legitimately mean "document").
+ *   -  -- colloquially common in Taiwan even if  is preferred for UI.
+ *   - Bare  -- valid in  etc.; only the bigram  is flagged.
  *
  * Known limitation: matching is plain substring (`includes()`) and does not
  * respect Chinese word boundaries. Bigram patterns can therefore false-positive
- * across compound-word boundaries — e.g. `區塊鏈接口` (= `區塊鏈` + `接口`)
- * contains the substring `鏈接` even though neither word is wrong. When this
+ * across compound-word boundaries -- e.g. `` (= `` + ``)
+ * contains the substring `` even though neither word is wrong. When this
  * happens, add the affected translation key to ZH_TW_ALLOWED_EXCEPTIONS below
  * with a brief justification, rather than weakening the pattern list.
  */
@@ -100,33 +100,33 @@ const ZH_TW_FORBIDDEN_PATTERNS_RAW: ReadonlyArray<{
   preferred: string;
 }> = [
   // Variant Traditional characters from OpenCC s2t output
-  { pattern: '爲', preferred: '為' },
-  { pattern: '啓', preferred: '啟' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '' },
   // Mainland-Chinese vocabulary (valid Traditional chars, wrong word for Taiwan)
-  { pattern: '曆史', preferred: '歷史' },
-  { pattern: '鏈接', preferred: '連結' },
-  { pattern: '菜單', preferred: '選單' },
-  { pattern: '服務器', preferred: '伺服器' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '' },
   // Same Mainland vocabulary written in Simplified form
-  { pattern: '菜单', preferred: '選單' },
-  { pattern: '服务器', preferred: '伺服器' },
-  { pattern: '链接', preferred: '連結' },
-  { pattern: '历史', preferred: '歷史' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '' },
   // Pure Simplified characters (no ambiguity with valid Traditional usage)
-  { pattern: '为', preferred: '為' },
-  { pattern: '启', preferred: '啟' },
-  { pattern: '历', preferred: '歷' },
-  { pattern: '链', preferred: '鏈/連' },
-  { pattern: '选', preferred: '選' },
-  { pattern: '删', preferred: '刪' },
-  { pattern: '扩', preferred: '擴' },
-  { pattern: '设', preferred: '設' },
-  { pattern: '详', preferred: '詳' },
-  { pattern: '认', preferred: '認' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '/' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '' },
+  { pattern: '', preferred: '' },
 ];
 
-// Sorted longest-first so that more specific patterns (e.g. `历史`) are matched
-// before their constituent characters (`历`), avoiding duplicate findings on
+// Sorted longest-first so that more specific patterns (e.g. ``) are matched
+// before their constituent characters (``), avoiding duplicate findings on
 // the same translation value.
 const ZH_TW_FORBIDDEN_PATTERNS = [...ZH_TW_FORBIDDEN_PATTERNS_RAW].sort(
   (a, b) => b.pattern.length - a.pattern.length,
@@ -135,14 +135,14 @@ const ZH_TW_FORBIDDEN_PATTERNS = [...ZH_TW_FORBIDDEN_PATTERNS_RAW].sort(
 /**
  * Translation keys whose zh-TW value is allowed to contain an otherwise
  * forbidden substring. Use this as an escape hatch when a legitimate
- * translation needs a normally-banned character or word — add the key here
+ * translation needs a normally-banned character or word -- add the key here
  * with a comment explaining why, instead of weakening the global pattern list.
  *
  * Example:
- *   'Open block explorer for {{address}}': '...區塊鏈瀏覽器...', // 區塊鏈 = blockchain
+ *   'Open block explorer for {{address}}': '......', //  = blockchain
  */
 const ZH_TW_ALLOWED_EXCEPTIONS: ReadonlySet<string> = new Set<string>([
-  // (empty — no legitimate exceptions today)
+  // (empty -- no legitimate exceptions today)
 ]);
 
 /**
@@ -598,7 +598,7 @@ export function printCheckI18nResult(
   console.log();
 
   if (result.warnings.length > 0) {
-    console.log('⚠️  Warnings:');
+    console.log('  Warnings:');
     result.warnings.forEach((warning) => console.log(`  - ${warning}`));
 
     if (
@@ -621,7 +621,7 @@ export function printCheckI18nResult(
       result.stats.unusedKeysOnlyInLocales.length > 0
     ) {
       console.log(
-        '\n⚠️  The following keys exist ONLY in locale files and nowhere else in the codebase:',
+        '\n  The following keys exist ONLY in locale files and nowhere else in the codebase:',
       );
       console.log(
         '   Please review these keys - they might be safe to remove.',
@@ -657,13 +657,13 @@ async function main() {
   });
 
   if (result.errors.length > 0) {
-    console.log('❌ Errors:');
+    console.log(' Errors:');
     result.errors.forEach((error) => console.log(`  - ${error}`));
     console.log();
     process.exit(1);
   }
 
-  console.log('✅ All checks passed!\n');
+  console.log(' All checks passed!\n');
 }
 
 if (
@@ -671,7 +671,7 @@ if (
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
   main().catch((error) => {
-    console.error('❌ Fatal error:', error);
+    console.error(' Fatal error:', error);
     process.exit(1);
   });
 }

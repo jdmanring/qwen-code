@@ -43,7 +43,7 @@ describe('V3ToV4Migration', () => {
     // `gitCoAuthor` post-dates the V1 indicator-key list, so a settings
     // file that has ONLY this legacy boolean shape (no `$version`,
     // no other migration-triggering keys) wouldn't fire any earlier
-    // migration. The v3→v4 step must catch it directly so the dialog
+    // migration. The v3->v4 step must catch it directly so the dialog
     // doesn't silently overwrite the user's stored opt-out with the
     // schema defaults on next save.
     it('returns true for versionless settings with legacy boolean gitCoAuthor', () => {
@@ -60,7 +60,7 @@ describe('V3ToV4Migration', () => {
     });
 
     it('returns false for versionless settings with already-object gitCoAuthor', () => {
-      // User who hand-edited to the v4 shape — let the loader's
+      // User who hand-edited to the v4 shape -- let the loader's
       // version normalization handle it without rewriting.
       expect(
         migration.shouldMigrate({
@@ -73,7 +73,7 @@ describe('V3ToV4Migration', () => {
     // loader would stamp $version: 4 with `"off"` / `[]` / etc. left
     // on disk, and runtime normalization would silently re-enable
     // attribution. The migrate() body's drop-and-warn handles these
-    // — shouldMigrate has to fire so it gets a chance to run.
+    // -- shouldMigrate has to fire so it gets a chance to run.
     it.each([
       ['"off"', 'off'],
       ['empty array', []],
@@ -151,7 +151,7 @@ describe('V3ToV4Migration', () => {
     // String enable-intent forms map to {commit: true, pr: true};
     // disable-intent forms map to {commit: false, pr: false}; an
     // unrecognised string also defaults to disabled (safer-by-default
-    // — same contract as the runtime `pickBool`) but emits a warning.
+    // -- same contract as the runtime `pickBool`) but emits a warning.
     it.each([
       ['"true"', 'true', { commit: true, pr: true }, false],
       ['"yes"', 'yes', { commit: true, pr: true }, false],

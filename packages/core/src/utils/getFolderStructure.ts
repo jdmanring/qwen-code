@@ -231,7 +231,7 @@ function formatStructure(
   isProcessingRootNode: boolean,
   builder: string[],
 ): void {
-  const connector = isLastChildOfParent ? '└───' : '├───';
+  const connector = isLastChildOfParent ? '\_---' : '|-----';
 
   // The root node of the structure (the one passed initially to getFolderStructure)
   // is not printed with a connector line itself, only its name as a header.
@@ -248,7 +248,7 @@ function formatStructure(
   // Otherwise, children's indent extends from the current node's indent.
   const indentForChildren = isProcessingRootNode
     ? ''
-    : currentIndent + (isLastChildOfParent ? '    ' : '│   ');
+    : currentIndent + (isLastChildOfParent ? '    ' : '|   ');
 
   // Render files of the current node
   const fileCount = node.files.length;
@@ -257,13 +257,13 @@ function formatStructure(
       i === fileCount - 1 &&
       node.subFolders.length === 0 &&
       !node.hasMoreSubfolders;
-    const fileConnector = isLastFileAmongSiblings ? '└───' : '├───';
+    const fileConnector = isLastFileAmongSiblings ? '\_---' : '|-----';
     builder.push(`${indentForChildren}${fileConnector}${node.files[i]}`);
   }
   if (node.hasMoreFiles) {
     const isLastIndicatorAmongSiblings =
       node.subFolders.length === 0 && !node.hasMoreSubfolders;
-    const fileConnector = isLastIndicatorAmongSiblings ? '└───' : '├───';
+    const fileConnector = isLastIndicatorAmongSiblings ? '\_---' : '|-----';
     builder.push(`${indentForChildren}${fileConnector}${TRUNCATION_INDICATOR}`);
   }
 
@@ -282,7 +282,7 @@ function formatStructure(
     );
   }
   if (node.hasMoreSubfolders) {
-    builder.push(`${indentForChildren}└───${TRUNCATION_INDICATOR}`);
+    builder.push(`${indentForChildren}\_---${TRUNCATION_INDICATOR}`);
   }
 }
 

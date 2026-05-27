@@ -21,7 +21,7 @@ const debugLogger = createDebugLogger('WORKTREE_CLEANUP');
  *
  * Currently only the `agent-<7hex>` shape produced by
  * `AgentTool isolation:'worktree'` qualifies. User-named worktrees created
- * via `EnterWorktreeTool` are NEVER swept — they are managed manually via
+ * via `EnterWorktreeTool` are NEVER swept -- they are managed manually via
  * `ExitWorktreeTool`, and `validateUserWorktreeSlug` reserves the
  * `agent-` prefix so a user-named slug can never accidentally match
  * here.
@@ -51,7 +51,7 @@ function isEphemeralSlug(slug: string): boolean {
  * - Skips entries newer than {@link STALE_WORKTREE_CUTOFF_MS} (default 30 days).
  * - Skips entries with any uncommitted tracked changes.
  * - Skips entries with commits not reachable from the upstream remote.
- * - Any error reading git status / log → skip the entry (don't delete).
+ * - Any error reading git status / log -> skip the entry (don't delete).
  *
  * Returns the number of worktrees actually removed.
  */
@@ -98,22 +98,22 @@ export async function cleanupStaleAgentWorktrees(
       const stats = await fs.stat(worktreePath);
       mtimeMs = stats.mtimeMs;
     } catch (error) {
-      // Permission error / unmounted FS / EIO → skip this entry but
+      // Permission error / unmounted FS / EIO -> skip this entry but
       // log so an operator can correlate accumulating disk usage with
       // the stat failure that prevents reaping. ENOENT is the only
       // truly silent case (the entry vanished between readdir and
       // stat) and is also benign.
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
         debugLogger.warn(
-          `cleanupStaleAgentWorktrees: cannot stat ${worktreePath} — skipping: ${error}`,
+          `cleanupStaleAgentWorktrees: cannot stat ${worktreePath} -- skipping: ${error}`,
         );
       }
       continue;
     }
     if (mtimeMs >= cutoffDate) continue;
 
-    // Fail-closed: any sign of in-progress work or unmerged commits → keep.
-    // Run both checks concurrently — neither depends on the other and each
+    // Fail-closed: any sign of in-progress work or unmerged commits -> keep.
+    // Run both checks concurrently -- neither depends on the other and each
     // spawns its own git invocation.
     const [dirty, unmerged] = await Promise.all([
       hasTrackedChanges(worktreePath),
@@ -157,10 +157,10 @@ async function hasTrackedChanges(worktreePath: string): Promise<boolean> {
   try {
     const wtGit = simpleGit(worktreePath);
     // `git status --porcelain --untracked-files=no` lists every tracked
-    // change (staged, unstaged, conflicted — `UU` lines) and skips the
+    // change (staged, unstaged, conflicted -- `UU` lines) and skips the
     // untracked-file scan that simple-git's `status()` runs
     // unconditionally. Untracked files in a long-dead agent worktree
-    // are typically build artifacts, not user work — and the
+    // are typically build artifacts, not user work -- and the
     // untracked walk is the slowest part of `git status` on large
     // repos. The previous implementation manually enumerated
     // `status.staged/modified/...` which silently missed
@@ -178,7 +178,7 @@ async function hasTrackedChanges(worktreePath: string): Promise<boolean> {
     // unmounted filesystem leaves a breadcrumb instead of being
     // indistinguishable from "has real changes".
     debugLogger.warn(
-      `hasTrackedChanges: cannot inspect ${worktreePath} — assuming dirty: ${error}`,
+      `hasTrackedChanges: cannot inspect ${worktreePath} -- assuming dirty: ${error}`,
     );
     return true;
   }

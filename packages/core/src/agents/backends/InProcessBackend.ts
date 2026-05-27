@@ -5,7 +5,7 @@
  */
 
 /**
- * @fileoverview InProcessBackend — Backend implementation that runs agents
+ * @fileoverview InProcessBackend -- Backend implementation that runs agents
  * in the current process using AgentInteractive instead of PTY subprocesses.
  *
  * This enables Arena to work without tmux or any external terminal multiplexer.
@@ -52,7 +52,7 @@ export class InProcessBackend implements Backend {
   // dispose just that agent's registry (releasing tool listeners on
   // shared managers like SkillManager / SubagentManager) without
   // waiting for backend shutdown. The previous flat-array form leaked
-  // listeners — every spawn-then-stop cycle accumulated another stale
+  // listeners -- every spawn-then-stop cycle accumulated another stale
   // SkillTool listener on the parent SkillManager, and
   // `notifyChangeListeners` (now parallel via Promise.allSettled)
   // still pays a per-listener round trip even when the underlying
@@ -68,7 +68,7 @@ export class InProcessBackend implements Backend {
     this.runtimeContext = runtimeContext;
   }
 
-  // ─── Backend Interface ─────────────────────────────────────
+  // --- Backend Interface -------------------------------------
 
   async init(): Promise<void> {
     debugLogger.info('InProcessBackend initialized');
@@ -146,7 +146,7 @@ export class InProcessBackend implements Backend {
       const context = new ContextState();
       await interactive.start(context);
 
-      // Watch for completion and fire exit callback — but only for
+      // Watch for completion and fire exit callback -- but only for
       // truly terminal statuses. IDLE means the agent is still alive
       // and can accept follow-up messages.
       void interactive.waitForCompletion().then(() => {
@@ -179,8 +179,8 @@ export class InProcessBackend implements Backend {
       agent.abort();
       debugLogger.info(`Stopped agent: ${agentId}`);
     }
-    // Release this agent's per-agent tool registry — including its
-    // SkillTool's listener registration on the shared SkillManager —
+    // Release this agent's per-agent tool registry -- including its
+    // SkillTool's listener registration on the shared SkillManager --
     // immediately, instead of accumulating until backend cleanup() at
     // process exit. Fire-and-forget the async stop(); errors are
     // already logged inside.
@@ -269,7 +269,7 @@ export class InProcessBackend implements Backend {
     return result === 'done';
   }
 
-  // ─── Navigation ────────────────────────────────────────────
+  // --- Navigation --------------------------------------------
 
   switchTo(agentId: string): void {
     if (this.agents.has(agentId)) {
@@ -289,7 +289,7 @@ export class InProcessBackend implements Backend {
     return this.activeAgentId;
   }
 
-  // ─── Screen Capture (no-op for in-process) ─────────────────
+  // --- Screen Capture (no-op for in-process) -----------------
 
   getActiveSnapshot(): AnsiOutput | null {
     return null;
@@ -306,7 +306,7 @@ export class InProcessBackend implements Backend {
     return 0;
   }
 
-  // ─── Input ─────────────────────────────────────────────────
+  // --- Input -------------------------------------------------
 
   forwardInput(data: string): boolean {
     if (!this.activeAgentId) return false;
@@ -321,19 +321,19 @@ export class InProcessBackend implements Backend {
     return true;
   }
 
-  // ─── Resize (no-op) ───────────────────────────────────────
+  // --- Resize (no-op) ---------------------------------------
 
   resizeAll(_cols: number, _rows: number): void {
     // No terminals to resize in-process
   }
 
-  // ─── External Session ──────────────────────────────────────
+  // --- External Session --------------------------------------
 
   getAttachHint(): string | null {
     return null;
   }
 
-  // ─── Extra: Direct Access ──────────────────────────────────
+  // --- Extra: Direct Access ----------------------------------
 
   /**
    * Get an AgentInteractive instance by agent ID.
@@ -355,7 +355,7 @@ export class InProcessBackend implements Backend {
     return this.agentContentGenerators.get(agentId);
   }
 
-  // ─── Private ───────────────────────────────────────────────
+  // --- Private -----------------------------------------------
 
   private navigate(direction: 1 | -1): string | null {
     if (this.agentOrder.length === 0) return null;
@@ -375,10 +375,10 @@ export class InProcessBackend implements Backend {
  * Create a per-agent Config that delegates to the shared base Config but
  * overrides key methods to provide per-agent isolation:
  *
- * - `getWorkingDir()` / `getTargetDir()` → agent's worktree cwd
- * - `getWorkspaceContext()` → WorkspaceContext rooted at agent's cwd
- * - `getFileService()` → FileDiscoveryService rooted at agent's cwd
- * - `getToolRegistry()` → per-agent tool registry with core tools bound to
+ * - `getWorkingDir()` / `getTargetDir()` -> agent's worktree cwd
+ * - `getWorkspaceContext()` -> WorkspaceContext rooted at agent's cwd
+ * - `getFileService()` -> FileDiscoveryService rooted at agent's cwd
+ * - `getToolRegistry()` -> per-agent tool registry with core tools bound to
  *   the agent Config
  *
  * When `authOverrides` is provided, also returns a `runtimeView` describing

@@ -9,8 +9,8 @@ To ensure AI-optimality and token efficiency, the system uses a **Folder-per-Ent
 ### Skill Structure
 ```text
 config/skills/<skill-name>/
-├── <skill-name>.yaml   (Tool schema & trigger definitions)
-└── SKILL.md            (Detailed workflow & implementation guide)
+|---- <skill-name>.yaml   (Tool schema & trigger definitions)
+\_-- SKILL.md            (Detailed workflow & implementation guide)
 ```
 
 ---

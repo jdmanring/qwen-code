@@ -24,7 +24,7 @@ vi.mock('../../core/contentGenerator.js', () => ({
 // Mock AgentCore and AgentInteractive to avoid real model calls.
 // The mock must also expose the observable-state accessors that
 // AgentInteractive now delegates to (getMessages, pendingApprovals,
-// liveOutputs, shellPids, pushMessage, etc.) — otherwise agent lifecycle
+// liveOutputs, shellPids, pushMessage, etc.) -- otherwise agent lifecycle
 // methods like abort() / addMessage() fail on missing prototype methods.
 vi.mock('../runtime/agent-core.js', () => ({
   AgentCore: vi.fn().mockImplementation(() => {
@@ -82,7 +82,7 @@ vi.mock('../runtime/agent-core.js', () => ({
 }));
 
 // Mirrors the positional AgentCore constructor parameters so tests can
-// destructure by name instead of indexing — adding new parameters can't
+// destructure by name instead of indexing -- adding new parameters can't
 // silently shift assertions onto the wrong slot.
 function destructureAgentCoreCall(call: unknown[]) {
   return {
@@ -302,7 +302,7 @@ describe('InProcessBackend', () => {
   it('stopAgent on a non-existent id is a no-op (no throw, Map untouched)', async () => {
     // Defensive: if an upstream caller (e.g. SubagentManager) loses track
     // and asks to stop an unknown agent, we silently ignore rather than
-    // throwing — matches the behavior of `agents.get` returning undefined
+    // throwing -- matches the behavior of `agents.get` returning undefined
     // for the agent itself in the same method.
     await backend.init();
     await backend.spawnAgent(createSpawnConfig('agent-1'));
@@ -323,7 +323,7 @@ describe('InProcessBackend', () => {
     // don't leak past process exit.
     //
     // Build a config whose createToolRegistry returns a fresh mock per
-    // call — the shared `createMockConfig` returns the same singleton
+    // call -- the shared `createMockConfig` returns the same singleton
     // every spawn, which would conflate r1/r2 into a single instance and
     // make per-registry call counts ambiguous.
     const config = createMockConfig() as unknown as {
@@ -520,7 +520,7 @@ describe('InProcessBackend', () => {
     const exitCallback = vi.fn();
     backend.setOnAgentExit(exitCallback);
 
-    // spawnAgent should NOT throw — it catches the error internally
+    // spawnAgent should NOT throw -- it catches the error internally
     await expect(
       backend.spawnAgent(createSpawnConfig('agent-fail')),
     ).resolves.toBeUndefined();
@@ -583,7 +583,7 @@ describe('InProcessBackend', () => {
 
       const mockCreate = createContentGenerator as ReturnType<typeof vi.fn>;
       // Owner must be the per-agent override Config (the same instance
-      // AgentCore receives as runtimeContext) — NOT the parent. Asserting
+      // AgentCore receives as runtimeContext) -- NOT the parent. Asserting
       // that match exactly catches a regression where `base` slips in.
       const MockAgentCore = AgentCore as unknown as ReturnType<typeof vi.fn>;
       const { runtimeContext: agentContext } = destructureAgentCoreCall(
@@ -647,7 +647,7 @@ describe('InProcessBackend', () => {
         apiKey: 'bad-key',
       };
 
-      // Should not throw — falls back gracefully
+      // Should not throw -- falls back gracefully
       await expect(backend.spawnAgent(config)).resolves.toBeUndefined();
 
       const MockAgentCore = AgentCore as unknown as ReturnType<typeof vi.fn>;

@@ -59,7 +59,7 @@ export const skillsCommand: SlashCommand = {
     if (!skillName) {
       // listSkills() returns a stable name-asc order. `priority:` only
       // reorders the `/skills` listing, so apply the priority-desc,
-      // name-asc sort here at the display layer (unset/invalid → 0).
+      // name-asc sort here at the display layer (unset/invalid -> 0).
       const sortedSkills = [...skills].sort(
         (a, b) =>
           normalizeSkillPriority(b.priority) -

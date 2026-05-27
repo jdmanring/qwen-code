@@ -102,12 +102,12 @@ vi.mock('../tools/tool-registry', () => {
   ToolRegistryMock.prototype.getTool = vi.fn();
   ToolRegistryMock.prototype.getFunctionDeclarations = vi.fn(() => []);
   // PR 14b fix (codex round 4): per-instance manager stub so the
-  // `setMcpBudgetEventCallback → createToolRegistry → manager.setOnBudgetEvent`
+  // `setMcpBudgetEventCallback -> createToolRegistry -> manager.setOnBudgetEvent`
   // integration test can observe each instance's callback wiring.
   // The mock constructor stamps a fresh `__mcpManagerMock` onto each
   // ToolRegistry instance so tests can inspect it via
   // `(registry as unknown as { __mcpManagerMock }).__mcpManagerMock`
-  // (escape hatch — production code reads it via `getMcpClientManager`).
+  // (escape hatch -- production code reads it via `getMcpClientManager`).
   ToolRegistryMock.mockImplementation(function (this: {
     __mcpManagerMock: {
       setOnBudgetEvent: Mock;
@@ -420,7 +420,7 @@ describe('Server Config (config.ts)', () => {
     it('returns the same cache instance on repeated getter calls within one Config', () => {
       // Sanity: the lazy own-property initialization in
       // getFileReadCache() must not allocate a fresh cache on every
-      // call — recorded entries would vanish between operations.
+      // call -- recorded entries would vanish between operations.
       const config = new Config(baseParams);
       expect(config.getFileReadCache()).toBe(config.getFileReadCache());
     });
@@ -686,7 +686,7 @@ describe('Server Config (config.ts)', () => {
     });
 
     it('getFailedMcpServerNames skips disabled servers', () => {
-      // A user-disabled server is not "failed" — the user explicitly
+      // A user-disabled server is not "failed" -- the user explicitly
       // turned it off. Treating it as failed would generate noise on
       // every non-interactive run. Disablement is tracked via
       // `excludedMcpServers` (see `isMcpServerDisabled`).
@@ -1450,7 +1450,7 @@ describe('Server Config (config.ts)', () => {
     // inflate to `commit: true` (the previous "default-to-true on
     // mismatch" policy). Honor common string disable-intent forms
     // and fall through to disabled on genuinely unrecognisable
-    // input — safer-by-default than turning attribution on against
+    // input -- safer-by-default than turning attribution on against
     // the user's clear opt-out.
     it.each([
       // Disable-intent strings.
@@ -1473,7 +1473,7 @@ describe('Server Config (config.ts)', () => {
       ['null', null, false],
       ['object', {}, false],
       ['array', [], false],
-      // Unknown strings → disabled (don't quietly enable).
+      // Unknown strings -> disabled (don't quietly enable).
       ['unknown string', 'maybe', false],
     ])(
       'parses %s as %s for both commit and pr',
@@ -1659,7 +1659,7 @@ describe('Server Config (config.ts)', () => {
   });
 
   describe('OutboundCorrelation Configuration', () => {
-    // Default-to-false is security-relevant — controls whether
+    // Default-to-false is security-relevant -- controls whether
     // `traceparent` is written onto outbound LLM/fetch request streams.
     it.each<{
       label: string;
@@ -1792,7 +1792,7 @@ describe('Server Config (config.ts)', () => {
       // Bare mode strips the toolset to READ_FILE/EDIT/NOTEBOOK_EDIT/SHELL, but the
       // synthetic structured_output tool is the terminal contract for
       // --json-schema runs. Without it the model loops until
-      // maxSessionTurns and exits via the "plain text" failure path —
+      // maxSessionTurns and exits via the "plain text" failure path --
       // expensive in tokens for what's almost always a CI use case. The
       // synthetic tool must be registered alongside the bare toolset.
       const config = new Config({
@@ -1822,13 +1822,13 @@ describe('Server Config (config.ts)', () => {
     it('does NOT register structured_output when createToolRegistry is called with forSubAgent=true', async () => {
       // Subagent overrides reuse the parent Config via prototype
       // delegation (createApprovalModeOverride / buildSubagentContextOverride
-      // → Object.create(base)) and rebuild the tool registry with
+      // -> Object.create(base)) and rebuild the tool registry with
       // `forSubAgent: true`. Even though `this.jsonSchema` propagates
       // through the prototype chain, the synthetic tool MUST NOT register
       // in the subagent registry: only runNonInteractive's main / drain
       // loops detect a successful structured_output call as terminal, so
       // a subagent calling the tool would receive "Session will end now"
-      // and then keep running because its own loop has no terminator —
+      // and then keep running because its own loop has no terminator --
       // wasted tokens and no structured payload on stdout.
       const config = new Config({
         ...baseParams,
@@ -2150,14 +2150,14 @@ describe('Server Config (config.ts)', () => {
     });
   });
 
-  // PR 14b fix (codex round 4 — wenshao gpt-5.5 review): the
-  // `Config.setMcpBudgetEventCallback → pendingMcpBudgetCallback →
-  // createToolRegistry → registry.getMcpClientManager().setOnBudgetEvent`
+  // PR 14b fix (codex round 4 -- wenshao gpt-5.5 review): the
+  // `Config.setMcpBudgetEventCallback -> pendingMcpBudgetCallback ->
+  // createToolRegistry -> registry.getMcpClientManager().setOnBudgetEvent`
   // boundary previously had NO test. The acpAgent test stubs the
   // setter (proves QwenAgent calls it pre-`initialize`); the manager
   // tests bypass Config by passing `onBudgetEvent` directly to
   // `McpClientManager`. Neither covers the actual stash + apply path
-  // inside Config — and that path is the safety net that prevents
+  // inside Config -- and that path is the safety net that prevents
   // startup-window MCP guardrail events from being dropped under
   // legacy blocking discovery + closes the progressive-mode race
   // window. These two tests exercise both call orderings (pre-init
@@ -2166,7 +2166,7 @@ describe('Server Config (config.ts)', () => {
     it('applies pending callback when registry is created during initialize()', async () => {
       const config = new Config(baseParams);
       const cb = vi.fn();
-      // Setter called BEFORE initialize — value stashed on
+      // Setter called BEFORE initialize -- value stashed on
       // `pendingMcpBudgetCallback` and applied inside
       // `createToolRegistry` after the manager is constructed but
       // BEFORE `discoverAllTools` / background discovery fires.
@@ -2179,7 +2179,7 @@ describe('Server Config (config.ts)', () => {
       expect(registry.__mcpManagerMock.setOnBudgetEvent).toHaveBeenCalledWith(
         cb,
       );
-      // Exactly once — the apply path fires only once per
+      // Exactly once -- the apply path fires only once per
       // `createToolRegistry` invocation.
       expect(
         registry.__mcpManagerMock.setOnBudgetEvent.mock.calls,
@@ -2188,7 +2188,7 @@ describe('Server Config (config.ts)', () => {
 
     it('applies callback directly to existing manager when called after initialize()', async () => {
       const config = new Config(baseParams);
-      // Initialize WITHOUT a pending callback first — the
+      // Initialize WITHOUT a pending callback first -- the
       // createToolRegistry apply branch is a no-op.
       await config.initialize();
       const registry = config.getToolRegistry() as unknown as {
@@ -2217,7 +2217,7 @@ describe('Server Config (config.ts)', () => {
       ).toHaveBeenLastCalledWith(undefined);
     });
 
-    it('does NOT stash the callback when called after initialize() (codex round 7 fix — subagent isolation)', async () => {
+    it('does NOT stash the callback when called after initialize() (codex round 7 fix -- subagent isolation)', async () => {
       // Codex round 7 finding: pre-fix, the late-call path assigned
       // to `pendingMcpBudgetCallback` BEFORE applying directly to
       // the existing manager. A subsequent `createToolRegistry`
@@ -2230,7 +2230,7 @@ describe('Server Config (config.ts)', () => {
       // Fix: late-call path applies directly + sets
       // `pendingMcpBudgetCallback = undefined`. Pre-init path still
       // stashes (the only way to reach a manager that doesn't
-      // exist yet — round 1 fix #2 contract).
+      // exist yet -- round 1 fix #2 contract).
       const config = new Config(baseParams);
       await config.initialize();
       const registry = config.getToolRegistry() as unknown as {
@@ -2246,7 +2246,7 @@ describe('Server Config (config.ts)', () => {
 
       // Now rebuild a registry as if for a subagent override. With
       // the round-7 fix, the new manager should NOT receive the
-      // parent session's callback — pre-fix this would re-apply
+      // parent session's callback -- pre-fix this would re-apply
       // `cb` to the new manager.
       const subagentRegistry = (await config.createToolRegistry(undefined, {
         skipDiscovery: true,
@@ -2431,7 +2431,7 @@ describe('setApprovalMode with folder trust', () => {
       };
       config.setAutoModeDenialState(populated);
 
-      // No-op mode set — state should be preserved.
+      // No-op mode set -- state should be preserved.
       config.setApprovalMode(ApprovalMode.AUTO);
       expect(config.getAutoModeDenialState()).toEqual(populated);
     });
@@ -3367,7 +3367,7 @@ describe('Model Switching and Config Updates', () => {
 
   describe('chatCompression.contextPercentageThreshold deprecation', () => {
     // The proportional-threshold knob `contextPercentageThreshold` was
-    // removed in the auto-compaction threshold redesign (Task 8) — the
+    // removed in the auto-compaction threshold redesign (Task 8) -- the
     // value is now derived from `computeThresholds(...)` in the
     // ChatCompressionService and is no longer user-tunable. Existing
     // settings.json files that still set the field should keep working

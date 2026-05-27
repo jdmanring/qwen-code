@@ -1,8 +1,8 @@
-# 🧠 Model Strategy: The Tiered Reasoning Engine
+#  Model Strategy: The Tiered Reasoning Engine
 
 This document describes the model hierarchy and routing strategy used by the Runtime Stack to balance deep architectural reasoning with high-throughput execution.
 
-## ⚖️ Tiered Model Architecture
+##  Tiered Model Architecture
 
 The system employs a dual-track model strategy to optimize for both quality and latency.
 
@@ -26,7 +26,7 @@ The system employs a dual-track model strategy to optimize for both quality and 
 
 ---
 
-## 🚦 Routing & Selection Logic
+##  Routing & Selection Logic
 
 The system does not use a single model for all tasks. Instead, it uses a dynamic routing mechanism.
 
@@ -44,7 +44,7 @@ To ensure system resilience, `skill_bridge.py` implements a `FALLBACK_MODELS` ma
 
 ---
 
-## ⚙️ Configuration Mapping
+##  Configuration Mapping
 
 | Setting | Location | Description |
 | :--- | :--- | :--- |

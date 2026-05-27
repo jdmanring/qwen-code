@@ -84,7 +84,7 @@ describe('toolHookTriggers', () => {
       // #4321 review-9: pin the `||` (not `??`) semantics. A future
       // regression back to `??` would preserve `hookError: ""` here
       // which downstream `r.hookError ? ...` truthiness then silently
-      // drops — same allow-without-telemetry pathology SF-H1 closed.
+      // drops -- same allow-without-telemetry pathology SF-H1 closed.
       const mockMessageBus = createMockMessageBus();
       (mockMessageBus.request as ReturnType<typeof vi.fn>).mockResolvedValue({
         success: false,
@@ -285,13 +285,13 @@ describe('toolHookTriggers', () => {
         'auto',
       );
 
-      // #4321 review-7 SF-H1 — see firePreToolUseHook counterpart.
+      // #4321 review-7 SF-H1 -- see firePreToolUseHook counterpart.
       expect(result.shouldStop).toBe(false);
       expect(result.hookError).toMatch(/success: false/);
     });
 
     it('synthesizes sentinel hookError when runner returns empty-string error message (#4321)', async () => {
-      // #4321 review-9 — see firePreToolUseHook counterpart.
+      // #4321 review-9 -- see firePreToolUseHook counterpart.
       const mockMessageBus = createMockMessageBus();
       (mockMessageBus.request as ReturnType<typeof vi.fn>).mockResolvedValue({
         success: false,
@@ -432,12 +432,12 @@ describe('toolHookTriggers', () => {
         'error message',
       );
 
-      // #4321 review-7 SF-H1 — see firePreToolUseHook counterpart.
+      // #4321 review-7 SF-H1 -- see firePreToolUseHook counterpart.
       expect(result.hookError).toMatch(/success: false/);
     });
 
     it('synthesizes sentinel hookError when runner returns empty-string error message (#4321)', async () => {
-      // #4321 review-9 — see firePreToolUseHook counterpart.
+      // #4321 review-9 -- see firePreToolUseHook counterpart.
       const mockMessageBus = createMockMessageBus();
       (mockMessageBus.request as ReturnType<typeof vi.fn>).mockResolvedValue({
         success: false,
@@ -550,7 +550,7 @@ describe('toolHookTriggers', () => {
       // Regression: `ReadFile` returns `{ inlineData: {...} }` for images
       // and PDFs (a single Part, not an array). The previous "return
       // content unchanged" silently dropped any hook-injected reminder
-      // — including the path-conditional skill activation `<system-reminder>`
+      // -- including the path-conditional skill activation `<system-reminder>`
       // and the ConditionalRulesRegistry rule injection. Wrap into an array
       // so the additional context lands.
       const originalContent = {

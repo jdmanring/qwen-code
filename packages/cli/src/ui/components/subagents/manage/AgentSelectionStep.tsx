@@ -321,7 +321,7 @@ export const AgentSelectionStep = ({
       <Box key={`${agent.name}-${agent.level}`} alignItems="center">
         <Box minWidth={2} flexShrink={0}>
           <Text color={isSelected ? theme.text.accent : theme.text.primary}>
-            {isSelected ? '●' : ' '}
+            {isSelected ? '' : ' '}
           </Text>
         </Box>
         <Text color={textColor} wrap="truncate">

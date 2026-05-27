@@ -61,9 +61,9 @@ describe('MCP utils', () => {
 
   describe('getStatusIcon', () => {
     it('should return correct icons for each status', () => {
-      expect(getStatusIcon(MCPServerStatus.CONNECTED)).toBe('✓');
-      expect(getStatusIcon(MCPServerStatus.CONNECTING)).toBe('…');
-      expect(getStatusIcon(MCPServerStatus.DISCONNECTED)).toBe('✗');
+      expect(getStatusIcon(MCPServerStatus.CONNECTED)).toBe('');
+      expect(getStatusIcon(MCPServerStatus.CONNECTING)).toBe('...');
+      expect(getStatusIcon(MCPServerStatus.DISCONNECTED)).toBe('');
       expect(getStatusIcon('unknown' as MCPServerStatus)).toBe('?');
     });
   });

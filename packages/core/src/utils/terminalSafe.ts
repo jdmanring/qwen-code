@@ -26,15 +26,15 @@ export const TERMINAL_SHIFT_DCS_REGEX = /\x1b[NOP]/g;
  * or injecting OSC-8 hyperlinks.
  *
  * Covers:
- * - OSC sequences (`\x1b]...\x07` or `\x1b]...\x1b\\`) — handled as whole
+ * - OSC sequences (`\x1b]...\x07` or `\x1b]...\x1b\\`) -- handled as whole
  *   units so the ST/BEL terminator is also stripped.
- * - CSI sequences (`\x1b[...<letter>`) — the common "cursor/color/erase"
+ * - CSI sequences (`\x1b[...<letter>`) -- the common "cursor/color/erase"
  *   family.
  * - SS2/SS3 / DCS leaders (`\x1b[NOP]`).
  * - Any remaining C0 controls + DEL + C1 controls (`0x80-0x9F`, e.g.
  *   single-byte CSI `0x9B`, DCS `0x90`, ST `0x9C`), flattened to a space.
  *   This backstop means a bare `\x1b` that wasn't part of a recognized
- *   sequence still can't execute — and 8-bit terminals can't interpret
+ *   sequence still can't execute -- and 8-bit terminals can't interpret
  *   the C1 codes that some legacy shells still honor.
  *
  * Used for LLM-returned text that ends up in the session picker (titles);

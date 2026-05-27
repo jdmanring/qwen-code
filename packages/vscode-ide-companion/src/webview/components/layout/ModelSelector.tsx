@@ -174,7 +174,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
               '1px solid var(--vscode-inputValidation-warningBorder, transparent)',
           }}
         >
-          <span aria-hidden="true">⚠ </span>
+          <span aria-hidden="true"> </span>
           {blockedMessage}
         </div>
       )}

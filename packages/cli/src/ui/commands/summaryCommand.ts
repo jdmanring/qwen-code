@@ -205,7 +205,7 @@ export const summaryCommand: SlashCommand = {
       if (executionMode !== 'interactive') {
         return;
       }
-      // If cancelled via ESC, don't show error — cancelSlashCommand already handled UI
+      // If cancelled via ESC, don't show error -- cancelSlashCommand already handled UI
       if (abortSignal?.aborted) {
         return;
       }
@@ -213,7 +213,7 @@ export const summaryCommand: SlashCommand = {
       ui.addItem(
         {
           type: 'error' as const,
-          text: `❌ ${formatErrorMessage(error)}`,
+          text: ` ${formatErrorMessage(error)}`,
         },
         Date.now(),
       );

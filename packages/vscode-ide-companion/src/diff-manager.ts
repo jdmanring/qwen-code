@@ -131,7 +131,7 @@ export class DiffManager {
         const rightDocUri = diffInfo.rightDocUri;
         const leftDocUri = diffInfo.leftDocUri;
 
-        const diffTitle = `${path.basename(filePath)} (Before ↔ After)`;
+        const diffTitle = `${path.basename(filePath)} (Before <-> After)`;
 
         try {
           await vscode.commands.executeCommand(
@@ -215,7 +215,7 @@ export class DiffManager {
       rightDocUri,
     });
 
-    const diffTitle = `${path.basename(normalizedPath)} (Before ↔ After)`;
+    const diffTitle = `${path.basename(normalizedPath)} (Before <-> After)`;
     await vscode.commands.executeCommand(
       'setContext',
       'qwen.diff.isVisible',

@@ -120,7 +120,7 @@ describe('parseDeletedFromNameStatus', () => {
 
   it('skips both halves of rename and copy entries', () => {
     // Renames/copies span three tokens: `R<score>\0<old>\0<new>\0`. Neither
-    // path is "deleted" in the user sense — the file still exists under
+    // path is "deleted" in the user sense -- the file still exists under
     // the new name.
     const out =
       'R100\0old.txt\0new.txt\0' + 'C75\0src.txt\0copy.txt\0' + 'D\0gone.txt\0';
@@ -128,10 +128,10 @@ describe('parseDeletedFromNameStatus', () => {
   });
 
   it('preserves NUL-safe paths (tabs, non-ASCII)', () => {
-    // -z keeps raw bytes — same guarantee as the numstat path.
-    const out = 'D\0tab\there.txt\0D\0日本語.txt\0';
+    // -z keeps raw bytes -- same guarantee as the numstat path.
+    const out = 'D\0tab\there.txt\0D\0.txt\0';
     expect(parseDeletedFromNameStatus(out)).toEqual(
-      new Set(['tab\there.txt', '日本語.txt']),
+      new Set(['tab\there.txt', '.txt']),
     );
   });
 
@@ -283,7 +283,7 @@ describe('fetchGitDiff', () => {
     await git(repo, 'add', '.');
     await git(repo, 'commit', '-q', '-m', 'init');
 
-    // Write a 1.5 MB text file — larger than UNTRACKED_READ_CAP_BYTES (1 MB),
+    // Write a 1.5 MB text file -- larger than UNTRACKED_READ_CAP_BYTES (1 MB),
     // so the counter can only see part of the lines. The flag lets the UI
     // mark `+N` as a lower bound instead of silently under-reporting.
     const line = 'a'.repeat(99) + '\n'; // 100 bytes per line
@@ -408,7 +408,7 @@ describe('fetchGitDiffHunks', () => {
 
   it('keys hunks by the real path for files with tabs in the name (C-quoted in diff output)', async () => {
     // Real git output for a tracked file named `tab\there.txt` looks like
-    // `+++ "b/tab\there.txt"` even with `core.quotepath=false` — C-quoting
+    // `+++ "b/tab\there.txt"` even with `core.quotepath=false` -- C-quoting
     // for tabs/newlines/quotes is independent of that config. Without the
     // unquote step in `extractFilePath`, fetchGitDiffHunks would silently
     // drop the file's hunks.
@@ -484,7 +484,7 @@ index 1111111..2222222 100644
   it('decodes octal escapes in quoted paths (legacy quotepath=true output)', () => {
     // Even with `core.quotepath=false` set on our git invocations, callers
     // could feed us output produced by a different command. \346\226\207
-    // is the UTF-8 byte sequence for `文`.
+    // is the UTF-8 byte sequence for ``.
     const diff = `diff --git "a/\\346\\226\\207.txt" "b/\\346\\226\\207.txt"
 index 1111111..2222222 100644
 --- "a/\\346\\226\\207.txt"
@@ -494,25 +494,25 @@ index 1111111..2222222 100644
 +y
 `;
     const result = parseGitDiff(diff);
-    expect([...result.keys()]).toEqual(['文.txt']);
+    expect([...result.keys()]).toEqual(['.txt']);
   });
 
   it('preserves non-BMP code points in quoted paths instead of splitting surrogates', () => {
     // Reproduces wenshao Critical (PR #3491 line 504): the previous walker
     // advanced one UTF-16 code unit at a time, so a non-BMP codepoint such
-    // as the rocket emoji 🚀 (U+1F680) coexisting with a forced-quoting byte
-    // (here a TAB) was decoded as two lone surrogates → two replacement
+    // as the rocket emoji  (U+1F680) coexisting with a forced-quoting byte
+    // (here a TAB) was decoded as two lone surrogates -> two replacement
     // characters, corrupting the hunk key.
-    const diff = `diff --git "a/\\t🚀.txt" "b/\\t🚀.txt"
+    const diff = `diff --git "a/\\t.txt" "b/\\t.txt"
 index 1111111..2222222 100644
---- "a/\\t🚀.txt"
-+++ "b/\\t🚀.txt"
+--- "a/\\t.txt"
++++ "b/\\t.txt"
 @@ -1 +1 @@
 -x
 +y
 `;
     const result = parseGitDiff(diff);
-    expect([...result.keys()]).toEqual(['\t🚀.txt']);
+    expect([...result.keys()]).toEqual(['\t.txt']);
   });
 
   it('decodes the remaining C-style escapes (\\a, \\b, \\f, \\v)', () => {
@@ -563,7 +563,7 @@ describe('parseGitDiff path disambiguation', () => {
   it('keys hunks by the real path when the filename contains " b/"', () => {
     // `a b/c.txt` produces `diff --git a/a b/c.txt b/a b/c.txt`, which is
     // ambiguous to split on ` b/`. Git appends a TAB on the `---`/`+++` lines
-    // when the path contains whitespace — that's the unambiguous anchor.
+    // when the path contains whitespace -- that's the unambiguous anchor.
     const diff = `diff --git a/a b/c.txt b/a b/c.txt
 index 111..222 100644
 --- a/a b/c.txt\t
@@ -583,7 +583,7 @@ similarity index 100%
 rename from old name.txt
 rename to renamed name.txt
 `;
-    // No hunks — nothing to key — but the extractor should still not confuse
+    // No hunks -- nothing to key -- but the extractor should still not confuse
     // paths. The file block is dropped because there are no `@@` lines, which
     // is the existing behavior for mode-only / rename-only changes.
     const result = parseGitDiff(diff);
@@ -837,7 +837,7 @@ describe('fetchGitDiff non-ASCII filenames', () => {
   it('does not octal-escape UTF-8 filenames via core.quotepath', async () => {
     const repo = await makeRepo();
     try {
-      const fname = '日本語.txt';
+      const fname = '.txt';
       await fs.writeFile(path.join(repo, fname), 'alpha\n');
       await git(repo, 'add', '.');
       await git(repo, 'commit', '-q', '-m', 'init');
@@ -878,7 +878,7 @@ describe('fetchGitDiff untracked with special filenames', () => {
       try {
         await fs.writeFile(path.join(repo, weirdName), 'content\n');
       } catch {
-        // Filesystem refused newline in name — nothing to assert here.
+        // Filesystem refused newline in name -- nothing to assert here.
         return;
       }
 
@@ -1031,14 +1031,14 @@ describe('fetchGitDiffHunks ignores external diff drivers', () => {
         else process.env['GIT_EXTERNAL_DIFF'] = prev;
       }
 
-      // The sentinel must NOT exist — `--no-ext-diff` should have stopped
+      // The sentinel must NOT exist -- `--no-ext-diff` should have stopped
       // git from running the driver.
       let driverFired = false;
       try {
         await fs.stat(sentinel);
         driverFired = true;
       } catch {
-        // ENOENT — driver never ran. Expected.
+        // ENOENT -- driver never ran. Expected.
       }
       expect(driverFired).toBe(false);
     } finally {
@@ -1098,7 +1098,7 @@ describe('fetchGitDiffHunks ignores external diff drivers', () => {
         await fs.stat(sentinel);
         driverFired = true;
       } catch {
-        // ENOENT — driver never ran. Expected.
+        // ENOENT -- driver never ran. Expected.
       }
       expect(driverFired).toBe(false);
     } finally {
@@ -1166,7 +1166,7 @@ describe('fetchGitDiff special filetypes among untracked files', () => {
   it('marks untracked symlinks as binary and never follows them', async () => {
     // Reproduces wenshao Critical (PR #3491 line 455): without an lstat
     // gate, `open()` would dereference an untracked symlink and read its
-    // target — which can live outside the worktree.
+    // target -- which can live outside the worktree.
     const repo = await fs.mkdtemp(path.join(os.tmpdir(), 'qwen-gitdiff-lnk-'));
     try {
       await execFileAsync('git', ['init', '-q', '-b', 'main'], { cwd: repo });
@@ -1226,7 +1226,7 @@ describe('fetchGitDiff untracked counting', () => {
   it('aggregates untracked line counts into linesAdded even when the per-file map is full of tracked entries', async () => {
     // Seed MAX_FILES tracked files, then modify them so the per-file map
     // saturates with tracked entries. Add a handful of untracked files that
-    // would otherwise be cut out of the display slots — their line counts
+    // would otherwise be cut out of the display slots -- their line counts
     // still need to land in `stats.linesAdded`.
     for (let i = 0; i < MAX_FILES; i++) {
       await fs.writeFile(path.join(repo, `t${i}.txt`), `hello${i}\n`);
@@ -1236,7 +1236,7 @@ describe('fetchGitDiff untracked counting', () => {
     for (let i = 0; i < MAX_FILES; i++) {
       await fs.writeFile(path.join(repo, `t${i}.txt`), `HELLO${i}\n`);
     }
-    // Each untracked file has 3 lines; 5 files × 3 = 15 lines we must keep.
+    // Each untracked file has 3 lines; 5 files * 3 = 15 lines we must keep.
     const untrackedCount = 5;
     const linesPerFile = 3;
     for (let i = 0; i < untrackedCount; i++) {
@@ -1246,11 +1246,11 @@ describe('fetchGitDiff untracked counting', () => {
     const result = await fetchGitDiff(repo);
     expect(result).not.toBeNull();
     expect(result!.stats.filesCount).toBe(MAX_FILES + untrackedCount);
-    // Per-file map is still capped — none of the u* entries will be visible
+    // Per-file map is still capped -- none of the u* entries will be visible
     // because the t* entries filled every slot. But the totals must still
     // include the untracked additions.
     expect(result!.perFileStats.size).toBe(MAX_FILES);
-    const trackedLinesAdded = MAX_FILES; // each t* gained 1 char → numstat 1/1
+    const trackedLinesAdded = MAX_FILES; // each t* gained 1 char -> numstat 1/1
     expect(result!.stats.linesAdded).toBe(
       trackedLinesAdded + untrackedCount * linesPerFile,
     );
@@ -1289,7 +1289,7 @@ describe('fetchGitDiff untracked counting', () => {
     const totalUntracked = MAX_FILES + extra;
     for (let i = 0; i < totalUntracked; i++) {
       // Padded filenames so `ls-files --others` returns them in stable
-      // order — otherwise the "first MAX_FILES" slicing in the bug case
+      // order -- otherwise the "first MAX_FILES" slicing in the bug case
       // could randomly cover the test files.
       const name = `u${String(i).padStart(3, '0')}.txt`;
       await fs.writeFile(path.join(repo, name), 'one-line\n');

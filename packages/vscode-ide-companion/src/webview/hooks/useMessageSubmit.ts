@@ -105,7 +105,7 @@ export const useMessageSubmit = ({
         return;
       }
 
-      // Handle /auth (and its legacy alias /login) — trigger interactive
+      // Handle /auth (and its legacy alias /login) -- trigger interactive
       // auth flow directly in the extension instead of sending the command
       // to the agent.
       const trimmedInput = textToSend.trim();

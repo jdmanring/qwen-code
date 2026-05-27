@@ -16,7 +16,7 @@ import {
 const debugLogger = createDebugLogger('DiffDialog');
 
 export interface CurrentDiffData {
-  /** `null` ⇒ not a git repo / HEAD missing / mid-rebase / etc. */
+  /** `null`  not a git repo / HEAD missing / mid-rebase / etc. */
   result: GitDiffResult | null;
   hunks: Map<string, Hunk[]>;
   loading: boolean;
@@ -25,13 +25,13 @@ export interface CurrentDiffData {
 /**
  * Loads "working tree vs HEAD" stats and hunks **once at mount**. Mirrors
  * the data shape `fetchGitDiff` already returns so renderers can be
- * driven from a single contract — see `DiffDialog`.
+ * driven from a single contract -- see `DiffDialog`.
  *
  * Snapshot semantics: the dialog's "Current" tab reflects the state at
  * the moment `/diff` was opened, not the live worktree. Re-fetching on
  * every render would flicker the UI as users navigate between sources;
  * users who want a fresh view can close and reopen `/diff`. The
- * `cwd`-only dependency reinforces this — typing in another shell pane
+ * `cwd`-only dependency reinforces this -- typing in another shell pane
  * does not retrigger the fetch.
  *
  * Failures are swallowed and surfaced as the empty result (the dialog

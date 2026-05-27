@@ -83,7 +83,7 @@ function bootstrapHomeEnvOverrides(): void {
   }
 
   // If QWEN_HOME was just discovered, also read <new QWEN_HOME>/.env so
-  // QWEN_RUNTIME_DIR can be sourced from there — otherwise the companion
+  // QWEN_RUNTIME_DIR can be sourced from there -- otherwise the companion
   // would write lock files into a different runtime dir than the CLI reads.
   const discoveredQwenHome = process.env['QWEN_HOME'];
   if (discoveredQwenHome && discoveredQwenHome !== initialQwenHome) {

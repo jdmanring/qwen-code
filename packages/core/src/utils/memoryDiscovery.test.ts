@@ -691,7 +691,7 @@ describe('loadServerHierarchicalMemory', () => {
 
     it('does not search .qwen/QWEN.local.md in CWD subdirectories', async () => {
       // A `.qwen/QWEN.local.md` placed inside a nested directory (not the
-      // project root) must NOT be picked up — the slot is single, fixed,
+      // project root) must NOT be picked up -- the slot is single, fixed,
       // and lives at <projectRoot>/.qwen/QWEN.local.md.
       await createTestFile(
         path.join(cwd, QWEN_DIR, 'QWEN.local.md'),
@@ -766,7 +766,7 @@ describe('loadServerHierarchicalMemory', () => {
 
     it('skips QWEN.local.md when no project root can be found (no .git ancestor)', async () => {
       // Without a project root, falling back to cwd would silently turn the
-      // single fixed slot into a per-cwd file — opposite of the design.
+      // single fixed slot into a per-cwd file -- opposite of the design.
       // Pin the "skip" behavior so a future regression doesn't reintroduce
       // the fallback.
       await fsPromises.rm(path.join(projectRoot, '.git'), {
@@ -802,7 +802,7 @@ describe('loadServerHierarchicalMemory', () => {
 
     it('skips QWEN.local.md when cwd === homedir without .git (avoids global-dir collision)', async () => {
       // When cwd is the home directory and there is no `.git` there, the
-      // would-be slot path resolves to `<homedir>/.qwen/QWEN.local.md` —
+      // would-be slot path resolves to `<homedir>/.qwen/QWEN.local.md` --
       // i.e. inside the GLOBAL Qwen dir. Loading that as a project-local
       // override is wrong: there is no project. Pin the "skip" behavior.
       await fsPromises.rm(path.join(projectRoot, '.git'), {
@@ -823,7 +823,7 @@ describe('loadServerHierarchicalMemory', () => {
       );
 
       // Allowed: global QWEN.md / AGENTS.md in ~/.qwen/ may still load via
-      // the existing global-discovery path. The assertion here is narrow —
+      // the existing global-discovery path. The assertion here is narrow --
       // the LOCAL slot specifically must not have been loaded.
       expect(result.memoryContent).not.toContain(
         'do not promote this to project-local',

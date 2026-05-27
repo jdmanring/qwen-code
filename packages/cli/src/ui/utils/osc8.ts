@@ -7,8 +7,8 @@
 /**
  * OSC 8 hyperlink helpers.
  *
- * Supported terminals (iTerm2 ≥ 3.1, WezTerm ≥ 20200620, Kitty, Ghostty,
- * Windows Terminal, VS Code ≥ 1.72, GNOME Terminal / VTE ≥ 0.50, …) render
+ * Supported terminals (iTerm2 >= 3.1, WezTerm >= 20200620, Kitty, Ghostty,
+ * Windows Terminal, VS Code >= 1.72, GNOME Terminal / VTE >= 0.50, ...) render
  * an OSC 8 envelope as a clickable link that survives line wrapping.
  * Terminals without OSC 8 support ignore the escapes and print the visible
  * label as-is.
@@ -50,7 +50,7 @@ export function sanitizeForOsc(s: string): string {
 
 /**
  * Wrap a URL in an OSC 8 hyperlink escape sequence. BEL (\x07) terminates
- * the OSC — more broadly supported than ST (ESC \\).
+ * the OSC -- more broadly supported than ST (ESC \\).
  */
 export function osc8Hyperlink(url: string, label = url): string {
   const safeUrl = sanitizeForOsc(url);
@@ -60,7 +60,7 @@ export function osc8Hyperlink(url: string, label = url): string {
 
 /**
  * Open half of an OSC 8 hyperlink envelope. Pair with `osc8Close()` to wrap
- * a styled label without losing the surrounding SGR resets — OSC 8 and SGR
+ * a styled label without losing the surrounding SGR resets -- OSC 8 and SGR
  * are orthogonal so nested color styling is preserved by terminals that
  * honor the hyperlink sequence.
  */
@@ -81,7 +81,7 @@ export function osc8Close(): string {
  * rendering so the user sees the suspicious URL before any click.
  *
  * When OSC 8 wrapping IS active the renderer drops the parenthesized URL
- * suffix and shows only the label — long URLs would otherwise clutter the
+ * suffix and shows only the label -- long URLs would otherwise clutter the
  * stream. Capable terminals expose the target via hover / status bar /
  * right-click "copy link", so the URL is still inspectable without
  * polluting the visible bytes. The scheme allowlist remains the front-line
@@ -99,7 +99,7 @@ const SAFE_OSC8_SCHEMES = new Set([
 
 /**
  * Return true if `url` carries an explicit allowlisted scheme. URLs without
- * a scheme (relative paths, `#anchor`, empty) are rejected — terminals can't
+ * a scheme (relative paths, `#anchor`, empty) are rejected -- terminals can't
  * resolve them anyway, and rejecting them avoids creating un-clickable links.
  */
 export function isSafeOscScheme(url: string): boolean {
@@ -131,7 +131,7 @@ function parseVersion(versionString: string | undefined): ParsedVersion {
 /**
  * Detect whether the given writable stream's host terminal can render OSC 8
  * hyperlinks. Mirrors the version-gated detection used by the
- * `supports-hyperlinks` npm package — see https://github.com/jamestalmage/node-supports-hyperlinks —
+ * `supports-hyperlinks` npm package -- see https://github.com/jamestalmage/node-supports-hyperlinks --
  * with two intentional deviations:
  *
  *   1. Inside `tmux` or GNU `screen` we refuse by default. The multiplexer
@@ -145,7 +145,7 @@ function parseVersion(versionString: string | undefined): ParsedVersion {
  *      terminal advertises support but breaks on long URLs).
  *
  * The detector deliberately allocates nothing and reads env vars on every
- * call — env state can change at runtime (`/theme` toggles, NO_COLOR set
+ * call -- env state can change at runtime (`/theme` toggles, NO_COLOR set
  * mid-session) and memoizing would freeze a stale answer.
  */
 export function supportsHyperlinks(
@@ -167,7 +167,7 @@ export function supportsHyperlinks(
   // run `qwen | cat` or `qwen > out.txt`.
   if (!stream || !stream.isTTY) return false;
 
-  // Explicit force overrides every heuristic below — but not the opt-outs
+  // Explicit force overrides every heuristic below -- but not the opt-outs
   // above nor the non-TTY guard. Mirrors the `FORCE_HYPERLINK` contract
   // from supports-hyperlinks: any non-zero numeric value (or empty string)
   // enables, `0` disables.
@@ -180,12 +180,12 @@ export function supportsHyperlinks(
   if (env['CI']) return false;
   if (env['TEAMCITY_VERSION']) return false;
 
-  // Multiplexers hide the host terminal's identity — bail unless the user
+  // Multiplexers hide the host terminal's identity -- bail unless the user
   // opted in via FORCE_HYPERLINK above.
   if (env['TMUX'] || env['STY']) return false;
 
   // Modern terminals identified by their own env vars (no version probe
-  // needed — these have shipped OSC 8 since their first OSC-8-aware release
+  // needed -- these have shipped OSC 8 since their first OSC-8-aware release
   // and their env var is only set by versions new enough to support it).
   if (env['WT_SESSION']) return true; // Windows Terminal
   if (env['KITTY_WINDOW_ID'] || env['TERM'] === 'xterm-kitty') return true;
@@ -194,7 +194,7 @@ export function supportsHyperlinks(
     return true;
   }
   // Konsole sets KONSOLE_VERSION on every session as a packed integer
-  // (e.g. 21.04 → 210400, 23.08.5 → 230805). OSC 8 support landed in
+  // (e.g. 21.04 -> 210400, 23.08.5 -> 230805). OSC 8 support landed in
   // Konsole 21.04, so version-gate against `>= 210400` and let older
   // releases fall through to the final `return false` so we don't emit
   // escapes on a host that won't render them.
@@ -204,11 +204,11 @@ export function supportsHyperlinks(
       return true;
     }
   }
-  // Alacritty ≥ 0.11 supports OSC 8. Identify it via TERM=alacritty (set
+  // Alacritty >= 0.11 supports OSC 8. Identify it via TERM=alacritty (set
   // when the alacritty terminfo is installed) or the ALACRITTY_LOG /
   // ALACRITTY_WINDOW_ID env vars that Alacritty 0.12+ sets unconditionally.
   // Note: on hosts without alacritty terminfo Alacritty falls back to
-  // TERM=xterm-256color and the TERM heuristic alone won't fire — the
+  // TERM=xterm-256color and the TERM heuristic alone won't fire -- the
   // env-var fallbacks catch those cases.
   if (
     env['TERM'] === 'alacritty' ||
@@ -243,16 +243,16 @@ export function supportsHyperlinks(
         // bytes as visible garbage instead of silently ignoring them,
         // so gate on TERM_PROGRAM_VERSION. mintty has set
         // TERM_PROGRAM_VERSION since 2.7 (2017), so a missing version
-        // means a very old build — refuse rather than guess.
+        // means a very old build -- refuse rather than guess.
         if (!env['TERM_PROGRAM_VERSION']) return false;
         return version.major > 3 || (version.major === 3 && version.minor >= 3);
-      // Warp (TERM_PROGRAM=WarpTerminal) does NOT yet support OSC 8 — its
+      // Warp (TERM_PROGRAM=WarpTerminal) does NOT yet support OSC 8 -- its
       // rendering engine ignores the envelope and prints visible garbage,
       // so we deliberately fall through to the legacy `label (url)` path.
       // Re-enable when Warp ships OSC 8 support.
       //
       // Hyper exposes OSC 8 in recent versions but plugin chains have a
-      // history of breaking escape passthrough — gate on FORCE_HYPERLINK
+      // history of breaking escape passthrough -- gate on FORCE_HYPERLINK
       // so users who know their setup works can opt in explicitly.
       default:
         break;
@@ -262,7 +262,7 @@ export function supportsHyperlinks(
   if (env['VTE_VERSION']) {
     // VTE 0.50.0 advertises OSC 8 but segfaults when it actually fires.
     // Compare against the parsed version so the packed form (`'5000'`) is
-    // recognized too — the raw string compare against `'0.50.0'` would miss
+    // recognized too -- the raw string compare against `'0.50.0'` would miss
     // it and let the segfault through.
     const version = parseVersion(env['VTE_VERSION']);
     if (version.major === 0 && version.minor === 50 && version.patch === 0) {
@@ -272,7 +272,7 @@ export function supportsHyperlinks(
     return false;
   }
 
-  // Legacy Windows console (cmd.exe, conhost) — no OSC support outside WT.
+  // Legacy Windows console (cmd.exe, conhost) -- no OSC support outside WT.
   if (process.platform === 'win32') return false;
 
   return false;
@@ -282,7 +282,7 @@ export function supportsHyperlinks(
  * Trim trailing sentence punctuation off a bare URL run before it becomes
  * an OSC 8 target. Models routinely produce `see https://example.com.` and
  * the inline regex greedily swallows the period; clicking the wrapped link
- * then opens a 404. The trailing characters stay in the visible text — only
+ * then opens a 404. The trailing characters stay in the visible text -- only
  * the OSC 8 *target* is trimmed, so byte-output for unsupported terminals
  * is unchanged.
  *
@@ -293,8 +293,8 @@ export function supportsHyperlinks(
  */
 export function trimTrailingUrlPunctuation(url: string): string {
   // Count `( [ {` opens once up-front; we then decrement running `)`/`]`/`}`
-  // close counts as we trim, keeping the whole trim O(n) instead of O(n²)
-  // for adversarial inputs like `https://x.com))))…`.
+  // close counts as we trim, keeping the whole trim O(n) instead of O(n)
+  // for adversarial inputs like `https://x.com))))...`.
   let openParen = 0;
   let openBracket = 0;
   let openBrace = 0;
@@ -314,7 +314,7 @@ export function trimTrailingUrlPunctuation(url: string): string {
   let end = url.length;
   while (end > 0) {
     const c = url.charCodeAt(end - 1);
-    // .,;:!?'"`> — `>` covers CommonMark autolinks (`<https://x.com>`)
+    // .,;:!?'"`> -- `>` covers CommonMark autolinks (`<https://x.com>`)
     // where the inline regex greedily eats the trailing `>` into `\S+`.
     if (
       c === 0x2e ||
@@ -352,7 +352,7 @@ export function trimTrailingUrlPunctuation(url: string): string {
   return url.slice(0, end);
 }
 
-// ── Markdown link regex shared between the React and ANSI renderers ──────
+// -- Markdown link regex shared between the React and ANSI renderers ------
 
 /**
  * Inline link pattern allowing one level of balanced parens in the URL
@@ -372,7 +372,7 @@ export const MD_LINK_CAPTURE = /^\[(.*?)\]\(((?:[^()]|\([^()]*\))*)\)$/;
  * Should the markdown renderers wrap a `[label](url)` token in an OSC 8
  * envelope? Returns true only when (a) the host terminal advertises OSC 8,
  * (b) the URL uses an allowlisted network/mail scheme, and (c) the URL
- * contains no whitespace — every terminal rejects or silently truncates a
+ * contains no whitespace -- every terminal rejects or silently truncates a
  * whitespace-bearing OSC 8 target, which would turn the whole region into
  * an un-clickable trap on capable terminals.
  *
@@ -391,24 +391,24 @@ export function shouldWrapMarkdownLink(
  * actually points. The OSC 8 branch hides the URL target behind a clickable
  * label, so a model-emitted `[https://google.com](https://attacker.com)`
  * shows a label that *looks* like a different host than the click resolves
- * to — pre-OSC-8 rendering always kept `(url)` visible, so the deception
+ * to -- pre-OSC-8 rendering always kept `(url)` visible, so the deception
  * couldn't land. The fix is: when the label contains a URL-shaped substring
  * AND it doesn't equal the actual target, keep the `(url)` suffix visible
  * even though OSC 8 wrapping is otherwise active. The label is still
  * clickable (envelope is still emitted), but the user sees the real target.
  *
  * Three patterns trip the heuristic:
- *   1. Label contains `scheme://…` — covers `[https://google.com](https://evil.com)`.
- *   2. Label *starts* with a `scheme:` — covers `[mailto:x](mailto:y)`.
+ *   1. Label contains `scheme://...` -- covers `[https://google.com](https://evil.com)`.
+ *   2. Label *starts* with a `scheme:` -- covers `[mailto:x](mailto:y)`.
  *   3. Label contains a bare host token (`name.tld`) that doesn't equal the
- *      URL's hostname — covers the most common spoof shape an attacker
+ *      URL's hostname -- covers the most common spoof shape an attacker
  *      would actually use: `[google.com](https://attacker.com)`.
  *
  * Heuristic is intentionally permissive: false positives just append a
  * harmless `(url)` suffix to niche labels (e.g. Python attrs like
  * `os.path` happen to look like a host); false negatives let a real spoof
  * through. ASCII-only hostname matching means an IDN-homograph attack
- * (Cyrillic `о` in `gооgle.com`) escapes the bare-host check, but the
+ * (Cyrillic `` in `ggle.com`) escapes the bare-host check, but the
  * fully-qualified-URL form of that same attack is still caught by pattern 1.
  */
 const HOST_LIKE_RE =
@@ -417,14 +417,14 @@ const HOST_LIKE_RE =
 // Dotted-quad IPv4 in a label: `[1.1.1.1](https://attacker.com)` is the
 // same class of click-deception as a bare hostname but `HOST_LIKE_RE`'s
 // alphabetic-TLD anchor skips it. Each octet is loosely bounded to 1-3
-// digits; over-permissive (e.g. `999.999.999.999`) is fine — false
+// digits; over-permissive (e.g. `999.999.999.999`) is fine -- false
 // positives just keep an extra `(url)` suffix.
 const IPV4_LIKE_RE = /\b(?:\d{1,3}\.){3}\d{1,3}\b/g;
 
 function targetHostname(url: string): string | undefined {
   try {
     const u = new URL(url);
-    // `mailto:` URLs report an empty `hostname` — pull the domain out of
+    // `mailto:` URLs report an empty `hostname` -- pull the domain out of
     // the email address after the `@` so labels like `[support@example.com]
     // (mailto:support@example.com)` don't trip the bare-host check.
     if (u.protocol === 'mailto:') {
@@ -455,7 +455,7 @@ export function labelMayDeceive(label: string, url: string): boolean {
   return labelHosts.some((h) => h !== target);
 }
 
-// ── Test helpers ─────────────────────────────────────────────────────────
+// -- Test helpers ---------------------------------------------------------
 
 /**
  * Every env var `supportsHyperlinks()` reads. Test files clear these in

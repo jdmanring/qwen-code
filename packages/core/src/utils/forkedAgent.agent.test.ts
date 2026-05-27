@@ -72,7 +72,7 @@ describe('runForkedAgent (AgentHeadless path) bound-tool isolation', () => {
   };
 
   // Spy on AgentHeadless.create at the source module rather than mocking
-  // the re-export layer in `agents/index.js` — vitest's module-mock layer
+  // the re-export layer in `agents/index.js` -- vitest's module-mock layer
   // doesn't reliably forward `export *` re-exports through `...actual`,
   // and stubbing the full surface manually is brittle.
   function captureAgentHeadlessConfig(): {
@@ -171,8 +171,8 @@ describe('runForkedAgent (AgentHeadless path) bound-tool isolation', () => {
   it('preserves an upstream getPermissionManager override (memory-scoped composition)', async () => {
     // The memory extraction / dream agent path stacks two wrappers:
     //   parent
-    //     └── scopedConfig (Object.create + getPermissionManager override)
-    //           └── yoloConfig (createApprovalModeOverride, sets registry + marker)
+    //     \_-- scopedConfig (Object.create + getPermissionManager override)
+    //           \_-- yoloConfig (createApprovalModeOverride, sets registry + marker)
     // Bound tools must see:
     //   - approval mode = YOLO (from yoloConfig's own override)
     //   - permission manager = scopedPm (walks proto past yoloConfig to scopedConfig)
@@ -247,7 +247,7 @@ describe('runForkedAgent (AgentHeadless path) bound-tool isolation', () => {
       restore();
     }
 
-    // stop() is fire-and-forget inside the runForkedAgent finally —
+    // stop() is fire-and-forget inside the runForkedAgent finally --
     // it is awaited by the runtime via the resolved promise chain, so
     // by the time `await runForkedAgent` returns the stop call has
     // already started; flush microtasks for the catch handler.

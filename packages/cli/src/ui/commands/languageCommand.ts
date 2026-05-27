@@ -57,7 +57,7 @@ function parseUiLanguageArg(input: string): SupportedLanguage | null {
 }
 
 /**
- * Formats a UI language code for display (e.g., "zh" -> "中文 (Chinese) [zh-CN]").
+ * Formats a UI language code for display (e.g., "zh" -> " (Chinese) [zh-CN]").
  */
 function formatUiLanguageDisplay(lang: SupportedLanguage): string {
   const option = SUPPORTED_LANGUAGES.find((o) => o.code === lang);
@@ -161,7 +161,7 @@ async function setOutputLanguage(
 
     // Format display message
     const displayLang = isAuto
-      ? `${t('Auto (detect from system)')} → ${resolved}`
+      ? `${t('Auto (detect from system)')} -> ${resolved}`
       : resolved;
 
     return {
@@ -247,9 +247,9 @@ export const languageCommand: SlashCommand = {
     const { setting: outputSetting, resolved: outputResolved } =
       getCurrentOutputLanguage(context);
 
-    // Format output language display: show "Auto → English" or just "English"
+    // Format output language display: show "Auto -> English" or just "English"
     const outputLangDisplay = isAutoLanguage(outputSetting)
-      ? `${t('Auto (detect from system)')} → ${outputResolved}`
+      ? `${t('Auto (detect from system)')} -> ${outputResolved}`
       : outputResolved;
 
     return {
@@ -371,9 +371,9 @@ export const languageCommand: SlashCommand = {
               t('Set LLM output language'),
               '',
               t('Usage: /language output <language>'),
-              `  ${t('Example: /language output 中文')}`,
+              `  ${t('Example: /language output ')}`,
               `  ${t('Example: /language output English')}`,
-              `  ${t('Example: /language output 日本語')}`,
+              `  ${t('Example: /language output ')}`,
             ].join('\n'),
           };
         }

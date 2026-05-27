@@ -538,7 +538,7 @@ describe('EditTool', () => {
     // pre-write checkPriorRead. The upstream `claude-code/src/tools/
     // FileEditTool` comment on the equivalent block says:
     //
-    //   "These awaits must stay OUTSIDE the critical section below — a
+    //   "These awaits must stay OUTSIDE the critical section below -- a
     //    yield between the staleness check and writeTextContent lets
     //    concurrent edits interleave."
     //
@@ -550,7 +550,7 @@ describe('EditTool', () => {
     // Test strategy: install a `trackEdit` mock that mutates the file
     // on disk (bumps mtime) before returning. The mutation has to be
     // detected by the pre-write `checkPriorRead`. That only happens if
-    // `trackEdit` runs BEFORE the pre-write check — the broken
+    // `trackEdit` runs BEFORE the pre-write check -- the broken
     // ordering would run the pre-write check first (passing on the
     // pre-mutation stats), then trackEdit (which mutates), then write
     // (which clobbers the external mutation silently).
@@ -1146,7 +1146,7 @@ describe('EditTool', () => {
 
     it('rejects an edit when the file has not been read in this session', async () => {
       fs.writeFileSync(filePath, 'untouched content', 'utf8');
-      // No seedPriorRead call — simulate the model trying to Edit a
+      // No seedPriorRead call -- simulate the model trying to Edit a
       // file it has never received via ReadFile.
       const params: EditToolParams = {
         file_path: filePath,
@@ -1193,7 +1193,7 @@ describe('EditTool', () => {
       // ReadFile records every successful read into the cache,
       // including binary / PDF / image reads that produce a
       // structured payload rather than text. lastReadCacheable=false
-      // marks those — Edit must not accept them.
+      // marks those -- Edit must not accept them.
       fs.writeFileSync(filePath, 'pretend this is binary', 'utf8');
       const stats = fs.statSync(filePath);
       fileReadCache.recordRead(filePath, stats, {
@@ -1218,7 +1218,7 @@ describe('EditTool', () => {
       );
       expect(result.error?.message).toContain('notebook_edit');
       expect(result.error?.message).not.toMatch(/Use the read_file tool first/);
-      // EditTool's verb is "edit", not "overwrite" — using the
+      // EditTool's verb is "edit", not "overwrite" -- using the
       // wrong one here would be confusing for in-place edits.
       expect(result.error?.message).toMatch(/if you need to edit it\./);
       expect(result.error?.message).not.toMatch(
@@ -1229,7 +1229,7 @@ describe('EditTool', () => {
     it('rejects an edit on a directory with TARGET_IS_DIRECTORY', async () => {
       // Pre-fix, the directory exemption returned ok:true and
       // readTextFile would either throw EISDIR (caught by execute as
-      // EDIT_PREPARATION_FAILURE) or — in WriteFile.getConfirmationDetails —
+      // EDIT_PREPARATION_FAILURE) or -- in WriteFile.getConfirmationDetails --
       // collapse into UNHANDLED_EXCEPTION. The structured rejection
       // here gives a stable error code regardless of where the call
       // hits in the pipeline.
@@ -1301,7 +1301,7 @@ describe('EditTool', () => {
 
     it('rejects confirmation requests on an unread file before showing a diff', async () => {
       // The user must not see a diff computed from current bytes the
-      // model never received — they would approve under a false
+      // model never received -- they would approve under a false
       // assumption that the model worked from those bytes.
       fs.writeFileSync(filePath, 'unread content', 'utf8');
       const invocation = tool.build({
@@ -1389,7 +1389,7 @@ describe('EditTool', () => {
       expect(fs.readFileSync(newPath, 'utf8')).toBe('second content\n');
     });
 
-    it('allows Edit after Write→partial-Read', async () => {
+    it('allows Edit after Write->partial-Read', async () => {
       // The Write authors the bytes (recordWrite seeds the cache), and
       // a follow-up partial Read at the same fingerprint must not
       // disqualify the next Edit. After dropping the `lastReadWasFull`
@@ -1455,11 +1455,11 @@ describe('EditTool', () => {
     it('bypasses enforcement entirely when fileReadCacheDisabled is true', async () => {
       fs.writeFileSync(filePath, 'untouched', 'utf8');
       // No seed: with the cache disabled, the model is on the
-      // pre-cache contract — Edit must succeed without a prior Read.
+      // pre-cache contract -- Edit must succeed without a prior Read.
       // Use mockReturnValue (not mockReturnValueOnce): calculateEdit
-      // now calls getFileReadCacheDisabled twice — once before
+      // now calls getFileReadCacheDisabled twice -- once before
       // readTextFile and once after, for the post-read TOCTOU
-      // re-check — and both must see disabled=true to actually bypass.
+      // re-check -- and both must see disabled=true to actually bypass.
       (mockConfig.getFileReadCacheDisabled as Mock).mockReturnValue(true);
       const params: EditToolParams = {
         file_path: filePath,
@@ -1474,7 +1474,7 @@ describe('EditTool', () => {
     it('attaches a structured ToolErrorType when getConfirmationDetails rejects', async () => {
       // Without an `errorType` field on the thrown Error, the tool
       // scheduler reports every confirmation-time rejection as
-      // UNHANDLED_EXCEPTION — losing the EDIT_REQUIRES_PRIOR_READ /
+      // UNHANDLED_EXCEPTION -- losing the EDIT_REQUIRES_PRIOR_READ /
       // FILE_CHANGED_SINCE_READ contract this PR introduces.
       fs.writeFileSync(filePath, 'unread content', 'utf8');
       const invocation = tool.build({
@@ -1523,7 +1523,7 @@ describe('EditTool', () => {
         const invocation = tool.build(params);
         const result = await invocation.execute(new AbortController().signal);
 
-        // Should succeed — not fail with file-not-found
+        // Should succeed -- not fail with file-not-found
         expect(result.llmContent).toMatch(/Showing lines \d+-\d+ of \d+/);
         expect(fs.readFileSync(realPath, 'utf8')).toBe('Hello new world!');
       });

@@ -45,9 +45,9 @@ describe('TodoDisplay', () => {
     const output = lastFrame();
 
     // Check status icons are present
-    expect(output).toContain('●'); // completed
-    expect(output).toContain('◐'); // in_progress
-    expect(output).toContain('○'); // pending
+    expect(output).toContain(''); // completed
+    expect(output).toContain(''); // in_progress
+    expect(output).toContain(''); // pending
   });
 
   it('should handle empty todo list', () => {

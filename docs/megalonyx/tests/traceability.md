@@ -1,4 +1,4 @@
-# 🔗 Test-to-Requirement Traceability Matrix
+#  Test-to-Requirement Traceability Matrix
 
 This document maps the core functional requirements of the Mega Code stack to their corresponding verification tests. This ensures that every critical architectural mandate is validated and provides a gap analysis for future testing efforts.
 
@@ -6,15 +6,15 @@ This document maps the core functional requirements of the Mega Code stack to th
 
 | Req ID | Requirement Description | Primary Test Suite | Specific Test File(s) | Status |
 | :--- | :--- | :--- | :--- | :---: |
-| **REQ-01** | **Intent Classification & Decomposition**: Ability to process prompts into managed job sets. | Unit / E2E | `tests/unit/test_decomposer.py`, `tests/e2e/test_golden_paths.py` | ✅ |
-| **REQ-02** | **Job Execution Loop**: Deterministic Act $\to$ Observe $\to$ Verify $\to$ Correct cycle. | Fidelity / E2E | `tests/fidelity/test_control_plane_live.py`, `tests/e2e/test_golden_paths.py` | ✅ |
-| **REQ-03** | **S-VERIFY (Verification)**: Contract-based validation of job outcomes. | Unit / Fidelity | `tests/unit/test_contracts.py`, `tests/fidelity/test_control_plane_simulation.py` | ✅ |
-| **REQ-04** | **S-CORRECT (Correction)**: Automated retry/pivot logic upon verification failure. | E2E / Fidelity | `tests/e2e/test_golden_paths.py`, `tests/fidelity/test_control_plane_live.py` | ✅ |
-| **REQ-05** | **A-PERM (Boundaries)**: Strict enforcement of Project Root and permission matrices. | Unit / Fidelity | `tests/unit/test_isolation.py`, `tests/fidelity/test_policy_enforcement.py` | ✅ |
-| **REQ-06** | **CSF-SYNC (Symmetry)**: 1:1 mirroring between `.qwen/config/` and `docs/`. | Tooling | `tooling/symmetry_check.py` | ✅ |
-| **REQ-07** | **Performance Baselines**: Latency gates for orchestration overhead. | Performance | `tests/performance/latency_bench.py` | ✅ |
-| **REQ-08** | **Resilience**: Fault tolerance against daemon crashes and transport failures. | Adversarial | `tests/adversarial/test_state_failures.py`, `tests/adversarial/test_transport_failures.py`, `tests/adversarial/test_process_failures.py` | ✅ |
-| **REQ-09** | **Resilience (Stochastic)**: Ability to recover from randomized, unpredictable faults. | Adversarial | `tests/adversarial/test_resilience_stress.py` | ✅ |
+| **REQ-01** | **Intent Classification & Decomposition**: Ability to process prompts into managed job sets. | Unit / E2E | `tests/unit/test_decomposer.py`, `tests/e2e/test_golden_paths.py` |  |
+| **REQ-02** | **Job Execution Loop**: Deterministic Act $\to$ Observe $\to$ Verify $\to$ Correct cycle. | Fidelity / E2E | `tests/fidelity/test_control_plane_live.py`, `tests/e2e/test_golden_paths.py` |  |
+| **REQ-03** | **S-VERIFY (Verification)**: Contract-based validation of job outcomes. | Unit / Fidelity | `tests/unit/test_contracts.py`, `tests/fidelity/test_control_plane_simulation.py` |  |
+| **REQ-04** | **S-CORRECT (Correction)**: Automated retry/pivot logic upon verification failure. | E2E / Fidelity | `tests/e2e/test_golden_paths.py`, `tests/fidelity/test_control_plane_live.py` |  |
+| **REQ-05** | **A-PERM (Boundaries)**: Strict enforcement of Project Root and permission matrices. | Unit / Fidelity | `tests/unit/test_isolation.py`, `tests/fidelity/test_policy_enforcement.py` |  |
+| **REQ-06** | **CSF-SYNC (Symmetry)**: 1:1 mirroring between `.qwen/config/` and `docs/`. | Tooling | `tooling/symmetry_check.py` |  |
+| **REQ-07** | **Performance Baselines**: Latency gates for orchestration overhead. | Performance | `tests/performance/latency_bench.py` |  |
+| **REQ-08** | **Resilience**: Fault tolerance against daemon crashes and transport failures. | Adversarial | `tests/adversarial/test_state_failures.py`, `tests/adversarial/test_transport_failures.py`, `tests/adversarial/test_process_failures.py` |  |
+| **REQ-09** | **Resilience (Stochastic)**: Ability to recover from randomized, unpredictable faults. | Adversarial | `tests/adversarial/test_resilience_stress.py` |  |
 
 ## 2. Coverage Analysis
 

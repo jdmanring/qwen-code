@@ -22,7 +22,7 @@ describe('estimateContentTokens', () => {
   });
 
   it('estimates plain text at ~chars/4', () => {
-    // "hello world" = 11 chars → ceil(11/4) = 3
+    // "hello world" = 11 chars -> ceil(11/4) = 3
     expect(estimateContentTokens([textContent('hello world')])).toBe(3);
   });
 
@@ -38,7 +38,7 @@ describe('estimateContentTokens', () => {
       parts: [{ inlineData: { mimeType: 'image/png', data: 'xxx' } }],
     };
     // estimateContentChars uses imageTokenEstimate * TOKEN_TO_CHAR_RATIO (4)
-    // for inlineData, so estimateContentTokens divides back by 4 → 1600
+    // for inlineData, so estimateContentTokens divides back by 4 -> 1600
     expect(estimateContentTokens([c], 1600)).toBe(1600);
   });
 

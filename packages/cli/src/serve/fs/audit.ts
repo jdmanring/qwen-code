@@ -24,7 +24,7 @@ export const FS_ACCESS_EVENT_TYPE = 'fs.access' as const;
  * Frame type for boundary policy denials. Emitted whenever an
  * `FsError` propagates from the orchestrator. Always emitted, even
  * for transient ones that the route handler will surface to the
- * caller — the audit trail is the operator's tool, separate from
+ * caller -- the audit trail is the operator's tool, separate from
  * the client-visible response.
  */
 export const FS_DENIED_EVENT_TYPE = 'fs.denied' as const;
@@ -39,7 +39,7 @@ export interface AuditContext {
   originatorClientId?: string;
   /** Optional ACP session id for cross-correlating audit + session events. */
   sessionId?: string;
-  /** Route name like 'GET /file' — populated by PR 19/20 handlers. */
+  /** Route name like 'GET /file' -- populated by PR 19/20 handlers. */
   route: string;
 }
 
@@ -52,7 +52,7 @@ export interface AuditContext {
  * The literal `kind` field discriminates this against
  * `FsDeniedAuditPayload` so SDK consumers can `switch` over a
  * `FsAccessAuditPayload | FsDeniedAuditPayload` union and have
- * the type narrow inside each branch — the `BridgeEvent.type`
+ * the type narrow inside each branch -- the `BridgeEvent.type`
  * envelope alone doesn't propagate type information into
  * `event.data: unknown`.
  */
@@ -64,7 +64,7 @@ export interface FsAccessAuditPayload {
   /**
    * ACP session id from `AuditContext.sessionId`, when known.
    * Multi-session daemons need this to correlate audit events
-   * back to the session that triggered them — `originatorClientId`
+   * back to the session that triggered them -- `originatorClientId`
    * alone identifies the *client*, not the *session*. Always
    * present when the calling route is session-scoped (PR 19/20
    * routes that take `:sessionId`); absent on workspace-scoped
@@ -82,7 +82,7 @@ export interface FsAccessAuditPayload {
    * where `pathHash` would otherwise hash the bound workspace and
    * provide no per-call information. The pattern is recorded
    * verbatim (not hashed) because it does not carry path content
-   * — the per-hit canonical paths are NOT logged here. Audit
+   * -- the per-hit canonical paths are NOT logged here. Audit
    * consumers correlate the workspace via `pathHash` and the
    * specific call via `pattern`.
    */
@@ -94,7 +94,7 @@ export interface FsDeniedAuditPayload {
   intent: Intent;
   route: string;
   pathHash: string;
-  /** See `FsAccessAuditPayload.sessionId` — same semantics. */
+  /** See `FsAccessAuditPayload.sessionId` -- same semantics. */
   sessionId?: string;
   relPath?: string;
   errorKind: FsErrorKind;
@@ -109,7 +109,7 @@ export interface FsDeniedAuditPayload {
    * error into an `FsError` whose message we can quote.
    */
   message?: string;
-  /** See `FsAccessAuditPayload.pattern` — same semantics. */
+  /** See `FsAccessAuditPayload.pattern` -- same semantics. */
   pattern?: string;
 }
 
@@ -168,7 +168,7 @@ function hashPath(absolute: string): string {
 
 /**
  * Sentinel returned when `path.relative` produces an absolute
- * path — happens on Windows when the input is on a different
+ * path -- happens on Windows when the input is on a different
  * drive than `boundWorkspace`. Without this guard, audit
  * consumers (even in raw-paths mode) would see something that
  * looks like a valid relative path but is actually a fully
@@ -188,7 +188,7 @@ const CROSS_DRIVE_RELPATH = '<cross-drive>' as const;
  *
  * On Windows, `path.relative` between paths on different drives
  * (`C:\\ws` vs `D:\\evil`) can't produce a relative form and
- * returns the absolute target — leaking the off-drive path into
+ * returns the absolute target -- leaking the off-drive path into
  * the audit row. We detect that with `path.isAbsolute` on the
  * *result* and substitute `CROSS_DRIVE_RELPATH` so the field
  * stays a true relative-or-sentinel and the cross-drive case is
@@ -204,7 +204,7 @@ function relForAudit(raw: string, boundWorkspace: string): string {
 /**
  * Whether the env opt-in for raw paths is active. Read once per
  * factory invocation rather than per emit, so flipping the env
- * mid-process needs a daemon restart — predictable behavior for
+ * mid-process needs a daemon restart -- predictable behavior for
  * operators tailing logs.
  */
 function rawPathsEnabled(): boolean {

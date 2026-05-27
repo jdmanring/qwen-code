@@ -17,7 +17,7 @@ const logger = createDebugLogger('PROJECT_ROOT');
  *
  * `.git` is a directory in a normal clone but a regular file (containing
  * `gitdir: <path>`) in git worktrees and submodules. Both shapes mark a
- * repo root — this helper accepts either, so callers don't silently break
+ * repo root -- this helper accepts either, so callers don't silently break
  * for worktree / submodule users.
  *
  * Symlinks are intentionally not chased: `lstat` reports them as
@@ -38,7 +38,7 @@ export async function findProjectRoot(
         return currentDir;
       }
     } catch (error: unknown) {
-      // ENOENT is the expected case while walking up — don't log it.
+      // ENOENT is the expected case while walking up -- don't log it.
       // Tests often mock fs in ways that throw non-ENOENT errors; stay
       // quiet there too.
       const isENOENT =

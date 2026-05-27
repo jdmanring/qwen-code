@@ -48,7 +48,7 @@ export class WeixinChannel extends ChannelBase {
   }
 
   async connect(): Promise<void> {
-    // Default channel instructions — always include image capability info
+    // Default channel instructions -- always include image capability info
     const imageInstructions = [
       '',
       'If you created an image file (screenshot, chart, etc.), you can send it to the user by writing:',
@@ -257,7 +257,7 @@ export class WeixinChannel extends ChannelBase {
           try {
             await sendText({
               to: chatId,
-              text: '图片发送失败，请稍后重试',
+              text: '',
               baseUrl: this.baseUrl,
               token: this.token,
               contextToken,
@@ -303,7 +303,7 @@ export class WeixinChannel extends ChannelBase {
         status: typing ? TypingStatus.TYPING : TypingStatus.CANCEL,
       });
     } catch {
-      // Typing is best-effort — don't fail the message flow
+      // Typing is best-effort -- don't fail the message flow
     }
   }
 }

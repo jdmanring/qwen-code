@@ -57,7 +57,7 @@ function getActiveTool(
 
 // Pull the configured shell timeout off an AnsiOutputDisplay result so
 // ToolElapsedTime can surface it inline (matches the expanded
-// ToolMessage path). Non-ansi resultDisplay → undefined → legacy
+// ToolMessage path). Non-ansi resultDisplay -> undefined -> legacy
 // quiet-then-elapsed behavior.
 function getShellTimeoutMs(
   tool: IndividualToolCallDisplay,
@@ -74,9 +74,9 @@ function getShellTimeoutMs(
 }
 
 /**
- * Summary-label header: bold label + " · N tools" count when there are 2+
+ * Summary-label header: bold label + "  N tools" count when there are 2+
  * tools in the batch. The count is intentionally suppressed for N=1 so
- * single-tool batches don't read as `Read config.json · 1 tools`. Future
+ * single-tool batches don't read as `Read config.json  1 tools`. Future
  * edits: keep the `length > 1` guard, not `>= 1`.
  */
 function renderSummaryHeader(label: string, count: number) {
@@ -85,7 +85,7 @@ function renderSummaryHeader(label: string, count: number) {
       <Text bold>{label}</Text>
       {count > 1 ? (
         <Text color={theme.text.secondary}>
-          {'  · '}
+          {'   '}
           {count} tools
         </Text>
       ) : null}
@@ -94,7 +94,7 @@ function renderSummaryHeader(label: string, count: number) {
 }
 
 /**
- * Default header: active tool name + " × N" count + first-line description.
+ * Default header: active tool name + " * N" count + first-line description.
  * Same N=1 suffix suppression as `renderSummaryHeader`.
  */
 function renderDefaultHeader(
@@ -107,7 +107,7 @@ function renderDefaultHeader(
       <Text bold>{activeToolName}</Text>
       {count > 1 ? (
         <Text color={theme.text.secondary}>
-          {' × '}
+          {' * '}
           {count}
         </Text>
       ) : null}

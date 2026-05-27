@@ -22,7 +22,7 @@ function getSourceDisplayName(source: string): string {
 }
 
 /**
- * 按来源分组服务器
+ * 
  */
 export function groupServersBySource(
   servers: MCPServerDisplayInfo[],
@@ -38,7 +38,7 @@ export function groupServersBySource(
     }
   }
 
-  // 按优先级排序: user > project > extension
+  // : user > project > extension
   const result: GroupedServers[] = [];
 
   for (const source of SOURCE_ORDER) {
@@ -56,7 +56,7 @@ export function groupServersBySource(
 }
 
 /**
- * 获取状态颜色
+ * 
  */
 export function getStatusColor(
   status: string,
@@ -74,23 +74,23 @@ export function getStatusColor(
 }
 
 /**
- * 获取状态图标
+ * 
  */
 export function getStatusIcon(status: string): string {
   switch (status) {
     case 'connected':
-      return '✓';
+      return '';
     case 'connecting':
-      return '…';
+      return '...';
     case 'disconnected':
-      return '✗';
+      return '';
     default:
       return '?';
   }
 }
 
 /**
- * 截断文本
+ * 
  */
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
@@ -98,7 +98,7 @@ export function truncateText(text: string, maxLength: number): string {
 }
 
 /**
- * 格式化服务器命令显示
+ * 
  */
 export function formatServerCommand(server: MCPServerDisplayInfo): string {
   const config = server.config;

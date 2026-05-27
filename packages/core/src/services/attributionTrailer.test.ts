@@ -45,7 +45,7 @@ describe('attributionTrailer', () => {
         // index 5 is the JSON note payload, asserted below
         cmd!.args[5],
       ]);
-      // Note must target the captured SHA, not the symbolic `HEAD` —
+      // Note must target the captured SHA, not the symbolic `HEAD` --
       // otherwise a post-commit hook or chained command can move HEAD
       // between capture and exec, and `-f` lands the note on the
       // wrong commit.
@@ -83,7 +83,7 @@ describe('attributionTrailer', () => {
 
     it('should leave single quotes literal in the argv payload', () => {
       // The previous string-based command needed bash-style quote escaping.
-      // With argv, the apostrophe stays literal — the executor passes it
+      // With argv, the apostrophe stays literal -- the executor passes it
       // through to git unmolested.
       const noteWithQuotes: CommitAttributionNote = {
         ...sampleNote,

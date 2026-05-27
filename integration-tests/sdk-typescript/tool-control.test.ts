@@ -1480,7 +1480,7 @@ describe('Tool Control Parameters (E2E)', () => {
           // Make the read-first dependency explicit: if the model
           // skipped read_file, prior-read enforcement would surface
           // EDIT_REQUIRES_PRIOR_READ instead of the canUseTool deny
-          // message we are asserting on below — fail fast with a
+          // message we are asserting on below -- fail fast with a
           // clear signal instead of a confusing toContain mismatch.
           const toolCalls = findToolCalls(messages);
           const toolNames = toolCalls.map((tc) => tc.toolUse.name);
@@ -1552,7 +1552,7 @@ describe('Tool Control Parameters (E2E)', () => {
             canUseTool: async (toolName, input) => {
               canUseToolCalls.push(toolName);
               // Pass-through: empty `updatedInput` would erase
-              // file_path on the SDK→CLI boundary
+              // file_path on the SDK->CLI boundary
               // (permissionController.ts:444 truthy-replaces args).
               return { behavior: 'allow', updatedInput: input };
             },

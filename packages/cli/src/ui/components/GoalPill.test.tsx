@@ -50,10 +50,10 @@ describe('GoalPill', () => {
     const { lastFrame, unmount } = renderWithProviders(<GoalPill />, {
       config,
     });
-    // Aligned with Claude Code 2.1.140 footer: "◎ /goal active" (no time
-    // suffix during the first second, terse — turns/reason live elsewhere).
+    // Aligned with Claude Code 2.1.140 footer: " /goal active" (no time
+    // suffix during the first second, terse -- turns/reason live elsewhere).
     expect(lastFrame()).toMatch(/\/goal active/);
-    expect(lastFrame()).toMatch(/◎/);
+    expect(lastFrame()).toMatch(//);
     // Pill should not leak the raw condition into the footer.
     expect(lastFrame()).not.toMatch(/do something/);
     // Turns count should not appear here either (intentionally moved to the

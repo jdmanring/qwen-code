@@ -29,7 +29,7 @@ describe('isPrintableSearchChar', () => {
     expect(isPrintableSearchChar(k({ name: 'a', sequence: 'a' }))).toBe(true);
   });
 
-  it('accepts SPACE — caller decides whether to seed it', () => {
+  it('accepts SPACE -- caller decides whether to seed it', () => {
     // The picker's outer handler suppresses leading-whitespace queries
     // separately. The predicate itself only filters by character class.
     expect(isPrintableSearchChar(k({ name: 'space', sequence: ' ' }))).toBe(
@@ -79,7 +79,7 @@ describe('isPrintableSearchChar', () => {
     );
   });
 
-  it('rejects DEL (0x7F) — Backspace would otherwise slip through', () => {
+  it('rejects DEL (0x7F) -- Backspace would otherwise slip through', () => {
     expect(isPrintableSearchChar(k({ name: 'backspace', sequence: '' }))).toBe(
       false,
     );
@@ -96,7 +96,7 @@ describe('isDeletionKey', () => {
       result.current.handleSearchKey(k({ name: 'a', sequence: 'a' }));
     });
     expect(result.current.searchQuery).toBe('a');
-    // Raw DEL byte with no name — the Windows Backspace path
+    // Raw DEL byte with no name -- the Windows Backspace path
     act(() => {
       result.current.handleSearchKey(k({ name: '', sequence: '\x7f' }));
     });
@@ -113,7 +113,7 @@ describe('isDeletionKey', () => {
       result.current.handleSearchKey(k({ name: 'x', sequence: 'x' }));
     });
     expect(result.current.searchQuery).toBe('x');
-    // Raw BS byte with no name — alternate Windows Backspace path
+    // Raw BS byte with no name -- alternate Windows Backspace path
     act(() => {
       result.current.handleSearchKey(k({ name: '', sequence: '\b' }));
     });
@@ -169,10 +169,10 @@ describe('isDeletionKey', () => {
 });
 
 describe('useSessionSearchInput', () => {
-  // Each keystroke gets its own act() — terminal events arrive in
+  // Each keystroke gets its own act() -- terminal events arrive in
   // separate render cycles, and the ref-backed setter fires
   // onExitToList synchronously within the state updater when it
-  // detects a non-empty → empty transition. Batching multiple keys
+  // detects a non-empty -> empty transition. Batching multiple keys
   // into one act() collapses the intermediate states the setter
   // needs to observe.
 
@@ -287,7 +287,7 @@ describe('useSessionSearchInput', () => {
     expect(onExitToList).toHaveBeenCalledTimes(1);
   });
 
-  it('Ctrl+U wipes the query and exits — single-stroke equivalent of full Backspace', () => {
+  it('Ctrl+U wipes the query and exits -- single-stroke equivalent of full Backspace', () => {
     const onExitToList = vi.fn();
     const { result } = renderHook(() =>
       useSessionSearchInput({ onExitToList }),
@@ -335,7 +335,7 @@ describe('useSessionSearchInput', () => {
     act(() => {
       result.current.handleSearchKey(k({ name: 'a', sequence: 'a' }));
     });
-    // Tab, Page-Up, and Ctrl+B all hit search while focused — they
+    // Tab, Page-Up, and Ctrl+B all hit search while focused -- they
     // must neither mutate the query nor leak through as exits.
     act(() => {
       result.current.handleSearchKey(k({ name: 'tab', sequence: '\t' }));
@@ -354,7 +354,7 @@ describe('useSessionSearchInput', () => {
 
   it("exposes setSearchQuery for the parent's implicit-entry path", () => {
     // The picker uses this to seed the query when a printable char
-    // arrives in list mode — covered here as a smoke test that the
+    // arrives in list mode -- covered here as a smoke test that the
     // setter (functional and direct) round-trips through the hook
     // independently of handleSearchKey.
     const onExitToList = vi.fn();
@@ -365,7 +365,7 @@ describe('useSessionSearchInput', () => {
       result.current.setSearchQuery('seed');
     });
     expect(result.current.searchQuery).toBe('seed');
-    // Seeding the query (empty → non-empty) must NOT trigger exit.
+    // Seeding the query (empty -> non-empty) must NOT trigger exit.
     expect(onExitToList).not.toHaveBeenCalled();
 
     act(() => {

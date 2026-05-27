@@ -240,7 +240,7 @@ describe('telemetry/config helpers', () => {
     });
   });
 
-  describe('resolveTelemetrySettings — resource attributes', () => {
+  describe('resolveTelemetrySettings -- resource attributes', () => {
     it('returns undefined resourceAttributes when nothing set', async () => {
       const resolved = await resolveTelemetrySettings({});
       expect(resolved.resourceAttributes).toBeUndefined();
@@ -301,7 +301,7 @@ describe('telemetry/config helpers', () => {
       const resolved = await resolveTelemetrySettings({
         env: { OTEL_SERVICE_NAME: '   ' },
       });
-      // No user attrs → resourceAttributes stays undefined.
+      // No user attrs -> resourceAttributes stays undefined.
       expect(resolved.resourceAttributes).toBeUndefined();
     });
 
@@ -313,7 +313,7 @@ describe('telemetry/config helpers', () => {
         settings: {
           resourceAttributes: {
             '': 'empty-key',
-            // @ts-expect-error — runtime defensive path against bad JSON.
+            // @ts-expect-error -- runtime defensive path against bad JSON.
             count: 42,
           },
         },
@@ -337,7 +337,7 @@ describe('telemetry/config helpers', () => {
         settings: {
           resourceAttributes: {
             team: 'platform',
-            // @ts-expect-error — runtime defensive path against bad JSON.
+            // @ts-expect-error -- runtime defensive path against bad JSON.
             count: 42,
           },
         },
@@ -388,7 +388,7 @@ describe('telemetry/config helpers', () => {
     });
   });
 
-  describe('resolveTelemetrySettings — metrics.includeSessionId', () => {
+  describe('resolveTelemetrySettings -- metrics.includeSessionId', () => {
     it('defaults to false', async () => {
       const resolved = await resolveTelemetrySettings({});
       expect(resolved.metrics?.includeSessionId).toBe(false);

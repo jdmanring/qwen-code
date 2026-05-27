@@ -35,12 +35,12 @@ export type SpecifierKind = 'command' | 'path' | 'domain' | 'literal';
  * Rules have the form "ToolName" or "ToolName(specifier)".
  *
  * Examples:
- *   "Bash"                     → all shell commands
- *   "Bash(git *)"              → shell commands matching glob
- *   "Read(./secrets/**)"       → file reads matching path pattern
- *   "Edit(/src/**\/*.ts)"       → file edits matching path pattern
- *   "WebFetch(domain:x.com)"   → web fetch matching domain
- *   "mcp__server__tool"        → specific MCP tool
+ *   "Bash"                     -> all shell commands
+ *   "Bash(git *)"              -> shell commands matching glob
+ *   "Read(./secrets/**)"       -> file reads matching path pattern
+ *   "Edit(/src/**\/*.ts)"       -> file edits matching path pattern
+ *   "WebFetch(domain:x.com)"   -> web fetch matching domain
+ *   "mcp__server__tool"        -> specific MCP tool
  */
 export interface PermissionRule {
   /** The original raw rule string as written in config. */

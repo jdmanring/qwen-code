@@ -112,7 +112,7 @@ describe('FileHistoryService', () => {
 
       // Replace the backup storage root with a regular file so the recursive
       // `mkdir(dirname(backupPath))` inside `safeCopyFile` fails with
-      // ENOTDIR — a non-ENOENT error that propagates back into `trackEdit`'s
+      // ENOTDIR -- a non-ENOENT error that propagates back into `trackEdit`'s
       // catch.
       await rm(storageDir, { recursive: true, force: true });
       await writeFile(storageDir, '');
@@ -123,8 +123,8 @@ describe('FileHistoryService', () => {
 
     // The sticky-failed guard symmetry test for trackEdit. After
     // makeSnapshot recorded a `failed: true` marker for a file (e.g.
-    // transient disk full), the next trackEdit invocation — typically
-    // triggered by a tool about to modify the same file — must NOT
+    // transient disk full), the next trackEdit invocation -- typically
+    // triggered by a tool about to modify the same file -- must NOT
     // skip just because the entry exists. It must attempt a fresh
     // backup; on success the failed marker is replaced. Without this
     // the failed flag stays sticky until the file content changes,
@@ -138,7 +138,7 @@ describe('FileHistoryService', () => {
 
       // Force makeSnapshot's per-file backup to throw. The file content
       // is unchanged so checkOriginFileChanged short-circuits to "no
-      // change" — but we want the failure path here, so modify the file
+      // change" -- but we want the failure path here, so modify the file
       // first to ensure createBackup is reached.
       await writeFile(file, 'p2-content');
       await rm(storageDir, { recursive: true, force: true });
@@ -221,7 +221,7 @@ describe('FileHistoryService', () => {
 
     // When a per-file backup attempt throws inside makeSnapshot, the new
     // snapshot must NOT silently inherit the previous snapshot's backup
-    // and present it as the captured state of this turn — that would
+    // and present it as the captured state of this turn -- that would
     // make a later rewind restore older content while reporting success.
     // Instead the snapshot records a `failed: true` marker so rewind
     // surfaces the file via filesFailed and getDiffStats omits it.
@@ -233,7 +233,7 @@ describe('FileHistoryService', () => {
       await service.trackEdit(file);
 
       // Modify the file and break the backup target (replace storageDir
-      // with a regular file → ENOTDIR inside `safeCopyFile`'s recursive
+      // with a regular file -> ENOTDIR inside `safeCopyFile`'s recursive
       // mkdir). The next makeSnapshot's per-file backup attempt throws.
       await writeFile(file, 'p2-content');
       await rm(storageDir, { recursive: true, force: true });
@@ -315,7 +315,7 @@ describe('FileHistoryService', () => {
       await service.makeSnapshot('p1');
 
       const file = join(projectDir, 'new-file.txt');
-      await service.trackEdit(file); // non-existent → null backup
+      await service.trackEdit(file); // non-existent -> null backup
       await writeFile(file, 'created');
       await service.makeSnapshot('p2');
 
@@ -541,7 +541,7 @@ describe('FileHistoryService', () => {
         service.getSnapshots()[0].trackedFileBackups['a.txt']!.backupFileName!,
       );
 
-      // 104 more snapshots, each with new content → fresh backup per snapshot.
+      // 104 more snapshots, each with new content -> fresh backup per snapshot.
       for (let i = 1; i < 105; i++) {
         await writeFile(file, `v${i}`);
         await service.makeSnapshot(`p${i}`);
@@ -574,12 +574,12 @@ describe('FileHistoryService', () => {
       const sharedName =
         service.getSnapshots()[0].trackedFileBackups['a.txt']!.backupFileName!;
 
-      // Content never changes → makeSnapshot reuses the same backup reference.
+      // Content never changes -> makeSnapshot reuses the same backup reference.
       for (let i = 1; i < 105; i++) {
         await service.makeSnapshot(`p${i}`);
       }
 
-      // Same backupFileName is held by every survivor → must NOT be deleted.
+      // Same backupFileName is held by every survivor -> must NOT be deleted.
       expect(existsSync(backupPath(sharedName))).toBe(true);
     });
   });
@@ -657,15 +657,15 @@ describe('FileHistoryService', () => {
       const file = join(projectDir, 'a.txt');
       await writeFile(file, 'line1\nline2\nline3\n');
 
-      // Turn 1 begins — captures pre-edit state — then the tool would
-      // modify the file. We mirror that order: makeSnapshot → trackEdit
-      // → mutate. This is the same sequence `client.ts` follows on
+      // Turn 1 begins -- captures pre-edit state -- then the tool would
+      // modify the file. We mirror that order: makeSnapshot -> trackEdit
+      // -> mutate. This is the same sequence `client.ts` follows on
       // every UserQuery turn.
       await service.makeSnapshot('p1');
       await service.trackEdit(file);
       await writeFile(file, 'line1\nLINE2_EDITED\nline3\n');
 
-      // Turn 2 begins — this snapshot becomes the "after" for turn 1.
+      // Turn 2 begins -- this snapshot becomes the "after" for turn 1.
       await service.makeSnapshot('p2');
 
       const turn1 = await service.getTurnDiff('p1');
@@ -728,7 +728,7 @@ describe('FileHistoryService', () => {
 
       const turn1 = await service.getTurnDiff('p1');
       expect(turn1).toBeDefined();
-      // The file got tracked but content is identical — should not appear
+      // The file got tracked but content is identical -- should not appear
       // in the per-turn diff.
       expect(turn1!.files).toHaveLength(0);
       expect(turn1!.stats.filesChanged).toBe(0);
@@ -784,7 +784,7 @@ describe('FileHistoryService', () => {
 
     it('flags binary content with isBinary and skips hunk generation', async () => {
       const file = join(projectDir, 'image.bin');
-      // PNG-ish header — NUL bytes within the sniff window trip the
+      // PNG-ish header -- NUL bytes within the sniff window trip the
       // looksBinary heuristic.
       await writeFile(file, '\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR');
 
@@ -806,7 +806,7 @@ describe('FileHistoryService', () => {
     });
 
     // Files that target's snapshot didn't capture (e.g. they were first
-    // tracked in a later turn) must not show up in target's diff —
+    // tracked in a later turn) must not show up in target's diff --
     // otherwise we'd attribute a newer turn's edits to an earlier one.
     it('does not attribute later-tracked files to earlier turns', async () => {
       const fileA = join(projectDir, 'a.txt');
@@ -826,7 +826,7 @@ describe('FileHistoryService', () => {
       await service.trackEdit(fileB);
       await writeFile(fileB, 'B1');
 
-      // Turn 3 begins. Now B is in trackedFiles → snapshot[2] captures it.
+      // Turn 3 begins. Now B is in trackedFiles -> snapshot[2] captures it.
       await service.makeSnapshot('p3');
 
       // Turn 1's diff must reference only A, never B.
@@ -838,7 +838,7 @@ describe('FileHistoryService', () => {
     });
 
     // Regression for the live-worktree read-failure collapse: if a file
-    // becomes unreadable in the worktree (EACCES, EBUSY, …) we used to
+    // becomes unreadable in the worktree (EACCES, EBUSY, ...) we used to
     // treat it as deleted and synthesize a phantom delete hunk. Now we
     // drop the row so the dialog never lies about removals that didn't
     // actually happen.
@@ -893,7 +893,7 @@ describe('FileHistoryService', () => {
     // previous oversized test compares two backups (both endpoints take
     // the backup branch), so it never exercised `readPathWithSizeGuard`
     // on the live worktree. This case has a single snapshot, so `after`
-    // is read from the live file — verifying `stat()` + open/fstat there.
+    // is read from the live file -- verifying `stat()` + open/fstat there.
     it('flags oversized in the live-worktree branch (latest-turn endpoint)', async () => {
       const file = join(projectDir, 'live-big.txt');
       await writeFile(file, 'tiny seed\n');
@@ -914,7 +914,7 @@ describe('FileHistoryService', () => {
       expect(entry!.hunks).toEqual([]);
       expect(entry!.linesAdded).toBe(0);
       expect(entry!.linesRemoved).toBe(0);
-      // Worktree exists at read time → not flagged as a deletion.
+      // Worktree exists at read time -> not flagged as a deletion.
       expect(entry!.isDeleted).toBe(false);
     });
 

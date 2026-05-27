@@ -49,7 +49,7 @@ export function useContextualTips({
 }: UseContextualTipsOptions): void {
   const prevStreamingState = useRef<StreamingState>(StreamingState.Idle);
   // Track whether the model was responding at any point before going idle,
-  // so we catch Responding → WaitingForConfirmation → Idle transitions too.
+  // so we catch Responding -> WaitingForConfirmation -> Idle transitions too.
   const hadResponsePhase = useRef(false);
 
   useEffect(() => {
@@ -94,7 +94,7 @@ export function useContextualTips({
       addItem(
         {
           type: MessageType.INFO,
-          text: `💡 ${t(tip.content)}`,
+          text: ` ${t(tip.content)}`,
         },
         Date.now(),
       );

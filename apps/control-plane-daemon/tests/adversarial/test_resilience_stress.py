@@ -136,7 +136,7 @@ async def test_resilience_loop():
             result = await exec_task
 
             assert "completed" in result.lower() or "Successfully recovered" in result
-            print("✅ RES-01: System recovered from random fault.")
+            print(" RES-01: System recovered from random fault.")
         finally:
             patch.stopall()
 

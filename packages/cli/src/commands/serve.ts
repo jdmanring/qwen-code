@@ -5,7 +5,7 @@
  */
 
 import type { Argv, CommandModule } from 'yargs';
-// Type-only imports — no runtime cost. The serve module pulls in express +
+// Type-only imports -- no runtime cost. The serve module pulls in express +
 // body-parser + qs + the daemon transport stack; static-importing it from
 // here would tax every `qwen` invocation (interactive, mcp, channel, etc.)
 // with ~50ms of cold ESM resolution. The runtime import is deferred to the
@@ -21,7 +21,7 @@ import { HEADLESS_YOLO_NO_SANDBOX_WARNING } from '../utils/headlessSafetyWarning
 
 /**
  * Pause the current async function indefinitely. Used after the daemon
- * listener is up so yargs `parse()` never resolves — if it did, the
+ * listener is up so yargs `parse()` never resolves -- if it did, the
  * top-level CLI would fall through to the interactive (TUI) entry point
  * in `gemini.tsx`. SIGINT / SIGTERM in `runQwenServe` is the sole exit
  * route. Named so a future maintainer doesn't read the bare
@@ -40,7 +40,7 @@ interface ServeArgs {
   'event-ring-size': number;
   workspace?: string;
   'require-auth': boolean;
-  // Read from the kebab-case key only — the camelCase mirror that yargs
+  // Read from the kebab-case key only -- the camelCase mirror that yargs
   // synthesizes is convenient for handlers but type-confusing here. The
   // handler reads `argv['http-bridge']` directly.
   'http-bridge': boolean;
@@ -92,7 +92,7 @@ export const serveCommand: CommandModule<unknown, ServeArgs> = {
         default: 256,
         description:
           'Listener-level TCP connection cap (server.maxConnections). Bounds raw ' +
-          'sockets — slow/phantom SSE clients get rejected at accept time once full. ' +
+          'sockets -- slow/phantom SSE clients get rejected at accept time once full. ' +
           'Set to 0 to disable.',
       })
       .option('require-auth', {
@@ -103,18 +103,18 @@ export const serveCommand: CommandModule<unknown, ServeArgs> = {
           'Hardens the loopback developer default for shared dev hosts / CI ' +
           'runners / multi-tenant workstations where any local user can hit ' +
           '127.0.0.1. Requires --token or QWEN_SERVER_TOKEN. /health also ' +
-          'requires Authorization when enabled (no loopback exemption — ' +
+          'requires Authorization when enabled (no loopback exemption -- ' +
           'k8s/Compose probes must pass the bearer too).',
       })
       .option('event-ring-size', {
         type: 'number',
-        // Single source of truth — `DEFAULT_RING_SIZE` (currently 8000,
-        // #3803 §02) is also what the bridge falls back to when the
+        // Single source of truth -- `DEFAULT_RING_SIZE` (currently 8000,
+        // #3803 02) is also what the bridge falls back to when the
         // option is undefined. Importing here keeps a future bump in
         // one place rather than drifting between CLI and bus.
         default: DEFAULT_RING_SIZE,
         description:
-          'Per-session SSE replay ring depth (#3803 §02 target). Sets the ' +
+          'Per-session SSE replay ring depth (#3803 02 target). Sets the ' +
           'replay backlog available to `GET /session/:id/events` reconnects ' +
           'that send a `Last-Event-ID: N` header. Larger = more reconnect ' +
           'headroom at the cost of a few hundred KB extra RAM per session. ' +
@@ -171,7 +171,7 @@ export const serveCommand: CommandModule<unknown, ServeArgs> = {
     // PR 14: validate budget + mode combination at boot, before we
     // lazy-load the serve module. Yargs already constrains `choices`
     // for mcp-budget-mode, so we only have to police the budget value
-    // and the `enforce` ⇒ budget invariant.
+    // and the `enforce`  budget invariant.
     const mcpClientBudget = argv['mcp-client-budget'];
     const mcpBudgetMode = argv['mcp-budget-mode'];
     if (mcpClientBudget !== undefined) {
@@ -211,7 +211,7 @@ export const serveCommand: CommandModule<unknown, ServeArgs> = {
     // Emit the headless-YOLO safety warning at daemon startup if
     // settings.json statically configures yolo + no sandbox. We can't
     // use `getHeadlessYoloSafetyWarning(config)` here because the daemon
-    // hasn't constructed a `Config` yet — sessions get their own — so
+    // hasn't constructed a `Config` yet -- sessions get their own -- so
     // we re-derive the predicate from the same settings.json the
     // sessions will load. Per-session override (the ACP client flipping
     // approval mode mid-session) is out of scope here; this warns about
@@ -235,7 +235,7 @@ export const serveCommand: CommandModule<unknown, ServeArgs> = {
       }
     } catch {
       // Settings load can fail (corrupt JSON, etc.); don't block
-      // daemon startup just to emit a warning — the existing settings
+      // daemon startup just to emit a warning -- the existing settings
       // path will report the same error to the user via Session.
     }
 

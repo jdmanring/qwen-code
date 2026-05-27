@@ -110,7 +110,7 @@ class GrepToolInvocation extends BaseToolInvocation<
       let searchLocationDescription: string;
 
       if (this.params.path) {
-        // User specified a path — search only that directory
+        // User specified a path -- search only that directory
         const searchDirAbs = resolveAndValidatePath(
           this.config,
           this.params.path,
@@ -119,7 +119,7 @@ class GrepToolInvocation extends BaseToolInvocation<
         searchDirs.push(searchDirAbs);
         searchLocationDescription = `in path "${this.params.path}"`;
       } else {
-        // No path specified — search all workspace directories
+        // No path specified -- search all workspace directories
         const workspaceDirs = this.config
           .getWorkspaceContext()
           .getDirectories();

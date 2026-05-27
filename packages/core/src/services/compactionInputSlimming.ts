@@ -10,7 +10,7 @@ import type { ChatCompressionSettings } from '../config/config.js';
 /**
  * Prepares `historyToCompress` for the side-query summary model by
  * stripping inline media. `inlineData` / `fileData` parts are replaced
- * with a short `[image: <mime>]` / `[document: <mime>]` placeholder —
+ * with a short `[image: <mime>]` / `[document: <mime>]` placeholder --
  * the summary model usually cannot interpret raw base64 anyway, and
  * shipping the bytes inflates the side-query payload.
  *
@@ -23,7 +23,7 @@ export const DEFAULT_IMAGE_TOKEN_ESTIMATE = 1600;
 /**
  * Generic char/token conversion factor (claude-code's canonical heuristic).
  * Exported so adjacent estimators (`tokenEstimation.ts`'s `CHARS_PER_TOKEN`)
- * stay programmatically linked — if this ever moves, both sites move
+ * stay programmatically linked -- if this ever moves, both sites move
  * together rather than drifting silently.
  */
 export const TOKEN_TO_CHAR_RATIO = 4;
@@ -33,7 +33,7 @@ const DEFAULT_MIME = 'application/octet-stream';
  * Strip characters that could break out of the placeholder envelope or
  * inject prompt-shaped content into the summary side-query. MCP tools
  * surface `mimeType` from arbitrary servers; an adversarial server
- * could craft something like `image/png]\n\n[SYSTEM: …` and have it
+ * could craft something like `image/png]\n\n[SYSTEM: ...` and have it
  * appear verbatim in the slimmed prompt.
  */
 export function sanitizeMimeForPlaceholder(mime: string): string {
@@ -216,7 +216,7 @@ function transformPart(part: Part, stats: SlimStats): Part {
     return mediaPlaceholderPart(part.fileData.mimeType, stats);
   }
   // Walk into functionResponse.parts (qwen-code's nested-media carrier
-  // for tool results — see `coreToolScheduler.createFunctionResponsePart`).
+  // for tool results -- see `coreToolScheduler.createFunctionResponsePart`).
   // Without this, base64 images returned by read_file et al. leak into
   // the side-query payload.
   const nested = getFunctionResponseParts(part);

@@ -41,7 +41,7 @@ export async function loadSkillsFromDir(
       // For symlinks, verify the target (a) resolves and (b) is a
       // directory. Shared with `skill-manager.ts` so the two parsers
       // stay in sync. Targets pointing outside `baseDir` are allowed
-      // — see `symlinkScope.ts` for the rationale.
+      // -- see `symlinkScope.ts` for the rationale.
       if (isSymlink) {
         const check = await validateSymlinkTarget(skillDir);
         if (!check.ok) {
@@ -125,7 +125,7 @@ export function parseSkillContent(
 
   // Convert to strings
   const name = String(nameRaw);
-  // Reject unsafe names early — the value flows into the SkillTool
+  // Reject unsafe names early -- the value flows into the SkillTool
   // description, schema enums, and the path-activation
   // <system-reminder>, all of which the model treats as trusted text.
   validateSkillName(name);
@@ -153,7 +153,7 @@ export function parseSkillContent(
   // `whenToUse` and `disable-model-invocation` were historically only
   // parsed by the project/user/bundled parser in skill-manager.ts, which
   // meant an extension SKILL.md with `disable-model-invocation: true`
-  // had the flag silently stripped — and (post-paths PR) would still
+  // had the flag silently stripped -- and (post-paths PR) would still
   // fire path-activation reminders for a skill the model can't invoke.
   // Extract them here too so the extension and managed parsers agree.
   const whenToUse =
@@ -267,11 +267,11 @@ export function validateConfig(
  * Parse the optional `priority` frontmatter field for a skill.
  *
  * NOTE for adding new optional frontmatter fields: the SKILL.md parsing
- * logic exists in **two** places — `parseSkillContent` here (used for
+ * logic exists in **two** places -- `parseSkillContent` here (used for
  * extension skills) and `SkillManager.parseSkillContent` in
  * `skill-manager.ts` (used for project / user / bundled skills). Any new
  * field must be wired into both, or extension SKILL.md authors will see
- * the field silently dropped — the same regression that previously hit
+ * the field silently dropped -- the same regression that previously hit
  * `whenToUse`, `disable-model-invocation`, `paths`, and `priority`. Prefer
  * extracting the field's parsing into a shared helper (like this one)
  * rather than inlining `frontmatter['key']` twice.
@@ -284,7 +284,7 @@ export function validateConfig(
  * (matches `paths:` lenient handling).
  *
  * Returns `undefined` (and warns) for invalid values rather than
- * throwing — `priority` is a cosmetic ordering hint, not a load-blocking
+ * throwing -- `priority` is a cosmetic ordering hint, not a load-blocking
  * field, so a typo in this single key shouldn't make a previously-working
  * skill silently disappear from the listing.
  */
@@ -293,7 +293,7 @@ export function parsePriorityField(
   filePath: string,
   // Optional logger so the caller's namespace tags the warning. Without
   // this, a warning for a project/user/bundled SKILL.md emitted from
-  // SkillManager.parseSkillContent would be tagged `[SKILL_LOAD]` —
+  // SkillManager.parseSkillContent would be tagged `[SKILL_LOAD]` --
   // misleading for log filtering. Defaults to skill-load's own logger
   // for the original (extension) call site.
   warn: (message: string) => void = (message) => debugLogger.warn(message),

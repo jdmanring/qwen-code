@@ -92,9 +92,9 @@ describe('resolveJsonSchemaArg', () => {
   });
 
   it('does not echo the JSON parse error message for @path source', () => {
-    // The Node ≥18 SyntaxError message for `JSON.parse('hello world…')`
+    // The Node >=18 SyntaxError message for `JSON.parse('hello world...')`
     // embeds a ~10-char prefix of the input. For inline JSON that's
-    // fine — the user typed it themselves — but for @path it would leak
+    // fine -- the user typed it themselves -- but for @path it would leak
     // a prefix of the referenced file through stderr to any wrapper
     // that surfaces qwen's error output. Sanitise by emitting a generic
     // "content of <path> is not valid JSON" instead.
@@ -120,7 +120,7 @@ describe('resolveJsonSchemaArg', () => {
   });
 
   it('still echoes JSON parse error detail for inline (non-@path) source', () => {
-    // Inline JSON is the user's own input — keeping the SyntaxError detail
+    // Inline JSON is the user's own input -- keeping the SyntaxError detail
     // is helpful for debugging typos, and there's no third-party file
     // content to leak.
     let caught: Error | undefined;
@@ -171,7 +171,7 @@ describe('resolveJsonSchemaArg', () => {
   });
 
   it('accepts a schema without an explicit root type', () => {
-    // Absent type is tolerated — Ajv treats it as "anything" which covers
+    // Absent type is tolerated -- Ajv treats it as "anything" which covers
     // the object case the model will actually submit.
     const schema = resolveJsonSchemaArg('{"properties":{"foo":{}}}');
     expect(schema).toBeDefined();
@@ -205,7 +205,7 @@ describe('resolveJsonSchemaArg', () => {
   });
 
   it('rejects type:"object" combined with an anyOf that excludes object', () => {
-    // type and anyOf are AND'd at the same level — type:"object" alone is
+    // type and anyOf are AND'd at the same level -- type:"object" alone is
     // not enough if a sibling anyOf forbids every object branch. Without
     // this check the synthetic tool would register an unsatisfiable schema.
     expect(() =>
@@ -224,7 +224,7 @@ describe('resolveJsonSchemaArg', () => {
 
   it('rejects any root $ref, even with a sibling type:"object" anchor', () => {
     // Ajv applies `$ref` conjunctively with sibling keywords, so a sibling
-    // `type:"object"` is NOT enough to make the schema satisfiable — when
+    // `type:"object"` is NOT enough to make the schema satisfiable -- when
     // the referenced subschema is non-object, the resulting AND is
     // unsatisfiable at runtime. We reject root `$ref` outright rather than
     // following the reference ourselves (local-only resolution would still
@@ -239,7 +239,7 @@ describe('resolveJsonSchemaArg', () => {
         '{"type":"object","$ref":"#/$defs/Foo","$defs":{"Foo":{"type":"array"}}}',
       ),
     ).toThrow(/must accept object-typed values/);
-    // Even when the referenced schema IS object-shaped, we still reject —
+    // Even when the referenced schema IS object-shaped, we still reject --
     // the contract for `--json-schema` is "the root schema describes the
     // tool args directly", not "follow these refs". Users wanting
     // composition should inline at the root or use `allOf`.
@@ -251,7 +251,7 @@ describe('resolveJsonSchemaArg', () => {
   });
 
   it('rejects allOf where any branch forbids object at the root', () => {
-    // allOf is conjunctive — every branch must accept object. A schema
+    // allOf is conjunctive -- every branch must accept object. A schema
     // like `allOf:[{type:"object"}, {type:"string"}]` is unsatisfiable.
     expect(() =>
       resolveJsonSchemaArg('{"allOf":[{"type":"object"},{"type":"string"}]}'),
@@ -267,7 +267,7 @@ describe('resolveJsonSchemaArg', () => {
 
   it('rejects a root `not` that directly forbids object', () => {
     // `not:{type:"object"}` excludes every object value, so the schema is
-    // unsatisfiable for tool-call args. Best-effort check — only inspects
+    // unsatisfiable for tool-call args. Best-effort check -- only inspects
     // `not.type`; deeper negated patterns fall through to Ajv at runtime.
     expect(() => resolveJsonSchemaArg('{"not":{"type":"object"}}')).toThrow(
       /must accept object-typed values/,
@@ -278,7 +278,7 @@ describe('resolveJsonSchemaArg', () => {
   });
 
   it('accepts a root `not` whose negated type does not exclude object', () => {
-    // `not:{type:"string"}` only forbids strings — objects are still fine.
+    // `not:{type:"string"}` only forbids strings -- objects are still fine.
     const schema = resolveJsonSchemaArg('{"not":{"type":"string"}}');
     expect(schema).toBeDefined();
   });
@@ -290,7 +290,7 @@ describe('resolveJsonSchemaArg', () => {
     // satisfiable for at least one object value.
     //
     // The previous parse-time check looked only at `not.type` and
-    // rejected this as "must accept object-typed values" — a false
+    // rejected this as "must accept object-typed values" -- a false
     // positive. The fix: only reject when `not` is exactly
     // `{type: ...}` with no narrowing siblings; otherwise defer to
     // Ajv at runtime.
@@ -330,7 +330,7 @@ describe('resolveJsonSchemaArg', () => {
     expect(() => resolveJsonSchemaArg('{"enum":[1,2,"three"]}')).toThrow(
       /must accept object-typed values/,
     );
-    // Empty enum admits nothing — also reject.
+    // Empty enum admits nothing -- also reject.
     expect(() => resolveJsonSchemaArg('{"enum":[]}')).toThrow(
       /must accept object-typed values/,
     );
@@ -376,7 +376,7 @@ describe('resolveJsonSchemaArg', () => {
   it('accepts $ref nested inside anyOf / oneOf / allOf branches', () => {
     // Root $ref is rejected unconditionally (Ajv applies it conjunctively
     // with siblings), but $ref *inside* a composition branch is opaque
-    // at parse time — Ajv will resolve it at runtime. Refusing nested
+    // at parse time -- Ajv will resolve it at runtime. Refusing nested
     // refs would block common $defs/$ref composition shapes.
     const a = resolveJsonSchemaArg(
       '{"anyOf":[{"$ref":"#/$defs/Foo"},{"type":"string"}],"$defs":{"Foo":{"type":"object"}}}',
@@ -432,7 +432,7 @@ describe('resolveJsonSchemaArg', () => {
     expect(
       resolveJsonSchemaArg('{"if":false,"else":{"type":"object"}}'),
     ).toBeDefined();
-    // Object schema for `if` — runtime-decidable; defer to Ajv. We
+    // Object schema for `if` -- runtime-decidable; defer to Ajv. We
     // accept at parse time even when `then` excludes object, because
     // an object value may not match `if` and so isn't bound by `then`.
     expect(
@@ -440,8 +440,8 @@ describe('resolveJsonSchemaArg', () => {
         '{"if":{"type":"object","properties":{"k":{"const":"x"}}},"then":{"type":"object","properties":{"v":{"type":"string"}}}}',
       ),
     ).toBeDefined();
-    // (The degenerate `{if:true}` / `{if:false}` shapes — no `then` and
-    // no `else` — are rejected by Ajv strict mode as meaningless rather
+    // (The degenerate `{if:true}` / `{if:false}` shapes -- no `then` and
+    // no `else` -- are rejected by Ajv strict mode as meaningless rather
     // than by schemaRootAcceptsObject; that's fine.)
   });
 });

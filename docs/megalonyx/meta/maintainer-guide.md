@@ -1,4 +1,4 @@
-# 🛠️ Maintainer's Guide: Tooling & Harnesses
+#  Maintainer's Guide: Tooling & Harnesses
 
 This document provides the recommended toolset for managing the Independent Monorepo. While the core logic is handled by scripts and Git, these "harnesses" are used to reduce cognitive load, prevent manual errors, and provide visual clarity for the maintainer.
 

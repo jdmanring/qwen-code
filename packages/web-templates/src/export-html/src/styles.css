@@ -24,7 +24,7 @@
    * The first group tracks @qwen-code/webui's variables.css `:root.auto-theme`
    * block. The second group covers `--app-*` tokens that the auto-theme block
    * does NOT override but ChatViewer / MarkdownRenderer / CollapsibleFileContent
-   * still read — without these, light-mode exports leak dark surfaces (e.g.
+   * still read -- without these, light-mode exports leak dark surfaces (e.g.
    * markdown table headers, collapsible file blocks).
    *
    * When upgrading the webui dependency, diff its `:root` defaults plus the

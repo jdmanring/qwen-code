@@ -8,10 +8,10 @@
  * Drift detector for `buildAuthPreflightCell`'s env-key map.
  *
  * `AUTH_PREFLIGHT_ENV_KEYS` in `acpAgent.ts` is a hand-maintained mirror of
- * `AUTH_ENV_MAPPINGS` in `core/src/models/constants.ts` — core's table isn't
+ * `AUTH_ENV_MAPPINGS` in `core/src/models/constants.ts` -- core's table isn't
  * on the public package surface, so cli copies the relevant subset. When a
  * new provider lands in core, this map must be updated (or the new auth
- * method explicitly waived as non-env-based) — otherwise preflight silently
+ * method explicitly waived as non-env-based) -- otherwise preflight silently
  * reports `status: 'unknown'` for a working provider.
  *
  * This test walks the public `AuthType` enum and asserts every value is
@@ -59,7 +59,7 @@ describe('AUTH_PREFLIGHT_ENV_KEYS drift detection', () => {
   });
 
   it('every keyed entry has at least one env var candidate', () => {
-    // An entry with an empty array is a sentinel for "non-env-based" —
+    // An entry with an empty array is a sentinel for "non-env-based" --
     // belongs in AUTH_PREFLIGHT_WAIVED_AUTH_TYPES instead.
     const empty = Object.entries(AUTH_PREFLIGHT_ENV_KEYS).filter(
       ([, vars]) => vars.length === 0,

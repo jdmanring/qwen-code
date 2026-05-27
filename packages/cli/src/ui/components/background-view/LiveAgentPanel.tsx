@@ -5,16 +5,16 @@
  */
 
 /**
- * LiveAgentPanel — always-on bottom-of-screen roster of running subagents.
+ * LiveAgentPanel -- always-on bottom-of-screen roster of running subagents.
  *
  * Mirrors Claude Code's CoordinatorTaskPanel ("Renders below the prompt
- * input footer whenever local_agent tasks exist") — borderless rows of
- * `status · name · activity · elapsed` so the panel sits lightly above
+ * input footer whenever local_agent tasks exist") -- borderless rows of
+ * `status  name  activity  elapsed` so the panel sits lightly above
  * the composer rather than competing with it for vertical space. The
  * heavier bordered look stays with `BackgroundTasksDialog`, the
  * Down-arrow detail view that handles selection, cancel, and resume.
  *
- * Replaces the inline `AgentExecutionDisplay` frame for live updates —
+ * Replaces the inline `AgentExecutionDisplay` frame for live updates --
  * that frame mutated on every tool-call and caused scrollback repaint
  * flicker once the tool list grew past the terminal height. The panel
  * sits outside `<Static>` so updates never disturb committed history,
@@ -22,7 +22,7 @@
  * the dialog, so the three views never drift.
  *
  * Scope: read-only display. Cancel / detail / approval routing all stay
- * with the existing pill+dialog (Down arrow → BackgroundTasksDialog) so
+ * with the existing pill+dialog (Down arrow -> BackgroundTasksDialog) so
  * this panel never competes for keyboard input.
  */
 
@@ -47,13 +47,13 @@ import type {
 interface LiveAgentPanelProps {
   /**
    * Maximum agent rows to render. The panel windows from the most recent
-   * launches downward when the list outgrows the budget — matches the
+   * launches downward when the list outgrows the budget -- matches the
    * BackgroundTasksDialog list-mode windowing convention.
    */
   maxRows?: number;
   /**
    * Outer width budget so the panel respects the layout's main-area
-   * width when the terminal is narrow. Optional — caller defaults to
+   * width when the terminal is narrow. Optional -- caller defaults to
    * the layout width when omitted.
    */
   width?: number;
@@ -61,7 +61,7 @@ interface LiveAgentPanelProps {
 
 const DEFAULT_MAX_ROWS = 12;
 // Keep terminal entries on the panel briefly so the user gets visual
-// feedback ("✓ done · 12s") when a subagent finishes, then they fall off
+// feedback (" done  12s") when a subagent finishes, then they fall off
 // and the user goes to BackgroundTasksDialog for a deeper look. Mirrors
 // Claude Code's `RECENT_COMPLETED_TTL_MS = 30_000` knob, scaled down
 // because the panel is denser and we have the dialog as the long-term
@@ -80,11 +80,11 @@ type LivePanelEntry = AgentDialogEntry & {
   expired: boolean;
   /**
    * True when the row was synthesized because the registry forgot
-   * the entry — we know the agent is no longer running but NOT
+   * the entry -- we know the agent is no longer running but NOT
    * whether it succeeded, failed, or was cancelled (foreground
    * subagents don't transition through `complete`/`fail`/`cancel`
    * before `unregisterForeground`). Renders with a neutral glyph
-   * and color so the panel never claims a green ✔ on a run that
+   * and color so the panel never claims a green  on a run that
    * the user just saw fail in the inline tool result.
    */
   synthesized?: boolean;
@@ -94,7 +94,7 @@ function isAgentEntry(entry: DialogEntry): entry is AgentDialogEntry {
   return entry.kind === 'agent';
 }
 
-// Bullet glyphs mirror Claude Code's CoordinatorTaskPanel — `○` for
+// Bullet glyphs mirror Claude Code's CoordinatorTaskPanel -- `` for
 // active slots (running / paused) so the row reads as a uniform list,
 // terminal states keep distinct check / cross marks so they're easy
 // to scan at a glance.
@@ -103,31 +103,31 @@ function statusIcon(entry: AgentDialogEntry & { synthesized?: boolean }): {
   color: string;
 } {
   if (entry.synthesized) {
-    // Outcome unknown — registry forgot the entry without going
+    // Outcome unknown -- registry forgot the entry without going
     // through complete / fail / cancel. Use a neutral marker so
     // we don't lie about success.
-    return { glyph: '·', color: theme.text.secondary };
+    return { glyph: '', color: theme.text.secondary };
   }
   switch (entry.status) {
     case 'running':
-      return { glyph: '○', color: theme.status.warning };
+      return { glyph: '', color: theme.status.warning };
     case 'paused':
-      return { glyph: '⏸', color: theme.status.warning };
+      return { glyph: '', color: theme.status.warning };
     case 'completed':
-      return { glyph: '✔', color: theme.status.success };
+      return { glyph: '', color: theme.status.success };
     case 'failed':
-      return { glyph: '✖', color: theme.status.error };
+      return { glyph: '', color: theme.status.error };
     case 'cancelled':
-      return { glyph: '✖', color: theme.status.warning };
+      return { glyph: '', color: theme.status.warning };
     default:
-      return { glyph: '○', color: theme.text.secondary };
+      return { glyph: '', color: theme.text.secondary };
   }
 }
 
-// Internal-tool-name → user-facing display-name lookup
-// (`run_shell_command` → `Shell`, `glob` → `Glob`, …). Mirrors the
+// Internal-tool-name -> user-facing display-name lookup
+// (`run_shell_command` -> `Shell`, `glob` -> `Glob`, ...). Mirrors the
 // same map BackgroundTasksDialog uses so the two surfaces stay
-// vocabulary-consistent — without it the panel would surface raw
+// vocabulary-consistent -- without it the panel would surface raw
 // internal identifiers like `run_shell_command` while the dialog
 // shows `Shell` for the same agent.
 const TOOL_DISPLAY_BY_NAME: Record<string, string> = Object.fromEntries(
@@ -147,11 +147,11 @@ function activityLabel(entry: AgentDialogEntry): string {
 
 /**
  * Strip the leading `subagentType:` prefix from `entry.description` if
- * present so the row doesn't render `editor · editor: tighten…`. We
+ * present so the row doesn't render `editor  editor: tighten...`. We
  * intentionally do NOT call `buildBackgroundEntryLabel` here: the shared
- * helper also caps at 40 chars + appends `…`, which then collides with
+ * helper also caps at 40 chars + appends `...`, which then collides with
  * the row-level `truncate-end` and produces a double-ellipsis on narrow
- * terminals (e.g. `… FIXME ……`). The row's own truncation has the full
+ * terminals (e.g. `... FIXME ......`). The row's own truncation has the full
  * width budget and is the right place to decide where to cut.
  */
 function descriptionWithoutPrefix(entry: AgentDialogEntry): string {
@@ -169,7 +169,7 @@ function elapsedLabel(entry: AgentDialogEntry, now: number): string {
   const startedAt = entry.startTime;
   const endedAt = entry.endTime ?? now;
   const ms = Math.max(0, endedAt - startedAt);
-  // Whole-second precision keeps the row stable between paint frames —
+  // Whole-second precision keeps the row stable between paint frames --
   // a stopwatch ticking sub-seconds in a footer panel is a distraction.
   const wholeSeconds = Math.floor(ms / 1000);
   return formatDuration(wholeSeconds * 1000, { hideTrailingZeros: true });
@@ -182,7 +182,7 @@ export const LiveAgentPanel: React.FC<LiveAgentPanelProps> = ({
   const { entries, dialogOpen, livePanelFocused, livePanelSelectedIndex } =
     useBackgroundTaskViewState();
   // Reach for Config via the raw context (NOT useConfig) so the panel
-  // can degrade to snapshot-only when no provider is mounted — e.g.
+  // can degrade to snapshot-only when no provider is mounted -- e.g.
   // unit tests that render the component in isolation. useConfig
   // throws in that case, which would force every consumer to provide
   // a stub Config just to satisfy the panel's "live registry re-pull".
@@ -190,16 +190,16 @@ export const LiveAgentPanel: React.FC<LiveAgentPanelProps> = ({
 
   // Wall-clock tick. Drives elapsed-time refresh, terminal-row eviction,
   // AND the live registry re-pull below. The gate must consider:
-  //   - `dialogOpen` — when the bg-tasks dialog is up, the panel
+  //   - `dialogOpen` -- when the bg-tasks dialog is up, the panel
   //     renders null (`if (dialogOpen) return null` below), so any
   //     ticks the interval fires are wasted re-renders.
-  //   - live agents (running / paused) — always need elapsed updates.
-  //   - terminal agents still inside the 8s visibility window — need
+  //   - live agents (running / paused) -- always need elapsed updates.
+  //   - terminal agents still inside the 8s visibility window -- need
   //     ticks to drive their eviction.
   // `BackgroundTaskRegistry.getAll()` retains terminal entries up to
   // its cap (MAX_RETAINED_TERMINAL_AGENTS), so a naive
   // `entries.some(isAgentEntry)` gate would keep ticking until those
-  // older entries finally evict — far longer than the panel actually
+  // older entries finally evict -- far longer than the panel actually
   // needs to render them. The `dialogOpen` arm closes the
   // corresponding gap on the dialog side.
   const [now, setNow] = useState(() => Date.now());
@@ -226,7 +226,7 @@ export const LiveAgentPanel: React.FC<LiveAgentPanelProps> = ({
   }, [entries, dialogOpen]);
 
   // Re-pull each agent from the live registry on every tick so the row
-  // shows the latest `recentActivities` — `useBackgroundTaskView`
+  // shows the latest `recentActivities` -- `useBackgroundTaskView`
   // intentionally only refreshes its snapshot on `statusChange` to keep
   // the footer pill / AppContainer quiet under heavy tool traffic, but
   // a glance roster MUST surface "what is this agent doing right now"
@@ -235,9 +235,9 @@ export const LiveAgentPanel: React.FC<LiveAgentPanelProps> = ({
   // on its own activity tick.
   //
   // Four reconciliation paths between the snapshot and the registry:
-  //   1. Both agree → use live (newest `recentActivities`).
+  //   1. Both agree -> use live (newest `recentActivities`).
   //   2. Snap says still-live (running / paused) but registry forgot
-  //      → most commonly a foreground subagent that finished:
+  //      -> most commonly a foreground subagent that finished:
   //      `unregisterForeground` fires `emitStatusChange(entry)` BEFORE
   //      it deletes the entry, so the snapshot captures the old
   //      "still running" state and the next render's `registry.get`
@@ -245,11 +245,11 @@ export const LiveAgentPanel: React.FC<LiveAgentPanelProps> = ({
   //      `endTime = first-seen-missing` (pinned so subsequent ticks
   //      don't re-stamp it) and `synthesized: true` so the 8s
   //      visibility window gives the user a "the agent finished"
-  //      beat without claiming a green ✔ on a run we can't
+  //      beat without claiming a green  on a run we can't
   //      actually verify (foreground subagents don't transition
   //      through complete / fail / cancel before unregister, so the
   //      true outcome is unknowable here).
-  //   3. Snap is already terminal AND has `endTime` → keep the snap
+  //   3. Snap is already terminal AND has `endTime` -> keep the snap
   //      as-is. Canonical case: a foreground subagent that was
   //      cancelled / failed (which stamps `endTime` and emits
   //      statusChange) and then `unregisterForeground`'d. The snap
@@ -257,21 +257,21 @@ export const LiveAgentPanel: React.FC<LiveAgentPanelProps> = ({
   //      reads accurately; the visibleAgents filter evicts it once
   //      `now - endTime > TERMINAL_VISIBLE_MS` like any other
   //      terminal entry.
-  //   4. Snap is terminal but has NO `endTime` → drop. This is an
+  //   4. Snap is terminal but has NO `endTime` -> drop. This is an
   //      upstream invariant violation (`complete`/`fail`/`cancel`
   //      always stamp endTime); rendering would leave a row the
   //      visibility window has no way to evict.
   //
   // When `config` itself is undefined (test fixtures that render
-  // without ConfigContext) the panel degrades to snapshot-only —
+  // without ConfigContext) the panel degrades to snapshot-only --
   // there's no live source of truth to reconcile against.
   //
   // NOTE: this useMemo MUST come before the `if (dialogOpen) return null`
-  // early-return below — React's rules of hooks require hook calls in
+  // early-return below -- React's rules of hooks require hook calls in
   // identical order each render, so a conditional early-return that
   // skips a subsequent hook is a violation.
   // First-seen-missing timestamps for synthesized terminal entries.
-  // We need this to survive across useMemo recomputes — without it,
+  // We need this to survive across useMemo recomputes -- without it,
   // each tick would re-synthesize the entry with a fresh `now` as
   // `endTime`, the visibility-window check (`now - endTime > 8000`)
   // would always evaluate to 0, and the row would never expire. The
@@ -285,7 +285,7 @@ export const LiveAgentPanel: React.FC<LiveAgentPanelProps> = ({
     // `now` participates in the dependency array so the memo recomputes
     // each tick and picks up `recentActivities` the registry mutated in
     // place via appendActivity. Reading it here makes the dependency
-    // semantically honest — without this read a future "remove dead
+    // semantically honest -- without this read a future "remove dead
     // dep" cleanup would silently freeze the panel on the first
     // tool-call after a snapshot refresh.
     const reconcileAt = now;
@@ -295,7 +295,7 @@ export const LiveAgentPanel: React.FC<LiveAgentPanelProps> = ({
         seenIds.add(snap.agentId);
         const live = registry.get(snap.agentId);
         if (live) {
-          // Recovered (or never went missing) — drop any stale
+          // Recovered (or never went missing) -- drop any stale
           // missing-since record so a future re-disappearance
           // gets a fresh timestamp.
           missingSinceRef.current.delete(snap.agentId);
@@ -310,7 +310,7 @@ export const LiveAgentPanel: React.FC<LiveAgentPanelProps> = ({
             missingSinceRef.current.set(snap.agentId, missingSince);
           }
           // Mark synthesized so the row renders with a neutral glyph
-          // — we know the agent is no longer running but cannot tell
+          // -- we know the agent is no longer running but cannot tell
           // whether it succeeded, failed, or was cancelled (foreground
           // subagents are unregistered without transitioning through
           // complete / fail / cancel on the registry). Status stays
@@ -328,7 +328,7 @@ export const LiveAgentPanel: React.FC<LiveAgentPanelProps> = ({
         // case: a foreground subagent that was cancelled / failed
         // (`cancel` / `fail` set `endTime` and emit statusChange) and
         // then `unregisterForeground`'d. The snap carries the real
-        // `endTime`, so keep showing it — the visibleAgents filter
+        // `endTime`, so keep showing it -- the visibleAgents filter
         // below evicts it once `now - endTime > TERMINAL_VISIBLE_MS`.
         // Without this branch cancelled / failed foreground tasks
         // would disappear instantly, contradicting the panel's "brief
@@ -359,7 +359,7 @@ export const LiveAgentPanel: React.FC<LiveAgentPanelProps> = ({
   // behavior.
   //
   // The early-return is the LAST statement of this component on
-  // purpose — pure rendering moves to LiveAgentPanelBody so that
+  // purpose -- pure rendering moves to LiveAgentPanelBody so that
   // future refactors which add a hook can't accidentally drop it
   // below the `dialogOpen` guard (`Rendered fewer hooks than
   // expected` is the canonical bug shape this guards against).
@@ -409,7 +409,7 @@ const LiveAgentPanelBody: React.FC<{
     <Box flexDirection="column" marginTop={1} width={width} paddingX={2}>
       <Box>
         <Text color={focused ? theme.text.accent : theme.text.secondary}>
-          {focused && clampedIndex === 0 ? '▸ ' : '  '}
+          {focused && clampedIndex === 0 ? ' ' : '  '}
         </Text>
         <Text bold color={theme.text.accent}>
           main
@@ -419,7 +419,7 @@ const LiveAgentPanelBody: React.FC<{
         <Box>
           <Text
             color={theme.text.secondary}
-          >{`    ^ ${overflow} more above (↓ to view all)`}</Text>
+          >{`    ^ ${overflow} more above ( to view all)`}</Text>
         </Box>
       )}
       {visible.map((entry, idx) => (
@@ -433,7 +433,7 @@ const LiveAgentPanelBody: React.FC<{
       {focused && (
         <Box>
           <Text color={theme.text.secondary}>
-            {'  ↑↓ navigate · Enter detail · Esc back'}
+            {'   navigate  Enter detail  Esc back'}
           </Text>
         </Box>
       )}
@@ -458,7 +458,7 @@ const AgentRow: React.FC<{
   // Note: foreground vs background is intentionally not surfaced here.
   // BackgroundTasksDialog tags foreground rows with `[blocking]`
   // (formerly `[in turn]`) to warn that cancelling will end the
-  // current turn — useful in the dialog where `x` triggers a real
+  // current turn -- useful in the dialog where `x` triggers a real
   // cancel. The glance panel has no cancel surface, so the marker
   // reads as ambient noise. Keep the dialog as the place that
   // surfaces the flavor distinction.
@@ -472,29 +472,29 @@ const AgentRow: React.FC<{
     : '';
   const tokenSuffix =
     entry.stats?.totalTokens && entry.stats.totalTokens > 0
-      ? ` · ${formatTokenCount(entry.stats.totalTokens)} tokens`
+      ? `  ${formatTokenCount(entry.stats.totalTokens)} tokens`
       : '';
 
   // Layout (Claude Code's CoordinatorTaskPanel visual + our
   // right-pin to keep elapsed / tokens from being clipped):
   //
-  //   [○ type: desc (activity)]   [▶ 13s · 2.4k tokens]
+  //   [ type: desc (activity)]   [ 13s  2.4k tokens]
   //         ^ flex-shrink:1              ^ flex-shrink:0
   //         truncate-end                 always intact
   //
-  // - Status glyph at the left (`○` for live slots, ✔/✖/⏸ for
-  //   terminal — see `statusIcon`).
+  // - Status glyph at the left (`` for live slots, // for
+  //   terminal -- see `statusIcon`).
   // - `type:` prefix when not the default `general-purpose`.
   // - Activity wrapped in parentheses so it reads as an annotation
   //   on the description rather than a sibling field.
-  // - `▶` separates the description from elapsed / tokens, mirroring
+  // - `` separates the description from elapsed / tokens, mirroring
   //   the leaked CoordinatorTaskPanel pattern (`PLAY_ICON`).
   // - The left column has flex-shrink:1 (no flex-grow) so the two
   //   columns sit side by side at intrinsic widths; empty slack
   //   falls off the row tail rather than opening a visual gap
   //   between the description and the right-pinned elapsed.
-  const tail = ` ▶ ${elapsed}${tokenSuffix}`;
-  const prefix = selected ? '▸ ' : '  ';
+  const tail = `  ${elapsed}${tokenSuffix}`;
+  const prefix = selected ? ' ' : '  ';
   return (
     <Box flexDirection="row">
       <Box flexShrink={0}>

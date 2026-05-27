@@ -121,7 +121,7 @@ describe('DaemonClient', () => {
       const client = new DaemonClient({ baseUrl: 'http://daemon', fetch });
       const caps = await client.capabilities();
       expect(caps).toEqual(envelope);
-      // #3803 §02: clients use `workspaceCwd` to pre-flight check +
+      // #3803 02: clients use `workspaceCwd` to pre-flight check +
       // omit `cwd` from `POST /session` (route falls back).
       expect(caps.workspaceCwd).toBe('/work/bound');
     });
@@ -522,12 +522,12 @@ describe('DaemonClient', () => {
       expect(JSON.parse(calls[0]!.body!)).toEqual({ cwd: '/work/a' });
     });
 
-    it('omits cwd when workspaceCwd is not provided (#3803 §02)', async () => {
-      // Per #3803 §02 the daemon route falls back to its bound
+    it('omits cwd when workspaceCwd is not provided (#3803 02)', async () => {
+      // Per #3803 02 the daemon route falls back to its bound
       // workspace when `cwd` is absent. The SDK relies on
       // JSON.stringify stripping `undefined` values, so an
       // omitted `workspaceCwd` ends up as "no `cwd` key" on the
-      // wire — exactly the fallback shape the server expects.
+      // wire -- exactly the fallback shape the server expects.
       const { fetch, calls } = recordingFetch(() =>
         jsonResponse(200, {
           sessionId: 's-1',
@@ -543,7 +543,7 @@ describe('DaemonClient', () => {
     it('forwards empty-string workspaceCwd verbatim so the server can 400 it', async () => {
       // `workspaceCwd: ""` is a likely client-side bug shape. A
       // truthy-guard SDK would silently drop the field and let the
-      // server's fallback bind the session — masking the bug. We
+      // server's fallback bind the session -- masking the bug. We
       // forward it verbatim so the server's
       // `cwd must be an absolute path when provided` 400 surfaces.
       const { fetch, calls } = recordingFetch(() =>
@@ -621,7 +621,7 @@ describe('DaemonClient', () => {
 
     it('omits sessionScope from the body when the field is absent', async () => {
       // Backward-compat: a caller that doesn't set the field must not
-      // surface a `sessionScope` key on the wire — old daemons reading
+      // surface a `sessionScope` key on the wire -- old daemons reading
       // an unknown body key is fine, but the omitted-key shape is what
       // we tested before #4175 PR 5 and what every existing caller
       // observes.
@@ -973,7 +973,7 @@ describe('DaemonClient', () => {
       expect(calls[0]?.method).toBe('DELETE');
     });
 
-    it('returns void on 404 (idempotent — session already gone)', async () => {
+    it('returns void on 404 (idempotent -- session already gone)', async () => {
       const { fetch } = recordingFetch(() =>
         jsonResponse(404, { error: 'not found' }),
       );
@@ -1062,7 +1062,7 @@ describe('DaemonClient', () => {
     it('forwards Last-Event-ID', async () => {
       const { fetch, calls } = recordingFetch(() => sseResponse(''));
       const client = new DaemonClient({ baseUrl: 'http://daemon', fetch });
-      // Drain immediately — empty stream.
+      // Drain immediately -- empty stream.
       for await (const _ of client.subscribeEvents('s-1', {
         lastEventId: 42,
       })) {
@@ -1101,7 +1101,7 @@ describe('DaemonClient', () => {
       })) {
         /* unreachable */
       }
-      // Bare events URL — no `?` introduced when the caller didn't ask.
+      // Bare events URL -- no `?` introduced when the caller didn't ask.
       expect(calls[0]?.url).toBe('http://daemon/session/s-1/events');
       expect(calls[0]?.headers['last-event-id']).toBe('7');
     });
@@ -1515,8 +1515,8 @@ describe('DaemonClient', () => {
       });
     });
 
-    it('applies fetchTimeoutMs to the connect phase only — never-resolving fetch aborts (A-UsS)', async () => {
-      // The CONNECT phase (request → headers received) must respect
+    it('applies fetchTimeoutMs to the connect phase only -- never-resolving fetch aborts (A-UsS)', async () => {
+      // The CONNECT phase (request -> headers received) must respect
       // `fetchTimeoutMs`; the SSE body itself must NOT be timed out.
       // Verify the timer fires when headers never arrive.
       const fetch = vi.fn(
@@ -1536,7 +1536,7 @@ describe('DaemonClient', () => {
       const iter = client.subscribeEvents('s-1');
       await expect(iter.next()).rejects.toThrow();
       const elapsed = Date.now() - before;
-      // Generous bound — just confirms the timer fired.
+      // Generous bound -- just confirms the timer fired.
       expect(elapsed).toBeLessThan(2000);
     });
 
@@ -1593,7 +1593,7 @@ describe('DaemonClient', () => {
 
   describe('fetchWithTimeout', () => {
     it('aborts the underlying fetch when the configured timeout fires', async () => {
-      // Fetch that *never* resolves on its own — only abort can end it.
+      // Fetch that *never* resolves on its own -- only abort can end it.
       // This is what the polyfill paths (`abortTimeout` /
       // `composeAbortSignals`) need to actually exercise; the rest of
       // the suite uses synchronous-resolving fakes that never trigger
@@ -1614,7 +1614,7 @@ describe('DaemonClient', () => {
       const before = Date.now();
       await expect(client.health()).rejects.toThrow();
       const elapsed = Date.now() - before;
-      // Generous upper bound — we just want to know the timer fired
+      // Generous upper bound -- we just want to know the timer fired
       // (not that the test runner waited the full default 5s).
       expect(elapsed).toBeLessThan(2000);
     });
@@ -1629,10 +1629,10 @@ describe('DaemonClient', () => {
       // the timer firing during body consumption.
       const fetch = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
         // Build a Response whose body never delivers data and never
-        // closes on its own — the only way `res.json()` ever
+        // closes on its own -- the only way `res.json()` ever
         // returns is if the timer aborts via the composed signal.
         // Wire the abort to `controller.error(...)` (NOT
-        // `body.cancel()` — that throws on a locked stream once
+        // `body.cancel()` -- that throws on a locked stream once
         // `res.json()` has started reading) so the in-flight read
         // rejects naturally.
         const body = new ReadableStream({
@@ -1669,12 +1669,12 @@ describe('DaemonClient', () => {
     });
 
     it('composeAbortSignals forwards the first abort, with or without native AbortSignal.any', async () => {
-      // Direct-unit test on the helper — `subscribeEvents` bypasses
+      // Direct-unit test on the helper -- `subscribeEvents` bypasses
       // `fetchWithTimeout` entirely (it calls `_fetch` directly with
       // the caller's signal), so testing through subscribeEvents
       // never exercises the polyfill. Calling `composeAbortSignals`
       // here covers it on all Node versions: native (`>=20.3`) and
-      // polyfill (`18.0`–`20.2`) take the same input shape.
+      // polyfill (`18.0`-`20.2`) take the same input shape.
       const a = new AbortController();
       const b = new AbortController();
       const composed = composeAbortSignals([a.signal, b.signal]);
@@ -1701,7 +1701,7 @@ describe('DaemonClient', () => {
         sig.addEventListener('abort', () => resolve(), { once: true }),
       );
       const elapsed = Date.now() - t0;
-      // Generous tolerance — just checking the timer fires.
+      // Generous tolerance -- just checking the timer fires.
       expect(elapsed).toBeGreaterThanOrEqual(30);
       expect(elapsed).toBeLessThan(2000);
     });
@@ -1725,8 +1725,8 @@ describe('DaemonClient', () => {
       );
     });
 
-    it('throws DaemonCapabilityMissingError when the field is undefined (pre-§02 daemon)', () => {
-      // Pre-§02 daemons emit v=1 envelopes without `workspaceCwd`.
+    it('throws DaemonCapabilityMissingError when the field is undefined (pre-02 daemon)', () => {
+      // Pre-02 daemons emit v=1 envelopes without `workspaceCwd`.
       // The helper exists so SDK consumers get an actionable error
       // instead of a downstream `Cannot read properties of undefined`.
       expect(() => requireWorkspaceCwd(caps({}))).toThrow(
@@ -1967,7 +1967,7 @@ describe('DaemonClient', () => {
     });
 
     it('deleteWorkspaceAgent treats 204 as success and only swallows structured 404', async () => {
-      // 204 → resolves silently
+      // 204 -> resolves silently
       {
         const { fetch } = recordingFetch(
           () => new Response(null, { status: 204 }),
@@ -1975,7 +1975,7 @@ describe('DaemonClient', () => {
         const client = new DaemonClient({ baseUrl: 'http://daemon', fetch });
         await expect(client.deleteWorkspaceAgent('x')).resolves.toBeUndefined();
       }
-      // 404 with `code: agent_not_found` → idempotent success
+      // 404 with `code: agent_not_found` -> idempotent success
       {
         const { fetch } = recordingFetch(() =>
           jsonResponse(404, { error: 'not found', code: 'agent_not_found' }),
@@ -1983,7 +1983,7 @@ describe('DaemonClient', () => {
         const client = new DaemonClient({ baseUrl: 'http://daemon', fetch });
         await expect(client.deleteWorkspaceAgent('x')).resolves.toBeUndefined();
       }
-      // 404 WITHOUT structured code (proxy / older daemon / wrong route) → throws
+      // 404 WITHOUT structured code (proxy / older daemon / wrong route) -> throws
       {
         const { fetch } = recordingFetch(
           () =>
@@ -2000,12 +2000,12 @@ describe('DaemonClient', () => {
     });
   });
 
-  // PR #4255 fold-in 10 #3 — device-flow HTTP method coverage. The
+  // PR #4255 fold-in 10 #3 -- device-flow HTTP method coverage. The
   // round-8 reviewer flagged that `startDeviceFlow` /
   // `getDeviceFlow` / `cancelDeviceFlow` / `getAuthStatus` plus the
   // `client.auth` lazy getter had zero unit tests; this block
   // exercises route paths, method codes, signal forwarding (fold-in
-  // 7 #6), and the `failOnError` → `DaemonHttpError` mapping.
+  // 7 #6), and the `failOnError` -> `DaemonHttpError` mapping.
   describe('device-flow methods (fold-in 10 #3)', () => {
     it('startDeviceFlow POSTs /workspace/auth/device-flow + forwards body / clientId header', async () => {
       const { fetch, calls } = recordingFetch(() =>
@@ -2078,7 +2078,7 @@ describe('DaemonClient', () => {
       const client = new DaemonClient({ baseUrl: 'http://daemon', fetch });
       const res = await client.getDeviceFlow('flow with space');
       expect(res.status).toBe('authorized');
-      // RFC 3986 / encodeURIComponent — `' '` → `%20`.
+      // RFC 3986 / encodeURIComponent -- `' '` -> `%20`.
       expect(calls[0]?.url).toBe(
         'http://daemon/workspace/auth/device-flow/flow%20with%20space',
       );
@@ -2194,7 +2194,7 @@ describe('DaemonClient', () => {
       const client = new DaemonClient({ baseUrl: 'http://daemon', fetch });
       const a = client.auth;
       const b = client.auth;
-      // Same instance on subsequent reads — singleton allocation.
+      // Same instance on subsequent reads -- singleton allocation.
       expect(a).toBe(b);
     });
   });

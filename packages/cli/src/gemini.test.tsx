@@ -498,7 +498,7 @@ describe('gemini.tsx main function', () => {
       'isRaw',
     );
     Object.defineProperty(process.stdin, 'isTTY', {
-      value: false, // 在 stream-json 模式下应为 false
+      value: false, //  stream-json  false
       configurable: true,
     });
     Object.defineProperty(process.stdin, 'isRaw', {
@@ -868,7 +868,7 @@ describe('gemini.tsx main function kitty protocol', () => {
   it('rejects --json-schema when running in interactive (TUI) mode', async () => {
     // The synthetic structured_output tool only terminates the run inside
     // runNonInteractive. In TUI mode it's an inert tool that prints
-    // "accepted" and leaves the chat alive — silently stranding the run.
+    // "accepted" and leaves the chat alive -- silently stranding the run.
     // gemini.tsx must reject this combination at runtime (parse-time
     // gating can't catch the no-prompt-on-TTY case because stdin
     // availability isn't probed yet at parse time).
@@ -939,16 +939,16 @@ describe('gemini.tsx main function kitty protocol', () => {
       if (!(e instanceof MockProcessExitError)) throw e;
     }
 
-    // The headless-only message must reach stderr…
+    // The headless-only message must reach stderr...
     expect(mockWriteStderrLine).toHaveBeenCalledWith(
       expect.stringContaining('--json-schema is a headless-only flag'),
     );
-    // …runExitCleanup must run before exit so MCP subprocesses /
-    // telemetry exporters registered earlier get torn down…
+    // ...runExitCleanup must run before exit so MCP subprocesses /
+    // telemetry exporters registered earlier get torn down...
     expect(runExitCleanupMock).toHaveBeenCalledTimes(1);
-    // …and exit must be 1, not 0.
+    // ...and exit must be 1, not 0.
     expect(processExitSpy).toHaveBeenCalledWith(1);
-    // Order: stderr → cleanup → exit. A regression that swapped any of
+    // Order: stderr -> cleanup -> exit. A regression that swapped any of
     // these (cleanup before stderr; exit without cleanup; exit 0
     // instead of 1) would silently strand TUI users.
     expect(callOrder).toEqual([

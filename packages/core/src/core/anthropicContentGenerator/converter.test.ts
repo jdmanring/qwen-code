@@ -64,7 +64,7 @@ describe('AnthropicContentConverter', () => {
     });
 
     it('emits scope:"global" on the system text when useGlobalCacheScope is set', () => {
-      // Anthropic-native + caching enabled → generator passes
+      // Anthropic-native + caching enabled -> generator passes
       // `useGlobalCacheScope: true` and the system prefix participates in
       // cross-session caching under the `prompt-caching-scope-2026-01-05`
       // beta. Non-Anthropic backends pass false (or omit) so they see the
@@ -679,7 +679,7 @@ describe('AnthropicContentConverter', () => {
     });
   });
 
-  // https://github.com/QwenLM/qwen-code/issues/3786 — DeepSeek's
+  // https://github.com/QwenLM/qwen-code/issues/3786 -- DeepSeek's
   // anthropic-compatible API rejects requests in thinking mode when a prior
   // assistant turn carrying `tool_use` omits a thinking block. Plain-text
   // assistant turns without thinking are accepted unchanged, so the converter
@@ -858,7 +858,7 @@ describe('AnthropicContentConverter', () => {
       // tool_use was emitted. Stripping unconditionally would leave
       // `content: []`, which Anthropic API rejects, and dropping the message
       // would break user/assistant alternation. Keep the original blocks
-      // instead — DeepSeek empirically tolerates the residual mismatch.
+      // instead -- DeepSeek empirically tolerates the residual mismatch.
       const { messages } = converter.convertGeminiRequestToAnthropic(
         {
           model: 'models/test',
@@ -953,7 +953,7 @@ describe('AnthropicContentConverter', () => {
     });
 
     it('treats a redacted_thinking block as already-satisfying (no synthetic injection)', () => {
-      // redacted_thinking has no `signature` field by spec — its `data` is
+      // redacted_thinking has no `signature` field by spec -- its `data` is
       // the opaque token. Distinct from a non-compliant `thinking` block
       // missing its required signature. The injector must leave redacted
       // turns alone. processContent doesn't synthesize redacted_thinking
@@ -1010,7 +1010,7 @@ describe('AnthropicContentConverter', () => {
     });
 
     it('preserves an existing compliant thinking block on a tool-use turn', () => {
-      // A thinking block with a real `signature` field is fully compliant —
+      // A thinking block with a real `signature` field is fully compliant --
       // the injector must not duplicate it.
       const { messages } = converter.convertGeminiRequestToAnthropic(
         {
@@ -1348,7 +1348,7 @@ describe('AnthropicContentConverter', () => {
       // `cache_read_input_tokens` (the warm prefix served from cache), and
       // `cache_creation_input_tokens` (the new region being written). The
       // converter must forward both cache fields so the normalizer can sum
-      // them — dropping either silently undercounts the Footer reading by
+      // them -- dropping either silently undercounts the Footer reading by
       // the size of the dropped bucket.
       const response = converter.convertAnthropicResponseToGemini({
         id: 'msg-1',
@@ -1519,7 +1519,7 @@ describe('AnthropicContentConverter', () => {
         },
       ] as Tool[];
 
-      it('overrides constructor false → true for system + messages + tools', async () => {
+      it('overrides constructor false -> true for system + messages + tools', async () => {
         const constructedWithCacheOff = new AnthropicContentConverter(
           'test-model',
           'auto',
@@ -1568,7 +1568,7 @@ describe('AnthropicContentConverter', () => {
         });
       });
 
-      it('overrides constructor true → false (cache fully off)', async () => {
+      it('overrides constructor true -> false (cache fully off)', async () => {
         // Default ctor: enableCacheControl true. Per-call override flips to
         // false, mirroring a runtime `setModel()` that switches into a
         // cache-disabled provider config.
@@ -1603,7 +1603,7 @@ describe('AnthropicContentConverter', () => {
       it('honors useGlobalCacheScope independently of enableCacheControl source', async () => {
         // Cache on (per-call), scope off (per-call default). Verify the
         // emitted shape is per-session even though cache_control IS
-        // attached — non-Anthropic baseURL behavior in one call.
+        // attached -- non-Anthropic baseURL behavior in one call.
         const converterDefault = new AnthropicContentConverter(
           'test-model',
           'auto',
@@ -1615,7 +1615,7 @@ describe('AnthropicContentConverter', () => {
             config: { systemInstruction: 'sys' },
           },
           {
-            enableCacheControl: true /* useGlobalCacheScope omitted → false */,
+            enableCacheControl: true /* useGlobalCacheScope omitted -> false */,
           },
         );
         expect(system).toEqual([

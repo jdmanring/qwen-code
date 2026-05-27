@@ -1,5 +1,5 @@
-🏛️ 
-# 🔄 Blueprint vs. Machine Gap Analysis
+ 
+#  Blueprint vs. Machine Gap Analysis
 
 This document serves as the living manifest of discrepancies between the **Blueprint** (source code in `../../`) and the **Machine** (deployed state in `~/.local/share/megalonyx/`).
 
@@ -7,16 +7,16 @@ The goal of this document is to ensure that the Blueprint remains the absolute s
 
 ---
 
-## 🎯 Synchronization Goal
+##  Synchronization Goal
 **$\text{Blueprint} \approx \text{Machine}$**
 
 Any tool, script, or configuration that exists on the Machine and is required for operation **MUST** be mirrored in the Blueprint. Runtime-generated state (logs, PIDs, databases) is exempt.
 
 ---
 
-## 📊 Current State (Last Audit: May 20, 2026)
+##  Current State (Last Audit: May 20, 2026)
 
-### ✅ Resolved Gaps (The Truth Sync)
+###  Resolved Gaps (The Truth Sync)
 The following items were identified as missing from the Blueprint and have been recovered:
 
 | Item | Blueprint Path | Status | Note |
@@ -28,7 +28,7 @@ The following items were identified as missing from the Blueprint and have been 
 | `QWEN.md` (Machine) | `docs/meta/machine-qwen.md` | **Recovered** | Machine-side operational notes. |
 | `TEST_TODO.md` | `docs/meta/machine-test-todo.md` | **Recovered** | Historical testing progress. |
 
-### ⚠️ Persistent/Intentional Gaps
+###  Persistent/Intentional Gaps
 These items exist on the Machine but should **NOT** be mirrored in the Blueprint:
 
 | Item | Type | Reason |
@@ -40,7 +40,7 @@ These items exist on the Machine but should **NOT** be mirrored in the Blueprint
 
 ---
 
-## 🛠️ Synchronization Protocol
+##  Synchronization Protocol
 
 When drift is detected (e.g., a new utility script is created on the Machine), the following protocol must be followed:
 
@@ -64,7 +64,7 @@ Verify that the recovered tool works in the Blueprint environment before committ
 
 ---
 
-## ✅ Sync Checklist
+##  Sync Checklist
 - [ ] All operational scripts in `~/.local/share/megalonyx/scripts/` are mirrored in `scripts/`.
 - [ ] All `bin/` wrappers are synchronized.
 - [ ] No absolute paths exist in the Blueprint's configuration templates.

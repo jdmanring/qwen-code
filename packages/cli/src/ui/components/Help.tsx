@@ -121,7 +121,7 @@ export const Help: React.FC<HelpProps> = ({
           </Box>
           <Box marginTop={1}>
             <Text italic color={theme.text.secondary}>
-              {t('Tab/Shift+Tab to switch tabs  ·  Esc to cancel')}
+              {t('Tab/Shift+Tab to switch tabs    Esc to cancel')}
             </Text>
           </Box>
         </Box>
@@ -168,8 +168,8 @@ const GeneralHelp: React.FC<{ width: number }> = ({ width }) => {
       process.platform === 'win32' ? 'Tab' : 'Shift+Tab',
       t('Cycle approval modes'),
     ],
-    ['Alt+←/→', t('Jump through words')],
-    ['↑/↓', t('Cycle prompt history')],
+    ['Alt+<-/->', t('Jump through words')],
+    ['/', t('Cycle prompt history')],
   ];
   const left = shortcuts.slice(0, Math.ceil(shortcuts.length / 2));
   const right = shortcuts.slice(Math.ceil(shortcuts.length / 2));
@@ -327,7 +327,7 @@ const CommandsHelp: React.FC<{
           return (
             <Box marginTop={1}>
               <Text color={theme.text.secondary}>
-                {t('Use ↑/↓ to scroll')} {`(${range}/${totalCommands})`}
+                {t('Use / to scroll')} {`(${range}/${totalCommands})`}
               </Text>
             </Box>
           );
@@ -503,5 +503,5 @@ function groupCommands(
 
 function truncateText(text: string, maxLength: number): string {
   if (maxLength <= 1 || text.length <= maxLength) return text;
-  return `${text.slice(0, maxLength - 1)}…`;
+  return `${text.slice(0, maxLength - 1)}...`;
 }

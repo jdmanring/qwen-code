@@ -116,7 +116,7 @@ describe('getPillLabel', () => {
     ).toBe('2 monitors');
   });
 
-  it('groups all three kinds with shells → agents → monitors order', () => {
+  it('groups all three kinds with shells -> agents -> monitors order', () => {
     expect(
       getPillLabel([
         agentEntry({ agentId: 'a' }),
@@ -179,7 +179,7 @@ describe('getPillLabel', () => {
   });
 
   it('places dream last in the kind ordering (shell, agent, monitor, dream)', () => {
-    // Ordering is asserted explicitly because it's a UX choice — dream
+    // Ordering is asserted explicitly because it's a UX choice -- dream
     // is system-initiated (not user-triggered) and the user is least
     // likely to need it at a glance, so it sits to the right of the
     // user-launched kinds.

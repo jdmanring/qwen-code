@@ -94,7 +94,7 @@ You MUST always respond in **${language}** regardless of the user's input langua
 This is a mandatory requirement, not a preference.
 
 ## Exception
-If the user **explicitly** requests a response in a specific language (e.g., "please reply in English", "用中文回答"), switch to the user's requested language for the remainder of the conversation.
+If the user **explicitly** requests a response in a specific language (e.g., "please reply in English", ""), switch to the user's requested language for the remainder of the conversation.
 
 ## Keep technical artifacts unchanged
 Do **not** translate or rewrite:
@@ -111,7 +111,7 @@ Raw tool/system outputs may contain fixed-format English. Preserve them verbatim
  * Supports both the new marker format and legacy heading format.
  */
 function parseOutputLanguageFromContent(content: string): string | null {
-  // Primary: machine-readable marker (e.g., <!-- qwen-code:llm-output-language: 中文 -->)
+  // Primary: machine-readable marker (e.g., <!-- qwen-code:llm-output-language:  -->)
   const markerRegex = new RegExp(
     String.raw`<!--\s*${LLM_OUTPUT_LANGUAGE_MARKER_PREFIX}\s*(.*?)\s*-->`,
     'i',

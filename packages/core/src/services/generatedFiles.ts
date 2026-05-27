@@ -34,7 +34,7 @@ const EXCLUDED_FILENAMES = new Set([
 ]);
 
 // File extension patterns (case-insensitive). Note: `.d.ts` is NOT
-// listed here — `.d.ts` files are commonly authored by hand
+// listed here -- `.d.ts` files are commonly authored by hand
 // (declaration files for projects without TS sources, ambient module
 // declarations, asset shims like `*.d.ts` for `import './x.svg'`),
 // and treating every one as generated would silently drop AI edits
@@ -77,7 +77,7 @@ const EXCLUDED_DIRECTORY_SEGMENTS = new Set([
 ]);
 
 // Multi-segment directory patterns that need contiguous matches
-// (e.g. `target/release` and `target/debug` for Rust — `target` alone
+// (e.g. `target/release` and `target/debug` for Rust -- `target` alone
 // is too noisy as it's a common app name too).
 const EXCLUDED_DIRECTORY_PATH_SUFFIXES = ['target/release', 'target/debug'];
 
@@ -131,10 +131,10 @@ export function isGeneratedFile(filePath: string): boolean {
   const normalizedPathLower = normalizedPath.toLowerCase();
   // Segment-boundary check: split on `/` and test each segment against
   // EXCLUDED_DIRECTORY_SEGMENTS so `/repo/my-dist/file.ts` (a literal
-  // dir name) doesn't get caught by the `dist` rule the way a naïve
+  // dir name) doesn't get caught by the `dist` rule the way a nave
   // `.includes('/dist/')` substring match could appear to suggest.
   const segments = normalizedPathLower.split('/').filter(Boolean);
-  // The last segment is the filename — directory rules only apply to
+  // The last segment is the filename -- directory rules only apply to
   // intermediate path components.
   for (const seg of segments.slice(0, -1)) {
     if (EXCLUDED_DIRECTORY_SEGMENTS.has(seg)) {

@@ -152,7 +152,7 @@ export const AskUserQuestionDialog: React.FC<AskUserQuestionDialogProps> = ({
   useKeypress(
     (key) => {
       // When the custom-input TextInput is focused, we must NOT match bare
-      // letter keys (k/j) for option navigation — those characters are being
+      // letter keys (k/j) for option navigation -- those characters are being
       // typed into the input. Only honor unambiguous shortcuts: arrow keys
       // and the readline-style Ctrl+P/Ctrl+N. TextInput itself doesn't bind
       // those, so there's no double-fire.
@@ -299,14 +299,14 @@ export const AskUserQuestionDialog: React.FC<AskUserQuestionDialogProps> = ({
                 <Text dimColor>
                   {isAnswered ? '  ' : '  '}
                   {q.header}
-                  {isAnswered ? ' ✓' : ''}
+                  {isAnswered ? ' ' : ''}
                 </Text>
               </Box>
             );
           })}
           <Box>
             <Text color={theme.text.accent} bold>
-              ▸ {t('Submit')}
+               {t('Submit')}
             </Text>
           </Box>
         </Box>
@@ -344,7 +344,7 @@ export const AskUserQuestionDialog: React.FC<AskUserQuestionDialogProps> = ({
               }
               bold={selectedIndex === 0}
             >
-              {selectedIndex === 0 ? '❯ ' : '  '}1. {t('Submit answers')}
+              {selectedIndex === 0 ? ' ' : '  '}1. {t('Submit answers')}
             </Text>
           </Box>
           <Box>
@@ -354,14 +354,14 @@ export const AskUserQuestionDialog: React.FC<AskUserQuestionDialogProps> = ({
               }
               bold={selectedIndex === 1}
             >
-              {selectedIndex === 1 ? '❯ ' : '  '}2. {t('Cancel')}
+              {selectedIndex === 1 ? ' ' : '  '}2. {t('Cancel')}
             </Text>
           </Box>
         </Box>
 
         <Box marginTop={1}>
           <Text dimColor>
-            {t('↑/↓: Navigate | ←/→: Switch tabs | Enter: Select')}
+            {t('/: Navigate | <-/->: Switch tabs | Enter: Select')}
           </Text>
         </Box>
       </Box>
@@ -387,9 +387,9 @@ export const AskUserQuestionDialog: React.FC<AskUserQuestionDialogProps> = ({
                   bold={idx === currentQuestionIndex}
                   dimColor={idx !== currentQuestionIndex}
                 >
-                  {idx === currentQuestionIndex ? '▸ ' : '  '}
+                  {idx === currentQuestionIndex ? ' ' : '  '}
                   {q.header}
-                  {isAnswered ? ' ✓' : ''}
+                  {isAnswered ? ' ' : ''}
                 </Text>
               </Box>
             );
@@ -436,10 +436,10 @@ export const AskUserQuestionDialog: React.FC<AskUserQuestionDialogProps> = ({
                   color={isHighlighted ? theme.text.accent : theme.text.primary}
                   bold={isHighlighted}
                 >
-                  {isSelected ? '❯ ' : '  '}
-                  {isMultiSelect ? (isMultiChecked ? '[✓] ' : '[ ] ') : ''}
+                  {isSelected ? ' ' : '  '}
+                  {isMultiSelect ? (isMultiChecked ? '[] ' : '[ ] ') : ''}
                   {index + 1}. {opt.label}
-                  {isAnswered ? ' ✓' : ''}
+                  {isAnswered ? ' ' : ''}
                 </Text>
               </Box>
               {opt.description && (
@@ -457,10 +457,10 @@ export const AskUserQuestionDialog: React.FC<AskUserQuestionDialogProps> = ({
             // Inline TextInput replaces the option text
             <Box>
               <Text color={theme.text.accent} bold>
-                ❯{' '}
+                {' '}
                 {isMultiSelect
                   ? customInputChecked[currentQuestionIndex]
-                    ? '[✓] '
+                    ? '[] '
                     : '[ ] '
                   : ''}
                 {currentQuestion!.options.length + 1}.{' '}
@@ -513,12 +513,12 @@ export const AskUserQuestionDialog: React.FC<AskUserQuestionDialogProps> = ({
                 {'  '}
                 {isMultiSelect
                   ? customInputChecked[currentQuestionIndex]
-                    ? '[✓] '
+                    ? '[] '
                     : '[ ] '
                   : ''}
                 {currentQuestion!.options.length + 1}.{' '}
                 {currentCustomInputValue || t('Type something...')}
-                {isCustomInputAnswer ? ' ✓' : ''}
+                {isCustomInputAnswer ? ' ' : ''}
               </Text>
             </Box>
           )}
@@ -532,16 +532,16 @@ export const AskUserQuestionDialog: React.FC<AskUserQuestionDialogProps> = ({
             {hasMultipleQuestions
               ? isMultiSelect
                 ? t(
-                    '↑/↓: Navigate | ←/→: Switch tabs | Space: Toggle | Enter: Confirm | Esc: Cancel',
+                    '/: Navigate | <-/->: Switch tabs | Space: Toggle | Enter: Confirm | Esc: Cancel',
                   )
                 : t(
-                    '↑/↓: Navigate | ←/→: Switch tabs | Enter: Select | Esc: Cancel',
+                    '/: Navigate | <-/->: Switch tabs | Enter: Select | Esc: Cancel',
                   )
               : isMultiSelect
                 ? t(
-                    '↑/↓: Navigate | Space: Toggle | Enter: Confirm | Esc: Cancel',
+                    '/: Navigate | Space: Toggle | Enter: Confirm | Esc: Cancel',
                   )
-                : t('↑/↓: Navigate | Enter: Select | Esc: Cancel')}
+                : t('/: Navigate | Enter: Select | Esc: Cancel')}
           </Text>
         </Box>
       </Box>

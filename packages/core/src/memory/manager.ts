@@ -5,7 +5,7 @@
  */
 
 /**
- * MemoryManager — the single entry-point for all memory module operations.
+ * MemoryManager -- the single entry-point for all memory module operations.
  *
  * # Design
  * All background-task state (in-flight promises, per-project extraction queues,
@@ -15,7 +15,7 @@
  * helper classes; those abstractions are replaced by straightforward inline
  * state management inside this class.
  *
- * Public API — everything external callers need:
+ * Public API -- everything external callers need:
  *   config.getMemoryManager().scheduleExtract(params)
  *   config.getMemoryManager().scheduleDream(params)
  *   config.getMemoryManager().recall(projectRoot, query, options)
@@ -76,7 +76,7 @@ import type { AutoMemoryMetadata } from './types.js';
 
 const debugLogger = createDebugLogger('AUTO_MEMORY_MANAGER');
 
-// ─── Re-export public types consumed by callers ───────────────────────────────
+// --- Re-export public types consumed by callers -------------------------------
 
 export type {
   AutoMemoryForgetResult,
@@ -89,7 +89,7 @@ export type {
 };
 export type { ManagedAutoMemoryStatus } from './status.js';
 
-// ─── Task record ──────────────────────────────────────────────────────────────
+// --- Task record --------------------------------------------------------------
 
 export type MemoryTaskStatus =
   | 'pending'
@@ -112,7 +112,7 @@ export interface MemoryTaskRecord {
   metadata?: Record<string, unknown>;
 }
 
-// ─── Extract params / result ──────────────────────────────────────────────────
+// --- Extract params / result --------------------------------------------------
 
 export interface ScheduleExtractParams {
   projectRoot: string;
@@ -150,7 +150,7 @@ export interface SkillReviewScheduleResult {
 // AutoMemoryExtractResult is re-used as the return type
 export type { AutoMemoryExtractResult as ExtractResult } from './extract.js';
 
-// ─── Dream params / result ────────────────────────────────────────────────────
+// --- Dream params / result ----------------------------------------------------
 
 export interface ScheduleDreamParams {
   projectRoot: string;
@@ -182,13 +182,13 @@ export type SessionScannerFn = (
   excludeSessionId: string,
 ) => Promise<string[]>;
 
-// ─── Drain options ────────────────────────────────────────────────────────────
+// --- Drain options ------------------------------------------------------------
 
 export interface DrainOptions {
   timeoutMs?: number;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// --- Constants ----------------------------------------------------------------
 
 export const EXTRACT_TASK_TYPE = 'managed-auto-memory-extraction' as const;
 export const DREAM_TASK_TYPE = 'managed-auto-memory-dream' as const;
@@ -208,7 +208,7 @@ const WRITE_TOOL_NAMES = new Set([
   'create_file',
 ]);
 
-// ─── Internal helpers ─────────────────────────────────────────────────────────
+// --- Internal helpers ---------------------------------------------------------
 
 function makeTaskRecord(
   type: MemoryTaskRecord['taskType'],
@@ -346,7 +346,7 @@ async function dreamLockExists(projectRoot: string): Promise<boolean> {
     const parsed = parseInt(content.trim(), 10);
     holderPid = Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
   } catch {
-    return false; // ENOENT — no lock
+    return false; // ENOENT -- no lock
   }
   const ageMs = Date.now() - mtimeMs;
   if (ageMs <= DREAM_LOCK_STALE_MS) {
@@ -372,7 +372,7 @@ async function releaseDreamLock(projectRoot: string): Promise<void> {
   });
 }
 
-// ─── MemoryManager ────────────────────────────────────────────────────────────
+// --- MemoryManager ------------------------------------------------------------
 
 /**
  * MemoryManager owns all runtime state for the memory subsystem and exposes a
@@ -380,9 +380,9 @@ async function releaseDreamLock(projectRoot: string): Promise<void> {
  * `config.getMemoryManager()`. Tests pass a fresh `new MemoryManager()`.
  */
 export class MemoryManager {
-  // ── Task records ────────────────────────────────────────────────────────────
+  // -- Task records ------------------------------------------------------------
   private readonly tasks = new Map<string, MemoryTaskRecord>();
-  // ── Subscribers (useSyncExternalStore / custom listeners) ────────────────
+  // -- Subscribers (useSyncExternalStore / custom listeners) ----------------
   // Subscribers without a taskType filter receive every notify; those
   // with a filter receive only notifies whose changed record matches
   // (extract OR dream). Filtered subscribers exist so high-frequency
@@ -394,10 +394,10 @@ export class MemoryManager {
     'extract' | 'dream',
     Set<() => void>
   >();
-  // ── In-flight promises (for drain) ──────────────────────────────────────────
+  // -- In-flight promises (for drain) ------------------------------------------
   private readonly inFlight = new Map<string, Promise<unknown>>();
 
-  // ── Extract scheduling state ─────────────────────────────────────────────────
+  // -- Extract scheduling state -------------------------------------------------
   private readonly extractRunning = new Set<string>();
   private readonly extractCurrentTaskId = new Map<string, string>();
   private readonly extractQueued = new Map<
@@ -405,10 +405,10 @@ export class MemoryManager {
     { taskId: string; params: ScheduleExtractParams }
   >();
 
-  // ── Skill-review in-flight dedup ─────────────────────────────────────────────
+  // -- Skill-review in-flight dedup ---------------------------------------------
   private readonly skillReviewInFlightByProject = new Map<string, string>();
 
-  // ── Dream scheduling state ───────────────────────────────────────────────────
+  // -- Dream scheduling state ---------------------------------------------------
   private readonly dreamInFlightByKey = new Map<string, string>();
   private readonly dreamLastSessionScanAt = new Map<string, number>();
   // AbortControllers for in-flight dream tasks, keyed by record id.
@@ -420,7 +420,7 @@ export class MemoryManager {
   // ENOENT race, disk full). The lock file is then left on disk and
   // dreamLockExists() sees a fresh-mtime lock owned by a still-alive
   // PID (us!), suppressing every subsequent scheduleDream() call as
-  // `{status: 'skipped', skippedReason: 'locked'}` — invisible to the
+  // `{status: 'skipped', skippedReason: 'locked'}` -- invisible to the
   // user once the surfacing UI just shows "Lock release failed" without
   // re-firing. Setting this flag tells the next scheduleDream() to
   // force-clean the leaked lock file before the existence check, so
@@ -432,16 +432,16 @@ export class MemoryManager {
   constructor(sessionScanner: SessionScannerFn = defaultSessionScanner) {
     this.sessionScanner = sessionScanner;
   }
-  // ─── Subscribe ───────────────────────────────────────────────────────────────────
+  // --- Subscribe -------------------------------------------------------------------
 
   /**
    * Register a listener that is called whenever any task record changes.
-   * Compatible with React’s `useSyncExternalStore`.
+   * Compatible with React's `useSyncExternalStore`.
    * Returns an unsubscribe function.
    *
    * Pass `{ taskType: 'dream' }` (or `'extract'`) to receive only
    * notifies whose changed record matches that type. Filtered
-   * subscribers skip the wakeup entirely for unrelated transitions —
+   * subscribers skip the wakeup entirely for unrelated transitions --
    * the dream-only UI hook uses this to avoid doing O(n) signature
    * work on every per-UserQuery extract notify.
    */
@@ -517,7 +517,7 @@ export class MemoryManager {
     this.tasks.set(record.id, record);
     this.notify(record.taskType);
   }
-  // ─── Task record query ────────────────────────────────────────────────────────
+  // --- Task record query --------------------------------------------------------
 
   /** Return task records filtered by type and optionally by projectRoot. */
   listTasksByType(
@@ -533,7 +533,7 @@ export class MemoryManager {
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
 
-  // ─── Drain ────────────────────────────────────────────────────────────────────
+  // --- Drain --------------------------------------------------------------------
 
   /** Wait for all in-flight tasks to settle, with optional timeout. */
   async drain(options: DrainOptions = {}): Promise<boolean> {
@@ -555,7 +555,7 @@ export class MemoryManager {
     return promise;
   }
 
-  // ─── Extract ──────────────────────────────────────────────────────────────────
+  // --- Extract ------------------------------------------------------------------
 
   /**
    * Schedule a managed auto-memory extraction for the given session turn.
@@ -747,7 +747,7 @@ export class MemoryManager {
     );
   }
 
-  // ─── Skill review ─────────────────────────────────────────────────────────────
+  // --- Skill review -------------------------------------------------------------
 
   scheduleSkillReview(
     params: ScheduleSkillReviewParams,
@@ -831,7 +831,7 @@ export class MemoryManager {
     return record;
   }
 
-  // ─── Dream ────────────────────────────────────────────────────────────────────
+  // --- Dream --------------------------------------------------------------------
 
   /**
    * Maybe schedule a managed auto-memory dream (consolidation).
@@ -900,7 +900,7 @@ export class MemoryManager {
           force: true,
         })
         .catch(() => {
-          // Best-effort recovery — if even the forced rm fails (truly
+          // Best-effort recovery -- if even the forced rm fails (truly
           // unrecoverable filesystem state), fall through and let the
           // existence check below report 'locked' as before.
         });
@@ -910,7 +910,7 @@ export class MemoryManager {
       return { status: 'skipped', skippedReason: 'locked' };
     }
 
-    // Deduplication — only one dream per projectRoot at a time
+    // Deduplication -- only one dream per projectRoot at a time
     const dedupeKey = `${DREAM_TASK_TYPE}:${params.projectRoot}`;
     const existingId = this.dreamInFlightByKey.get(dedupeKey);
     if (existingId) {
@@ -939,7 +939,7 @@ export class MemoryManager {
     this.storeWith(record, {
       status: 'running',
       // Set the initial progressText so the dialog's Progress section
-      // has something to show during the in-flight window — fork-agent
+      // has something to show during the in-flight window -- fork-agent
       // execution exposes no per-turn callback today, so without this
       // the section stays empty until completion.
       progressText: 'Scheduled managed auto-memory dream.',
@@ -971,7 +971,7 @@ export class MemoryManager {
    *
    * Returns true if a running task was aborted, false if the task is
    * unknown / already terminal / not a dream. Currently only dream
-   * tasks support cancellation — extract is short-lived and runs
+   * tasks support cancellation -- extract is short-lived and runs
    * synchronously through the request loop; cancelling it would
    * interfere with the user's own turn.
    */
@@ -991,13 +991,13 @@ export class MemoryManager {
     // the consolidation lock until the agent finishes naturally) and
     // return false so the caller knows the abort didn't take. Log at
     // warn level so the inconsistency is observable in debug bundles
-    // — silent failure here would leave a runaway dream burning tokens
+    // -- silent failure here would leave a runaway dream burning tokens
     // with no signal to the user or to telemetry.
     const ac = this.dreamAbortControllers.get(taskId);
     if (!ac) {
       debugLogger.warn(
         `cancelTask: AbortController missing for running dream task ${taskId}; ` +
-          `not flipping status. This indicates a logic bug — the controller ` +
+          `not flipping status. This indicates a logic bug -- the controller ` +
           `should have been registered in scheduleDream and only cleared ` +
           `after a terminal status transition.`,
       );
@@ -1078,7 +1078,7 @@ export class MemoryManager {
           // Defense-in-depth: unreachable today (no `await` between
           // the pre-update check and the synchronous update above,
           // so JS's single-threaded execution prevents
-          // `signal.aborted` from transitioning between them — a
+          // `signal.aborted` from transitioning between them -- a
           // cancelTask landing inside the storeWith notify would
           // already have flipped status, and our update would have
           // raced ahead of it to 'completed'). Kept against a future
@@ -1100,14 +1100,14 @@ export class MemoryManager {
         // here on out. Safe to write scheduler-gating metadata
         // without a race window.
         //
-        // Wrap the read/write in a try/catch — pre-PR `bumpMetadata`
+        // Wrap the read/write in a try/catch -- pre-PR `bumpMetadata`
         // in dream.ts swallowed errors as best-effort; without this
         // wrap a transient ENOENT / EPERM on the metadata file would
         // propagate to the outer catch and overwrite a
         // legitimately-completed dream with `'failed'`. The dream
         // already did its work (touched files are on disk and
         // visible). Trade-off: the next dream cycle won't see a
-        // bumped lastDreamAt and may re-fire — same trade as the
+        // bumped lastDreamAt and may re-fire -- same trade as the
         // original best-effort behavior.
         try {
           const nextMetadata = await readDreamMetadata(params.projectRoot);
@@ -1172,7 +1172,7 @@ export class MemoryManager {
               deduped_entries: 0,
               touched_topics: [],
               // Real elapsed time the cancelled dream consumed before
-              // the user stopped it — without this, latency histograms
+              // the user stopped it -- without this, latency histograms
               // / p95 metrics would silently treat cancelled dreams as
               // 0ms and skew toward the success path.
               duration_ms: Date.now() - dreamStartMs,
@@ -1192,7 +1192,7 @@ export class MemoryManager {
     return record;
   }
 
-  // ─── Recall ───────────────────────────────────────────────────────────────────
+  // --- Recall -------------------------------------------------------------------
 
   /** Select and format relevant memory for the given query. */
   recall(
@@ -1203,7 +1203,7 @@ export class MemoryManager {
     return resolveRelevantAutoMemoryPromptForQuery(projectRoot, query, options);
   }
 
-  // ─── Forget ───────────────────────────────────────────────────────────────────
+  // --- Forget -------------------------------------------------------------------
 
   /** Select candidate memory entries matching the given query (step 1 of forget). */
   selectForgetCandidates(
@@ -1233,14 +1233,14 @@ export class MemoryManager {
     return forgetManagedAutoMemoryEntries(projectRoot, query, options, now);
   }
 
-  // ─── Status ───────────────────────────────────────────────────────────────────
+  // --- Status -------------------------------------------------------------------
 
   /** Return a full status snapshot for the given project's memory. */
   getStatus(projectRoot: string) {
     return getManagedAutoMemoryStatus(projectRoot, this);
   }
 
-  // ─── Prompt append ────────────────────────────────────────────────────────────
+  // --- Prompt append ------------------------------------------------------------
 
   /** Append the managed auto-memory section to a user memory string. */
   appendToUserMemory(
@@ -1255,7 +1255,7 @@ export class MemoryManager {
     );
   }
 
-  // ─── Dream utilities ──────────────────────────────────────────────────────────
+  // --- Dream utilities ----------------------------------------------------------
 
   /**
    * Record that a manual dream run has completed for the given session.
@@ -1277,7 +1277,7 @@ export class MemoryManager {
     return buildConsolidationTaskPrompt(memoryRoot, transcriptDir);
   }
 
-  // ─── Test helpers ─────────────────────────────────────────────────────────────
+  // --- Test helpers -------------------------------------------------------------
 
   /** Reset all extract scheduling state. Call from afterEach in tests. */
   resetExtractStateForTests(): void {

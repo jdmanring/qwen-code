@@ -48,7 +48,7 @@ export const SUPPORTED_EVENTS = [
  * new payload fields that are not purely additive, etc.).
  *
  * History:
- *   1 — initial release (session_start, session_end, full stream-json).
+ *   1 -- initial release (session_start, session_end, full stream-json).
  */
 export const DUAL_OUTPUT_PROTOCOL_VERSION = 1;
 
@@ -117,8 +117,8 @@ export class DualOutputBridge {
         this.stream = createWriteStream('', { fd });
       } catch (err) {
         const code = (err as NodeJS.ErrnoException).code;
-        // ENXIO: FIFO has no reader yet — fall back to blocking open.
-        // ENOENT: regular file doesn't exist yet — create it.
+        // ENXIO: FIFO has no reader yet -- fall back to blocking open.
+        // ENOENT: regular file doesn't exist yet -- create it.
         if (code === 'ENXIO' || code === 'ENOENT') {
           this.stream = createWriteStream(target.filePath, { flags: 'w' });
         } else {
@@ -129,7 +129,7 @@ export class DualOutputBridge {
 
     this.stream.on('error', (err) => {
       const code = (err as NodeJS.ErrnoException).code;
-      // Consumer disconnected — gracefully stop writing, don't crash the TUI
+      // Consumer disconnected -- gracefully stop writing, don't crash the TUI
       if (code === 'EPIPE' || code === 'ERR_STREAM_DESTROYED') {
         debugLogger.warn('DualOutput: consumer disconnected, disabling');
       } else {
@@ -141,7 +141,7 @@ export class DualOutputBridge {
 
     this.adapter = new StreamJsonOutputAdapter(
       config,
-      true, // includePartialMessages — always emit streaming events
+      true, // includePartialMessages -- always emit streaming events
       this.stream,
     );
 
@@ -262,7 +262,7 @@ export class DualOutputBridge {
   }
 
   /**
-   * Emits a `control_response` with subtype `error` — used when an external
+   * Emits a `control_response` with subtype `error` -- used when an external
    * `confirmation_response` cannot be satisfied (unknown request_id, the
    * tool call already resolved, stream already closed, etc.). Lets
    * consumers retry or surface the error instead of silently hanging.
@@ -292,7 +292,7 @@ export class DualOutputBridge {
     if (this.shutdownPromise) return this.shutdownPromise;
     // Try to emit session_end before tearing the stream down so consumers
     // get a definitive termination signal rather than inferring it from
-    // EPIPE. Failures here are swallowed — the stream may already be in an
+    // EPIPE. Failures here are swallowed -- the stream may already be in an
     // error state if the consumer disconnected first.
     if (this.active) {
       try {
@@ -300,7 +300,7 @@ export class DualOutputBridge {
           session_id: this.sessionId,
         });
       } catch {
-        // ignore — stream likely already closed
+        // ignore -- stream likely already closed
       }
     }
     this.active = false;

@@ -185,7 +185,7 @@ export class RequestTokenizer {
   private calculateFallbackTokens(request: CountTokensParameters): number {
     try {
       const content = JSON.stringify(request.contents);
-      return Math.ceil(content.length / 4); // Rough estimate: 1 token ≈ 4 characters
+      return Math.ceil(content.length / 4); // Rough estimate: 1 token  4 characters
     } catch (error) {
       debugLogger.warn('Error in fallback token calculation:', error);
       return 100; // Conservative fallback

@@ -129,7 +129,7 @@ export function HookDetailStep({
                         isSelected ? theme.text.accent : theme.text.primary
                       }
                     >
-                      {isSelected ? '❯' : ' '}
+                      {isSelected ? '' : ' '}
                     </Text>
                   </Box>
                   <Text
@@ -153,7 +153,7 @@ export function HookDetailStep({
           })}
           <Box marginTop={1}>
             <Text color={theme.text.secondary}>
-              {t('Enter to select · Esc to go back')}
+              {t('Enter to select  Esc to go back')}
             </Text>
           </Box>
         </>

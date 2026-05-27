@@ -13,7 +13,7 @@ import { BUNDLE_CHUNK_DIR, resolveBundleDir } from './bundlePaths.js';
  * `resolveBundleDir` is the single chokepoint that hides whether a module
  * was hoisted into `dist/chunks/` by esbuild's `splitting: true`. The check
  * is intentionally narrow (only strips a trailing segment whose basename
- * equals `BUNDLE_CHUNK_DIR`) — these tests pin that behaviour so a future
+ * equals `BUNDLE_CHUNK_DIR`) -- these tests pin that behaviour so a future
  * tweak to the splitter or `chunkNames` doesn't silently break the four
  * downstream callers (skill-manager, ripgrepUtils, i18n, extensions/new).
  */

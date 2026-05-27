@@ -38,7 +38,7 @@ export class SseFramingError extends Error {
  *   - Malformed frames (non-JSON `data`, missing `data`) are skipped
  *     silently so a single bad frame can't poison the iterator.
  *
- * The reader is released in `finally` so `for await … break` paths and
+ * The reader is released in `finally` so `for await ... break` paths and
  * AbortSignal cancellation both clean up cleanly.
  */
 /**
@@ -46,7 +46,7 @@ export class SseFramingError extends Error {
  * before we abort the stream as malformed. SSE frames are typically a
  * few hundred bytes; even a heavily-batched provider rarely crosses
  * 64 KiB. A buffer that grows past 16 Mi code units is a strong
- * signal that the upstream is NOT SSE — e.g. a misconfigured proxy
+ * signal that the upstream is NOT SSE -- e.g. a misconfigured proxy
  * returned a non-streaming body, or the server never emits the
  * `\n\n` separator. Without a cap, `buf` grows until the consumer
  * OOMs.
@@ -54,7 +54,7 @@ export class SseFramingError extends Error {
  * The cap is **code units, not bytes** (BRker). JS strings are
  * stored as UTF-16 (sometimes Latin-1 under the hood, depending on
  * engine string representation), so `buf.length` is NOT a reliable
- * byte-count proxy — a mostly-ASCII payload uses ~1 byte per code
+ * byte-count proxy -- a mostly-ASCII payload uses ~1 byte per code
  * unit on V8's Latin-1 path, while supplementary code points (a
  * single user-perceived character like an emoji) cost 2 code units
  * per source byte after decode. We cap on what we can cheaply
@@ -80,7 +80,7 @@ export async function* parseSseStream(
   // `signal.aborted` between reads (the previous behavior) is fine
   // when frames are flowing, but if the stream sits silent and
   // somebody calls `controller.abort()`, the generator stays parked
-  // on the pending `read()` until the upstream eventually closes —
+  // on the pending `read()` until the upstream eventually closes --
   // contradicting this function's "AbortSignal cancellation cleans
   // up cleanly" contract. `reader.cancel()` is a no-op if already
   // cancelled, so racing the listener with the finally cleanup is
@@ -110,7 +110,7 @@ export async function* parseSseStream(
       // listener above) settles the reader cleanly on most paths,
       // but undici-on-abort can also reject the in-flight `read()`
       // with an AbortError / "BodyStreamBuffer was aborted". The
-      // public contract says "abort cancels cleanly" — so if we
+      // public contract says "abort cancels cleanly" -- so if we
       // catch a rejection AFTER the signal already aborted, treat
       // it as clean completion. Re-throw for any other failure so
       // consumers still see real upstream errors (network drop,
@@ -151,11 +151,11 @@ export async function* parseSseStream(
         return;
       }
       buf += decoder.decode(value, { stream: true });
-      // Unbounded buffer is a memory-pressure vector — see MAX_BUF_CHARS.
+      // Unbounded buffer is a memory-pressure vector -- see MAX_BUF_CHARS.
       if (buf.length > MAX_BUF_CHARS) {
         throw new SseFramingError(
           `parseSseStream: unread buffer exceeded ${MAX_BUF_CHARS} ` +
-            `UTF-16 code units without a frame separator — upstream likely not SSE`,
+            `UTF-16 code units without a frame separator -- upstream likely not SSE`,
         );
       }
       const consumed = consumeFrames(buf);
@@ -172,7 +172,7 @@ export async function* parseSseStream(
       signal.removeEventListener('abort', onAbort);
     }
     // `reader.cancel()` does both the release-lock work AND signals the
-    // upstream that we don't want any more data — closing the underlying
+    // upstream that we don't want any more data -- closing the underlying
     // HTTP body stream when the consumer breaks out early. Using only
     // `releaseLock()` would orphan the connection until idle timeout.
     try {
@@ -200,7 +200,7 @@ function consumeFrames(buf: string): { frames: string[]; tail: string } {
   while (cursor < buf.length) {
     const lf = buf.indexOf('\n\n', cursor);
     if (lf === -1) {
-      // No LF separator left — try the CRLF fallback.
+      // No LF separator left -- try the CRLF fallback.
       const crlf = buf.indexOf('\r\n\r\n', cursor);
       if (crlf === -1) break;
       frames.push(buf.slice(cursor, crlf));
@@ -233,7 +233,7 @@ function parseFrame(raw: string): DaemonEvent | undefined {
   // intermediary that prepends `: keep-alive` to every frame). The
   // line-level loop below only collects `data:` lines, so a
   // pure-comment frame still returns undefined via the
-  // `dataLines.length === 0` guard — without us dropping real events
+  // `dataLines.length === 0` guard -- without us dropping real events
   // whose first line happens to be a comment (BRgq-).
   // Split on either CRLF or LF (same forgiving stance as frame boundaries).
   const dataLines: string[] = [];
@@ -254,8 +254,8 @@ function parseFrame(raw: string): DaemonEvent | undefined {
     // generator's `AsyncGenerator<DaemonEvent>` contract (e.g.
     // `null` where `ev.type` is supposed to be readable, or an
     // array where `ev.v` would be undefined). The daemon itself
-    // never emits these — `formatSseFrame` always serializes a
-    // populated object with `v === 1` and `type: string` — so the
+    // never emits these -- `formatSseFrame` always serializes a
+    // populated object with `v === 1` and `type: string` -- so the
     // guard is defense-in-depth against misbehaving proxies /
     // alternate daemon implementations. Per BREsR: also reject
     // arrays and require minimal shape (`v === 1`, `type` is a
@@ -277,11 +277,11 @@ function parseFrame(raw: string): DaemonEvent | undefined {
     // consumer's id-monotonicity invariant holds.
     //
     // BX8Y1: also require `id >= 1`. The daemon's `Last-Event-ID`
-    // parser only accepts decimal digits (positive integers ≥ 0)
+    // parser only accepts decimal digits (positive integers >= 0)
     // and the EventBus emits monotonic ids starting at 1. A client
     // that persisted `id = -1` from a malformed frame would later
     // send `Last-Event-ID: -1`, which the daemon silently ignores
-    // → replay diverges. Fail loud at parse time instead.
+    // -> replay diverges. Fail loud at parse time instead.
     const rawId = (parsed as { id?: unknown }).id;
     if (rawId !== undefined) {
       if (!Number.isSafeInteger(rawId)) return undefined;

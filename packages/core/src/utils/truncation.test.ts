@@ -82,7 +82,7 @@ describe('truncateAndSaveToFile', () => {
 
   it('should reduce effective lines when line content would exceed character threshold', async () => {
     // 2000 lines of 100 chars each = 200,000 chars, well over THRESHOLD (40,000)
-    // Even after truncating to TRUNCATE_LINES (1000), that's 100,000 chars — still over.
+    // Even after truncating to TRUNCATE_LINES (1000), that's 100,000 chars -- still over.
     // The effective line count should be reduced to fit within the threshold.
     const lines = Array(2000).fill('x'.repeat(100));
     const content = lines.join('\n');
@@ -110,7 +110,7 @@ describe('truncateAndSaveToFile', () => {
     // be roughly within the character threshold.
     expect(truncatedPart.length).toBeLessThan(THRESHOLD * 1.5);
 
-    // With 100 chars/line and 40,000 threshold, effective lines ≈ 400.
+    // With 100 chars/line and 40,000 threshold, effective lines  400.
     // Verify we have fewer lines than the default TRUNCATE_LINES.
     const truncatedLines = truncatedPart.split('\n');
     expect(truncatedLines.length).toBeLessThan(TRUNCATE_LINES);
@@ -200,7 +200,7 @@ describe('truncateAndSaveToFile', () => {
   });
 
   it('should stay near char threshold even when line lengths vary widely', async () => {
-    // Mix of short and very long lines — the old average-based approach
+    // Mix of short and very long lines -- the old average-based approach
     // would undercount because long lines in the tail blow past the budget.
     const lines: string[] = [];
     for (let i = 0; i < 2000; i++) {

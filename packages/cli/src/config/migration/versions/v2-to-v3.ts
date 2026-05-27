@@ -154,7 +154,7 @@ export class V2ToV3Migration implements SettingsMigration {
     const processedPaths = new Set<string>();
     const warnings: string[] = [];
 
-    // Step 1: Handle consolidated paths (multiple old paths → single new path)
+    // Step 1: Handle consolidated paths (multiple old paths -> single new path)
     // Policy: if ANY of the old disable* settings is true, the new enable* should be false
     for (const [newPath, oldPaths] of Object.entries(CONSOLIDATED_V2_PATHS)) {
       let hasAnyDisable = false;
@@ -188,7 +188,7 @@ export class V2ToV3Migration implements SettingsMigration {
       }
     }
 
-    // Step 2: Handle remaining individual disable* → enable* mappings
+    // Step 2: Handle remaining individual disable* -> enable* mappings
     for (const [oldPath, newPath] of Object.entries(V2_TO_V3_BOOLEAN_MAP)) {
       if (processedPaths.has(oldPath)) {
         continue;
@@ -218,5 +218,5 @@ export class V2ToV3Migration implements SettingsMigration {
   }
 }
 
-/** Singleton instance of V2→V3 migration */
+/** Singleton instance of V2->V3 migration */
 export const v2ToV3Migration = new V2ToV3Migration();

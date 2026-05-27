@@ -1,4 +1,4 @@
-# 🚀 Versioning & Release Policy
+#  Versioning & Release Policy
 
 This document codifies the versioning protocol for the **Mega Code** stack. We adhere to **Semantic Versioning (SemVer) 2.0.0** to ensure predictable, deterministic, and automated lifecycle management.
 

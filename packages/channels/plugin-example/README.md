@@ -4,8 +4,8 @@ A reference channel plugin for Qwen Code. It connects to a WebSocket server and 
 
 Use this package to:
 
-- **Try out the channel plugin system** — install it as an extension and run it with the built-in mock server
-- **Use it as a starting point** — fork the source to build your own channel adapter (see the [Channel Plugin Developer Guide](../../docs/developers/channel-plugins.md))
+- **Try out the channel plugin system** -- install it as an extension and run it with the built-in mock server
+- **Use it as a starting point** -- fork the source to build your own channel adapter (see the [Channel Plugin Developer Guide](../../docs/developers/channel-plugins.md))
 
 ## Quick start
 
@@ -75,14 +75,14 @@ You should get a JSON response with the agent's reply.
 
 ```
 Mock Server (HTTP + WS)
-  ↕ WebSocket
+   WebSocket
 MockPluginChannel (this package)
-  → Envelope → ChannelBase.handleInbound()
-    → SenderGate → SessionRouter → AcpBridge.prompt()
-      → qwen-code agent → model API
-    ← response
-  ← sendMessage() → WebSocket → Mock Server
-  ← HTTP response
+  -> Envelope -> ChannelBase.handleInbound()
+    -> SenderGate -> SessionRouter -> AcpBridge.prompt()
+      -> qwen-code agent -> model API
+    <- response
+  <- sendMessage() -> WebSocket -> Mock Server
+  <- HTTP response
 ```
 
 ## Building your own channel
@@ -96,9 +96,9 @@ See `src/MockPluginChannel.ts` for a working example. The key points:
 
 ### Features you get for free
 
-- **Block streaming** — enable `blockStreaming: "on"` in config and the agent's response is automatically split into multiple messages at paragraph boundaries
-- **Attachments** — populate `envelope.attachments` with images/files and `handleInbound()` routes them to the agent (images as vision input, files as paths in the prompt)
-- **Streaming hooks** — override `onResponseChunk()` for progressive display (e.g., editing a message in-place)
+- **Block streaming** -- enable `blockStreaming: "on"` in config and the agent's response is automatically split into multiple messages at paragraph boundaries
+- **Attachments** -- populate `envelope.attachments` with images/files and `handleInbound()` routes them to the agent (images as vision input, files as paths in the prompt)
+- **Streaming hooks** -- override `onResponseChunk()` for progressive display (e.g., editing a message in-place)
 - Access control (allowlist, pairing, open), session routing, slash commands, crash recovery
 
 Full guide: [Channel Plugin Developer Guide](../../docs/developers/channel-plugins.md)

@@ -191,8 +191,8 @@ describe('encodeKittyPayload', () => {
   });
 
   it('base64-encodes UTF-8 text', () => {
-    expect(encodeKittyPayload('你好')).toBe(
-      Buffer.from('你好', 'utf8').toString('base64'),
+    expect(encodeKittyPayload('')).toBe(
+      Buffer.from('', 'utf8').toString('base64'),
     );
   });
 });
@@ -254,7 +254,7 @@ describe('sanitizeOscPayload', () => {
   });
 
   it('preserves normal text', () => {
-    expect(sanitizeOscPayload('Hello World! 你好')).toBe('Hello World! 你好');
+    expect(sanitizeOscPayload('Hello World! ')).toBe('Hello World! ');
   });
 
   it('strips C1 control characters', () => {

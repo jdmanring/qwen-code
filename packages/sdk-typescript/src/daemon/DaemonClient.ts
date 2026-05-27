@@ -57,7 +57,7 @@ import type {
  * routes (POST /session, POST /session/:id/prompt, GET /session/:id/events,
  * etc.) and yields ACP-flavored events.
  *
- * The two surfaces are NOT interchangeable — they speak different protocols
+ * The two surfaces are NOT interchangeable -- they speak different protocols
  * (stream-json vs ACP NDJSON). DaemonClient lives alongside ProcessTransport
  * so applications that want daemon-mode (cross-client attach, shared MCP
  * pool, network reachability) can opt in without disturbing the existing
@@ -79,12 +79,12 @@ export interface DaemonClientOptions {
    * methods (`health`, `capabilities`, `createOrAttachSession`,
    * `listWorkspaceSessions`, read-only status routes, `setSessionModel`,
    * `cancel`, `respondToPermission`) so an unresponsive daemon doesn't block
-   * callers indefinitely. **NOT** applied to `prompt()` — model + tool
+   * callers indefinitely. **NOT** applied to `prompt()` -- model + tool
    * turns can take minutes, so prompt explicitly bypasses
    * `fetchTimeoutMs`; cancellation is via the optional `signal` arg.
    * Streaming (`subscribeEvents`) is similarly excluded for the
    * long-lived SSE body, though it does apply `fetchTimeoutMs` to the
-   * initial connect phase (request → headers received).
+   * initial connect phase (request -> headers received).
    * Defaults to 30s. Set to `0` or `Infinity` to disable.
    */
   fetchTimeoutMs?: number;
@@ -124,7 +124,7 @@ export class DaemonHttpError extends Error {
 
 export interface CreateSessionRequest {
   /**
-   * Workspace path the daemon must be bound to (per #3803 §02). When
+   * Workspace path the daemon must be bound to (per #3803 02). When
    * omitted, the SDK sends no `cwd` field and the daemon route falls
    * back to its boot-time `boundWorkspace`. Pass `caps.workspaceCwd`
    * to be explicit, or omit it for the daemon-knows-best path. A
@@ -146,7 +146,7 @@ export interface CreateSessionRequest {
    *
    * Only `'single'` and `'thread'` are accepted; anything else yields
    * `400 invalid_session_scope`. Old daemons (pre-#4175 PR 5) silently
-   * ignore the field — clients should pre-flight
+   * ignore the field -- clients should pre-flight
    * `caps.features.session_scope_override` before sending.
    */
   sessionScope?: 'single' | 'thread';
@@ -177,7 +177,7 @@ export interface SubscribeOptions {
    * `?maxQueued=N` on `GET /session/:id/events`. Daemon-side range is
    * `[16, 2048]` (default 256); out-of-range or non-decimal values get
    * a `400 invalid_max_queued` response. Old daemons without the
-   * `slow_client_warning` capability silently ignore the param — SDK
+   * `slow_client_warning` capability silently ignore the param -- SDK
    * clients should pre-flight `caps.features.slow_client_warning`
    * before opting in. Useful for cold reconnects with a large
    * `Last-Event-ID: 0` replay backlog so the force-pushed replay
@@ -215,7 +215,7 @@ export class DaemonClient {
     // a caller passing `-1` or `NaN` would slip past the
     // `Number.isFinite` check inside `fetchWithTimeout` (NaN fails
     // isFinite, negatives pass) and either short-circuit timeout entirely
-    // or fire `setTimeout(-1)` → immediate abort, killing every request
+    // or fire `setTimeout(-1)` -> immediate abort, killing every request
     // before it could complete. The `0` sentinel is the documented
     // disable value, so we collapse all "doesn't make sense" inputs onto
     // it instead of defending the math at every call site.
@@ -228,7 +228,7 @@ export class DaemonClient {
    * passes their own `signal`, both signals abort the request via
    * `AbortSignal.any`, so caller cancellation and the per-call timeout
    * compose. Streaming endpoints (subscribeEvents) call `_fetch` directly
-   * to skip the timeout — long-lived SSE connections must not be killed
+   * to skip the timeout -- long-lived SSE connections must not be killed
    * by it.
    */
   private async fetchWithTimeout<T = Response>(
@@ -253,10 +253,10 @@ export class DaemonClient {
     }
     // Use AbortController + cancellable setTimeout instead of
     // `AbortSignal.timeout()` (the polyfill `abortTimeout` is the
-    // same shape — fires once, never disarms). On a fast-resolving
+    // same shape -- fires once, never disarms). On a fast-resolving
     // request with a long `fetchTimeoutMs` (e.g. 30s default), the
     // pending timer keeps the event loop registration alive even
-    // after the fetch already returned. High request volume × long
+    // after the fetch already returned. High request volume * long
     // timeout = accumulating timers + retained closures. Clearing
     // in `finally` releases each timer the moment its fetch (and
     // body consume callback, if any) settles.
@@ -297,7 +297,7 @@ export class DaemonClient {
     label: string,
   ): Promise<DaemonHttpError> {
     // Read the body exactly once. `res.json()` consumes the stream even on
-    // parse-failure, leaving a subsequent `res.text()` empty — so go via
+    // parse-failure, leaving a subsequent `res.text()` empty -- so go via
     // text() and attempt JSON parsing ourselves; raw text is a useful
     // fallback (the daemon may surface text/plain on upstream errors).
     let body: unknown = undefined;
@@ -478,7 +478,7 @@ export class DaemonClient {
    * workspace root or `~/.qwen`.
    *
    * v1 discovers files at the bound workspace ROOT only, plus the
-   * user's global `~/.qwen` directory — it does NOT walk parent
+   * user's global `~/.qwen` directory -- it does NOT walk parent
    * directories or recurse into the workspace tree. The route's
    * companion helper `walkWorkspaceForMemory` keeps a guarded
    * upward-walk loop body for a future hierarchical mode but breaks
@@ -622,7 +622,7 @@ export class DaemonClient {
   /**
    * Delete a project- or user-level subagent definition. Optional
    * `scope` query narrows deletion to one level when the same name
-   * exists at both. Idempotent for SDK callers — both 204 (deleted)
+   * exists at both. Idempotent for SDK callers -- both 204 (deleted)
    * and 404 (already gone) resolve successfully.
    */
   async deleteWorkspaceAgent(
@@ -703,9 +703,9 @@ export class DaemonClient {
     req: CreateSessionRequest,
     clientId?: string,
   ): Promise<DaemonSession> {
-    // Per #3803 §02: omitting `cwd` lets the daemon fall back to its
+    // Per #3803 02: omitting `cwd` lets the daemon fall back to its
     // bound workspace. JSON.stringify strips `undefined` values, so
-    // `cwd: undefined` becomes "no `cwd` key" on the wire — and the
+    // `cwd: undefined` becomes "no `cwd` key" on the wire -- and the
     // server then takes the documented fallback path.
     //
     // Send EVERY defined `workspaceCwd` value through as-is, including
@@ -725,7 +725,7 @@ export class DaemonClient {
           ...(req.modelServiceId ? { modelServiceId: req.modelServiceId } : {}),
           // `!== undefined` (not truthy) so a buggy caller passing
           // `sessionScope: '' | null` doesn't get the field silently
-          // erased on the wire — let the daemon's `400
+          // erased on the wire -- let the daemon's `400
           // invalid_session_scope` surface the bug. Same shape the
           // bridge's own validation uses (`httpAcpBridge.ts:
           // spawnOrAttach`); SDK should be a transparent layer here.
@@ -852,7 +852,7 @@ export class DaemonClient {
    * does not pollute the user's host settings unless asked).
    *
    * Pre-flight `caps.features.session_approval_mode_control` before
-   * calling — older daemons reject the route with 404.
+   * calling -- older daemons reject the route with 404.
    *
    * The trust-folder gate inside core's `setApprovalMode` rejects
    * privileged modes in untrusted folders; the route surfaces that
@@ -887,14 +887,14 @@ export class DaemonClient {
 
   /**
    * #4175 Wave 4 PR 17. Toggle a tool name in the workspace's
-   * `tools.disabled` settings list. Strict-gated mutation route — the
+   * `tools.disabled` settings list. Strict-gated mutation route -- the
    * daemon must be configured with a bearer token. The daemon writes
    * the settings file directly and fan-outs a `tool_toggled` event to
    * every live session SSE bus.
    *
    * Already-registered tools in active sessions are NOT retroactively
    * unregistered. The toggle takes effect on the next ACP child spawn
-   * — listeners that need the live tool list to reflect the change
+   * -- listeners that need the live tool list to reflect the change
    * should also `POST /workspace/mcp/:server/restart` (when the tool
    * is MCP-discovered) or open a new session.
    *
@@ -966,11 +966,11 @@ export class DaemonClient {
 
   /**
    * #4175 Wave 4 PR 17. Scaffold a `QWEN.md` at the daemon's bound
-   * workspace root. Mechanical only — does NOT invoke the LLM. The
+   * workspace root. Mechanical only -- does NOT invoke the LLM. The
    * daemon writes an empty file; clients that want AI-driven content
    * fill should follow up with `POST /session/:id/prompt`.
    *
-   * Default refuses to overwrite — when the file exists with non-
+   * Default refuses to overwrite -- when the file exists with non-
    * whitespace content the daemon returns 409
    * `workspace_init_conflict` with the existing path and size in the
    * body. Pass `opts.force: true` to overwrite unconditionally.
@@ -1030,7 +1030,7 @@ export class DaemonClient {
    * Send a prompt to the agent. Long-lived: a model + tool turn can
    * take minutes, so this method bypasses `fetchTimeoutMs` (which
    * would force a default 30s deadline that's too short for normal
-   * use). Cancellation is via the optional `signal` — when it fires,
+   * use). Cancellation is via the optional `signal` -- when it fires,
    * the daemon receives the underlying TCP close and forwards an
    * ACP `cancel` notification to the agent, resolving the prompt
    * with `stopReason: 'cancelled'`. `cancel(sessionId)` is the
@@ -1057,8 +1057,8 @@ export class DaemonClient {
 
   /**
    * Bump the daemon's last-seen bookkeeping for this session. The
-   * route is short-lived — drives diagnostics and future revocation
-   * policy (Wave 5 PR 24) — so it goes through the standard
+   * route is short-lived -- drives diagnostics and future revocation
+   * policy (Wave 5 PR 24) -- so it goes through the standard
    * `fetchTimeoutMs`. Older daemons (pre-PR 9) return 404 for
    * `/heartbeat`; clients should pre-flight
    * `caps.features.client_heartbeat` before calling.
@@ -1116,9 +1116,9 @@ export class DaemonClient {
     if (opts.lastEventId !== undefined) {
       headers['Last-Event-ID'] = String(opts.lastEventId);
     }
-    // Apply `fetchTimeoutMs` to the CONNECT phase only (request → headers
-    // received). The SSE body itself must NOT be timed out — it's
-    // long-lived by design — so once `_fetch` returns the timer is
+    // Apply `fetchTimeoutMs` to the CONNECT phase only (request -> headers
+    // received). The SSE body itself must NOT be timed out -- it's
+    // long-lived by design -- so once `_fetch` returns the timer is
     // cleared. Without this, an unresponsive daemon (TCP open but no
     // headers) blocks `subscribeEvents` indefinitely instead of
     // failing with the same 30s default the rest of the SDK uses.
@@ -1144,7 +1144,7 @@ export class DaemonClient {
       ? composeAbortSignals([opts.signal, connectCtrl.signal])
       : connectCtrl.signal;
     // Build the SSE URL, optionally with `?maxQueued=N`. We don't
-    // validate the value client-side — the daemon's
+    // validate the value client-side -- the daemon's
     // `parseMaxQueuedQuery` is the source of truth on the range
     // `[16, 2048]` and returns a structured `400 invalid_max_queued`
     // for anything outside, so duplicating the bounds here would
@@ -1165,12 +1165,12 @@ export class DaemonClient {
     // A 200 with the wrong content type usually means a misconfigured
     // proxy or middleware swallowed our SSE response and replaced it
     // with JSON/HTML. Without this check `parseSseStream` would
-    // silently produce zero frames — a confusing "no events" symptom
+    // silently produce zero frames -- a confusing "no events" symptom
     // that's easy to misdiagnose. Fail fast with the actual mime type.
     //
     // Cancel the body before throwing so undici doesn't keep the
     // underlying socket pinned waiting for the consumer. Same
-    // reasoning as `respondToPermission` — long-running clients
+    // reasoning as `respondToPermission` -- long-running clients
     // hitting this path repeatedly would otherwise exhaust the
     // connection pool.
     const ct = res.headers.get('content-type') ?? '';
@@ -1199,7 +1199,7 @@ export class DaemonClient {
 
   /**
    * Cast a permission vote. Returns true when the daemon accepted the vote,
-   * false on 404 (request unknown or already resolved by another client —
+   * false on 404 (request unknown or already resolved by another client --
    * the typical "lost the race" outcome under multi-client fan-out).
    */
   async respondToPermission(
@@ -1356,7 +1356,7 @@ export class DaemonClient {
     // `fetchWithTimeout`, which composes it with the per-request
     // `fetchTimeoutMs` controller. Without this, an `awaitCompletion`
     // caller that aborts mid-poll could not cancel the in-flight GET
-    // — only the post-await guard would notice, but that runs only
+    // -- only the post-await guard would notice, but that runs only
     // after the body is already settled (or the daemon-side
     // `fetchTimeoutMs` fires, which can be 30s+).
     return await this.fetchWithTimeout(
@@ -1376,7 +1376,7 @@ export class DaemonClient {
 
   /**
    * Cancel a pending device-flow. Idempotent: terminal entries return
-   * 204 (no-op); unknown ids return 404 — both resolve here, matching
+   * 204 (no-op); unknown ids return 404 -- both resolve here, matching
    * the SDK's `closeSession` shape.
    */
   async cancelDeviceFlow(
@@ -1458,11 +1458,11 @@ export class DaemonClient {
 /**
  * `AbortSignal.timeout` is in every Node version this package supports
  * (`engines.node >=22.0.0` ships it natively). The feature-detect below
- * is defensive against non-Node runtimes — browsers / edge workers /
+ * is defensive against non-Node runtimes -- browsers / edge workers /
  * stripped-down V8 hosts that may consume the SDK and ship an
  * incomplete `AbortSignal` shape.
  */
-// Exported solely for direct unit testing — production callers go
+// Exported solely for direct unit testing -- production callers go
 // through `fetchWithTimeout` above. The polyfill branch only fires on
 // runtimes where `AbortSignal.timeout` isn't natively available
 // (non-Node hosts), which can't easily be exercised from the public
@@ -1481,7 +1481,7 @@ export function abortTimeout(ms: number): AbortSignal {
   // pending timers across many fast calls in the polyfill path.
   // Native `AbortSignal.timeout()` aborts with a DOMException whose
   // `name === 'TimeoutError'` (per WHATWG). Constructor signature is
-  // `new DOMException(message, name)` — calling `new DOMException(
+  // `new DOMException(message, name)` -- calling `new DOMException(
   // 'TimeoutError')` would set the *message* to "TimeoutError" and
   // leave `name` at its default ("Error"), so callers doing
   // `if (err.name === 'TimeoutError')` would see the polyfill
@@ -1507,7 +1507,7 @@ export function abortTimeout(ms: number): AbortSignal {
  * package supports (`engines.node >=22.0.0` ships it). The polyfill
  * branch below is defensive against non-Node runtimes (browsers /
  * edge workers / stripped-down V8 hosts) that may consume the SDK
- * and lack `AbortSignal.any` — without it those callers would throw
+ * and lack `AbortSignal.any` -- without it those callers would throw
  * `TypeError: AbortSignal.any is not a function` on every
  * non-streaming method.
  *
@@ -1517,7 +1517,7 @@ export function abortTimeout(ms: number): AbortSignal {
  * listeners after the first fire is best-effort), but for `fetch`-style
  * single-shot use the difference is invisible.
  */
-// Exported solely for direct unit testing — see note on `abortTimeout`.
+// Exported solely for direct unit testing -- see note on `abortTimeout`.
 export function composeAbortSignals(signals: AbortSignal[]): AbortSignal {
   const anyFn = (
     AbortSignal as unknown as { any?: (s: AbortSignal[]) => AbortSignal }
@@ -1528,7 +1528,7 @@ export function composeAbortSignals(signals: AbortSignal[]): AbortSignal {
   // abort (whichever input fires). Without this, callers who reuse a
   // long-lived AbortSignal (e.g. a session-scope cancel signal that
   // never fires for the lifetime of the SDK client) accumulate one
-  // listener per SDK call — slow leak that retains the closure +
+  // listener per SDK call -- slow leak that retains the closure +
   // controller of every prior call.
   const cleanups: Array<() => void> = [];
   const detachAll = () => {
@@ -1555,7 +1555,7 @@ export function composeAbortSignals(signals: AbortSignal[]): AbortSignal {
     cleanups.push(() => s.removeEventListener('abort', onAbort));
   }
   // Also detach if our composed controller aborts via some other path
-  // (e.g. its consumer aborted independently — defense-in-depth).
+  // (e.g. its consumer aborted independently -- defense-in-depth).
   ctrl.signal.addEventListener('abort', detachAll, { once: true });
   return ctrl.signal;
 }

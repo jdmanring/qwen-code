@@ -193,7 +193,7 @@ export function AgentsManagerDialog({
         if (availableAgents.length === 0) {
           return t('Esc to close');
         }
-        return t('Enter to select, ↑↓ to navigate, Esc to close');
+        return t('Enter to select,  to navigate, Esc to close');
       }
 
       if (currentStep === MANAGEMENT_STEPS.AGENT_VIEWER) {
@@ -204,7 +204,7 @@ export function AgentsManagerDialog({
         return t('Enter to confirm, Esc to cancel');
       }
 
-      return t('Enter to select, ↑↓ to navigate, Esc to go back');
+      return t('Enter to select,  to navigate, Esc to go back');
     };
 
     return (

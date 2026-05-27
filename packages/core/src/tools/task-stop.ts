@@ -5,7 +5,7 @@
  */
 
 /**
- * @fileoverview TaskStop tool — lets the model stop a background task.
+ * @fileoverview TaskStop tool -- lets the model stop a background task.
  */
 
 import type { Config } from '../config/config.js';
@@ -77,8 +77,8 @@ class TaskStopInvocation extends BaseToolInvocation<
       agentRegistry.cancel(taskId);
       // The terminal task-notification is emitted by the agent's own handler
       // (via registry.complete/fail) rather than cancel(), so the parent
-      // model still receives the agent's real partial/final result — not just
-      // a bare "cancelled" message — once the reasoning loop unwinds.
+      // model still receives the agent's real partial/final result -- not just
+      // a bare "cancelled" message -- once the reasoning loop unwinds.
       const desc = agentEntry.description;
       return {
         llmContent:
@@ -101,7 +101,7 @@ class TaskStopInvocation extends BaseToolInvocation<
       if (shellEntry.status !== 'running') {
         return notRunningError('shell', taskId, shellEntry.status);
       }
-      // requestCancel triggers the AbortController only — the registry's
+      // requestCancel triggers the AbortController only -- the registry's
       // settle path records the real terminal status + endTime once the
       // process actually drains. Calling cancel(id, Date.now()) here would
       // mark the entry terminal immediately and lose the real exit info.
@@ -127,7 +127,7 @@ class TaskStopInvocation extends BaseToolInvocation<
         llmContent:
           // Unlike background shells (which settle asynchronously when the
           // child process exits), `monitorRegistry.cancel()` settles the
-          // entry synchronously — the cancelled state is observable right
+          // entry synchronously -- the cancelled state is observable right
           // now, no drain phrasing.
           `Monitor "${taskId}" cancelled. ` +
           `Status is visible via /tasks (text) or the interactive Background tasks dialog (focus the footer Background tasks pill, then Enter).\n` +
@@ -138,7 +138,7 @@ class TaskStopInvocation extends BaseToolInvocation<
 
     // MemoryManager memory tasks (dream + extract). Memory tasks live
     // outside the registry trio (MemoryManager owns its own task map).
-    // Only `dream` is cancellable — extract is short-lived and runs on
+    // Only `dream` is cancellable -- extract is short-lived and runs on
     // the request loop, so cancelling it would interfere with the
     // user's own turn. Surface a distinct error for known-but-not-
     // cancellable records so the model doesn't conclude the id was
@@ -172,13 +172,13 @@ class TaskStopInvocation extends BaseToolInvocation<
         // Distinct from TASK_STOP_NOT_RUNNING (the task IS running)
         // and TASK_STOP_NOT_CANCELLABLE (the kind supports cancel,
         // we just couldn't deliver it). INTERNAL_ERROR signals that
-        // this is unexpected and worth filing — the abort controller
+        // this is unexpected and worth filing -- the abort controller
         // should have been registered alongside status='running' in
         // scheduleDream.
         return {
           llmContent:
             `Error: Dream task "${taskId}" could not be cancelled ` +
-            `(internal state inconsistency — abort controller missing).`,
+            `(internal state inconsistency -- abort controller missing).`,
           returnDisplay: 'Dream cancellation failed (internal state).',
           error: {
             message: `dream cancel failed: ${taskId}`,
@@ -249,7 +249,7 @@ export class TaskStopTool extends BaseDeclarativeTool<
       },
       true, // isOutputMarkdown
       false, // canUpdateOutput
-      true, // shouldDefer — stopping tasks is infrequent
+      true, // shouldDefer -- stopping tasks is infrequent
       false, // alwaysLoad
       'task stop cancel kill background',
     );

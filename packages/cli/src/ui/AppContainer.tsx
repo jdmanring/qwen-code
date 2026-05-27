@@ -85,11 +85,11 @@ import process from 'node:process';
 
 /**
  * Window in which mcp-client-update events are coalesced before the cli calls
- * `setTools()`. Matches Claude Code's `MCP_BATCH_FLUSH_MS` (16 ≈ one 60Hz
+ * `setTools()`. Matches Claude Code's `MCP_BATCH_FLUSH_MS` (16  one 60Hz
  * frame). Smaller windows would refresh the model tool list more often
  * without user benefit; larger windows would let multiple servers settle
  * before the model sees them. 16ms is the sweet spot validated by Claude's
- * production deployment (see design.md § 8.3 + § 3.2 Round 2).
+ * production deployment (see design.md  8.3 +  3.2 Round 2).
  */
 const MCP_BATCH_FLUSH_MS = 16;
 
@@ -443,7 +443,7 @@ export const AppContainer = (props: AppContainerProps) => {
    * One-shot worktree restore reminder for the TUI path. Set during
    * `--resume` when the persisted sidecar names a live worktree, then
    * consumed and cleared by `handleFinalSubmit` on the user's first
-   * prompt — same shape as ACP `Session.pendingWorktreeNotice` and
+   * prompt -- same shape as ACP `Session.pendingWorktreeNotice` and
    * headless's `<system-reminder>` prefix. Without this, the resumed
    * model would see an INFO history item in the TUI but never receive
    * the reminder in the next API request, leaving it free to edit the
@@ -477,7 +477,7 @@ export const AppContainer = (props: AppContainerProps) => {
   // in flight before the first code block needs colorizing. Without this
   // kick-off, code blocks committed to ink's append-only <Static> region
   // before the import resolves stay plain text for the rest of the session
-  // — Static can only be re-rendered via `refreshStatic`, which is not
+  // -- Static can only be re-rendered via `refreshStatic`, which is not
   // wired to lowlight load completion. Common reachable paths: short
   // `--prompt -p` runs that finalize quickly, Ctrl+C-cancelled first turns,
   // and the first-paint history replay on `--resume`. Firing the load
@@ -493,7 +493,7 @@ export const AppContainer = (props: AppContainerProps) => {
       // catch fires at most once per session regardless. Log to the debug
       // channel so a degraded syntax-highlight state (corrupted install,
       // missing chunk) leaves a breadcrumb without spamming the user's
-      // TTY — `CodeColorizer` already falls back to plain text.
+      // TTY -- `CodeColorizer` already falls back to plain text.
       debugLogger.warn(
         `Failed to load lowlight chunk; code blocks will render as plain text: ${err instanceof Error ? err.message : String(err)}`,
       );
@@ -515,7 +515,7 @@ export const AppContainer = (props: AppContainerProps) => {
       // `mcp_first_tool_registered`, `mcp_all_servers_settled`,
       // `gemini_tools_updated`) arrive AFTER `input_enabled`. The dedicated
       // `useEffect` below (gated by `configInitialized`) defers finalize
-      // until MCP discovery settles or the 35s hard cap elapses — that way
+      // until MCP discovery settles or the 35s hard cap elapses -- that way
       // the profile captures the full MCP timeline without holding back
       // the user-facing TTI.
 
@@ -531,7 +531,7 @@ export const AppContainer = (props: AppContainerProps) => {
         try {
           restoreGoalFromHistory(historyItems, config, historyManager.addItem);
         } catch {
-          // Restore is best-effort — never block resume on it.
+          // Restore is best-effort -- never block resume on it.
         }
 
         const recovered = await config.loadPausedBackgroundAgents(
@@ -557,7 +557,7 @@ export const AppContainer = (props: AppContainerProps) => {
           setSessionName(title);
         }
 
-        // Restore worktree context (shared logic — headless and ACP use
+        // Restore worktree context (shared logic -- headless and ACP use
         // the same helper). Stale sidecars get cleaned up; live ones
         // produce an INFO message the model sees on the next turn.
         try {
@@ -576,7 +576,7 @@ export const AppContainer = (props: AppContainerProps) => {
             );
             // Model: queue the notice for one-shot injection into the
             // next user prompt (consumed by handleFinalSubmit). The INFO
-            // history item alone is UI-only — the model never sees it,
+            // history item alone is UI-only -- the model never sees it,
             // so without this it could resume editing the parent
             // checkout despite the user seeing the worktree path.
             pendingWorktreeNoticeRef.current = restored.contextMessage;
@@ -683,7 +683,7 @@ export const AppContainer = (props: AppContainerProps) => {
     // failed servers. The interactive path can't use stderr (it would
     // collide with Ink's rendered output), so we route through
     // `debugLogger.warn` so it shows up under `QWEN_CODE_DEBUG=1` and in
-    // the debug log file — matching the channel `setTools()` errors above
+    // the debug log file -- matching the channel `setTools()` errors above
     // use. The MCP status footer pill already surfaces failures
     // continuously in the UI; this log is the actionable-on-debug record
     // wenshao asked for in round 7.
@@ -707,7 +707,7 @@ export const AppContainer = (props: AppContainerProps) => {
       if (manager.getDiscoveryState() === MCPDiscoveryState.COMPLETED) {
         // Discovery has settled. Flush the pending setTools() NOW (rather
         // than waiting for the 16ms batch timer) and only finalize after
-        // it runs — `setTools()` emits the `gemini_tools_updated` event,
+        // it runs -- `setTools()` emits the `gemini_tools_updated` event,
         // and finalizing before it fires would drop that event because
         // the module-level `finalized` guard suppresses every subsequent
         // record. That dropped event is what `gemini_tools_lag` is
@@ -829,7 +829,7 @@ export const AppContainer = (props: AppContainerProps) => {
   // downward instead of a full clearTerminal, avoiding the full-screen
   // flash. Ink's <Static> region is append-only, so when terminal width
   // changes (tmux split, fullscreen toggle, font size change) we must
-  // explicitly re-emit the static history at the new width — otherwise
+  // explicitly re-emit the static history at the new width -- otherwise
   // header content stays at the old width and visibly tears.
   const repaintStaticViewport = useCallback(() => {
     stdout.write(`${ansiEscapes.cursorTo(0, 0)}${ansiEscapes.eraseDown}`);
@@ -855,7 +855,7 @@ export const AppContainer = (props: AppContainerProps) => {
   //       progressive-replay reset (lastRemountKey !== historyRemountKey)
   //       only fires when historyRemountKey changes. If currentModel
   //       changes first in its own render, Static remounts with the OLD
-  //       remount key and the unreset (full-length) replayCount — i.e.
+  //       remount key and the unreset (full-length) replayCount -- i.e.
   //       a full-history Static render that bypasses progressive replay
   //       (the issue #3899 freeze regression). See PR #4119 review.
   //
@@ -863,7 +863,7 @@ export const AppContainer = (props: AppContainerProps) => {
   // guard de-dupes same-model notifications. React batches the
   // setHistoryRemountKey (via refreshStatic) and setCurrentModel calls in
   // this event handler into a single commit, so the render-phase reset
-  // and the Static remount happen together — no full-history flash.
+  // and the Static remount happen together -- no full-history flash.
   const lastNotifiedModelRef = useRef(currentModel);
   useEffect(() => {
     const unsubscribe = config.onModelChange((model) => {
@@ -1173,13 +1173,13 @@ export const AppContainer = (props: AppContainerProps) => {
       if (choice === 'remove' && activeWorktree) {
         try {
           // Anchor at the repo top-level (captured at enter time) rather
-          // than the current targetDir — when the CLI was launched from
+          // than the current targetDir -- when the CLI was launched from
           // a monorepo subdirectory, `config.getTargetDir()` is that
           // subdir but the worktree lives at `<repoRoot>/.qwen/worktrees/`,
           // so a service rooted at the subdir would never find it. (PR
           // #4174 review finding 3252368637.)
           const svc = new GitWorktreeService(activeWorktree.originalCwd);
-          // Ownership guard — read the in-worktree session marker and
+          // Ownership guard -- read the in-worktree session marker and
           // refuse to remove a worktree owned by a different session
           // (stale sidecar, copied state from another machine, etc.).
           // Mirrors the guard ExitWorktreeTool applies on the model
@@ -1192,7 +1192,7 @@ export const AppContainer = (props: AppContainerProps) => {
               {
                 type: MessageType.ERROR,
                 text:
-                  `Refusing to remove worktree "${activeWorktree.slug}" — ` +
+                  `Refusing to remove worktree "${activeWorktree.slug}" -- ` +
                   `it was created by a different session (owner=${owner}). ` +
                   `Resume the owning session to drop it, or remove it ` +
                   `manually with \`git worktree remove ${activeWorktree.path}\`.`,
@@ -1204,15 +1204,15 @@ export const AppContainer = (props: AppContainerProps) => {
           // The user just clicked Remove on a dialog that already showed
           // the dirty-state and unmerged-commit counts ("discards N
           // commits, M files"). Force-delete the branch to honour that
-          // intent — without it, `git branch -d` refuses unmerged
+          // intent -- without it, `git branch -d` refuses unmerged
           // commits and the branch is silently preserved, contradicting
           // the dialog text. (Finding 3252368640 part 2.)
           const result = await svc.removeUserWorktree(activeWorktree.slug, {
             deleteBranch: true,
             forceDeleteBranch: true,
           });
-          // removeUserWorktree returns {success, error} on failure — it
-          // does NOT throw — so the previous try/catch never tripped on
+          // removeUserWorktree returns {success, error} on failure -- it
+          // does NOT throw -- so the previous try/catch never tripped on
           // a soft failure. If removal failed, leave the sidecar intact
           // so the next --resume can still see the worktree. Surface
           // the error in history and stay in the session so the user
@@ -1243,7 +1243,7 @@ export const AppContainer = (props: AppContainerProps) => {
         } catch (error) {
           // Hard failure (e.g. git binary missing, GitWorktreeService
           // constructor threw). Same treatment as the soft failure
-          // path: surface to the user and stay alive — silent /quit
+          // path: surface to the user and stay alive -- silent /quit
           // here would leave the user wondering whether the worktree
           // was actually removed.
           historyManager.addItem(
@@ -1373,7 +1373,7 @@ export const AppContainer = (props: AppContainerProps) => {
     }
   }, [streamingState]);
 
-  // Contextual tips — show tips based on context usage after model responses
+  // Contextual tips -- show tips based on context usage after model responses
   // Defer TipHistory loading when tips are disabled to avoid side effects
   // (sessionCount increment + disk write) when the user has opted out.
   const tipsDisabled = !!(
@@ -1409,14 +1409,14 @@ export const AppContainer = (props: AppContainerProps) => {
   const speculationRef = useRef<SpeculationState>(IDLE_SPECULATION);
   const suggestionAbortRef = useRef<AbortController | null>(null);
 
-  // Dismiss callback — clears suggestion + aborts in-flight generation/speculation
+  // Dismiss callback -- clears suggestion + aborts in-flight generation/speculation
   const dismissPromptSuggestion = useCallback(() => {
     setPromptSuggestion(null);
     suggestionAbortRef.current?.abort();
     suggestionAbortRef.current = null;
   }, []);
 
-  // Auto-accept indicator — disabled on agent tabs (agents handle their own)
+  // Auto-accept indicator -- disabled on agent tabs (agents handle their own)
   const geminiClient = config.getGeminiClient();
 
   const showAutoAcceptIndicator = useAutoAcceptIndicator({
@@ -1468,8 +1468,8 @@ export const AppContainer = (props: AppContainerProps) => {
   // a `control_response` mirroring the final decision so observers stay in
   // sync.
   const dualOutput = useDualOutput();
-  const confirmRequestMap = useRef(new Map<string, string>()); // requestId → callId
-  const confirmCallIdMap = useRef(new Map<string, string>()); // callId → requestId
+  const confirmRequestMap = useRef(new Map<string, string>()); // requestId -> callId
+  const confirmCallIdMap = useRef(new Map<string, string>()); // callId -> requestId
   const confirmEmitted = useRef(new Set<string>());
 
   useEffect(() => {
@@ -1555,7 +1555,7 @@ export const AppContainer = (props: AppContainerProps) => {
             ? ToolConfirmationOutcome.ProceedOnce
             : ToolConfirmationOutcome.Cancel,
         );
-        // Do NOT clean up maps here — let the mirror useEffect (line ~870)
+        // Do NOT clean up maps here -- let the mirror useEffect (line ~870)
         // detect the state transition and emit control_response + clean up,
         // keeping the emission path symmetric for both TUI-native and
         // external-initiated resolutions.
@@ -1581,7 +1581,7 @@ export const AppContainer = (props: AppContainerProps) => {
       // Phase C: one-shot worktree restore reminder. Set during --resume
       // when the persisted sidecar names a live worktree. We only inject
       // on top-level user prompts (not btw-during-response, not slash
-      // commands — those go through different paths). Once consumed,
+      // commands -- those go through different paths). Once consumed,
       // clear the ref so subsequent prompts aren't repeatedly prefixed.
       const worktreeNotice = pendingWorktreeNoticeRef.current;
       if (worktreeNotice && !isSlashCommand(submittedValue)) {
@@ -1631,7 +1631,7 @@ export const AppContainer = (props: AppContainerProps) => {
                 had_pipelined_suggestion: !!result.nextSuggestion,
               }),
             );
-            // Speculation completed fully (no boundary) — render results in UI
+            // Speculation completed fully (no boundary) -- render results in UI
             {
               const now = Date.now();
 
@@ -1785,7 +1785,7 @@ export const AppContainer = (props: AppContainerProps) => {
       // tool group, etc.) with the synchronous snapshot of the Gemini pending
       // item from `useGeminiStream`. The snapshot closes the race where a
       // stream chunk just set `pendingHistoryItem` but the consumer's React
-      // state still reads as empty — without it, auto-restore could wrongly
+      // state still reads as empty -- without it, auto-restore could wrongly
       // truncate just-committed meaningful content.
       const pendingHistoryItems: HistoryItemWithoutId[] = [
         ...pendingSlashCommandHistoryItems,
@@ -1798,7 +1798,7 @@ export const AppContainer = (props: AppContainerProps) => {
 
       // Always drain the queue back into the buffer (claude-code parity:
       // popAllEditable preserves queued text on every cancel path, including
-      // tool-execution cancels — never silently drop the user's queued work).
+      // tool-execution cancels -- never silently drop the user's queued work).
       const popped = popAllMessages();
       if (popped) {
         const currentText = buffer.text;
@@ -1815,14 +1815,14 @@ export const AppContainer = (props: AppContainerProps) => {
       //   - Buffer was empty before the queue drain (don't clobber typed-during-
       //     loading text).
       //   - Queue was empty (popped === null): if the user queued more input,
-      //     they've moved on — don't undo their previous prompt.
+      //     they've moved on -- don't undo their previous prompt.
       //   - No pending stream item carries meaningful content. `tool_group` is
       //     non-synthetic regardless of status (executing/canceled/done), so
       //     this also covers the tool-execution cancel case.
       //   - Items committed AFTER the last user prompt are all synthetic
       //     (info/error/warning/cancel notice).
       //
-      // truncateToItem is functional setState — it observes the latest queued
+      // truncateToItem is functional setState -- it observes the latest queued
       // history, including any INFO/pending item just appended by
       // cancelOngoingRequest, and slices them all off together with the user
       // item. No flicker because React batches with the same render pass.
@@ -1848,7 +1848,7 @@ export const AppContainer = (props: AppContainerProps) => {
       // Synchronous "did the turn produce any content event" flag from
       // useGeminiStream. Catches the race where the pre-cancel flush
       // committed gemini_content via addItem and a later thought event
-      // overwrote pendingHistoryItem with a synthetic value — the
+      // overwrote pendingHistoryItem with a synthetic value -- the
       // committed text isn't in historyRef.current yet (React hasn't
       // re-rendered), so the trailing-only-synthetic check below would
       // otherwise pass and we'd wrongly truncate the committed content.
@@ -1859,7 +1859,7 @@ export const AppContainer = (props: AppContainerProps) => {
         return;
       }
 
-      // The cancelled turn must have added a `user` history item itself —
+      // The cancelled turn must have added a `user` history item itself --
       // Cron / Notification / slash submit_prompt / Retry paths submit
       // without pushing a user item, so an older user item that happens
       // to be followed only by synthetic content must NOT be wrongly
@@ -1894,8 +1894,8 @@ export const AppContainer = (props: AppContainerProps) => {
       }
       // Identity match: the user item we're rewinding has to be the one
       // this turn added. Use ID (not just text) so a consecutive-
-      // duplicate user submit — where `addItem` skipped insertion but
-      // still returned a fresh id — doesn't make this guard wrongly
+      // duplicate user submit -- where `addItem` skipped insertion but
+      // still returned a fresh id -- doesn't make this guard wrongly
       // match an older identical-text USER row. Text is checked too as
       // a cheap sanity belt.
       if (
@@ -1913,13 +1913,13 @@ export const AppContainer = (props: AppContainerProps) => {
       historyManager.truncateToItem(lastUserItem.id);
       // Repaint the terminal so the cancelled `> prompt` and trailing
       // INFO disappear from the static-rendered transcript. Ink's
-      // `<Static>` region is append-only — once a line has been printed,
+      // `<Static>` region is append-only -- once a line has been printed,
       // shrinking the underlying array doesn't unprint it. `refreshStatic`
       // writes the ANSI clear-terminal escape AND bumps the static
       // remount key so the next render reprints only the truncated
       // history. Matches what `/clear` and `handleClearScreen` do for
       // the same reason. Skipping this leaves the user seeing the
-      // cancelled prompt twice — once in scrollback and once pre-filled
+      // cancelled prompt twice -- once in scrollback and once pre-filled
       // in the input buffer.
       refreshStatic();
       buffer.setText(lastUserItem.text);
@@ -1927,13 +1927,13 @@ export const AppContainer = (props: AppContainerProps) => {
       // appends the user content before the stream generator runs, and
       // the abort path doesn't pop it. Without this strip, the NEXT
       // request's wire payload would carry the cancelled prompt as an
-      // orphan user turn alongside the new one — model context would
+      // orphan user turn alongside the new one -- model context would
       // contradict what the UI told the user was rewound. Mirrors the
       // existing strip in the Retry submit path
       // (GeminiClient.sendMessageStream).
       geminiClient?.stripOrphanedUserEntriesFromHistory?.();
-      // Also undo the cross-session ↑-history disk entry written by
-      // useGeminiStream's `logger.logMessage` — otherwise
+      // Also undo the cross-session -history disk entry written by
+      // useGeminiStream's `logger.logMessage` -- otherwise
       // getPreviousUserMessages would resurrect the cancelled prompt next
       // session. Fire-and-forget; the UI restore must not block on disk
       // I/O. Logger.removeLastUserMessage already swallows internal
@@ -2118,12 +2118,12 @@ export const AppContainer = (props: AppContainerProps) => {
           }
         })
         .catch(() => {
-          // Silently degrade — don't disrupt the user experience
+          // Silently degrade -- don't disrupt the user experience
         });
     }
 
     // Only update prev ref when streamingState actually changes, so that
-    // dialog-dependency re-runs don't cause us to miss a Responding→Idle transition.
+    // dialog-dependency re-runs don't cause us to miss a Responding->Idle transition.
     if (prevStreamingStateRef.current !== streamingState) {
       prevStreamingStateRef.current = streamingState;
     }
@@ -2352,7 +2352,7 @@ export const AppContainer = (props: AppContainerProps) => {
 
   // Repaint static header on terminal resize. Without this, tmux pane
   // resizes and fullscreen toggles leave the static region rendered at the
-  // old width — header content visibly tears until the next refreshStatic
+  // old width -- header content visibly tears until the next refreshStatic
   // (e.g. /model). Cheap repaint (cursor-to + erase-down) rather than a
   // full clearTerminal to avoid the full-screen flash.
   useEffect(() => {
@@ -2410,7 +2410,7 @@ export const AppContainer = (props: AppContainerProps) => {
     async (userItem: HistoryItem, option: RestoreOption) => {
       try {
         // For 'both', validate that conversation can be truncated BEFORE
-        // touching files — otherwise we'd roll back the workspace while
+        // touching files -- otherwise we'd roll back the workspace while
         // the conversation stays at the newer state.
         const needsConversation =
           option === 'conversation' || option === 'both';
@@ -2453,7 +2453,7 @@ export const AppContainer = (props: AppContainerProps) => {
                 Date.now(),
               );
               if (option === 'both') {
-                // Abort file restore too — don't create inconsistent state
+                // Abort file restore too -- don't create inconsistent state
                 return;
               }
               return;
@@ -2462,7 +2462,7 @@ export const AppContainer = (props: AppContainerProps) => {
         }
 
         // Restore code (files on disk). For 'code'-only, don't truncate
-        // the snapshot timeline — the conversation turns remain visible
+        // the snapshot timeline -- the conversation turns remain visible
         // and their snapshots must stay available for future rewinds.
         let fileRestoreMessage: string | undefined;
         let fileRestoreError: string | undefined;
@@ -2672,7 +2672,7 @@ export const AppContainer = (props: AppContainerProps) => {
               historyManager.addItem(
                 {
                   type: MessageType.ERROR,
-                  text: `[${level}] Failed to migrate ${migrationResult.failedFiles.length} file${migrationResult.failedFiles.length > 1 ? 's' : ''}:\n${migrationResult.failedFiles.map((f) => `  • ${f.file}: ${f.error}`).join('\n')}`,
+                  text: `[${level}] Failed to migrate ${migrationResult.failedFiles.length} file${migrationResult.failedFiles.length > 1 ? 's' : ''}:\n${migrationResult.failedFiles.map((f) => `   ${f.file}: ${f.error}`).join('\n')}`,
                 },
                 Date.now(),
               );
@@ -2692,7 +2692,7 @@ export const AppContainer = (props: AppContainerProps) => {
           historyManager.addItem(
             {
               type: MessageType.ERROR,
-              text: `❌ Migration failed: ${getErrorMessage(error)}`,
+              text: ` Migration failed: ${getErrorMessage(error)}`,
             },
             Date.now(),
           );
@@ -2761,7 +2761,7 @@ export const AppContainer = (props: AppContainerProps) => {
       setPressedOnce: (value: boolean) => void,
       timerRef: React.MutableRefObject<NodeJS.Timeout | null>,
     ) => {
-      // Fast double-press: Direct quit (preserve user habit) — unless the
+      // Fast double-press: Direct quit (preserve user habit) -- unless the
       // session is inside an active worktree, in which case intercept and
       // show WorktreeExitDialog so the user explicitly decides keep vs
       // remove before the process exits.
@@ -2902,7 +2902,7 @@ export const AppContainer = (props: AppContainerProps) => {
         }
 
         // Input is empty, cancel request immediately (no double-press needed)
-        // Skip when a dialog (background tasks, etc.) is open — ESC should
+        // Skip when a dialog (background tasks, etc.) is open -- ESC should
         // close the dialog, not cancel the running request.
         if (
           streamingState === StreamingState.Responding &&
@@ -2917,7 +2917,7 @@ export const AppContainer = (props: AppContainerProps) => {
           return;
         }
 
-        // Input is empty and idle — double-ESC opens rewind selector
+        // Input is empty and idle -- double-ESC opens rewind selector
         if (
           streamingState === StreamingState.Idle &&
           !dialogsVisibleRef.current &&
@@ -3011,7 +3011,7 @@ export const AppContainer = (props: AppContainerProps) => {
         //
         // Read from the ref (NOT the destructured `pendingToolCalls`)
         // so we don't have to put `pendingToolCalls` in the deps
-        // array — that would re-bind the keypress handler on every
+        // array -- that would re-bind the keypress handler on every
         // tool-call status update, which is noisy.
         //
         // No-op when no foreground shell is currently executing OR

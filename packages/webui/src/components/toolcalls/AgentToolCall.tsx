@@ -82,7 +82,7 @@ export const AgentToolCall: FC<BaseToolCallProps> = ({ toolCall }) => {
   );
 
   return (
-    <ToolCallCard icon="🤖">
+    <ToolCallCard icon="">
       <ToolCallRow label="Agent">
         <div className="font-medium text-[var(--app-primary-foreground)]">
           {getHeaderTitle(data, toolCall.title)}

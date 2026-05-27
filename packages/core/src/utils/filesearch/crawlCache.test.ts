@@ -146,7 +146,7 @@ describe('CrawlCache', () => {
       write(keyB, makePaths(20000), 60000);
       write(keyC, makePaths(20000), 60000);
 
-      // Now update key_A with 60000 paths — this alone exceeds MAX_TOTAL_PATHS (50000)
+      // Now update key_A with 60000 paths -- this alone exceeds MAX_TOTAL_PATHS (50000)
       // Before the fix, !crawlCache.has(keyA) was false, so eviction was skipped.
       // After the fix, keyB and keyC should be evicted to make room.
       write(keyA, makePaths(60000), 60000);
@@ -172,7 +172,7 @@ describe('CrawlCache', () => {
       // key-0 is the oldest entry
       expect(read('key-0')).toBeDefined();
 
-      // Update key-0 — it should bump to the end of the queue
+      // Update key-0 -- it should bump to the end of the queue
       write('key-0', [`updated-path`], 60000);
 
       // Now insert one more key, which should trigger eviction of the OLDEST entry.
@@ -202,7 +202,7 @@ describe('CrawlCache', () => {
       write(keyB, makePaths(10000), 60000);
       write(keyC, makePaths(10000), 60000);
 
-      // New key with 60000 paths — exceeds MAX_TOTAL_PATHS (50000) alone
+      // New key with 60000 paths -- exceeds MAX_TOTAL_PATHS (50000) alone
       write('project-new', makePaths(60000), 60000);
 
       // New key should be stored, others evicted to make room

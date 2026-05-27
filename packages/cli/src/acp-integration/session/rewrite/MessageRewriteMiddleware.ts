@@ -58,14 +58,14 @@ export class MessageRewriteMiddleware {
     const updateRecord = update as Record<string, unknown>;
     const updateType = updateRecord['sessionUpdate'] as string;
 
-    // tool_call signals turn boundary — flush before passing through
+    // tool_call signals turn boundary -- flush before passing through
     if (updateType === 'tool_call') {
       await this.flushTurn(signal);
       this.turnBuffer.markToolCall();
       return this.sendUpdate(update);
     }
 
-    // tool_call_update, plan, available_commands, etc. → pass through
+    // tool_call_update, plan, available_commands, etc. -> pass through
     if (
       updateType !== 'agent_thought_chunk' &&
       updateType !== 'agent_message_chunk'
@@ -93,7 +93,7 @@ export class MessageRewriteMiddleware {
     }
   }
 
-  /** Pending rewrite promises — all must settle before session exits */
+  /** Pending rewrite promises -- all must settle before session exits */
   private pendingRewrites: Array<Promise<void>> = [];
 
   /**

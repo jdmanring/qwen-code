@@ -87,7 +87,7 @@ function escapeForBashDoubleQuote(s: string): string {
 
 /**
  * Escape `s` so it is safe to interpolate inside a bash single-quoted
- * string. Bash single quotes have no escape mechanism — the standard
+ * string. Bash single quotes have no escape mechanism -- the standard
  * trick is to close the quote, emit a backslash-escaped `'`, and reopen.
  */
 function escapeForBashSingleQuote(s: string): string {
@@ -112,7 +112,7 @@ function lastMatchOf<T extends RegExpMatchArray>(
 /**
  * Return the position of the first unquoted `#` (start-of-comment) in
  * `s`, or -1 if none. Bash treats `#` as a comment marker only when it
- * begins a word — at start of input or preceded by whitespace — and
+ * begins a word -- at start of input or preceded by whitespace -- and
  * not when it appears inside a single- or double-quoted region. This
  * mirrors that semantics so the `-m` / `--body` rewriters can scope
  * their regex to the pre-comment part of a segment and avoid splicing
@@ -155,7 +155,7 @@ function findUnquotedCommentStart(s: string): number {
  * addCoAuthorToGitCommit and addAttributionToPR. Both functions pick
  * the LAST `-m` / `--body` occurrence across two quote styles, but
  * have to reject a candidate that's nested INSIDE the other's range
- * — e.g. `git commit -m "docs mention -m 'flag'"` where the inner
+ * -- e.g. `git commit -m "docs mention -m 'flag'"` where the inner
  * `-m 'flag'` lives entirely inside the outer `-m "..."`. Without
  * the nesting check the inner (later) match would win and the
  * trailer would land in the body text.
@@ -209,7 +209,7 @@ function pickOuterLastMatch<T extends RegExpMatchArray | null>(
  * the parsed string tokens with leading env-var assignments and a
  * small allowlist of safe wrappers (`sudo`, `command`, with their
  * flag block consumed) stripped. Returns `null` if the segment
- * doesn't parse — the caller should then skip the segment.
+ * doesn't parse -- the caller should then skip the segment.
  *
  * Using `shell-quote.parse` (rather than a regex scan) is what makes
  * quoted env values (`FOO="a b" cmd`) tokenise correctly and avoids
@@ -262,7 +262,7 @@ function tokeniseSegment(segment: string): string[] | null {
   // leave e.g. `user` standing in for the program in
   // `sudo -u user git commit ...`. `command` doesn't take any flag
   // values. `env` accepts both flags (`-i`, `-S`, `-u name`) AND
-  // `KEY=VALUE` argv entries before the program — both need
+  // `KEY=VALUE` argv entries before the program -- both need
   // skipping so `env GIT_COMMITTER_DATE=now git commit ...` resolves
   // to `git`.
   if (tokens[i] === 'sudo' || tokens[i] === 'command' || tokens[i] === 'env') {
@@ -299,7 +299,7 @@ function tokeniseSegment(segment: string): string[] | null {
       // `command` has no value-taking options in this allowlist.
       // Without skipping the value, `env -u FOO git commit ...`
       // would leave `FOO` as `tokens[0]` and the parser would treat
-      // it as the program — masking the real `git commit`.
+      // it as the program -- masking the real `git commit`.
       const takesValue =
         (wrapper === 'sudo' && SUDO_FLAGS_WITH_VALUE.has(flag)) ||
         (wrapper === 'env' && ENV_FLAGS_WITH_VALUE.has(flag));
@@ -309,7 +309,7 @@ function tokeniseSegment(segment: string): string[] | null {
     }
     // `env` puts KEY=VALUE pairs between its flags and the real
     // program, so skip those too. Same git-repo-redirect bail as
-    // above applies — a `env GIT_DIR=elsewhere git commit` segment
+    // above applies -- a `env GIT_DIR=elsewhere git commit` segment
     // is non-attributable.
     if (wrapper === 'env') {
       while (i < tokens.length) {
@@ -346,7 +346,7 @@ const SUDO_FLAGS_WITH_VALUE = new Set([
 const ENV_FLAGS_WITH_VALUE = new Set(['-u', '--unset', '-S', '--split-string']);
 
 // `env`'s flags that relocate the working directory (and therefore
-// the implicit repository) before exec — GNU coreutils 8.30+'s
+// the implicit repository) before exec -- GNU coreutils 8.30+'s
 // `-C DIR` / `--chdir DIR`. A `git commit` inside such an env wrapper
 // runs against whatever repo lives at DIR, NOT our cwd, so we must
 // refuse the segment outright the same way `cd /elsewhere && git
@@ -395,7 +395,7 @@ function isShiftCwdFlag(flag: string, set: ReadonlySet<string>): boolean {
  * caller skips them.
  *
  * Identity / date variables (`GIT_AUTHOR_*`, `GIT_COMMITTER_*`) are
- * deliberately NOT in this set — they tweak the commit's metadata
+ * deliberately NOT in this set -- they tweak the commit's metadata
  * but don't move it to another repo, so attribution is still
  * meaningful.
  */
@@ -452,7 +452,7 @@ const GIT_GLOBAL_FLAGS_SHIFTS_CWD = new Set(['-C', '--git-dir', '--work-tree']);
 // (a common alias for "explicit current dir").
 //
 // Empty string is intentionally NOT treated as no-op even though
-// `-C "" commit` is technically a no-op — `shell-quote` returns ''
+// `-C "" commit` is technically a no-op -- `shell-quote` returns ''
 // for any env-var or command-substitution that it cannot resolve at
 // parse time (e.g. `-C $HOME`, `-C $REPO_ROOT`, `-C $UNSET`), so
 // the literal-empty and the unknown-env-var cases are
@@ -464,7 +464,7 @@ const GIT_GLOBAL_FLAGS_SHIFTS_CWD = new Set(['-C', '--git-dir', '--work-tree']);
 // commit` (malformed and won't actually commit).
 //
 // Same conservatism applies to literal absolute paths that happen
-// to resolve to cwd at runtime — we only have the argv at parse
+// to resolve to cwd at runtime -- we only have the argv at parse
 // time, so the cheap textual comparison is what we can reasonably
 // check here.
 function isNoopCwdTarget(target: string): boolean {
@@ -484,7 +484,7 @@ function parseGitInvocation(tokens: string[]): {
       const value = tokens[i + 1] ?? '';
       // For `-C` specifically, the value is the new cwd. `-C .` is
       // a no-op so don't flip changesCwd. (`--git-dir`/`--work-tree`
-      // path arguments aren't cwd in the same sense — leave those
+      // path arguments aren't cwd in the same sense -- leave those
       // unconditional.)
       if (t === '-C') {
         if (!isNoopCwdTarget(value)) changesCwd = true;
@@ -529,17 +529,17 @@ function parseGitInvocation(tokens: string[]): {
  *
  * Two flags are returned because the answers feed different decisions:
  * - `hasCommit` is the broader "did the user try to commit anywhere
- *   in this chain?" — used to refuse background mode and to gate
+ *   in this chain?" -- used to refuse background mode and to gate
  *   prompt-counter snapshotting.
  * - `attributableInCwd` is the stricter "is it safe to capture HEAD
- *   in our cwd and write a note to that repo?" — used by the actual
+ *   in our cwd and write a note to that repo?" -- used by the actual
  *   trailer rewrite and git-notes write.
  *
  * Walks segments in order so a `cd` AFTER an in-cwd commit doesn't
  * invalidate that commit's attribution; only a `cd` (or `git -C` /
  * `--git-dir` / `--work-tree`) BEFORE the commit shifts safety.
  *
- * `cwdShifted` is intentionally a one-way latch — it isn't reset on
+ * `cwdShifted` is intentionally a one-way latch -- it isn't reset on
  * a subsequent `cd .` or `cd ..`, so harmless cd cycles like
  * `cd src && cd .. && git commit -m x` will conservatively skip
  * attribution. The trade-off matches the wrong-repo guard's intent
@@ -568,11 +568,11 @@ function gitCommitContext(command: string): {
       // upward (no `..`, no absolute path, no env-var/$home expansion)
       // almost always stay within the same repo. The very common
       // `cd subdir && git commit -m "..."` flow is the motivating case
-      // — same repo, same toplevel, attribution is still safe. Only
+      // -- same repo, same toplevel, attribution is still safe. Only
       // mark as shifted when the target *could* land us in a different
       // repo. We can't be 100% certain without running `git rev-parse
       // --show-toplevel` after the cd, which would require a synchronous
-      // fs/exec call that the rest of this walk avoids — the heuristic
+      // fs/exec call that the rest of this walk avoids -- the heuristic
       // covers the common case and stays conservative on the rest.
       if (!hasCommit && cdTargetMayChangeRepo(tokens)) cwdShifted = true;
       continue;
@@ -580,7 +580,7 @@ function gitCommitContext(command: string): {
     if (program === 'popd') {
       // `popd` returns to a previous directory in the bash dir-stack.
       // Without tracking the stack we can't know whether the resulting
-      // cwd is the same repo or a different one — treat conservatively
+      // cwd is the same repo or a different one -- treat conservatively
       // as a shift before any commit.
       if (!hasCommit) cwdShifted = true;
       continue;
@@ -645,7 +645,7 @@ function parseGhInvocation(tokens: string[]): string[] {
  * whether a subsequent `git commit` in the same chain is still
  * attributable in our cwd.
  *
- * Returns true (conservative — assume shift) when the target is
+ * Returns true (conservative -- assume shift) when the target is
  * absolute, escapes upward (`..`), goes to `$HOME` / `~`, contains an
  * env-var (we can't resolve it statically), or is missing entirely
  * (`cd` alone goes to `$HOME`). Plain relative paths like `cd src`,
@@ -660,7 +660,7 @@ function cdTargetMayChangeRepo(tokens: string[]): boolean {
   if (target === undefined) return true;
   if (target.startsWith('/')) return true;
   if (target.startsWith('~')) return true;
-  // Env-var reference (e.g. `$HOME`, `$REPO`) — can't resolve here.
+  // Env-var reference (e.g. `$HOME`, `$REPO`) -- can't resolve here.
   if (target.includes('$')) return true;
   // `..`, `../..`, `..\\foo` etc. could escape the repo root.
   if (target === '..') return true;
@@ -671,7 +671,7 @@ function cdTargetMayChangeRepo(tokens: string[]): boolean {
   // false-positiving on legitimate names that happen to contain `..`
   // (which only escape when followed by a separator).
   if (target.includes('/..') || target.includes('\\..')) return true;
-  // `-` is bash's "previous directory" — could be anywhere.
+  // `-` is bash's "previous directory" -- could be anywhere.
   if (target === '-') return true;
   return false;
 }
@@ -680,10 +680,10 @@ function cdTargetMayChangeRepo(tokens: string[]): boolean {
  * Detect whether the attributable `git commit` invocation in
  * `command` carries the `--amend` flag. Used so attachCommitAttribution
  * can switch the diff range from `${postHead}~1..${postHead}` (the
- * amended commit vs its parent — too broad for amend, since the
+ * amended commit vs its parent -- too broad for amend, since the
  * amended commit's parent is the original commit's parent, so this
  * diff lumps both commits' worth of changes) to
- * `${preHead}..${postHead}` (the actual amend delta — `preHead` was
+ * `${preHead}..${postHead}` (the actual amend delta -- `preHead` was
  * captured synchronously before spawn and is the pre-amend SHA).
  *
  * Only the *first* commit segment that runs in the same cwd as the
@@ -722,7 +722,7 @@ function isAmendCommit(command: string): boolean {
  * Locate the character range of the *first* attributable
  * `git commit` invocation in the (potentially compound) command, or
  * `null` if none is attributable in the current cwd. The range
- * covers the segment as `splitCommands` tokenised it — i.e. just
+ * covers the segment as `splitCommands` tokenised it -- i.e. just
  * the `git commit ...` part, NOT later `&& git tag -m ...` or
  * earlier `git status &&` segments.
  *
@@ -780,7 +780,7 @@ function findAttributableCommitSegment(
  * Locate the character range of the `gh pr create` (or alias
  * `gh pr new`) segment in a potentially compound command. Used by
  * `addAttributionToPR` so the `--body`/`-b` rewrite is scoped to
- * just that segment — without scoping, a command like
+ * just that segment -- without scoping, a command like
  * `curl -b "session=abc" && gh pr create --body "summary"` would
  * have the regex match `curl`'s `-b` cookie flag and inject
  * attribution there.
@@ -816,7 +816,7 @@ function findGhPrCreateSegment(
  * constant to get a coarse "change magnitude" the per-file AI
  * accumulator can be clamped against. The downstream `aiChars` /
  * `humanChars` fields in the git-notes payload are literally
- * (lines × this constant) — they are NOT real character counts.
+ * (lines * this constant) -- they are NOT real character counts.
  * See the `FileAttributionDetail` interface doc for the consequences
  * for consumers that aggregate the raw values.
  */
@@ -826,17 +826,17 @@ const APPROX_CHARS_PER_LINE = 40;
  * (instead of integer counts) for any non-text blob, so we can't
  * compute a per-line estimate; this flat value lets the entry
  * survive into the payload at a consistent (if coarse) size.
- * Same heuristic-not-literal caveat as `APPROX_CHARS_PER_LINE` —
+ * Same heuristic-not-literal caveat as `APPROX_CHARS_PER_LINE` --
  * a 5 MB image change and a 1-byte binary tweak both report this
  * value.
  */
 const BINARY_DIFF_SIZE_FALLBACK = 1024;
 
 /**
- * Parse `git diff --numstat` output into a `path → approximate change
+ * Parse `git diff --numstat` output into a `path -> approximate change
  * size` map for attribution accounting. The result feeds in as the
  * denominator clamp for `aiChars`, so missing entries would silently
- * drop a file from attribution — every changed file must land in the
+ * drop a file from attribution -- every changed file must land in the
  * map.
  *
  * `--numstat` is preferred over `--stat` because the columns are exact
@@ -845,7 +845,7 @@ const BINARY_DIFF_SIZE_FALLBACK = 1024;
  * For binary files, both counts are `-`; we fall back to a fixed
  * estimate so binary-only changes still get a non-zero entry.
  *
- * The `(adds + dels) * 40` figure remains a heuristic — git diff has no
+ * The `(adds + dels) * 40` figure remains a heuristic -- git diff has no
  * cheap way to surface exact character counts. The clamp in
  * `generateNotePayload` keeps the math consistent (aiChars never
  * exceeds diffSize), so the heuristic drives the precision of the
@@ -855,7 +855,7 @@ const BINARY_DIFF_SIZE_FALLBACK = 1024;
  * Rename notations (`{old => new}` and bare `old => new`) are
  * normalized to the new path so lookups match `--name-only` output.
  *
- * Exported for unit testing — the function is otherwise an
+ * Exported for unit testing -- the function is otherwise an
  * implementation detail of `attachCommitAttribution`.
  */
 export function parseNumstat(numstatOutput: string): Map<string, number> {
@@ -875,7 +875,7 @@ export function parseNumstat(numstatOutput: string): Map<string, number> {
   };
 
   for (const line of lines) {
-    // Format: "<additions>\t<deletions>\t<path>" — a literal "-" stands
+    // Format: "<additions>\t<deletions>\t<path>" -- a literal "-" stands
     // in for both counts on binary entries.
     const m = line.match(/^([\d-]+)\t([\d-]+)\t(.+)$/);
     if (!m) continue;
@@ -915,7 +915,7 @@ const PROMOTE_FLUSH_TIMEOUT_MS = 10_000;
  * PR-2.5 slots shared between the foreground `execute()` postPromote
  * handlers and the post-resolve `handlePromotedForeground` finalizer.
  * The handlers fire on the service side as soon as promote happens;
- * the finalizer runs after `await resultPromise` returns. They race —
+ * the finalizer runs after `await resultPromise` returns. They race --
  * the buffer + settle-queue absorb the race so neither chunks nor the
  * eventual exit info are lost. See `executeForeground` for the wiring
  * and `handlePromotedForeground` for the drain logic.
@@ -943,7 +943,7 @@ interface PromoteArtifacts {
    *    and called `stream.end()`. The stream is closing; any chunk
    *    that arrives during the `.end()` flush window (rare but
    *    possible on PTY when kernel buffers deliver late) MUST drop
-   *    rather than be pushed into the buffer — at this point the
+   *    rather than be pushed into the buffer -- at this point the
    *    buffer has no remaining drain path (the foreground finalizer
    *    has returned).
    *
@@ -968,7 +968,7 @@ interface PromoteArtifacts {
 
 // Long-run advisory threshold: half the EFFECTIVE foreground timeout
 // (not the default), computed per-invocation by `longRunThresholdFor`.
-// Couples to whichever timeout actually governs THIS command — so a
+// Couples to whichever timeout actually governs THIS command -- so a
 // user who sets `timeout: 600_000` (10 min) gets the advisory at 5 min,
 // not at 60s. The 1/2 ratio is chosen so the hint surfaces well before
 // the timeout would hard-kill, but late enough that normal foreground
@@ -1008,7 +1008,7 @@ export function buildLongRunningForegroundHint(elapsedMs: number): string {
     `Next time you run a similar long-running process (build watchers, ` +
     `dev servers, soak tests, polling loops), pass \`is_background: true\` ` +
     `so the agent isn't blocked while the command runs. ` +
-    `(This is forward-looking guidance for FUTURE invocations — do NOT ` +
+    `(This is forward-looking guidance for FUTURE invocations -- do NOT ` +
     `re-run the command that just completed; for stateful operations ` +
     `like deploys, migrations, or git push, that would cause double ` +
     `side effects.) The output of background runs stays inspectable ` +
@@ -1021,7 +1021,7 @@ export function buildLongRunningForegroundHint(elapsedMs: number): string {
 /**
  * Detect standalone or leading `sleep N` patterns that should use Monitor
  * instead. Catches `sleep 5`, `sleep 2.5`, `sleep 2s`,
- * `sleep 5 && check`, `sleep 5; check`, `sleep 5 # wait` — but not sleep
+ * `sleep 5 && check`, `sleep 5; check`, `sleep 5 # wait` -- but not sleep
  * inside pipelines, subshells, backgrounded commands, or scripts (those are
  * fine).
  */
@@ -1378,8 +1378,8 @@ export class ShellToolInvocation extends BaseToolInvocation<
 
   /**
    * AST-based permission check for the shell command.
-   * - Read-only commands (via AST analysis) → 'allow'
-   * - All other commands → 'ask'
+   * - Read-only commands (via AST analysis) -> 'allow'
+   * - All other commands -> 'ask'
    */
   override async getDefaultPermission(): Promise<PermissionDecision> {
     const command = stripShellWrapper(this.params.command);
@@ -1510,7 +1510,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // `setPromoteAbortControllerCallback`. When the keybind fires
     // `promoteAbortController.abort({ kind: 'background', shellId })`,
     // ShellExecutionService detects the discriminated reason and
-    // returns `result.promoted: true` instead of killing the child —
+    // returns `result.promoted: true` instead of killing the child --
     // see #3842 / #3886 for the foundation.
     const promoteAbortController = new AbortController();
     let combinedSignal = abortSignalAny([
@@ -1547,7 +1547,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // rev-parse can resolve AFTER a fast-cached `git commit` moves
     // HEAD (real race seen on slow filesystems / heavy contention),
     // leaving preHead === postHead and silently skipping the
-    // attribution note. ~10–50ms event-loop block per commit-shaped
+    // attribution note. ~10-50ms event-loop block per commit-shaped
     // command, only when `commitCtx.hasCommit` is true.
     //
     // We act on `gitCommitContext` rather than a raw regex so quoted
@@ -1561,7 +1561,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // `attachCommitAttribution`). For non-attributable
     // hasCommit cases (`cd /elsewhere && git commit`,
     // `git -C /other commit`), no consumer reads preHead and the
-    // ~10–50 ms execFileSync is dead work that just blocks the
+    // ~10-50 ms execFileSync is dead work that just blocks the
     // event loop before the user's real command spawns.
     const preHead: string | null = commitCtx.attributableInCwd
       ? this.getGitHeadSync(cwd)
@@ -1582,7 +1582,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     };
 
     const doUpdate = () => {
-      // Any path that emits an update supersedes a pending trailing flush —
+      // Any path that emits an update supersedes a pending trailing flush --
       // cancel centrally so leading-edge text, ANSI, binary_detected, and
       // binary_progress branches all stay consistent without each having to
       // remember to clear the timer themselves.
@@ -1646,7 +1646,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
             // chunk is still shown if the command goes quiet within the
             // window. The timer's callback reads `cumulativeOutput` by
             // closure, so subsequent suppressed chunks within the same
-            // window don't need to reschedule — the latest value will be
+            // window don't need to reschedule -- the latest value will be
             // emitted when the timer fires.
             const remaining =
               OUTPUT_UPDATE_INTERVAL_MS - (Date.now() - lastUpdateTime);
@@ -1680,7 +1680,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       }
     };
 
-    // Pre-allocate the promote artifacts (PR-2.5). Lazily created — no
+    // Pre-allocate the promote artifacts (PR-2.5). Lazily created -- no
     // disk I/O unless the user actually fires Ctrl+B / promote signal.
     // The handlers below close over these slots; once promote happens,
     // `handlePromotedForeground` populates them (opens the stream, sets
@@ -1697,7 +1697,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     const postPromote: ShellPostPromoteHandlers = {
       onData: (event) => {
         if (event.type !== 'data') return;
-        // ANSI structured chunks have no append semantics — coerce to
+        // ANSI structured chunks have no append semantics -- coerce to
         // string. The output file is plain text; live ANSI updates are
         // owned by the foreground stream, which by promote-time has
         // already terminated.
@@ -1710,7 +1710,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
         // contract. Without this, an agent reading the file after a
         // promote would see plain text up to the promote moment, then
         // raw `\x1b[...m` color codes / cursor moves / clear-screen
-        // sequences for any post-promote output — which is unreadable
+        // sequences for any post-promote output -- which is unreadable
         // and inconsistent.
         const rawChunk =
           typeof event.chunk === 'string'
@@ -1728,7 +1728,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
             );
           }
         } else if (promoteArtifacts.streamClosed) {
-          // Stream-open already failed permanently — drop chunks
+          // Stream-open already failed permanently -- drop chunks
           // rather than buffer them. Without this guard the buffer
           // would grow without bound under a sustained child whose
           // output file we couldn't open.
@@ -1744,7 +1744,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
           promoteArtifacts.onSettleWired(info);
         } else {
           // Service observed the child exit before handlePromotedForeground
-          // finished registering. Queue the settle info — handlePromotedForeground
+          // finished registering. Queue the settle info -- handlePromotedForeground
           // applies it as soon as the registry entry exists.
           promoteArtifacts.settleQueued = info;
         }
@@ -1778,16 +1778,16 @@ export class ShellToolInvocation extends BaseToolInvocation<
     }
     // Hand the promote controller up to the scheduler so a future UI
     // surface (PR-3 Ctrl+B keybind) can find it and trigger promote.
-    // Done unconditionally — the caller can ignore it if they don't
+    // Done unconditionally -- the caller can ignore it if they don't
     // implement promote yet, but exposing it now means PR-3 doesn't
     // need to revisit shell.ts.
     setPromoteAbortControllerCallback?.(promoteAbortController);
 
-    // Bracket the spawn → settle wall-clock so the result builder below
+    // Bracket the spawn -> settle wall-clock so the result builder below
     // can decide whether to append the long-run advisory. Captured AFTER
     // `await ShellExecutionService.execute(...)` returns its handle so
-    // pre-spawn setup (PTY dynamic import via `getPty()`, ~50–200ms on
-    // first call) is excluded — the elapsed should reflect the
+    // pre-spawn setup (PTY dynamic import via `getPty()`, ~50-200ms on
+    // first call) is excluded -- the elapsed should reflect the
     // command's actual runtime, not the tool call's total wall time.
     // The `pid` set above confirms the process has been spawned by this
     // point, so subtraction below is true post-spawn-to-settle.
@@ -1796,7 +1796,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // `Date.now()` so NTP corrections / VM clock drift between capture
     // and read can't make `elapsedMs` go negative (which would silently
     // skip the hint with no observable failure). Returned origin is
-    // arbitrary but consistent across the two reads — only the
+    // arbitrary but consistent across the two reads -- only the
     // difference matters here.
     const executionStartTime = performance.now();
 
@@ -1804,7 +1804,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     try {
       result = await resultPromise;
     } finally {
-      // Cancel any pending trailing flush — the command has settled (or
+      // Cancel any pending trailing flush -- the command has settled (or
       // threw) and either the final ToolResult carries the complete output
       // or the caller will surface an error. Either way the timer must not
       // fire a stale frame after we've returned. `finally` covers both the
@@ -1831,13 +1831,13 @@ export class ShellToolInvocation extends BaseToolInvocation<
     //   3. Register a `BackgroundShellEntry` with the existing pid +
     //      a FRESH `AbortController` whose abort listener kills the
     //      still-running child (mirroring `ShellExecutionService`'s
-    //      SIGTERM → 200ms → SIGKILL cascade) and sync-marks the
+    //      SIGTERM -> 200ms -> SIGKILL cascade) and sync-marks the
     //      entry `cancelled`. `task_stop bg_xxx` and the dialog's
-    //      `x` key route through `entry.abortController.abort()` →
-    //      kill listener → child gets SIGTERM/SIGKILL. Reusing the
+    //      `x` key route through `entry.abortController.abort()` ->
+    //      kill listener -> child gets SIGTERM/SIGKILL. Reusing the
     //      already-aborted `promoteAbortController` would have made
     //      `task_stop` a no-op (Web `AbortController.abort()` is
-    //      idempotent on already-aborted controllers per spec) — see
+    //      idempotent on already-aborted controllers per spec) -- see
     //      `handlePromotedForeground` for the full rationale.
     //   4. Return a model-facing `ToolResult` with promote-flavored copy
     //      pointing the agent at `/tasks` / the Background tasks dialog
@@ -1866,7 +1866,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     let llmContent = '';
     if (result.aborted) {
       // Check if it was a timeout or user cancellation. Exclude BOTH
-      // the user signal AND the promote signal — the latter matters
+      // the user signal AND the promote signal -- the latter matters
       // when PR-3's Ctrl+B keybind fires `promoteAbortController.abort`
       // but the service's race guard refused promotion (the child
       // terminated a beat earlier). The result then lands with
@@ -1890,7 +1890,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
           llmContent += ' There was no output before it timed out.';
         }
       } else if (wasPromoteRefused) {
-        // The user pressed Ctrl+B (promote) but the service refused —
+        // The user pressed Ctrl+B (promote) but the service refused --
         // typically the child had already terminated by the time the
         // signal was checked. Treat as a benign race: report what
         // actually happened (the run completed, just without the
@@ -1926,7 +1926,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       ].join('\n');
 
       // (Long-run advisory append happens AFTER `truncateToolOutput`
-      // below — see the explanation there for why post-truncation.)
+      // below -- see the explanation there for why post-truncation.)
     }
 
     // Run attribution outside the aborted/non-aborted branch: a
@@ -1943,7 +1943,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // is the original's parent, so diffing against it lumps both
       // commits' worth of changes). Detect the flag so
       // `getCommittedFileInfo` can switch to `${preHead}..${postHead}`
-      // — `preHead` was captured synchronously before spawn and is
+      // -- `preHead` was captured synchronously before spawn and is
       // the pre-amend SHA, so this range captures only the amend
       // delta.
       const isAmend = isAmendCommit(strippedCommand);
@@ -1957,7 +1957,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // commands that match `hasCommit` but not `attributableInCwd`
     // (e.g. `cd /abs/path/to/this/repo && git commit`, `git -C . commit`)
     // can land a commit in our cwd, but we don't know which files were
-    // staged — the user may have done a partial `git add A` and left
+    // staged -- the user may have done a partial `git add A` and left
     // unstaged AI edits to B and C pending. A wholesale
     // `clearAttributions(true)` here would silently lose B and C even
     // though they weren't committed. Leave the singleton alone; the
@@ -1967,7 +1967,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // Decide whether to emit the long-run advisory. Conditions:
     //   - Process completed under its own steam (no AbortSignal
     //     trigger, no external signal). Specifically:
-    //       * Suppressed on aborted (`result.aborted: true`) — covers
+    //       * Suppressed on aborted (`result.aborted: true`) -- covers
     //         the `if (result.aborted)` arm above (timeout / user-
     //         cancel). Their own messaging is enough; a "should have
     //         been background" reminder when the agent already knows
@@ -1978,12 +1978,12 @@ export class ShellToolInvocation extends BaseToolInvocation<
     //         process group). `shellExecutionService` only sets
     //         `aborted` when the AbortSignal we passed was triggered,
     //         so external signals fall through to the non-aborted
-    //         branch — same rationale as timeout.
-    //   - Wall-clock duration ≥ threshold. Measured spawn → resultPromise
+    //         branch -- same rationale as timeout.
+    //   - Wall-clock duration >= threshold. Measured spawn -> resultPromise
     //     settle, intentionally BEFORE the post-processing block below
     //     (truncation I/O, output-file write). The hint reports how long
     //     the COMMAND blocked the agent, not how long the tool call
-    //     spent including post-processing — that's the number the agent
+    //     spent including post-processing -- that's the number the agent
     //     should be reasoning about when deciding whether to background
     //     next time. Truncation time is bounded by the temp-dir backend
     //     and isn't representative of the command's actual wait.
@@ -1999,20 +1999,20 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // user reports "my 65s command didn't get the hint" or "5s command
     // got the hint", the debug log shows which suppression branch fired
     // (aborted / signal / under-threshold) plus the actual elapsed and
-    // computed threshold. No PII — just timing + result flags.
+    // computed threshold. No PII -- just timing + result flags.
     debugLogger.debug(
       `long-run hint: elapsed=${Math.round(elapsedMs)}ms threshold=${longRunThreshold}ms ` +
-        `aborted=${result.aborted} signal=${result.signal} → ${shouldAppendLongRunHint ? 'fire' : 'suppress'}`,
+        `aborted=${result.aborted} signal=${result.signal} -> ${shouldAppendLongRunHint ? 'fire' : 'suppress'}`,
     );
 
-    // returnDisplayMessage build order — chronologically:
+    // returnDisplayMessage build order -- chronologically:
     //   1. Initial value: in debug mode, snapshot of pre-truncation
     //      `llmContent`; in non-debug mode, terse output-or-status.
     //   2. Truncation block (below) appends `Output too long and was
     //      saved to: <path>` if truncation fired (BOTH modes).
     //   3. Long-run hint append (further below) appends the hint
     //      itself with append-style re-sync (BOTH modes), so the user
-    //      sees the same advisory the agent does — otherwise the
+    //      sees the same advisory the agent does -- otherwise the
     //      agent would suddenly suggest `is_background: true` with no
     //      visible trigger in the TUI.
     // The pre-existing debug snapshot is captured here (pre-truncation,
@@ -2085,7 +2085,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     if (longRunHint) {
       if (typeof llmContent === 'string') {
         llmContent += `\n\n${longRunHint}`;
-        // Surface the hint in the user-facing TUI too — the user is
+        // Surface the hint in the user-facing TUI too -- the user is
         // the one waiting for long commands and benefits from the
         // same "consider backgrounding next time" cue the agent sees.
         // Append (not replace) in BOTH modes so the truncation marker
@@ -2099,7 +2099,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // a plain string. Today shell.ts only emits string llmContent,
       // but the type union allows structured content. If a future
       // refactor changes that, the hint silently disappears here. We
-      // accept that risk for now — the alternative (encoding the hint
+      // accept that risk for now -- the alternative (encoding the hint
       // as a Part) would require deciding on a rendering convention,
       // and structured llmContent isn't on the roadmap. Revisit if
       // someone adds a non-string return path.
@@ -2165,7 +2165,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
   }
 
   /**
-   * Foreground → background promote handler. Called when the foreground
+   * Foreground -> background promote handler. Called when the foreground
    * execute path observes `result.promoted: true` (the user pressed
    * Ctrl+B mid-flight). Writes the initial snapshot + open the
    * post-promote append stream so subsequent child bytes land in
@@ -2212,7 +2212,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     }
     if (mkdirError) {
       debugLogger.warn(
-        `promote: mkdirSync(${outputDir}) failed before registry register — killing orphan child: ${mkdirError.message}`,
+        `promote: mkdirSync(${outputDir}) failed before registry register -- killing orphan child: ${mkdirError.message}`,
       );
       const pid = result.pid;
       if (pid !== undefined) {
@@ -2225,7 +2225,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
               '/t',
             ]);
             taskkillChild.on('error', () => {
-              /* swallow — already in error path */
+              /* swallow -- already in error path */
             });
           } catch {
             /* swallow */
@@ -2234,7 +2234,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
           try {
             process.kill(-pid, 'SIGTERM');
           } catch {
-            /* swallow — pid gone or perms */
+            /* swallow -- pid gone or perms */
           }
         }
       }
@@ -2246,7 +2246,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // PR-2.5: open an append-mode write stream so the initial snapshot
     // AND post-promote bytes from the still-running child both land in
     // the same file. Synchronous open via `createWriteStream` with
-    // `flags: 'w'` (overwrite) — if a stale file is somehow there from
+    // `flags: 'w'` (overwrite) -- if a stale file is somehow there from
     // a prior session with the same shellId (vanishingly unlikely
     // given the randomBytes), start fresh. Stream errors (ENOSPC mid-
     // stream, permission flip) are logged via 'error' listener; we
@@ -2257,12 +2257,12 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // PR-2.5 wave-2: `createWriteStream` reports common
       // failures (ENOENT / EACCES / ENOSPC during the async libuv
       // `open`) via an `'error'` event AFTER this synchronous call
-      // returns — they do NOT throw. Without latching the failure
+      // returns -- they do NOT throw. Without latching the failure
       // here, `promoteArtifacts.stream` would still point at an
       // already-broken stream, `postPromote.onData` would `write` into
       // it (catching the throw via its own try/catch but never
       // releasing the buffer), and `onSettleWired` would attach a
-      // `'finish'` listener that never fires → registry stuck on
+      // `'finish'` listener that never fires -> registry stuck on
       // `running` forever. Latch the failure: null the stream,
       // mark `streamClosed` so `onData` drops chunks, and let
       // `onSettleWired` transition the registry immediately (its
@@ -2277,10 +2277,10 @@ export class ShellToolInvocation extends BaseToolInvocation<
         try {
           fs.appendFileSync(
             outputPath,
-            `\n[WARNING: post-promote output lost — stream error (${getErrorMessage(err)}). ${droppedChunks} buffered chunks dropped.]\n`,
+            `\n[WARNING: post-promote output lost -- stream error (${getErrorMessage(err)}). ${droppedChunks} buffered chunks dropped.]\n`,
           );
         } catch {
-          // Best-effort diagnostic — if the append itself fails
+          // Best-effort diagnostic -- if the append itself fails
           // (e.g. disk full), the debugLogger.warn above is the
           // only trace left.
         }
@@ -2293,7 +2293,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // today (single-tick JS, so a service-side `onData` callback
       // cannot fire between drain-end and assign), but the assign-
       // after-drain order leaves a hazard for any future refactor
-      // that introduces an `await` inside the drain — a chunk arriving
+      // that introduces an `await` inside the drain -- a chunk arriving
       // in that window would be pushed into `promoteArtifacts.buffer`
       // (because `stream` is still null), then later chunks would write
       // directly to the stream after assign, producing out-of-order
@@ -2311,7 +2311,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       debugLogger.warn(
         `promote: failed to open output stream for ${outputPath}: ${getErrorMessage(err)}`,
       );
-      // Stream failure is recoverable — the registry entry is still
+      // Stream failure is recoverable -- the registry entry is still
       // valuable on its own; the file is the inspection surface only.
       // Continue without a stream; future onData chunks are dropped
       // (their warns will accumulate in the log, which is enough
@@ -2351,7 +2351,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     const registry = this.config.getBackgroundShellRegistry();
     // Create a FRESH AbortController for the registry entry. Using the
     // promote AbortController directly (which is already in the
-    // `aborted` state — that's what triggered the promote) would be
+    // `aborted` state -- that's what triggered the promote) would be
     // a real bug: `task_stop bg_xxx` calls `entry.abortController.abort()`
     // which is a no-op on an already-aborted controller, AND
     // `ShellExecutionService` has detached its abort listener as part
@@ -2359,7 +2359,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // there's nobody left to translate the abort into an actual signal
     // to the still-running child. Instead, the entry gets a new
     // controller, and we wire the abort listener directly to send
-    // SIGTERM → SIGKILL ourselves (mirroring the kill semantics
+    // SIGTERM -> SIGKILL ourselves (mirroring the kill semantics
     // `ShellExecutionService.execute()`'s abort handler uses for the
     // non-promote path) and to mark the registry entry `cancelled`.
     const entryAc = new AbortController();
@@ -2376,7 +2376,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
             ]);
             // Without an 'error' listener on the spawned ChildProcess,
             // a taskkill spawn failure (binary missing, permission
-            // denied, etc.) would emit 'error' with no listener — which
+            // denied, etc.) would emit 'error' with no listener -- which
             // crashes Node by default. Log + drop is the sane recovery:
             // the registry entry still transitions via `registry.cancel`
             // below; the still-running child is at worst an orphan,
@@ -2388,14 +2388,14 @@ export class ShellToolInvocation extends BaseToolInvocation<
             });
           } catch (e) {
             // childProcess.spawn itself throwing (sync) is rare but possible
-            // (e.g. EMFILE — too many open files) — same recovery.
+            // (e.g. EMFILE -- too many open files) -- same recovery.
             debugLogger.warn(
               `promote: childProcess.spawn('taskkill') threw for pid=${pid}: ${getErrorMessage(e)}`,
             );
           }
         } else {
           try {
-            // Negative pid → kill the whole process group; matches the
+            // Negative pid -> kill the whole process group; matches the
             // `detached: !isWindows` spawn the foreground path uses.
             process.kill(-pid, 'SIGTERM');
             await new Promise((res) =>
@@ -2404,7 +2404,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
             try {
               process.kill(-pid, 'SIGKILL');
             } catch {
-              // Already dead before SIGKILL — happy path.
+              // Already dead before SIGKILL -- happy path.
             }
           } catch (e) {
             debugLogger.warn(
@@ -2438,7 +2438,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       outputPath,
       abortController: entryAc,
     };
-    // Reference `abortController` so it's not unused — the parameter
+    // Reference `abortController` so it's not unused -- the parameter
     // is kept on the signature so a future PR-2.5 that needs to
     // double-link the original promote signal can read it without
     // re-plumbing.
@@ -2454,17 +2454,17 @@ export class ShellToolInvocation extends BaseToolInvocation<
       registry.register(entry);
     } catch (e) {
       debugLogger.warn(
-        `promote: registry.register threw for ${shellId} (pid=${result.pid}) — killing orphan child: ${
+        `promote: registry.register threw for ${shellId} (pid=${result.pid}) -- killing orphan child: ${
           e instanceof Error ? e.message : String(e)
         }`,
       );
       try {
         entryAc.abort();
       } catch {
-        /* swallow — we're already in an error path */
+        /* swallow -- we're already in an error path */
       }
       // PR-2.5: close the output stream so the FD doesn't leak past
-      // the throw. Best-effort — if .end() itself throws we're
+      // the throw. Best-effort -- if .end() itself throws we're
       // already in an error path with the orphan-child kill already
       // in flight.
       try {
@@ -2483,7 +2483,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // service's `postPromote.onSettle` fires AT MOST ONCE per
     // promote, and `registry.complete` / `registry.fail` are
     // idempotent (no-op when status !== 'running'), so a race with
-    // `entryAc.abort() → registry.cancel` (task_stop fired during the
+    // `entryAc.abort() -> registry.cancel` (task_stop fired during the
     // exit window) is safe: whichever lands first wins, the other
     // becomes a no-op.
     // Status flags consumed by the model-facing copy below.
@@ -2516,10 +2516,10 @@ export class ShellToolInvocation extends BaseToolInvocation<
     const classifySettle = (
       info: ShellPostPromoteSettleInfo,
     ): { status: 'completed' | 'failed'; failMsg: string | null } => {
-      // Decision table: `error` → fail (spawn-side failure); `exitCode
-      // === 0` → complete; non-zero exitCode → fail; signal-killed
-      // (no exitCode, signal set) → fail with descriptive message;
-      // everything-null → fail with generic message.
+      // Decision table: `error` -> fail (spawn-side failure); `exitCode
+      // === 0` -> complete; non-zero exitCode -> fail; signal-killed
+      // (no exitCode, signal set) -> fail with descriptive message;
+      // everything-null -> fail with generic message.
       if (info.error) return { status: 'failed', failMsg: info.error.message };
       if (info.exitCode === 0) return { status: 'completed', failMsg: null };
       if (info.exitCode !== null)
@@ -2533,7 +2533,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
           failMsg: `Terminated by signal ${info.signal}`,
         };
       // PR-2.5 wave-3: this branch is meant to
-      // be unreachable — the service always populates one of
+      // be unreachable -- the service always populates one of
       // `error` / `exitCode` / `signal`. Hitting it means the
       // service emitted a defective settle info object, which is a
       // logic bug. Capture the actual field values in the failure
@@ -2541,10 +2541,10 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // `/tasks` or the debug log can tell THIS path apart from the
       // other "failed" branches. (`info.error` has been narrowed to
       // `never` by the preceding `if (info.error) return`, so we
-      // can't read `.message` here — by construction it would be
+      // can't read `.message` here -- by construction it would be
       // `undefined` at runtime anyway.)
       debugLogger.warn(
-        `promote: classifySettle all-null fallback hit for ${shellId} — ` +
+        `promote: classifySettle all-null fallback hit for ${shellId} -- ` +
           `exitCode=${info.exitCode}, signal=${info.signal}, error=undefined`,
       );
       return {
@@ -2561,14 +2561,14 @@ export class ShellToolInvocation extends BaseToolInvocation<
       }
     };
     promoteArtifacts.onSettleWired = (info) => {
-      // Synchronous observation — the child has exited; classify now
+      // Synchronous observation -- the child has exited; classify now
       // so the model-facing copy can branch correctly even when the
       // registry transition is deferred behind the stream's flush.
       const cls = classifySettle(info);
       postPromoteFinalStatus = cls.status;
       postPromoteSettleObserved = true;
       // Wait for the output stream to fully FLUSH before transitioning
-      // the registry. `stream.end()` is asynchronous — pending writes
+      // the registry. `stream.end()` is asynchronous -- pending writes
       // can still be in the libuv queue when it returns. Without the
       // 'finish' wait, `/tasks` consumers can observe the entry as
       // `completed`/`failed` and read the output file BEFORE the
@@ -2581,7 +2581,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // and when the buffer drain (during stream-open) sees them.
       // Without this drain those chunks are stranded. AND latch
       // `streamClosed` together with the null so that any
-      // chunk arriving AFTER `.end()` (during the flush window —
+      // chunk arriving AFTER `.end()` (during the flush window --
       // unlikely once the service has emitted settle, but kernel
       // buffers can deliver late on PTY) is DROPPED via the
       // `else if (promoteArtifacts.streamClosed)` arm in `onData`
@@ -2591,7 +2591,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
           try {
             stream.write(promoteArtifacts.buffer.shift()!);
           } catch (writeErr) {
-            // Stream write failure during pre-end drain — log + drop,
+            // Stream write failure during pre-end drain -- log + drop,
             // same recovery posture as the foreground `onData` write
             // path. The error event will fire async if the stream is
             // dead, latching `streamClosed` via the 'error' handler.
@@ -2604,7 +2604,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       promoteArtifacts.stream = null;
       promoteArtifacts.streamClosed = true;
       if (!stream) {
-        // No stream (open failed or already ended) — transition right
+        // No stream (open failed or already ended) -- transition right
         // away, no flush to wait on.
         transitionRegistry(info);
         return;
@@ -2612,7 +2612,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       try {
         // `finish` fires after all queued writes have been flushed to
         // the underlying fd. `error` covers a late EIO / ENOSPC that
-        // doesn't reach the existing `'error'` listener — race with
+        // doesn't reach the existing `'error'` listener -- race with
         // `.end()` itself. Either way, run the transition once.
         let transitioned = false;
         const finalize = () => {
@@ -2622,7 +2622,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
         };
         const flushTimer = setTimeout(() => {
           debugLogger.warn(
-            `promote: output stream flush timed out for ${shellId} after ${PROMOTE_FLUSH_TIMEOUT_MS}ms — transitioning registry without flush confirmation`,
+            `promote: output stream flush timed out for ${shellId} after ${PROMOTE_FLUSH_TIMEOUT_MS}ms -- transitioning registry without flush confirmation`,
           );
           finalize();
         }, PROMOTE_FLUSH_TIMEOUT_MS);
@@ -2646,7 +2646,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // Drain a settle that landed BEFORE the wire installed (fast
     // commands can exit between `result.promoted` and this line).
     // After this call returns, `postPromoteSettleObserved` is true
-    // if a settle was queued — that's the case the model-facing copy
+    // if a settle was queued -- that's the case the model-facing copy
     // below branches on so the message doesn't say "Status: running"
     // for a process that already finished during the registration
     // window.
@@ -2659,11 +2659,11 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // Build the model-facing status line based on whether the settle
     // was observed synchronously (i.e. the child has exited). Branch
     // on `postPromoteSettleObserved` rather than the post-flush latch
-    // — see the flag block above for the rationale.
+    // -- see the flag block above for the rationale.
     const statusLine = postPromoteSettleObserved
       ? `Status: ${postPromoteFinalStatus ?? 'settled'}. PID: ${result.pid ?? '(unknown)'}.`
       : `Status: running. PID: ${result.pid ?? '(unknown)'}.`;
-    const inspectLine = `To inspect: \`/tasks\` (text), the Background tasks dialog (↓ + Enter on the footer pill), or \`Read\` the output file directly.`;
+    const inspectLine = `To inspect: \`/tasks\` (text), the Background tasks dialog ( + Enter on the footer pill), or \`Read\` the output file directly.`;
     const stopLine = postPromoteSettleObserved
       ? `Process has already exited; no \`task_stop\` needed (the entry is observable in \`/tasks\` for inspection).`
       : `To stop the now-background process: \`task_stop({ task_id: '${shellId}' })\`.`;
@@ -2676,7 +2676,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     ].join('\n');
 
     debugLogger.debug(
-      `promote: registered ${shellId} (pid=${result.pid}) — outputPath=${outputPath}`,
+      `promote: registered ${shellId} (pid=${result.pid}) -- outputPath=${outputPath}`,
     );
 
     return {
@@ -2699,7 +2699,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     const strippedCommand = stripShellWrapper(this.params.command);
 
     // The background lifecycle (BackgroundShellRegistry) doesn't run
-    // the post-command attribution path — there's no clean place to
+    // the post-command attribution path -- there's no clean place to
     // hook pre/post-HEAD comparison and `git notes` writes between
     // the early `Background shell started` return and the eventual
     // process exit. Allowing `git commit` to slip through would leave
@@ -2722,7 +2722,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     }
     // Strip a single bare trailing `&` (the bash background operator) before
     // spawn: bash treats it as background-detach, exits the wrapper
-    // immediately, and the real child outlives the wrapper — the registry
+    // immediately, and the real child outlives the wrapper -- the registry
     // would settle as `completed` while the shell is still running, and
     // chunked output would land on a closed stream. The managed path is
     // itself the backgrounding mechanism, so the trailing `&` is redundant.
@@ -2740,7 +2740,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     const noTrailingAmp = stripTrailingBackgroundAmp(trimmedOriginal);
     if (noTrailingAmp !== trimmedOriginal) {
       debugLogger.warn(
-        'Stripped trailing & from background shell command — managed path handles backgrounding',
+        'Stripped trailing & from background shell command -- managed path handles backgrounding',
       );
     }
     const processedCommand = this.addAttributionToPR(
@@ -2750,7 +2750,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
 
     // Output goes under the project temp dir (which `ReadFileTool`
     // auto-allows by default), so the LLM can `Read` the captured output
-    // without bouncing off a permission prompt — important because
+    // without bouncing off a permission prompt -- important because
     // background-agent contexts can't surface interactive prompts.
     const outputDir = path.join(
       this.config.storage.getProjectTempDir(),
@@ -2775,7 +2775,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     const outputStream = fs.createWriteStream(outputPath, { flags: 'w' });
     // Without an 'error' listener, a write failure (disk full, permission
     // change, fs going away) would surface as an uncaught exception and
-    // kill the entire CLI session. Log + drop is the sane default — the
+    // kill the entire CLI session. Log + drop is the sane default -- the
     // process keeps running, the registry still settles via resultPromise.
     outputStream.on('error', (err) => {
       debugLogger.warn(
@@ -2800,7 +2800,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       (event: ShellOutputEvent) => {
         if (event.type === 'data' && typeof event.chunk === 'string') {
           // Strip ANSI escape codes (color, cursor-move, clear-screen) before
-          // writing — agents read the file as plain text, and dev servers /
+          // writing -- agents read the file as plain text, and dev servers /
           // build tools spam plenty of escape sequences that would render as
           // garbage. Costs ~one regex per chunk; cheap relative to disk I/O.
           outputStream.write(stripAnsi(event.chunk));
@@ -2810,7 +2810,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
         // unhelpful.
       },
       entryAc.signal,
-      // Background shells are non-interactive by design — no terminal to
+      // Background shells are non-interactive by design -- no terminal to
       // attach a PTY to, no human to type at it. Force the child_process
       // path so we don't pull in node-pty for fire-and-forget commands.
       false,
@@ -2833,24 +2833,24 @@ export class ShellToolInvocation extends BaseToolInvocation<
       registry.register(registration);
     } catch (e) {
       debugLogger.warn(
-        `background shell ${shellId} register threw (pid=${pid}) — aborting orphan child: ${
+        `background shell ${shellId} register threw (pid=${pid}) -- aborting orphan child: ${
           e instanceof Error ? e.message : String(e)
         }`,
       );
       try {
         entryAc.abort();
       } catch {
-        /* swallow — we're already in an error path */
+        /* swallow -- we're already in an error path */
       }
       try {
         outputStream.destroy();
       } catch {
-        /* swallow — we're already in an error path */
+        /* swallow -- we're already in an error path */
       }
       throw e;
     }
 
-    // Settle in the background — do NOT await here, the agent should be
+    // Settle in the background -- do NOT await here, the agent should be
     // unblocked immediately.
     void resultPromise.then(
       (result) => {
@@ -2892,7 +2892,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
         `id: ${shellId}\n` +
         pidLine +
         `output file: ${outputPath}\n` +
-        `To inspect: /tasks (text) or the interactive Background tasks dialog (focus the footer Background tasks pill, then Enter — detail view + live updates). Read the output file directly to view the captured output.`,
+        `To inspect: /tasks (text) or the interactive Background tasks dialog (focus the footer Background tasks pill, then Enter -- detail view + live updates). Read the output file directly to view the captured output.`,
       returnDisplay: `Background shell ${shellId} started${pid !== undefined ? ` (pid ${pid})` : ''}.`,
     };
   }
@@ -2920,7 +2920,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
 
   /**
    * Count commits reachable from `postHead` when the repo had no prior
-   * HEAD before the user's command — i.e. the very first commit (or
+   * HEAD before the user's command -- i.e. the very first commit (or
    * compound `init && commit && commit ...`). Without this fallback
    * the multi-commit guard would be skipped on a brand-new repo and
    * mis-attribute combined data to the final commit. SHA-pinned for
@@ -2987,12 +2987,12 @@ export class ShellToolInvocation extends BaseToolInvocation<
    * Synchronous companion to {@link getGitHead}. Captured BEFORE the
    * user's shell command spawns so a fast `git commit` (hot-cached,
    * no hooks) cannot move HEAD before our async rev-parse has a chance
-   * to read it — a real race seen on slow filesystems / heavy contention
+   * to read it -- a real race seen on slow filesystems / heavy contention
    * where preHead would otherwise resolve to the new SHA, postHead would
    * match, and `attachCommitAttribution` would silently skip writing the
    * attribution note even though the commit succeeded.
    *
-   * Worst case is ~10–50 ms of event-loop block per commit-shaped shell
+   * Worst case is ~10-50 ms of event-loop block per commit-shaped shell
    * command; acceptable trade for correctness of the post-command HEAD
    * comparison.
    */
@@ -3001,7 +3001,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       const stdout = childProcess.execFileSync('git', ['rev-parse', 'HEAD'], {
         cwd,
         timeout: 2000,
-        // Discard stderr noise (e.g. "fatal: not a git repository") —
+        // Discard stderr noise (e.g. "fatal: not a git repository") --
         // the catch-or-empty-output path already covers failure.
         stdio: ['ignore', 'pipe', 'ignore'],
       });
@@ -3038,10 +3038,10 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // analysis) drops the AI-attribution note. Returns null when the
     // skip is intentional / inherent to the situation (no commit
     // landed, multi-commit chain, attribution toggle off, no tracked
-    // edits) — those don't need user-visible feedback.
+    // edits) -- those don't need user-visible feedback.
     // Caller (`execute`) gates this with `commitCtx.attributableInCwd`,
     // so we don't re-parse the command here. Re-parsing would be dead
-    // work and a maintenance trap — if the two checks ever drifted,
+    // work and a maintenance trap -- if the two checks ever drifted,
     // trailer injection and git-notes writes could diverge silently.
 
     const postHead = await this.getGitHead(cwd);
@@ -3051,8 +3051,8 @@ export class ShellToolInvocation extends BaseToolInvocation<
     if (!commitCreated) {
       // HEAD didn't move in this cwd. Possible causes:
       //   1. Commit failed (hook rejected, nothing staged, etc.)
-      //   2. User did `git commit && git reset HEAD~1` — HEAD reverted
-      //   3. Submodule case (`cd submodule && git commit`) — the inner
+      //   2. User did `git commit && git reset HEAD~1` -- HEAD reverted
+      //   3. Submodule case (`cd submodule && git commit`) -- the inner
       //      repo's HEAD moved, ours didn't
       // We can't tell these apart reliably from here. Dropping the
       // per-file attributions on (1)/(2) is fine in isolation, but on
@@ -3080,7 +3080,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // commitCreated has already established that HEAD moved, so we
     // expect exactly 1 commit. Anything else is suspicious:
     // - >1: actual multi-commit chain we can't partition
-    // - 0:  rev-list errored / timed out — could not verify, so
+    // - 0:  rev-list errored / timed out -- could not verify, so
     //   we'd otherwise silently attribute as a single commit even
     //   though the count is unknown
     // Bail in either case.
@@ -3088,7 +3088,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       const reason =
         commitCount === 0
           ? 'commit count unavailable (rev-list failed) ' +
-            'after HEAD moved — refusing to assume single commit'
+            'after HEAD moved -- refusing to assume single commit'
           : `multi-commit shell command (${commitCount} commits since ` +
             `${preHead ? preHead.slice(0, 12) : 'repo root'})`;
       debugLogger.warn(`Refusing AI attribution: ${reason}.`);
@@ -3103,7 +3103,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     }
 
     // A new commit landed. Even when no per-file attribution was
-    // tracked (rare but possible — e.g. user committed external
+    // tracked (rare but possible -- e.g. user committed external
     // changes), we still need to snapshot the prompt counters as
     // "at last commit" so a later `gh pr create` doesn't report an
     // inflated N-shotted count spanning multiple commits.
@@ -3118,7 +3118,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // NOT also delete the per-file attribution data the user might
     // need to amend & retry. `shouldClear` flips to the partial-clear
     // set only on (a) note-write success, or (b) attribution toggle
-    // OFF — both cases where the file is genuinely "done" from the
+    // OFF -- both cases where the file is genuinely "done" from the
     // attribution path's POV.
     let shouldClear: Set<string> | null = null;
     let warning: string | null = null;
@@ -3139,12 +3139,12 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // null = analysis failed (shallow clone, --amend without reflog,
       // partial diff failure, etc.). Leave `committedAbsolutePaths`
       // null so the finally block calls `noteCommitWithoutClearing()`
-      // — snapshotting the prompt counter while leaving per-file
+      // -- snapshotting the prompt counter while leaving per-file
       // attributions intact. (Earlier revisions of this code did a
       // wholesale clear here, but that erased pending unstaged AI
       // edits for files outside the just-failed commit; the
       // smaller-evil trade-off is documented in the finally block.)
-      // Skip the note write entirely — emitting a structurally valid
+      // Skip the note write entirely -- emitting a structurally valid
       // but factually wrong all-zero note is worse than no note.
       if (stagedInfo === null) {
         warning =
@@ -3156,7 +3156,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
 
       // Pass the actual model name (e.g. `qwen3-coder-plus`) rather than the
       // co-author display label so the note's `generator` field reflects
-      // which model produced the changes — and so generateNotePayload's
+      // which model produced the changes -- and so generateNotePayload's
       // sanitizeModelName() actually has the codename it's meant to scrub.
       // The base directory must be the git repo root: getCommittedFileInfo
       // returns paths relative to `git rev-parse --show-toplevel`, and any
@@ -3175,7 +3175,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // the fly. Re-resolving fails for deleted files (realpathSync
       // throws on a missing leaf) and for files behind intermediate
       // symlinked directories (path.resolve only canonicalises the
-      // base) — both cases produced cleanup keys that didn't match
+      // base) -- both cases produced cleanup keys that didn't match
       // the stored canonical keys, leaking stale per-file attribution
       // into subsequent commits.
       let canonicalBase: string;
@@ -3191,7 +3191,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       );
 
       // First-pass match: which tracked entries are part of THIS
-      // commit? Validation must run against this subset only — a
+      // commit? Validation must run against this subset only -- a
       // tracked file the user didn't stage isn't in HEAD's new tree
       // post-commit (HEAD still has the pre-AI-edit version), so
       // `git show HEAD:<rel>` would return the OLD content and the
@@ -3203,13 +3203,13 @@ export class ShellToolInvocation extends BaseToolInvocation<
       );
 
       // Drop tracked entries whose COMMITTED content has diverged
-      // from what AI's last write recorded — catches the case where
+      // from what AI's last write recorded -- catches the case where
       // the user paste-replaced via an external editor, ran
       // `git checkout`, or otherwise modified the file outside the
       // Edit/Write tools. Validate against the COMMITTED blob rather
       // than the live working tree: the user can `git add` AI's
       // content, then make additional unstaged edits, then
-      // `git commit` — the commit's blob still matches AI's recorded
+      // `git commit` -- the commit's blob still matches AI's recorded
       // hash, but the working-tree file does not. A working-tree
       // comparison would drop the entry on a commit that legitimately
       // came from AI.
@@ -3241,7 +3241,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
             .toString('utf-8');
         } catch {
           // No committed content (deleted file, file not in the
-          // commit, or git error) — leave the entry alone.
+          // commit, or git error) -- leave the entry alone.
           return null;
         }
       });
@@ -3257,7 +3257,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // No file in this commit was AI-touched in the current session.
       // Writing a note anyway would emit an all-zero "0% AI" payload
       // attached to a commit that legitimately had no AI involvement
-      // — actively misleading. Skip the note; the partial clear in
+      // -- actively misleading. Skip the note; the partial clear in
       // the finally block is a no-op (empty set) so unrelated pending
       // attributions stay tracked for a later commit.
       if (committedAbsolutePaths.size === 0) {
@@ -3273,7 +3273,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // earlier (already-committed) AI edits to the new commit.
       const gitCoAuthorSettings = this.config.getGitCoAuthor();
       if (!gitCoAuthorSettings.commit) {
-        // Toggle-off but the commit landed — partial-clear the files
+        // Toggle-off but the commit landed -- partial-clear the files
         // that just landed so re-enabling later doesn't re-attribute
         // earlier (already-committed) AI edits to a future commit.
         shouldClear = committedAbsolutePaths;
@@ -3289,7 +3289,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // (`postHead`) rather than the symbolic `HEAD`. A post-commit
       // hook, chained `git commit && git tag -m ...`, or parallel
       // process can advance HEAD between that capture and this
-      // execFile — without the SHA pin, `-f` would silently land the
+      // execFile -- without the SHA pin, `-f` would silently land the
       // note on the wrong commit.
       const notesCommand = buildGitNotesCommand(note, postHead);
 
@@ -3308,7 +3308,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       }
 
       // Use execFile with argv (rather than ShellExecutionService) so the
-      // JSON note isn't subjected to shell quoting at all — important on
+      // JSON note isn't subjected to shell quoting at all -- important on
       // Windows where the bash-style escape used previously is invalid
       // for cmd.exe / PowerShell. 5s timeout keeps a wedged repo from
       // stalling the user-visible turn.
@@ -3368,14 +3368,14 @@ export class ShellToolInvocation extends BaseToolInvocation<
             (output ? ` (${output.trim().slice(0, 120)})` : '') +
             '. Co-authored-by trailer is unaffected.';
         }
-        // Note didn't land — leave per-file state intact so the user
+        // Note didn't land -- leave per-file state intact so the user
         // can amend the commit (or manually run `git notes add`)
         // without losing attribution data they'd need to reproduce.
       } else {
         debugLogger.debug(
           `Attached AI attribution note: ${note.summary.aiPercent}% AI, ${note.summary.totalFilesTouched} file(s)`,
         );
-        // Successful note write — partial-clear the just-committed
+        // Successful note write -- partial-clear the just-committed
         // files so a later commit doesn't re-attribute them.
         shouldClear = committedAbsolutePaths;
       }
@@ -3393,7 +3393,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // note was skipped (oversized payload, non-zero exit, exception)
       // so the user can amend & retry without their per-file
       // attribution being silently destroyed first. When `shouldClear`
-      // is null, just snapshot the prompt counter — DON'T
+      // is null, just snapshot the prompt counter -- DON'T
       // wholesale-clear, since that would erase pending AI edits for
       // files the user never staged in this commit.
       if (shouldClear) {
@@ -3422,7 +3422,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
    *   object, --amend with `preHead === null` or unresolvable `preHead`,
    *   partial diff failure, exception).
    *   The caller treats this as "could not determine the committed
-   *   set" and falls back to `noteCommitWithoutClearing()` — snapshots
+   *   set" and falls back to `noteCommitWithoutClearing()` -- snapshots
    *   the prompt counter but leaves per-file attribution intact, so
    *   pending AI edits for files NOT in the just-committed set don't
    *   get wiped along with the analysis failure. (The just-committed
@@ -3470,14 +3470,14 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // pinned against: between this analysis phase and the note write,
       // a post-commit hook (husky/lefthook auto-amend, sign-off, signed
       // commits adjustment), a chained `git tag -m ...`, or a parallel
-      // git process can advance HEAD — and then `HEAD~1..HEAD` /
+      // git process can advance HEAD -- and then `HEAD~1..HEAD` /
       // `diff-tree HEAD` would describe whatever commit HEAD now
       // points at, while the note still attaches to the original
       // `postHead`. The result is a note on commit A whose contents
       // describe commit B. Pinning to `postHead` keeps the analysis
       // and the note consistent.
       //
-      // The three calls are independent — fan out so we don't pay the
+      // The three calls are independent -- fan out so we don't pay the
       // spawn latency serially. Same for the three diff calls below
       // once we know which form to use.
       // - `rev-parse --verify ${postHead}~1`: probe whether the parent
@@ -3504,7 +3504,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
           runGit('rev-parse --show-toplevel'),
         ]);
       // `rev-parse --verify <sha>~1` is allowed to fail (shallow
-      // clone, true root commit) — treat null and '' uniformly.
+      // clone, true root commit) -- treat null and '' uniformly.
       const hasParent = hasParentOutput !== null && hasParentOutput.length > 0;
       // `log -1 --pretty=%P <sha>` MUST succeed; if git can't read
       // postHead's metadata we have no way to tell shallow apart from
@@ -3536,15 +3536,15 @@ export class ShellToolInvocation extends BaseToolInvocation<
       const repoRoot = (repoRootOutput ?? '').trim();
 
       // Choose the diff range:
-      // - amend: `${preHead}..${postHead}` — the actual amend delta.
+      // - amend: `${preHead}..${postHead}` -- the actual amend delta.
       //   `preHead` was captured BEFORE the user's command ran and so
       //   points at the original (pre-amend) commit. The amend rewrote
       //   that commit into postHead; diffing them captures only what
       //   changed in this amend, not the entire amended commit's
       //   contents (which `${postHead}~1..${postHead}` would falsely
-      //   include — postHead's parent is the original's parent, so
+      //   include -- postHead's parent is the original's parent, so
       //   diffing against it spans both commits' worth of changes).
-      // - has parent: `${postHead}~1..${postHead}` — pin both ends.
+      // - has parent: `${postHead}~1..${postHead}` -- pin both ends.
       //   We do NOT use `${preHead}..${postHead}` here: in chains like
       //   `git reset HEAD~3 && git commit`, preHead points well above
       //   postHead's parent and the diff would include the reset-away
@@ -3639,7 +3639,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       }
 
       // Get diff sizes from numstat output. Bail if `--numstat`
-      // returned nothing while `--name-only` succeeded — that's the
+      // returned nothing while `--name-only` succeeded -- that's the
       // partial-failure signal for `Promise.all`, and writing a note
       // anyway would force every file's diffSize to 0, then
       // generateNotePayload would clamp aiChars to 0 and emit a
@@ -3680,7 +3680,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       return command;
     }
 
-    // Same shell-type guard as addAttributionToPR — bash escaping is
+    // Same shell-type guard as addAttributionToPR -- bash escaping is
     // wrong for cmd/PowerShell. Gating on the active shell rather than
     // the OS platform keeps Windows + Git Bash users (where
     // getShellConfiguration() reports shell:'bash') working.
@@ -3688,7 +3688,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       return command;
     }
 
-    // Shell-aware detection — a raw regex would falsely match quoted
+    // Shell-aware detection -- a raw regex would falsely match quoted
     // text such as `echo "git commit"` and hand a corrupted command
     // (with the trailer mid-string) back to the executor. The stricter
     // `attributableInCwd` is what we want here: only inject the
@@ -3701,7 +3701,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // Handle different git commit patterns:
     // Match -m "message" or -m 'message', including combined flags like -am
     // Use separate patterns to avoid ReDoS (catastrophic backtracking).
-    // The regex tolerates `-m"msg"` shorthand (no space) — bash accepts
+    // The regex tolerates `-m"msg"` shorthand (no space) -- bash accepts
     // both `-m foo` and `-mfoo`, and we shouldn't silently skip the
     // shorthand form.
     //
@@ -3728,8 +3728,8 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // single-quoted message use the close-escape-reopen form `'\''`
     // (e.g. `git commit -m 'don'\''t'`). The inner alternation matches
     // either a non-apostrophe character or that escape sequence as a
-    // whole, so the trailer lands at the true end of the body — at the
-    // FINAL closing `'` after the user's content — rather than after
+    // whole, so the trailer lands at the true end of the body -- at the
+    // FINAL closing `'` after the user's content -- rather than after
     // the first interior apostrophe. Mirrors `bodySinglePattern` in
     // `addAttributionToPR`.
     const singleQuotePattern = new RegExp(
@@ -3747,13 +3747,13 @@ export class ShellToolInvocation extends BaseToolInvocation<
       commentStart >= 0 ? fullSegment.slice(0, commentStart) : fullSegment;
     // Git concatenates multiple `-m` values with a blank line, so the
     // co-author trailer has to land in the *last* `-m` value to be
-    // recognised by `git interpret-trailers`. matchAll → take the
+    // recognised by `git interpret-trailers`. matchAll -> take the
     // last match (`lastMatchOf` is the shared helper).
     const doubleMatch = lastMatchOf(segment.matchAll(doubleQuotePattern));
     const singleMatch = lastMatchOf(segment.matchAll(singleQuotePattern));
 
     // Pick whichever match appears LAST in the segment, regardless of
-    // quote style — but reject any candidate that's nested inside the
+    // quote style -- but reject any candidate that's nested inside the
     // other's range. For `git commit -m "docs mention -m 'flag'"` the
     // single-quoted `-m 'flag'` lives INSIDE the double-quoted real
     // message; without the nesting check the later (inner) `-m` would
@@ -3763,7 +3763,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     const quote = picked.isDouble ? '"' : "'";
 
     // Escape the configured name/email for the surrounding quote
-    // style — has to follow the actually-selected match.
+    // style -- has to follow the actually-selected match.
     const escape = picked.isDouble
       ? escapeForBashDoubleQuote
       : escapeForBashSingleQuote;
@@ -3782,7 +3782,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // be matched only up to the first inner `"`, then the trailer
       // would be spliced into the middle of the command
       // substitution and break the shell command. Recognising
-      // `$(` is enough — if it's there we can't safely rewrite
+      // `$(` is enough -- if it's there we can't safely rewrite
       // without a real shell parser.
       //
       // We do NOT bail on a bare backtick: while `\`cmd "with" quotes\``
@@ -3793,8 +3793,8 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // case where the user typed raw backticks INSIDE a double-quoted
       // body and put inner double-quotes inside the backtick span.
       // bash itself would interpret that as command substitution
-      // anyway — almost certainly a user error rather than a real
-      // commit message — so the rewrite is at most one of several
+      // anyway -- almost certainly a user error rather than a real
+      // commit message -- so the rewrite is at most one of several
       // things that go wrong.
       if (existingMessage.includes('$(')) {
         return command;
@@ -3823,9 +3823,9 @@ export class ShellToolInvocation extends BaseToolInvocation<
 
   /**
    * Detect `gh pr create` commands and append AI attribution text to the
-   * PR body. Format: "🤖 Generated with Qwen Code (N-shotted by Qwen-Coder)"
+   * PR body. Format: " Generated with Qwen Code (N-shotted by Qwen-Coder)"
    * when at least one user prompt has been recorded since the last commit;
-   * otherwise just "🤖 Generated with Qwen Code".
+   * otherwise just " Generated with Qwen Code".
    *
    * Skipped on Windows: the appended text relies on bash quote-escape
    * conventions (`\$`, `'\''`) that cmd.exe and PowerShell don't honor,
@@ -3834,7 +3834,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
    * Losing PR attribution on Windows is an acceptable trade for safety.
    */
   private addAttributionToPR(command: string): string {
-    // Shell-aware detection — a raw regex would falsely match quoted
+    // Shell-aware detection -- a raw regex would falsely match quoted
     // text such as `echo "gh pr create --body \"x\""` and rewrite a
     // command that wasn't actually creating a PR.
     const ghSegment = findGhPrCreateSegment(command);
@@ -3860,8 +3860,8 @@ export class ShellToolInvocation extends BaseToolInvocation<
 
     const attribution =
       shots > 0
-        ? `\n\n🤖 Generated with Qwen Code (${shots}-shotted by ${generator})`
-        : `\n\n🤖 Generated with Qwen Code`;
+        ? `\n\n Generated with Qwen Code (${shots}-shotted by ${generator})`
+        : `\n\n Generated with Qwen Code`;
 
     // Match both the long form `--body` and the short alias `-b`
     // (documented in `gh pr create --help`), with either space or
@@ -3889,7 +3889,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       'g',
     );
     // Trim a trailing shell comment off the segment for the same
-    // reason as addCoAuthorToGitCommit — `gh pr create --body "real"
+    // reason as addCoAuthorToGitCommit -- `gh pr create --body "real"
     // # --body "fake"` would otherwise let `lastMatchOf` pick the
     // comment's `--body "fake"` and inject attribution into a `--body`
     // flag bash discards.
@@ -3899,13 +3899,13 @@ export class ShellToolInvocation extends BaseToolInvocation<
       commentStart >= 0 ? fullSegment.slice(0, commentStart) : fullSegment;
     // gh ignores all but the last `--body`/`-b` flag, so the trailer
     // has to land in the final occurrence to actually appear in the PR.
-    // matchAll → take the last match for each quote style, then pick
+    // matchAll -> take the last match for each quote style, then pick
     // whichever sits later in the segment (mirrors addCoAuthorToGitCommit;
     // shares the `lastMatchOf` helper).
     const bodyDoubleMatch = lastMatchOf(segment.matchAll(bodyDoublePattern));
     const bodySingleMatch = lastMatchOf(segment.matchAll(bodySinglePattern));
     // Pick whichever match appears LAST in the segment, regardless of
-    // quote style — but reject any candidate that's nested inside the
+    // quote style -- but reject any candidate that's nested inside the
     // other's range. For `gh pr create --body "docs mention -b 'flag'"`
     // the inner `-b 'flag'` is INSIDE the outer `--body "..."`; without
     // a nesting check the inner (later) `-b` would win and the trailer
@@ -3920,7 +3920,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       // Same `$(...)` bailout as addCoAuthorToGitCommit: a heredoc-
       // style body (`gh pr create --body "$(cat <<'EOF' ... EOF)"`)
       // contains nested `"` that our regex's `(?:[^"\\]|\\.)*` body
-      // group can't span — the match would terminate at the first
+      // group can't span -- the match would terminate at the first
       // interior quote and the splice would land mid-substitution,
       // corrupting the user-approved command.
       if (existingBody.includes('$(')) {
@@ -3956,7 +3956,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // attribution line. Surface this as a debug warning so a user
     // wondering "why isn't my PR getting the trailer?" can see the
     // skip in `QWEN_DEBUG_LOG_FILE`. Inline-body rewriting is the
-    // only safe automatic path — `--body-file` would require us to
+    // only safe automatic path -- `--body-file` would require us to
     // mutate the user's file on disk; `--fill` and editor flows
     // have no body in argv at all.
     debugLogger.warn(
@@ -4283,7 +4283,7 @@ export class ShellTool extends BaseDeclarativeTool<
   override toAutoClassifierInput(
     params: ShellToolParams,
   ): Record<string, unknown> {
-    // The full command is required for safety classification — do not redact.
+    // The full command is required for safety classification -- do not redact.
     return {
       command: params.command,
       cwd: params.directory ?? this.config.getTargetDir(),

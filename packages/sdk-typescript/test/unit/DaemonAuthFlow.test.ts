@@ -21,11 +21,11 @@ import type {
 // (`client.auth.start({providerId}).awaitCompletion()`); this file
 // exercises the production paths the round-8 reviewer flagged as
 // untested:
-//   - happy path polling → `authorized`
+//   - happy path polling -> `authorized`
 //   - `slow_down` interval bumping + `onThrottled` callback
 //   - `AbortSignal` propagation through both polling and the GET
 //   - `timeoutMs` ceiling (incl. the round-9 #6 `0` honor)
-//   - 404 → synthetic `error`/`not_found_or_evicted` (loop AND ceiling)
+//   - 404 -> synthetic `error`/`not_found_or_evicted` (loop AND ceiling)
 //   - `sanitizePositiveMs` edge cases (NaN / Infinity fallback)
 //   - `cancel()` wrapper forwards to `client.cancelDeviceFlow`
 
@@ -187,7 +187,7 @@ describe('DaemonAuthFlow.awaitCompletion (fold-in 10 #2)', () => {
   });
 
   it('rejects when opts.signal is aborted mid-poll', async () => {
-    // Replies stream forever as `pending` — caller's abort must be the
+    // Replies stream forever as `pending` -- caller's abort must be the
     // exit path.
     const { client } = makeFakeClient({
       getReplies: [
@@ -253,7 +253,7 @@ describe('DaemonAuthFlow.awaitCompletion (fold-in 10 #2)', () => {
     expect(calls.get.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('honors timeoutMs:0 — returns the daemon snapshot immediately (round-9 #6)', async () => {
+  it('honors timeoutMs:0 -- returns the daemon snapshot immediately (round-9 #6)', async () => {
     const { client, calls } = makeFakeClient({
       getReplies: [
         {
@@ -268,7 +268,7 @@ describe('DaemonAuthFlow.awaitCompletion (fold-in 10 #2)', () => {
     const handle = await auth.start({ providerId: 'qwen-oauth' });
     const final = await handle.awaitCompletion({ timeoutMs: 0 });
     expect(final.status).toBe('pending');
-    // Exactly one GET — the immediate ceiling-read path.
+    // Exactly one GET -- the immediate ceiling-read path.
     expect(calls.get.length).toBe(1);
   });
 
@@ -279,7 +279,7 @@ describe('DaemonAuthFlow.awaitCompletion (fold-in 10 #2)', () => {
     // to undefined which falls back to `expiresAt + GRACE`.
     //
     // Test pins the contract by using a start result whose
-    // `expiresAt` is FAR in the past — `expiresAt + GRACE` is then
+    // `expiresAt` is FAR in the past -- `expiresAt + GRACE` is then
     // also in the past, so the ceiling check on iteration 1 fires
     // immediately and the test bails fast. If sanitization broke
     // and NaN slipped through, the loop would never exit.
@@ -290,7 +290,7 @@ describe('DaemonAuthFlow.awaitCompletion (fold-in 10 #2)', () => {
         status: 'pending',
         userCode: 'USER-1',
         verificationUri: 'https://idp.example/verify',
-        expiresAt: Date.now() - 60_000, // ceiling = -30s ago → bail
+        expiresAt: Date.now() - 60_000, // ceiling = -30s ago -> bail
         intervalMs: 50,
         attached: false,
       },
@@ -326,7 +326,7 @@ describe('DaemonAuthFlow.awaitCompletion (fold-in 10 #2)', () => {
     // directly and a 404 there would reject `awaitCompletion` with
     // `DaemonHttpError(404)` instead of returning the structured
     // synthetic state. With timeoutMs:0 the FIRST read is the
-    // ceiling read — verify the 404 still synthesizes.
+    // ceiling read -- verify the 404 still synthesizes.
     const { client } = makeFakeClient({
       getReplies: [new DaemonHttpError(404, null, 'evicted')],
     });

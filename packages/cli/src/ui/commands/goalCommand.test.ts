@@ -294,7 +294,7 @@ describe('goalCommand', () => {
     });
     expect(addItem.mock.calls.length).toBe(beforeClearCount);
 
-    // Cache survives — empty /goal still shows the achievement card.
+    // Cache survives -- empty /goal still shows the achievement card.
     const afterClear = await goalCommand.action!(ctx, '');
     expect((afterClear as { content: string }).content).toMatch(
       /Goal achieved/,
@@ -318,7 +318,7 @@ describe('goalCommand', () => {
     const content = (result as { content: string }).content;
     expect(content).toMatch(/Goal aborted/);
     expect(content).toMatch(/Goal: do x/);
-    // No more `Last check:` line — the `systemMessage`/`lastReason` content
+    // No more `Last check:` line -- the `systemMessage`/`lastReason` content
     // lives on the goal_status history item (see test below) but is dropped
     // from the empty-/goal summary.
     expect(content).not.toMatch(/Last check/);

@@ -661,7 +661,7 @@ describe('daemon event schema', () => {
   });
 
   it('recognizes slow_client_warning frames as known events', () => {
-    // PR 14b fix (codex round 8 — sibling consistency): `satisfies
+    // PR 14b fix (codex round 8 -- sibling consistency): `satisfies
     // DaemonEvent` keeps `v: 1` / `type: 'slow_client_warning'`
     // narrow rather than widening to `number` / `string`. The same
     // pattern was applied to PR 14b's own fixtures in round 3
@@ -704,7 +704,7 @@ describe('daemon event schema', () => {
     ).toBeUndefined();
 
     // NaN / Infinity pass a bare `typeof === 'number'` check but are
-    // schema garbage for a queue-size measurement — finite-number
+    // schema garbage for a queue-size measurement -- finite-number
     // validation must reject them (sibling predicates do the same).
     expect(
       asKnownDaemonEvent({
@@ -755,7 +755,7 @@ describe('daemon event schema', () => {
       maxQueued: 256,
       lastEventId: 5,
     });
-    // Warning is non-terminal — stream is still alive, no
+    // Warning is non-terminal -- stream is still alive, no
     // terminalEvent recorded.
     expect(state.alive).toBe(true);
     expect(state.terminalEvent).toBeUndefined();
@@ -765,7 +765,7 @@ describe('daemon event schema', () => {
   });
 
   // PR 14b: MCP guardrail push events. Mirrors the slow_client_warning
-  // test patterns (predicate validation + reducer state) — the two
+  // test patterns (predicate validation + reducer state) -- the two
   // event types are siblings on the per-session SSE bus and use the
   // same KnownDaemonEvent narrowing.
   it('recognizes mcp_budget_warning frames as known events', () => {
@@ -774,8 +774,8 @@ describe('daemon event schema', () => {
     // narrow without widening to `number`/`string`. Required so the
     // fixture passes through `asKnownDaemonEvent`'s `event.type`
     // switch under strict typecheck. The sdk package's tsconfig
-    // currently scopes `tsc --noEmit` to `src/**/*.ts` only — tests
-    // aren't gated yet — but the fixture stays type-safe for when
+    // currently scopes `tsc --noEmit` to `src/**/*.ts` only -- tests
+    // aren't gated yet -- but the fixture stays type-safe for when
     // they are.
     const warning = {
       id: 7,
@@ -809,7 +809,7 @@ describe('daemon event schema', () => {
       }),
     ).toBeUndefined();
     // PR 14b fix (codex round 6): `thresholdRatio` is validated as a
-    // finite number rather than the literal 0.75 — the SDK's role is
+    // finite number rather than the literal 0.75 -- the SDK's role is
     // wire-shape validation, not threshold-value enforcement. Pinning
     // the literal would mean a daemon-side bump to e.g. 0.80 silently
     // routes every warning through `unrecognizedKnownEventCount` (a
@@ -829,7 +829,7 @@ describe('daemon event schema', () => {
         },
       }),
     ).toBeDefined();
-    // Non-finite values (NaN / Infinity) are still rejected — the
+    // Non-finite values (NaN / Infinity) are still rejected -- the
     // predicate uses `isFiniteNumber`, not bare `typeof === 'number'`.
     expect(
       asKnownDaemonEvent({
@@ -853,7 +853,7 @@ describe('daemon event schema', () => {
           reservedCount: 4,
           budget: 4,
           thresholdRatio: 0.75,
-          mode: 'off', // off-mode never fires the warning — bad payload.
+          mode: 'off', // off-mode never fires the warning -- bad payload.
         },
       }),
     ).toBeUndefined();
@@ -901,7 +901,7 @@ describe('daemon event schema', () => {
       thresholdRatio: 0.75,
       mode: 'enforce',
     });
-    // Non-terminal — stream stays alive.
+    // Non-terminal -- stream stays alive.
     expect(state.alive).toBe(true);
     expect(state.terminalEvent).toBeUndefined();
     expect(state.lastEventId).toBe(3);
@@ -910,7 +910,7 @@ describe('daemon event schema', () => {
   it('recognizes mcp_child_refused_batch frames as known events', () => {
     // PR 14b fix (codex round 3): `satisfies DaemonEvent` preserves
     // the literal discriminator (`v: 1`, `type:
-    // 'mcp_child_refused_batch'`) — see sibling fixture above for
+    // 'mcp_child_refused_batch'`) -- see sibling fixture above for
     // the full rationale.
     const batch = {
       id: 9,
@@ -930,7 +930,7 @@ describe('daemon event schema', () => {
     const known = asKnownDaemonEvent(batch);
     expect(known?.type).toBe('mcp_child_refused_batch');
 
-    // `mode: 'warn'` must be rejected — warn mode never refuses, so a
+    // `mode: 'warn'` must be rejected -- warn mode never refuses, so a
     // refused-batch tagged with warn is protocol garbage. The
     // reducer's safety net (`unrecognizedKnownEventCount`) catches it
     // instead of letting the `last*` field hold a malformed shape.
@@ -969,7 +969,7 @@ describe('daemon event schema', () => {
       }),
     ).toBeUndefined();
 
-    // Bad reason rejected — only `'budget_exhausted'` is valid in
+    // Bad reason rejected -- only `'budget_exhausted'` is valid in
     // PR 14b. Future causes extend the literal set.
     expect(
       asKnownDaemonEvent({
@@ -988,8 +988,8 @@ describe('daemon event schema', () => {
     ).toBeUndefined();
 
     // Empty `refusedServers` is structurally valid (the daemon would
-    // never emit an empty batch — `emitRefusedBatchIfAny` is gated on
-    // `lastRefusedServerNames.length > 0` — but the SDK predicate
+    // never emit an empty batch -- `emitRefusedBatchIfAny` is gated on
+    // `lastRefusedServerNames.length > 0` -- but the SDK predicate
     // doesn't enforce that invariant; it's a daemon-side correctness
     // property, not a wire-format requirement). Verify the predicate
     // accepts it so a future daemon contract change doesn't break
@@ -1074,7 +1074,7 @@ describe('daemon event schema', () => {
       v: 1,
       type: 'mcp_child_refused_batch',
       data: {
-        // `mode: 'warn'` is invalid (warn never refuses) — predicate
+        // `mode: 'warn'` is invalid (warn never refuses) -- predicate
         // rejects, reducer routes through the unrecognized branch.
         refusedServers: [
           { name: 'b', transport: 'stdio', reason: 'budget_exhausted' },
@@ -1089,7 +1089,7 @@ describe('daemon event schema', () => {
     expect(state.lastUnrecognizedKnownEvent?.type).toBe(
       'mcp_child_refused_batch',
     );
-    // Refused-batch counter NOT incremented — the malformed payload
+    // Refused-batch counter NOT incremented -- the malformed payload
     // didn't reach the typed reducer arm.
     expect(state.mcpChildRefusedBatchCount).toBe(0);
     expect(state.lastMcpChildRefusedBatch).toBeUndefined();
@@ -1111,7 +1111,7 @@ describe('daemon event schema', () => {
     expect(known?.type).toBe('memory_changed');
     expect(isDaemonEventType(valid, 'memory_changed')).toBe(true);
 
-    // Malformed: scope outside the union → not narrowable.
+    // Malformed: scope outside the union -> not narrowable.
     const bad: DaemonEvent = {
       id: 8,
       v: 1,
@@ -1222,7 +1222,7 @@ describe('daemon event schema', () => {
   });
 });
 
-describe('PR 21 — auth device-flow events', () => {
+describe('PR 21 -- auth device-flow events', () => {
   it('narrows the 5 device-flow event types', () => {
     const types = [
       'auth_device_flow_started',
@@ -1280,7 +1280,7 @@ describe('PR 21 — auth device-flow events', () => {
       }),
     ).toBeUndefined();
     // PR #4255 fold-in 2 (C2): unknown errorKind is no longer a
-    // narrowing failure — the open `(string & {})` arm of the
+    // narrowing failure -- the open `(string & {})` arm of the
     // DaemonAuthDeviceFlowErrorKind union accepts ANY non-empty
     // string so a daemon adding a new kind isn't silently dropped.
     // The data IS valid; consumers branching on the known literals
@@ -1305,7 +1305,7 @@ describe('PR 21 — auth device-flow events', () => {
     ).toBeUndefined();
   });
 
-  it('reduceDaemonAuthEvent: started → throttled → authorized projects per-provider state', () => {
+  it('reduceDaemonAuthEvent: started -> throttled -> authorized projects per-provider state', () => {
     const events: DaemonEvent[] = [
       {
         id: 1,
@@ -1346,7 +1346,7 @@ describe('PR 21 — auth device-flow events', () => {
 
   it('reduceDaemonAuthEvent: failed event always projects status:error + errorKind (aligned with daemon)', () => {
     // Issue #4175 PR 21 fold-in 0 P1-10: SDK reducer now mirrors the
-    // daemon's status machine — every `failed` event resolves to
+    // daemon's status machine -- every `failed` event resolves to
     // `status: 'error'`, regardless of `errorKind`. The error nature
     // (expired vs denied vs persist failure) lives in `errorKind`,
     // not `status`. Earlier drafts collapsed `expired_token` to
@@ -1442,8 +1442,8 @@ describe('PR 21 — auth device-flow events', () => {
   });
 
   it('reduceDaemonAuthEvent rejects out-of-order frames (fold-in 8 #2 monotonicity)', () => {
-    // Live: started(id=5) → authorized(id=10). Replay then injects a
-    // stale `failed` (id=7) for the same flow — without monotonicity
+    // Live: started(id=5) -> authorized(id=10). Replay then injects a
+    // stale `failed` (id=7) for the same flow -- without monotonicity
     // it would overwrite `authorized` back to `error`/`upstream_error`.
     let state = reduceDaemonAuthEvent(createDaemonAuthState(), {
       id: 5,
@@ -1483,7 +1483,7 @@ describe('PR 21 — auth device-flow events', () => {
     expect(replayedStale.flows['qwen-oauth']?.errorKind).toBeUndefined();
 
     // A fresh `started` (id=4 < 10) for a NEW flow under the same
-    // providerId is also rejected as stale — the SDK has already
+    // providerId is also rejected as stale -- the SDK has already
     // observed the newer flow's authorized state and the lower-id
     // started must be a replay of an old flow that gave way.
     const replayedStartedStale = reduceDaemonAuthEvent(state, {
@@ -1504,7 +1504,7 @@ describe('PR 21 — auth device-flow events', () => {
 
   it('reduceDaemonAuthEvent passes synthetic frames (no envelope id) through the gate', () => {
     // Synthetic frames originate inside SDK reducer machinery and
-    // aren't subject to replay ordering — gate must let them
+    // aren't subject to replay ordering -- gate must let them
     // through even when state's lastSeenEventId is set.
     let state = reduceDaemonAuthEvent(createDaemonAuthState(), {
       id: 5,
@@ -1547,7 +1547,7 @@ describe('PR 21 — auth device-flow events', () => {
   // #4282 fold-in 3 (gpt-5.5 C8): reducer + parser coverage for the 5
   // PR 17 mutation events. Covers happy-path counter + last-snapshot
   // accumulation, malformed-payload rejection (must round-trip through
-  // `asKnownDaemonEvent → undefined` and increment
+  // `asKnownDaemonEvent -> undefined` and increment
   // `unrecognizedKnownEventCount` rather than the event-specific
   // counter), and the envelope-level `originatorClientId` merge.
   describe('PR 17 mutation events', () => {
@@ -1577,7 +1577,7 @@ describe('PR 21 — auth device-flow events', () => {
         id: 6,
         v: 1,
         type: 'approval_mode_changed',
-        // Missing `next`, `persisted` — fails `isApprovalModeChangedData`.
+        // Missing `next`, `persisted` -- fails `isApprovalModeChangedData`.
         data: { sessionId: 'sess-1', previous: 'default' },
       };
       expect(asKnownDaemonEvent(malformed)).toBeUndefined();

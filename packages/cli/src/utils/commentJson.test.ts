@@ -426,7 +426,7 @@ describe('migration write-back via updateSettingsFilePreservingFormat', () => {
   });
 
   it('should preserve unrelated keys in nested objects during sync', () => {
-    // The migrated object represents the full desired state — migrations
+    // The migrated object represents the full desired state -- migrations
     // preserve unrelated keys, so they appear in the migrated output.
     const original = `{
   "general": {

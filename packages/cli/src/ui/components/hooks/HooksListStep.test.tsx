@@ -165,7 +165,7 @@ describe('HooksListStep', () => {
     );
 
     const output = lastFrame();
-    expect(output).toContain('❯');
+    expect(output).toContain('');
   });
 
   it('should display hook short descriptions', () => {

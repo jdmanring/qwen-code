@@ -1,10 +1,10 @@
-# 📖 Project Glossary: Mega Code Stack
+#  Project Glossary: Mega Code Stack
 
 This glossary defines the core technical terminology used across the Mega Code codebase, documentation, and operational rules. To maintain **Documentation Synchronization**, these terms must be used consistently by both human contributors and AI agents.
 
 ---
 
-## 🏗️ Architectural Pillars
+##  Architectural Pillars
 
 ### Source Repository
 The **Source Repository** refers to the authoritative code repository (the project root). It contains the static definitions, templates, and logic required to build the system. All changes must be committed to the Source Repository before being deployed to the Runtime Environment.
@@ -17,7 +17,7 @@ The **CSF** is the design standard that ensures a 1:1 mapping between system con
 
 ---
 
-## 🧠 Intelligence & Orchestration
+##  Intelligence & Orchestration
 
 ### Memory Refinement Pipeline
 **Memory Refinement** is the system's internal background process for memory and reasoning optimization. It operates on two levels:
@@ -32,7 +32,7 @@ A **Job Contract** is the strictly typed JSON object emitted by the Routing Plan
 
 ---
 
-## ⚙️ Operational Rules
+##  Operational Rules
 
 ### S-READ (Lossless Reading)
 The rule that an agent must read the **entire** content of a file (using pagination/offsets if necessary) before attempting to edit it. "Peeking" or assuming content based on partial reads is forbidden.
@@ -45,7 +45,7 @@ The operational loop used when verification fails: $\text{Observe} \to \text{Ana
 
 ---
 
-## 🛠️ Component Mapping
+##  Component Mapping
 
 | Term | Component | Responsibility |
 | :--- | :--- | :--- |

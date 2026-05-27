@@ -55,7 +55,7 @@ export interface DaemonSessionSubscribeOptions extends SubscribeOptions {
  * IDE, and web backends: it binds one daemon session, forwards the existing
  * Stage 1 routes, and preserves SSE replay state. It intentionally does not
  * interpret daemon event payloads; typed event reducers belong to the protocol
- * schema layer — see `asKnownDaemonEvent` and `reduceDaemonSessionEvent` in
+ * schema layer -- see `asKnownDaemonEvent` and `reduceDaemonSessionEvent` in
  * `./events.js` for the typed consumption surface.
  */
 export class DaemonSessionClient {
@@ -82,7 +82,7 @@ export class DaemonSessionClient {
   ): Promise<DaemonSessionClient> {
     const session = await client.createOrAttachSession(req, clientId);
     // Seed the first subscription from the daemon replay ring whenever
-    // events can fire during the session-creation window — otherwise
+    // events can fire during the session-creation window -- otherwise
     // they land in the per-session ring before the consumer's first
     // `events()` call and never reach the live stream.
     //
@@ -139,7 +139,7 @@ export class DaemonSessionClient {
   /**
    * Resumes an existing daemon session without requesting history replay.
    * Seeds the first event subscription from the start of the daemon
-   * replay ring (`lastEventId: 0`) symmetric with `load()` — the agent's
+   * replay ring (`lastEventId: 0`) symmetric with `load()` -- the agent's
    * `unstable_resumeSession` schedules an `available_commands_update`
    * via `setTimeout(0)`, which can publish to the daemon bus between
    * the HTTP response and the consumer's first `events()` call. Seeding

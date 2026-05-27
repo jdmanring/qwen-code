@@ -79,11 +79,11 @@ class GateFailureTests:
 
             git(["git", "checkout", "integration"], self.root)
 
-            # Merge via SyncManager — bypasses sync_mirror so injected commits survive
+            # Merge via SyncManager -- bypasses sync_mirror so injected commits survive
             sync.create_staging()
             try:
                 sync.merge_mirror_to_stage()
-                log_error("Merge unexpectedly succeeded — conflict was not detected!")
+                log_error("Merge unexpectedly succeeded -- conflict was not detected!")
             except RuntimeError:
                 log_success("Pipeline correctly detected and aborted merge conflict.")
 
@@ -147,7 +147,7 @@ class GateFailureTests:
 
         lockfile = self.root / "uv.lock"
         if not lockfile.exists():
-            log_info("uv.lock not found — skipping.")
+            log_info("uv.lock not found -- skipping.")
             return True
 
         backup = lockfile.with_suffix(".lock.bak")

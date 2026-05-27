@@ -36,7 +36,7 @@ const SHUTDOWN_FORCE_CLOSE_MS = 5_000;
  *
  * RFC 6874 also requires the `%` in an IPv6 zone identifier (e.g.
  * `fe80::1%lo0`) to be percent-encoded as `%25` so the printed URL is
- * copy-paste-valid. We do that on raw IPv6 only — already-bracketed
+ * copy-paste-valid. We do that on raw IPv6 only -- already-bracketed
  * input is the operator's responsibility (don't double-encode if they
  * pre-formed the URL part themselves).
  */
@@ -63,8 +63,8 @@ function formatHostForUrl(host: string): string {
  *
  * Scope is INTRA-process: a separate `qwen serve` invocation against
  * the same workspace would not share the Map, but per-workspace
- * single-daemon is the supported deployment shape (see #3803 §02).
- * The lock decays naturally — when no callers are queued, the chain
+ * single-daemon is the supported deployment shape (see #3803 02).
+ * The lock decays naturally -- when no callers are queued, the chain
  * resolves and stays mounted in the Map; the per-workspace memory
  * cost is one settled Promise and one Map entry.
  *
@@ -106,14 +106,14 @@ export interface RunQwenServeDeps {
   fsFactory?: WorkspaceFileSystemFactory;
   /**
    * Trust snapshot for the bound workspace at boot. Drives the
-   * `WorkspaceFileSystem`'s `assertTrustedForIntent` gate — read
+   * `WorkspaceFileSystem`'s `assertTrustedForIntent` gate -- read
    * intents always pass; mutating intents (`write`, `edit`) throw
    * `untrusted_workspace` when this is false. Defaults to true:
    * the daemon binds at boot to a workspace the operator
    * explicitly chose, and the trust dialog flow that ungates write
    * permissions in the interactive CLI is not yet replicated for
    * the daemon. Tests pin this to false to assert the gate is
-   * actually wired through `runQwenServe → createServeApp →
+   * actually wired through `runQwenServe -> createServeApp ->
    * fsFactory`.
    */
   trustedWorkspace?: boolean;
@@ -160,7 +160,7 @@ export async function runQwenServe(
   // typo BEFORE the loopback / token check so the operator sees a
   // useful "did you mean --port?" message instead of "Refusing to
   // bind localhost:4170:0 without a bearer token". Unbracketed input
-  // with exactly one `:` is the unambiguous host:port shape — raw
+  // with exactly one `:` is the unambiguous host:port shape -- raw
   // IPv6 literals always have two-or-more `:` (the shortest is `::`),
   // and bracketed IPv6 is handled by its own form check below.
   if (!opts.hostname.startsWith('[') && opts.hostname.split(':').length === 2) {
@@ -193,7 +193,7 @@ export async function runQwenServe(
     );
   }
 
-  // Resolve the bound workspace per #3803 §02 (1 daemon = 1 workspace).
+  // Resolve the bound workspace per #3803 02 (1 daemon = 1 workspace).
   // Explicit `--workspace` wins; otherwise default to process.cwd().
   // `POST /session` with a mismatched `cwd` is rejected by the bridge
   // with `WorkspaceMismatchError`. Multi-workspace deployments use
@@ -204,7 +204,7 @@ export async function runQwenServe(
   // to `path.resolve` would let the daemon boot pointed at a
   // non-existent directory; every `POST /session` would then spawn a
   // `qwen --acp` child with that cwd and the agent would fail with an
-  // opaque ENOENT — operator pain we can avoid by failing at boot.
+  // opaque ENOENT -- operator pain we can avoid by failing at boot.
   const rawWorkspace = opts.workspace ?? process.cwd();
   if (!path.isAbsolute(rawWorkspace)) {
     throw new Error(
@@ -259,8 +259,8 @@ export async function runQwenServe(
   // PR 14 fix (review #4247 wenshao R5 line 216): use per-handle env
   // overrides via `BridgeOptions.childEnvOverrides` instead of
   // mutating global `process.env`. Pre-fix concurrent embedded
-  // daemons (`runQwenServe()` × 2 in the same process) would race
-  // on `process.env` — `defaultSpawnChannelFactory` snapshots
+  // daemons (`runQwenServe()` * 2 in the same process) would race
+  // on `process.env` -- `defaultSpawnChannelFactory` snapshots
   // `process.env` AT SPAWN TIME, so the later daemon's env value
   // would silently win for the earlier daemon's subsequent ACP
   // child spawns. With per-handle overrides closed over inside
@@ -292,7 +292,7 @@ export async function runQwenServe(
     );
   }
   // Per-handle env overrides: `undefined` value means "scrub this
-  // var from the child env" — important when a different daemon
+  // var from the child env" -- important when a different daemon
   // in the same process set the var globally previously. Always
   // set both keys explicitly (to value or `undefined`) so each
   // child's MCP budget env is fully determined by this handle's
@@ -322,13 +322,13 @@ export async function runQwenServe(
       statusProvider: createDaemonStatusProvider(),
       // #4175 Wave 4 PR 17: `POST /session/:id/approval-mode` accepts
       // an opt-in `persist: true` flag. We re-load settings on each
-      // persist call rather than caching a `LoadedSettings` handle —
+      // persist call rather than caching a `LoadedSettings` handle --
       // another writer (CLI, another daemon, an editor) could have
       // touched the file between calls, so the freshest state wins
       // over a stale in-memory cache.
       //
       // #4282 fold-in 4 (qwen-latest C2): both persist callbacks run
-      // through `withSettingsLock` — a per-workspace promise chain that
+      // through `withSettingsLock` -- a per-workspace promise chain that
       // serializes the read-modify-write cycle. Without the lock, two
       // concurrent `POST /workspace/tools/:name/enable` requests could
       // both read the same pre-modification state and the second write
@@ -345,7 +345,7 @@ export async function runQwenServe(
       // #4175 Wave 4 PR 17: `POST /workspace/tools/:name/enable` writes
       // through this callback. Re-reads settings on each call (same
       // freshness rationale as `persistApprovalMode`) and merges into
-      // the existing `tools.disabled` array — concurrent toggles from
+      // the existing `tools.disabled` array -- concurrent toggles from
       // other writers stay safe across the read/modify/write window.
       //
       // #4282 wenshao H2 fold-in: read from the WORKSPACE scope only.
@@ -379,11 +379,11 @@ export async function runQwenServe(
   // via `deps.boundWorkspace`. That field is the pre-canonicalized
   // fast-path: createServeApp skips its own `canonicalizeWorkspace`
   // call (which would issue a redundant `realpathSync.native`
-  // syscall — idempotent but unnecessary I/O at boot). Direct
+  // syscall -- idempotent but unnecessary I/O at boot). Direct
   // callers of createServeApp (tests / embeds) omit it and the
   // server canonicalizes itself.
   //
-  // PR 19 — wire up `fsFactory` so the new read routes
+  // PR 19 -- wire up `fsFactory` so the new read routes
   // (`GET /file|/list|/glob|/stat`) consume a per-request boundary
   // built against THIS daemon's bound workspace. Trust snapshot
   // defaults to true; tests / future hardening flows pass an
@@ -396,7 +396,7 @@ export async function runQwenServe(
   // matches what `createServeApp`'s built-in fallback would emit.
   // The earlier per-event `writeStderrLine` would print one line for
   // every `/file` / `/list` / `/glob` / `/stat` audit event under
-  // normal traffic — a workspace scan can flood operator logs in
+  // normal traffic -- a workspace scan can flood operator logs in
   // seconds. The shared helper warns once + every 100th drop and
   // includes payload context (errorKind / intent / pathHash), so a
   // genuine wiring regression still surfaces but routine audit
@@ -416,7 +416,7 @@ export async function runQwenServe(
     boundWorkspace,
     fsFactory,
   });
-  // Issue #4175 PR 21 — `createServeApp` parks the device-flow registry
+  // Issue #4175 PR 21 -- `createServeApp` parks the device-flow registry
   // on `app.locals` when it constructs (or accepts) one. Pull it back
   // out so the close hook can dispose it before `bridge.shutdown()`,
   // ensuring polling timers + cancel controllers are torn down BEFORE
@@ -430,13 +430,13 @@ export async function runQwenServe(
   // Node's `app.listen()` wants the unbracketed IPv6 literal (`::1`) but
   // operators conventionally type `[::1]` (or copy/paste from URLs that
   // need the brackets to disambiguate the port). Strip brackets at
-  // bind-time, keep them for the printed URL — without this fixup
+  // bind-time, keep them for the printed URL -- without this fixup
   // `qwen serve --hostname [::1]` would pass the loopback/token check
   // and then fail to start with ENOTFOUND.
   //
-  // Only accept *pure* bracketed forms: `[…]` with no trailing `:port`
+  // Only accept *pure* bracketed forms: `[...]` with no trailing `:port`
   // suffix. `[2001:db8::1]:8080` is operator-error (port goes through
-  // `--port`, not the hostname) — fail loudly with a useful error
+  // `--port`, not the hostname) -- fail loudly with a useful error
   // instead of silently stripping to a malformed `2001:db8::1]:8080`.
   let listenHostname = opts.hostname;
   if (opts.hostname.startsWith('[')) {
@@ -454,7 +454,7 @@ export async function runQwenServe(
       );
     }
     // Empty brackets `[]` would have stripped to `''`, which Node treats
-    // as "bind to all interfaces" — the operator's intent was specific,
+    // as "bind to all interfaces" -- the operator's intent was specific,
     // not wildcard. The check above (`inner.length === 0`) rejects.
     listenHostname = inner;
   }
@@ -489,12 +489,12 @@ export async function runQwenServe(
       // an attacker can still open *connections* that never finish
       // their headers, never reach the bus, and just sit consuming
       // socket descriptors. The default of 256 leaves room for many
-      // sessions × many legitimate clients while keeping the FD count
+      // sessions * many legitimate clients while keeping the FD count
       // bounded; operators with high-concurrency deployments raise it
       // via `--max-connections` (BRQQb).
       //
       // tanzhenxin issue 1: `0` and `Infinity` are operator-visible
-      // "disable the cap" sentinels — but on Node 22 setting
+      // "disable the cap" sentinels -- but on Node 22 setting
       // `server.maxConnections = 0` causes the listener to refuse
       // EVERY connection (verified on v22.15.0: every fetch fails
       // with `SocketError: other side closed`). Treat 0 / Infinity
@@ -517,14 +517,14 @@ export async function runQwenServe(
       // Operator log on stderr too (systemd/docker/k8s default
       // captures only stderr for service diagnostics, and the
       // workspace= breadcrumb is the single piece of information
-      // operators need most when triaging §02 migration issues —
+      // operators need most when triaging 02 migration issues --
       // "did the daemon bind to the right workspace?"). The stdout
       // line above stays put so integration tests + scripts that
       // parse stdout for the listening URL keep working;
       // `JSON.stringify(boundWorkspace)` quotes the value
       // symmetrically with the workspace_mismatch log (defends
       // against control-char log injection if `boundWorkspace`
-      // somehow contained one — operator-controlled today, but
+      // somehow contained one -- operator-controlled today, but
       // cheap defense-in-depth).
       writeStderrLine(
         `qwen serve: bound to workspace ${JSON.stringify(boundWorkspace)}`,
@@ -562,10 +562,10 @@ export async function runQwenServe(
           // Bd1y6: synchronously SIGKILL every live `qwen --acp`
           // child BEFORE `process.exit(1)`. Otherwise the daemon
           // vanishes but its child processes keep running with
-          // dangling stdin/stdout pipes — visible as orphan
+          // dangling stdin/stdout pipes -- visible as orphan
           // `qwen` processes in the operator's `ps` output.
           writeStderrLine(
-            `qwen serve: received ${signal} during drain — forcing exit`,
+            `qwen serve: received ${signal} during drain -- forcing exit`,
           );
           try {
             bridge.killAllSync();
@@ -603,16 +603,16 @@ export async function runQwenServe(
             // NOTE: the SIGINT/SIGTERM handlers stay attached during the
             // drain. Their `if (shuttingDown) return` guard makes a second
             // signal a no-op. Detaching them up front would leave Node's
-            // default signal behavior in charge — a second SIGTERM mid-drain
+            // default signal behavior in charge -- a second SIGTERM mid-drain
             // would terminate the process and orphan agent children. We
             // detach AFTER drain completes (`finish` below).
 
             // Two-phase shutdown:
-            //   1. `bridge.shutdown()` — tears down agent children with
+            //   1. `bridge.shutdown()` -- tears down agent children with
             //      its own internal `KILL_HARD_DEADLINE_MS` (10s) so
             //      a wedged child can't block forever. We wait
             //      unconditionally; the bridge bounds itself.
-            //   2. `server.close()` — drains in-flight HTTP connections
+            //   2. `server.close()` -- drains in-flight HTTP connections
             //      (long-lived SSE subscribers especially). This is
             //      what `SHUTDOWN_FORCE_CLOSE_MS` actually protects:
             //      a single hung SSE consumer would otherwise pin
@@ -621,23 +621,23 @@ export async function runQwenServe(
             // Crucially, the force timer is armed AFTER bridge.shutdown
             // resolves, not at the start of the whole sequence. An
             // earlier version raced both phases against the same 5s
-            // timer; if the bridge took 5–10s to kill its children
+            // timer; if the bridge took 5-10s to kill its children
             // (e.g. SIGTERM grace period), the timer fired first,
             // resolved this promise, and `process.exit(0)` ran while
-            // the bridge was still tearing children down — orphaning
+            // the bridge was still tearing children down -- orphaning
             // any that hadn't yet hit `KILL_HARD_DEADLINE_MS`.
             let settled = false;
             // BV-qW: track bridge.shutdown failures so close()
             // doesn't silently report success when the bridge
             // teardown itself failed. The contract says "resolves
             // when the listener has fully closed and the bridge is
-            // drained" — propagating the failure lets `onSignal`
+            // drained" -- propagating the failure lets `onSignal`
             // exit 1 instead of 0, and lets embedders react.
             let bridgeShutdownError: Error | undefined;
             const finish = (err?: Error | null) => {
               if (settled) return;
               settled = true;
-              // Drain finished (or timed out) — safe to detach now.
+              // Drain finished (or timed out) -- safe to detach now.
               process.removeListener('SIGINT', onSignal);
               process.removeListener('SIGTERM', onSignal);
               // Server.close error takes precedence (operator-visible
@@ -676,7 +676,7 @@ export async function runQwenServe(
                 // Phase 2: arm the force timer NOW so it only races
                 // server.close, not the bridge tear-down above.
                 // BUb7h: `RunHandle.close()` contract says "fully
-                // closed and bridge drained" — the previous code
+                // closed and bridge drained" -- the previous code
                 // resolved on a 100ms shortcut AFTER
                 // `closeAllConnections()` without waiting for
                 // `server.close`'s callback, so embedders/tests
@@ -697,7 +697,7 @@ export async function runQwenServe(
                   server.closeAllConnections();
                   // After force-close, server.close's callback
                   // SHOULD fire promptly. Give it `SECONDARY_DEADLINE_MS`
-                  // before we resolve anyway with a warning — much
+                  // before we resolve anyway with a warning -- much
                   // longer than the previous 100ms shortcut, and
                   // logged so the operator knows the contract was
                   // bent.

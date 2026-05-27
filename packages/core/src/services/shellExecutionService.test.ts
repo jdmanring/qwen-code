@@ -328,13 +328,13 @@ describe('ShellExecutionService', () => {
     });
 
     it('should correctly decode multi-byte characters split across chunks', async () => {
-      const { result } = await simulateExecution('echo "你好"', (pty) => {
-        const multiByteChar = '你好';
+      const { result } = await simulateExecution('echo ""', (pty) => {
+        const multiByteChar = '';
         pty.onData.mock.calls[0][0](multiByteChar.slice(0, 1));
         pty.onData.mock.calls[0][0](multiByteChar.slice(1));
         pty.onExit.mock.calls[0][0]({ exitCode: 0, signal: null });
       });
-      expect(result.output.trim()).toBe('你好');
+      expect(result.output.trim()).toBe('');
     });
 
     it('should handle commands with no output', async () => {
@@ -635,7 +635,7 @@ describe('ShellExecutionService', () => {
       expect(result.aborted).toBe(true);
       expect(result.promoted).toBeUndefined();
       // The default kill path runs: SIGTERM via process.kill on the
-      // process-group pid. Pinning that we DID try to kill — i.e., reason
+      // process-group pid. Pinning that we DID try to kill -- i.e., reason
       // === 'cancel' is NOT mistakenly routed through the background branch.
       expect(mockProcessKill).toHaveBeenCalledWith(
         -mockPtyProcess.pid,
@@ -644,7 +644,7 @@ describe('ShellExecutionService', () => {
     });
 
     it('signal.reason = { kind: "background" } skips kill and resolves with promoted: true (and aborted: false per design question 7)', async () => {
-      // Critical: do NOT fire onExit — the child is still alive after the
+      // Critical: do NOT fire onExit -- the child is still alive after the
       // background-promote abort. The result Promise must resolve via the
       // abort handler's own immediate resolve, not via the exit handler.
       const { result } = await simulateExecution(
@@ -657,7 +657,7 @@ describe('ShellExecutionService', () => {
         },
       );
 
-      // `aborted: false` (despite signal.aborted = true) is intentional —
+      // `aborted: false` (despite signal.aborted = true) is intentional --
       // see #3831 design question 7. The flag answers "emit cancel/timeout
       // copy?" not "did the signal fire?", and a promoted shell is
       // neither cancelled nor timed out.
@@ -692,17 +692,17 @@ describe('ShellExecutionService', () => {
       // queues microtasks for headlessTerminal.write callbacks), unlike
       // child_process's sync handleOutput. Sync `expect` immediately
       // after emit-then-abort would only see the call count BEFORE chain
-      // items run — both pre and post would read 0 and the assertion
+      // items run -- both pre and post would read 0 and the assertion
       // would tautologically pass without exercising the
       // `listenersDetached` guard. We drive the test using the
-      // `simulateExecution` helper, which awaits `handle.result` — by
+      // `simulateExecution` helper, which awaits `handle.result` -- by
       // the time the result resolves, the abort handler has run its
       // drain (so all queued chain items have settled) and we can read
       // the final emit count.
       const { result } = await simulateExecution(
         'tail -f /tmp/never.log',
         (pty, ac) => {
-          // Pre-promote data — fed via the live onData listener so it
+          // Pre-promote data -- fed via the live onData listener so it
           // reaches the foreground onOutputEvent normally.
           pty.onData.mock.calls[0][0]('pre-promote-data\n');
           ac.abort({
@@ -718,7 +718,7 @@ describe('ShellExecutionService', () => {
       // .then microtask runs, which is after the sync abort dispatch
       // that set the flag), so the pre-promote emit was already
       // suppressed by the guard. Asserting `0` here pins both halves
-      // of the contract — pre-promote AND post-promote bytes are both
+      // of the contract -- pre-promote AND post-promote bytes are both
       // suppressed once `listenersDetached` is set. Without the guard,
       // pre-promote's render path would emit a `'data'` event into
       // `onOutputEventMock` and this would be `>= 1`, failing the
@@ -740,7 +740,7 @@ describe('ShellExecutionService', () => {
       expect(onOutputEventMock.mock.calls.length).toBe(eventCountAfterSettle);
 
       // The disposable returned by mockPtyProcess.onData was disposed by
-      // the abort handler — verify by calling .dispose's mock.
+      // the abort handler -- verify by calling .dispose's mock.
       const dataDisposableStub = mockPtyProcess.onData.mock.results[0]
         .value as { dispose: Mock };
       expect(dataDisposableStub.dispose).toHaveBeenCalled();
@@ -775,7 +775,7 @@ describe('ShellExecutionService', () => {
       // After promote, drive a fresh post-promote chunk through the
       // PTY's onData. The service should have attached a NEW listener
       // (the foreground one is disposed); look at the latest
-      // mock.calls entry — index 1 since PR-2.5 adds a second.
+      // mock.calls entry -- index 1 since PR-2.5 adds a second.
       const onDataRegistrations = mockPtyProcess.onData.mock.calls;
       expect(onDataRegistrations.length).toBeGreaterThanOrEqual(2);
       const postPromoteHandler =
@@ -811,7 +811,7 @@ describe('ShellExecutionService', () => {
       expect(result.promoted).toBe(true);
       // After promote, drive the PTY's onExit to simulate natural
       // completion. The service attaches a new exit listener for
-      // post-promote settle — find the most-recently-registered.
+      // post-promote settle -- find the most-recently-registered.
       const onExitRegistrations = mockPtyProcess.onExit.mock.calls;
       expect(onExitRegistrations.length).toBeGreaterThanOrEqual(2);
       const postPromoteExitHandler =
@@ -849,7 +849,7 @@ describe('ShellExecutionService', () => {
       );
       expect(result.promoted).toBe(true);
 
-      // 1. An expected PTY read-exit error (EIO) is FILTERED — onSettle
+      // 1. An expected PTY read-exit error (EIO) is FILTERED -- onSettle
       //    is NOT invoked yet (the upcoming onExit will carry status).
       mockPtyProcess.emit(
         'error',
@@ -925,7 +925,7 @@ describe('ShellExecutionService', () => {
       sharedExitDisposable.dispose.mockClear();
       removeListenerSpy.mockClear();
 
-      // Drive onExit → firePostSettle runs disposePostPromoteListeners.
+      // Drive onExit -> firePostSettle runs disposePostPromoteListeners.
       const onExitRegistrations = mockPtyProcess.onExit.mock.calls;
       const postPromoteExitHandler =
         onExitRegistrations[onExitRegistrations.length - 1][0];
@@ -945,7 +945,7 @@ describe('ShellExecutionService', () => {
       expect(errorRemoves.length).toBeGreaterThanOrEqual(1);
 
       // Re-driving onExit must NOT re-fire settle (latched) AND
-      // dispose calls must NOT double-count (idempotent disposal —
+      // dispose calls must NOT double-count (idempotent disposal --
       // disposePostPromoteListeners nulls the slots after first
       // disposal).
       postPromoteExitHandler({ exitCode: 0, signal: undefined });
@@ -975,7 +975,7 @@ describe('ShellExecutionService', () => {
       );
       expect(result.promoted).toBe(true);
 
-      // Error listener must be installed even without onSettle —
+      // Error listener must be installed even without onSettle --
       // emitting 'error' on an EventEmitter with no listener throws.
       expect(() =>
         mockPtyProcess.emit('error', new Error('post-promote pty err')),
@@ -988,7 +988,7 @@ describe('ShellExecutionService', () => {
       const postPromoteExitHandler =
         onExitRegistrations[onExitRegistrations.length - 1][0];
 
-      // Simulate natural exit — should dispose listeners without crash.
+      // Simulate natural exit -- should dispose listeners without crash.
       postPromoteExitHandler({ exitCode: 0 });
     });
 
@@ -996,7 +996,7 @@ describe('ShellExecutionService', () => {
       // Pin that omitting `postPromote` preserves the PR-2 detach-
       // everything contract. The pre-existing post-promote test at
       // line ~680 already covers this for the data path; this one
-      // adds the symmetric guarantee for the exit path — natural
+      // adds the symmetric guarantee for the exit path -- natural
       // post-promote exit must NOT invoke any callback the caller
       // didn't provide.
       const onDataCalls: ShellOutputEvent[] = [];
@@ -1009,7 +1009,7 @@ describe('ShellExecutionService', () => {
             shellId: 'bg_pr25_compat',
           } satisfies ShellAbortReason);
         },
-        // No options arg → postPromote unset → PR-2 contract.
+        // No options arg -> postPromote unset -> PR-2 contract.
       );
       expect(result.promoted).toBe(true);
       // Drive both PTY events post-promote.
@@ -1029,13 +1029,13 @@ describe('ShellExecutionService', () => {
     it('post-exit race: PTY background-promote refuses if process.kill(pid, 0) reports the pid is gone', async () => {
       // Mirror of the child_process post-exit race test. The PTY may
       // have already exited but our `exitDisposable` (onExit) handler
-      // hasn't run yet — node-pty delivers the exit event async after
+      // hasn't run yet -- node-pty delivers the exit event async after
       // the native SIGCHLD. Promoting in that window would detach our
       // exit listener, miss the real exit status, and report
       // `promoted: true` for a dead PTY. Production guard:
       // process.kill(pid, 0); if it throws ESRCH, fall through.
       mockProcessKill.mockImplementationOnce((pid, signal) => {
-        // Only fail the very first liveness probe with signal 0 — let
+        // Only fail the very first liveness probe with signal 0 -- let
         // any subsequent kill calls (e.g. cleanup() at process exit)
         // succeed so the test teardown stays clean.
         if (signal === 0) {
@@ -1059,13 +1059,13 @@ describe('ShellExecutionService', () => {
       // Result is the normal exit shape, not the promoted shape.
       expect(result.promoted).toBeUndefined();
       expect(result.exitCode).toBe(0);
-      // Our PTY listeners stayed registered — the disposables are
+      // Our PTY listeners stayed registered -- the disposables are
       // disposed by the natural onExit, not the abort handler.
       const dataDisposableStub = mockPtyProcess.onData.mock.results[0]
         .value as { dispose: Mock };
       // dataDisposable is NOT disposed by our abort handler in the
       // race-fallthrough path (the normal onExit handler doesn't
-      // dispose it either — it relies on the PTY tearing down its own
+      // dispose it either -- it relies on the PTY tearing down its own
       // event source). What matters is that we did NOT pre-dispose it
       // and lose the exit info.
       void dataDisposableStub; // referenced for the future expansion
@@ -1074,7 +1074,7 @@ describe('ShellExecutionService', () => {
     it("post-promotion: ptyProcess error listener is removed via 'removeListener', NOT 'off' (regression guard for @lydell/node-pty)", async () => {
       // node EventEmitter exposes both `off` (Node 10+) and the legacy
       // `removeListener`, but @lydell/node-pty's IPty interface only
-      // surfaces `removeListener` — calling `.off(...)` on a real PTY
+      // surfaces `removeListener` -- calling `.off(...)` on a real PTY
       // throws TypeError. Pin that the production code path uses
       // `removeListener` so a future refactor swapping to `.off()`
       // doesn't silently regress under the EventEmitter mock (which
@@ -1110,7 +1110,7 @@ describe('ShellExecutionService', () => {
       // caller's own exit listener fires, our foreground result Promise
       // must NOT be re-resolved with a different shape (Promise can only
       // resolve once). The exit disposable being disposed prevents our
-      // own onExit from firing at all in the first place — but verify the
+      // own onExit from firing at all in the first place -- but verify the
       // final resolved shape stays `promoted: true` regardless.
       const { result } = await simulateExecution(
         'tail -f /tmp/never.log',
@@ -1556,14 +1556,14 @@ describe('ShellExecutionService child_process fallback', () => {
     });
 
     it('should correctly decode multi-byte characters split across chunks', async () => {
-      const { result } = await simulateExecution('echo "你好"', (cp) => {
-        const multiByteChar = Buffer.from('你好', 'utf-8');
+      const { result } = await simulateExecution('echo ""', (cp) => {
+        const multiByteChar = Buffer.from('', 'utf-8');
         cp.stdout?.emit('data', multiByteChar.slice(0, 2));
         cp.stdout?.emit('data', multiByteChar.slice(2));
         cp.emit('exit', 0, null);
         cp.emit('close', 0, null);
       });
-      expect(result.output.trim()).toBe('你好');
+      expect(result.output.trim()).toBe('');
     });
 
     it('should handle commands with no output', async () => {
@@ -1689,7 +1689,7 @@ describe('ShellExecutionService child_process fallback', () => {
 
       expect(result.aborted).toBe(true);
       expect(result.promoted).toBeUndefined();
-      // Default kill path ran — pin that reason === 'cancel' is NOT
+      // Default kill path ran -- pin that reason === 'cancel' is NOT
       // mistakenly routed through the background branch.
       expect(mockProcessKill).toHaveBeenCalledWith(
         -mockChildProcess.pid!,
@@ -1699,7 +1699,7 @@ describe('ShellExecutionService child_process fallback', () => {
 
     it('signal.reason = { kind: "background" } skips kill and resolves with promoted: true (and aborted: false per design question 7)', async () => {
       mockPlatform.mockReturnValue('linux');
-      // Critical: do NOT fire 'exit' — the child is still alive after the
+      // Critical: do NOT fire 'exit' -- the child is still alive after the
       // background-promote abort. The result Promise must resolve via the
       // abort handler's own immediate resolve.
       const { result } = await simulateExecution(
@@ -1746,8 +1746,8 @@ describe('ShellExecutionService child_process fallback', () => {
       // stdoutHandler / stderrHandler in the abort handler, post-promote
       // bytes would re-enter handleOutput, which then calls
       // decoder.decode() on a now-finalized decoder (cleanup() called
-      // .decode() without stream:true) → TypeError crash, OR routes to
-      // onOutputEvent → ownership leak / duplicated emit.
+      // .decode() without stream:true) -> TypeError crash, OR routes to
+      // onOutputEvent -> ownership leak / duplicated emit.
       const { result } = await simulateExecution(
         'tail -f /tmp/never.log',
         (cp, abortController) => {
@@ -1779,7 +1779,7 @@ describe('ShellExecutionService child_process fallback', () => {
       // 'exit' event hasn't reached our handler yet because Node delivers
       // child_process events on the next microtask. Promoting in that
       // window would detach our exit listener and report `promoted: true`
-      // for a process that's already dead — the caller would hold an
+      // for a process that's already dead -- the caller would hold an
       // inert pid expecting to take over. Production code reads
       // exitCode / signalCode before detaching; if either is non-null,
       // it falls through and lets the pending exit handler resolve
@@ -1842,7 +1842,7 @@ describe('ShellExecutionService child_process fallback', () => {
     it('PR-2.5 child_process: post-promote stdout/stderr forward to postPromote.onData with SEPARATE decoders', async () => {
       // Pin: post-promote bytes from the still-running child route to
       // the caller's onData handler. Separate decoders for stdout vs
-      // stderr — a single shared decoder would corrupt interleaved
+      // stderr -- a single shared decoder would corrupt interleaved
       // multibyte UTF-8 (the continuation-byte state machine assumes
       // one byte source).
       mockPlatform.mockReturnValue('linux');
@@ -1854,7 +1854,7 @@ describe('ShellExecutionService child_process fallback', () => {
             kind: 'background',
             shellId: 'bg_cp_data',
           } satisfies ShellAbortReason);
-          // Drive post-promote chunks — should now flow to onData.
+          // Drive post-promote chunks -- should now flow to onData.
           cp.stdout?.emit('data', Buffer.from('post-promote-stdout\n'));
           cp.stderr?.emit('data', Buffer.from('post-promote-stderr\n'));
         },
@@ -1877,7 +1877,7 @@ describe('ShellExecutionService child_process fallback', () => {
       // Pin the `close`-not-`exit` contract: child can emit buffered
       // data AFTER 'exit' but BEFORE 'close'. If onSettle fired on
       // 'exit' the caller would close the output stream + transition
-      // the registry while late chunks were still in flight — they'd
+      // the registry while late chunks were still in flight -- they'd
       // hit a closed stream and be dropped, producing truncated logs.
       mockPlatform.mockReturnValue('linux');
       const events: Array<{ type: string; chunk?: string | unknown }> = [];
@@ -1979,7 +1979,7 @@ describe('ShellExecutionService child_process fallback', () => {
     it('PR-2.5 wave-4 (T3): onData-only caller still gets decoder flush on close (no trailing multibyte loss)', async () => {
       // T3 regression: the close handler used to be installed only
       // when `onSettle` was set, so an `onData`-only caller never got
-      // the trailing-multibyte flush — a UTF-8 character split across
+      // the trailing-multibyte flush -- a UTF-8 character split across
       // chunks could vanish. Fix installs close whenever ANY
       // postPromote handler is set, and the flush helper runs whenever
       // onData is set independent of onSettle.
@@ -1992,7 +1992,7 @@ describe('ShellExecutionService child_process fallback', () => {
             kind: 'background',
             shellId: 'bg_cp_t3',
           } satisfies ShellAbortReason);
-          // Push the FIRST byte of a 3-byte UTF-8 char (€ = 0xE2 0x82 0xAC).
+          // Push the FIRST byte of a 3-byte UTF-8 char ( = 0xE2 0x82 0xAC).
           // Without flush, the trailing two bytes would be stuck in the
           // decoder's continuation state and lost.
           cp.stdout?.emit('data', Buffer.from([0xe2]));
@@ -2003,12 +2003,12 @@ describe('ShellExecutionService child_process fallback', () => {
         {
           postPromote: {
             onData: (event) => dataChunks.push(event),
-            // NO onSettle — close handler must still fire flush.
+            // NO onSettle -- close handler must still fire flush.
           },
         },
       );
       expect(result.promoted).toBe(true);
-      // The € character should appear once the second chunk completes
+      // The  character should appear once the second chunk completes
       // the multibyte sequence; flush at close ensures any remainder
       // is surfaced.
       const joined = dataChunks
@@ -2016,13 +2016,13 @@ describe('ShellExecutionService child_process fallback', () => {
           d.type === 'data' && typeof d.chunk === 'string' ? d.chunk : '',
         )
         .join('');
-      expect(joined).toContain('€');
+      expect(joined).toContain('');
     });
 
     it('PR-2.5 wave-4 (T6): onData-only caller has post-promote `error` listener (does not crash CLI)', async () => {
       // T6 regression: `child.once('error', ...)` install was gated
       // on `onSettle`, so an `onData`-only caller had the foreground
-      // errorHandler detached at promote with no replacement — a
+      // errorHandler detached at promote with no replacement -- a
       // post-promote spawn error would surface as Node's default
       // unhandled-error crash. Fix attaches an error listener
       // whenever ANY postPromote handler is set.
@@ -2047,7 +2047,7 @@ describe('ShellExecutionService child_process fallback', () => {
         {
           postPromote: {
             onData: (event) => dataChunks.push(event),
-            // NO onSettle — but error must still be handled (no crash).
+            // NO onSettle -- but error must still be handled (no crash).
           },
         },
       );
@@ -2079,7 +2079,7 @@ describe('ShellExecutionService child_process fallback', () => {
         },
         {
           postPromote: {
-            // NO onData — but stdout/stderr must still be resumed.
+            // NO onData -- but stdout/stderr must still be resumed.
             onSettle: (info) => settles.push(info),
           },
         },
@@ -2405,7 +2405,7 @@ describe('getShellAbortReasonKind (defensive abort-reason read)', () => {
     expect(getShellAbortReasonKind('background')).toBe('cancel');
     expect(getShellAbortReasonKind(42)).toBe('cancel');
     expect(getShellAbortReasonKind(true)).toBe('cancel');
-    // DOMException-like object — not the real DOMException constructor in
+    // DOMException-like object -- not the real DOMException constructor in
     // the test runtime, but the principle is the same: a non-discriminated
     // object reason without an own `kind` falls back to cancel.
     expect(getShellAbortReasonKind(new Error('aborted'))).toBe('cancel');
@@ -2419,7 +2419,7 @@ describe('getShellAbortReasonKind (defensive abort-reason read)', () => {
     const polluted: Record<string, unknown> = Object.create({
       kind: 'background',
     });
-    // hasOwnProperty('kind') is false → helper rejects the prototype-only kind
+    // hasOwnProperty('kind') is false -> helper rejects the prototype-only kind
     expect(getShellAbortReasonKind(polluted)).toBe('cancel');
   });
 

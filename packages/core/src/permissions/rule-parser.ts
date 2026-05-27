@@ -20,8 +20,8 @@ const debugLogger = createDebugLogger('PERMISSIONS');
  * This helper ensures consistent path separators across all platforms.
  *
  * Examples:
- *   toPosixPath('C:\\Users\\foo\\bar') → 'C:/Users/foo/bar'
- *   toPosixPath('/home/user/project') → '/home/user/project' (no-op on POSIX)
+ *   toPosixPath('C:\\Users\\foo\\bar') -> 'C:/Users/foo/bar'
+ *   toPosixPath('/home/user/project') -> '/home/user/project' (no-op on POSIX)
  */
 function toPosixPath(p: string): string {
   return p.replace(/\\/g, '/');
@@ -32,9 +32,9 @@ import type {
   SpecifierKind,
 } from './types.js';
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Tool name aliases & categories
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Map of known tool name aliases to their canonical names.
@@ -47,42 +47,42 @@ export const TOOL_NAME_ALIASES: Readonly<Record<string, string>> = {
   ShellTool: 'run_shell_command',
   Bash: 'run_shell_command', // Claude Code compatibility
 
-  // Edit tool — "Edit" is also a meta-category covering edit + write_file
+  // Edit tool -- "Edit" is also a meta-category covering edit + write_file
   edit: 'edit',
   Edit: 'edit',
   EditTool: 'edit',
 
-  // Notebook Edit tool — also matched by "Edit" meta-category rules
+  // Notebook Edit tool -- also matched by "Edit" meta-category rules
   notebook_edit: 'notebook_edit',
   NotebookEdit: 'notebook_edit',
   NotebookEditTool: 'notebook_edit',
 
-  // Write File tool — also matched by "Edit" meta-category rules
+  // Write File tool -- also matched by "Edit" meta-category rules
   write_file: 'write_file',
   WriteFile: 'write_file',
   WriteFileTool: 'write_file',
   Write: 'write_file',
 
-  // Read File tool — "Read" is also a meta-category covering read_file + grep + glob + list_directory
+  // Read File tool -- "Read" is also a meta-category covering read_file + grep + glob + list_directory
   read_file: 'read_file',
   ReadFile: 'read_file',
   ReadFileTool: 'read_file',
   Read: 'read_file',
 
-  // Grep tool — also matched by "Read" meta-category rules
+  // Grep tool -- also matched by "Read" meta-category rules
   grep_search: 'grep_search',
   Grep: 'grep_search',
   GrepTool: 'grep_search',
   search_file_content: 'grep_search', // legacy
   SearchFiles: 'grep_search', // legacy display name
 
-  // Glob tool — also matched by "Read" meta-category rules
+  // Glob tool -- also matched by "Read" meta-category rules
   glob: 'glob',
   Glob: 'glob',
   GlobTool: 'glob',
   FindFiles: 'glob', // legacy display name
 
-  // List Directory tool — also matched by "Read" meta-category rules
+  // List Directory tool -- also matched by "Read" meta-category rules
   list_directory: 'list_directory',
   ListFiles: 'list_directory',
   ListFilesTool: 'list_directory',
@@ -141,7 +141,7 @@ export const SHELL_TOOL_NAMES: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * File-reading tools — "Read" rules apply to all of these (best-effort).
+ * File-reading tools -- "Read" rules apply to all of these (best-effort).
  *
  * Per Claude Code docs: "Claude makes a best-effort attempt to apply Read rules
  * to all built-in tools that read files like Grep and Glob."
@@ -154,7 +154,7 @@ const READ_TOOLS = new Set([
 ]);
 
 /**
- * File-editing tools — "Edit" rules apply to all of these.
+ * File-editing tools -- "Edit" rules apply to all of these.
  *
  * Per Claude Code docs: "Edit rules apply to all built-in tools that edit files."
  */
@@ -165,9 +165,9 @@ const EDIT_TOOLS = new Set(['edit', 'write_file', 'notebook_edit']);
  */
 const WEBFETCH_TOOLS = new Set(['web_fetch']);
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Tool name resolution & categorization
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Resolve a raw tool name or alias to its canonical name.
@@ -199,10 +199,10 @@ export function getSpecifierKind(canonicalToolName: string): SpecifierKind {
  * Check whether a given tool (by canonical name) is covered by a rule's tool name,
  * taking meta-categories into account.
  *
- * "Read" → resolves to "read_file", but also covers grep_search, glob, list_directory
- * "Edit" → resolves to "edit", but also covers write_file
- * "Bash" → resolves to "run_shell_command", but also covers monitor
- * "Monitor" → resolves to "monitor" only; it does not cover shell
+ * "Read" -> resolves to "read_file", but also covers grep_search, glob, list_directory
+ * "Edit" -> resolves to "edit", but also covers write_file
+ * "Bash" -> resolves to "run_shell_command", but also covers monitor
+ * "Monitor" -> resolves to "monitor" only; it does not cover shell
  */
 export function toolMatchesRuleToolName(
   ruleToolName: string,
@@ -211,15 +211,15 @@ export function toolMatchesRuleToolName(
   if (ruleToolName === contextToolName) {
     return true;
   }
-  // "Read" → covers all READ_TOOLS
+  // "Read" -> covers all READ_TOOLS
   if (ruleToolName === 'read_file' && READ_TOOLS.has(contextToolName)) {
     return true;
   }
-  // "Edit" → covers all EDIT_TOOLS
+  // "Edit" -> covers all EDIT_TOOLS
   if (ruleToolName === 'edit' && EDIT_TOOLS.has(contextToolName)) {
     return true;
   }
-  // "Bash" (run_shell_command) → also covers monitor so that existing
+  // "Bash" (run_shell_command) -> also covers monitor so that existing
   // `Bash(...)` allow rules are not silently bypassed by switching to
   // the monitor tool.  Monitor-only rules do NOT cover shell.
   if (ruleToolName === 'run_shell_command' && contextToolName === 'monitor') {
@@ -228,30 +228,30 @@ export function toolMatchesRuleToolName(
   return false;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Rule parsing
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Parse a raw permission rule string into a PermissionRule object.
  *
  * Supported formats:
- *   "ToolName"            → matches all invocations of the tool
- *   "ToolName(specifier)" → fine-grained matching via specifier
+ *   "ToolName"            -> matches all invocations of the tool
+ *   "ToolName(specifier)" -> fine-grained matching via specifier
  *
  * Tool-specific specifier semantics:
- *   "Bash(git *)"               → shell command glob
- *   "Read(./secrets/**)"        → gitignore-style path match
- *   "Edit(/src/**\/*.ts)"        → gitignore-style path match
- *   "WebFetch(domain:x.com)"    → domain match
- *   "Agent(Explore)"            → subagent type literal match (alias for Task)
- *   "mcp__server__tool"         → MCP tool (no specifier needed)
+ *   "Bash(git *)"               -> shell command glob
+ *   "Read(./secrets/**)"        -> gitignore-style path match
+ *   "Edit(/src/**\/*.ts)"        -> gitignore-style path match
+ *   "WebFetch(domain:x.com)"    -> domain match
+ *   "Agent(Explore)"            -> subagent type literal match (alias for Task)
+ *   "mcp__server__tool"         -> MCP tool (no specifier needed)
  */
 export function parseRule(raw: string): PermissionRule {
   const trimmed = raw.trim();
 
   // Handle legacy `:*` suffix (deprecated, equivalent to ` *`)
-  // e.g. "Bash(git:*)" → "Bash(git *)"
+  // e.g. "Bash(git:*)" -> "Bash(git *)"
   const normalized = trimmed.replace(/:(\*)/, ' $1');
 
   const openParen = normalized.indexOf('(');
@@ -268,7 +268,7 @@ export function parseRule(raw: string): PermissionRule {
   const toolPart = normalized.substring(0, openParen).trim();
 
   if (!normalized.endsWith(')')) {
-    // Malformed: unbalanced parentheses — mark as invalid so it never matches.
+    // Malformed: unbalanced parentheses -- mark as invalid so it never matches.
     return { raw: trimmed, toolName: resolveToolName(toolPart), invalid: true };
   }
 
@@ -302,9 +302,9 @@ export function parseRules(raws: string[]): PermissionRule[] {
     });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Minimum-scope rule generation
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Map from canonical tool names to the preferred display names used in
@@ -355,8 +355,8 @@ export function getRuleDisplayName(canonicalToolName: string): string {
  * Tools whose parameter path points to a **file** (as opposed to a directory).
  *
  * For these tools the minimum-scope rule uses `path.dirname()` so the rule
- * covers the containing directory rather than a single file — e.g.
- *   read_file("/Users/alice/.secrets") → `Read(//Users/alice)`
+ * covers the containing directory rather than a single file -- e.g.
+ *   read_file("/Users/alice/.secrets") -> `Read(//Users/alice)`
  *
  * Directory-targeted tools (list_directory, grep_search, glob) already receive
  * a directory path, so they use it as-is.
@@ -383,7 +383,7 @@ const FILE_TARGETED_TOOLS = new Set([
  *       Directory-targeted tools (grep, glob, ls) use the directory as-is.
  *       The `//` prefix denotes an absolute filesystem path in the rule grammar.
  *   - **domain** tools (WebFetch): `WebFetch(example.com)`
- *   - **command** tools (Bash): `Bash(command)` — note: Shell already generates
+ *   - **command** tools (Bash): `Bash(command)` -- note: Shell already generates
  *     its own fine-grained rules via `extractCommandRules`; this is a fallback.
  *   - **literal** tools (Skill/Task): `Skill(name)` / `Task(type)`
  *
@@ -400,7 +400,7 @@ export function buildPermissionRules(ctx: PermissionCheckContext): string[] {
 
   switch (kind) {
     case 'command':
-      // Shell commands — fallback only; shell.ts provides its own rules via
+      // Shell commands -- fallback only; shell.ts provides its own rules via
       // extractCommandRules which are more granular (per-simple-command).
       if (ctx.command) {
         return [`${displayName}(${ctx.command})`];
@@ -417,7 +417,7 @@ export function buildPermissionRules(ctx: PermissionCheckContext): string[] {
         // Use the `//` prefix for absolute filesystem paths in rule grammar.
         // Append `/**` so the gitignore-style glob matches all files in the
         // directory recursively (picomatch uses `**` for recursive descent).
-        // resolvePathPattern("//foo/**") → "/foo/**" — round-trips correctly.
+        // resolvePathPattern("//foo/**") -> "/foo/**" -- round-trips correctly.
         const specifier = dirPath.startsWith('/')
           ? `/${dirPath}/**`
           : `${dirPath}/**`;
@@ -442,7 +442,7 @@ export function buildPermissionRules(ctx: PermissionCheckContext): string[] {
 
 /**
  * Human-readable display names for permission rule categories.
- * Maps display name → verb phrase for use in "Always allow [verb phrase] in this project".
+ * Maps display name -> verb phrase for use in "Always allow [verb phrase] in this project".
  */
 const DISPLAY_NAME_TO_VERB: Readonly<Record<string, string>> = {
   Read: 'read files',
@@ -462,14 +462,14 @@ const DISPLAY_NAME_TO_VERB: Readonly<Record<string, string>> = {
  * Strip the glob suffix (e.g. `/**`) and the leading `//` from an absolute
  * path specifier so it reads cleanly in a UI label.
  *
- * `//Users/mochi/.qwen/**` → `/Users/mochi/.qwen/`
- * `/src/**`                → `src/`
+ * `//Users/mochi/.qwen/**` -> `/Users/mochi/.qwen/`
+ * `/src/**`                -> `src/`
  */
 function cleanPathSpecifier(specifier: string): string {
   let cleaned = specifier;
   // Remove trailing glob patterns like /** or /*
   cleaned = cleaned.replace(/\/\*\*$/, '/').replace(/\/\*$/, '/');
-  // Convert rule grammar `//absolute` → `/absolute`
+  // Convert rule grammar `//absolute` -> `/absolute`
   if (cleaned.startsWith('//')) {
     cleaned = cleaned.substring(1);
   }
@@ -487,10 +487,10 @@ function cleanPathSpecifier(specifier: string): string {
  * description instead of raw rule syntax.
  *
  * Examples:
- *   `["Read(//Users/mochi/.qwen/**)"]`  → `"read files in /Users/mochi/.qwen/"`
- *   `["Bash(git *)"]`                    → `"run 'git *' commands"`
- *   `["WebFetch(github.com)"]`            → `"fetch from github.com"`
- *   `["Read"]`                            → `"read files"`
+ *   `["Read(//Users/mochi/.qwen/**)"]`  -> `"read files in /Users/mochi/.qwen/"`
+ *   `["Bash(git *)"]`                    -> `"run 'git *' commands"`
+ *   `["WebFetch(github.com)"]`            -> `"fetch from github.com"`
+ *   `["Read"]`                            -> `"read files"`
  *
  * @param rules - Array of rule strings from buildPermissionRules()
  * @returns A human-readable description string
@@ -526,7 +526,7 @@ export function buildHumanReadableRuleLabel(rules: string[]): string {
       }
       case 'command': {
         const cmdVerb = DISPLAY_NAME_TO_VERB[displayName] ?? 'run';
-        // Extract just the verb word (e.g. "run commands" → "run", "monitor commands" → "monitor")
+        // Extract just the verb word (e.g. "run commands" -> "run", "monitor commands" -> "monitor")
         const verbWord = cmdVerb.split(' ')[0]!;
         parts.push(`${verbWord} '${specifier}' commands`);
         break;
@@ -544,9 +544,9 @@ export function buildHumanReadableRuleLabel(rules: string[]): string {
   return parts.join(', ');
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Shell command matching
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Shell operator tokens that act as command boundaries.
@@ -562,10 +562,10 @@ const SHELL_OPERATORS = ['&&', '||', ';;', '|&', '|', ';'];
  * For simple commands (no operators), returns a single-element array.
  *
  * Examples:
- *   "git status && rm -rf /"  → ["git status", "rm -rf /"]
- *   "ls -la | grep foo"      → ["ls -la", "grep foo"]
- *   "echo 'a && b'"          → ["echo 'a && b'"]  (inside quotes)
- *   "a && b || c"            → ["a", "b", "c"]
+ *   "git status && rm -rf /"  -> ["git status", "rm -rf /"]
+ *   "ls -la | grep foo"      -> ["ls -la", "grep foo"]
+ *   "echo 'a && b'"          -> ["echo 'a && b'"]  (inside quotes)
+ *   "a && b || c"            -> ["a", "b", "c"]
  */
 export function splitCompoundCommand(command: string): string[] {
   const commands: string[] = [];
@@ -695,7 +695,7 @@ export function matchesCommandPattern(
       regex += escapeRegex(literalWithoutTrailingSpace);
       regex += '( .*)?';
     } else {
-      // No word boundary: "ls*" → `ls` followed by anything
+      // No word boundary: "ls*" -> `ls` followed by anything
       regex += escapeRegex(literalBefore);
       regex += '.*';
     }
@@ -759,9 +759,9 @@ function stripLeadingVariableAssignments(command: string): string {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // File path matching (gitignore-style)
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Resolve a path pattern from a permission rule specifier to an absolute
@@ -777,7 +777,7 @@ function stripLeadingVariableAssignments(command: string): string {
  * | `./path`  | Relative to current working dir    | `./secrets/**`               |
  * | `path`    | Relative to current working dir    | `*.env`                      |
  *
- * WARNING: `/Users/alice/file` is NOT an absolute path — it's relative to
+ * WARNING: `/Users/alice/file` is NOT an absolute path -- it's relative to
  * the project root. Use `//Users/alice/file` for absolute paths.
  */
 export function resolvePathPattern(
@@ -786,7 +786,7 @@ export function resolvePathPattern(
   cwd: string,
 ): string {
   if (specifier.startsWith('//')) {
-    // Absolute path from filesystem root: `//path` → `/path`
+    // Absolute path from filesystem root: `//path` -> `/path`
     return specifier.substring(1);
   }
 
@@ -839,16 +839,16 @@ export function matchesPathPattern(
   const isMatch = picomatch(resolvedPattern, {
     dot: true, // Match dotfiles (e.g. .env)
     nocase: false, // Case-sensitive (filesystem convention)
-    // Note: do NOT set bash: true — it makes `*` match across directories.
+    // Note: do NOT set bash: true -- it makes `*` match across directories.
     // Default picomatch behavior is gitignore-style: `*` = single dir, `**` = recursive.
   });
 
   return isMatch(normalizedFilePath);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Domain matching (for WebFetch)
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Match a domain against a WebFetch domain specifier.
@@ -857,9 +857,9 @@ export function matchesPathPattern(
  * Matches the exact domain or any subdomain.
  *
  * Examples:
- *   matchesDomainPattern("domain:example.com", "example.com")      → true
- *   matchesDomainPattern("domain:example.com", "sub.example.com")  → true
- *   matchesDomainPattern("domain:example.com", "notexample.com")   → false
+ *   matchesDomainPattern("domain:example.com", "example.com")      -> true
+ *   matchesDomainPattern("domain:example.com", "sub.example.com")  -> true
+ *   matchesDomainPattern("domain:example.com", "notexample.com")   -> false
  */
 export function matchesDomainPattern(
   specifier: string,
@@ -890,9 +890,9 @@ export function matchesDomainPattern(
   return false;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // MCP tool wildcard matching
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Match an MCP tool name against a pattern that may contain wildcards.
@@ -931,9 +931,9 @@ export function matchesMcpPattern(pattern: string, toolName: string): boolean {
   return false;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Unified rule matching
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Options for path-based matching, providing the directory context needed
@@ -982,12 +982,12 @@ export function matchesRule(
 ): boolean {
   const canonicalCtxToolName = resolveToolName(toolName);
 
-  // ── Invalid (malformed) rules never match anything ──────────────────
+  // -- Invalid (malformed) rules never match anything ------------------
   if (rule.invalid) {
     return false;
   }
 
-  // ── MCP tool matching ────────────────────────────────────────────────
+  // -- MCP tool matching ------------------------------------------------
   if (
     rule.toolName.startsWith('mcp__') ||
     canonicalCtxToolName.startsWith('mcp__')
@@ -995,17 +995,17 @@ export function matchesRule(
     return matchesMcpPattern(rule.toolName, canonicalCtxToolName);
   }
 
-  // ── Standard tool name matching (with meta-category support) ─────────
+  // -- Standard tool name matching (with meta-category support) ---------
   if (!toolMatchesRuleToolName(rule.toolName, canonicalCtxToolName)) {
     return false;
   }
 
-  // ── No specifier → match any invocation of the tool ──────────────────
+  // -- No specifier -> match any invocation of the tool ------------------
   if (!rule.specifier) {
     return true;
   }
 
-  // ── Specifier matching (kind-dependent) ──────────────────────────────
+  // -- Specifier matching (kind-dependent) ------------------------------
   const kind = rule.specifierKind ?? getSpecifierKind(rule.toolName);
 
   switch (kind) {

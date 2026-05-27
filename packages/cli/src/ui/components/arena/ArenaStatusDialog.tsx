@@ -32,7 +32,7 @@ interface ArenaStatusDialogProps {
 
 function truncate(str: string, maxLen: number): string {
   if (str.length <= maxLen) return str;
-  return str.slice(0, maxLen - 1) + '…';
+  return str.slice(0, maxLen - 1) + '...';
 }
 
 function pad(
@@ -122,7 +122,7 @@ export function ArenaStatusDialog({
 
   const maxTaskLen = 60;
   const displayTask =
-    task.length > maxTaskLen ? task.slice(0, maxTaskLen - 1) + '…' : task;
+    task.length > maxTaskLen ? task.slice(0, maxTaskLen - 1) + '...' : task;
 
   const colStatus = 14;
   const colTime = 8;
@@ -156,7 +156,7 @@ export function ArenaStatusDialog({
         <Text bold color={theme.text.primary}>
           Arena Status
         </Text>
-        <Text color={theme.text.secondary}> · </Text>
+        <Text color={theme.text.secondary}>  </Text>
         <Text color={sessionLabel.color}>{sessionLabel.text}</Text>
       </Box>
 
@@ -208,7 +208,7 @@ export function ArenaStatusDialog({
 
       {/* Separator */}
       <Box>
-        <Text color={theme.border.default}>{'─'.repeat(innerWidth)}</Text>
+        <Text color={theme.border.default}>{'-'.repeat(innerWidth)}</Text>
       </Box>
 
       {/* Agent rows */}

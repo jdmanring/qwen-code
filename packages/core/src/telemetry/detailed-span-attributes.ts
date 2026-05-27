@@ -105,7 +105,7 @@ export function addToolSchemaAttributes(
 ): void {
   if (!isEnabled(config) || !tools?.length) return;
 
-  // The Gemini API shape is `[{ functionDeclarations: [...] }]` — a single
+  // The Gemini API shape is `[{ functionDeclarations: [...] }]` -- a single
   // wrapper object whose inner array holds the actual per-tool schemas.
   // Flatten that here so each declaration becomes its own summary entry and
   // its own deduped tool_schema event, while still falling back to a flat

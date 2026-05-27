@@ -1,4 +1,4 @@
-# ⚙️ Optimal Configuration Guide: Memory & RAG
+#  Optimal Configuration Guide: Memory & RAG
 
 This guide provides the recommended `settings.json` configuration for the Mega Code stack. These settings are designed to maximize the performance of the Semantic Memory system while eliminating "Divergence Debt" caused by native Qwen Code features.
 
@@ -53,7 +53,7 @@ To keep your memory system in peak condition, follow these guidelines:
     ```bash
     mega-run-py packages/memory_gc.py
     ```
-2.  **Audit your `QWEN.md`**: If you find the agent is consistently making a behavioral mistake, do not "remember" it in the RAG system—update the **Instructional Memory** in `QWEN.md`.
+2.  **Audit your `QWEN.md`**: If you find the agent is consistently making a behavioral mistake, do not "remember" it in the RAG system--update the **Instructional Memory** in `QWEN.md`.
 3.  **Verify Connectivity**: If recall feels slow, check the status of your local Qdrant instance.
     ```bash
     mega-status

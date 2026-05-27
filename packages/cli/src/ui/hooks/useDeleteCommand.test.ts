@@ -79,7 +79,7 @@ describe('useDeleteCommand', () => {
 
       expect(removeSessions).toHaveBeenCalledWith(['a', 'b']);
       expect(result.current.isDeleteDialogOpen).toBe(false);
-      // Read the last call — the progress toast occupies [0].
+      // Read the last call -- the progress toast occupies [0].
       const [item] = addItem.mock.calls.at(-1) as [
         { type: string; text: string },
         number,
@@ -90,7 +90,7 @@ describe('useDeleteCommand', () => {
 
     it('emits a progress toast before awaiting the batch', async () => {
       // Block removeSessions so we can observe the toast that lands
-      // *before* it resolves — without this, a refactor that drops the
+      // *before* it resolves -- without this, a refactor that drops the
       // pre-await toast (or moves it after the await) would still look
       // green by reading the final addItem state.
       let resolveRemove: (value: RemoveSessionsResult) => void = () => {};
@@ -335,7 +335,7 @@ describe('useDeleteCommand', () => {
       // closeDeleteDialog() runs synchronously before removeSessions
       // resolves, so the user can re-open /delete and trigger a second
       // batch. Without the in-flight guard, two batches race on
-      // potentially overlapping ids — guard must drop the second call
+      // potentially overlapping ids -- guard must drop the second call
       // and explain why it was ignored.
       let resolveRemove: (value: RemoveSessionsResult) => void = () => {};
       const removeSessions = vi.fn(
@@ -353,14 +353,14 @@ describe('useDeleteCommand', () => {
         useDeleteCommand({ config, addItem }),
       );
 
-      // Kick off the first batch — it stays pending on removeSessions.
+      // Kick off the first batch -- it stays pending on removeSessions.
       await act(async () => {
         result.current.handleDeleteMany(['a']);
         await flushAsync();
       });
       expect(removeSessions).toHaveBeenCalledTimes(1);
 
-      // Second invocation while the first is still in flight — must
+      // Second invocation while the first is still in flight -- must
       // be dropped with feedback, but no extra removeSessions call.
       await act(async () => {
         result.current.handleDeleteMany(['b']);
@@ -433,7 +433,7 @@ describe('useDeleteCommand', () => {
 
     it('releases the in-flight guard even when only the current session was selected', async () => {
       // Early-return path (filtered.length === 0) must still release
-      // the guard — otherwise the next /delete invocation gets dropped
+      // the guard -- otherwise the next /delete invocation gets dropped
       // for the rest of the session.
       const { config, sessionService } = createConfig({
         currentSessionId: 'current',
@@ -480,7 +480,7 @@ describe('useDeleteCommand', () => {
         number,
       ];
       expect(item.type).toBe('error');
-      // The original error message must surface for diagnostics — bare
+      // The original error message must surface for diagnostics -- bare
       // "Failed to delete sessions." would hide the root cause.
       expect(item.text).toContain('nope');
 

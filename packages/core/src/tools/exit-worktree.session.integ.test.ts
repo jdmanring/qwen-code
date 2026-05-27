@@ -5,7 +5,7 @@
  */
 
 /**
- * Integration tests for `ExitWorktreeTool.execute()` — specifically the
+ * Integration tests for `ExitWorktreeTool.execute()` -- specifically the
  * WorktreeSession sidecar cleanup introduced in Phase C.
  */
 
@@ -22,7 +22,7 @@ import type { Config } from '../config/config.js';
 
 // Real git invocations + user-global hooks can take 10-20s on slow
 // runners; bump per-test and per-hook timeouts. (Phase C #4174.)
-describe('ExitWorktreeTool — WorktreeSession sidecar cleanup', () => {
+describe('ExitWorktreeTool -- WorktreeSession sidecar cleanup', () => {
   vi.setConfig({ testTimeout: 30000, hookTimeout: 30000 });
 
   let repoRoot: string;
@@ -84,7 +84,7 @@ describe('ExitWorktreeTool — WorktreeSession sidecar cleanup', () => {
       .execute(new AbortController().signal);
     expect(result.error).toBeUndefined();
 
-    // Sidecar should remain untouched after keep — same slug, same path.
+    // Sidecar should remain untouched after keep -- same slug, same path.
     const after = await readWorktreeSession(sessionPath);
     expect(after).toEqual(before);
   });
@@ -96,7 +96,7 @@ describe('ExitWorktreeTool — WorktreeSession sidecar cleanup', () => {
 
     // EnterWorktree writes a .qwen-worktree-session marker file inside the
     // worktree, which shows up as untracked. Pass discard_changes to bypass
-    // the dirty-state guard so we can exercise the remove → clear path.
+    // the dirty-state guard so we can exercise the remove -> clear path.
     const exit = new ExitWorktreeTool(makeConfig());
     const result = await exit
       .build({
@@ -125,7 +125,7 @@ describe('ExitWorktreeTool — WorktreeSession sidecar cleanup', () => {
     const svc = new GitWorktreeService(repoRoot);
     await svc.createUserWorktree('other-slug');
 
-    // Exit "other-slug". The sidecar still names "tracked-slug" — must
+    // Exit "other-slug". The sidecar still names "tracked-slug" -- must
     // remain intact.
     const exit = new ExitWorktreeTool(makeConfig());
     const result = await exit

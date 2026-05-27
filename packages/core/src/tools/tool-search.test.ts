@@ -88,7 +88,7 @@ describe('scoreTool', () => {
     // tools whose name is `mcp__<server>__<toolName>` because the `__`
     // boundary contains the `_` boundary as its last char. A future
     // refactor that switches to a tighter word-boundary regex must
-    // preserve this — otherwise MCP tools silently downgrade from the
+    // preserve this -- otherwise MCP tools silently downgrade from the
     // exact-suffix score (12) to substring (6).
     const mcpCallable = {} as CallableTool;
     const mcp = new DiscoveredMCPTool(
@@ -98,7 +98,7 @@ describe('scoreTool', () => {
       'create a github issue',
       {},
     );
-    // mcp__github__create_issue ends with `_create_issue` — exact suffix.
+    // mcp__github__create_issue ends with `_create_issue` -- exact suffix.
     expect(scoreTool(mcp, ['create_issue'])).toBe(12);
     // The trailing single token `issue` ALSO satisfies _-boundary.
     expect(scoreTool(mcp, ['issue'])).toBeGreaterThanOrEqual(12);
@@ -258,7 +258,7 @@ describe('ToolSearchTool', () => {
     expect(content).toContain('No tools found matching');
   });
 
-  it('enforces max_results cap — schema rejects values above HARD_MAX_RESULTS', () => {
+  it('enforces max_results cap -- schema rejects values above HARD_MAX_RESULTS', () => {
     const tool = new ToolSearchTool(config);
     // Schema declares maximum: 20, so out-of-range values fail at
     // validate-time (before reaching the internal clamp). Pin the
@@ -281,7 +281,7 @@ describe('ToolSearchTool', () => {
     }
 
     const tool = new ToolSearchTool(config);
-    // Ask for the schema cap (20) — should return at most 20 even
+    // Ask for the schema cap (20) -- should return at most 20 even
     // though 25 candidates exist. This is the live-load defense the
     // internal clamp still backs up.
     const invocation = tool.build({ query: 'slack', max_results: 20 });
@@ -320,7 +320,7 @@ describe('ToolSearchTool', () => {
     expect(content).toContain('Truncated by max_results');
     expect(content).toContain('tool_3');
     expect(content).toContain('tool_6');
-    // The first three were loaded — they should NOT appear in the
+    // The first three were loaded -- they should NOT appear in the
     // truncated list.
     const truncatedSection = content.split('Truncated by max_results')[1] ?? '';
     expect(truncatedSection).not.toContain('tool_0');
@@ -351,7 +351,7 @@ describe('ToolSearchTool', () => {
   it('rejects empty query at build time via schema (minLength)', () => {
     // The schema now declares `query: { minLength: 1 }`, so an empty
     // string fails Ajv validation in `tool.build()` instead of being
-    // caught at runtime — the model sees the error earlier and doesn't
+    // caught at runtime -- the model sees the error earlier and doesn't
     // burn a tool-call cycle to learn the contract.
     const tool = new ToolSearchTool(config);
     expect(() => tool.build({ query: '' })).toThrow(
@@ -384,7 +384,7 @@ describe('ToolSearchTool', () => {
   });
 
   it('keyword search ignores non-deferred tools', async () => {
-    // Deferred — should be findable via keyword.
+    // Deferred -- should be findable via keyword.
     registry.registerTool(
       new MockTool({
         name: 'cron_create',
@@ -393,7 +393,7 @@ describe('ToolSearchTool', () => {
         shouldDefer: true,
       }),
     );
-    // Not deferred — the model already has it, so keyword search should
+    // Not deferred -- the model already has it, so keyword search should
     // skip it to reduce noise.
     registry.registerTool(
       new MockTool({
@@ -449,7 +449,7 @@ describe('ToolSearchTool', () => {
     expect(String(result.llmContent)).toContain('"name":"core_tool"');
     // No reveal pollution.
     expect(registry.isDeferredToolRevealed('core_tool')).toBe(false);
-    // No setTools() — declaration list was already correct.
+    // No setTools() -- declaration list was already correct.
     expect(setToolsSpy).not.toHaveBeenCalled();
   });
 
@@ -531,7 +531,7 @@ describe('ToolSearchTool', () => {
 
   it('keyword search excludes already-revealed deferred tools', async () => {
     // Pin: once a deferred tool is revealed via a prior `select:` lookup,
-    // it should no longer appear in subsequent keyword searches — it's
+    // it should no longer appear in subsequent keyword searches -- it's
     // already in the model's declaration list, re-surfacing wastes
     // tokens and risks the model thinking it needs to load it again.
     registry.registerTool(
@@ -550,7 +550,7 @@ describe('ToolSearchTool', () => {
       .build({ query: 'slack' })
       .execute(new AbortController().signal);
     expect(String(first.llmContent)).toContain('"name":"slack_send_message"');
-    // First search uses keyword path (which calls loadAndReturnSchemas →
+    // First search uses keyword path (which calls loadAndReturnSchemas ->
     // revealDeferredTool); confirm registry agrees.
     expect(registry.isDeferredToolRevealed('slack_send_message')).toBe(true);
 
@@ -561,7 +561,7 @@ describe('ToolSearchTool', () => {
     expect(String(second.llmContent)).toContain('No tools found matching');
   });
 
-  it('returns an error result when setTools() throws — model must NOT see schemas as ready', async () => {
+  it('returns an error result when setTools() throws -- model must NOT see schemas as ready', async () => {
     // Pin: setTools() sync-failure during reveal is surfaced as a tool
     // error so the agent can choose to retry / abandon, instead of being
     // told "tools loaded" while the API actually has no declarations
@@ -584,7 +584,7 @@ describe('ToolSearchTool', () => {
     expect(result.error).toBeDefined();
     expect(result.error?.message).toContain('setTools failed');
     expect(result.error?.message).toContain('chat not initialised');
-    // Critical: the schema MUST NOT be in llmContent — otherwise the
+    // Critical: the schema MUST NOT be in llmContent -- otherwise the
     // model thinks the tool is callable and the next turn surfaces
     // an "unknown tool" API error.
     expect(String(result.llmContent)).not.toContain('"name":"cron_create"');
@@ -594,7 +594,7 @@ describe('ToolSearchTool', () => {
   it("rolls back this call's reveals when setTools() throws", async () => {
     // The reveal happens BEFORE setTools() so that getFunctionDeclarations
     // includes the tool when setTools rebuilds the chat's declaration
-    // list. If setTools throws, the reveal must be undone — otherwise
+    // list. If setTools throws, the reveal must be undone -- otherwise
     // the registry says "revealed" while the API has no schema, and
     // collectCandidates will exclude the tool from future keyword
     // searches (per its isDeferredToolRevealed filter), making the
@@ -623,10 +623,10 @@ describe('ToolSearchTool', () => {
     expect(registry.isDeferredToolRevealed('cron_list')).toBe(true);
   });
 
-  it("doesn't propagate when ensureTool throws mid-batch — reports missing instead", async () => {
+  it("doesn't propagate when ensureTool throws mid-batch -- reports missing instead", async () => {
     // ensureTool throwing mid-iteration would otherwise propagate out of
     // the for loop with previous tools already revealed but never
-    // setTools()-synced — same orphaned-reveal failure mode the
+    // setTools()-synced -- same orphaned-reveal failure mode the
     // setTools() catch block guards against. Wrap ensureTool so the
     // failure surfaces as a `missing` entry and processing continues
     // for the rest of the batch.

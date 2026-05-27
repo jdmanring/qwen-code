@@ -9,7 +9,7 @@ import { promises as fsp } from 'node:fs';
 import * as path from 'node:path';
 import { glob as globAsync } from 'glob';
 // `StandardFileSystemService` is constructed and `loadIgnoreRules` is
-// invoked at runtime — they MUST stay as value imports. The eslint
+// invoked at runtime -- they MUST stay as value imports. The eslint
 // auto-fix in commit 7b0db4c3a hoisted the whole block to `import type`
 // (because the same line referenced the `Ignore` and `WriteTextFileOptions`
 // types), which silently erased the value bindings and broke the runtime
@@ -51,7 +51,7 @@ import {
 
 /**
  * Stat snapshot returned by `WorkspaceFileSystem.stat`. We
- * deliberately avoid passing through `fs.Stats` directly — the
+ * deliberately avoid passing through `fs.Stats` directly -- the
  * boundary should not leak Node-specific bigint quirks or
  * platform-specific fields to PR 19/20 SDK consumers.
  */
@@ -247,7 +247,7 @@ export function createWorkspaceFileSystemFactory(
   // pattern for this session" feature calling `.add()` would
   // silently corrupt all concurrent requests. `Object.freeze`
   // turns the mutation into a `TypeError` instead of a silent
-  // cross-request leak — surfacing the architectural mistake
+  // cross-request leak -- surfacing the architectural mistake
   // before it ships. Read paths (`getFileFilter` /
   // `getDirectoryFilter`) are unaffected. Operators wanting
   // per-session ignore rules should pass a different `Ignore`
@@ -336,7 +336,7 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
       // `Infinity`) and floats (`2.5 - 1 = 1.5`) flow through to
       // `readFileWithLineAndLimit` and degrade silently to weird
       // truncation behavior. `NaN` and `0` happen to work via the
-      // falsy fallback but that's accidental — prefer an explicit
+      // falsy fallback but that's accidental -- prefer an explicit
       // error.
       if (
         opts.line !== undefined &&
@@ -427,7 +427,7 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
         // otherwise leave us with a buffer that no longer matches
         // the file. Mirror `readStableRegularFileBuffer` and require
         // ino+size+mtime to be unchanged on the same fd before
-        // emitting the response — clients use the full-window hash
+        // emitting the response -- clients use the full-window hash
         // as an optimistic-concurrency token, so a stale snapshot
         // must surface as a retryable `hash_mismatch`.
         const afterRead = await fh.stat();
@@ -472,7 +472,7 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
       for await (const d of dir) {
         // `path.join(p, d.name)` is a shallow extension of an
         // already-canonical workspace path. Symlinked dirents are
-        // tagged as `kind: 'symlink'` rather than auto-followed —
+        // tagged as `kind: 'symlink'` rather than auto-followed --
         // PR 19/20 callers that want the target's containment can
         // call `resolve()` separately. Treating each child as
         // implicitly-resolved here would be a brand-cast bypass.
@@ -511,15 +511,15 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
     const start = performance.now();
     try {
       assertTrustedForIntent(this.deps.trusted, 'glob');
-      // Reject patterns up-front before delegating to `glob` — the
+      // Reject patterns up-front before delegating to `glob` -- the
       // per-hit filter below catches escapes after the walk, but
       // letting a clearly out-of-workspace pattern reach `globAsync`
       // burns I/O *outside* the workspace before we drop the
       // results. Three rejection classes:
-      //   1. `..` segments  — would let `cwd` be escaped lexically.
-      //   2. POSIX absolute (`/etc/**`) — `glob` rooted outside cwd.
-      //   3. Windows-style absolute / device prefixes (`C:\…`,
-      //      `\\?\…`, `\\server\share`) — same hazard on the other
+      //   1. `..` segments  -- would let `cwd` be escaped lexically.
+      //   2. POSIX absolute (`/etc/**`) -- `glob` rooted outside cwd.
+      //   3. Windows-style absolute / device prefixes (`C:\...`,
+      //      `\\?\...`, `\\server\share`) -- same hazard on the other
       //      platform. `path.isAbsolute` covers POSIX `/`; the
       //      drive-letter / UNC checks cover Win32 even when the
       //      daemon runs on POSIX (clients may send Win32 paths).
@@ -548,9 +548,9 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
       // `cwd: '/etc'` cannot enumerate files outside the workspace
       // even when the *pattern* is harmlessly relative.
       //
-      // **Important**: use `realpath` rather than `path.resolve` —
+      // **Important**: use `realpath` rather than `path.resolve` --
       // a textual containment check on `path.resolve(cwd)` admits
-      // `<ws>/link` even when `<ws>/link → /etc` is a symlink to
+      // `<ws>/link` even when `<ws>/link -> /etc` is a symlink to
       // outside the workspace; `globAsync` would then walk
       // `/etc` before the per-hit filter drops the results.
       // `realpath` follows the chain (or throws ENOENT for missing
@@ -559,12 +559,12 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
       const cwd = (opts.cwd as string | undefined) ?? this.deps.boundWorkspace;
       let cwdReal: string;
       // Short-circuit when `cwd` is exactly the canonical
-      // boundWorkspace — the factory already canonicalized it via
+      // boundWorkspace -- the factory already canonicalized it via
       // `realpathSync.native`, so a per-request async `realpath`
       // is a redundant syscall. Saves the syscall on the common
       // path (route handlers omitting `opts.cwd` to glob the
       // whole workspace) without losing the canonicalization
-      // guarantee — the factory's stored value IS the canonical.
+      // guarantee -- the factory's stored value IS the canonical.
       if (cwd === this.deps.boundWorkspace) {
         cwdReal = cwd;
       } else {
@@ -595,7 +595,7 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
       // file under `node_modules/` and `.git/` (often hundreds
       // of thousands of paths) before our per-hit `realpath` +
       // `lstat` filter drops them. The post-filter via
-      // `shouldIgnore` is still authoritative — this is purely a
+      // `shouldIgnore` is still authoritative -- this is purely a
       // walk-time optimization that aligns with the
       // `loadIgnoreRules` defaults (which already include `.git`
       // as a default ignore dir).
@@ -617,7 +617,7 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
         // Per-hit boundary check defends against a glob that
         // matches a symlink whose target escapes the workspace.
         // The literal path is in-workspace (the symlink itself
-        // sits there), but the realpath isn't — so we resolve
+        // sits there), but the realpath isn't -- so we resolve
         // each hit's symlink chain and compare the canonical to
         // the canonical workspace root. Filtered hits are counted
         // and reported via aggregated `fs.denied` events after
@@ -629,12 +629,12 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
         } catch (err) {
           // Three-way classification so monitoring pipelines can
           // tell escapes from access denials from transient I/O:
-          //   - `ENOENT` / `ELOOP`  → real `symlink_escape`
+          //   - `ENOENT` / `ELOOP`  -> real `symlink_escape`
           //     (dangling symlink, symlink cycle)
-          //   - `EACCES` / `EPERM`  → `permission_denied`
+          //   - `EACCES` / `EPERM`  -> `permission_denied`
           //     (the literal access-denied case the kind names)
-          //   - everything else     → `io_error` (EIO, EBUSY,
-          //     ENAMETOOLONG, EMFILE, …) — environmental, NOT a
+          //   - everything else     -> `io_error` (EIO, EBUSY,
+          //     ENAMETOOLONG, EMFILE, ...) -- environmental, NOT a
           //     security signal. Conflating these poisons audit:
           //     a failing disk would page security oncall.
           const code = (err as NodeJS.ErrnoException)?.code;
@@ -653,7 +653,7 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
           continue;
         }
         // Check the dirent kind so directory ignore rules (`dist/`,
-        // `.git/`, `node_modules/`) actually match — `shouldIgnore`
+        // `.git/`, `node_modules/`) actually match -- `shouldIgnore`
         // probes `<rel>/` for the directory filter, which the
         // underlying `ignore` library requires for trailing-slash
         // patterns. Probing every hit as a `file` (the prior
@@ -808,7 +808,7 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
       // wasting heap on every write.
       const sizeBytes = Buffer.byteLength(content, 'utf-8');
       enforceWriteSize(sizeBytes);
-      // Pre-write TOCTOU guard — `atomicWriteFile`'s
+      // Pre-write TOCTOU guard -- `atomicWriteFile`'s
       // `resolveSymlinkChain` follows symlinks at write time, so
       // a swap between the boundary's `resolve()` and this call
       // would land the write outside the workspace. ENOENT is
@@ -975,7 +975,7 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
       // `''.indexOf('')` returns `0`, so without this guard
       // `current.slice(0, 0) + newText + current.slice(0)` would
       // silently prepend `newText` to the entire file and emit a
-      // success audit event — a textbook silent data corruption
+      // success audit event -- a textbook silent data corruption
       // bug. PR 20 routes that pass user-supplied `oldText`
       // through verbatim must not be able to trigger it.
       if (oldText.length === 0) {
@@ -1002,7 +1002,7 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
         line: 0,
       });
       const current = readResult.content;
-      // Post-read TOCTOU guard — catches the swap-during-read
+      // Post-read TOCTOU guard -- catches the swap-during-read
       // attack where `p` is replaced with a symlink between
       // `fsp.stat` above and the read here. The full
       // read-modify-write race window (between this check and
@@ -1022,7 +1022,7 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
         // log; the full `oldText` is always reproducible from the
         // request body.
         const snippet =
-          oldText.length > 80 ? oldText.slice(0, 80) + '…' : oldText;
+          oldText.length > 80 ? oldText.slice(0, 80) + '...' : oldText;
         throw new FsError('parse_error', `oldText not found in ${p}`, {
           hint: `edit() expects oldText to appear verbatim; searched for: ${JSON.stringify(snippet)}`,
         });
@@ -1031,7 +1031,7 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
         current.slice(0, idx) + newText + current.slice(idx + oldText.length);
       const writtenBytes = Buffer.byteLength(next, 'utf-8');
       enforceWriteSize(writtenBytes);
-      // Pre-write TOCTOU guard — same shape as writeText. The
+      // Pre-write TOCTOU guard -- same shape as writeText. The
       // read-modify-write race window between the post-read
       // inode check above and this call is the deferred PR 20
       // atomic-via-temp follow-up; this guard is the
@@ -1041,14 +1041,14 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
       // during the read so the write-back preserves the file's
       // original encoding profile. Without this, a UTF-8-BOM
       // file would be written without BOM, and a non-UTF-8 file
-      // (GBK/Shift_JIS) would be written as UTF-8 — silent
+      // (GBK/Shift_JIS) would be written as UTF-8 -- silent
       // round-trip corruption of any file the daemon edits.
       await this.deps.lowFs.writeTextFile({
         path: p as string,
         content: next,
         _meta: readResult._meta,
       });
-      // Symmetric with `readText` / `writeText` — operators
+      // Symmetric with `readText` / `writeText` -- operators
       // monitoring `fs.access` need to see when an edit landed on
       // a `.gitignore`d / `.qwenignore`d file (build artifacts,
       // logs, etc.) rather than only learning about
@@ -1077,7 +1077,7 @@ class WorkspaceFileSystemImpl implements WorkspaceFileSystem {
    * matching `fs.denied` audit event, and return the typed error
    * for the caller to rethrow. Body methods invoke this in their
    * `catch` so:
-   *   - raw fs errnos (`EACCES`, `ENOTDIR`, …) get categorized
+   *   - raw fs errnos (`EACCES`, `ENOTDIR`, ...) get categorized
    *     instead of escaping as opaque 5xx,
    *   - the audit log records every failure (the prior helper
    *     early-returned for non-`FsError`s and silently lost the
@@ -1386,7 +1386,7 @@ async function atomicWriteTextResolvedFile(
   const parentStat = await fsp.lstat(parent);
   // Defense-in-depth against a parent-symlink swap. A full fix
   // requires parent-fd / `openat`-style publish (Node stdlib does
-  // not expose this) — tracked alongside the fd-based read
+  // not expose this) -- tracked alongside the fd-based read
   // follow-up referenced by `assertInodeStableAfterRead`. This
   // guard at least surfaces an obviously-swapped parent before
   // we open the temp file or rename through it.
@@ -1700,7 +1700,7 @@ async function publishCreateNoClobber(
     throw err;
   }
   // After link(), tmp and target name the same inode. Drop the
-  // tmp name best-effort — if unlink fails the publish has still
+  // tmp name best-effort -- if unlink fails the publish has still
   // succeeded, so we must not bubble the error and confuse the
   // caller into thinking the create failed.
   await fsp.unlink(tmpPath).catch(() => undefined);
@@ -1755,7 +1755,7 @@ function countOccurrences(haystack: string, needle: string): number {
  * 3. The byte at the new boundary is now either ASCII (`<0x80`) or
  *    a leading byte. If it's a leading byte, check whether the full
  *    multi-byte sequence fits within `maxBytes`. If not, drop the
- *    leading byte too — the sequence is incomplete.
+ *    leading byte too -- the sequence is incomplete.
  */
 function safeUtf8Truncate(buf: Buffer, maxBytes: number): Buffer {
   if (buf.length <= maxBytes) return buf;
@@ -1770,7 +1770,7 @@ function safeUtf8Truncate(buf: Buffer, maxBytes: number): Buffer {
   // we exclude it; if `buf[end]` is ASCII (i.e. the original
   // `maxBytes` happened to land on a codepoint boundary) the
   // walk-back is a no-op and we still cut at `maxBytes`.
-  // The earlier "seqLen check" was dead code — `subarray(0,
+  // The earlier "seqLen check" was dead code -- `subarray(0,
   // end)` already excludes the leading byte at index `end`,
   // so no further adjustment is ever needed.
   let end = maxBytes;
@@ -1783,7 +1783,7 @@ function safeUtf8Truncate(buf: Buffer, maxBytes: number): Buffer {
  * to confirm the inode hasn't changed and the path isn't now a
  * symlink. Catches the swap-then-leave attack where a regular
  * file is replaced with a symlink to outside the workspace
- * BETWEEN the boundary's pre-stat and the actual read — the
+ * BETWEEN the boundary's pre-stat and the actual read -- the
  * pre-stat saw the original (small, regular) file but the read
  * followed the swap to wherever the attacker pointed. There's a
  * residual race where the attacker swaps back after our read but
@@ -1806,7 +1806,7 @@ async function assertInodeStableAfterRead(
       { hint: 'TOCTOU swap detected via post-read lstat' },
     );
   }
-  // ino can be 0 on virtual filesystems (procfs etc.) — only compare
+  // ino can be 0 on virtual filesystems (procfs etc.) -- only compare
   // when both sides report a meaningful value.
   const preNum = typeof preIno === 'bigint' ? preIno : BigInt(preIno as number);
   const postNum =
@@ -1822,21 +1822,21 @@ async function assertInodeStableAfterRead(
 
 /**
  * Pre-write TOCTOU guard. Mirrors the post-read inode check but
- * runs BEFORE the actual write. The earlier `resolve()` →
+ * runs BEFORE the actual write. The earlier `resolve()` ->
  * `writeTextFile()` window let an attacker swap `p` with a
  * symlink to outside the workspace; `atomicWriteFile`'s
  * underlying `resolveSymlinkChain` follows the symlink and the
  * write lands outside.
  *
  * Catches:
- * - the path is now a symlink (`isSymbolicLink()`) — reject
+ * - the path is now a symlink (`isSymbolicLink()`) -- reject
  *   with `symlink_escape` regardless of where it points; PR 19/20
  *   should re-`resolve` after a swap rather than blindly writing
  *   through the rename.
  *
  * Does NOT catch:
  * - swap-back AFTER this guard but BEFORE `lowFs.writeTextFile`
- *   completes — the residual race window. The proper fix is
+ *   completes -- the residual race window. The proper fix is
  *   fd-based atomic write (`fsp.open(O_NOFOLLOW)` + temp + rename
  *   tied to the parent dir), which is the deferred PR 20
  *   atomic-via-temp follow-up. This guard is the defense-in-depth
@@ -1844,7 +1844,7 @@ async function assertInodeStableAfterRead(
  *
  * Used by `writeText` and `edit()` immediately before
  * `lowFs.writeTextFile`. ENOENT (the file doesn't exist yet) is
- * fine — that's the legitimate ahead-of-mkdir flow already
+ * fine -- that's the legitimate ahead-of-mkdir flow already
  * sanctioned by `resolveWithinWorkspace`'s ENOENT-tolerant
  * branch for write intents; only an actual symlink is rejected.
  */
@@ -1862,7 +1862,7 @@ async function assertNotSymlinkBeforeWrite(p: string): Promise<void> {
       'symlink_escape',
       `path was replaced with a symlink before write: ${p}`,
       {
-        hint: 'TOCTOU swap detected via pre-write lstat — re-resolve before retrying',
+        hint: 'TOCTOU swap detected via pre-write lstat -- re-resolve before retrying',
       },
     );
   }

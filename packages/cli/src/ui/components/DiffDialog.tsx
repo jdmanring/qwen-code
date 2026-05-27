@@ -37,7 +37,7 @@ export interface DiffDialogProps {
 type UnifiedFile = {
   /** Raw repo-relative path. Used as a stable map key against
    *  `current.hunks` / `TurnDiff.files[].filePath`. Never rendered to the
-   *  terminal — those keys can contain ANSI escapes or bare control bytes
+   *  terminal -- those keys can contain ANSI escapes or bare control bytes
    *  (git allows them in tracked / untracked paths via `-z`). */
   path: string;
   /** Sanitized version of `path` safe to drop into a `<Text>` node. */
@@ -52,7 +52,7 @@ type UnifiedFile = {
   oversized: boolean;
   /** Whether the source actually has hunks for this file. Untracked
    *  files don't appear in `git diff HEAD` output, capped/oversized
-   *  turn entries have empty hunks — pressing Enter on those would land
+   *  turn entries have empty hunks -- pressing Enter on those would land
    *  the user on a dead-end "No hunks available" screen, so we block
    *  Enter in the keypress handler when this is false. */
   hasHunks: boolean;
@@ -109,7 +109,7 @@ export function DiffDialog({
     Math.max(0, sources.length - 1),
   );
 
-  // Reset file selection when switching sources — file lists between
+  // Reset file selection when switching sources -- file lists between
   // sources are unrelated. (This still needs an effect: it's mutating
   // state rather than just clamping on read.)
   useEffect(() => {
@@ -165,7 +165,7 @@ export function DiffDialog({
 
   const handleKeypress = useCallback((key: { name?: string }) => {
     const name = key.name;
-    // Ctrl+C is intentionally NOT handled here — the AppContainer-level
+    // Ctrl+C is intentionally NOT handled here -- the AppContainer-level
     // handler routes it through `closeAnyOpenDialog`, where this dialog
     // is registered. Handling it both places would double-fire and could
     // escalate to the exit prompt after the dialog already closed.
@@ -211,15 +211,15 @@ export function DiffDialog({
       // the list, and rows with no hunks (untracked files, capped
       // entries) would otherwise land users on a dead-end screen.
       // Surface a transient hint so the keypress isn't silently
-      // consumed — without it users could mistake the dialog for hung.
+      // consumed -- without it users could mistake the dialog for hung.
       if (!sel) return;
       if (sel.isBinary) {
-        setKeyHintRef.current(t('Binary file — no diff to view.'));
+        setKeyHintRef.current(t('Binary file -- no diff to view.'));
         return;
       }
       if (sel.oversized) {
         setKeyHintRef.current(
-          t('Oversized file — diff omitted. Use `git diff` to inspect.'),
+          t('Oversized file -- diff omitted. Use `git diff` to inspect.'),
         );
         return;
       }
@@ -244,7 +244,7 @@ export function DiffDialog({
       : t('Working tree vs HEAD');
   const headerSubtitle =
     activeSource?.kind === 'turn' && activeSource.entry.promptPreview
-      ? `“${activeSource.entry.promptPreview}”`
+      ? `"${activeSource.entry.promptPreview}"`
       : activeSource?.kind === 'current'
         ? t('(git diff HEAD)')
         : '';
@@ -261,7 +261,7 @@ export function DiffDialog({
   //
   // Semantic asymmetry: the Current count is exact (numstat is cheap so
   // every change is counted before capping), while the turn count is an
-  // upper bound — some of the cap-dropped files may have been unchanged.
+  // upper bound -- some of the cap-dropped files may have been unchanged.
   // The footer copy reflects that with "up to N more" for turn sources.
   const hiddenFileCount =
     activeSource?.kind === 'current'
@@ -281,7 +281,7 @@ export function DiffDialog({
     >
       <Box flexDirection="row" justifyContent="space-between">
         <Text bold color={theme.text.primary}>
-          /diff · {headerTitle}
+          /diff  {headerTitle}
           {headerSubtitle ? (
             <Text color={theme.text.secondary}> {headerSubtitle}</Text>
           ) : null}
@@ -301,7 +301,7 @@ export function DiffDialog({
 
       <Box marginTop={1} flexDirection="column">
         {loadingNow ? (
-          <Text color={theme.text.secondary}>{t('Loading diff…')}</Text>
+          <Text color={theme.text.secondary}>{t('Loading diff...')}</Text>
         ) : !activeSource || files.length === 0 ? (
           <Text color={theme.text.secondary}>
             {emptyMessage(
@@ -321,11 +321,11 @@ export function DiffDialog({
               <Text color={theme.text.secondary}>
                 {' '}
                 {hiddenIsUpperBound
-                  ? t('…and up to {{n}} more (showing first {{shown}})', {
+                  ? t('...and up to {{n}} more (showing first {{shown}})', {
                       n: String(hiddenFileCount),
                       shown: String(files.length),
                     })
-                  : t('…and {{n}} more (showing first {{shown}})', {
+                  : t('...and {{n}} more (showing first {{shown}})', {
                       n: String(hiddenFileCount),
                       shown: String(files.length),
                     })}
@@ -349,9 +349,9 @@ export function DiffDialog({
             ? keyHint
             : viewMode === 'list'
               ? sources.length > 1
-                ? t('←/→ source · ↑/↓ file · Enter view · Esc close')
-                : t('↑/↓ file · Enter view · Esc close')
-              : t('← back · Esc close')}
+                ? t('<-/-> source  / file  Enter view  Esc close')
+                : t('/ file  Enter view  Esc close')
+              : t('<- back  Esc close')}
         </Text>
       </Box>
     </Box>
@@ -369,7 +369,7 @@ function SourceSwitcher({
   return (
     <Box marginTop={1} flexDirection="row">
       {sourceIndex > 0 ? (
-        <Text color={theme.text.secondary}>◀ </Text>
+        <Text color={theme.text.secondary}> </Text>
       ) : (
         <Text> </Text>
       )}
@@ -381,13 +381,13 @@ function SourceSwitcher({
             bold={selected}
             color={selected ? theme.text.accent : theme.text.secondary}
           >
-            {i > 0 ? ' · ' : ''}
+            {i > 0 ? '  ' : ''}
             {s.label}
           </Text>
         );
       })}
       {sourceIndex < sources.length - 1 ? (
-        <Text color={theme.text.secondary}> ▶</Text>
+        <Text color={theme.text.secondary}> </Text>
       ) : null}
     </Box>
   );
@@ -410,8 +410,8 @@ function FileList({
   const visible = files.slice(startIndex, endIndex);
   const aboveCount = startIndex;
   const belowCount = files.length - endIndex;
-  // Reserve room for the pointer (2), the tag column (≤16 chars), and the
-  // stats column (≤16 chars). Anything past that gets head-truncated so
+  // Reserve room for the pointer (2), the tag column (<=16 chars), and the
+  // stats column (<=16 chars). Anything past that gets head-truncated so
   // overflowing paths can't wrap and break the row layout.
   const TAG_AND_STATS_BUDGET = 32;
   const maxPathChars = Math.max(8, contentWidth - 2 - TAG_AND_STATS_BUDGET);
@@ -420,7 +420,7 @@ function FileList({
       {aboveCount > 0 ? (
         <Text color={theme.text.secondary}>
           {' '}
-          ↑ {aboveCount} {aboveCount === 1 ? t('more file') : t('more files')}
+           {aboveCount} {aboveCount === 1 ? t('more file') : t('more files')}
         </Text>
       ) : null}
       {visible.map((f, idx) => (
@@ -434,7 +434,7 @@ function FileList({
       {belowCount > 0 ? (
         <Text color={theme.text.secondary}>
           {' '}
-          ↓ {belowCount} {belowCount === 1 ? t('more file') : t('more files')}
+           {belowCount} {belowCount === 1 ? t('more file') : t('more files')}
         </Text>
       ) : null}
     </Box>
@@ -450,24 +450,24 @@ function FileRow({
   selected: boolean;
   maxPathChars: number;
 }): React.JSX.Element {
-  const pointer = selected ? '› ' : '  ';
+  const pointer = selected ? ' ' : '  ';
   // Tag priority: mutually exclusive states first (a file can't be both
   // deleted and untracked), then capability flags. `isBinary` is omitted
   // here because the stats column already renders an italic "binary"
-  // marker — duplicating it as a tag would just clutter the row.
+  // marker -- duplicating it as a tag would just clutter the row.
   const tag = file.isDeleted
     ? t(' (deleted)')
     : file.isUntracked
       ? t(' (untracked)')
       : file.oversized
-        ? t(' (oversized — diff omitted)')
+        ? t(' (oversized -- diff omitted)')
         : file.isNewFile
           ? t(' (new)')
           : file.truncated
             ? t(' (truncated)')
             : '';
   // Head-truncate so the basename (the part users actually read) is kept.
-  // Use the sanitized displayPath — `file.path` may carry raw control bytes.
+  // Use the sanitized displayPath -- `file.path` may carry raw control bytes.
   const path = truncatePathStart(file.displayPath, maxPathChars);
   return (
     <Box flexDirection="row">
@@ -527,13 +527,13 @@ function FileDetail({
 
   if (file.isBinary) {
     return (
-      <Text color={theme.text.secondary}>{t('Binary file — no diff.')}</Text>
+      <Text color={theme.text.secondary}>{t('Binary file -- no diff.')}</Text>
     );
   }
   if (file.oversized) {
     return (
       <Text color={theme.text.secondary}>
-        {t('Oversized file — diff omitted. Use `git diff` to inspect.')}
+        {t('Oversized file -- diff omitted. Use `git diff` to inspect.')}
       </Text>
     );
   }
@@ -563,15 +563,15 @@ function FileDetail({
 }
 
 /**
- * Truncate from the **start** so the basename — the most identifying part
- * of a path — survives. Mirrors claude-code's `truncateStartToWidth` and
+ * Truncate from the **start** so the basename -- the most identifying part
+ * of a path -- survives. Mirrors claude-code's `truncateStartToWidth` and
  * keeps long absolute paths from wrapping and shattering the row layout.
  */
 function truncatePathStart(path: string, maxChars: number): string {
   if (maxChars <= 0) return '';
   if (path.length <= maxChars) return path;
   if (maxChars <= 1) return path.slice(-maxChars);
-  return '…' + path.slice(-(maxChars - 1));
+  return '...' + path.slice(-(maxChars - 1));
 }
 
 function useVisibleWindow(
@@ -627,14 +627,14 @@ function perFileToUnified(
     isDeleted: !!s.isDeleted,
     // `isNewFile` means "added in this turn" (snapshot before-state empty,
     // after-state populated). Git's `untracked` is a different concept
-    // (never in HEAD/index) and is tagged separately — conflating them
+    // (never in HEAD/index) and is tagged separately -- conflating them
     // would mislead users about what `/rewind` can recover, since
     // untracked files are not under file-history protection.
     isNewFile: false,
     truncated: !!s.truncated,
     oversized: false,
     // `git diff HEAD` skips untracked files entirely and capped/skipped
-    // entries can lack hunks even when present in perFileStats — gate
+    // entries can lack hunks even when present in perFileStats -- gate
     // Enter on the actual presence of hunks rather than the row's
     // existence.
     hasHunks: !!fileHunks && fileHunks.length > 0,
@@ -714,7 +714,7 @@ function emptyMessage(
       );
     }
     // `fetchGitDiff` returns `filesCount > 0` with an empty `perFileStats`
-    // map when the diff exceeds MAX_FILES_FOR_DETAILS — calling that case
+    // map when the diff exceeds MAX_FILES_FOR_DETAILS -- calling that case
     // "clean" would silently hide a large dirty tree. Surface it explicitly.
     if (currentResult.stats.filesCount > 0) {
       return t(

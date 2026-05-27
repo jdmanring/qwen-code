@@ -96,7 +96,7 @@ if (existsSync(localesDir)) {
   console.warn(`Warning: Locales directory not found at ${localesDir}`);
 }
 
-console.log('\n✅ All bundle assets copied to dist/');
+console.log('\n All bundle assets copied to dist/');
 
 /**
  * Recursively copy directory

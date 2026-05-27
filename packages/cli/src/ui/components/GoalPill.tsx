@@ -15,8 +15,8 @@ const POLL_INTERVAL_MS = 1000;
 
 /**
  * Most-significant-unit elapsed string for the footer pill. Returns an empty
- * string when under 1 second so the pill collapses to just "◎ /goal active"
- * in its first second — matches Claude Code 2.1.140's footer behavior
+ * string when under 1 second so the pill collapses to just " /goal active"
+ * in its first second -- matches Claude Code 2.1.140's footer behavior
  * (`f < 1000 ? "" : (formattedElapsed)`).
  */
 function formatElapsed(ms: number): string {
@@ -56,7 +56,7 @@ function useActiveGoal(sessionId: string): ActiveGoal | undefined {
 
 /**
  * Hook exposed for parent containers (e.g. Footer) so they can omit the
- * surrounding divider chip entirely when no goal is active — avoids a stray
+ * surrounding divider chip entirely when no goal is active -- avoids a stray
  * separator next to a render-null pill.
  */
 export function useFooterGoalState(): ActiveGoal | undefined {
@@ -68,10 +68,10 @@ export function useFooterGoalState(): ActiveGoal | undefined {
  * Compact "Goal is running" indicator for the footer. Renders nothing when no
  * goal is active. Aligned with Claude Code 2.1.140's footer pill:
  *
- *   ◎ /goal active           (during the first second)
- *   ◎ /goal active (12s)     (afterwards, most-significant unit only)
+ *    /goal active           (during the first second)
+ *    /goal active (12s)     (afterwards, most-significant unit only)
  *
- * Turns count and last-check reason are intentionally NOT in the pill — those
+ * Turns count and last-check reason are intentionally NOT in the pill -- those
  * live in `/goal` status output and the `goal_status` history items so the
  * footer stays terse and stops jitter from per-iteration count flicker.
  */
@@ -81,5 +81,5 @@ export const GoalPill: React.FC = () => {
 
   const elapsed = formatElapsed(Date.now() - goal.setAt);
   const suffix = elapsed ? ` (${elapsed})` : '';
-  return <Text color={theme.text.accent}>◎ /goal active{suffix}</Text>;
+  return <Text color={theme.text.accent}> /goal active{suffix}</Text>;
 };

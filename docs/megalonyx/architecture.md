@@ -14,36 +14,36 @@ User / CLI session
        | task or question
        v
 control-plane-daemon          apps/control-plane-daemon/
-  ├── IntentClassifier         classify what kind of task this is
-  ├── TaskDecomposer           break it into atomic jobs
-  ├── JobStateManager          track job lifecycle (pending → done)
-  ├── ExecutionProfileSelector pick the right model and tool config
-  ├── ModelRouter              assign a specific model to each job
-  └── ToolExecutor             call the model, handle retries, return result
+  |---- IntentClassifier         classify what kind of task this is
+  |---- TaskDecomposer           break it into atomic jobs
+  |---- JobStateManager          track job lifecycle (pending -> done)
+  |---- ExecutionProfileSelector pick the right model and tool config
+  |---- ModelRouter              assign a specific model to each job
+  \_-- ToolExecutor             call the model, handle retries, return result
        |
        | memory read/write (via MCP over stdio or Unix socket)
        v
 agent-memory                  packages/agent-memory/
-  ├── MemoryMCPServer          MCP server: exposes store/search as tools
-  ├── MemoryIngest             write path: embed → upsert to Qdrant → WAL
-  ├── MemorySearch             read path: embed query → similarity search
-  ├── MemoryPruner             background: delete old records
-  └── MemoryCompact            background: summarize oversized records
+  |---- MemoryMCPServer          MCP server: exposes store/search as tools
+  |---- MemoryIngest             write path: embed -> upsert to Qdrant -> WAL
+  |---- MemorySearch             read path: embed query -> similarity search
+  |---- MemoryPruner             background: delete old records
+  \_-- MemoryCompact            background: summarize oversized records
        |
        | Qdrant API calls
        v
 Qdrant (external process)
-  ├── agent_memory_local       collection for this machine's working memory
-  └── agent_memory_cloud       collection synced to Qdrant Cloud (optional)
+  |---- agent_memory_local       collection for this machine's working memory
+  \_-- agent_memory_cloud       collection synced to Qdrant Cloud (optional)
 ```
 
 The third component, `agent-infra`, provides shared utilities used by both services:
 
 ```
 agent-infra                   packages/agent-infra/
-  ├── SystemLogger             structured JSON logging to ~/.local/share/megalonyx/logs/
-  ├── CronManager              schedule periodic tasks (pruning, health checks)
-  └── GitWorktreeManager       create isolated git worktrees for agent work
+  |---- SystemLogger             structured JSON logging to ~/.local/share/megalonyx/logs/
+  |---- CronManager              schedule periodic tasks (pruning, health checks)
+  \_-- GitWorktreeManager       create isolated git worktrees for agent work
 ```
 
 ---
@@ -51,7 +51,7 @@ agent-infra                   packages/agent-infra/
 ## Dependency chain
 
 ```
-agent-infra   ←   agent-memory   ←   control-plane-daemon
+agent-infra   <-   agent-memory   <-   control-plane-daemon
 ```
 
 `agent-infra` has no Megalonyx dependencies. `agent-memory` imports `agent-infra` for logging.
@@ -90,17 +90,17 @@ MCP tool registered in the session.
 
 ## Communication between components
 
-**control-plane-daemon → agent-memory:**
+**control-plane-daemon -> agent-memory:**
 The daemon calls the memory service via MCP. The transport is configurable via `MCP_TRANSPORT`
 in the `.env` file:
-- `stdio` — the daemon spawns the memory server as a subprocess and communicates via stdin/stdout
-- `socket` — the memory server runs as a background daemon; the control plane connects via Unix socket at `~/.local/share/megalonyx/sockets/megalonyx_memory.sock`
+- `stdio` -- the daemon spawns the memory server as a subprocess and communicates via stdin/stdout
+- `socket` -- the memory server runs as a background daemon; the control plane connects via Unix socket at `~/.local/share/megalonyx/sockets/megalonyx_memory.sock`
 
 The socket mode is preferred for production because it avoids spawning a new process per session.
 
-**agent-memory → Qdrant:**
+**agent-memory -> Qdrant:**
 Standard HTTP API calls to `QDRANT_LOCAL_URL` (default `http://localhost:6333`) and optionally
-`QDRANT_CLOUD_URL`. Qdrant must be running independently — neither service starts it.
+`QDRANT_CLOUD_URL`. Qdrant must be running independently -- neither service starts it.
 
 ---
 
@@ -108,6 +108,6 @@ Standard HTTP API calls to `QDRANT_LOCAL_URL` (default `http://localhost:6333`) 
 
 1. Start Qdrant (if not already running): `~/.local/share/megalonyx/bin/qdrant`
 2. Start `agent-memory`: `mega-memory` (runs `python -m agent_memory.memory_daemon`)
-3. Start `control-plane-daemon` or launch a Qwen Code CLI session — either will connect to memory on first use
+3. Start `control-plane-daemon` or launch a Qwen Code CLI session -- either will connect to memory on first use
 
 Check status with `mega-status`.

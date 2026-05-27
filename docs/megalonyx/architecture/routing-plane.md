@@ -1,14 +1,14 @@
-🏛️ 
-# 🛣️ Routing Plane: The Strategic Triage System
+ 
+#  Routing Plane: The Strategic Triage System
 
 The **Routing Plane** is the second layer of the Mega Code 4-Layer Architecture. While the Control Plane determines **WHAT** needs to be done, the Routing Plane determines **WHICH** specialized agent (Skill) is best equipped to execute the task based on the current system state, intent, and context.
 
-## 🎯 Objective
+##  Objective
 To eliminate "ego-agent" behavior by replacing linear chat with a deterministic, state-aware triage system that maps requests to the most precise specialized tool in the agentic swarm.
 
 ---
 
-## ⚙️ The Triage Pipeline
+##  The Triage Pipeline
 
 The Routing Plane operates as a sequential pipeline that transforms a raw user prompt into a structured **Job Contract**.
 
@@ -58,7 +58,7 @@ The final output of the Routing Plane is a machine-readable **Job Contract**. Th
 
 ---
 
-## 📂 Skill Discovery & Configuration
+##  Skill Discovery & Configuration
 
 Skills are treated as "plugins" and are discovered dynamically from the `~/.qwen/skills` directory.
 
@@ -76,7 +76,7 @@ A skill definition includes:
 
 ---
 
-## 🛠️ How to Extend the Routing Plane
+##  How to Extend the Routing Plane
 
 To add a new specialized agent to the swarm:
 

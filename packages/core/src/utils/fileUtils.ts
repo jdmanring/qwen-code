@@ -181,12 +181,12 @@ export function decodeBufferWithEncodingInfo(full: Buffer): FileReadResult {
     };
   }
 
-  // No BOM — check if it's valid UTF-8 first (fast path for the common case)
+  // No BOM -- check if it's valid UTF-8 first (fast path for the common case)
   if (isValidUtf8(full)) {
     return { content: full.toString('utf8'), encoding: 'utf-8', bom: false };
   }
 
-  // Not valid UTF-8 — try chardet statistical detection
+  // Not valid UTF-8 -- try chardet statistical detection
   const detected = detectEncodingFromBuffer(full);
   if (detected && !isUtf8CompatibleEncoding(detected)) {
     try {
@@ -252,7 +252,7 @@ function bomEncodingToName(bomEncoding: UnicodeEncoding): string {
 }
 
 /**
- * Read a file as text, honoring BOM encodings (UTF‑8/16/32) and stripping the BOM.
+ * Read a file as text, honoring BOM encodings (UTF8/16/32) and stripping the BOM.
  * For files without BOM, validates UTF-8 first. If invalid UTF-8, uses chardet
  * to detect encoding (e.g. GBK, Big5, Shift_JIS) and iconv-lite to decode.
  * Falls back to utf8 when detection fails.
@@ -269,7 +269,7 @@ export async function readFileWithEncodingInfo(
 }
 
 /**
- * Read a file as text, honoring BOM encodings (UTF‑8/16/32) and stripping the BOM.
+ * Read a file as text, honoring BOM encodings (UTF8/16/32) and stripping the BOM.
  * For files without BOM, validates UTF-8 first. If invalid UTF-8, uses chardet
  * to detect encoding (e.g. GBK, Big5, Shift_JIS) and iconv-lite to decode.
  * Falls back to utf8 when detection fails.
@@ -431,7 +431,7 @@ export async function isBinaryFile(filePath: string): Promise<boolean> {
     const { bytesRead } = await fh.read(buf, 0, sampleSize, 0);
     if (bytesRead === 0) return false;
 
-    // BOM → text (avoid false positives for UTF‑16/32 with nulls)
+    // BOM -> text (avoid false positives for UTF16/32 with nulls)
     const bom = detectBOM(buf.subarray(0, Math.min(4, bytesRead)));
     if (bom) return false;
 
@@ -478,7 +478,7 @@ export type FileType =
  * `application/*` mime types that the `mime/lite` registry actually
  * returns for some extension and that name an unambiguously text
  * payload. Trusting these in {@link detectFileType} lets files
- * bearing them skip the content-based `isBinaryFile` heuristic —
+ * bearing them skip the content-based `isBinaryFile` heuristic --
  * that 4 KB sample can produce false positives on UTF-16 / UTF-32
  * without BOM and on encrypted / DRM-protected file systems where
  * the OS surfaces encrypted bytes to `fs.open()` reads (the Windows
@@ -514,13 +514,13 @@ const KNOWN_TEXT_APPLICATION_MIMES: ReadonlySet<string> = new Set([
  * unambiguously text in practice. Trusting the extension here means
  * a file like `Trigger.kt` or `analysis.py` on an encrypted file
  * system whose raw bytes look binary to `isBinaryFile`'s 4 KB
- * sample is still classified as text — the fix for the Windows
+ * sample is still classified as text -- the fix for the Windows
  * scenario in issue #3964.
  *
  * Scope: only languages and config formats commonly encountered in
  * codebases that have been reported in the field, plus a few core
  * markup / build formats. Anything more obscure still falls through
- * to the content sampler — the goal is "do not lie about a known
+ * to the content sampler -- the goal is "do not lie about a known
  * source-code extension", not "be exhaustive".
  *
  * Maintenance note: `path.extname()` returns `''` for dotfiles
@@ -638,7 +638,7 @@ const KNOWN_TEXT_EXTENSIONS: ReadonlySet<string> = new Set([
  * Basename-only fallback for files whose name carries no extension
  * but is unambiguously text (build / config / lockfile conventions).
  * `path.extname('Dockerfile')` / `path.extname('Makefile')` /
- * `path.extname('go.mod')` return `''` (or just `'.mod'` for go.mod —
+ * `path.extname('go.mod')` return `''` (or just `'.mod'` for go.mod --
  * not enough to disambiguate from binary `.mod` payloads), so the
  * extension-only `KNOWN_TEXT_EXTENSIONS` check above misses them and
  * an encrypted-volume read whose 4 KB sample looks binary would
@@ -689,7 +689,7 @@ const KNOWN_TEXT_BASENAMES: ReadonlySet<string> = new Set([
  * Decide whether a mime registry entry is a text payload that the
  * Edit / WriteFile tools can safely mutate as text. Used by {@link
  * detectFileType} to avoid running `isBinaryFile` content sampling
- * on files whose extension is registered as text — the sampling
+ * on files whose extension is registered as text -- the sampling
  * misclassifies UTF-16 without BOM, encrypted / DRM-protected
  * volumes, and other plain-text payloads whose first 4 KB happen to
  * include nulls / non-printables.
@@ -764,11 +764,11 @@ export async function detectFileType(filePath: string): Promise<FileType> {
     if (isTextMime(lookedUpMimeType)) {
       // Log the classification path so future #3964-class
       // troubleshooting can tell mime-trust apart from extension
-      // override and the content-sample fallback below — without
+      // override and the content-sample fallback below -- without
       // having to re-derive which fast-path fired by reading the
       // code. Cheap at debug level; off by default.
       debugLogger.debug(
-        `detectFileType: ${filePath} → text (mime-trust: ${lookedUpMimeType})`,
+        `detectFileType: ${filePath} -> text (mime-trust: ${lookedUpMimeType})`,
       );
       return 'text';
     }
@@ -788,7 +788,7 @@ export async function detectFileType(filePath: string): Promise<FileType> {
   // this on `.c` / `.cpp` / `.h` files.
   if (KNOWN_TEXT_EXTENSIONS.has(ext)) {
     debugLogger.debug(
-      `detectFileType: ${filePath} → text (extension-override, mime ${lookedUpMimeType ?? 'null'})`,
+      `detectFileType: ${filePath} -> text (extension-override, mime ${lookedUpMimeType ?? 'null'})`,
     );
     return 'text';
   }
@@ -798,7 +798,7 @@ export async function detectFileType(filePath: string): Promise<FileType> {
   // for the full list.
   if (KNOWN_TEXT_BASENAMES.has(path.basename(filePath))) {
     debugLogger.debug(
-      `detectFileType: ${filePath} → text (basename-override, mime ${lookedUpMimeType ?? 'null'})`,
+      `detectFileType: ${filePath} -> text (basename-override, mime ${lookedUpMimeType ?? 'null'})`,
     );
     return 'text';
   }
@@ -824,7 +824,7 @@ export interface ProcessedFileReadResult {
    * The Stats taken at the start of the read pipeline, before the
    * actual content read. Surfaced so the FileReadCache can record
    * a fingerprint that matches the bytes the model actually
-   * received — a post-read re-stat would describe a possibly-
+   * received -- a post-read re-stat would describe a possibly-
    * mutated file rather than the file the read returned.
    */
   stats?: import('node:fs').Stats;
@@ -882,7 +882,7 @@ export async function processSingleFileContent(
   try {
     let stats: import('node:fs').Stats;
     try {
-      // Async stat doubles as the existence check — ENOENT is handled below
+      // Async stat doubles as the existence check -- ENOENT is handled below
       // and surfaces the same FILE_NOT_FOUND error type as the old explicit
       // existsSync gate, with one fewer sync syscall on the hot path.
       stats = await fs.promises.stat(filePath);
@@ -908,7 +908,7 @@ export async function processSingleFileContent(
       };
     }
 
-    // Reject FIFOs, sockets, /dev/* devices — stats.size is 0 or
+    // Reject FIFOs, sockets, /dev/* devices -- stats.size is 0 or
     // meaningless for these, so the size gate below would wave them
     // through, and handing `/dev/zero` to pdftotext would make it stream
     // until the timeout fires. Symlinks to regular files are fine:
@@ -1005,7 +1005,7 @@ export async function processSingleFileContent(
         // cacheable to keep working as an editable text file. Pre-fix,
         // the absent `originalLineCount` collapsed cacheable to false
         // and a follow-up Edit on the just-read SVG would be rejected
-        // as a "non-text payload" — a regression flagged by the
+        // as a "non-text payload" -- a regression flagged by the
         // independent maintainer review.
         return {
           llmContent: content,
@@ -1124,7 +1124,7 @@ export async function processSingleFileContent(
         // When model supports PDF modality and no pages requested, send as base64.
         // Otherwise, fall back to pdftotext for text extraction.
         if (!pages && modalities.pdf) {
-          // Model supports PDF natively — send as base64
+          // Model supports PDF natively -- send as base64
           const contentBuffer = await fs.promises.readFile(filePath);
           const base64Data = contentBuffer.toString('base64');
           const base64SizeInMB = base64Data.length / (1024 * 1024);
@@ -1162,7 +1162,7 @@ export async function processSingleFileContent(
           };
         }
 
-        // pdftotext failed or not available — return helpful error
+        // pdftotext failed or not available -- return helpful error
         return {
           llmContent: `[Cannot extract text from PDF: "${displayName}". ${pdfResult.error}]`,
           returnDisplay: `Failed to read pdf: ${relativePathForDisplay}`,

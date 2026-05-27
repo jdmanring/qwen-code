@@ -49,7 +49,7 @@ const debugLogger = createDebugLogger('ANTHROPIC');
  * when the resolved baseURL hostname is `api.deepseek.com` or one of its
  * subdomains (e.g. `us.api.deepseek.com`). Use this for decisions where a
  * false positive would route DeepSeek-only behavior to a stricter backend
- * — e.g. clamping `reasoning.effort: 'max'`, where matching by model name
+ * -- e.g. clamping `reasoning.effort: 'max'`, where matching by model name
  * could send `'max'` to real `api.anthropic.com` and trigger HTTP 400.
  */
 function isDeepSeekAnthropicHostname(
@@ -73,7 +73,7 @@ function isDeepSeekAnthropicHostname(
  * Plain-text assistant turns without thinking are accepted unchanged. Detect
  * the provider by base URL hostname or model name so the converter can inject
  * empty thinking blocks on the affected turns. The model-name fallback is
- * intentional — it covers self-hosted DeepSeek deployments behind generic
+ * intentional -- it covers self-hosted DeepSeek deployments behind generic
  * anthropic-compatible endpoints (sglang/vllm). For decisions where a model-
  * name false positive is dangerous (e.g. `reasoning.effort: 'max'` clamping),
  * use `isDeepSeekAnthropicHostname` instead.
@@ -113,8 +113,8 @@ function resolveEffectiveBaseUrl(
 
 /**
  * Whether the resolved baseURL is Anthropic's native API (or the SDK default
- * when no baseURL is set). Used to gate IdeaLab-style proxy workarounds —
- * `Authorization: Bearer` auth and the `claude-cli` User-Agent — so that
+ * when no baseURL is set). Used to gate IdeaLab-style proxy workarounds --
+ * `Authorization: Bearer` auth and the `claude-cli` User-Agent -- so that
  * users hitting `api.anthropic.com` directly keep the SDK-default
  * `x-api-key` auth and a truthful `QwenCode` User-Agent (avoids identity
  * misattribution in Anthropic-side logs/quotas).
@@ -142,7 +142,7 @@ type StreamingBlockState = {
   signature: string;
 };
 
-// Two thinking shapes — the budget-tokens shape for pre-4.6 Claude families
+// Two thinking shapes -- the budget-tokens shape for pre-4.6 Claude families
 // and the adaptive shape for 4.6+. Centralized so the message-params type,
 // the streaming-request override, and `buildThinkingConfig`'s return type
 // stay in lockstep when a third shape (e.g. `extended`) eventually lands.
@@ -188,7 +188,7 @@ export class AnthropicContentGenerator implements ContentGenerator {
     // IdeaLab-style Anthropic proxies expect `Authorization: Bearer <token>`
     // instead of the SDK-default `x-api-key` header. Use the SDK's
     // `authToken` parameter (sends `Authorization: Bearer` natively) only
-    // when targeting a non-Anthropic-native baseURL — direct
+    // when targeting a non-Anthropic-native baseURL -- direct
     // `api.anthropic.com` users keep the SDK-default `apiKey` (`x-api-key`)
     // path so they don't break against the Anthropic API itself.
     //
@@ -198,9 +198,9 @@ export class AnthropicContentGenerator implements ContentGenerator {
     // `undefined`. Omitting the field would let `ANTHROPIC_API_KEY` /
     // `ANTHROPIC_AUTH_TOKEN` env back-fill it; the SDK's auth resolver
     // then prefers `apiKey` over `authToken`, so a user with
-    // `ANTHROPIC_API_KEY=sk-ant-…` exported (common for anyone who also
+    // `ANTHROPIC_API_KEY=sk-ant-...` exported (common for anyone who also
     // runs Claude Code in the same shell) would ship their real Anthropic
-    // key as `X-Api-Key` to the IdeaLab proxy — leaking the credential to
+    // key as `X-Api-Key` to the IdeaLab proxy -- leaking the credential to
     // a third-party endpoint. Explicit `null` suppresses the back-fill
     // and forces the intended auth path.
     this.client = new Anthropic({
@@ -306,7 +306,7 @@ export class AnthropicContentGenerator implements ContentGenerator {
 
   private buildHeaders(useProxyIdentity: boolean): Record<string, string> {
     // Beta headers are computed per-request in buildPerRequestHeaders so they
-    // stay in sync with what the request body actually carries — see #3788
+    // stay in sync with what the request body actually carries -- see #3788
     // review feedback. Constructor headers carry User-Agent, the
     // proxy-only `x-app: cli` (when useProxyIdentity is true), and any
     // user-supplied custom headers EXCEPT anthropic-beta (any casing):
@@ -350,7 +350,7 @@ export class AnthropicContentGenerator implements ContentGenerator {
    * User-supplied `customHeaders['anthropic-beta']` flags are merged in (and
    * deduped) so the per-request override doesn't wipe out the existing
    * customHeaders escape hatch for unrelated beta features. The lookup is
-   * case-insensitive — HTTP header names are case-insensitive by spec, so a
+   * case-insensitive -- HTTP header names are case-insensitive by spec, so a
    * user-configured `Anthropic-Beta` or `ANTHROPIC-BETA` is honored too.
    */
   private buildPerRequestHeaders(
@@ -370,19 +370,19 @@ export class AnthropicContentGenerator implements ContentGenerator {
     }
 
     // The `prompt-caching-scope-2026-01-05` beta is meaningful only when
-    // the body actually carries a `cache_control: { …, scope: 'global' }`
+    // the body actually carries a `cache_control: { ..., scope: 'global' }`
     // entry. The converter emits those entries on the system text block
     // and the last tool entry when `useGlobalCacheScope` is true (gated
     // on `enableCacheControl !== false` AND Anthropic-native baseURL).
     // Scan the assembled request body for that field rather than
     // re-deriving the gate here, so:
     //   1. The beta and the body-side field share a single source of
-    //      truth — there's no window between sampling the predicate and
+    //      truth -- there's no window between sampling the predicate and
     //      emitting the body where the two could diverge.
     //   2. The degenerate empty-system + no-tools case (predicate true,
     //      body has nothing to attach scope to) doesn't ship the beta as
     //      dead weight.
-    //   3. Anthropic-compatible proxies that disable cache stay clean —
+    //   3. Anthropic-compatible proxies that disable cache stay clean --
     //      no body-side scope field means no beta either.
     if (this.hasGlobalCacheScopeOnWire(anthropicRequest)) {
       betas.push('prompt-caching-scope-2026-01-05');
@@ -402,14 +402,14 @@ export class AnthropicContentGenerator implements ContentGenerator {
    * recreating the ContentGenerator); non-qwen-oauth providers refresh
    * via generator recreation, which captures `baseUrl` fresh at
    * construct time (not mutated). Reading both fields each request is
-   * the right defense — cheap and avoids stale-cache surprises if the
+   * the right defense -- cheap and avoids stale-cache surprises if the
    * hot-update list ever expands.
    *
    * The matching `prompt-caching-scope-2026-01-05` beta header is NOT
    * gated on this predicate directly; instead `buildPerRequestHeaders`
    * scans the assembled body via `hasGlobalCacheScopeOnWire` so the beta
    * and the body field always agree even in degenerate cases (e.g.
-   * empty-system + no-tools request — predicate true, body has nothing
+   * empty-system + no-tools request -- predicate true, body has nothing
    * to attach scope to, beta correctly suppressed).
    */
   private useGlobalCacheScope(): boolean {
@@ -421,8 +421,8 @@ export class AnthropicContentGenerator implements ContentGenerator {
 
   /**
    * Whether the assembled request body carries any
-   * `cache_control: { …, scope: 'global' }` entry. Scans the system
-   * block (when present as TextBlockParam[]) and the tools array — these
+   * `cache_control: { ..., scope: 'global' }` entry. Scans the system
+   * block (when present as TextBlockParam[]) and the tools array -- these
    * are the only two places the converter attaches scoped cache control.
    * Used to gate the `prompt-caching-scope-2026-01-05` beta header so it
    * never ships without a matching body field, and conversely so the
@@ -492,9 +492,9 @@ export class AnthropicContentGenerator implements ContentGenerator {
 
     // On DeepSeek the converter must keep history aligned with the top-level
     // `thinking` parameter to avoid HTTP 400:
-    //   - thinking on  → inject empty thinking on tool_use turns missing one
+    //   - thinking on  -> inject empty thinking on tool_use turns missing one
     //                    (issue #3786 trigger)
-    //   - thinking off → strip pre-existing thinking blocks from assistant
+    //   - thinking off -> strip pre-existing thinking blocks from assistant
     //                    history so a request without `thinking` config
     //                    doesn't ship stray thinking blocks. Matters for
     //                    code paths that pass `includeThoughts: false`
@@ -511,13 +511,13 @@ export class AnthropicContentGenerator implements ContentGenerator {
     // hot-updates `enableCacheControl` in place without recreating the
     // ContentGenerator. (Non-qwen-oauth providers refresh via generator
     // recreation, so `baseUrl` is captured fresh at construct time, not
-    // mutated mid-session — defensive per-request reads on both fields
+    // mutated mid-session -- defensive per-request reads on both fields
     // cover both paths.) `useGlobalCacheScope` is a strict subset of
     // `enableCacheControl` (true only when caching is on AND the resolved
     // baseURL is Anthropic-native) and governs whether the body's
     // `cache_control` entries carry `scope: 'global'`. The matching
     // `prompt-caching-scope-2026-01-05` beta isn't passed through this
-    // sample — `buildPerRequestHeaders` instead scans the assembled body
+    // sample -- `buildPerRequestHeaders` instead scans the assembled body
     // via `hasGlobalCacheScopeOnWire` so beta and body field share a
     // single source of truth.
     const enableCacheControl =
@@ -588,7 +588,7 @@ export class AnthropicContentGenerator implements ContentGenerator {
         ? Math.min(userMaxTokens, modelLimit)
         : userMaxTokens;
     } else {
-      // No explicit user config — check env var, then use capped default.
+      // No explicit user config -- check env var, then use capped default.
       const envVal = process.env['QWEN_CODE_MAX_OUTPUT_TOKENS'];
       const envMaxTokens = envVal ? parseInt(envVal, 10) : NaN;
       if (!isNaN(envMaxTokens) && envMaxTokens > 0) {
@@ -614,14 +614,14 @@ export class AnthropicContentGenerator implements ContentGenerator {
    * reasoning is disabled or the user didn't set an effort. Clamps the
    * DeepSeek-only 'max' tier to 'high' when the resolved baseURL is NOT a
    * DeepSeek hostname (real Anthropic accepts low/medium/high only and
-   * would 400 on 'max'). Uses the hostname-only detector deliberately —
+   * would 400 on 'max'). Uses the hostname-only detector deliberately --
    * the broader `isDeepSeekAnthropicProvider` model-name fallback exists
    * for the thinking-block injection workaround (sglang/vllm self-hosted
    * coverage), but trusting it here would let a model named e.g.
    * "deepseek-clone" running on real api.anthropic.com bypass the clamp.
    *
    * The downgrade warning fires once per generator lifetime via the
-   * `effortClampWarned` latch — repeating on every request just spams
+   * `effortClampWarned` latch -- repeating on every request just spams
    * the log without giving users new information.
    */
   private resolveEffectiveEffort(
@@ -659,13 +659,13 @@ export class AnthropicContentGenerator implements ContentGenerator {
    * Claude 4.6+ models require adaptive thinking; older models use the
    * budget-based config. Uses numeric major/minor comparison rather than a
    * single-digit character class so that future families (haiku, opus-4-10,
-   * opus-5-1, …) are recognized instead of silently falling back to the
+   * opus-5-1, ...) are recognized instead of silently falling back to the
    * budget path and tripping HTTP 400 with `budget_tokens` they don't
    * accept.
    *
    * The regex is intentionally unanchored so reseller-prefixed model names
-   * also match (`bedrock/claude-opus-4-7`, `vertex_ai/claude-sonnet-4-6@…`,
-   * `idealab:claude-opus-4-6`, etc.) — those route to the same Anthropic
+   * also match (`bedrock/claude-opus-4-7`, `vertex_ai/claude-sonnet-4-6@...`,
+   * `idealab:claude-opus-4-6`, etc.) -- those route to the same Anthropic
    * models on the wire and need the same thinking shape. Do not tighten to
    * `^claude-` without also covering those naming conventions.
    */
@@ -694,7 +694,7 @@ export class AnthropicContentGenerator implements ContentGenerator {
 
     // Explicit budget_tokens is an escape hatch from the effort ladder:
     // honor exactly what the user asked for. This deliberately does NOT
-    // re-clamp the value to track the (possibly clamped) effort label —
+    // re-clamp the value to track the (possibly clamped) effort label --
     // a user who set `{ effort: 'max', budget_tokens: 128_000 }` against
     // real api.anthropic.com will see `output_config.effort: 'high'`
     // (clamped) but `thinking.budget_tokens: 128_000` (preserved). That
@@ -705,7 +705,7 @@ export class AnthropicContentGenerator implements ContentGenerator {
     // what stays consistent with the clamped effort.
     //
     // Checked before the adaptive-thinking branch so an explicit budget
-    // isn't silently dropped on Claude 4.6+ models — adaptive omits
+    // isn't silently dropped on Claude 4.6+ models -- adaptive omits
     // `budget_tokens` entirely, which would discard the user override.
     if (reasoning?.budget_tokens !== undefined) {
       return {

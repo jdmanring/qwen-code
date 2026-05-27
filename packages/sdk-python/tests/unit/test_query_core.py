@@ -502,7 +502,7 @@ async def test_anext_after_exhaustion_raises_stop_async_iteration() -> None:
 
     assert len(messages) >= 1
 
-    # The iterator is now exhausted — a second call must raise immediately.
+    # The iterator is now exhausted -- a second call must raise immediately.
     with pytest.raises(StopAsyncIteration):
         await query.__anext__()
 
@@ -512,7 +512,7 @@ async def test_initialize_failure_no_unhandled_task_exception(
     recwarn: pytest.WarningsChecker,
 ) -> None:
     """When _initialize fails, no 'Task exception was never retrieved' warning
-    should appear — _finish_with_error already surfaces the error."""
+    should appear -- _finish_with_error already surfaces the error."""
     transport = FakeTransport()
     query = Query(
         transport=transport,  # type: ignore[arg-type]
@@ -528,12 +528,12 @@ async def test_initialize_failure_no_unhandled_task_exception(
     )
     await query._ensure_started()
 
-    # Let the initialize request time out — this triggers _finish_with_error
+    # Let the initialize request time out -- this triggers _finish_with_error
     # inside _initialize.
     init_request = await _wait_for_request(transport, "initialize")
     assert init_request is not None  # init was sent
 
-    # Don't respond to initialize — let the control-request timeout fire.
+    # Don't respond to initialize -- let the control-request timeout fire.
     # The error propagates through _message_queue.
     with pytest.raises(ControlRequestTimeoutError):
         await query.__anext__()

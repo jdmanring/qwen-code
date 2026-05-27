@@ -10,8 +10,8 @@ This verifies the scoring logic in execution_profile_selector.py routes correctl
 for all intents when the LLM classifier produces its expected output.
 
 Exit codes:
-  0 — all assertions passed
-  1 — at least one assertion failed
+  0 -- all assertions passed
+  1 -- at least one assertion failed
 
 Usage:
   uv run python3 tooling/smoke-tests/model_router_test.py
@@ -36,7 +36,7 @@ def check(label: str, fn: Callable[[], None]) -> bool:
         print(f"        AssertionError: {e}")
         failures.append(label)
         return False
-    except Exception as e:  # noqa: CODE-03 — test harness must catch any failure
+    except Exception as e:  # noqa: CODE-03 -- test harness must catch any failure
         print(f"  {FAIL}  {label}")
         print(f"        {type(e).__name__}: {e}")
         failures.append(label)
@@ -47,7 +47,7 @@ def check(label: str, fn: Callable[[], None]) -> bool:
 # Step 1: Import
 # ---------------------------------------------------------------------------
 
-print("\n── Step 1: import ──────────────────────────────────────────────────")
+print("\n-- Step 1: import --------------------------------------------------")
 
 
 def _import() -> None:
@@ -60,10 +60,10 @@ check("ExecutionProfileSelector imports", _import)
 
 
 # ---------------------------------------------------------------------------
-# Step 2: Intent → profile routing (no LLM call)
+# Step 2: Intent -> profile routing (no LLM call)
 # ---------------------------------------------------------------------------
 
-print("\n── Step 2: intent → profile routing ───────────────────────────────")
+print("\n-- Step 2: intent -> profile routing -------------------------------")
 
 # Each tuple: (intent, prompt, expected_top_profile_or_set)
 # expected is either a str (exact match) or a set[str] (any of these is acceptable)
@@ -125,15 +125,15 @@ def _make_routing_check(intent: str, prompt: str, expected: str | set[str]) -> C
 
 
 for intent, prompt, expected in ROUTING_CASES:
-    label = f"{intent} → {expected if isinstance(expected, str) else '/'.join(sorted(expected))}"
+    label = f"{intent} -> {expected if isinstance(expected, str) else '/'.join(sorted(expected))}"
     check(label, _make_routing_check(intent, prompt, expected))
 
 
 # ---------------------------------------------------------------------------
-# Step 3: Fallback — unknown intent still returns profiles
+# Step 3: Fallback -- unknown intent still returns profiles
 # ---------------------------------------------------------------------------
 
-print("\n── Step 3: fallback behaviour ──────────────────────────────────────")
+print("\n-- Step 3: fallback behaviour --------------------------------------")
 
 
 def _unknown_intent_returns_profiles() -> None:
@@ -144,7 +144,9 @@ def _unknown_intent_returns_profiles() -> None:
         prompt_text="do something with the code",
         intent="Unknown Intent Type",
     )
-    assert active, "No profiles returned for unknown intent — selector must always return something"
+    assert active, (
+        "No profiles returned for unknown intent -- selector must always return something"
+    )
 
 
 def _empty_prompt_returns_profiles() -> None:
@@ -159,18 +161,18 @@ def _empty_prompt_returns_profiles() -> None:
 
 
 check("unknown intent still returns profiles", _unknown_intent_returns_profiles)
-check("empty prompt + valid intent → correct profile", _empty_prompt_returns_profiles)
+check("empty prompt + valid intent -> correct profile", _empty_prompt_returns_profiles)
 
 
 # ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 
-print("\n────────────────────────────────────────────────────────────────────")
+print("\n--------------------------------------------------------------------")
 if failures:
-    print(f"  FAILED — {len(failures)} assertion(s) did not pass:")
+    print(f"  FAILED -- {len(failures)} assertion(s) did not pass:")
     for f in failures:
-        print(f"    • {f}")
+        print(f"     {f}")
     sys.exit(1)
 else:
     print("  All assertions passed.")

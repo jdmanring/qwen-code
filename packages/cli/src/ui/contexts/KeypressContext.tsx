@@ -185,7 +185,7 @@ export function KeypressProvider({
     let pasteBuffer = Buffer.alloc(0);
     // Set to true when paste mode is ended by something other than a
     // received paste-end event (idle timeout or Ctrl+C escape). The next
-    // real paste-end event that arrives — if any — is then a stale echo
+    // real paste-end event that arrives -- if any -- is then a stale echo
     // and must be swallowed instead of producing a spurious empty paste.
     let pasteAlreadyFlushed = false;
     let pasteIdleTimeout: NodeJS.Timeout | null = null;
@@ -263,7 +263,7 @@ export function KeypressProvider({
     const forceFlushStuckPaste = () => {
       clearPasteIdleTimeout();
       // Nothing to recover from: not in paste mode AND no buffered content.
-      // We still run when either condition is true — e.g. isPaste=true with
+      // We still run when either condition is true -- e.g. isPaste=true with
       // an empty buffer (need to clear the flag) or isPaste=false with stale
       // buffered content (e.g. after a race between Ctrl+C and the timer).
       if (!isPaste && pasteBuffer.length === 0) return;
@@ -376,7 +376,7 @@ export function KeypressProvider({
 
       // 2) Parameterized functional: ESC [ 1 ; <mods> (A|B|C|D|H|F|P|Q|R|S)
       // 2) Parameterized functional: ESC [ 1 ; <mods> (A|B|C|D|H|F|P|Q|R|S)
-      //    Arrows, Home/End, F1–F4 with modifiers encoded in <mods>.
+      //    Arrows, Home/End, F1-F4 with modifiers encoded in <mods>.
       const arrowPrefix = new RegExp(`^${ESC}\\[1;(\\d+)([ABCDHFPQSR])`);
       m = buffer.match(arrowPrefix);
       if (m) {
@@ -674,8 +674,8 @@ export function KeypressProvider({
 
       // Ctrl+C is an always-available escape hatch. It MUST be processed
       // before the `isPaste` branch below, otherwise a stuck paste mode
-      // (paste-start without paste-end) silently buffers every key —
-      // including Ctrl+C itself — and the user has no way to recover
+      // (paste-start without paste-end) silently buffers every key --
+      // including Ctrl+C itself -- and the user has no way to recover
       // without killing the terminal.
       const isCtrlCKey =
         (key.ctrl && key.name === 'c') ||
@@ -719,7 +719,7 @@ export function KeypressProvider({
       if (key.name === 'paste-end') {
         clearPasteIdleTimeout();
         // A stale paste-end may arrive after we force-flushed the paste
-        // via the idle timeout or Ctrl+C escape — swallow it so we don't
+        // via the idle timeout or Ctrl+C escape -- swallow it so we don't
         // broadcast a spurious empty/image paste event.
         if (pasteAlreadyFlushed) {
           // Reset for the next paste cycle.

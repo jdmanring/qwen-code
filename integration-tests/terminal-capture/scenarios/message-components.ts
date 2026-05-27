@@ -5,10 +5,10 @@ import type { ScenarioConfig } from '../scenario-runner.js';
  * Captures info, warning, and error messages to verify proper icon/prefix display.
  *
  * This scenario tests:
- * - Info message prefix (● filled circle)
- * - Error message prefix (✕)
+ * - Info message prefix ( filled circle)
+ * - Error message prefix ()
  * - User message prefix (>)
- * - Assistant message prefix (✦)
+ * - Assistant message prefix ()
  */
 export default {
   name: 'message-components',

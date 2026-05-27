@@ -151,7 +151,7 @@ describe('createAuditPublisher', () => {
 
   it('attaches pattern field for fs.access on glob intent in raw-paths mode', () => {
     // `pattern` rides on the same privacy gate as `relPath` /
-    // `message` — glob patterns commonly carry path fragments
+    // `message` -- glob patterns commonly carry path fragments
     // (`src/secrets/*.env`, `/Users/alice/ws/**`), so they're
     // suppressed unless the operator opted into raw paths.
     const { events, publisher, workspace } = setup({ includeRawPaths: true });
@@ -194,7 +194,7 @@ describe('createAuditPublisher', () => {
 
   it('strips pattern from fs.access in privacy mode (default)', () => {
     // Default `includeRawPaths: false`. Even though the orchestrator
-    // passed a literal pattern, the publisher must not echo it —
+    // passed a literal pattern, the publisher must not echo it --
     // glob patterns can leak path content the operator opted out of
     // logging.
     const { events, publisher, workspace } = setup();

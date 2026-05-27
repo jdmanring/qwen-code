@@ -17,7 +17,7 @@
  *   - `countDescendants` walks the daemon's process tree via `pgrep -P`
  *     (matches the existing inline pattern at
  *     `qwen-serve-streaming.test.ts:144`, with optional filtered subtree
- *     matching). Used to surface the P1 "MCP child × session"
+ *     matching). Used to surface the P1 "MCP child * session"
  *     amplification before the M2 shared-pool fix.
  *   - `percentiles` is a dependency-free p50/p90/p99 calculator for the
  *     prompt-latency suite.
@@ -82,7 +82,7 @@ export interface SpawnedDaemon {
   token: string;
   /** Drain stdout into this buffer for post-mortem if a test fails. */
   stdoutBuf: { value: string };
-  /** Drain stderr similarly — surface on dispose if exit code != 0. */
+  /** Drain stderr similarly -- surface on dispose if exit code != 0. */
   stderrBuf: { value: string };
   /** Idempotent. Sends SIGTERM, awaits exit (up to 5s). */
   dispose: () => Promise<void>;
@@ -188,8 +188,8 @@ export async function spawnDaemon(
     await new Promise<void>((resolve) => {
       const t = setTimeout(() => {
         // Force kill if SIGTERM didn't take in time. We don't await
-        // exit again — the OS will clean up either way and a 5s
-        // hang here multiplies into 5s × N tests on flaky machines.
+        // exit again -- the OS will clean up either way and a 5s
+        // hang here multiplies into 5s * N tests on flaky machines.
         try {
           daemon.kill('SIGKILL');
         } catch {
@@ -236,7 +236,7 @@ export function writeWorkspaceSettings(
 
 /**
  * One-shot RSS read via `ps -o rss= -p <pid>`. Returns megabytes (rounded
- * to 1 decimal). Returns NaN if the process is gone or `ps` errored — call
+ * to 1 decimal). Returns NaN if the process is gone or `ps` errored -- call
  * sites should treat NaN as "skip this sample" rather than fail loudly.
  */
 export function getRssMB(pid: number): number {
@@ -293,7 +293,7 @@ export function startRssPolling(pid: number, intervalMs = 100): RssPoller {
 }
 
 /**
- * Walk daemon → ACP child → MCP descendants via `pgrep -P` calls.
+ * Walk daemon -> ACP child -> MCP descendants via `pgrep -P` calls.
  * Pattern starts with the existing inline approach at
  * `qwen-serve-streaming.test.ts:144`. When `pgrepOpts.mcpFilter` is
  * supplied, matching MCP processes are searched recursively within each
@@ -407,7 +407,7 @@ function pgrepMatchingDescendants(
  * Compute p50 / p90 / p99 / mean / min / max from a numeric array. Uses
  * nearest-rank percentile (no interpolation) to keep behavior predictable
  * across small sample sizes. Returns all-NaN for an empty input rather
- * than throwing — callers handle the "no samples" case downstream.
+ * than throwing -- callers handle the "no samples" case downstream.
  */
 export interface Percentiles {
   count: number;
@@ -511,7 +511,7 @@ export async function consumeSseEvents(
       }
     }
   } catch (err) {
-    // Aborted on purpose (timeout or caller) — fall through and return
+    // Aborted on purpose (timeout or caller) -- fall through and return
     // what we collected. Re-throw anything else.
     if (
       !(err instanceof Error) ||

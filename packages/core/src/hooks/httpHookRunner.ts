@@ -59,7 +59,7 @@ async function validateResolvedHost(
     // For hostnames, resolve DNS and validate all returned IPs.
     dnsLookup(hostname, { all: true }, (err, addresses) => {
       if (err) {
-        // DNS resolution failure — let the fetch call handle it.
+        // DNS resolution failure -- let the fetch call handle it.
         resolve({ ok: true });
         return;
       }

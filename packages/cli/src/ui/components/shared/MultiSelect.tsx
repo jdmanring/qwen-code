@@ -56,7 +56,7 @@ export function MultiSelect<T>({
   showNumbers = true,
   showScrollArrows = false,
   maxItemsToShow = 10,
-  checkedText = '[✓]',
+  checkedText = '[]',
   showActiveMarker = false,
 }: MultiSelectProps<T>): React.JSX.Element {
   const [scrollOffset, setScrollOffset] = useState(0);
@@ -66,7 +66,7 @@ export function MultiSelect<T>({
     items,
     initialIndex,
     isFocused,
-    // Disable numeric quick-select in useSelectionList — in a multi-select
+    // Disable numeric quick-select in useSelectionList -- in a multi-select
     // context, onSelect triggers onConfirm (submit), so numeric keys would
     // accidentally submit the dialog instead of toggling checkboxes.
     // Numbers are still rendered visually via the showNumbers prop below.
@@ -134,14 +134,14 @@ export function MultiSelect<T>({
   return (
     <Box flexDirection="column">
       {showScrollArrows && hasMoreAbove && (
-        <Text color={theme.text.secondary}>↑ {moreAboveCount} more above</Text>
+        <Text color={theme.text.secondary}> {moreAboveCount} more above</Text>
       )}
 
       {visibleItems.map((item, index) => {
         const itemIndex = scrollOffset + index;
         const isActive = activeIndex === itemIndex;
         const isChecked = selectedKeySet.has(item.key);
-        const activeMarker = isActive ? '›' : ' ';
+        const activeMarker = isActive ? '' : ' ';
 
         const itemNumberText = `${String(itemIndex + 1).padStart(
           numberColumnWidth,
@@ -202,7 +202,7 @@ export function MultiSelect<T>({
       })}
 
       {showScrollArrows && hasMoreBelow && (
-        <Text color={theme.text.secondary}>↓ {moreBelowCount} more below</Text>
+        <Text color={theme.text.secondary}> {moreBelowCount} more below</Text>
       )}
     </Box>
   );

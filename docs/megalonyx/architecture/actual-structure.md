@@ -1,8 +1,8 @@
-# 🗺️ Actual Project Structure
+#  Actual Project Structure
 
 This document provides a factual map of the current filesystem state of the `megalonyx-monorepo`.
 
-## 📂 Directory Map
+##  Directory Map
 
 ### 1. Root Level
 - `config/`: Contains static blueprints for agents and skills.
@@ -28,7 +28,7 @@ The `core` package is the central logic hub.
 
 ---
 
-## 🔗 Dependency Flow (Actual)
+##  Dependency Flow (Actual)
 
 The current flow of dependencies is:
 **`packages/cli` / `packages/webui`** $\to$ **`packages/core`** $\to$ **`System / OS`**

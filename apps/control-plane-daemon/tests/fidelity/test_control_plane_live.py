@@ -101,25 +101,25 @@ async def run_fidelity_test():
                 assert MOCK_AGENT_RESPONSE in result, (
                     f"The final response should contain the agent's output. Got: {result}"
                 )
-                print("✅ Aggregated response verified.")
+                print(" Aggregated response verified.")
 
                 # B. Check if IntentClassifier was called
                 assert mock_completion.called, (
                     "The LLM should have been called for intent classification."
                 )
-                print("✅ Intent classification triggered.")
+                print(" Intent classification triggered.")
 
                 # C. Check if JobStateManager is in completed state
                 assert cp.is_complete(), (
                     "The ControlPlane should report that all jobs are complete."
                 )
-                print("✅ Job set completion verified.")
+                print(" Job set completion verified.")
 
                 # D. Check if run_job_execution was called
                 assert mock_executor.called, "The tool executor should have been invoked."
-                print("✅ Job execution triggered.")
+                print(" Job execution triggered.")
 
-                print("\n✨ Fidelity Test Passed Successfully! ✨")
+                print("\n Fidelity Test Passed Successfully! ")
 
     finally:
         # Cleanup

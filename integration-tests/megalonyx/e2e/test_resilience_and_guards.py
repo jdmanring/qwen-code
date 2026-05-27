@@ -29,7 +29,7 @@ class TestResilienceAndGuards(unittest.TestCase):
 
             self.assertIn("error", result)
             self.assertIn("CRITICAL ERROR: Tool-Level Guard Triggered", result["error"])
-            print("✅ Test Passed: Edit without read was blocked.")
+            print(" Test Passed: Edit without read was blocked.")
         finally:
             if os.path.exists(file_path):
                 os.remove(file_path)
@@ -52,7 +52,7 @@ class TestResilienceAndGuards(unittest.TestCase):
             # It should return the "not implemented" error, which signals the CLI to proceed
             self.assertIn("error", result)
             self.assertIn("not implemented in bridge", result["error"])
-            print("✅ Test Passed: Edit after read was allowed (passed to CLI).")
+            print(" Test Passed: Edit after read was allowed (passed to CLI).")
         finally:
             if os.path.exists(file_path):
                 os.remove(file_path)
@@ -65,7 +65,7 @@ class TestResilienceAndGuards(unittest.TestCase):
 
         self.assertEqual(result, "Found relevant code")
         self.mock_rag.semantic_search.assert_called_once()
-        print("✅ Test Passed: Specialized tool executed correctly.")
+        print(" Test Passed: Specialized tool executed correctly.")
 
 
 if __name__ == "__main__":

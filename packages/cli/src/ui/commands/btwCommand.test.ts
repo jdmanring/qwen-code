@@ -174,7 +174,7 @@ describe('btwCommand', () => {
         getHistory: vi
           .fn()
           .mockReturnValue([
-            { role: 'user', parts: [{ text: '杭州天气如何？' }] },
+            { role: 'user', parts: [{ text: '' }] },
           ]),
         getChat: vi.fn().mockReturnValue({
           getGenerationConfig: vi.fn().mockReturnValue({
@@ -201,7 +201,7 @@ describe('btwCommand', () => {
             generationConfig: expect.objectContaining({
               systemInstruction: 'You are helpful',
             }),
-            history: [{ role: 'user', parts: [{ text: '杭州天气如何？' }] }],
+            history: [{ role: 'user', parts: [{ text: '' }] }],
             model: 'test-model',
           }),
           userMessage: expect.stringContaining('how ?'),
@@ -215,7 +215,7 @@ describe('btwCommand', () => {
           systemInstruction: 'stale system prompt',
           tools: [],
         },
-        history: [{ role: 'user', parts: [{ text: '旧问题' }] }],
+        history: [{ role: 'user', parts: [{ text: '' }] }],
         model: 'stale-model',
         version: 99,
       });
@@ -226,8 +226,8 @@ describe('btwCommand', () => {
 
       const geminiClient = {
         getHistory: vi.fn().mockReturnValue([
-          { role: 'user', parts: [{ text: '杭州天气如何？' }] },
-          { role: 'user', parts: [{ text: '请顺便解释一下湿度怎么看' }] },
+          { role: 'user', parts: [{ text: '' }] },
+          { role: 'user', parts: [{ text: '' }] },
         ]),
         getChat: vi.fn().mockReturnValue({
           getGenerationConfig: vi.fn().mockReturnValue({
@@ -255,8 +255,8 @@ describe('btwCommand', () => {
               systemInstruction: 'live system prompt',
             }),
             history: [
-              { role: 'user', parts: [{ text: '杭州天气如何？' }] },
-              { role: 'user', parts: [{ text: '请顺便解释一下湿度怎么看' }] },
+              { role: 'user', parts: [{ text: '' }] },
+              { role: 'user', parts: [{ text: '' }] },
             ],
             model: 'test-model',
           }),

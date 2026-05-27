@@ -2,7 +2,7 @@
 """
 Upstream Ingest Pipeline
 Propagates changes from upstream-mirror to integration through a hardened
-verification pipeline: Sync → Gate(Boot/Lint/Symmetry) → Promote.
+verification pipeline: Sync -> Gate(Boot/Lint/Symmetry) -> Promote.
 
 Usage:
     python3 tooling/sync-upstreams/upstream_ingest_pipeline.py           # full sync
@@ -68,9 +68,9 @@ def _resolve_ruff() -> list[str]:
     Resolves the ruff command so every caller uses the same binary.
 
     Priority:
-      1. `uv run ruff`  — uses the project-pinned version via uv (preferred)
-      2. RUFF_BIN env var — explicit override for CI environments
-      3. PATH ruff       — last resort
+      1. `uv run ruff`  -- uses the project-pinned version via uv (preferred)
+      2. RUFF_BIN env var -- explicit override for CI environments
+      3. PATH ruff       -- last resort
 
     This eliminates the "works on my machine" false-green problem where
     different ruff versions disagree on what constitutes a lint error.
@@ -142,11 +142,11 @@ class PreFlight:
             if not shutil.which("uv"):
                 raise RuntimeError("uv not found. Install from https://docs.astral.sh/uv/")
 
-            # Only block on changes to tracked files — untracked files can't pollute a merge.
+            # Only block on changes to tracked files -- untracked files can't pollute a merge.
             dirty = self._git.run(["git", "diff", "--quiet", "HEAD"], check=False).returncode != 0
             if dirty:
                 raise RuntimeError(
-                    "Integration branch has uncommitted changes — stash or commit before syncing."
+                    "Integration branch has uncommitted changes -- stash or commit before syncing."
                 )
 
             log_success("Pre-flight passed.")
@@ -177,7 +177,7 @@ class SyncManager:
             ["git", "rev-list", "--count", "upstream/main", f"^{INTEGRATION_BRANCH}"]
         )
         if new_count == "0":
-            log_success("Already up to date — nothing to sync.")
+            log_success("Already up to date -- nothing to sync.")
             return False
 
         log_info(f"{new_count} new upstream commit(s) to integrate.")
@@ -225,7 +225,7 @@ class SyncManager:
             self._git.run(["git", "merge", "--abort"], check=False)
             files = "\n".join(sorted(unresolvable))
             raise RuntimeError(
-                f"Merge conflict — manual resolution required:\n{files}\n\n"
+                f"Merge conflict -- manual resolution required:\n{files}\n\n"
                 "Resolve, commit, then re-run the ingest pipeline."
             )
 
@@ -266,7 +266,7 @@ class SyncManager:
                 ]
             )
         else:
-            log_success("Protected files unchanged by upstream — no restoration needed.")
+            log_success("Protected files unchanged by upstream -- no restoration needed.")
 
     def cleanup_staging(self) -> None:
         if not self.staging_branch:
@@ -290,7 +290,7 @@ class GateKeeper:
 
     def _gate_boot(self) -> bool:
         """
-        Runs first — verifies the Python workspace is bootable before any `uv run`
+        Runs first -- verifies the Python workspace is bootable before any `uv run`
         command can silently recreate a stale or missing lockfile.
         """
         logger.info("Gate 1/3: Boot test (uv lock --check)...")
@@ -302,7 +302,7 @@ class GateKeeper:
         )
         if result.returncode != 0:
             log_error(
-                f"Boot gate failed — lockfile out of sync:\n"
+                f"Boot gate failed -- lockfile out of sync:\n"
                 f"{result.stderr.strip()}\n"
                 "Fix with: uv lock"
             )
@@ -322,7 +322,7 @@ class GateKeeper:
         return True
 
     def _gate_symmetry(self) -> bool:
-        logger.info("Gate 3/3: Symmetry check (config ↔ docs)...")
+        logger.info("Gate 3/3: Symmetry check (config <-> docs)...")
         result = subprocess.run(
             ["python3", "tooling/symmetry_check.py"],
             cwd=self._git.root,
@@ -341,13 +341,13 @@ class PromotionEngine:
         self._git = git
 
     def promote(self, staging_branch: str) -> str:
-        log_info(f"Promoting {staging_branch} → {INTEGRATION_BRANCH}...")
+        log_info(f"Promoting {staging_branch} -> {INTEGRATION_BRANCH}...")
         self._git.run(["git", "checkout", INTEGRATION_BRANCH])
         self._git.run(["git", "merge", "--ff-only", staging_branch])
 
         timestamp = datetime.now().strftime("%Y%m%d-%H%M")
         tag = f"LKG-{timestamp}"
-        self._git.run(["git", "tag", "-a", tag, "-m", f"Last Known Good — {timestamp}"])
+        self._git.run(["git", "tag", "-a", tag, "-m", f"Last Known Good -- {timestamp}"])
         log_success(f"Tagged as {tag}.")
         return tag
 
@@ -357,13 +357,13 @@ class UpstreamIngestPipeline:
     Coordinates the full upstream ingestion pipeline:
 
         upstream/main
-            ↓  (fetch + reset)
+              (fetch + reset)
         upstream-mirror
-            ↓  (merge into staging branch off integration)
+              (merge into staging branch off integration)
         sync/staging-TIMESTAMP
-            ↓  (Gate 1: uv lock --check)
-            ↓  (Gate 2: ruff lint)
-            ↓  (Gate 3: symmetry check)
+              (Gate 1: uv lock --check)
+              (Gate 2: ruff lint)
+              (Gate 3: symmetry check)
         integration  [ff-only merge + LKG tag]
     """
 
@@ -377,7 +377,7 @@ class UpstreamIngestPipeline:
 
     def run(self) -> SyncResult:
         if self._dry_run:
-            log_warn("DRY RUN — gates will run against current state; no commits or tags.")
+            log_warn("DRY RUN -- gates will run against current state; no commits or tags.")
 
         if not self.preflight.check():
             return SyncResult(False, "PREFLIGHT", "Pre-flight checks failed.")
@@ -405,7 +405,7 @@ class UpstreamIngestPipeline:
                 return SyncResult(True, "DRY_RUN", "Dry run complete.", dry_run=True)
 
             if not self.sync.staging_branch:
-                raise RuntimeError("staging_branch is None after create_staging — this is a bug")
+                raise RuntimeError("staging_branch is None after create_staging -- this is a bug")
             tag = self.promotion.promote(self.sync.staging_branch)
             return SyncResult(True, "PROMOTION", "Sync complete.", lkg_tag=tag)
 
@@ -423,7 +423,7 @@ class UpstreamIngestPipeline:
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
-            "Upstream Ingest Pipeline — ingests upstream-mirror into integration "
+            "Upstream Ingest Pipeline -- ingests upstream-mirror into integration "
             "through a three-gate verification pipeline."
         )
     )
@@ -441,7 +441,7 @@ def main() -> None:
         if result.lkg_tag:
             log_success(f"Pipeline complete. LKG tag: {result.lkg_tag}")
         elif result.stage == "UP_TO_DATE":
-            log_success("Nothing to do — integration is already current.")
+            log_success("Nothing to do -- integration is already current.")
         sys.exit(0)
     else:
         log_error(f"Pipeline failed at [{result.stage}]: {result.message}")

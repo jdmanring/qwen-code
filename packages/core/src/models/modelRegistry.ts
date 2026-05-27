@@ -137,7 +137,7 @@ export class ModelRegistry {
       contextWindowSize:
         model.generationConfig.contextWindowSize ?? tokenLimit(model.id),
       // `modalities` is auto-filled in `resolveModelConfig`, so it is
-      // always defined on `ResolvedModelConfig` — no fallback needed here.
+      // always defined on `ResolvedModelConfig` -- no fallback needed here.
       modalities: model.generationConfig.modalities,
       baseUrl: model.baseUrl,
       envKey: model.envKey,

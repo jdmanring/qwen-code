@@ -65,7 +65,7 @@ async function pruneClipboardImages(
       }
     }
   } catch {
-    // Ignore errors in cleanup — directory may not exist yet
+    // Ignore errors in cleanup -- directory may not exist yet
   }
 }
 

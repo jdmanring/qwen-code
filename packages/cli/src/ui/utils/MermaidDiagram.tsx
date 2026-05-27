@@ -118,7 +118,7 @@ const MermaidDiagramInternal: React.FC<MermaidDiagramProps> = ({
   }, [kittySequence, writeRaw]);
 
   const titleWithSourceHint = (title: string) =>
-    `${title} · source: ${sourceCopyCommand}`;
+    `${title}  source: ${sourceCopyCommand}`;
 
   if (
     image?.kind === 'terminal-image' &&

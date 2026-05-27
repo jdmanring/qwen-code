@@ -78,7 +78,7 @@ describe('hasUserVisibleContent', () => {
 
   it('returns true when thought: true coexists with empty text', () => {
     // First Anthropic <thinking> chunk often arrives as { text: '', thought: true }.
-    // Per design doc D1, "thought / reasoning content" is user-visible — TTFT fires.
+    // Per design doc D1, "thought / reasoning content" is user-visible -- TTFT fires.
     expect(
       hasUserVisibleContent(chunkWithParts([{ text: '', thought: true }])),
     ).toBe(true);

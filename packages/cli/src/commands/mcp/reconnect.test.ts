@@ -181,10 +181,10 @@ describe('mcp reconnect command', () => {
         'server-two',
       );
       expect(mockWriteStdoutLine).toHaveBeenCalledWith(
-        '✓ server-one: Reconnected successfully',
+        ' server-one: Reconnected successfully',
       );
       expect(mockWriteStdoutLine).toHaveBeenCalledWith(
-        '✓ server-two: Reconnected successfully',
+        ' server-two: Reconnected successfully',
       );
     });
 
@@ -225,10 +225,10 @@ describe('mcp reconnect command', () => {
       await handler({ 'server-name': undefined, all: true });
 
       expect(mockWriteStdoutLine).toHaveBeenCalledWith(
-        '✓ server-one: Reconnected successfully',
+        ' server-one: Reconnected successfully',
       );
       expect(mockWriteStdoutLine).toHaveBeenCalledWith(
-        '✗ server-two: Failed - Timeout',
+        ' server-two: Failed - Timeout',
       );
     });
   });

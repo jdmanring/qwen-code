@@ -23,9 +23,9 @@ export interface TextInputProps {
   onSubmit?: () => void;
   /** Called when Tab is pressed; if provided, prevents the default tab-insertion behaviour. */
   onTab?: (key: Key) => void;
-  /** Called when ↑ is pressed; if provided, prevents cursor-up in the buffer. */
+  /** Called when  is pressed; if provided, prevents cursor-up in the buffer. */
   onUp?: () => void;
-  /** Called when ↓ is pressed; if provided, prevents cursor-down in the buffer. */
+  /** Called when  is pressed; if provided, prevents cursor-down in the buffer. */
   onDown?: () => void;
   placeholder?: string;
   height?: number; // lines in viewport; >1 enables multiline
@@ -116,7 +116,7 @@ export function TextInput({
         return;
       }
 
-      // Multiline newline insertion (Shift+Enter etc.) — check before SUBMIT
+      // Multiline newline insertion (Shift+Enter etc.) -- check before SUBMIT
       // so that modified-Return keys aren't swallowed by the submit branch.
       if (allowMultiline && keyMatchers[Command.NEWLINE](key)) {
         buffer.newline();
@@ -230,7 +230,7 @@ export function TextInput({
         <Box flexDirection="column">
           {validationErrors.map((error, index) => (
             <Text key={index} color={theme.status.error}>
-              ⚠ {error}
+               {error}
             </Text>
           ))}
         </Box>

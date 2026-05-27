@@ -9,21 +9,21 @@ For the full rationale behind each gate, see `docs/upstream/upstream-pr-guide.md
 
 ---
 
-## Gate 1 — Eligibility
+## Gate 1 -- Eligibility
 
 Before doing any work, confirm this fix belongs upstream.
 
 - [ ] The bug or gap reproduces in a fresh clone of `QwenLM/qwen-code` without Megalonyx additions
 - [ ] The fix touches only files that exist in their repository (`packages/core/`, `packages/cli/`, `packages/sdk-python/`, `packages/acp-bridge/`, `packages/channels/`)
 - [ ] No Megalonyx infrastructure is required to test or reproduce the fix
-- [ ] For `@google/genai` specifically: check PR #4485 status — if open, do not duplicate, comment instead
-- [ ] For vitest: do not submit a v4 upgrade — 462 upstream tests break under v4 (confirmed 2026-05-24)
+- [ ] For `@google/genai` specifically: check PR #4485 status -- if open, do not duplicate, comment instead
+- [ ] For vitest: do not submit a v4 upgrade -- 462 upstream tests break under v4 (confirmed 2026-05-24)
 
 If any item above fails, stop. This fix stays private.
 
 ---
 
-## Gate 2 — Branch Isolation
+## Gate 2 -- Branch Isolation
 
 - [ ] Branch was created from `upstream/main`, not from `develop` or `main`
 
@@ -32,7 +32,7 @@ If any item above fails, stop. This fix stays private.
   git log --oneline HEAD..upstream/main    # should be empty (you are ahead, not behind)
   ```
 
-- [ ] Ran the leak scan — all of these return empty output:
+- [ ] Ran the leak scan -- all of these return empty output:
 
   ```bash
   git diff upstream/main HEAD | grep -i megalonyx
@@ -44,7 +44,7 @@ If any item above fails, stop. This fix stays private.
   git diff upstream/main HEAD | grep -i 'standalone'
   ```
 
-- [ ] Read the full diff manually — `git diff upstream/main HEAD -- .` — and confirmed
+- [ ] Read the full diff manually -- `git diff upstream/main HEAD -- .` -- and confirmed
   every changed line makes sense in their codebase context
 
 - [ ] No new files were added that do not belong in their repo
@@ -54,7 +54,7 @@ If any item above fails, stop. This fix stays private.
 
 ---
 
-## Gate 3 — Build and Test Verification
+## Gate 3 -- Build and Test Verification
 
 QwenLM uses npm, not pnpm. Verification must simulate their environment.
 
@@ -65,7 +65,7 @@ QwenLM uses npm, not pnpm. Verification must simulate their environment.
 
 **For code changes (not pure dep bumps):**
 
-- [ ] `npm run test:ci` passes — all suites green, same as their CI requirement
+- [ ] `npm run test:ci` passes -- all suites green, same as their CI requirement
 - [ ] If the fix affects a specific package, ran that package's test suite directly:
   `cd packages/<name> && npm test`
 - [ ] No new TypeScript errors: `npm run typecheck` exits 0
@@ -80,7 +80,7 @@ QwenLM uses npm, not pnpm. Verification must simulate their environment.
 
 ---
 
-## Gate 4 — PR Description Completeness
+## Gate 4 -- PR Description Completeness
 
 Open the draft PR description and verify each section is present and complete.
 
@@ -89,30 +89,30 @@ Open the draft PR description and verify each section is present and complete.
   - Title is under 72 characters
   - No trailing period
 
-- [ ] **What changed** — one paragraph, present tense, describes what the PR does
+- [ ] **What changed** -- one paragraph, present tense, describes what the PR does
   (not why)
 
-- [ ] **Why** — one paragraph explaining the problem this fixes; includes package
+- [ ] **Why** -- one paragraph explaining the problem this fixes; includes package
   changelog link if this is a dep bump with breaking changes
 
-- [ ] **What code changed** (required when dep bump includes source file modifications) —
+- [ ] **What code changed** (required when dep bump includes source file modifications) --
   table or list of every modified file and the specific change made
 
-- [ ] **Testing** — explicitly states:
+- [ ] **Testing** -- explicitly states:
   - Which test suite was run
   - Command used
   - Result (passes / N tests green)
   - Whether new tests were added or existing tests were sufficient
 
-- [ ] **Compatibility** — states whether this has any runtime behavior change, or
+- [ ] **Compatibility** -- states whether this has any runtime behavior change, or
   explicitly states it is compile-time / type-level only if that is the case
 
-- [ ] No internal references — description contains no mention of Megalonyx, jdmanring,
+- [ ] No internal references -- description contains no mention of Megalonyx, jdmanring,
   this monorepo, our private tooling, or our branch names
 
 ---
 
-## Gate 5 — Pre-Push Final Check
+## Gate 5 -- Pre-Push Final Check
 
 - [ ] Confirmed branch name follows convention: `upstream-contrib/<type>/<description>`
 - [ ] `git log upstream/main..HEAD --oneline` shows only the expected commits
@@ -127,19 +127,19 @@ git push mirror upstream-contrib/<branch-name>
 
 ---
 
-## Gate 6 — Post-Submission
+## Gate 6 -- Post-Submission
 
 After the PR is opened:
 
 - [ ] Verified PR appears at `https://github.com/QwenLM/qwen-code/pulls`
 - [ ] PR is targeted at their `main` branch (not a feature branch)
-- [ ] Their CI started running — check the checks panel on the PR page
+- [ ] Their CI started running -- check the checks panel on the PR page
 - [ ] Updated the master plan file: mark PR as "submitted", record the PR number and URL
 - [ ] Set a calendar reminder to check PR status in 7 days
 
 **If their CI fails within the first run:**
 - Read the failure log before pushing any fix
-- Fix locally, push to the same branch — do not open a new PR
+- Fix locally, push to the same branch -- do not open a new PR
 - Document what the CI failure was in a comment on your own master plan entry
 
 ---
@@ -153,13 +153,13 @@ After a PR is submitted, add a line to the PR tracking table in the master plan:
 ```
 
 Update the status column as the PR progresses:
-- `submitted` — opened, CI pending
-- `ci-green` — all CI checks pass
-- `in-review` — received review comments
-- `changes-requested` — changes required by reviewer
-- `approved` — approved, awaiting merge
-- `merged` — merged into their main
-- `rejected` — closed without merge
+- `submitted` -- opened, CI pending
+- `ci-green` -- all CI checks pass
+- `in-review` -- received review comments
+- `changes-requested` -- changes required by reviewer
+- `approved` -- approved, awaiting merge
+- `merged` -- merged into their main
+- `rejected` -- closed without merge
 
 ---
 
@@ -171,8 +171,8 @@ Update the status column as the PR progresses:
 | prettier | Yes | `npm run format -- --check` |
 | vitest (Node 22, macOS) | Yes | `npm run test:ci` |
 | vitest (Node 22, Ubuntu) | Yes | `npm run test:ci` |
-| vitest (Node 22, Windows) | Yes | cannot test locally — ensure no platform-specific code |
-| CodeQL | Yes | no local equivalent — avoid eval, dynamic code exec |
+| vitest (Node 22, Windows) | Yes | cannot test locally -- ensure no platform-specific code |
+| CodeQL | Yes | no local equivalent -- avoid eval, dynamic code exec |
 | actionlint | If modifying workflows | `actionlint` |
 | shellcheck | If modifying shell scripts | `shellcheck <file>` |
 | yamllint | If modifying YAML | `yamllint <file>` |

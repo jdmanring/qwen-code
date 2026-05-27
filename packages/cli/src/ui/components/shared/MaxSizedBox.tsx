@@ -461,11 +461,11 @@ function layoutInkElementAsStyledText(
           // For lines after the first line break, show only ellipsis if the text would be truncated
           if (index > 0 && textWidth > 0) {
             // This is content after a line break - just show ellipsis to indicate truncation
-            currentLine.push({ text: '…', props: {} });
-            currentLineWidth = stringWidth('…');
+            currentLine.push({ text: '...', props: {} });
+            currentLineWidth = stringWidth('...');
           } else {
             // This is the first line or a continuation, try to fit what we can
-            const maxContentWidth = Math.max(0, maxWidth - stringWidth('…'));
+            const maxContentWidth = Math.max(0, maxWidth - stringWidth('...'));
 
             if (textWidth <= maxContentWidth && currentLineWidth === 0) {
               // Text fits completely on this line
@@ -490,8 +490,8 @@ function layoutInkElementAsStyledText(
               if (slice) {
                 currentLine.push({ text: slice, props: segment.props });
               }
-              currentLine.push({ text: '…', props: {} });
-              currentLineWidth = truncatedWidth + stringWidth('…');
+              currentLine.push({ text: '...', props: {} });
+              currentLineWidth = truncatedWidth + stringWidth('...');
             }
           }
         }
@@ -509,7 +509,7 @@ function layoutInkElementAsStyledText(
 
     // If we don't have any lines yet, add an ellipsis line
     if (lines.length === 0) {
-      lines.push([{ text: '…', props: {} }]);
+      lines.push([{ text: '...', props: {} }]);
     }
 
     for (const line of lines) {

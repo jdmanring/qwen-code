@@ -1,14 +1,14 @@
 /**
- * Mock Platform Server — programmatic API for integration tests.
+ * Mock Platform Server -- programmatic API for integration tests.
  *
  * Provides a createMockServer() function that starts HTTP + WebSocket servers
  * and returns a handle for sending messages and cleaning up.
  *
  * Architecture:
  *   Test code calls server.sendMessage("Hello")
- *     → HTTP handler creates messageId, pushes via WebSocket to connected channel
- *     → Channel processes → responds via WebSocket
- *     → Server resolves the pending promise with agent response text
+ *     -> HTTP handler creates messageId, pushes via WebSocket to connected channel
+ *     -> Channel processes -> responds via WebSocket
+ *     -> Server resolves the pending promise with agent response text
  */
 
 import http from 'node:http';

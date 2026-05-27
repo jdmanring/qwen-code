@@ -67,7 +67,7 @@ describe('<ToolElapsedTime />', () => {
     expect(lastFrame()).toContain('5s');
   });
 
-  it('renders combined (elapsed · timeout N) from t=0 when timeout is set', () => {
+  it('renders combined (elapsed  timeout N) from t=0 when timeout is set', () => {
     const { lastFrame } = render(
       <ToolElapsedTime
         status={ToolCallStatus.Executing}
@@ -75,7 +75,7 @@ describe('<ToolElapsedTime />', () => {
         timeoutMs={30_000}
       />,
     );
-    expect(lastFrame()).toContain('(0s · timeout 30s)');
+    expect(lastFrame()).toContain('(0s  timeout 30s)');
   });
 
   it('keeps fractional timeout precision', () => {
@@ -86,7 +86,7 @@ describe('<ToolElapsedTime />', () => {
         timeoutMs={5_500}
       />,
     );
-    expect(lastFrame()).toContain('(0s · timeout 5.5s)');
+    expect(lastFrame()).toContain('(0s  timeout 5.5s)');
   });
 
   it('advances elapsed inside the combined format', () => {
@@ -105,7 +105,7 @@ describe('<ToolElapsedTime />', () => {
         timeoutMs={30_000}
       />,
     );
-    expect(lastFrame()).toContain('(7s · timeout 30s)');
+    expect(lastFrame()).toContain('(7s  timeout 30s)');
   });
 
   it('formats combined output once elapsed crosses into the minute range', () => {
@@ -124,7 +124,7 @@ describe('<ToolElapsedTime />', () => {
         timeoutMs={5 * 60 * 1000}
       />,
     );
-    expect(lastFrame()).toContain('(1m 5s · timeout 5m)');
+    expect(lastFrame()).toContain('(1m 5s  timeout 5m)');
   });
 
   it('ignores non-positive timeouts (falls back to elapsed-only mode)', () => {

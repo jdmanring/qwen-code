@@ -125,24 +125,24 @@ class WriteFileToolInvocation extends BaseToolInvocation<
     // Run prior-read enforcement *before* we read the file to render
     // a confirmation diff. Otherwise the user could approve a diff
     // computed from current bytes that the model has never received,
-    // and the subsequent execute() would still reject the call —
+    // and the subsequent execute() would still reject the call --
     // confusing UX for any approve flow.
     //
     // Run unconditionally (not gated on `fileExists`): checkPriorRead's
     // own stat decides whether the file actually exists right now.
-    // ENOENT means the path is genuinely absent → ok:true → fall
+    // ENOENT means the path is genuinely absent -> ok:true -> fall
     // through to the new-file diff; any other "stat says yes" outcome
     // (including the file appearing between isFilefileExists() and
     // here, a race window the pre-fix gating left wide open) means
-    // the model is about to clobber bytes it never read → reject.
+    // the model is about to clobber bytes it never read -> reject.
     if (!this.config.getFileReadCacheDisabled()) {
-      // No `requireFullRead`-style option is passed — by design,
+      // No `requireFullRead`-style option is passed -- by design,
       // and applies to all 5 checkPriorRead call sites in this file.
       // PR #3932 added that option to require a full read before
       // overwrite; PR #4002 removed it because the truncate-tool-
       // output limit makes "fully read" an impossible precondition
       // on large files (issue #3945 deadlock). WriteFile and Edit
-      // now share the same contract — any prior read clears
+      // now share the same contract -- any prior read clears
       // enforcement and mtime/size drift is the safety net. The
       // `fileReadCacheDisabled: true` config check above goes the
       // OTHER way (skipping `checkPriorRead` entirely so application-
@@ -158,7 +158,7 @@ class WriteFileToolInvocation extends BaseToolInvocation<
       if (!decision.ok) {
         // Surface the structured ToolErrorType through scheduler.
         // A plain `throw new Error` would hit the scheduler's catch
-        // block and be reported as UNHANDLED_EXCEPTION — losing the
+        // block and be reported as UNHANDLED_EXCEPTION -- losing the
         // EDIT_REQUIRES_PRIOR_READ / FILE_CHANGED_SINCE_READ contract
         // for any flow that requires confirmation.
         throw new StructuredToolError(decision.rawMessage, decision.type);
@@ -264,8 +264,8 @@ class WriteFileToolInvocation extends BaseToolInvocation<
     //
     // Run unconditionally (not gated on `fileExists`): checkPriorRead
     // re-stats so a file that sprang into existence between
-    // isFilefileExists() and here — exactly the TOCTOU window pointed
-    // out in review — is now caught and rejected instead of being
+    // isFilefileExists() and here -- exactly the TOCTOU window pointed
+    // out in review -- is now caught and rejected instead of being
     // silently overwritten.
     if (!this.config.getFileReadCacheDisabled()) {
       const decision = await checkPriorRead(
@@ -364,7 +364,7 @@ class WriteFileToolInvocation extends BaseToolInvocation<
         // PowerShell 5.1 reads the file as UTF-8 instead of the system ANSI page
         useBOM = needsUtf8Bom(file_path);
       }
-      // else: user explicitly set 'utf-8' (no BOM) — respect it
+      // else: user explicitly set 'utf-8' (no BOM) -- respect it
       detectedEncoding = undefined;
     }
 
@@ -372,7 +372,7 @@ class WriteFileToolInvocation extends BaseToolInvocation<
     // Mirrors the upstream `claude-code/src/tools/FileEditTool` ordering,
     // which has an explicit comment on the equivalent block:
     //
-    //   "These awaits must stay OUTSIDE the critical section below — a
+    //   "These awaits must stay OUTSIDE the critical section below -- a
     //    yield between the staleness check and writeTextContent lets
     //    concurrent edits interleave."
     //
@@ -380,14 +380,14 @@ class WriteFileToolInvocation extends BaseToolInvocation<
     // hundreds of milliseconds. The previous ordering ran it AFTER
     // `checkPriorRead` and before `writeTextFile`, which widened the
     // already-acknowledged stat-then-write window from "two adjacent
-    // syscalls" to "freshness check → potentially-multi-second backup →
+    // syscalls" to "freshness check -> potentially-multi-second backup ->
     // write". An external mutation landing inside the backup window was
     // therefore no longer detected before the write clobbered it.
     //
     // Backing up first is safe: backups are idempotent (deterministic
     // `{hash}@v{version}` filename) and per-snapshot. If the freshness
     // check below then rejects the write, we keep an unused-but-correct
-    // backup of the pre-overwrite state — not corrupt state.
+    // backup of the pre-overwrite state -- not corrupt state.
     try {
       await this.config.getFileHistoryService().trackEdit(file_path);
     } catch {
@@ -401,7 +401,7 @@ class WriteFileToolInvocation extends BaseToolInvocation<
     //
     // It does NOT eliminate the race. A concurrent writer that
     // lands between this stat and the writeTextFile call below
-    // can still be clobbered — that residual is an OS-level
+    // can still be clobbered -- that residual is an OS-level
     // limitation of the stat-then-write pattern, and the only way
     // to close it is an atomic write (write-to-temp + rename) or
     // a content-hash post-check that re-reads the bytes after the
@@ -424,11 +424,11 @@ class WriteFileToolInvocation extends BaseToolInvocation<
         'overwriting',
         // If the file existed when we read it (`fileExists` is still
         // true after readTextFile), ENOENT here means the original
-        // target disappeared between the post-read check and now —
+        // target disappeared between the post-read check and now --
         // reject rather than fall through and silently re-create the
         // file from stale bytes. For new-file creation
         // (`fileExists === false`), ENOENT is the expected pre-write
-        // state (ok:true → writeTextFile creates).
+        // state (ok:true -> writeTextFile creates).
         { expectExisting: fileExists },
       );
       if (!writeDecision.ok) {
@@ -482,7 +482,7 @@ class WriteFileToolInvocation extends BaseToolInvocation<
       // so a follow-up Read sees `lastReadAt < lastWriteAt` and falls
       // through to the full pipeline instead of returning the
       // pre-write placeholder. Best-effort: a stat failure here does
-      // not undo the successful write — the next Read will re-stat
+      // not undo the successful write -- the next Read will re-stat
       // and either see fresh content or treat the entry as stale.
       try {
         const postWriteStats = fs.statSync(file_path);
@@ -641,7 +641,7 @@ export class WriteFileTool
   protected override validateToolParamValues(
     params: WriteFileToolParams,
   ): string | null {
-    // Normalize shell-escaped paths (e.g. "my\ file.txt" → "my file.txt")
+    // Normalize shell-escaped paths (e.g. "my\ file.txt" -> "my file.txt")
     // that may reach the LLM via at-completion or manual typing.
     const filePath = unescapePath(params.file_path.trim());
     params.file_path = filePath;
@@ -680,7 +680,7 @@ export class WriteFileTool
     params: WriteFileToolParams,
   ): Record<string, unknown> {
     const content = params.content ?? '';
-    // 300-char window for the same reason as EditTool's projection —
+    // 300-char window for the same reason as EditTool's projection --
     // out-of-workspace writes need enough headroom for the classifier
     // to spot a malicious registry / shell / env line hidden behind
     // a benign prefix.

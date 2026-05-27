@@ -7,7 +7,7 @@ This file serves as a "worked example" for the `structured-debugging` skill. It 
 The case study is presented as a narrative:
 - **The Bug**: A situation where a CLI command prints nothing in a zsh TTY but works perfectly when output is captured in a pipe.
 - **The Cause**: A missing trailing newline in the output, which causes zsh's `PROMPT_SP` to erase the line before drawing the prompt.
-- **The Lesson**: Highlights the importance of "reproduction contradiction"—the fact that the bug disappears in a pipe is the key piece of data that leads to the fix.
+- **The Lesson**: Highlights the importance of "reproduction contradiction"--the fact that the bug disappears in a pipe is the key piece of data that leads to the fix.
 - **Mapping to SKILL.md**: The case is explicitly mapped to core debugging axioms:
     - *Reproduction contradiction is data*.
     - *Instrument the data flow, not just the code path*.

@@ -548,7 +548,7 @@ export function SettingsDialog({
           return;
         }
         if (keyMatchers[Command.SELECTION_UP](key)) {
-          // ↑/k/Ctrl+P all move selection up. If editing, commit first.
+          // /k/Ctrl+P all move selection up. If editing, commit first.
           if (editingKey) {
             commitEdit(editingKey);
           }
@@ -564,7 +564,7 @@ export function SettingsDialog({
             setScrollOffset(newIndex);
           }
         } else if (keyMatchers[Command.SELECTION_DOWN](key)) {
-          // ↓/j/Ctrl+N all move selection down. If editing, commit first.
+          // /j/Ctrl+N all move selection down. If editing, commit first.
           if (editingKey) {
             commitEdit(editingKey);
           }
@@ -796,7 +796,7 @@ export function SettingsDialog({
             {t('Settings')}
           </Text>
           <Box height={1} />
-          {showScrollUp && <Text color={theme.text.secondary}>▲</Text>}
+          {showScrollUp && <Text color={theme.text.secondary}></Text>}
           {visibleItems.map((item, idx) => {
             const isActive =
               mode === 'settings' && activeSettingIndex === idx + scrollOffset;
@@ -860,9 +860,9 @@ export function SettingsDialog({
                 displayValue += '*';
               }
 
-              // Append ▸ for sub-dialog settings to hint Enter opens a picker
+              // Append  for sub-dialog settings to hint Enter opens a picker
               if (isSubDialogSetting) {
-                displayValue = displayValue ? displayValue + ' ▸' : '▸';
+                displayValue = displayValue ? displayValue + ' ' : '';
               }
             } else {
               // For booleans and other types, use existing logic
@@ -891,7 +891,7 @@ export function SettingsDialog({
                       isActive ? theme.status.success : theme.text.secondary
                     }
                   >
-                    {isActive ? '●' : ''}
+                    {isActive ? '' : ''}
                   </Text>
                 </Box>
                 <Box flexGrow={1} flexShrink={1}>
@@ -922,7 +922,7 @@ export function SettingsDialog({
               </Box>
             );
           })}
-          {showScrollDown && <Text color={theme.text.secondary}>▼</Text>}
+          {showScrollDown && <Text color={theme.text.secondary}></Text>}
         </Box>
       ) : (
         <ScopeSelector

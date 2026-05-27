@@ -11,15 +11,15 @@
  * Scoped intentionally narrow: this hook only knows how to mutate the
  * query (append a printable char, pop a char, clear) and how to ask
  * its parent to leave search mode. Mode transitions, navigation
- * (Enter / ↑ / ↓ / Ctrl+C), list-only shortcuts (Ctrl+B branch
+ * (Enter /  /  / Ctrl+C), list-only shortcuts (Ctrl+B branch
  * toggle, Space-preview), and the "implicit entry" fallback that
  * seeds the query from list mode are all the parent's responsibility
- * — kept out of here so the search editor can be reasoned about as a
+ * -- kept out of here so the search editor can be reasoned about as a
  * small, append-only buffer with a few escape hatches.
  *
  * Inspired by claude-code's `useSearchInput` but trimmed to qwen's
  * current feature set: no cursor movement, no kill ring, no word-wise
- * editing. Adding those later only requires extending this hook —
+ * editing. Adding those later only requires extending this hook --
  * the outer picker stays untouched.
  */
 
@@ -52,7 +52,7 @@ const isDeletionKey = (key: Key): boolean =>
  *   - bracketed pastes (a multi-line paste should never silently
  *     become a search query);
  *   - control characters (sequences below 0x20 like Tab/Enter/Esc);
- *   - DEL (0x7F) — Backspace's sequence byte, otherwise it would
+ *   - DEL (0x7F) -- Backspace's sequence byte, otherwise it would
  *     slip past the printable check and produce a literal DEL
  *     character in the query.
  *
@@ -70,8 +70,8 @@ export function isPrintableSearchChar(key: Key): boolean {
 
 export interface UseSessionSearchInputOptions {
   /**
-   * Called when the search frame should yield back to list mode —
-   * fires synchronously when a non-empty → empty query transition
+   * Called when the search frame should yield back to list mode --
+   * fires synchronously when a non-empty -> empty query transition
    * occurs (Esc, Ctrl+U/L, or the last Backspace), detected via a
    * ref-backed setter. The parent typically maps this to
    * `setViewMode('list')`.
@@ -90,7 +90,7 @@ export interface UseSessionSearchInputResult {
   /** Current query text. */
   searchQuery: string;
   /**
-   * Imperative setter — the parent uses this for "implicit entry"
+   * Imperative setter -- the parent uses this for "implicit entry"
    * (typing in list mode seeds the query) without going through
    * `handleSearchKey`. Functional updaters are supported and
    * recommended whenever the new value depends on the previous one.
@@ -105,12 +105,12 @@ export interface UseSessionSearchInputResult {
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
   /**
    * Process a key event that arrived while the picker is in search
-   * mode. Always treated as the final handler for that key — the
+   * mode. Always treated as the final handler for that key -- the
    * search input has exclusive ownership of the keyboard while
    * focused, so anything this function doesn't recognize is
    * intentionally swallowed by the caller. (Mode-independent
-   * shortcuts that need to fire in search mode — Enter, ↑/↓,
-   * Ctrl+C — are routed by the parent before this delegate.)
+   * shortcuts that need to fire in search mode -- Enter, /,
+   * Ctrl+C -- are routed by the parent before this delegate.)
    */
   handleSearchKey: (key: Key) => void;
 }
@@ -125,7 +125,7 @@ export function useSessionSearchInput(
   onExitToListRef.current = onExitToList;
 
   /**
-   * Ref-backed setter that detects the non-empty → empty transition
+   * Ref-backed setter that detects the non-empty -> empty transition
    * synchronously, without waiting for a `useEffect` flush.
    *
    * The synchronous ref check is the primary exit path.  The
@@ -162,7 +162,7 @@ export function useSessionSearchInput(
 
       if (name === 'escape') {
         // Drop the query; the ref-backed setter fires onExitToList
-        // synchronously when the transition is non-empty → empty.
+        // synchronously when the transition is non-empty -> empty.
         setSearchQuery('');
         return;
       }
@@ -185,8 +185,8 @@ export function useSessionSearchInput(
         return;
       }
 
-      // Anything else (Ctrl+B, Tab, Page keys, …) is silently
-      // swallowed by the caller — search owns the keyboard.
+      // Anything else (Ctrl+B, Tab, Page keys, ...) is silently
+      // swallowed by the caller -- search owns the keyboard.
     },
     [setSearchQuery],
   );

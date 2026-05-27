@@ -39,7 +39,7 @@ import type {
   KnownDaemonEvent,
 } from '../../src/index.js';
 
-describe('public SDK entry — typed daemon event surface (#4217)', () => {
+describe('public SDK entry -- typed daemon event surface (#4217)', () => {
   it('exports the runtime narrow + reducer surface', () => {
     expect(typeof Public.asKnownDaemonEvent).toBe('function');
     expect(typeof Public.isKnownDaemonEvent).toBe('function');

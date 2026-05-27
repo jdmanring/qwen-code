@@ -49,7 +49,7 @@ vi.mock('../agents/runtime/agent-headless.js', () => ({
 }));
 
 // Mirrors the positional AgentHeadless.create parameters so tests can
-// destructure by name instead of indexing — adding new parameters can't
+// destructure by name instead of indexing -- adding new parameters can't
 // silently shift assertions onto the wrong slot.
 function destructureAgentHeadlessCall(call: unknown[]) {
   return {
@@ -1425,7 +1425,7 @@ System prompt 3`);
       });
 
       it('should leave modelConfig empty for "fast" when getFastModel returns undefined', async () => {
-        // Mirrors the unset / invalid-for-authType cases — AgentCore then
+        // Mirrors the unset / invalid-for-authType cases -- AgentCore then
         // falls back to runtimeContext.getModel() (the parent model).
         const fastConfig: SubagentConfig = { ...validConfig, model: 'fast' };
         vi.spyOn(mockConfig, 'getFastModel').mockReturnValue(undefined);
@@ -1518,7 +1518,7 @@ System prompt 3`);
 
         await manager.createAgentHeadless(config, mockConfig);
 
-        // Owner is the runtimeContext passed to createAgentHeadless — assert
+        // Owner is the runtimeContext passed to createAgentHeadless -- assert
         // the exact instance so a regression that swaps in a different Config
         // (e.g. the override) gets caught.
         expect(mockCreateContentGenerator).toHaveBeenCalledWith(
@@ -1566,7 +1566,7 @@ System prompt 3`);
           mockAgentHeadlessCreate.mock.calls[0],
         );
         // Subagents always get an `Object.create(parent)` wrapper for
-        // FileReadCache isolation — distinct instance, prototype === parent.
+        // FileReadCache isolation -- distinct instance, prototype === parent.
         expect(runtimeContext).not.toBe(mockConfig);
         expect(Object.getPrototypeOf(runtimeContext)).toBe(mockConfig);
         expect(runtimeView).toBeDefined();
@@ -1651,7 +1651,7 @@ System prompt 3`);
 
         await manager.createAgentHeadless(config, mockConfig);
 
-        // Falls back to inheriting the parent — no override, no runtimeView.
+        // Falls back to inheriting the parent -- no override, no runtimeView.
         expect(mockCreateContentGenerator).not.toHaveBeenCalled();
         const { runtimeView } = destructureAgentHeadlessCall(
           mockAgentHeadlessCreate.mock.calls[0],

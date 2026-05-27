@@ -2,8 +2,8 @@
  * DingTalk media download helpers.
  *
  * Two-step flow:
- * 1. POST downloadCode to DingTalk API → get a temporary downloadUrl
- * 2. GET the downloadUrl → arraybuffer
+ * 1. POST downloadCode to DingTalk API -> get a temporary downloadUrl
+ * 2. GET the downloadUrl -> arraybuffer
  */
 
 const DOWNLOAD_API =

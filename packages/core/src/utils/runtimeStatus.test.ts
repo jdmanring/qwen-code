@@ -95,15 +95,15 @@ describe('writeRuntimeStatus', () => {
 
   it('preserves non-ASCII characters in path components and session ids', async () => {
     await writeRuntimeStatus(targetPath(), {
-      sessionId: '中文-uuid-aaa',
-      workDir: 'D:/项目/我的-app',
+      sessionId: '-uuid-aaa',
+      workDir: 'D://-app',
       pid: 7777,
     });
     const status = await readRuntimeStatus(targetPath());
-    expect(status?.sessionId).toBe('中文-uuid-aaa');
-    expect(status?.workDir).toBe('D:/项目/我的-app');
+    expect(status?.sessionId).toBe('-uuid-aaa');
+    expect(status?.workDir).toBe('D://-app');
     const rawBytes = await readFile(targetPath());
-    expect(rawBytes.includes(Buffer.from('中文', 'utf-8'))).toBe(true);
+    expect(rawBytes.includes(Buffer.from('', 'utf-8'))).toBe(true);
   });
 });
 

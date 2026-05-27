@@ -5,7 +5,7 @@
  */
 
 /**
- * BackgroundTasksDialog — overlay with two modes (`list`, `detail`).
+ * BackgroundTasksDialog -- overlay with two modes (`list`, `detail`).
  * Key handling is scoped to this component; the composer is muted via
  * the `bgDialogOpen` branch in InputPrompt while the dialog is open.
  */
@@ -43,7 +43,7 @@ import { t } from '../../../i18n/index.js';
 // `paused` state, so dialog handlers can switch on a single combined enum.
 type EntryStatus = DialogEntry['status'];
 
-// Tool-name → display-name lookup (`run_shell_command` → `Shell`).
+// Tool-name -> display-name lookup (`run_shell_command` -> `Shell`).
 const TOOL_DISPLAY_BY_NAME: Record<string, string> = Object.fromEntries(
   (Object.keys(ToolNames) as Array<keyof typeof ToolNames>).map((key) => [
     ToolNames[key],
@@ -156,10 +156,10 @@ function terminalStatusPresentation(
 }
 
 // Foreground agent rows get this prefix so users can tell at a glance
-// that cancelling one will unblock — and end — the parent's current
+// that cancelling one will unblock -- and end -- the parent's current
 // turn, a much heavier consequence than cancelling a truly async
 // background entry. `[blocking]` reads more directly than the earlier
-// `[in turn]` (which was widely misread as "queued / sequential" —
+// `[in turn]` (which was widely misread as "queued / sequential" --
 // the opposite meaning).
 const FOREGROUND_ROW_PREFIX = '[blocking]';
 const SHELL_ROW_PREFIX = '[shell]';
@@ -175,7 +175,7 @@ function rowLabel(entry: DialogEntry): string {
       // without needing per-kind section headers (which would complicate
       // the windowing math). Long commands / descriptions wrap (ListBody
       // renders rows with plain `<Text>`, no truncation helper), which
-      // is acceptable for the dialog's information-density profile —
+      // is acceptable for the dialog's information-density profile --
       // adding `wrap="truncate-end"` here would hide context the user
       // explicitly opened the dialog to see.
       return `${SHELL_ROW_PREFIX} ${entry.command}`;
@@ -197,7 +197,7 @@ function elapsedFor(entry: { startTime: number; endTime?: number }): string {
     0,
     (entry.endTime ?? Date.now()) - entry.startTime,
   );
-  // Round down to whole seconds — the detail subtitle is a glanceable
+  // Round down to whole seconds -- the detail subtitle is a glanceable
   // indicator, not a stopwatch, and sub-second precision flickers distract
   // from the actual status change.
   const wholeSeconds = Math.floor(elapsedMs / 1000);
@@ -211,7 +211,7 @@ function elapsedFor(entry: { startTime: number; endTime?: number }): string {
 function truncateToWidth(text: string, maxWidth: number): string {
   if (maxWidth <= 0) return '';
   if (stringWidth(text) <= maxWidth) return text;
-  const ellipsis = '…';
+  const ellipsis = '...';
   const ellipsisWidth = stringWidth(ellipsis);
   const target = Math.max(0, maxWidth - ellipsisWidth);
   let width = 0;
@@ -225,7 +225,7 @@ function truncateToWidth(text: string, maxWidth: number): string {
   return result + ellipsis;
 }
 
-// ─── List mode ─────────────────────────────────────────────
+// --- List mode ---------------------------------------------
 
 const ListBody: React.FC<{
   entries: readonly DialogEntry[];
@@ -317,7 +317,7 @@ const ListBody: React.FC<{
   );
 };
 
-// ─── Detail mode ───────────────────────────────────────────
+// --- Detail mode -------------------------------------------
 
 const DetailBody: React.FC<{
   entry: DialogEntry;
@@ -366,19 +366,19 @@ const DetailBody: React.FC<{
   }
 };
 
-// ─── Dream detail body ─────────────────────────────────────
+// --- Dream detail body -------------------------------------
 //
 // Shows what the agent is reviewing (session count), what it has
 // touched (topic files, only populated on completion), and the latest
 // progress text from MemoryManager. Cancellation is wired through the
 // shared `x stop` keystroke (handled by `cancelSelected` in the
 // context, which routes dream entries to `MemoryManager.cancelTask`).
-// In-flight progress is still static — the dream's fork agent reports
+// In-flight progress is still static -- the dream's fork agent reports
 // only at schedule + completion via MemoryManager.update; live
 // per-turn phase reporting requires extending runForkedAgent's
 // AgentPathParams with an onAssistantMessage callback (separate PR).
 //
-// Layout follows the Shell/Monitor convention — flat children of
+// Layout follows the Shell/Monitor convention -- flat children of
 // MaxSizedBox separated by empty `<Box />` spacers (nesting a
 // `flexDirection="column"` container inside MaxSizedBox eats the
 // children silently).
@@ -420,10 +420,10 @@ const DreamDetailBody: React.FC<{
       <Box>
         {terminal && (
           <Text color={terminal.color}>
-            {`${terminal.icon} ${statusVerb(entry.status)} · `}
+            {`${terminal.icon} ${statusVerb(entry.status)}  `}
           </Text>
         )}
-        <Text color={theme.text.secondary}>{dimSubtitleParts.join(' · ')}</Text>
+        <Text color={theme.text.secondary}>{dimSubtitleParts.join('  ')}</Text>
       </Box>
 
       {entry.sessionCount !== undefined && (
@@ -466,14 +466,14 @@ const DreamDetailBody: React.FC<{
           </Box>
           {visibleTopics.map((topic) => (
             <Box key={topic}>
-              <Text>{`  · ${topic}`}</Text>
+              <Text>{`   ${topic}`}</Text>
             </Box>
           ))}
           {hiddenTopicCount > 0 && (
             <Box>
               <Text
                 color={theme.text.secondary}
-              >{`  · +${t('{{count}} more', { count: String(hiddenTopicCount) })}`}</Text>
+              >{`   +${t('{{count}} more', { count: String(hiddenTopicCount) })}`}</Text>
             </Box>
           )}
         </Fragment>
@@ -782,7 +782,7 @@ const MonitorDetailBody: React.FC<{
   maxHeight: number;
   maxWidth: number;
 }> = ({ entry, maxHeight, maxWidth }) => {
-  const title = `${t('Monitor')} › ${entry.description}`;
+  const title = `${t('Monitor')}  ${entry.description}`;
 
   const terminal = terminalStatusPresentation(entry.status);
   const dimSubtitleParts: string[] = [elapsedFor(entry)];
@@ -822,10 +822,10 @@ const MonitorDetailBody: React.FC<{
       <Box>
         {terminal && (
           <Text color={terminal.color}>
-            {`${terminal.icon} ${statusVerb(entry.status)} · `}
+            {`${terminal.icon} ${statusVerb(entry.status)}  `}
           </Text>
         )}
-        <Text color={theme.text.secondary}>{dimSubtitleParts.join(' · ')}</Text>
+        <Text color={theme.text.secondary}>{dimSubtitleParts.join('  ')}</Text>
       </Box>
 
       <Box />
@@ -857,7 +857,7 @@ const MonitorDetailBody: React.FC<{
   );
 };
 
-// ─── Dialog shell ──────────────────────────────────────────
+// --- Dialog shell ------------------------------------------
 
 interface BackgroundTasksDialogProps {
   availableTerminalHeight: number;
@@ -889,7 +889,7 @@ export const BackgroundTasksDialog: React.FC<BackgroundTasksDialogProps> = ({
   // because the terminal is short. Chrome = border(2) + title(1) + two
   // marginTops(2) + hint(1) = 6 rows.
   const detailContentHeight = Math.max(10, availableTerminalHeight - 6);
-  // Rounded border + paddingX=1 on the outer Box ≈ 4 horizontal cells.
+  // Rounded border + paddingX=1 on the outer Box  4 horizontal cells.
   const detailContentWidth = Math.max(10, terminalWidth - 4);
 
   // List mode row budget: terminal height minus chrome (border 2 + title 1
@@ -897,17 +897,17 @@ export const BackgroundTasksDialog: React.FC<BackgroundTasksDialogProps> = ({
   // marginTop 1 + "Background tasks (N)" 1) = 10.
   const listMaxRows = Math.max(3, availableTerminalHeight - 10);
 
-  // Activity tick — bumped whenever the watched agent emits an activity
+  // Activity tick -- bumped whenever the watched agent emits an activity
   // update, *and* used as a useMemo dep below to refresh the live agent
   // entry from the registry. The snapshot in useBackgroundTaskView
   // intentionally only refreshes on `statusChange` (so the footer pill
   // and AppContainer stay quiet during heavy tool traffic), but the
   // detail body must see fresh `recentActivities` / `stats` between
-  // those transitions — so we re-read from the registry here.
+  // those transitions -- so we re-read from the registry here.
   const [activityTick, setActivityTick] = useState(0);
 
   // Two-step cancel for foreground entries: cancelling one ends the
-  // parent's current turn with a partial result for that subagent —
+  // parent's current turn with a partial result for that subagent --
   // a much heavier consequence than cancelling a background async task.
   // `pendingCancelEntryId` records the entry that has been armed for
   // cancellation; the next `x` press confirms. Esc resets.
@@ -947,7 +947,7 @@ export const BackgroundTasksDialog: React.FC<BackgroundTasksDialogProps> = ({
   }, [entries, selectedIndex, config, activityTick]);
 
   const selectedEntryId = selectedEntry ? entryId(selectedEntry) : undefined;
-  // Activity callback is agent-only — shells don't emit per-tool events.
+  // Activity callback is agent-only -- shells don't emit per-tool events.
   const selectedAgentIdForActivity =
     selectedEntry?.kind === 'agent' ? selectedEntry.agentId : undefined;
   useEffect(() => {
@@ -964,7 +964,7 @@ export const BackgroundTasksDialog: React.FC<BackgroundTasksDialogProps> = ({
 
   // Wall-clock tick for the running agent's duration. Activity callbacks
   // fire when tools run, but duration needs to advance even when the agent
-  // is quietly thinking — otherwise the "33s" line freezes between tool uses.
+  // is quietly thinking -- otherwise the "33s" line freezes between tool uses.
   const selectedStatus = selectedEntry?.status;
   useEffect(() => {
     if (
@@ -980,7 +980,7 @@ export const BackgroundTasksDialog: React.FC<BackgroundTasksDialogProps> = ({
 
   // Auto-fallback to the list view when the selected agent reaches a
   // terminal state while the user is watching it live. We only exit on
-  // the running → terminal *transition* — if the user deliberately
+  // the running -> terminal *transition* -- if the user deliberately
   // opened an already-completed entry, they stay on it. The detail
   // view itself renders terminal state fine, so this is a UX choice
   // (return focus to the running roster) rather than a correctness fix.
@@ -995,8 +995,8 @@ export const BackgroundTasksDialog: React.FC<BackgroundTasksDialogProps> = ({
     }
     // Defensive fallback: if the viewed entry has somehow gone missing,
     // drop back to the list so we don't sit on a "No entry to show" screen.
-    // Hitting this path now is unlikely — terminal entries stay in the
-    // registry — but the entry could disappear if the registry is reset.
+    // Hitting this path now is unlikely -- terminal entries stay in the
+    // registry -- but the entry could disappear if the registry is reset.
     if (!selectedEntryId) {
       initialDetailStatusRef.current = null;
       exitDetail();
@@ -1004,7 +1004,7 @@ export const BackgroundTasksDialog: React.FC<BackgroundTasksDialogProps> = ({
     }
     const seen = initialDetailStatusRef.current;
     if (!seen || seen.entryId !== selectedEntryId) {
-      // First render in detail mode for this entry — remember the status we
+      // First render in detail mode for this entry -- remember the status we
       // opened with so we can detect a transition away from 'running' later.
       if (selectedStatus) {
         initialDetailStatusRef.current = {
@@ -1029,7 +1029,7 @@ export const BackgroundTasksDialog: React.FC<BackgroundTasksDialogProps> = ({
   const handleCancelKey = () => {
     if (!selectedEntry) return;
     // `x` only has a meaning for entries the user can still act on:
-    // `running` → cancel, `paused` (agent kind) → abandon. Terminal
+    // `running` -> cancel, `paused` (agent kind) -> abandon. Terminal
     // statuses (completed/failed/cancelled) ignore the keypress so a
     // foreground entry that just settled can't display the misleading
     // "x again to confirm stop" line during the brief window before it
@@ -1133,7 +1133,7 @@ export const BackgroundTasksDialog: React.FC<BackgroundTasksDialogProps> = ({
     selectedEntry.status === 'paused' &&
     !selectedEntry.resumeBlockedReason;
 
-  // Hint footer — context-sensitive.
+  // Hint footer -- context-sensitive.
   const selectedEntryKey = selectedEntry ? entryId(selectedEntry) : null;
   const showCancelConfirmHint =
     pendingCancelEntryId !== null && pendingCancelEntryId === selectedEntryKey;

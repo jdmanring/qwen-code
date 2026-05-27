@@ -331,7 +331,7 @@ describe('fileUtils', () => {
 
     describe('readFileWithEncoding', () => {
       it('should read UTF-8 BOM file correctly', async () => {
-        const content = 'Hello, 世界! 🌍';
+        const content = 'Hello, ! ';
         const utf8Bom = Buffer.from([0xef, 0xbb, 0xbf]);
         const utf8Content = Buffer.from(content, 'utf8');
         const fullBuffer = Buffer.concat([utf8Bom, utf8Content]);
@@ -344,7 +344,7 @@ describe('fileUtils', () => {
       });
 
       it('should read UTF-16 LE BOM file correctly', async () => {
-        const content = 'Hello, 世界! 🌍';
+        const content = 'Hello, ! ';
         const utf16leBom = Buffer.from([0xff, 0xfe]);
         const utf16leContent = Buffer.from(content, 'utf16le');
         const fullBuffer = Buffer.concat([utf16leBom, utf16leContent]);
@@ -357,7 +357,7 @@ describe('fileUtils', () => {
       });
 
       it('should read UTF-16 BE BOM file correctly', async () => {
-        const content = 'Hello, 世界! 🌍';
+        const content = 'Hello, ! ';
         // Manually encode UTF-16 BE: each char as big-endian 16-bit
         const utf16beBom = Buffer.from([0xfe, 0xff]);
         const chars = Array.from(content);
@@ -387,7 +387,7 @@ describe('fileUtils', () => {
       });
 
       it('should read UTF-32 LE BOM file correctly', async () => {
-        const content = 'Hello, 世界! 🌍';
+        const content = 'Hello, ! ';
         const utf32leBom = Buffer.from([0xff, 0xfe, 0x00, 0x00]);
 
         const utf32leBytes: number[] = [];
@@ -412,7 +412,7 @@ describe('fileUtils', () => {
       });
 
       it('should read UTF-32 BE BOM file correctly', async () => {
-        const content = 'Hello, 世界! 🌍';
+        const content = 'Hello, ! ';
         const utf32beBom = Buffer.from([0x00, 0x00, 0xfe, 0xff]);
 
         const utf32beBytes: number[] = [];
@@ -437,7 +437,7 @@ describe('fileUtils', () => {
       });
 
       it('should read file without BOM as UTF-8', async () => {
-        const content = 'Hello, 世界!';
+        const content = 'Hello, !';
         const filePath = path.join(testDir, 'no-bom.txt');
         await fsPromises.writeFile(filePath, content, 'utf8');
 
@@ -454,7 +454,7 @@ describe('fileUtils', () => {
       });
 
       it('should read GBK-encoded file with Chinese characters correctly', async () => {
-        // GBK encoding of "你好世界这是中文内容用于测试编码检测"
+        // GBK encoding of ""
         // Needs enough content for chardet to reliably detect the encoding
         const gbkBuffer = Buffer.from([
           0xc4, 0xe3, 0xba, 0xc3, 0xca, 0xc0, 0xbd, 0xe7, 0xd5, 0xe2, 0xca,
@@ -466,11 +466,11 @@ describe('fileUtils', () => {
         await fsPromises.writeFile(filePath, gbkBuffer);
 
         const result = await readFileWithEncoding(filePath);
-        expect(result).toBe('你好世界这是中文内容用于测试编码检测');
+        expect(result).toBe('');
       });
 
       it('should read GBK-encoded file with mixed ASCII and Chinese correctly', async () => {
-        // GBK encoding of "// 这是注释内容用于测试\nhello你好世界测试中文编码检测\n函数返回值正确"
+        // GBK encoding of "// \nhello\n"
         // Needs enough Chinese content for chardet to reliably detect as GB18030/GBK
         const gbkBuffer = Buffer.from([
           0x2f, 0x2f, 0x20, 0xd5, 0xe2, 0xca, 0xc7, 0xd7, 0xa2, 0xca, 0xcd,
@@ -486,8 +486,8 @@ describe('fileUtils', () => {
 
         const result = await readFileWithEncoding(filePath);
         expect(result).toContain('hello');
-        expect(result).toContain('你好世界');
-        expect(result).toContain('函数返回值正确');
+        expect(result).toContain('');
+        expect(result).toContain('');
       });
     });
 
@@ -570,7 +570,7 @@ describe('fileUtils', () => {
         const result = await readFileWithEncodingInfo(filePath);
         expect(result.bom).toBe(false);
         expect(result.encoding).toBe('gb18030');
-        expect(result.content).toBe('你好世界这是中文内容用于测试编码检测');
+        expect(result.content).toBe('');
       });
     });
 
@@ -594,7 +594,7 @@ describe('fileUtils', () => {
       });
 
       it('should detect GBK encoding for Chinese text in GBK', async () => {
-        // GBK encoding of "你好世界这是中文内容用于测试编码检测"
+        // GBK encoding of ""
         // Needs enough content for chardet to reliably detect
         const gbkBuffer = Buffer.from([
           0xc4, 0xe3, 0xba, 0xc3, 0xca, 0xc0, 0xbd, 0xe7, 0xd5, 0xe2, 0xca,
@@ -937,7 +937,7 @@ describe('fileUtils', () => {
       }
     });
 
-    it('returns text for extensionless build/config basenames (Dockerfile, Makefile, go.mod, …)', async () => {
+    it('returns text for extensionless build/config basenames (Dockerfile, Makefile, go.mod, ...)', async () => {
       // Build / config / lockfile conventions carry no extension (or
       // only an ambiguous one like .mod). `path.extname` returns `''`,
       // so the extension allowlist misses them, and an encrypted-volume
@@ -1113,7 +1113,7 @@ describe('fileUtils', () => {
     });
 
     it('should skip the 10MB size gate when extracting PDF text by pages', async () => {
-      // Tiny file on disk — the fs.stat spy below reports a size >10MB so
+      // Tiny file on disk -- the fs.stat spy below reports a size >10MB so
       // the upstream size gate would reject if it still ran. With the
       // text-extraction path we want pdftotext to handle oversized PDFs,
       // since it streams the file and the output is capped downstream.
@@ -1146,7 +1146,7 @@ describe('fileUtils', () => {
         // Must not be rejected by the generic 10MB gate.
         expect(result.error ?? '').not.toContain('10MB limit');
         expect(result.llmContent).not.toMatch(/exceeds the 10MB limit/i);
-        // Routed into the pdftotext path — either success or the
+        // Routed into the pdftotext path -- either success or the
         // install-guidance error, never "File size exceeds the 10MB limit".
         expect(result.returnDisplay ?? '').toMatch(/pdf/i);
       } finally {
@@ -1427,7 +1427,7 @@ describe('fileUtils', () => {
       actualNodeFs.writeFileSync(testPdfFilePath, fakePdfData);
       mockMimeGetType.mockReturnValue('application/pdf');
 
-      // 200MB PDF — text-extraction path skips the 10MB gate but still
+      // 200MB PDF -- text-extraction path skips the 10MB gate but still
       // needs a sane ceiling so pdftotext can't be asked to stream GBs
       // until the 30s timeout fires.
       const statSpy = vi.spyOn(fs.promises, 'stat').mockResolvedValueOnce({

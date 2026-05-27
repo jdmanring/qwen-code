@@ -13,15 +13,15 @@
  *
  * @example
  *   extractShellOperations('cat /etc/passwd', '/home/user')
- *   // → [{ virtualTool: 'read_file', filePath: '/etc/passwd' }]
+ *   // -> [{ virtualTool: 'read_file', filePath: '/etc/passwd' }]
  *
  * @example
  *   extractShellOperations('curl https://example.com/api', '/home/user')
- *   // → [{ virtualTool: 'web_fetch', domain: 'example.com' }]
+ *   // -> [{ virtualTool: 'web_fetch', domain: 'example.com' }]
  *
  * @example
  *   extractShellOperations('echo hi > /etc/motd', '/home/user')
- *   // → [{ virtualTool: 'write_file', filePath: '/etc/motd' }]
+ *   // -> [{ virtualTool: 'write_file', filePath: '/etc/motd' }]
  *
  * Known limitations (cannot be statically analysed):
  *   - Shell variable expansion: `cat $FILE`
@@ -34,9 +34,9 @@
 import nodePath from 'node:path';
 import os from 'node:os';
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Types
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * A virtual file or network operation extracted from a shell command.
@@ -61,9 +61,9 @@ export interface ShellOperation {
   domain?: string;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Tokenizer
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Tokenize a shell command string, respecting single/double quotes and
@@ -112,9 +112,9 @@ function tokenize(command: string): string[] {
   return tokens;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Path helpers
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Resolve a path argument to an absolute POSIX-style path.
@@ -133,7 +133,7 @@ function resolvePath(p: string, cwd: string): string {
     const homeDir = os.homedir().replace(/\\/g, '/');
     const rest = normP.slice(1); // '' or '/some/path'
     // nodePath.posix.join handles the rest correctly:
-    // join('C:/Users/foo', '/.ssh/id_rsa') → 'C:/Users/foo/.ssh/id_rsa'
+    // join('C:/Users/foo', '/.ssh/id_rsa') -> 'C:/Users/foo/.ssh/id_rsa'
     return rest ? nodePath.posix.join(homeDir, rest) : homeDir;
   }
   // isAbsolute check: handle both POSIX (/foo) and Windows (C:\foo) absolute paths
@@ -153,7 +153,7 @@ function looksLikePath(s: string): boolean {
   if (s.startsWith('$')) return false;
   // Flags
   if (s.startsWith('-')) return false;
-  // Pure integers — likely a count/size/mode argument (e.g. -n 10, chmod 755)
+  // Pure integers -- likely a count/size/mode argument (e.g. -n 10, chmod 755)
   if (/^\d+$/.test(s)) return false;
   // Script-like expressions (awk/sed programs, brace expansions)
   if (s.includes('{') || s.includes('}')) return false;
@@ -162,9 +162,9 @@ function looksLikePath(s: string): boolean {
   return true;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Redirect extraction
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 interface RedirectResult {
   readFiles: string[];
@@ -190,7 +190,7 @@ function extractRedirects(tokens: string[], cwd: string): RedirectResult {
   for (let i = 0; i < tokens.length; i++) {
     const tok = tokens[i]!;
 
-    // ── Separate-token redirect operators ─────────────────────────────────
+    // -- Separate-token redirect operators ---------------------------------
     if (tok === '>' || tok === '1>') {
       const target = tokens[i + 1];
       if (target && looksLikePath(target)) {
@@ -216,7 +216,7 @@ function extractRedirects(tokens: string[], cwd: string): RedirectResult {
         i++;
       }
     } else if (tok === '2>' || tok === '2>>' || tok === '&>' || tok === '&>>') {
-      // stderr / combined redirect — consume target
+      // stderr / combined redirect -- consume target
       const target = tokens[i + 1];
       if (target) {
         if (target !== '/dev/null' && looksLikePath(target)) {
@@ -227,7 +227,7 @@ function extractRedirects(tokens: string[], cwd: string): RedirectResult {
         i++;
       }
     }
-    // ── Combined redirect tokens without space: `>file`, `>>file`, etc. ───
+    // -- Combined redirect tokens without space: `>file`, `>>file`, etc. ---
     else {
       const m = tok.match(/^(>>|>|2>>|2>|&>>|&>|<)(.+)$/);
       if (m) {
@@ -253,9 +253,9 @@ function extractRedirects(tokens: string[], cwd: string): RedirectResult {
   return { readFiles, writeFiles };
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Argument parsing
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Extract positional (non-flag) arguments from a token list.
@@ -290,9 +290,9 @@ function getPositionalArgs(
   return positional;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Command handler helpers
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 type CommandHandler = (args: string[], cwd: string) => ShellOperation[];
 
@@ -337,12 +337,12 @@ function webOp(url: string): ShellOperation | null {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Command dispatch table
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 const COMMANDS: Readonly<Record<string, CommandHandler>> = {
-  // ── File-read commands ────────────────────────────────────────────────────
+  // -- File-read commands ----------------------------------------------------
 
   cat: (a, d) => readOps(a, d),
   tac: (a, d) => readOps(a, d),
@@ -697,7 +697,7 @@ const COMMANDS: Readonly<Record<string, CommandHandler>> = {
     ),
   tr: (a, d) => readOps(a, d),
 
-  // ── Grep / search commands ────────────────────────────────────────────────
+  // -- Grep / search commands ------------------------------------------------
 
   grep: (args, cwd) => {
     const hasPatternFlag = args.some(
@@ -832,7 +832,7 @@ const COMMANDS: Readonly<Record<string, CommandHandler>> = {
     }));
   },
 
-  // ── Directory-listing commands ────────────────────────────────────────────
+  // -- Directory-listing commands --------------------------------------------
 
   ls: (a, d) => listOps(a, d),
   dir: (a, d) => listOps(a, d),
@@ -998,7 +998,7 @@ const COMMANDS: Readonly<Record<string, CommandHandler>> = {
       ]),
     ),
 
-  // ── File-write commands (create or overwrite) ─────────────────────────────
+  // -- File-write commands (create or overwrite) -----------------------------
 
   touch: (args, cwd) =>
     getPositionalArgs(
@@ -1089,7 +1089,7 @@ const COMMANDS: Readonly<Record<string, CommandHandler>> = {
     const srcs = positional.slice(0, -1);
     const dst = positional[positional.length - 1]!;
     return [
-      // The source files are edited (moved away — their original location changes)
+      // The source files are edited (moved away -- their original location changes)
       ...srcs.map((p) => ({
         virtualTool: 'edit' as const,
         filePath: resolvePath(p, cwd),
@@ -1126,7 +1126,7 @@ const COMMANDS: Readonly<Record<string, CommandHandler>> = {
   },
 
   dd: (args, cwd) => {
-    // dd if=input of=output — arguments are key=value pairs, not flags
+    // dd if=input of=output -- arguments are key=value pairs, not flags
     const ops: ShellOperation[] = [];
     for (const arg of args) {
       if (arg.startsWith('if=')) {
@@ -1148,7 +1148,7 @@ const COMMANDS: Readonly<Record<string, CommandHandler>> = {
   },
 
   ln: (args, cwd) => {
-    // ln [-s] TARGET LINKNAME — the link being created is a write operation
+    // ln [-s] TARGET LINKNAME -- the link being created is a write operation
     const positional = getPositionalArgs(
       args,
       new Set(['-S', '--suffix', '-t', '--target-directory', '-b', '--backup']),
@@ -1160,7 +1160,7 @@ const COMMANDS: Readonly<Record<string, CommandHandler>> = {
     ];
   },
 
-  // ── File-edit commands (modify or delete existing content) ────────────────
+  // -- File-edit commands (modify or delete existing content) ----------------
 
   rm: (args, cwd) =>
     getPositionalArgs(args, new Set(['--interactive']))
@@ -1222,7 +1222,7 @@ const COMMANDS: Readonly<Record<string, CommandHandler>> = {
       })),
 
   chmod: (args, cwd) => {
-    // chmod [opts] MODE file... — the mode is the first positional arg.
+    // chmod [opts] MODE file... -- the mode is the first positional arg.
     // Apply slice(1) BEFORE filter so that numeric modes like '755' (which are
     // filtered by looksLikePath) don't cause the file path to be dropped.
     const positional = getPositionalArgs(
@@ -1239,7 +1239,7 @@ const COMMANDS: Readonly<Record<string, CommandHandler>> = {
   },
 
   chown: (args, cwd) => {
-    // chown [opts] OWNER[:GROUP] file... — the owner spec is the first positional.
+    // chown [opts] OWNER[:GROUP] file... -- the owner spec is the first positional.
     const positional = getPositionalArgs(
       args,
       new Set(['--from', '--reference']),
@@ -1265,7 +1265,7 @@ const COMMANDS: Readonly<Record<string, CommandHandler>> = {
   },
 
   rename: (args, cwd) => {
-    // rename FROM TO file... — skip first two positionals (the from/to patterns)
+    // rename FROM TO file... -- skip first two positionals (the from/to patterns)
     const positional = getPositionalArgs(args).filter(looksLikePath);
     return positional.slice(2).map((p) => ({
       virtualTool: 'edit' as const,
@@ -1285,7 +1285,7 @@ const COMMANDS: Readonly<Record<string, CommandHandler>> = {
       '-f',
       '--expression',
       '--file',
-      // NOTE: -i is intentionally absent — it is an optional-suffix flag
+      // NOTE: -i is intentionally absent -- it is an optional-suffix flag
       // (e.g. `-i`, `-i.bak`) and does NOT consume the next token as a value.
       '-l',
       '--line-length',
@@ -1308,7 +1308,7 @@ const COMMANDS: Readonly<Record<string, CommandHandler>> = {
 
   awk: (args, cwd) => {
     // awk [-F sep] [-v var=val] PROGRAM file...
-    // The PROGRAM is the first positional — it will contain `{...}` which is
+    // The PROGRAM is the first positional -- it will contain `{...}` which is
     // filtered out by looksLikePath, so we don't need special handling.
     const flagsWithValue = new Set([
       '-F',
@@ -1349,7 +1349,7 @@ const COMMANDS: Readonly<Record<string, CommandHandler>> = {
       }));
   },
 
-  // ── WebFetch commands ─────────────────────────────────────────────────────
+  // -- WebFetch commands -----------------------------------------------------
 
   curl: (args) => {
     const flagsWithValue = new Set([
@@ -1505,9 +1505,9 @@ const COMMANDS: Readonly<Record<string, CommandHandler>> = {
   },
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Transparent prefix commands
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Flags that consume the next argument as their value, for specific prefix
@@ -1549,8 +1549,8 @@ const PREFIX_COMMAND_FLAGS_WITH_VALUE = new Map<string, ReadonlySet<string>>([
  * the remaining command string.
  *
  * Examples:
- *   `sudo cat /etc/shadow`     → analyse `cat /etc/shadow`
- *   `timeout 10 wget http://…` → analyse `wget http://…`
+ *   `sudo cat /etc/shadow`     -> analyse `cat /etc/shadow`
+ *   `timeout 10 wget http://...` -> analyse `wget http://...`
  */
 const PREFIX_COMMANDS = new Set([
   'sudo',
@@ -1565,9 +1565,9 @@ const PREFIX_COMMANDS = new Set([
   'stdbuf',
 ]);
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Main entry point
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Extract virtual file/network operations from a single simple shell command.
@@ -1618,12 +1618,12 @@ export function extractShellOperations(
 
   const ops: ShellOperation[] = [];
 
-  // ── Transparent prefix commands ───────────────────────────────────────────
+  // -- Transparent prefix commands -------------------------------------------
   if (PREFIX_COMMANDS.has(cmdName)) {
     const flagsWithVal = PREFIX_COMMAND_FLAGS_WITH_VALUE.get(cmdName);
     // Find where the actual command starts (after flags, flag-values, and env
     // variable assignments).  For example:
-    //   sudo -u root cat /file  →  startIdx skips '-u' AND 'root'
+    //   sudo -u root cat /file  ->  startIdx skips '-u' AND 'root'
     let startIdx = 1;
     while (startIdx < tokens.length) {
       const t = tokens[startIdx]!;
@@ -1645,7 +1645,7 @@ export function extractShellOperations(
         break;
       }
     }
-    // `timeout DURATION command` — the duration is a numeric positional that
+    // `timeout DURATION command` -- the duration is a numeric positional that
     // precedes the actual command.  Skip it.
     if (
       cmdName === 'timeout' &&
@@ -1660,13 +1660,13 @@ export function extractShellOperations(
       ops.push(...extractShellOperations(innerCommand, cwd));
     }
   } else {
-    // ── Dispatch to the known-command handler ─────────────────────────────
+    // -- Dispatch to the known-command handler -----------------------------
     const handler = COMMANDS[cmdName];
     if (handler) {
       const args = tokens.slice(1);
       ops.push(...handler(args, cwd));
     }
-    // Unknown commands: return no ops (safe — we don't guess what we don't know)
+    // Unknown commands: return no ops (safe -- we don't guess what we don't know)
   }
 
   // Append redirect-derived operations

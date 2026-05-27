@@ -15,7 +15,7 @@
  * failure modes and should not accumulate together. Switching ApprovalMode
  * resets all counters.
  *
- * `total*` counters are telemetry-only — they do NOT trigger fallback.
+ * `total*` counters are telemetry-only -- they do NOT trigger fallback.
  * A long session naturally accumulates blocks; forcing manual approval after
  * an absolute total would harm UX.
  */
@@ -116,7 +116,7 @@ export function shouldFallback(
  * the action, and the next call should re-engage the classifier. If the
  * classifier or its infrastructure is still degraded, the next call's
  * verdict will simply re-arm the appropriate counter (one block / one
- * unavailable) — same recovery curve as initial onset, no permanent
+ * unavailable) -- same recovery curve as initial onset, no permanent
  * lock-out. Resetting only `consecutiveBlock` (the original v1 behaviour)
  * created an asymmetry: a transient API blip past
  * `maxConsecutiveUnavailable` would permanently downgrade the rest of the
@@ -134,7 +134,7 @@ export function recordFallbackApprove(
 
 // (No `recordFallbackReject` helper: rejection deliberately leaves
 // counters unchanged. The invariant is enforced by simply not calling
-// any state-mutating function on the reject path — adding a no-op
+// any state-mutating function on the reject path -- adding a no-op
 // helper would invite future maintainers to wire it in and create
 // drift between the doc'd "reject preserves state" rule and code.)
 
@@ -144,7 +144,7 @@ export function recordFallbackApprove(
  * outcome handler and the ACP Session's outcome handler so adding a new
  * approve-shaped outcome can't drift between the two paths.
  *
- * Cancel / abort intentionally not handled — they leave denialTracking
+ * Cancel / abort intentionally not handled -- they leave denialTracking
  * untouched on the AUTO-fallback path. Caller decides.
  */
 export function isApproveOutcome(outcome: string): boolean {

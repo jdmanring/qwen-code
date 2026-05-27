@@ -30,11 +30,11 @@ const enterWorktreeDescription = `Creates an isolated git worktree at \`<project
 
 ## When to Use
 
-Only invoke this tool when the user **explicitly asks for a worktree** — e.g. "start a worktree", "use a worktree", "work in a worktree", "create a worktree".
+Only invoke this tool when the user **explicitly asks for a worktree** -- e.g. "start a worktree", "use a worktree", "work in a worktree", "create a worktree".
 
 ## When NOT to Use
 
-Do NOT call this tool when the user simply asks to fix a bug, implement a feature, create a branch, or check out code — those tasks belong to the regular working directory unless the user specifically mentions worktrees.
+Do NOT call this tool when the user simply asks to fix a bug, implement a feature, create a branch, or check out code -- those tasks belong to the regular working directory unless the user specifically mentions worktrees.
 
 ## Behavior
 
@@ -72,7 +72,7 @@ class EnterWorktreeInvocation extends BaseToolInvocation<
 
     // Refuse nested worktree creation. If the caller's cwd is itself
     // already inside `.qwen/worktrees/<slug>/`, a fresh worktree would
-    // be provisioned at `<repo>/.qwen/worktrees/<new>/` — but the
+    // be provisioned at `<repo>/.qwen/worktrees/<new>/` -- but the
     // model's mental model and inherited file paths would still
     // reference the outer worktree. The resulting handle confusion
     // typically leaves the inner worktree orphaned on exit.
@@ -118,7 +118,7 @@ class EnterWorktreeInvocation extends BaseToolInvocation<
     const service =
       projectRoot === cwd ? probe : new GitWorktreeService(projectRoot);
 
-    // Treat an empty `name` ('') the same as undefined — some models pass
+    // Treat an empty `name` ('') the same as undefined -- some models pass
     // `{ name: '' }` when the schema marks `name` as optional, expecting
     // the auto-generated slug. Without this, validation would reject the
     // empty string before reaching the auto-slug path.
@@ -150,7 +150,7 @@ class EnterWorktreeInvocation extends BaseToolInvocation<
 
     // Capture HEAD before creating the branch so WorktreeExitDialog can
     // count new commits created inside the worktree. Empty string when
-    // rev-parse fails (e.g. unborn HEAD) — the dialog treats empty as
+    // rev-parse fails (e.g. unborn HEAD) -- the dialog treats empty as
     // "unknown" and skips the commit-count display.
     let originalHeadCommit = '';
     try {
@@ -264,7 +264,7 @@ export class EnterWorktreeTool extends BaseDeclarativeTool<
       },
       true, // isOutputMarkdown
       false, // canUpdateOutput
-      true, // shouldDefer — only invoked when the user explicitly asks for a worktree
+      true, // shouldDefer -- only invoked when the user explicitly asks for a worktree
       false, // alwaysLoad
       'worktree git isolated branch new',
     );
@@ -275,7 +275,7 @@ export class EnterWorktreeTool extends BaseDeclarativeTool<
       if (typeof params.name !== 'string') {
         return 'Parameter "name" must be a string.';
       }
-      // Empty string is treated as "not provided" — `execute` falls back
+      // Empty string is treated as "not provided" -- `execute` falls back
       // to an auto-generated slug. Skip slug-format validation here so
       // the auto-slug path is reachable.
       if (params.name.length === 0) {

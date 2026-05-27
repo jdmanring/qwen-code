@@ -66,6 +66,14 @@ class ProjectStandardsLinter:
     def _setup_rules(self) -> None:
         self.rules.append(
             Rule(
+                "DOC-01",
+                Severity.CRITICAL,
+                self._check_ascii_compliance,
+                "Non-ASCII character detected. Use ASCII only for efficiency.",
+            )
+        )
+        self.rules.append(
+            Rule(
                 "DOC-02",
                 Severity.CRITICAL,
                 self._check_conversational_language,
@@ -139,22 +147,27 @@ class ProjectStandardsLinter:
 
     # --- DOC domain ---
 
-    def _check_unicode_logic_symbols(self, path: Path, content: str) -> list[Issue]:
-        if path.suffix != ".md":
+    def _check_ascii_compliance(self, path: Path, content: str) -> list[Issue]:
+        # Skip binary files or specific exclusions if needed
+        if path.suffix in (".png", ".jpg", ".gif", ".ico"):
             return []
-        pattern = re.compile("[→↔⇒⇔∧∨∴]")
+
         violations = []
         for i, line in enumerate(content.splitlines(), 1):
-            if pattern.search(line):
-                violations.append(
-                    Issue(
-                        path,
-                        i,
-                        "DOC-01",
-                        Severity.CRITICAL,
-                        "Unicode logic symbol detected. Use ASCII equivalents (=>, <=>, AND, OR).",
+            # Find first non-ASCII character
+            for char in line:
+                if ord(char) > 127:
+                    violations.append(
+                        Issue(
+                            path,
+                            i,
+                            "DOC-01",
+                            Severity.CRITICAL,
+                            f"Non-ASCII char '{char}' (U+{ord(char):04X}) "
+                            f"detected. Use ASCII only.",
+                        )
                     )
-                )
+                    break  # Only report one violation per line to avoid spam
         return violations
 
     def _check_conversational_language(self, path: Path, content: str) -> list[Issue]:
@@ -462,7 +475,7 @@ class ProjectStandardsLinter:
         except SyntaxError:
             return []
 
-        # Only check pure class files — skip scripts that have module-level functions
+        # Only check pure class files -- skip scripts that have module-level functions
         module_level_funcs = [
             node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
         ]

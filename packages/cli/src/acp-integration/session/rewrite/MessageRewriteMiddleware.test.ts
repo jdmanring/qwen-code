@@ -48,7 +48,7 @@ describe('MessageRewriteMiddleware', () => {
     vi.clearAllMocks();
   });
 
-  describe('interceptUpdate — pass-through', () => {
+  describe('interceptUpdate -- pass-through', () => {
     it('should pass through non-message updates unchanged', async () => {
       const { middleware, mockSendUpdate } = createMiddleware();
       const update = {
@@ -72,7 +72,7 @@ describe('MessageRewriteMiddleware', () => {
     });
   });
 
-  describe('interceptUpdate — target filtering', () => {
+  describe('interceptUpdate -- target filtering', () => {
     it('should accumulate messages when target is "message"', async () => {
       const { middleware, mockSendUpdate } = createMiddleware('message');
 
@@ -97,7 +97,7 @@ describe('MessageRewriteMiddleware', () => {
     it('should not accumulate thoughts when target is "message"', async () => {
       const { middleware, mockSendUpdate } = createMiddleware('message');
 
-      // Only thought, no message — flush should produce nothing
+      // Only thought, no message -- flush should produce nothing
       await middleware.interceptUpdate({
         sessionUpdate: 'agent_thought_chunk',
         content: { type: 'text', text: 'thought only' },
@@ -131,7 +131,7 @@ describe('MessageRewriteMiddleware', () => {
     });
   });
 
-  describe('flushTurn — tool_call boundary', () => {
+  describe('flushTurn -- tool_call boundary', () => {
     it('should flush before passing through tool_call', async () => {
       const { middleware, mockSendUpdate } = createMiddleware();
 

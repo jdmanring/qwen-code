@@ -489,7 +489,7 @@ set "VERSION_PATH=v!VERSION_PATH!"
 exit /b 0
 
 :GithubBaseUrlForVersion
-rem args: %~1=version_path  → sets QWEN_GH_BASE_URL
+rem args: %~1=version_path  -> sets QWEN_GH_BASE_URL
 set "QWEN_GH_REPO=QwenLM/qwen-code"
 if defined QWEN_INSTALL_GITHUB_REPO set "QWEN_GH_REPO=!QWEN_INSTALL_GITHUB_REPO!"
 if /i "%~1"=="latest" (
@@ -501,7 +501,7 @@ set "QWEN_GH_REPO="
 exit /b 0
 
 :AliyunBaseUrlForVersion
-rem args: %~1=version_path  → sets QWEN_OSS_BASE_URL
+rem args: %~1=version_path  -> sets QWEN_OSS_BASE_URL
 set "QWEN_OSS_BASE_URL=https://qwen-code-assets.oss-cn-hangzhou.aliyuncs.com/releases/qwen-code/%~1"
 exit /b 0
 

@@ -11,7 +11,7 @@
  * with a different model cannot rely on the constructor-bound Config to
  * report the right ContentGenerator or modalities. This frame lets
  * `Config.getContentGenerator{,Config}()` resolve to the active sub-agent
- * view, and lets nested `agent` tool launches discover their parent's id —
+ * view, and lets nested `agent` tool launches discover their parent's id --
  * both without threading extra parameters through every call site.
  *
  * Helpers patch one field at a time and merge with whatever is already on

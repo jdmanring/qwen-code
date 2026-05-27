@@ -49,7 +49,7 @@ export interface SessionListItem {
   filePath: string;
   /**
    * Number of unique-UUID user/assistant messages, when known. Listing
-   * does NOT compute this — counting requires a full readline pass over
+   * does NOT compute this -- counting requires a full readline pass over
    * the JSONL and was the dominant cost of `listSessions` once a project
    * accumulated many sessions. Use {@link SessionService.countSessionMessages}
    * (or compute from the resumed conversation) when the count is needed.
@@ -59,7 +59,7 @@ export interface SessionListItem {
   customTitle?: string;
   /**
    * Source of {@link customTitle}. `undefined` on legacy records without a
-   * source field — consumers should treat `undefined` and `'manual'` the
+   * source field -- consumers should treat `undefined` and `'manual'` the
    * same way for display (full-contrast). UI affordances like dimming are
    * reserved for `'auto'` so users can tell a model guess from a name they
    * chose.
@@ -184,7 +184,7 @@ export class SessionService {
   /**
    * Returns the absolute path to the sidecar JSON file that stores
    * worktree session state for the given session id. The file may not
-   * exist yet — consumers must handle ENOENT as "no active worktree".
+   * exist yet -- consumers must handle ENOENT as "no active worktree".
    */
   getWorktreeSessionPath(sessionId: string): string {
     return path.join(this.getChatsDir(), `${sessionId}.worktree.json`);
@@ -220,12 +220,12 @@ export class SessionService {
 
   /**
    * Reads both the custom title and its source from a session file in a
-   * single pass — the helper extracts both fields from the same matching
+   * single pass -- the helper extracts both fields from the same matching
    * `custom_title` line, so the pair is always consistent (never one field
    * from an old record and another from a new one).
    *
    * `titleSource` is absent on legacy records written before the field was
-   * introduced — callers treat `undefined` as equivalent to `'manual'` so a
+   * introduced -- callers treat `undefined` as equivalent to `'manual'` so a
    * user's pre-upgrade rename is never displayed as if it were auto-generated.
    */
   private readSessionTitleInfoFromFile(
@@ -273,7 +273,7 @@ export class SessionService {
    *
    * Each physical line is routed through `jsonl.parseLineTolerant` so a
    * `}{`-glued tail line (#3606 corruption shape) still yields its records
-   * instead of being silently skipped — otherwise `renameSession` would set
+   * instead of being silently skipped -- otherwise `renameSession` would set
    * `custom_title.parentUuid` to a stale uuid and `reconstructHistory` would
    * truncate the chain on resume.
    */
@@ -294,7 +294,7 @@ export class SessionService {
         // The first split segment is partial only when the tail window
         // truly starts in the middle of a JSONL record. If the byte right
         // before `readStart` is `\n`, the window started on a record
-        // boundary and the first segment is a complete line — the
+        // boundary and the first segment is a complete line -- the
         // 64-KiB-aligned case where `prev\n<exactly-64KiB-record>\n`
         // would otherwise drop the only readable record. Peek that byte
         // before deciding to shift.
@@ -313,7 +313,7 @@ export class SessionService {
       // Discard the first segment ONLY when it's a true partial fragment.
       // Running tolerant recovery on a partial would surface a balanced
       // inner `{ "uuid": ... }` object from inside the record's payload as
-      // if it were a top-level uuid — `renameSession` would then anchor
+      // if it were a top-level uuid -- `renameSession` would then anchor
       // `custom_title.parentUuid` at payload data and break the parent
       // chain. Complete physical lines (including a boundary-aligned
       // first segment) are safe to recover.
@@ -386,7 +386,7 @@ export class SessionService {
    * belongs to another project.
    *
    * This is intentionally NOT called from {@link listSessions} or
-   * {@link findSessionsByTitle} — it would be O(total bytes on disk) per
+   * {@link findSessionsByTitle} -- it would be O(total bytes on disk) per
    * picker open, dominating wall time once a project accumulates dozens
    * of multi-MB sessions. Call this lazily, only when a specific
    * session's message count is about to be displayed (e.g., from a
@@ -545,7 +545,7 @@ export class SessionService {
         prompt,
         gitBranch: firstRecord.gitBranch,
         filePath,
-        // messageCount intentionally omitted — see SessionListItem
+        // messageCount intentionally omitted -- see SessionListItem
         // and `countSessionMessages` for the rationale.
         customTitle: titleInfo.title,
         titleSource: titleInfo.source,
@@ -761,7 +761,7 @@ export class SessionService {
   /**
    * Removes multiple sessions in one call.
    *
-   * Each session is processed independently — a failure on one does not
+   * Each session is processed independently -- a failure on one does not
    * abort the rest. Sessions that don't exist (or belong to a different
    * project) are reported in {@link notFound}; thrown filesystem
    * errors are surfaced per-id in {@link errors} so callers can decide
@@ -806,7 +806,7 @@ export class SessionService {
    * @param sessionId The session ID to rename
    * @param title The new custom title
    * @param titleSource Where the title came from. Defaults to `'manual'` so
-   *   existing callers are unchanged — pass `'auto'` only for titles produced
+   *   existing callers are unchanged -- pass `'auto'` only for titles produced
    *   by the auto-title generator.
    * @returns true if renamed successfully, false if session not found
    */
@@ -1057,12 +1057,12 @@ export class SessionService {
 
   /**
    * Returns the customTitles in this project that start with `prefix`
-   * (case-insensitive). Single project-wide scan — meant to replace
+   * (case-insensitive). Single project-wide scan -- meant to replace
    * repeated `findSessionsByTitle()` probes when the caller needs to
    * pick the first free `(Branch N)` slot in memory.
    *
    * Skips the heavy hydration steps (message count, prompt extraction)
-   * that `findSessionsByTitle` does — collision lookup only needs the
+   * that `findSessionsByTitle` does -- collision lookup only needs the
    * title and a project filter, so we read the first record only when
    * the title actually matches the prefix.
    *
@@ -1099,7 +1099,7 @@ export class SessionService {
       const normalizedTitle = titleInfo.title.toLowerCase().trim();
       if (!normalizedTitle.startsWith(normalizedPrefix)) continue;
 
-      // Project filter — same semantics as findSessionsByTitle: scope
+      // Project filter -- same semantics as findSessionsByTitle: scope
       // collisions to the current project so a fork in another project
       // can't make this one bump unnecessarily.
       try {

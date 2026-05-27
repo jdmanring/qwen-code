@@ -169,15 +169,15 @@ Looking at the project structure, I found the following relevant files:
 
 \`\`\`
 packages/chrome-extension/
-├── src/
-│   ├── service-worker.ts      # Main service worker
-│   ├── native-messaging/
-│   │   ├── host.ts            # Native host communication
-│   │   └── protocol.ts        # Message protocol
-│   └── manifest.json          # Extension manifest
-└── native-host/
-    ├── index.js               # Native host entry
-    └── com.qwen.cli.bridge.json  # Host manifest
+|---- src/
+|   |---- service-worker.ts      # Main service worker
+|   |---- native-messaging/
+|   |   |---- host.ts            # Native host communication
+|   |   \_-- protocol.ts        # Message protocol
+|   \_-- manifest.json          # Extension manifest
+\_-- native-host/
+    |---- index.js               # Native host entry
+    \_-- com.qwen.cli.bridge.json  # Host manifest
 \`\`\`
 
 The issue appears to be in the handshake timing. The native host is exiting before the handshake completes.`,

@@ -41,7 +41,7 @@ export function findGoalToRestore(history: HistoryItem[]): string | null {
 /**
  * Finds the most recent terminal (achieved / failed / aborted) goal_status item in
  * the transcript. Sentinel-style entries (`set`, `cleared`, `checking`) are
- * SKIPPED — `/goal clear` after an achievement is intentionally a no-op on
+ * SKIPPED -- `/goal clear` after an achievement is intentionally a no-op on
  * this scan, matching Claude Code's `yjK` behavior (`if (!K.met || K.sentinel)
  * continue;`). Used on resume to repopulate the in-memory "last completed
  * goal" cache so empty `/goal` after a reload still shows the summary card.
@@ -113,7 +113,7 @@ export function installGoalTerminalObserver(args: {
 
 /**
  * On session resume, restores the active /goal hook if the transcript ended
- * with an unsatisfied goal. Idempotent — safe to call on a fresh session.
+ * with an unsatisfied goal. Idempotent -- safe to call on a fresh session.
  *
  * Re-runs the same trust/policy gates as `/goal`; if a gate now fails, we
  * silently skip restoration rather than re-register a goal the user can no
@@ -129,7 +129,7 @@ export function restoreGoalFromHistory(
   // `/goal` after resume can render the most recent achievement summary.
   // Independent of whether an active goal is being restored: a session may
   // have completed Goal A, started Goal B (still active), or completed
-  // multiple goals — only the latest terminal one is surfaced.
+  // multiple goals -- only the latest terminal one is surfaced.
   const lastTerminal = findLastTerminalGoal(history);
   setLastGoalTerminal(sessionId, lastTerminal ?? undefined);
 

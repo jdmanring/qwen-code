@@ -1,7 +1,7 @@
 # Skill: e2e-testing
 
 ## Skill Identity
-The `e2e-testing` skill provides a comprehensive framework for running end-to-end tests of the Qwen Code CLI. It is designed to verify the entire pipeline—from model API calls and tool validation to final execution—ensuring that the system behaves correctly in real-world scenarios. It solves the problem of gaps in unit testing by allowing for headless execution, raw API traffic inspection, and interactive TUI verification.
+The `e2e-testing` skill provides a comprehensive framework for running end-to-end tests of the Qwen Code CLI. It is designed to verify the entire pipeline--from model API calls and tool validation to final execution--ensuring that the system behaves correctly in real-world scenarios. It solves the problem of gaps in unit testing by allowing for headless execution, raw API traffic inspection, and interactive TUI verification.
 
 ## Trigger Logic
 This skill is triggered by requests or mentions of:

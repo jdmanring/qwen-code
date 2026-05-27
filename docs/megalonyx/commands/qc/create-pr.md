@@ -16,7 +16,7 @@ The system executes the following steps:
     - Populates the project's PR template.
     - Summarizes changes, provides motivation/context, and lists breaking changes.
     - Links related issues or marks as "No linked issues".
-    - Appends the mandatory AI attribution: `🤖 Generated with [Qwen Code](https://github.com/QwenLM/qwen-code)`.
+    - Appends the mandatory AI attribution: ` Generated with [Qwen Code](https://github.com/QwenLM/qwen-code)`.
 4.  **Submission**: 
     - Constructs the PR title and body.
     - Executes `gh pr create`.

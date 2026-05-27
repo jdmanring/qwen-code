@@ -75,7 +75,7 @@ export const DEFAULT_EXCLUDED_ENV_VARS = ['DEBUG', 'DEBUG_MODE'];
 
 // QWEN_HOME and QWEN_RUNTIME_DIR control where global state (settings, OAuth
 // credentials, installation IDs, etc.) is written. A project `.env` must never
-// redirect these — that would split global state between the real home and a
+// redirect these -- that would split global state between the real home and a
 // project-controlled directory. Always excluded from project .env files,
 // regardless of user-configurable `advanced.excludedEnvVars`.
 const PROJECT_ENV_HARDCODED_EXCLUSIONS = ['QWEN_HOME', 'QWEN_RUNTIME_DIR'];
@@ -89,9 +89,9 @@ export const SETTINGS_VERSION_KEY = '$version';
  * to the new permissions.allow / permissions.ask / permissions.deny format.
  *
  * Conversion rules:
- *   tools.allowed  → permissions.allow (bypass confirmation)
- *   tools.exclude  → permissions.deny  (block tools)
- *   tools.core     → permissions.allow (only listed tools enabled)
+ *   tools.allowed  -> permissions.allow (bypass confirmation)
+ *   tools.exclude  -> permissions.deny  (block tools)
+ *   tools.core     -> permissions.allow (only listed tools enabled)
  *                    + permissions.deny with a wildcard deny-all if needed
  *
  * Returns the updated settings object, or null if no migration is needed.
@@ -122,19 +122,19 @@ export function migrateLegacyPermissions(
     permissions[key] = merged;
   };
 
-  // tools.allowed → permissions.allow
+  // tools.allowed -> permissions.allow
   if (Array.isArray(resultTools['allowed'])) {
     mergeInto('allow', resultTools['allowed'] as string[]);
     delete resultTools['allowed'];
   }
 
-  // tools.exclude → permissions.deny
+  // tools.exclude -> permissions.deny
   if (Array.isArray(resultTools['exclude'])) {
     mergeInto('deny', resultTools['exclude'] as string[]);
     delete resultTools['exclude'];
   }
 
-  // tools.core → permissions.allow (explicit enables)
+  // tools.core -> permissions.allow (explicit enables)
   // IMPORTANT: tools.core has whitelist semantics: "only these tools can run".
   // To preserve this, we also add deny rules for all tools NOT in the list.
   // A wildcard deny-all followed by specific allows achieves this because
@@ -245,7 +245,7 @@ function getSettingsFileKeyWarnings(
     );
   }
 
-  // Unknown top-level keys — log silently to debug output.
+  // Unknown top-level keys -- log silently to debug output.
   const schemaKeys = new Set(Object.keys(getSettingsSchema()));
   for (const key of Object.keys(settings)) {
     if (key === SETTINGS_VERSION_KEY) {
@@ -528,14 +528,14 @@ function getUserLevelEnvPaths(): Set<string> {
  * before any settings or storage paths are read. Required because
  * module-load `Storage.getGlobalQwenDir()` would otherwise snapshot legacy
  * paths for settings.json, OAuth tokens, installation_id, etc., while the
- * regular `.env` load (inside `loadSettings`) only runs later — splitting
+ * regular `.env` load (inside `loadSettings`) only runs later -- splitting
  * global state between `~/.qwen/...` and `<QWEN_HOME>/...`.
  *
  * Only home-scoped paths are consulted; project `.env` files are barred from
  * changing these vars by `PROJECT_ENV_HARDCODED_EXCLUSIONS`.
  *
  * Exported so `main()` can run it before yargs subcommand handlers (e.g.
- * `channel status`/`stop`) — those `process.exit` before `loadSettings()`
+ * `channel status`/`stop`) -- those `process.exit` before `loadSettings()`
  * gets a chance to bootstrap.
  */
 let homeEnvBootstrapped = false;
@@ -565,7 +565,7 @@ export function preResolveHomeEnvOverrides(): void {
 
   // If QWEN_HOME was just discovered, also read <new QWEN_HOME>/.env so
   // QWEN_RUNTIME_DIR can be sourced from there (mirrors the VS Code
-  // companion's bootstrapHomeEnvOverrides — without this third pass the
+  // companion's bootstrapHomeEnvOverrides -- without this third pass the
   // CLI and companion would diverge on the runtime dir).
   const discoveredQwenHome = process.env['QWEN_HOME'];
   if (discoveredQwenHome && discoveredQwenHome !== initialQwenHome) {
@@ -610,7 +610,7 @@ function detectQwenHomeRedirectWithoutMigration(
     return null;
   }
   // Compute the legacy path by briefly unsetting QWEN_HOME so Storage uses
-  // its homedir-based default — same homedir resolution as the rest of the
+  // its homedir-based default -- same homedir resolution as the rest of the
   // storage layer. try/finally restores the env on any throw.
   const activeQwenDir = Storage.getGlobalQwenDir();
   const savedQwenHome = process.env['QWEN_HOME'];
@@ -633,7 +633,7 @@ function detectQwenHomeRedirectWithoutMigration(
   }
   return (
     `QWEN_HOME points to "${activeQwenDir}" but no settings.json was found there. ` +
-    `Existing config remains at "${legacyQwenDir}" — OAuth tokens, settings, memory, ` +
+    `Existing config remains at "${legacyQwenDir}" -- OAuth tokens, settings, memory, ` +
     `extensions, and skills are not auto-migrated. Copy them manually if you want them ` +
     `to apply at the new location.`
   );
@@ -758,10 +758,10 @@ export function loadEnvironment(settings: Settings): void {
       const excludedVars =
         settings?.advanced?.excludedEnvVars || DEFAULT_EXCLUDED_ENV_VARS;
       const normalizedEnvFilePath = path.normalize(envFilePath);
-      // homeScoped: `.env` lives under the user's home Qwen dir or `~/.env` —
+      // homeScoped: `.env` lives under the user's home Qwen dir or `~/.env` --
       //   only these may set QWEN_HOME / QWEN_RUNTIME_DIR.
       // qwenScoped: any `.env` whose immediate parent is `.qwen` (including
-      //   `<repo>/.qwen/.env`) — exempt from the user `excludedEnvVars` list.
+      //   `<repo>/.qwen/.env`) -- exempt from the user `excludedEnvVars` list.
       const isHomeScopedEnvFile = userLevelPaths.has(normalizedEnvFilePath);
       const isQwenScopedEnvFile =
         isHomeScopedEnvFile ||
@@ -790,7 +790,7 @@ export function loadEnvironment(settings: Settings): void {
   }
 
   // Step 2: settings.env fallback (lowest priority, no-override).
-  // Storage-routing vars must never come from settings.json — a workspace
+  // Storage-routing vars must never come from settings.json -- a workspace
   // settings.json could otherwise redirect global state after path bootstrap.
   if (settings.env) {
     for (const [key, value] of Object.entries(settings.env)) {
@@ -861,7 +861,7 @@ export function loadSettings(
         try {
           rawSettings = JSON.parse(stripJsonComments(content));
         } catch (parseError: unknown) {
-          // JSON parse failed — try to recover from .orig backup
+          // JSON parse failed -- try to recover from .orig backup
           const backupPath = `${filePath}.orig`;
           if (fs.existsSync(backupPath)) {
             debugLogger.warn(
@@ -872,7 +872,7 @@ export function loadSettings(
               const backupSettings = JSON.parse(
                 stripJsonComments(backupContent),
               );
-              // Backup is valid — restore it
+              // Backup is valid -- restore it
               fs.writeFileSync(filePath, backupContent, 'utf-8');
               content = backupContent;
               rawSettings = backupSettings;
@@ -888,7 +888,7 @@ export function loadSettings(
             }
           }
 
-          // No valid backup available — rename the corrupted file so the app
+          // No valid backup available -- rename the corrupted file so the app
           // can start with empty settings rather than crashing.
           if (!rawSettings) {
             const corruptedPath = `${filePath}.corrupted.${Date.now()}`;

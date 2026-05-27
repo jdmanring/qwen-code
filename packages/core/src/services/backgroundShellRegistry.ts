@@ -11,7 +11,7 @@
  * dialog use to query, observe, or terminate a running background
  * shell.
  *
- * State machine: register → running → { completed | failed | cancelled }.
+ * State machine: register -> running -> { completed | failed | cancelled }.
  * Transitions out of running are one-shot: complete/fail/cancel become
  * no-ops once the entry has settled. This prevents late callbacks (e.g. a
  * process that exits during cancellation) from clobbering the terminal
@@ -33,7 +33,7 @@ const debugLogger = createDebugLogger('BACKGROUND_SHELLS');
  *
  * Sized lower than the monitor cap because shells are user-initiated
  * (a session typically has tens, not hundreds) and the dialog-side
- * cost of a stale shell row is higher — each one has a long `command`
+ * cost of a stale shell row is higher -- each one has a long `command`
  * label, so they push newer entries out of the visible window faster
  * than monitor rows would.
  */
@@ -46,7 +46,7 @@ export type BackgroundShellStatus =
   | 'cancelled';
 
 /**
- * Shell kind of `TaskState`. Tracks one managed background shell — a
+ * Shell kind of `TaskState`. Tracks one managed background shell -- a
  * spawned child process whose stdout/stderr is captured to `outputFile`
  * and whose lifecycle is observable through this registry.
  */
@@ -87,7 +87,7 @@ export type BackgroundShellEntry = ShellTask;
  * `outputOffset`, `notified`) from these and additionally:
  *   - aliases the legacy `outputPath` to `outputFile` (asymmetric vs.
  *     `AgentTaskRegistration` / `MonitorTaskRegistration`, which require
- *     callers to pass `outputFile` directly — this is a one-release
+ *     callers to pass `outputFile` directly -- this is a one-release
  *     transitional concession until `outputPath` is removed)
  *   - synthesizes `description` from `command` (shells have no separate
  *     human label).
@@ -101,7 +101,7 @@ export type ShellTaskRegistration = Omit<
 export type BackgroundShellRegisterCallback = (entry: ShellTask) => void;
 
 /**
- * Fires on every status transition (running → terminal). Symmetric with
+ * Fires on every status transition (running -> terminal). Symmetric with
  * `BackgroundTaskRegistry.setStatusChangeCallback` so the same UI hook can
  * subscribe to both registries.
  */
@@ -116,7 +116,7 @@ export class BackgroundShellRegistry {
   /**
    * Subscribe to new-entry events. Called synchronously inside `register()`.
    * Setting `undefined` clears the existing subscriber. Single-subscriber on
-   * purpose — the UI hook is the only consumer in the codebase, and a list
+   * purpose -- the UI hook is the only consumer in the codebase, and a list
    * would invite drift in error-handling.
    */
   setRegisterCallback(cb: BackgroundShellRegisterCallback | undefined): void {
@@ -124,7 +124,7 @@ export class BackgroundShellRegistry {
   }
 
   /**
-   * Subscribe to status transitions (running → terminal). Called
+   * Subscribe to status transitions (running -> terminal). Called
    * synchronously inside `complete()` / `fail()` / `cancel()` after the
    * entry has been mutated. Same single-subscriber rationale as
    * `setRegisterCallback`.
@@ -153,7 +153,7 @@ export class BackgroundShellRegistry {
     this.entries.set(entry.shellId, entry);
     this.fireRegister(entry);
     // Mirror BackgroundTaskRegistry: registration is a status transition
-    // (nothing → running) so subscribers that only care about
+    // (nothing -> running) so subscribers that only care about
     // "what's in the registry now" can subscribe to a single callback
     // and see new entries the same way they see status changes.
     this.fireStatusChange(entry);
@@ -226,7 +226,7 @@ export class BackgroundShellRegistry {
   /**
    * Evict the oldest terminal entries (by `endTime`, then `startTime`)
    * once the count exceeds `MAX_RETAINED_TERMINAL_SHELLS`. Running
-   * entries are never evicted. Called after every running → terminal
+   * entries are never evicted. Called after every running -> terminal
    * transition; settle order ensures the newly-terminal entry has its
    * `endTime` stamped before the prune runs, so a fresh terminal
    * never out-ages the entries already retained.
@@ -253,7 +253,7 @@ export class BackgroundShellRegistry {
     try {
       this.registerCallback(entry);
     } catch (error) {
-      // Subscriber failure must not poison the registry — the spawn path
+      // Subscriber failure must not poison the registry -- the spawn path
       // has already happened. Swallow + continue so the entry remains
       // observable via `getAll()` / `get()`.
       debugLogger.error('register callback failed:', error);
@@ -316,7 +316,7 @@ export class BackgroundShellRegistry {
    * Settles each entry inline, then fires `pruneTerminalEntries` and the
    * statusChange callback exactly once after the loop. The per-entry
    * `cancel()` path would have triggered both side channels for every
-   * running shell — wasteful on shutdown / `/clear` where the only
+   * running shell -- wasteful on shutdown / `/clear` where the only
    * subscriber (`useBackgroundTaskView`) just re-pulls `getAll()`
    * regardless of the entry argument.
    */
@@ -332,7 +332,7 @@ export class BackgroundShellRegistry {
     this.pruneTerminalEntries();
     // The single subscriber (`useBackgroundTaskView`) ignores the entry
     // arg and re-pulls `getAll()`, so passing the last cancelled entry
-    // here is informational only — any of the just-cancelled entries
+    // here is informational only -- any of the just-cancelled entries
     // would be equally valid as the "what changed" signal.
     this.fireStatusChange(lastCancelled);
   }

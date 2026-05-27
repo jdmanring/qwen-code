@@ -118,7 +118,7 @@ describe('shouldFallback', () => {
     let s: AutoModeDenialState = FRESH;
     for (let i = 0; i < 50; i++) {
       s = recordBlock(s);
-      s = recordAllow(s); // cycle block→allow so consecutive resets each round
+      s = recordAllow(s); // cycle block->allow so consecutive resets each round
     }
     expect(s.totalBlock).toBe(50);
     expect(shouldFallback(s)).toEqual({ fallback: false });
@@ -181,7 +181,7 @@ describe('resetDenialState', () => {
 });
 
 describe('isApproveOutcome', () => {
-  // Single source of truth for "user said yes" — shared between the CLI
+  // Single source of truth for "user said yes" -- shared between the CLI
   // scheduler and the ACP Session. Drift between them was a previous
   // round's bug; this test guards both call sites at once.
   it('returns true for every proceed_* outcome plus modify_with_editor', () => {

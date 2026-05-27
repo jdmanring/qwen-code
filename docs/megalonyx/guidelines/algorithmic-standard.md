@@ -1,4 +1,4 @@
-# 📐 Algorithmic Standard for Mega Code Skills
+#  Algorithmic Standard for Mega Code Skills
 
 ## 1. Core Philosophy: Protocol over Persona
 In Mega Code, a **Skill** is not a character description or a set of behavioral suggestions. It is a **deterministic protocol**. The goal is to move from "LLM intuition" to "Algorithmic Execution."

@@ -11,7 +11,7 @@ import * as path from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { WorkspaceContext } from '@qwen-code/qwen-code-core';
 import { canonicalizeWorkspace, resolveWithinWorkspace } from './paths.js';
-// `isFsError` is a runtime guard called below — must stay a value
+// `isFsError` is a runtime guard called below -- must stay a value
 // import. `FsError` is type-only here (typed `catch` variable); same
 // for `FsErrorKind`. The eslint-disable mirrors the workspaceFileSystem.ts
 // fix and exists because the auto-fix at commit 7b0db4c3a promoted the
@@ -25,7 +25,7 @@ import { isFsError, type FsError, type FsErrorKind } from './errors.js';
  * workspace*. `path_not_found` is intentionally NOT here: it's a
  * separate "exists?" decision, and `WorkspaceContext` returns
  * `true` ("would be in workspace if it existed") for missing files
- * — a legitimate semantic mismatch the contract doesn't try to
+ * -- a legitimate semantic mismatch the contract doesn't try to
  * unify.
  */
 const OUT_OF_WORKSPACE_KINDS: ReadonlySet<FsErrorKind> = new Set([
@@ -69,7 +69,7 @@ interface CorpusCase {
    * Whether we expect the path to be inside the workspace.
    * `'existence-mismatch'` flags cases where the boundary rejects
    * with `path_not_found` but `WorkspaceContext` says "would-be
-   * inside" — by design the two APIs answer different questions.
+   * inside" -- by design the two APIs answer different questions.
    */
   expectInside: boolean | 'existence-mismatch';
   /** Intent for `resolveWithinWorkspace`. */
@@ -175,7 +175,7 @@ const CORPUS: CorpusCase[] = [
   },
 ];
 
-describe('contract: resolveWithinWorkspace ↔ WorkspaceContext', () => {
+describe('contract: resolveWithinWorkspace <-> WorkspaceContext', () => {
   let scratch: string;
 
   beforeAll(async () => {
@@ -227,7 +227,7 @@ describe('contract: resolveWithinWorkspace ↔ WorkspaceContext', () => {
         expect(boundaryAccepted).toBe(false);
         expect(boundaryError?.kind).toBe('path_not_found');
         // WorkspaceContext intentionally answers a different
-        // question for missing files — no equality assertion here.
+        // question for missing files -- no equality assertion here.
       } else if (tc.expectInside === true) {
         expect(boundaryAccepted).toBe(true);
         expect(wsInside).toBe(true);
@@ -250,7 +250,7 @@ describe('contract: resolveWithinWorkspace ↔ WorkspaceContext', () => {
         try {
           groundTruth = realpathSync.native(inputAbs);
         } catch {
-          // ENOENT — boundary used findExistingAncestor + realpath +
+          // ENOENT -- boundary used findExistingAncestor + realpath +
           // join(tail). Reproduce that here for assertion symmetry.
           let cursor = inputAbs;
           const tail: string[] = [];

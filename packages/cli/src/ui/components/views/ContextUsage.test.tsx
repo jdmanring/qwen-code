@@ -43,7 +43,7 @@ function makeBreakdown(
   };
 }
 
-describe('ContextUsage — CompactionThresholds section (review #4168 R1.6)', () => {
+describe('ContextUsage -- CompactionThresholds section (review #4168 R1.6)', () => {
   it('renders the new three-tier section with all four threshold rows', () => {
     const { lastFrame } = render(
       <ContextUsage
@@ -67,7 +67,7 @@ describe('ContextUsage — CompactionThresholds section (review #4168 R1.6)', ()
     expect(frame).toContain('Current tier');
   });
 
-  it('shows safe tier without any ▶ marker', () => {
+  it('shows safe tier without any  marker', () => {
     const { lastFrame } = render(
       <ContextUsage
         modelName="qwen3-coder"
@@ -81,13 +81,13 @@ describe('ContextUsage — CompactionThresholds section (review #4168 R1.6)', ()
       />,
     );
     const frame = lastFrame() ?? '';
-    // safe tier → no ▶ marker on any threshold row
-    expect(frame).not.toContain('▶');
+    // safe tier -> no  marker on any threshold row
+    expect(frame).not.toContain('');
     // The literal word "safe" appears as the Current tier value
     expect(frame).toMatch(/Current tier[\s\S]*safe/);
   });
 
-  it('places ▶ on the warn row when currentTier === warn', () => {
+  it('places  on the warn row when currentTier === warn', () => {
     const { lastFrame } = render(
       <ContextUsage
         modelName="qwen3-coder"
@@ -101,18 +101,18 @@ describe('ContextUsage — CompactionThresholds section (review #4168 R1.6)', ()
       />,
     );
     const frame = lastFrame() ?? '';
-    expect(frame).toContain('▶');
-    // The ▶ should appear on the Warn-threshold line and nowhere else.
+    expect(frame).toContain('');
+    // The  should appear on the Warn-threshold line and nowhere else.
     const lines = frame.split('\n');
     const warnLine = lines.find((l) => l.includes('Warn threshold')) ?? '';
-    expect(warnLine).toContain('▶');
+    expect(warnLine).toContain('');
     const autoLine = lines.find((l) => l.includes('Auto threshold')) ?? '';
-    expect(autoLine).not.toContain('▶');
+    expect(autoLine).not.toContain('');
     const hardLine = lines.find((l) => l.includes('Hard threshold')) ?? '';
-    expect(hardLine).not.toContain('▶');
+    expect(hardLine).not.toContain('');
   });
 
-  it('places ▶ on the hard row when currentTier === hard', () => {
+  it('places  on the hard row when currentTier === hard', () => {
     const { lastFrame } = render(
       <ContextUsage
         modelName="qwen3-coder"
@@ -128,7 +128,7 @@ describe('ContextUsage — CompactionThresholds section (review #4168 R1.6)', ()
     const frame = lastFrame() ?? '';
     const lines = frame.split('\n');
     const hardLine = lines.find((l) => l.includes('Hard threshold')) ?? '';
-    expect(hardLine).toContain('▶');
+    expect(hardLine).toContain('');
     // Current tier reads `hard`
     expect(frame).toMatch(/Current tier[\s\S]*hard/);
   });

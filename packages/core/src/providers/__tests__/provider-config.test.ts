@@ -559,7 +559,7 @@ import {
 } from '../provider-config.js';
 
 describe('resolveBaseUrl edge cases', () => {
-  it('does not crash on an empty baseUrl array — falls back to selected or ""', () => {
+  it('does not crash on an empty baseUrl array -- falls back to selected or ""', () => {
     const config = makeConfig({ baseUrl: [] });
     // Without selectedBaseUrl, return '' instead of throwing on [0].url
     expect(resolveBaseUrlSrc(config)).toBe('');
@@ -573,7 +573,7 @@ describe('resolveBaseUrl edge cases', () => {
 describe('providerMatchesCredentials with function envKey (custom provider)', () => {
   // Custom provider derives envKey from (protocol, baseUrl) via a function.
   // Treating non-string envKey as "no match" made custom providers invisible
-  // to findProviderByCredentials → /doctor and system-info diagnostics.
+  // to findProviderByCredentials -> /doctor and system-info diagnostics.
   it('matches a custom-style provider whose envKey is a function deriving from baseUrl', () => {
     const derivedFor = (_protocol: AuthType, baseUrl: string) =>
       `QWEN_CUSTOM_${Buffer.from(baseUrl).toString('hex').slice(0, 8)}`;

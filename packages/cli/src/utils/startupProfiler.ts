@@ -12,10 +12,10 @@
  * report to ~/.qwen/startup-perf/ on finalization.
  *
  * Usage (already wired in index.ts / gemini.tsx):
- *   initStartupProfiler()        — call once at process start to record T0
- *   profileCheckpoint('name')    — call at each phase boundary (sequential)
- *   recordStartupEvent('name', attrs?) — record a discrete event (multi-fire allowed)
- *   finalizeStartupProfile(id)   — call after last checkpoint to write report
+ *   initStartupProfiler()        -- call once at process start to record T0
+ *   profileCheckpoint('name')    -- call at each phase boundary (sequential)
+ *   recordStartupEvent('name', attrs?) -- record a discrete event (multi-fire allowed)
+ *   finalizeStartupProfile(id)   -- call after last checkpoint to write report
  *
  * By default profiles only inside the sandbox child process to avoid duplicate
  * reports. Set QWEN_CODE_PROFILE_STARTUP_OUTER=1 to also profile the outer
@@ -59,25 +59,25 @@ export interface StartupEvent {
 export type DerivedPhases = Partial<{
   /** Time from process start to T0 (covers V8 module-eval). */
   module_load: number;
-  /** T0 → after_load_settings. */
+  /** T0 -> after_load_settings. */
   settings_time: number;
-  /** after_load_settings → after_load_cli_config. */
+  /** after_load_settings -> after_load_cli_config. */
   config_time: number;
-  /** after_load_cli_config → after_initialize_app. */
+  /** after_load_cli_config -> after_initialize_app. */
   init_time: number;
-  /** T0 → before_render. */
+  /** T0 -> before_render. */
   pre_render: number;
-  /** T0 → first_paint. */
+  /** T0 -> first_paint. */
   to_first_paint: number;
-  /** T0 → input_enabled. (Real TTI.) */
+  /** T0 -> input_enabled. (Real TTI.) */
   to_input_enabled: number;
   /** Duration of `config.initialize()` (interactive only). */
   config_initialize_dur: number;
-  /** T0 → mcp_first_tool_registered. */
+  /** T0 -> mcp_first_tool_registered. */
   mcp_first_tool: number;
-  /** T0 → mcp_all_servers_settled. */
+  /** T0 -> mcp_all_servers_settled. */
   mcp_all_settled: number;
-  /** mcp_first_tool_registered → gemini_tools_updated lag. */
+  /** mcp_first_tool_registered -> gemini_tools_updated lag. */
   gemini_tools_lag: number;
 }>;
 
@@ -176,7 +176,7 @@ export function profileCheckpoint(name: string): void {
  * Distinct from `profileCheckpoint` which is sequential and assumed unique.
  *
  * Once {@link finalizeStartupProfile} runs, further events are dropped to
- * keep memory bounded — long-running interactive sessions still call
+ * keep memory bounded -- long-running interactive sessions still call
  * `setTools()` (which emits `gemini_tools_updated`) for each MCP refresh.
  */
 export function recordStartupEvent(
@@ -264,7 +264,7 @@ function computeDerivedPhases(): DerivedPhases {
   // pick the FIRST `gemini_tools_updated` event whose timestamp is >=
   // `mcp_first_tool_registered`, because earlier `setTools()` calls fire
   // from `GeminiClient.initialize() -> startChat()` (built-in tools only)
-  // and from `SkillTool` post-construction refresh — both happen BEFORE
+  // and from `SkillTool` post-construction refresh -- both happen BEFORE
   // MCP discovery starts under PR-A, so naively taking the first
   // `gemini_tools_updated` would give a misleading negative lag.
   if (mcpFirst !== undefined) {

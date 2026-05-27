@@ -1,22 +1,22 @@
-# 🛠 System Alignment Findings: qwen_code_stack vs labs/qwen-code
+#  System Alignment Findings: qwen_code_stack vs labs/qwen-code
 
 This document tracks the gaps and misalignments discovered during the audit of the base repository (`labs/qwen-code`) and the current implementation (`qwen_code_stack`).
 
 ## 1. Memory System Alignment
-**Status**: ⚠️ **Partial Misalignment (Intelligence Gap)**
+**Status**:  **Partial Misalignment (Intelligence Gap)**
 
 | Feature | Base Repo (`labs/qwen-code`) | Our Project (`qwen_code_stack`) | Gap / Risk |
 | :--- | :--- | :--- | :--- |
-| **Storage** | File-based / Index files | Dual-Tier Qdrant (Local/Cloud) | 🚀 Upgrade (Better) |
-| **Retrieval** | Keyword/Model-driven scan | Vector Similarity Search | 🚀 Upgrade (Better) |
-| **Extraction** | **Agentic**: LLM analyzes chat to extract facts | **Atomic**: Simple ingest of provided text | ⚠️ **Loss of Intelligence**. We lack the cognitive layer that decides *what* is worth remembering. |
-| **Dreaming** | **Agentic**: LLM synthesizes & consolidates | **Systemic**: Basic hash-based deduplication | ⚠️ **Loss of Intelligence**. We lack the synthesis capability for complex memory consolidation. |
+| **Storage** | File-based / Index files | Dual-Tier Qdrant (Local/Cloud) |  Upgrade (Better) |
+| **Retrieval** | Keyword/Model-driven scan | Vector Similarity Search |  Upgrade (Better) |
+| **Extraction** | **Agentic**: LLM analyzes chat to extract facts | **Atomic**: Simple ingest of provided text |  **Loss of Intelligence**. We lack the cognitive layer that decides *what* is worth remembering. |
+| **Dreaming** | **Agentic**: LLM synthesizes & consolidates | **Systemic**: Basic hash-based deduplication |  **Loss of Intelligence**. We lack the synthesis capability for complex memory consolidation. |
 
 ### Interface Compatibility Analysis
 The base orchestrator (`client.ts`) expects a `MemoryManager` with `recall`, `scheduleExtract`, and `scheduleDream` methods.
-- **`recall`**: ✅ Compatible. Our MCP server provides the necessary data for the orchestrator to build its prompts.
-- **`scheduleExtract`**: ⚠️ Functional Gap. The base repo expects autonomous extraction; we only provide atomic ingestion.
-- **`scheduleDream`**: ⚠️ Functional Gap. The base repo expects cognitive synthesis; we only provide hash-based deduplication.
+- **`recall`**:  Compatible. Our MCP server provides the necessary data for the orchestrator to build its prompts.
+- **`scheduleExtract`**:  Functional Gap. The base repo expects autonomous extraction; we only provide atomic ingestion.
+- **`scheduleDream`**:  Functional Gap. The base repo expects cognitive synthesis; we only provide hash-based deduplication.
 
 **Recommendation**: Retain the base repo's Agentic Memory Planners but route their output through our `mega-memory-manager` MCP server to use Qdrant.
 
@@ -24,7 +24,7 @@ The base orchestrator (`client.ts`) expects a `MemoryManager` with `recall`, `sc
 ---
 
 ## 2. Skills & Services Alignment
-**Status**: 🚨 **Critical Misalignment (Algorithm Loss)**
+**Status**:  **Critical Misalignment (Algorithm Loss)**
 
 **Finding**: We have replaced the base repo's **Algorithmic Skills** with **Persona-based Services**.
 
@@ -38,7 +38,7 @@ The base orchestrator (`client.ts`) expects a `MemoryManager` with `recall`, `sc
 ---
 
 ## 3. Orchestration Alignment
-**Status**: ✅ **Aligned (Architectural Upgrade)**
+**Status**:  **Aligned (Architectural Upgrade)**
 
 Our "Control Plane" (Intent $\rightarrow$ Policy $\rightarrow$ Decomposition) is a superior architectural wrapper around the base repo's execution model. As long as the "Decomposition" layer produces tasks that follow the base repo's algorithms, this is a significant upgrade.
 

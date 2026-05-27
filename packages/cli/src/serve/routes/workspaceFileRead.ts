@@ -24,7 +24,7 @@ import {
  *
  * Ties into the response's `truncated: true` flag so SDK consumers
  * can ask the daemon to paginate (PR 19 emits the flag; pagination
- * itself is a future PR — this PR's job is to advertise the
+ * itself is a future PR -- this PR's job is to advertise the
  * truncation so the SDK doesn't quietly assume the full set).
  */
 export const MAX_LIST_ENTRIES = 2000;
@@ -59,7 +59,7 @@ export const MAX_GLOB_MAX_RESULTS = 50_000;
  * Privacy + correctness headers shared by every read route. The
  * `no-store` directive blocks intermediaries (browser caches,
  * forwarding proxies in development) from snapshotting workspace
- * file contents — even on a localhost daemon, a misconfigured CDN
+ * file contents -- even on a localhost daemon, a misconfigured CDN
  * or a developer browser extension that mirrors XHR responses to
  * disk would otherwise persist source contents past the request
  * lifetime. `nosniff` blocks MIME-sniffing fallbacks that would let
@@ -77,7 +77,7 @@ export function applyReadHeaders(res: Response): void {
  * `serve/server.ts` so SDK consumers see one shape across daemon
  * routes. `FsError` carries its own `status` from
  * `DEFAULT_STATUS_BY_KIND` (`fs/errors.ts`), so the route doesn't
- * re-derive it — that keeps the kind→status mapping authoritative
+ * re-derive it -- that keeps the kind->status mapping authoritative
  * in a single place. Non-`FsError` paths log to stderr and 500;
  * the route's own try-catch should already have wrapped expected
  * boundary errors via `wrapAsFsError`.
@@ -109,11 +109,11 @@ export function sendFsError(res: Response, err: unknown, route: string): void {
 /**
  * Parse a positive-integer query value within `[min, max]`. Returns:
  *   - `undefined` when the param is absent (caller defaults).
- *   - `null` when the param is malformed/out-of-range — the route
+ *   - `null` when the param is malformed/out-of-range -- the route
  *     short-circuits with a 400 + `parse_error` envelope.
  *   - the parsed integer otherwise.
  *
- * Strict on `^\d+$` so `''`, `'abc'`, `'1.5'`, `'-3'` all reject —
+ * Strict on `^\d+$` so `''`, `'abc'`, `'1.5'`, `'-3'` all reject --
  * the daemon's other range parsers (`parseMaxQueuedQuery`) use the
  * same regex shape, keeping query-validation behavior consistent.
  */
@@ -137,7 +137,7 @@ function parseBoolFlag(raw: unknown): boolean {
 /**
  * Extract a required string query param. Returns the value or sends
  * a 400 envelope and returns `null`. Empty strings count as absent
- * — the daemon doesn't accept `?path=` as "the workspace root";
+ * -- the daemon doesn't accept `?path=` as "the workspace root";
  * callers asking for the root pass `?path=.` explicitly.
  */
 function requireStringQuery(
@@ -164,7 +164,7 @@ function requireStringQuery(
 /**
  * Pull `WorkspaceFileSystemFactory` off `app.locals` (set by
  * `createServeApp`). Returns `null` and sends a 500 envelope when
- * the factory is missing — that means `createServeApp` was bypassed
+ * the factory is missing -- that means `createServeApp` was bypassed
  * by a custom embed without injecting `deps.fsFactory`, which is a
  * deployment misconfiguration the route can't recover from.
  */
@@ -192,7 +192,7 @@ interface RegisterDeps {
    * from `serve/server.ts` so the X-Qwen-Client-Id validation lives
    * in one place; PR 19 routes thread the trusted id into the audit
    * context. Returning `null` means the helper already sent a 400
-   * — the route must short-circuit.
+   * -- the route must short-circuit.
    */
   parseClientId: (req: Request, res: Response) => string | undefined | null;
 }
@@ -449,7 +449,7 @@ async function handleGetGlob(
     // are independent inputs; tagging the cwd resolve as a "glob
     // intent" caused `recordAndWrap` (which auto-derives
     // `data.pattern` from `intent === 'glob'`) to record the cwd
-    // string as the glob pattern on resolution failure — corrupting
+    // string as the glob pattern on resolution failure -- corrupting
     // audit data for cases like `?cwd=../outside&pattern=*.ts`.
     // `'list'` is the right semantic shape (cwd is a directory we
     // intend to walk) and the trust + path-resolution behavior is
@@ -472,7 +472,7 @@ async function handleGetGlob(
     // Use the shared `workspaceRelative` helper so a root match
     // (e.g. `pattern=.` resolving to the workspace itself) renders
     // as `'.'` rather than the empty string `path.relative` returns
-    // — keeps the response shape consistent with `/file`, `/list`,
+    // -- keeps the response shape consistent with `/file`, `/list`,
     // `/stat`.
     const relMatches = trimmed.map((m) => workspaceRelative(req, m as string));
     applyReadHeaders(res);
@@ -497,7 +497,7 @@ async function handleGetGlob(
  * paths to clients.
  *
  * Always emits POSIX-style separators so SDK consumers see the same
- * shape regardless of the daemon's platform — `path.relative` on
+ * shape regardless of the daemon's platform -- `path.relative` on
  * Windows yields backslashes, which would otherwise leak into
  * `/file`, `/stat`, `/list`, and `/glob` response paths.
  */

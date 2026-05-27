@@ -125,7 +125,7 @@ d('BOM end-to-end integration', () => {
   it('should preserve UTF-8 BOM when editing existing file', async () => {
     // Create a file with UTF-8 BOM and Chinese content
     const originalContent =
-      '// 这是一个测试文件\n// 包含中文注释\nfunction test() {\n  return "hello";\n}\n';
+      '// \n// \nfunction test() {\n  return "hello";\n}\n';
     const fileWithBOM = Buffer.concat([
       Buffer.from([0xef, 0xbb, 0xbf]),
       Buffer.from(originalContent, 'utf8'),

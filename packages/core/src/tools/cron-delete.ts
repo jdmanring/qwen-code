@@ -1,5 +1,5 @@
 /**
- * cron_delete tool — deletes an in-session cron job by ID.
+ * cron_delete tool -- deletes an in-session cron job by ID.
  */
 
 import type { ToolInvocation, ToolResult } from './tools.js';
@@ -70,7 +70,7 @@ export class CronDeleteTool extends BaseDeclarativeTool<
       },
       true, // isOutputMarkdown
       false, // canUpdateOutput
-      true, // shouldDefer — only needed after CronCreate/CronList
+      true, // shouldDefer -- only needed after CronCreate/CronList
       false, // alwaysLoad
       'cron delete cancel remove',
     );

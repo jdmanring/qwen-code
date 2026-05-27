@@ -124,7 +124,7 @@ const CODING_PLAN: SubscriptionPlanDefinition<'coding'> = {
   id: 'coding',
   option: 'CODING_PLAN',
   title: 'Coding Plan',
-  description: 'For individual developers · Weekly quota included',
+  description: 'For individual developers  Weekly quota included',
   envKey: CODING_PLAN_ENV_KEY,
   modelNamePrefix: 'ModelStudio Coding Plan',
   authEventType: 'coding-plan',
@@ -154,7 +154,7 @@ const TOKEN_PLAN: SubscriptionPlanDefinition<'token'> = {
   option: 'TOKEN_PLAN',
   title: 'Token Plan',
   description:
-    'For teams and companies · Usage-based billing with dedicated endpoint',
+    'For teams and companies  Usage-based billing with dedicated endpoint',
   envKey: TOKEN_PLAN_ENV_KEY,
   modelNamePrefix: 'ModelStudio Token Plan',
   authEventType: 'coding-plan',

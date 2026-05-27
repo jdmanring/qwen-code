@@ -8,8 +8,8 @@ In Mega Code, a **Service** is a unified agentic capability. Unlike legacy skill
 Each service resides in its own directory within `config/services/`.
 ```text
 config/services/<service-name>/
-├── service.yaml   (Persona, Triggers, and Tool-set)
-└── README.md      (Detailed Workflow and Documentation)
+|---- service.yaml   (Persona, Triggers, and Tool-set)
+\_-- README.md      (Detailed Workflow and Documentation)
 ```
 
 ### `service.yaml` Schema

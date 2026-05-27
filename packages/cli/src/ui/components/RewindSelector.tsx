@@ -57,11 +57,11 @@ function TurnItemView({
   const showDownIndicator = isLast && showScrollDown;
 
   const prefix = isSelected
-    ? '› '
+    ? ' '
     : showUpIndicator
-      ? '↑ '
+      ? ' '
       : showDownIndicator
-        ? '↓ '
+        ? ' '
         : '  ';
 
   const promptText = item.text || '(empty prompt)';
@@ -148,9 +148,9 @@ function getRestoreOptions(
 
 /**
  * Multi-phase rewind selector:
- * 1. Pick list — choose which user turn to rewind to
- * 2. Restore options — choose what to restore (when file checkpointing enabled)
- * 3. Confirm — Y/N confirm (when file checkpointing disabled, legacy fallback)
+ * 1. Pick list -- choose which user turn to rewind to
+ * 2. Restore options -- choose what to restore (when file checkpointing enabled)
+ * 3. Confirm -- Y/N confirm (when file checkpointing disabled, legacy fallback)
  */
 export function RewindSelector({
   history,
@@ -389,7 +389,7 @@ export function RewindSelector({
             </Text>
           </Box>
           <Box>
-            <Text color={theme.border.default}>{'─'.repeat(boxWidth - 2)}</Text>
+            <Text color={theme.border.default}>{'-'.repeat(boxWidth - 2)}</Text>
           </Box>
           <Box paddingX={1} flexDirection="column">
             <Box marginBottom={1}>
@@ -408,7 +408,7 @@ export function RewindSelector({
               <Box flexDirection="column">
                 {restoreOptions.map((option, idx) => {
                   const isSelected = idx === restoreOptionIndex;
-                  const prefix = isSelected ? '› ' : '  ';
+                  const prefix = isSelected ? ' ' : '  ';
                   return (
                     <Box key={option.key}>
                       <Text
@@ -444,7 +444,7 @@ export function RewindSelector({
                   // (a) the chosen turn has no captured edits, or (b) the
                   // turn predates this process / came from a resumed session
                   // whose snapshots were not rehydrated. Either way the
-                  // "Restore code" path is not actionable for this turn —
+                  // "Restore code" path is not actionable for this turn --
                   // surface that explicitly so the user is not left
                   // wondering why the option is missing.
                   <Box marginTop={1}>
@@ -459,11 +459,11 @@ export function RewindSelector({
             )}
           </Box>
           <Box>
-            <Text color={theme.border.default}>{'─'.repeat(boxWidth - 2)}</Text>
+            <Text color={theme.border.default}>{'-'.repeat(boxWidth - 2)}</Text>
           </Box>
           <Box paddingX={1}>
             <Text color={theme.text.secondary}>
-              {t('↑↓ to navigate · Enter to select · Esc to go back')}
+              {t(' to navigate  Enter to select  Esc to go back')}
             </Text>
           </Box>
         </Box>
@@ -491,7 +491,7 @@ export function RewindSelector({
             </Text>
           </Box>
           <Box>
-            <Text color={theme.border.default}>{'─'.repeat(boxWidth - 2)}</Text>
+            <Text color={theme.border.default}>{'-'.repeat(boxWidth - 2)}</Text>
           </Box>
           <Box paddingX={1} flexDirection="column">
             <Box marginBottom={1}>
@@ -507,11 +507,11 @@ export function RewindSelector({
             </Text>
           </Box>
           <Box>
-            <Text color={theme.border.default}>{'─'.repeat(boxWidth - 2)}</Text>
+            <Text color={theme.border.default}>{'-'.repeat(boxWidth - 2)}</Text>
           </Box>
           <Box paddingX={1}>
             <Text color={theme.text.secondary}>
-              {t('Enter/Y to confirm · Esc/N to go back')}
+              {t('Enter/Y to confirm  Esc/N to go back')}
             </Text>
           </Box>
         </Box>
@@ -548,7 +548,7 @@ export function RewindSelector({
 
         {/* Separator */}
         <Box>
-          <Text color={theme.border.default}>{'─'.repeat(boxWidth - 2)}</Text>
+          <Text color={theme.border.default}>{'-'.repeat(boxWidth - 2)}</Text>
         </Box>
 
         {/* Turn list */}
@@ -573,13 +573,13 @@ export function RewindSelector({
 
         {/* Separator */}
         <Box>
-          <Text color={theme.border.default}>{'─'.repeat(boxWidth - 2)}</Text>
+          <Text color={theme.border.default}>{'-'.repeat(boxWidth - 2)}</Text>
         </Box>
 
         {/* Footer */}
         <Box paddingX={1}>
           <Text color={theme.text.secondary}>
-            {t('↑↓ to navigate · Enter to select · Esc to cancel')}
+            {t(' to navigate  Enter to select  Esc to cancel')}
           </Text>
         </Box>
       </Box>

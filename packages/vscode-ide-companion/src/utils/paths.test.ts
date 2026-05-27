@@ -45,7 +45,7 @@ function withCleanHome() {
   };
 }
 
-describe('vscode-ide-companion paths – getGlobalQwenDir', () => {
+describe('vscode-ide-companion paths - getGlobalQwenDir', () => {
   const originalEnv = process.env['QWEN_HOME'];
   let home: ReturnType<typeof withCleanHome>;
 
@@ -95,7 +95,7 @@ describe('vscode-ide-companion paths – getGlobalQwenDir', () => {
   });
 });
 
-describe('vscode-ide-companion paths – getRuntimeBaseDir', () => {
+describe('vscode-ide-companion paths - getRuntimeBaseDir', () => {
   const originalHome = process.env['QWEN_HOME'];
   const originalRuntime = process.env['QWEN_RUNTIME_DIR'];
   let home: ReturnType<typeof withCleanHome>;
@@ -162,7 +162,7 @@ describe('vscode-ide-companion paths – getRuntimeBaseDir', () => {
   });
 });
 
-describe('vscode-ide-companion paths – .env bootstrap', () => {
+describe('vscode-ide-companion paths - .env bootstrap', () => {
   const originalHome = process.env['QWEN_HOME'];
   const originalRuntime = process.env['QWEN_RUNTIME_DIR'];
   let home: ReturnType<typeof withCleanHome>;

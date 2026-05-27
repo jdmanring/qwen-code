@@ -17,21 +17,21 @@ Learn how to enable and setup OpenTelemetry for Qwen Code.
 
 ## Key Benefits
 
-- **🔍 Usage Analytics**: Understand interaction patterns and feature adoption
+- ** Usage Analytics**: Understand interaction patterns and feature adoption
   across your team
-- **⚡ Performance Monitoring**: Track response times, token consumption, and
+- ** Performance Monitoring**: Track response times, token consumption, and
   resource utilization
-- **🐛 Real-time Debugging**: Identify bottlenecks, failures, and error patterns
+- ** Real-time Debugging**: Identify bottlenecks, failures, and error patterns
   as they occur
-- **📊 Workflow Optimization**: Make informed decisions to improve
+- ** Workflow Optimization**: Make informed decisions to improve
   configurations and processes
-- **🏢 Enterprise Governance**: Monitor usage across teams, track costs, ensure
+- ** Enterprise Governance**: Monitor usage across teams, track costs, ensure
   compliance, and integrate with existing monitoring infrastructure
 
 ## OpenTelemetry Integration
 
-Built on **[OpenTelemetry]** — the vendor-neutral, industry-standard
-observability framework — Qwen Code's observability system provides:
+Built on **[OpenTelemetry]** -- the vendor-neutral, industry-standard
+observability framework -- Qwen Code's observability system provides:
 
 - **Universal Compatibility**: Export to any OpenTelemetry backend (Aliyun,
   Jaeger, Prometheus, Datadog, etc.)
@@ -57,7 +57,7 @@ These settings can be overridden by environment variables or CLI flags.
 | Setting                          | Environment Variable                               | CLI Flag                                                 | Description                                                                                                                          | Values            | Default                 |
 | -------------------------------- | -------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ----------------- | ----------------------- |
 | `enabled`                        | `QWEN_TELEMETRY_ENABLED`                           | `--telemetry` / `--no-telemetry`                         | Enable or disable telemetry                                                                                                          | `true`/`false`    | `false`                 |
-| `target`                         | `QWEN_TELEMETRY_TARGET`                            | `--telemetry-target <local\|gcp>` _(deprecated)_         | Informational destination label; does not control exporter routing — set `otlpEndpoint` or `outfile` to configure where data is sent | `"gcp"`/`"local"` | `"local"`               |
+| `target`                         | `QWEN_TELEMETRY_TARGET`                            | `--telemetry-target <local\|gcp>` _(deprecated)_         | Informational destination label; does not control exporter routing -- set `otlpEndpoint` or `outfile` to configure where data is sent | `"gcp"`/`"local"` | `"local"`               |
 | `otlpEndpoint`                   | `QWEN_TELEMETRY_OTLP_ENDPOINT`                     | `--telemetry-otlp-endpoint <URL>`                        | OTLP collector endpoint                                                                                                              | URL string        | `http://localhost:4317` |
 | `otlpProtocol`                   | `QWEN_TELEMETRY_OTLP_PROTOCOL`                     | `--telemetry-otlp-protocol <grpc\|http>`                 | OTLP transport protocol                                                                                                              | `"grpc"`/`"http"` | `"grpc"`                |
 | `otlpTracesEndpoint`             | `QWEN_TELEMETRY_OTLP_TRACES_ENDPOINT`              | -                                                        | Per-signal endpoint override for traces (HTTP only)                                                                                  | URL string        | -                       |
@@ -66,7 +66,7 @@ These settings can be overridden by environment variables or CLI flags.
 | `outfile`                        | `QWEN_TELEMETRY_OUTFILE`                           | `--telemetry-outfile <path>`                             | Save telemetry to file (overrides OTLP export)                                                                                       | file path         | -                       |
 | `logPrompts`                     | `QWEN_TELEMETRY_LOG_PROMPTS`                       | `--telemetry-log-prompts` / `--no-telemetry-log-prompts` | Include prompts in telemetry logs                                                                                                    | `true`/`false`    | `true`                  |
 | `includeSensitiveSpanAttributes` | `QWEN_TELEMETRY_INCLUDE_SENSITIVE_SPAN_ATTRIBUTES` | -                                                        | Include user prompts, system prompts, tool I/O, and model output as native span attributes (in addition to log-to-span bridge spans) | `true`/`false`    | `false`                 |
-| `resourceAttributes`             | `OTEL_RESOURCE_ATTRIBUTES` (+ `OTEL_SERVICE_NAME`) | -                                                        | Static resource attributes attached to every exported span / log / metric. See [Resource attributes](#resource-attributes) below.    | `key=value,…`     | `{}`                    |
+| `resourceAttributes`             | `OTEL_RESOURCE_ATTRIBUTES` (+ `OTEL_SERVICE_NAME`) | -                                                        | Static resource attributes attached to every exported span / log / metric. See [Resource attributes](#resource-attributes) below.    | `key=value,...`     | `{}`                    |
 | `metrics.includeSessionId`       | `QWEN_TELEMETRY_METRICS_INCLUDE_SESSION_ID`        | -                                                        | Include `session.id` on metric data points. **Disabled by default** to protect metric backends from time-series fan-out.             | `true`/`false`    | `false`                 |
 
 **Note on boolean environment variables:** For the boolean settings (`enabled`,
@@ -80,7 +80,7 @@ two things happen:
 1. **Native span attributes (`qwen-code.interaction`, `api.generateContent*`,
    `tool.<name>`)** carry verbatim conversation content:
    - User prompts (`new_context`)
-   - System prompts (`system_prompt` — full text once per session, deduped by
+   - System prompts (`system_prompt` -- full text once per session, deduped by
      SHA-256 hash; subsequent spans only carry `system_prompt_hash` +
      `system_prompt_preview` + `system_prompt_length`)
    - Tool schemas (emitted as `tool_schema` events, also hash-deduped)
@@ -94,7 +94,7 @@ two things happen:
    logs endpoint) keep their existing `prompt`, `function_args`, and
    `response_text` fields, instead of being dropped.
 
-⚠️ **Security warning:** enabling this flag streams full conversation history,
+ **Security warning:** enabling this flag streams full conversation history,
 file contents read by `read_file`, shell commands and their output (including
 secrets in env vars or arguments), and model responses to the configured OTLP
 backend. Treat the backend as a privileged data sink. The flag defaults to
@@ -133,13 +133,13 @@ Resource attributes are static key-value pairs attached to every span, log,
 and metric exported via OTLP. Use them to slice telemetry by team, environment,
 deployment region, or any other dimension your backend cares about.
 
-Two sources, merged in priority order (lowest → highest):
+Two sources, merged in priority order (lowest -> highest):
 
 1. The standard `OTEL_RESOURCE_ATTRIBUTES` env var
 2. `telemetry.resourceAttributes` in `.qwen/settings.json` (overrides env on
    key conflict)
 
-`OTEL_SERVICE_NAME` is a separate escape hatch — when set, it overrides
+`OTEL_SERVICE_NAME` is a separate escape hatch -- when set, it overrides
 `service.name` from any other source (per the OpenTelemetry spec).
 
 #### Examples
@@ -178,9 +178,9 @@ export OTEL_RESOURCE_ATTRIBUTES="debug_run=true"
 
 Some keys are runtime-controlled and cannot be overridden:
 
-- `service.version` — always set to the running CLI version. Setting it from
+- `service.version` -- always set to the running CLI version. Setting it from
   any source is silently dropped with a warning.
-- `session.id` — runtime-injected per session. User-provided values from
+- `session.id` -- runtime-injected per session. User-provided values from
   either env or settings are dropped with a warning. The reason is that
   Resource attributes auto-attach to every metric data point; allowing user
   override would bypass [Cardinality controls](#cardinality-controls) below.
@@ -211,11 +211,11 @@ If a custom resource attribute isn't appearing on exported telemetry:
    (non-string settings value).
 2. Verify the env var is set in the qwen-code process's environment (not just
    your shell) and that values are percent-encoded.
-3. Confirm `telemetry.enabled` is `true` — telemetry init only runs if enabled.
+3. Confirm `telemetry.enabled` is `true` -- telemetry init only runs if enabled.
 
 ### Cardinality controls
 
-Metrics are aggregated by attribute set at the backend — every distinct
+Metrics are aggregated by attribute set at the backend -- every distinct
 combination of attribute values produces a new time series. Attaching a
 high-cardinality field like `session.id` to a metric causes time-series fan-out
 proportional to the number of sessions, which quickly exhausts metric backend
@@ -231,7 +231,7 @@ Setting this to `true` (via settings or
 `QWEN_TELEMETRY_METRICS_INCLUDE_SESSION_ID=true`) re-attaches `session.id` to
 every metric data point.
 
-⚠️ **Warning:** each CLI session creates a new value. Leaving this on for a
+ **Warning:** each CLI session creates a new value. Leaving this on for a
 fleet will blow up metric storage. Recommended only for short-term debugging.
 For long-term session correlation, query trace or log backends instead.
 
@@ -241,7 +241,7 @@ Prior to this release, `session.id` was attached to metrics by default. If
 your Prometheus queries / Grafana dashboards / alert rules reference
 `session_id` on a metric, you have two options:
 
-**Option A** — restore the previous behavior for short-term debugging:
+**Option A** -- restore the previous behavior for short-term debugging:
 
 ```bash
 export QWEN_TELEMETRY_METRICS_INCLUDE_SESSION_ID=true
@@ -257,7 +257,7 @@ or:
 }
 ```
 
-**Option B (recommended)** — move session-level analysis off metrics. Spans
+**Option B (recommended)** -- move session-level analysis off metrics. Spans
 and logs still carry `session.id`, and trace / log backends (Jaeger, Tempo,
 Loki, Aliyun SLS / ARMS Tracing) handle per-session slicing natively without
 cardinality pressure.
@@ -266,7 +266,7 @@ cardinality pressure.
 
 When telemetry is enabled, Qwen Code registers `UndiciInstrumentation`
 which creates a client-side HTTP span for every outbound `fetch()`
-request originated by the process — including the LLM SDKs (`openai`,
+request originated by the process -- including the LLM SDKs (`openai`,
 `@google/genai`, `@anthropic-ai/sdk`), the MCP StreamableHTTP client, the
 `WebFetch` tool, and any IDE-extension out-of-process calls. The span
 lets you see network latency (TTFB / response body transfer) separately
@@ -274,7 +274,7 @@ from upstream model processing time, which the existing
 `api.generateContent` span alone can't distinguish.
 
 These spans go to your **own** OTLP collector (or file outfile) just like
-the rest of the telemetry — they do not affect what is written onto the
+the rest of the telemetry -- they do not affect what is written onto the
 outbound HTTP request itself. Whether the W3C `traceparent` header is
 also written into the outgoing request stream is controlled by a
 **separate, security-relevant setting** documented in
@@ -323,14 +323,14 @@ traceparent: 00-<32-hex traceId>-<16-hex parentSpanId>-<01-sampled | 00-not-samp
 ```
 
 Opt in only when the LLM provider also reports into your OTel collector
-for cross-process trace stitching — e.g. ARMS Tracing serving DashScope.
+for cross-process trace stitching -- e.g. ARMS Tracing serving DashScope.
 For most operators the value is `false`; cross-vendor trace continuation
 is niche.
 
 **Depends on `telemetry.enabled: true`.** The OTel SDK only initializes
 when telemetry is enabled, so `propagateTraceContext` only takes effect
 in that state. Setting it to `true` while telemetry is disabled is a
-silent no-op — no SDK, no propagator, no `traceparent` on the wire.
+silent no-op -- no SDK, no propagator, no `traceparent` on the wire.
 Verify both flags when wiring an ARMS+DashScope correlation setup:
 
 ```jsonc
@@ -431,7 +431,7 @@ sent to Alibaba Cloud.
      - **New console** (`trace.console.aliyun.com` or international):
        navigate to `Integration Center`.
      - **Legacy console** (`tracing.console.aliyun.com`): navigate to
-       `Cluster Configurations` → `Access point information`.
+       `Cluster Configurations` -> `Access point information`.
 
 ## Local Telemetry
 

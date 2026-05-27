@@ -48,9 +48,9 @@ interface SubStatRowProps {
 
 const SubStatRow: React.FC<SubStatRowProps> = ({ title, children }) => (
   <Box paddingLeft={2}>
-    {/* Adjust width for the "» " prefix */}
+    {/* Adjust width for the " " prefix */}
     <Box width={26}>
-      <Text color={theme.text.secondary}>» {title}</Text>
+      <Text color={theme.text.secondary}> {title}</Text>
     </Box>
     {/* FIX: Apply the same flexGrow fix here */}
     <Box flexGrow={1}>{children}</Box>
@@ -79,7 +79,7 @@ const ModelUsageTable: React.FC<{
 }> = ({ models, totalCachedTokens, cacheEfficiency }) => {
   // 35 + 8 + 15 + 15 = 73, fitting within the 76-column panel allocated
   // when the terminal is at the default 80-column width. Subagent labels
-  // longer than 35 characters will wrap — acceptable cosmetic trade-off
+  // longer than 35 characters will wrap -- acceptable cosmetic trade-off
   // given the alternative is overflowing the panel border.
   const nameWidth = 35;
   const requestsWidth = 8;
@@ -155,7 +155,7 @@ const ModelUsageTable: React.FC<{
           </Text>
           <Box height={1} />
           <Text color={theme.text.secondary}>
-            » {t('Tip: For a full token breakdown, run `/stats model`.')}
+             {t('Tip: For a full token breakdown, run `/stats model`.')}
           </Text>
         </Box>
       )}
@@ -234,7 +234,7 @@ export const StatsDisplay: React.FC<StatsDisplayProps> = ({
         <StatRow title={t('Tool Calls:')}>
           <Text color={theme.text.primary}>
             {tools.totalCalls} ({' '}
-            <Text color={theme.status.success}>✓ {tools.totalSuccess}</Text>{' '}
+            <Text color={theme.status.success}> {tools.totalSuccess}</Text>{' '}
             <Text color={theme.status.error}>x {tools.totalFail}</Text> )
           </Text>
         </StatRow>

@@ -59,7 +59,7 @@ export interface UseSessionPickerOptions {
   enablePreview?: boolean;
   /**
    * Enable multi-select mode. Space toggles selection on the cursor item,
-   * Enter commits — invoking {@link onConfirmMulti} when one or more items
+   * Enter commits -- invoking {@link onConfirmMulti} when one or more items
    * are checked, falling back to {@link onSelect} (single-select) otherwise.
    * Disabled by default.
    */
@@ -77,7 +77,7 @@ export interface UseSessionPickerOptions {
    *
    * Only consulted when {@link enableMultiSelect} is true. In
    * single-select mode this option is silently inert because there is
-   * no checkbox state to gate — the Space binding routes to preview (or
+   * no checkbox state to gate -- the Space binding routes to preview (or
    * nothing) rather than to `toggleChecked`.
    */
   disabledIds?: readonly string[];
@@ -133,7 +133,7 @@ export function useSessionPicker({
   onConfirmMulti,
   disabledIds,
 }: UseSessionPickerOptions): UseSessionPickerResult {
-  // Both modes bind Space — they cannot coexist without a different chord.
+  // Both modes bind Space -- they cannot coexist without a different chord.
   // Fail loudly so a future caller doesn't silently lose preview when they
   // turn on multi-select (or vice-versa).
   if (enableMultiSelect && enablePreview) {
@@ -142,7 +142,7 @@ export function useSessionPicker({
     );
   }
   // Without onConfirmMulti the Enter handler skips the multi-select branch
-  // and silently falls through to single-select on the cursor row — Space
+  // and silently falls through to single-select on the cursor row -- Space
   // still toggles checkboxes and the footer reads "N selected", so the
   // user thinks N items will be deleted but only 1 is. Refuse the config.
   if (enableMultiSelect && !onConfirmMulti) {
@@ -203,7 +203,7 @@ export function useSessionPicker({
     setPreviewSessionId(null);
   }, []);
 
-  // Search-mode editor — owns the query buffer and handles the
+  // Search-mode editor -- owns the query buffer and handles the
   // edit-keys (printable chars, Backspace/Delete, Ctrl+U/L, Esc).
   // The outer hook below dispatches keys to it whenever
   // `viewMode === 'search'`.
@@ -254,7 +254,7 @@ export function useSessionPicker({
   const showScrollDown =
     scrollOffset + maxVisibleItems < filteredSessions.length;
 
-  // Initial load — skip when pre-filtered sessions are provided
+  // Initial load -- skip when pre-filtered sessions are provided
   useEffect(() => {
     if (!sessionService || hasInitialSessions) {
       return;
@@ -348,7 +348,7 @@ export function useSessionPicker({
       // Both directions need the same empty-list guard. Without it, the
       // -1 branch coasts on `Math.max(0, 0-1) === 0` (no crash), but the
       // asymmetry was a tell that the empty case wasn't being thought
-      // about — share the early-return so a future tweak in either
+      // about -- share the early-return so a future tweak in either
       // branch can't drift past length 0.
       if (filteredSessions.length === 0) return;
       if (delta === -1) {
@@ -387,7 +387,7 @@ export function useSessionPicker({
   useKeypress(
     (key) => {
       // Preview mode is gated by the `isActive` option below, so this
-      // callback only runs in list/search modes — no inline guard
+      // callback only runs in list/search modes -- no inline guard
       // needed.
       const { name, sequence, ctrl } = key;
 
@@ -399,7 +399,7 @@ export function useSessionPicker({
       if (name === 'return') {
         if (viewMode === 'search') {
           if (filteredSessions.length === 0) {
-            // Nothing to commit to — keep editing.
+            // Nothing to commit to -- keep editing.
             return;
           }
           setViewMode('list');
@@ -409,7 +409,7 @@ export function useSessionPicker({
           // Commit *every* checked id (minus disabled), not just the
           // currently-filtered ones. If the user checked A-E and then
           // typed a search matching only C-E, intersecting with the
-          // visible set would silently drop A and B — a partial-delete
+          // visible set would silently drop A and B -- a partial-delete
           // the user never asked for. Filter is a navigation aid; the
           // commit set is whatever the user explicitly checked.
           //
@@ -423,7 +423,7 @@ export function useSessionPicker({
             onConfirmMulti(orderedIds);
             return;
           }
-          // Commit set ended up empty — every checked id is disabled.
+          // Commit set ended up empty -- every checked id is disabled.
           // Don't fall through to single-select on the cursor row, that
           // would silently delete a different session than the one the
           // footer's "N selected" hint promised.
@@ -443,8 +443,8 @@ export function useSessionPicker({
       // Hoist Ctrl+P/Ctrl+N alongside as their readline-style equivalents so
       // they escape the search input the same way arrows do. Bare `k`/`j`
       // remain list-only further below (they would otherwise seed the search
-      // query with the letter and the design intent — see the comment near
-      // the `name === 'k'` branch — is that vim-style keys do not cross
+      // query with the letter and the design intent -- see the comment near
+      // the `name === 'k'` branch -- is that vim-style keys do not cross
       // modes).
       const isNavUp = name === 'up' || (ctrl && name === 'p');
       const isNavDown = name === 'down' || (ctrl && name === 'n');
@@ -472,15 +472,15 @@ export function useSessionPicker({
       // exclusively: anything `handleSearchKey` doesn't claim is
       // intentionally swallowed (e.g. Ctrl+B, '/' typed as a query
       // char, etc.). The mode-independent shortcuts above (Ctrl+C,
-      // Enter, ↑↓) are the only escape hatches. To make a list-mode
+      // Enter, ) are the only escape hatches. To make a list-mode
       // shortcut work in search, hoist it above this delegate the
-      // way Enter / ↑↓ already are.
+      // way Enter /  already are.
       if (viewMode === 'search') {
         handleSearchKey(key);
         return;
       }
 
-      // ── list mode ──
+      // -- list mode --
       if (name === 'escape') {
         if (searchQuery !== '') {
           setSearchQuery('');
@@ -490,7 +490,7 @@ export function useSessionPicker({
         return;
       }
 
-      // `j`/`k` are list-mode navigation only — intentionally claimed
+      // `j`/`k` are list-mode navigation only -- intentionally claimed
       // BEFORE the implicit-search-seed branch below, so typing `j`
       // never seeds the query with "j". vim users stay in list mode;
       // anyone wanting to search for a literal "j..." can press `/`
@@ -536,7 +536,7 @@ export function useSessionPicker({
       }
 
       if (isPrintableSearchChar(key)) {
-        // Skip Space when it would seed a leading-whitespace query —
+        // Skip Space when it would seed a leading-whitespace query --
         // hits this branch only when enablePreview=false (otherwise
         // the Space-preview shortcut above already returned).
         if (sequence === ' ') {

@@ -106,7 +106,7 @@ describe('selectTip', () => {
     expect(result!.id).toBe('tip-b');
   });
 
-  it('uses LRU for equal priority — prefers never-shown tip', () => {
+  it('uses LRU for equal priority -- prefers never-shown tip', () => {
     const history = createHistory();
     const tipX: ContextualTip = { ...tipA, id: 'tip-x', priority: 10 };
     const tipY: ContextualTip = { ...tipA, id: 'tip-y', priority: 10 };

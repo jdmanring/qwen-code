@@ -1,18 +1,18 @@
 /**
- * BlockStreamer — progressive multi-message delivery for channels.
+ * BlockStreamer -- progressive multi-message delivery for channels.
  *
  * Accumulates text chunks from the agent's streaming response and emits
  * completed "blocks" (paragraphs / sections) as separate channel messages
  * while the agent is still working. This gives users a natural conversation
- * flow instead of waiting 30–120 seconds for a single wall of text.
+ * flow instead of waiting 30-120 seconds for a single wall of text.
  *
  * Emission triggers:
- *  1. Buffer ≥ maxChars → force-split at best break point
- *  2. Buffer ≥ minChars AND a paragraph boundary (\n\n) exists → emit up to boundary
- *  3. Idle timer fires (no chunk for idleMs) AND buffer ≥ minChars → emit buffer
- *  4. flush() called (response complete) → emit everything remaining
+ *  1. Buffer >= maxChars -> force-split at best break point
+ *  2. Buffer >= minChars AND a paragraph boundary (\n\n) exists -> emit up to boundary
+ *  3. Idle timer fires (no chunk for idleMs) AND buffer >= minChars -> emit buffer
+ *  4. flush() called (response complete) -> emit everything remaining
  *
- * All sends are serialized — the next block waits for the previous send to complete.
+ * All sends are serialized -- the next block waits for the previous send to complete.
  */
 
 export interface BlockStreamerOptions {

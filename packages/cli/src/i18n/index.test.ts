@@ -44,7 +44,7 @@ describe('bundled locale fallback', () => {
 
     await setLanguageAsync('zh');
 
-    expect(t('show version info')).toBe('显示版本信息');
+    expect(t('show version info')).toBe('');
     expect(languageCommand.description).not.toBe(
       'View or change the language setting',
     );
@@ -67,7 +67,7 @@ describe('bundled locale fallback', () => {
     const { setLanguageAsync, t } = await import('./index.js');
     await setLanguageAsync('zh');
 
-    expect(t('show version info')).toBe('显示版本信息');
+    expect(t('show version info')).toBe('');
 
     await fs.rm(tempDir, { recursive: true, force: true });
   }, 20000);
@@ -89,7 +89,7 @@ describe('bundled locale fallback', () => {
     const { setLanguageAsync, t } = await import('./index.js');
     await setLanguageAsync('zh');
 
-    expect(t('show version info')).toBe('显示版本信息');
+    expect(t('show version info')).toBe('');
 
     await fs.rm(tempDir, { recursive: true, force: true });
   }, 20000);
@@ -122,7 +122,7 @@ describe('language normalization', () => {
     await setLanguageAsync('zh-CN');
 
     expect(getCurrentLanguage()).toBe('zh');
-    expect(t('show version info')).toBe('显示版本信息');
+    expect(t('show version info')).toBe('');
   });
 
   it('normalizes explicit POSIX locale strings before loading translations', async () => {
@@ -133,7 +133,7 @@ describe('language normalization', () => {
     await initializeI18n('pt_BR.UTF-8');
 
     expect(getCurrentLanguage()).toBe('pt');
-    expect(t('show version info')).toBe('mostrar informações de versão');
+    expect(t('show version info')).toBe('mostrar informaes de verso');
   });
 });
 

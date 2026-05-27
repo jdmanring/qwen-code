@@ -1,4 +1,4 @@
-# Local Development ⚙️
+# Local Development 
 
 ## Running the Extension
 

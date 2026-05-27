@@ -70,7 +70,7 @@ export function recordGoalIteration(
 }
 
 /**
- * Test-only escape hatch — production code must scope by sessionId.
+ * Test-only escape hatch -- production code must scope by sessionId.
  */
 export function __resetActiveGoalStoreForTests(): void {
   store.clear();
@@ -78,7 +78,7 @@ export function __resetActiveGoalStoreForTests(): void {
   lastTerminal.clear();
 }
 
-// ───────────────────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
 // Terminal-state observers
 //
 // The Stop hook callback that drives /goal runs inside core, but the UI cards
@@ -86,9 +86,9 @@ export function __resetActiveGoalStoreForTests(): void {
 // module-scoped observer table that the CLI command populates when it
 // registers the goal and clears when the goal is unregistered.
 //
-// Observers are fire-and-forget — they MUST NOT throw or block the hook
+// Observers are fire-and-forget -- they MUST NOT throw or block the hook
 // callback; any side effect (e.g. context.ui.addItem) should be guarded.
-// ───────────────────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
 
 /**
  * Terminal outcomes for an automatic `/goal` loop:
@@ -137,18 +137,18 @@ export function notifyGoalTerminal(
     observer(event);
   } catch {
     // Observers are best-effort. Do not let UI-side errors poison the hook
-    // callback — losing a card is acceptable; losing the /goal loop is not.
+    // callback -- losing a card is acceptable; losing the /goal loop is not.
   }
 }
 
-// ───────────────────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
 // Last-completed-goal cache
 //
 // Empty `/goal` after the active goal is gone should show the most recent
 // actually-finished goal. Automatic terminal states (`achieved`, `aborted`,
 // and `failed`) qualify; the user-driven `/goal clear` path emits a
 // `cleared` history card directly and never flows through this notifier.
-// ───────────────────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
 
 const lastTerminal = new Map<string, GoalTerminalEvent>();
 

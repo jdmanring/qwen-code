@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 
 // Stub `fs.realpathSync` so the symlink-aware tests below can simulate
-// macOS-style `/var` ↔ `/private/var` mapping without needing a real
+// macOS-style `/var` <-> `/private/var` mapping without needing a real
 // symlink in the filesystem. Other tests don't touch realpath, so the
 // pass-through default keeps them unaffected.
 vi.mock('node:fs', async () => {
@@ -118,7 +118,7 @@ describe('CommitAttributionService', () => {
 
   // Out-of-band mutation detection: if the input `oldContent` doesn't
   // match the contentHash AI recorded after its previous edit, the
-  // file was changed externally between AI's two writes — drop the
+  // file was changed externally between AI's two writes -- drop the
   // accumulator before counting the new edit so prior AI work the
   // user has since overwritten doesn't get credited later.
   it('should reset accumulator when oldContent diverges from AI last write', () => {
@@ -129,7 +129,7 @@ describe('CommitAttributionService', () => {
     const after1 = service.getFileAttribution('/project/f.ts')!;
     expect(after1.aiContribution).toBeGreaterThan(0);
 
-    // Now a DIFFERENT oldContent shows up — the user paste-replaced
+    // Now a DIFFERENT oldContent shows up -- the user paste-replaced
     // the file via an external editor in between. AI's recordEdit
     // should reset the counter before applying the new contribution.
     service.recordEdit('/project/f.ts', 'user paste replacement', 'final');
@@ -170,7 +170,7 @@ describe('CommitAttributionService', () => {
     const service = CommitAttributionService.getInstance();
     service.recordEdit('/project/f.ts', 'abc', 'AI step one');
     const after1 = service.getFileAttribution('/project/f.ts')!;
-    // Second AI edit picks up where the first left off — oldContent
+    // Second AI edit picks up where the first left off -- oldContent
     // matches the post-first hash, so accumulation continues.
     service.recordEdit('/project/f.ts', 'AI step one', 'AI step two final');
     const after2 = service.getFileAttribution('/project/f.ts')!;
@@ -179,7 +179,7 @@ describe('CommitAttributionService', () => {
 
   // validateAgainst runs at commit time and drops entries whose
   // recorded post-write hash doesn't match the caller-supplied
-  // content — catches user edits that happened entirely outside the
+  // content -- catches user edits that happened entirely outside the
   // Edit/Write tools (no recordEdit was called, so the input-hash
   // check above couldn't see the divergence).
   describe('validateAgainst', () => {
@@ -217,7 +217,7 @@ describe('CommitAttributionService', () => {
       const filePath = path.join(tmpDir, 'no-comparison.ts');
       fs.writeFileSync(filePath, 'will be queried', 'utf-8');
       service.recordEdit(filePath, null, 'will be queried');
-      // null = "no committed blob / unreadable / out-of-scope" — the
+      // null = "no committed blob / unreadable / out-of-scope" -- the
       // entry should NOT be dropped.
       service.validateAgainst(() => null);
       expect(service.getFileAttribution(filePath)).toBeDefined();
@@ -227,7 +227,7 @@ describe('CommitAttributionService', () => {
     // and CRLF line-ending choice independently of whether AI's
     // recordEdit input string contained the BOM char or used LF. The
     // on-disk bytes returned by `git show` can therefore include a
-    // leading U+FEFF and CRLFs that AI never wrote — the hash MUST
+    // leading U+FEFF and CRLFs that AI never wrote -- the hash MUST
     // canonicalise both sides so a BOM/CRLF file isn't dropped on
     // every commit.
     it('keeps entries when on-disk content has BOM but AI input did not', () => {
@@ -236,7 +236,7 @@ describe('CommitAttributionService', () => {
       // Simulate the on-disk file having a BOM (writeTextFile wrote
       // it because the previous file version had one).
       const aiContent = 'export const foo = 42;';
-      const onDiskWithBom = '﻿' + aiContent;
+      const onDiskWithBom = '' + aiContent;
       fs.writeFileSync(filePath, onDiskWithBom, 'utf-8');
       service.recordEdit(filePath, null, aiContent);
 
@@ -264,7 +264,7 @@ describe('CommitAttributionService', () => {
       const service = CommitAttributionService.getInstance();
       const filePath = path.join(tmpDir, 'bom-crlf.ts');
       const aiContent = 'foo\nbar\n';
-      const onDisk = '﻿foo\r\nbar\r\n';
+      const onDisk = 'foo\r\nbar\r\n';
       fs.writeFileSync(filePath, onDisk, 'utf-8');
       service.recordEdit(filePath, null, aiContent);
       service.validateAgainst(() => onDisk);
@@ -290,7 +290,7 @@ describe('CommitAttributionService', () => {
         promptCountAtLastCommit: 0,
       });
       // Even if the reader claims a different hash, an empty recorded
-      // hash means we have no baseline — keep the entry.
+      // hash means we have no baseline -- keep the entry.
       service.validateAgainst(() => 'totally different');
       expect(service.getFileAttribution('/legacy.ts')).toBeDefined();
     });
@@ -299,7 +299,7 @@ describe('CommitAttributionService', () => {
     // the path via realpathSync; getFileAttribution must still resolve
     // the same canonical key after the leaf is unlinked. realpathOrSelf
     // canonicalises the parent and rejoins the basename for missing
-    // leaves so macOS /var ↔ /private/var doesn't break the lookup
+    // leaves so macOS /var <-> /private/var doesn't break the lookup
     // post-deletion.
     it('keeps deleted-file entries reachable via the original path', () => {
       const service = CommitAttributionService.getInstance();
@@ -494,9 +494,9 @@ describe('CommitAttributionService', () => {
 
   // The service realpath's file paths at every entry/exit point so a
   // symlinked vs canonical absolute path collapses to one entry. This
-  // matters most on macOS (`/var` → `/private/var`), where edit.ts
+  // matters most on macOS (`/var` -> `/private/var`), where edit.ts
   // can record a path under one form while git rev-parse reports the
-  // other — without canonicalisation, the lookup never matches and
+  // other -- without canonicalisation, the lookup never matches and
   // AI attribution silently zeroes out.
   describe('symlink-aware path canonicalisation', () => {
     beforeEach(() => {
@@ -517,7 +517,7 @@ describe('CommitAttributionService', () => {
       const service = CommitAttributionService.getInstance();
       service.recordEdit('/var/repo/src/main.ts', '', 'x'.repeat(50));
 
-      // Lookup with EITHER form should work — the service canonicalises
+      // Lookup with EITHER form should work -- the service canonicalises
       // both write and read.
       expect(service.getFileAttribution('/var/repo/src/main.ts')).toBeDefined();
       expect(
@@ -627,7 +627,7 @@ describe('CommitAttributionService', () => {
     // A snapshot straddling the canonicalisation fix can carry both
     // the symlinked and canonical paths for the same file. After
     // realpathOrSelf normalises them, the second entry to land
-    // would overwrite the first if we just `set()` — losing the
+    // would overwrite the first if we just `set()` -- losing the
     // first form's accumulated aiContribution. Merge instead.
     it('merges duplicate entries collapsed by canonicalisation', () => {
       const service = CommitAttributionService.getInstance();

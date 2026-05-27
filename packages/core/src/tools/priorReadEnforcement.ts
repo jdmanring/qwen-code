@@ -15,8 +15,8 @@ import { ToolNames } from './tool-names.js';
  * the throw collapse into a generic `UNHANDLED_EXCEPTION`. Originally
  * introduced for prior-read enforcement (hence the file location)
  * but now also carries other content-derived `calculateEdit` errors
- * — `EDIT_NO_OCCURRENCE_FOUND`, `EDIT_EXPECTED_OCCURRENCE_MISMATCH`,
- * `EDIT_NO_CHANGE`, `ATTEMPT_TO_CREATE_EXISTING_FILE` — through the
+ * -- `EDIT_NO_OCCURRENCE_FOUND`, `EDIT_EXPECTED_OCCURRENCE_MISMATCH`,
+ * `EDIT_NO_CHANGE`, `ATTEMPT_TO_CREATE_EXISTING_FILE` -- through the
  * confirmation path so they keep their proper error code instead of
  * being reported as "unhandled exception".
  *
@@ -24,7 +24,7 @@ import { ToolNames } from './tool-names.js';
  *
  * Naming note: kept generic (`StructuredToolError`) rather than
  * `PriorReadEnforcementError` so the name matches the broader set of
- * `ToolErrorType` values it actually carries — an oncall engineer
+ * `ToolErrorType` values it actually carries -- an oncall engineer
  * seeing this in a log paired with `edit_no_occurrence_found` should
  * not have to wonder what prior-read has to do with it.
  */
@@ -42,15 +42,15 @@ export class StructuredToolError extends Error {
  * Result of checking whether a tool that mutates an existing file is
  * cleared to proceed based on the session FileReadCache.
  *
- *  - `ok: true` — the model has legitimately read the file in this
+ *  - `ok: true` -- the model has legitimately read the file in this
  *    session and the on-disk fingerprint still matches.
- *  - `ok: false` — the call must be rejected. `type` selects the
+ *  - `ok: false` -- the call must be rejected. `type` selects the
  *    error code; `rawMessage` is the model-facing prose; `displayMessage`
  *    is the short user-facing form.
  *
  * The decision is structured (rather than a `ToolResult` or thrown
  * error) so each caller can route it into the shape its surrounding
- * code expects — a `CalculatedEdit.error` from EditTool's
+ * code expects -- a `CalculatedEdit.error` from EditTool's
  * `calculateEdit`, a thrown error from `getConfirmationDetails`, or a
  * `ToolResult` from `execute`.
  */
@@ -77,7 +77,7 @@ export type PriorReadVerb = 'editing' | 'overwriting';
  *  - `expectExisting`: when true, an `ENOENT` from the stat call
  *    rejects with `FILE_CHANGED_SINCE_READ` instead of returning
  *    `ok: true`. Use this for the post-read and pre-write recheck
- *    calls — at those points the model has already committed to
+ *    calls -- at those points the model has already committed to
  *    mutating an existing path, so a disappeared file is a stale-read
  *    drift, not a "the file genuinely never existed" disappearance
  *    race. The default (`expectExisting: false`) is the pre-read
@@ -94,7 +94,7 @@ export type PriorReadVerb = 'editing' | 'overwriting';
  * tools, the mtime/size drift check is the safety net.
  *
  * There is no built-in "stricter than this" mode. `fileReadCacheDisabled:
- * true` is the OPPOSITE — it bypasses the cache (and thus prior-read
+ * true` is the OPPOSITE -- it bypasses the cache (and thus prior-read
  * enforcement) entirely, ceding the safety net to whatever
  * application-level overwrite-protection the operator wires up
  * (lockfiles, content hashing, atomic temp-file rename, etc.). Users
@@ -115,7 +115,7 @@ export interface CheckPriorReadOptions {
  * Approval requires more than `cache.check === 'fresh'`: the recorded
  * read must also have been (a) stamped with `lastReadAt` and
  * (b) `lastReadCacheable` (i.e. plain text, not binary / image /
- * audio / video / PDF / notebook — those return a structured payload
+ * audio / video / PDF / notebook -- those return a structured payload
  * the Edit / WriteFile tools cannot mutate as text).
  *
  * `lastReadCacheable` is purely about content type, not completeness.
@@ -132,15 +132,15 @@ export interface CheckPriorReadOptions {
  * fires identically for both tools. Issue #2499 (model hallucinates
  * unread bytes on overwrite) is the residual risk this stance
  * accepts, mitigated by the drift check. There is no built-in
- * stricter mode — `fileReadCacheDisabled: true` is an OPT-OUT (it
+ * stricter mode -- `fileReadCacheDisabled: true` is an OPT-OUT (it
  * bypasses enforcement entirely so application-level locking can
  * take over), not an opt-in to anything stricter.
  *
  * Stat policy: `ENOENT` means the path disappeared between the
- * caller's `fileExists` check and now — a disappearance race that is
+ * caller's `fileExists` check and now -- a disappearance race that is
  * harmless for our purposes (the downstream write will resurface the
  * absence as its own error). Any other stat error (`EACCES`, `EBUSY`,
- * NFS hiccup, …) is fail-closed: returning `ok: true` would re-open
+ * NFS hiccup, ...) is fail-closed: returning `ok: true` would re-open
  * the blind-write path the helper exists to block, since a transient
  * stat failure does not imply the subsequent read/write will fail.
  *
@@ -167,14 +167,14 @@ export async function checkPriorRead(
       if (options.expectExisting) {
         // Post-read or pre-write: the file existed at planning time
         // but disappeared before this recheck. That is not a benign
-        // disappearance race — it is the original target going away
+        // disappearance race -- it is the original target going away
         // from under the model. Reject so the caller does not
         // silently fall through to the new-file path with stale
         // bytes.
         const raw =
           `File ${filePath} disappeared after the model read it ` +
           `(stat now returns ENOENT). Re-read with the ${ToolNames.READ_FILE} ` +
-          `tool — the path may have been deleted or moved — before ` +
+          `tool -- the path may have been deleted or moved -- before ` +
           `retrying ${verb} it.`;
         return {
           ok: false,
@@ -184,7 +184,7 @@ export async function checkPriorRead(
         };
       }
       // Pre-read disappearance race vs the caller's fileExists check.
-      // Let the downstream write path surface the absence — synthesising
+      // Let the downstream write path surface the absence -- synthesising
       // a "you must read first" message here would be misleading.
       return { ok: true };
     }
@@ -194,7 +194,7 @@ export async function checkPriorRead(
     // the subsequent write from succeeding. Use a distinct
     // PRIOR_READ_VERIFICATION_FAILED code (rather than
     // EDIT_REQUIRES_PRIOR_READ) because the model may have
-    // legitimately read this file — we just cannot verify it.
+    // legitimately read this file -- we just cannot verify it.
     // Operators monitoring on error codes can route the two
     // populations separately.
     const raw =
@@ -210,7 +210,7 @@ export async function checkPriorRead(
     };
   }
   // Directory and other non-regular paths get dedicated rejections
-  // with structured ToolErrorType codes — never `ok: true`. Falling
+  // with structured ToolErrorType codes -- never `ok: true`. Falling
   // through to readTextFile would either block (FIFO),
   // over-allocate (/dev/urandom), or throw a plain Error that the
   // confirmation path collapses into UNHANDLED_EXCEPTION (e.g.
@@ -277,7 +277,7 @@ export async function checkPriorRead(
     !status.entry.lastReadCacheable
   ) {
     // Both raw and displayMessage use the bare verb (`edit` /
-    // `overwrite`) rather than the gerund — the noun phrase
+    // `overwrite`) rather than the gerund -- the noun phrase
     // "cannot editing via this tool" would be ungrammatical, and
     // both strings need to read correctly on the EditTool path
     // (where "overwrite" would be the wrong verb for an in-place
@@ -288,7 +288,7 @@ export async function checkPriorRead(
       `File ${filePath} is a binary / image / audio / video / PDF / ` +
       `notebook payload that the ${ToolNames.READ_FILE} tool returns ` +
       `as a structured value rather than as plain text. The Edit / ` +
-      `WriteFile tools cannot mutate that payload safely — re-reading ` +
+      `WriteFile tools cannot mutate that payload safely -- re-reading ` +
       `it would not change this. If this is a Jupyter notebook (.ipynb), ` +
       `use the ${ToolNames.NOTEBOOK_EDIT} tool for cell-level edits after ` +
       `reading it. For other non-text files, use a different mechanism ` +
@@ -308,15 +308,15 @@ export async function checkPriorRead(
   // Tool-specific guidance on partial reads. Edit can use a partial
   // read (the model only needs to have seen `old_string`-bearing
   // bytes; the rest of the file passes through untouched). WriteFile
-  // OVERWRITES — the model is replacing the entire file, so a
+  // OVERWRITES -- the model is replacing the entire file, so a
   // partial read leaves any unseen bytes as collateral damage. The
   // mtime/size drift check still catches the worst case (#2499
   // hallucinated-bytes risk), but recommending a partial read here
   // would actively encourage the foot-gun.
   const partialReadGuidance =
     verb === 'editing'
-      ? `(a partial read with offset / limit is fine — you only need to have seen the bytes you intend to ${verbBare})`
-      : `(read the full file — overwriting replaces every byte, so any unseen bytes would be discarded)`;
+      ? `(a partial read with offset / limit is fine -- you only need to have seen the bytes you intend to ${verbBare})`
+      : `(read the full file -- overwriting replaces every byte, so any unseen bytes would be discarded)`;
   const raw =
     `File ${filePath} has not been read in this session. ` +
     `Use the ${ToolNames.READ_FILE} tool first to load the current ` +

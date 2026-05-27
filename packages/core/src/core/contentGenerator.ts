@@ -100,7 +100,7 @@ export type ContentGeneratorConfig = {
     | false
     | {
         // 'max' is supported by providers that document an extra-strong
-        // reasoning tier — currently DeepSeek's `reasoning_effort` (see
+        // reasoning tier -- currently DeepSeek's `reasoning_effort` (see
         // https://api-docs.deepseek.com/zh-cn/api/create-chat-completion).
         // Real Anthropic only accepts low/medium/high; the Anthropic
         // generator clamps 'max' down to 'high' (logged once per generator

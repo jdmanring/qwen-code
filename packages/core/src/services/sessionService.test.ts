@@ -193,7 +193,7 @@ describe('SessionService', () => {
 
     it('should NOT populate messageCount during listing', async () => {
       // Listing must avoid the full-file readline that counting requires
-      // — message counts are now lazy and provided by
+      // -- message counts are now lazy and provided by
       // `countSessionMessages(sessionId)` only when a UI surface (e.g.
       // a session preview) is about to display them. Pinning this
       // contract here so future refactors can't quietly re-introduce
@@ -660,7 +660,7 @@ describe('SessionService', () => {
     // listSessions. Four contracts to pin: it actually counts what it
     // promises, it short-circuits on bad input without touching the disk,
     // it returns 0 on any read failure (caller must not see an exception
-    // bubble up — the picker treats 0 as "unknown"), and it scopes to
+    // bubble up -- the picker treats 0 as "unknown"), and it scopes to
     // the current project (mirroring deleteSession/renameSession's
     // first-record cwd check).
 
@@ -689,7 +689,7 @@ describe('SessionService', () => {
         }
       });
       const lines = [
-        // Two user records sharing a uuid — should be counted once
+        // Two user records sharing a uuid -- should be counted once
         JSON.stringify({ uuid: 'u1', type: 'user' }),
         JSON.stringify({ uuid: 'u1', type: 'user' }),
         JSON.stringify({ uuid: 'a1', type: 'assistant' }),
@@ -721,7 +721,7 @@ describe('SessionService', () => {
 
     it('should return 0 when the session file is missing (ENOENT)', async () => {
       // The first-record read fires before the count stream, so simulate
-      // ENOENT there too — readLines surfaces it as a thrown error.
+      // ENOENT there too -- readLines surfaces it as a thrown error.
       vi.mocked(jsonl.readLines).mockRejectedValue(
         Object.assign(new Error('ENOENT'), { code: 'ENOENT' }),
       );
@@ -749,7 +749,7 @@ describe('SessionService', () => {
       const count = await sessionService.countSessionMessages(sessionIdA);
 
       expect(count).toBe(0);
-      // No streaming pass should have started — the project check
+      // No streaming pass should have started -- the project check
       // short-circuits before the expensive part.
       expect(createReadStreamSpy).not.toHaveBeenCalled();
     });
@@ -1574,7 +1574,7 @@ describe('SessionService', () => {
   });
 
   describe('findSessionTitlesByPrefix', () => {
-    // Uses real disk like forkSession — readSessionTitleInfoFromFile reads
+    // Uses real disk like forkSession -- readSessionTitleInfoFromFile reads
     // the file tail for the custom_title record, so mocks would defeat the
     // method. Mirrors the forkSession describe's setup verbatim so the tmp
     // sandbox + un-mocked path/jsonl utilities are in place.
@@ -1710,7 +1710,7 @@ describe('SessionService', () => {
         cwd,
       );
       // Same chats dir (sessions are stored under projectHash anyway), but
-      // the record's cwd belongs to another project → must be skipped.
+      // the record's cwd belongs to another project -> must be skipped.
       seedSessionWithTitle(
         '22222222-2222-2222-2222-222222222222',
         'shared (Branch 2)',

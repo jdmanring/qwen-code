@@ -121,7 +121,7 @@ const debugLogger = createDebugLogger('ACP_AGENT');
  * `core/src/models/constants.ts` (which isn't on the public package
  * surface). Keep in sync if a new provider is added there. Any auth method
  * not listed here surfaces as `status: 'unknown'` on the cell rather than
- * a false `auth_env_error` — full validation happens at session start.
+ * a false `auth_env_error` -- full validation happens at session start.
  *
  * Drift detection: `AUTH_PREFLIGHT_AUDITED_AUTH_TYPES` below lists every
  * `AuthType` enum value that has been triaged for this map (either keyed
@@ -419,7 +419,7 @@ class QwenAgent implements Agent {
       params.cwd,
       // `LoadSessionRequest.mcpServers` is required in today's ACP
       // schema, but mirror `unstable_resumeSession` and tolerate a
-      // future loosening — `newSessionConfig` iterates the list, so
+      // future loosening -- `newSessionConfig` iterates the list, so
       // a `null`/`undefined` would otherwise throw `TypeError`.
       params.mcpServers ?? [],
       params.sessionId,
@@ -492,9 +492,9 @@ class QwenAgent implements Agent {
    * up stale ones, and queues the context reminder on the Session so the
    * next `#executePrompt` prepends it to the user's first prompt.
    *
-   * Best-effort: failures don't block session load — worktree context
+   * Best-effort: failures don't block session load -- worktree context
    * is a hint to the model, not a load-time correctness requirement.
-   * (PR #4174 review #3259975... — parity between the two ACP entry
+   * (PR #4174 review #3259975... -- parity between the two ACP entry
    * points.)
    */
   async #restoreWorktreeOnResume(
@@ -739,7 +739,7 @@ class QwenAgent implements Agent {
       // McpClientManager so the daemon's read-only route reflects the
       // single source of truth (not a daemon-side polled cache).
       // `getToolRegistry()` and `getMcpClientManager()` are best-effort
-      // — older test stubs or partially-initialized configs may not
+      // -- older test stubs or partially-initialized configs may not
       // expose them; in that case we fall back to "no budget surface".
       let clientCount: number | undefined;
       let clientBudget: number | undefined;
@@ -755,7 +755,7 @@ class QwenAgent implements Agent {
           refusedSet = new Set(accounting.refusedServerNames);
         }
       } catch (err) {
-        // Accounting failure must not crash the snapshot — the per-
+        // Accounting failure must not crash the snapshot -- the per-
         // server data is still useful even without budget overlay.
         // PR 14 fix (review #4247 wenshao S7a): bumped from
         // `debugLogger.debug` to stderr `process.stderr.write` so a
@@ -784,8 +784,8 @@ class QwenAgent implements Agent {
           // `/mcp disable <name>` against a server that was refused
           // last pass, the entry stays in the refused list until the
           // next discovery pass clears it (`McpClientManager.removeServer`
-          // now drops the entry too — see sibling fix). Either way,
-          // a `disabled` cell should NEVER show `budget_exhausted` —
+          // now drops the entry too -- see sibling fix). Either way,
+          // a `disabled` cell should NEVER show `budget_exhausted` --
           // the operator's deliberate disable wins.
           const effectivelyRefused = refusedByBudget && !disabled;
           const out: ServeWorkspaceMcpServerStatus = {
@@ -838,7 +838,7 @@ class QwenAgent implements Agent {
               // && !disabled` above). Pre-fix a server disabled
               // after being refused would render `disabled` on its
               // per-server row but `error: budget_exhausted` on the
-              // workspace row — confusing for dashboards. Use
+              // workspace row -- confusing for dashboards. Use
               // `Array.from(refusedSet).filter(...)` to apply the
               // same disabled gate the per-server loop applies.
               budgets: this.buildBudgetCells(
@@ -865,7 +865,7 @@ class QwenAgent implements Agent {
 
   /**
    * Build the MCP budget status cells exposed on `GET /workspace/mcp`
-   * (PR 14). v1 emits one cell with `scope: 'session'` — each ACP
+   * (PR 14). v1 emits one cell with `scope: 'session'` -- each ACP
    * session has its own `McpClientManager`, so the budget enforces
    * per-session (snapshot reflects the bootstrap session's view).
    * Wave 5 PR 23 (shared MCP pool) will add `scope: 'workspace'`
@@ -874,20 +874,20 @@ class QwenAgent implements Agent {
    * fail).
    *
    * Cell `status` semantics:
-   *   - `error`   — refusals happened this pass (only possible in enforce mode)
-   *   - `warning` — live count crossed 75% of budget (warn or enforce mode)
-   *   - `ok`      — under threshold (or `off` mode)
+   *   - `error`   -- refusals happened this pass (only possible in enforce mode)
+   *   - `warning` -- live count crossed 75% of budget (warn or enforce mode)
+   *   - `ok`      -- under threshold (or `off` mode)
    *
    * **`liveCount` vs `reservedSlots.size` (PR 14 review #4247 R9 #5)**:
-   * `liveCount` here is `accounting.total` — only `MCPServerStatus.CONNECTED`
+   * `liveCount` here is `accounting.total` -- only `MCPServerStatus.CONNECTED`
    * clients. Enforcement (`tryReserveSlot`) on the other hand uses
-   * `reservedSlots.size` — all reserved names, including in-flight
+   * `reservedSlots.size` -- all reserved names, including in-flight
    * connects and never-connected stale entries. The two diverge when
    * servers hold a slot during the connect handshake or after a
    * connect failure that didn't release (e.g. `'already_held'`
    * reconnect timeouts). The snapshot intentionally uses the live
-   * count for **operator observability** — "how many MCP clients
-   * are actually serving requests right now" — while enforcement
+   * count for **operator observability** -- "how many MCP clients
+   * are actually serving requests right now" -- while enforcement
    * uses the reservation count to prevent capacity races across
    * `Promise.all` microtask boundaries. PR 14b's typed events
    * should consider exposing both for real-time pressure signals.
@@ -902,7 +902,7 @@ class QwenAgent implements Agent {
     // configured the manager resolves to `mode: 'off'`. The protocol
     // docs and SDK type comments promise `budgets: []` for that case;
     // a synthetic `mcp_budget` cell carrying nothing actionable was
-    // (a) protocol-noncompliant, (b) clutter — clients iterating
+    // (a) protocol-noncompliant, (b) clutter -- clients iterating
     // `budgets[]` to render rows would draw an "ok" budget row for
     // uncapped workspaces. Always return empty so the top-level
     // `budgetMode: 'off'` field is the sole signal that guardrails
@@ -1094,7 +1094,7 @@ class QwenAgent implements Agent {
   ): Promise<{ cells: ServePreflightCell[]; errors?: ServeStatusCell[] }> {
     // Drive emission order from the shared `ACP_PREFLIGHT_KINDS` constant
     // (also consumed by `createIdleAcpPreflightCells` in `serve/status.ts`)
-    // so the idle-placeholder list and the live builder cannot drift —
+    // so the idle-placeholder list and the live builder cannot drift --
     // adding a new ACP kind in the constant flags any builder dispatch
     // gap as a TS exhaustiveness error in the switch below, instead of
     // silently dropping the cell from one path or the other.
@@ -1157,7 +1157,7 @@ class QwenAgent implements Agent {
         Boolean(process.env[name]),
       );
       const hasToken = Boolean(presentVar);
-      // No env-var registration → either OAuth-style auth (qwen-oauth) or
+      // No env-var registration -> either OAuth-style auth (qwen-oauth) or
       // a custom provider whose key is sourced from settings rather than
       // env. Surface as `unknown` (the SDK consumer can defer to the
       // `/session` boot for definitive validation) rather than a false
@@ -1294,7 +1294,7 @@ class QwenAgent implements Agent {
       if (!skillManager) {
         return this.acpCell('skills', {
           status: 'disabled',
-          // `disabled` here is the structural state — Config has no
+          // `disabled` here is the structural state -- Config has no
           // SkillManager attached. That can mean the user opted out OR a
           // mis-config silently dropped the manager; preflight cannot
           // distinguish the two without settings introspection. Hint
@@ -1493,7 +1493,7 @@ class QwenAgent implements Agent {
           // #4282 gpt-5.5 C5 fold-in: the bridge looks for
           // `data.errorKind: 'mcp_server_not_found'` to map this back
           // to a typed `McpServerNotFoundError` and a stable HTTP 404
-          // — without the structured payload the bridge can't
+          // -- without the structured payload the bridge can't
           // distinguish this from a generic JSON-RPC error and the
           // route falls through to 500.
           throw new RequestError(
@@ -1582,7 +1582,7 @@ class QwenAgent implements Agent {
         // #4175 Wave 4 PR 17: remote callers change a live session's
         // approval mode via this ACP extMethod. `Config.setApprovalMode`
         // throws `TrustGateError` for privileged modes in an untrusted
-        // folder; we let it propagate — the bridge's mapping helper
+        // folder; we let it propagate -- the bridge's mapping helper
         // converts the name to `errorKind: 'auth_env_error'` on the
         // wire so the SDK consumer gets a structured failure.
         const sessionId = params['sessionId'];
@@ -1861,7 +1861,7 @@ class QwenAgent implements Agent {
     //
     // sessionId source: `config.getSessionId()` reads the Config's own
     // session id (auto-assigned via `randomUUID()` in the Config
-    // constructor when no override is passed — see `config.ts:849`),
+    // constructor when no override is passed -- see `config.ts:849`),
     // so the value is available immediately after `loadCliConfig`
     // returns. The closure pins it for the manager's whole lifetime.
     //
@@ -1880,14 +1880,14 @@ class QwenAgent implements Agent {
       config.setMcpBudgetEventCallback((event) => {
         // Fire-and-forget: `extNotification` returns Promise<void> but
         // the manager's call site doesn't await. `.catch` suppresses
-        // unhandled rejections — a mid-flight ACP disconnect would
+        // unhandled rejections -- a mid-flight ACP disconnect would
         // otherwise crash the child. Snapshot still carries the state
         // for clients that reconnect.
         //
-        // PR 14b fix (codex round 3 — DeepSeek): pre-fix the catch
+        // PR 14b fix (codex round 3 -- DeepSeek): pre-fix the catch
         // handler was `() => {}`, silently dropping every error
         // including "real" ones (serialization bugs, protocol
-        // violations) — operators had no debug trail. Now logs at
+        // violations) -- operators had no debug trail. Now logs at
         // `debug` level: ACP channel closure during shutdown is the
         // expected case and would spam at higher levels, but `debug`
         // is opt-in so when an oncall engineer DOES turn it on for
@@ -1913,7 +1913,7 @@ class QwenAgent implements Agent {
     // messages to the model immediately, so we cannot return a Config whose
     // MCP discovery is still in flight.
     await config.waitForMcpReady();
-    // Surface MCP failures to stderr — mirrors `runAcpAgent` (lines 95-107)
+    // Surface MCP failures to stderr -- mirrors `runAcpAgent` (lines 95-107)
     // and the other non-interactive entry points (`gemini.tsx`,
     // `session.ts`). Without this, per-session ACP configs that lose MCP
     // servers fall back to built-in-tools-only with no user-visible

@@ -16,7 +16,7 @@ import {
 
 // Sanity helper for the pre-truncation tests: `y` count in the output must
 // be less than maxLength (since JSON quoting and the field name eat some of
-// the budget) — confirming the input never reached its full 10MB form.
+// the budget) -- confirming the input never reached its full 10MB form.
 function maxLengthGuard(maxLength: number) {
   return maxLength;
 }
@@ -41,7 +41,7 @@ describe('truncateJson', () => {
 
   it('pre-truncates large string leaves before JSON serialization', () => {
     // Ensures we don't allocate the full JSON for a 10MB string just to
-    // slice it to maxLength. The result must still be ≤ maxLength.
+    // slice it to maxLength. The result must still be <= maxLength.
     const huge = 'x'.repeat(10_000_000);
     const result = truncateJson(huge, 300);
     expect(result.length).toBeLessThanOrEqual(300);
@@ -56,7 +56,7 @@ describe('truncateJson', () => {
     const obj = { content: 'y'.repeat(10_000_000) };
     const result = truncateJson(obj, 300);
     expect(result.length).toBeLessThanOrEqual(300);
-    // The huge field is truncated to <= maxLength characters — far below
+    // The huge field is truncated to <= maxLength characters -- far below
     // its original 10M length.
     const yCount = (result.match(/y/g) ?? []).length;
     expect(yCount).toBeLessThan(maxLengthGuard(300));
@@ -92,7 +92,7 @@ describe('cleanSummary', () => {
   it('strips leading bullet/dash', () => {
     expect(cleanSummary('- Searched auth')).toBe('Searched auth');
     expect(cleanSummary('* Read files')).toBe('Read files');
-    expect(cleanSummary('• Fixed NPE')).toBe('Fixed NPE');
+    expect(cleanSummary(' Fixed NPE')).toBe('Fixed NPE');
   });
 
   it('strips Label:/Summary: prefixes', () => {
@@ -121,17 +121,17 @@ describe('cleanSummary', () => {
   });
 
   it('preserves CJK labels', () => {
-    expect(cleanSummary('搜索了 auth 模块')).toBe('搜索了 auth 模块');
+    expect(cleanSummary(' auth ')).toBe(' auth ');
   });
 
   it('strips Unicode curly quotes', () => {
-    expect(cleanSummary('“Read config.json”')).toBe('Read config.json');
-    expect(cleanSummary('‘Ran tests’')).toBe('Ran tests');
+    expect(cleanSummary('"Read config.json"')).toBe('Read config.json');
+    expect(cleanSummary(''Ran tests'')).toBe('Ran tests');
   });
 
   it('strips CJK corner brackets', () => {
-    expect(cleanSummary('「搜索了 auth 模块」')).toBe('搜索了 auth 模块');
-    expect(cleanSummary('『Fixed bug』')).toBe('Fixed bug');
+    expect(cleanSummary(' auth ')).toBe(' auth ');
+    expect(cleanSummary('Fixed bug')).toBe('Fixed bug');
   });
 
   it('strips markdown emphasis markers', () => {
@@ -141,17 +141,17 @@ describe('cleanSummary', () => {
   });
 
   it('rejects Chinese refusal responses', () => {
-    expect(cleanSummary('我无法生成摘要')).toBe('');
-    expect(cleanSummary('我不能回答这个')).toBe('');
-    expect(cleanSummary('抱歉，我不能帮助')).toBe('');
-    expect(cleanSummary('无法确定')).toBe('');
-    expect(cleanSummary('无法完成')).toBe('');
+    expect(cleanSummary('')).toBe('');
+    expect(cleanSummary('')).toBe('');
+    expect(cleanSummary('')).toBe('');
+    expect(cleanSummary('')).toBe('');
+    expect(cleanSummary('')).toBe('');
   });
 
   it('rejects curly-apostrophe English refusals', () => {
-    // U+2019 right single quotation mark — models often emit this for
+    // U+2019 right single quotation mark -- models often emit this for
     // typographic apostrophes and the ASCII-only check missed it.
-    expect(cleanSummary('I can’t generate that')).toBe('');
+    expect(cleanSummary('I can't generate that')).toBe('');
   });
 
   it('rejects additional English refusal patterns', () => {

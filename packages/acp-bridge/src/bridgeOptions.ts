@@ -16,7 +16,7 @@ import type { ChannelFactory } from './channel.js';
 import type { ServePreflightCell, ServeWorkspaceEnvStatus } from './status.js';
 
 /**
- * Optional injection seam for daemon-host-specific status cells —
+ * Optional injection seam for daemon-host-specific status cells --
  * `process.env` snapshots and the daemon-side preflight checks
  * (Node version, CLI entry path, ripgrep, git, npm, workspace dir).
  *
@@ -29,7 +29,7 @@ import type { ServePreflightCell, ServeWorkspaceEnvStatus } from './status.js';
  * and the daemon half of `getWorkspacePreflightStatus` stay
  * queryable without coupling the bridge to `process.*` state.
  *
- * Scope is intentionally narrow — strictly the two daemon-host
+ * Scope is intentionally narrow -- strictly the two daemon-host
  * cells the bridge currently delegates. NOT a generic logger /
  * metrics seam; new injection needs should go through their own
  * typed interfaces.
@@ -40,7 +40,7 @@ export interface DaemonStatusProvider {
    * workspace. Reads `process.versions`, runtime / sandbox / proxy
    * state, and presence-only env-var checks. Returns a full
    * `ServeWorkspaceEnvStatus` envelope so the bridge can pass it
-   * through to the route handler verbatim — the wire shape is
+   * through to the route handler verbatim -- the wire shape is
    * unchanged from pre-injection behavior.
    *
    * @param boundWorkspace canonicalized workspace path the daemon
@@ -84,12 +84,12 @@ export interface DaemonStatusProvider {
  */
 export interface BridgeOptions {
   /**
-   * §03 decision §1. `single` shares one session per workspace across HTTP
+   * 03 decision 1. `single` shares one session per workspace across HTTP
    * clients (live-collaboration default); `thread` gives each `spawnOrAttach`
    * call its own session for strict isolation.
    *
    * Daemon-wide default. Per-request callers can override via
-   * `BridgeSpawnRequest.sessionScope` — the override wins and the
+   * `BridgeSpawnRequest.sessionScope` -- the override wins and the
    * daemon-wide value acts only as the fallback when the request
    * omits the field. See the `session_scope_override` capability on
    * `/capabilities.features` for negotiation.
@@ -105,7 +105,7 @@ export interface BridgeOptions {
    * Cap on concurrent live sessions. `spawnOrAttach` calls that would
    * cross this throw `SessionLimitExceededError`; attaches to an
    * existing session (same workspace under `single` scope) are not
-   * counted. `0` / `Infinity` disable the cap. Defaults to 20 — see
+   * counted. `0` / `Infinity` disable the cap. Defaults to 20 -- see
    * `ServeOptions.maxSessions` for the rationale.
    */
   maxSessions?: number;
@@ -113,8 +113,8 @@ export interface BridgeOptions {
    * Per-session SSE replay ring depth. Sets `ringSize` on every
    * `new EventBus(...)` the bridge constructs (both fresh sessions
    * and restored sessions). Defaults to `DEFAULT_RING_SIZE` (8000,
-   * #3803 §02 target). Must be a positive finite integer; `0` /
-   * `NaN` / negative throw at boot (fail-CLOSED — same posture as
+   * #3803 02 target). Must be a positive finite integer; `0` /
+   * `NaN` / negative throw at boot (fail-CLOSED -- same posture as
    * `maxSessions`, where silently disabling a backpressure knob on a
    * config typo is worse than failing to start).
    *
@@ -122,13 +122,13 @@ export interface BridgeOptions {
    * scales linearly with `ringSize`; each retained `BridgeEvent` is
    * an object reference plus its serialized payload (text chunks /
    * tool-call args / etc.), so the per-session memory ceiling is
-   * `ringSize × average-event-size` held until the session ends.
+   * `ringSize * average-event-size` held until the session ends.
    */
   eventRingSize?: number;
   /**
    * Per-`requestPermission` wall clock. After this many ms with
    * no client vote, the agent's permission promise resolves as
-   * cancelled — the per-session FIFO can drain instead of poisoning
+   * cancelled -- the per-session FIFO can drain instead of poisoning
    * forever on a missing SSE subscriber. Defaults to 5 minutes.
    * `0` / `Infinity` / non-finite disable the timeout (matches
    * legacy behavior, NOT recommended).
@@ -143,16 +143,16 @@ export interface BridgeOptions {
   maxPendingPermissionsPerSession?: number;
   /**
    * Absolute, **already-canonical** path this daemon is bound to (per
-   * #3803 §02: 1 daemon = 1 workspace). `spawnOrAttach` calls whose
+   * #3803 02: 1 daemon = 1 workspace). `spawnOrAttach` calls whose
    * `workspaceCwd` doesn't canonicalize to this same value throw
-   * `WorkspaceMismatchError` (route → 400 with code `workspace_mismatch`).
+   * `WorkspaceMismatchError` (route -> 400 with code `workspace_mismatch`).
    *
    * **Caller contract**: pass the result of
    * `canonicalizeWorkspace(path)`. `runQwenServe` does this at boot
    * and threads the same canonical value into the bridge AND
-   * `createServeApp` (via `deps.boundWorkspace`) so all three —
+   * `createServeApp` (via `deps.boundWorkspace`) so all three --
    * `/capabilities.workspaceCwd`, the `POST /session` cwd fallback,
-   * and this bridge's mismatch check — share one canonical form. The
+   * and this bridge's mismatch check -- share one canonical form. The
    * constructor only checks `path.isAbsolute`; it does NOT
    * re-canonicalize (a redundant `realpathSync.native` could
    * theoretically diverge from the runQwenServe canonicalize on
@@ -168,7 +168,7 @@ export interface BridgeOptions {
    * use this to avoid cross-contaminating each other's MCP budget /
    * mode env (the `defaultSpawnChannelFactory` snapshots
    * `process.env` AT SPAWN TIME, not at `runQwenServe()` call
-   * time — so the last `runQwenServe()` to set the global env
+   * time -- so the last `runQwenServe()` to set the global env
    * would win for all subsequent spawns across all daemon
    * handles, breaking the documented per-daemon policy).
    *
@@ -185,7 +185,7 @@ export interface BridgeOptions {
    */
   childEnvOverrides?: Readonly<Record<string, string | undefined>>;
   /**
-   * #4175 Wave 4 PR 17 — optional callback for persisting `tools.
+   * #4175 Wave 4 PR 17 -- optional callback for persisting `tools.
    * approvalMode` to the workspace settings file. Invoked by
    * `setSessionApprovalMode` ONLY when the route caller passes
    * `{persist: true}`. The default `runQwenServe` wires this to
@@ -200,7 +200,7 @@ export interface BridgeOptions {
     mode: ApprovalMode,
   ) => Promise<void>;
   /**
-   * #4175 Wave 4 PR 17 — optional callback for mutating
+   * #4175 Wave 4 PR 17 -- optional callback for mutating
    * `tools.disabled` in workspace settings. Invoked by
    * `setWorkspaceToolEnabled` to add (`enabled: false`) or remove
    * (`enabled: true`) `toolName` from the persisted disabled set.
@@ -217,7 +217,7 @@ export interface BridgeOptions {
     enabled: boolean,
   ) => Promise<void>;
   /**
-   * #4175 Wave 5 PR 22b/2 — optional injection seam for daemon-host
+   * #4175 Wave 5 PR 22b/2 -- optional injection seam for daemon-host
    * status cells (env snapshot, daemon preflight). Production
    * `qwen serve` provides
    * `createDaemonStatusProvider()` from
@@ -229,12 +229,12 @@ export interface BridgeOptions {
    * the daemon half of `getWorkspacePreflightStatus` (the ACP-level
    * cells are still fetched normally when a child is live). This
    * matches the "idle status is queryable" pattern PR 12 / 13
-   * established for diagnostic routes — direct embeds and tests
+   * established for diagnostic routes -- direct embeds and tests
    * that don't need daemon-host cells can omit the provider
    * without crashing those routes.
    *
    * Mode A in-process consumers (`qwen --serve`, future) typically
-   * omit this provider — they don't run a separate daemon process
+   * omit this provider -- they don't run a separate daemon process
    * so daemon-host environment cells are not meaningful. They can
    * still query the routes; they'll see empty/idle cells.
    */

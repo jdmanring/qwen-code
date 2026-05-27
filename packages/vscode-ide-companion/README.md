@@ -5,7 +5,7 @@
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/qwenlm/qwen-code-vscode-ide-companion)](https://open-vsx.org/extension/qwenlm/qwen-code-vscode-ide-companion)
 [![Rating](https://img.shields.io/visual-studio-marketplace/r/qwenlm.qwen-code-vscode-ide-companion)](https://marketplace.visualstudio.com/items?itemName=qwenlm.qwen-code-vscode-ide-companion)
 
-Seamlessly integrate [Qwen Code](https://github.com/QwenLM/qwen-code) into Visual Studio Code with native IDE features and an intuitive chat interface. This extension bundles everything you need — no additional installation required.
+Seamlessly integrate [Qwen Code](https://github.com/QwenLM/qwen-code) into Visual Studio Code with native IDE features and an intuitive chat interface. This extension bundles everything you need -- no additional installation required.
 
 ## Demo
 
@@ -35,7 +35,7 @@ Seamlessly integrate [Qwen Code](https://github.com/QwenLM/qwen-code) into Visua
    - Click the **Qwen icon** in the top-right corner of the editor
    - Run `Qwen Code: Open` from the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`)
 
-3. **Start chatting** — Ask Qwen to help with coding tasks, explain code, fix bugs, or write new features
+3. **Start chatting** -- Ask Qwen to help with coding tasks, explain code, fix bugs, or write new features
 
 ## Commands
 
@@ -48,10 +48,10 @@ Seamlessly integrate [Qwen Code](https://github.com/QwenLM/qwen-code) into Visua
 
 ## Feedback & Issues
 
-- 🐛 [Report bugs](https://github.com/QwenLM/qwen-code/issues/new?template=bug_report.yml&labels=bug,vscode-ide-companion)
-- 💡 [Request features](https://github.com/QwenLM/qwen-code/issues/new?template=feature_request.yml&labels=enhancement,vscode-ide-companion)
-- 📖 [Documentation](https://qwenlm.github.io/qwen-code-docs/)
-- 📋 [Changelog](https://github.com/QwenLM/qwen-code/releases)
+-  [Report bugs](https://github.com/QwenLM/qwen-code/issues/new?template=bug_report.yml&labels=bug,vscode-ide-companion)
+-  [Request features](https://github.com/QwenLM/qwen-code/issues/new?template=feature_request.yml&labels=enhancement,vscode-ide-companion)
+-  [Documentation](https://qwenlm.github.io/qwen-code-docs/)
+-  [Changelog](https://github.com/QwenLM/qwen-code/releases)
 
 ## Contributing
 

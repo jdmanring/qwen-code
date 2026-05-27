@@ -73,7 +73,7 @@ const mockConfig = {
     .fn()
     .mockReturnValue({ authType: AuthType.USE_GEMINI }),
   getEmbeddingModel: vi.fn().mockReturnValue('test-embedding-model'),
-  // Default test model — matches `defaultOptions.model` so resolveForModel
+  // Default test model -- matches `defaultOptions.model` so resolveForModel
   // returns the constructor-injected ContentGenerator without trying to
   // build a per-model one.
   getModel: vi.fn().mockReturnValue('test-model'),
@@ -680,7 +680,7 @@ describe('BaseLlmClient', () => {
     it('does not cache the unregistered-model fallback across runtime-view changes', async () => {
       // Unregistered selector: createContentGeneratorForModel falls back to
       // getCurrentContentGenerator(). The runtime view changes between calls
-      // — caching would pin the first call's generator under the selector
+      // -- caching would pin the first call's generator under the selector
       // key and return it on the second call after the view has unwound.
       getResolvedModel.mockReturnValue(undefined);
 
@@ -722,7 +722,7 @@ describe('BaseLlmClient', () => {
       const resolved = await c.resolveForModel(fastModel);
 
       expect(resolved.contentGenerator).toBe(mockContentGenerator);
-      // retryAuthType still reflects the target provider — failure to build
+      // retryAuthType still reflects the target provider -- failure to build
       // the generator does not change which provider's retry policy applies.
       expect(resolved.retryAuthType).toBe(AuthType.USE_ANTHROPIC);
     });

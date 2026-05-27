@@ -145,7 +145,7 @@ export class CronScheduler {
 
   /**
    * Starts the scheduler tick. Calls `onFire` when a job is due.
-   * Only fires when called — does not auto-fire missed intervals.
+   * Only fires when called -- does not auto-fire missed intervals.
    */
   start(onFire: (job: CronJob) => void): void {
     this.onFire = onFire;
@@ -157,7 +157,7 @@ export class CronScheduler {
   }
 
   /**
-   * Stops the scheduler. Does not clear jobs — they remain queryable.
+   * Stops the scheduler. Does not clear jobs -- they remain queryable.
    */
   stop(): void {
     if (this.timer) {
@@ -175,7 +175,7 @@ export class CronScheduler {
   }
 
   /**
-   * Manual tick — checks all jobs against the current time and fires those
+   * Manual tick -- checks all jobs against the current time and fires those
    * that are due. Exported for testing.
    */
   tick(now?: Date): void {
@@ -217,7 +217,7 @@ export class CronScheduler {
 
         const fireTimeMs = candidateMs + job.jitterMs;
         if (currentMs >= fireTimeMs) {
-          // This candidate's jittered fire time has passed — it's a match.
+          // This candidate's jittered fire time has passed -- it's a match.
           // Pick the latest matching minute to avoid re-triggering old ones.
           if (matchedMinuteMs === null || candidateMs > matchedMinuteMs) {
             matchedMinuteMs = candidateMs;

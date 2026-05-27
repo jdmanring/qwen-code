@@ -43,7 +43,7 @@ describe('buildPermissionCheckContext', () => {
     });
   });
 
-  it('returns raw monitor command — normalization is PM responsibility', () => {
+  it('returns raw monitor command -- normalization is PM responsibility', () => {
     expect(
       buildPermissionCheckContext(
         'monitor',
@@ -60,7 +60,7 @@ describe('buildPermissionCheckContext', () => {
     });
   });
 
-  it('returns raw monitor command with suffix — normalization is PM responsibility', () => {
+  it('returns raw monitor command with suffix -- normalization is PM responsibility', () => {
     expect(
       buildPermissionCheckContext(
         'monitor',

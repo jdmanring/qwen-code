@@ -23,7 +23,7 @@ const debugLogger = createDebugLogger('CLI_ERRORS');
 
 /**
  * Marker thrown when a producer has already formatted the error message and
- * written it to stderr — the downstream `handleError` should propagate the
+ * written it to stderr -- the downstream `handleError` should propagate the
  * exit code without printing or reformatting again.
  *
  * The non-interactive runner uses this when an upstream API error event
@@ -33,7 +33,7 @@ const debugLogger = createDebugLogger('CLI_ERRORS');
  * yielding "[API Error: [API Error: ...]]" plus a duplicate stderr line.
  */
 export class AlreadyReportedError extends Error {
-  /** Exit code to surface — defaults to 1 for generic upstream failures. */
+  /** Exit code to surface -- defaults to 1 for generic upstream failures. */
   exitCode: number;
 
   constructor(message: string, exitCode = 1) {
@@ -109,7 +109,7 @@ function getNumericExitCode(errorCode: string | number): number {
 /**
  * Drains pending cleanup before terminating. Routing every "we're about
  * to die" path through here keeps async exit-side I/O (chat-recording
- * flush, telemetry shutdown, MCP disconnect) from being skipped — the
+ * flush, telemetry shutdown, MCP disconnect) from being skipped -- the
  * earlier sync writes were inherently bounded so a bare `process.exit`
  * was safe; with the async-jsonl change it is not.
  */
@@ -125,12 +125,12 @@ async function exitAfterCleanup(code: number): Promise<never> {
   exiting = true;
   await runExitCleanup();
   // `return` so process.exit's `never` narrows the function's terminating
-  // statement — without it TS reports "function returning 'never' cannot
+  // statement -- without it TS reports "function returning 'never' cannot
   // have a reachable end point" because await doesn't propagate `never`.
   return process.exit(code);
 }
 
-/** Test-only — reset the exit-once latch between cases. */
+/** Test-only -- reset the exit-once latch between cases. */
 export function _resetExitLatchForTest(): void {
   exiting = false;
 }

@@ -57,7 +57,7 @@ export const tokenPlanProvider: ProviderConfig = {
   id: 'token-plan',
   label: 'Token Plan',
   description:
-    'For teams and companies · Usage-based billing with dedicated endpoint',
+    'For teams and companies  Usage-based billing with dedicated endpoint',
   protocol: AuthType.USE_OPENAI,
   baseUrl: TOKEN_PLAN_BASE_URL,
   envKey: TOKEN_PLAN_ENV_KEY,

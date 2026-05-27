@@ -40,15 +40,15 @@ const GoalStatusMessageInternal: React.FC<GoalStatusMessageProps> = ({
     return (
       <Box flexDirection="row">
         <Box width={2} flexShrink={0}>
-          <Text color={theme.text.secondary}>○</Text>
+          <Text color={theme.text.secondary}></Text>
         </Box>
         <Box flexGrow={1} flexDirection="column">
           <Text color={theme.text.secondary}>
             Goal check
             {typeof iterations === 'number' && iterations > 0
-              ? ` · turn ${iterations}`
+              ? `  turn ${iterations}`
               : ''}{' '}
-            · not yet met
+             not yet met
           </Text>
           <Text color={theme.text.secondary} wrap="wrap">
             Goal: {condition}
@@ -66,28 +66,28 @@ const GoalStatusMessageInternal: React.FC<GoalStatusMessageProps> = ({
   const { prefix, prefixColor, title } = (() => {
     switch (kind) {
       case 'set':
-        // ◎ matches the footer GoalPill's icon — same visual identity for
+        //  matches the footer GoalPill's icon -- same visual identity for
         // "goal is on / armed" between the history card and the live pill.
         return {
-          prefix: '◎',
+          prefix: '',
           prefixColor: theme.text.accent,
           title: 'Goal set',
         };
       case 'achieved':
         return {
-          prefix: '✓',
+          prefix: '',
           prefixColor: theme.status.success,
           title: 'Goal achieved',
         };
       case 'cleared':
         return {
-          prefix: '○',
+          prefix: '',
           prefixColor: theme.text.secondary,
           title: 'Goal cleared',
         };
       case 'failed':
         return {
-          prefix: '✖',
+          prefix: '',
           prefixColor: theme.status.error,
           title: 'Goal could not be achieved',
         };
@@ -109,7 +109,7 @@ const GoalStatusMessageInternal: React.FC<GoalStatusMessageProps> = ({
   if (typeof durationMs === 'number') {
     stats.push(formatDuration(durationMs, { hideTrailingZeros: true }));
   }
-  const subtitle = stats.length > 0 ? stats.join(' · ') : null;
+  const subtitle = stats.length > 0 ? stats.join('  ') : null;
 
   return (
     <Box flexDirection="row">
@@ -120,7 +120,7 @@ const GoalStatusMessageInternal: React.FC<GoalStatusMessageProps> = ({
         <Text color={prefixColor}>
           {title}
           {subtitle ? (
-            <Text color={theme.text.secondary}> · {subtitle}</Text>
+            <Text color={theme.text.secondary}>  {subtitle}</Text>
           ) : null}
         </Text>
         {/* Ink's flex-row layout strips trailing whitespace inside the label
@@ -128,7 +128,7 @@ const GoalStatusMessageInternal: React.FC<GoalStatusMessageProps> = ({
             slammed up against the colon, and wrapped lines align with col 0
             of the value instead of after the colon-space). Use marginRight
             on the label Box to introduce a real 1-column gap that survives
-            the row layout — same fix applies to the "Goal:" row. */}
+            the row layout -- same fix applies to the "Goal:" row. */}
         <Box flexDirection="row">
           <Box flexShrink={0} marginRight={1}>
             <Text color={theme.text.secondary}>Goal:</Text>
@@ -143,10 +143,10 @@ const GoalStatusMessageInternal: React.FC<GoalStatusMessageProps> = ({
             or why the loop gave up. Skipped for `cleared` because user-driven
             clears don't carry a judge reason.
             Rendered as a single `<Text wrap="wrap">` (label + value inline)
-            rather than the flex-row split used for `Goal:` above — the judge
+            rather than the flex-row split used for `Goal:` above -- the judge
             reason is capped at 240 chars and almost always wraps, and the
             flex-row variant hangs the continuation at the value column's
-            left edge (≈12 cols of empty space, easily mistaken for a blank
+            left edge (12 cols of empty space, easily mistaken for a blank
             line). One Text + natural wrap keeps the continuation flush. */}
         {isTerminalGoalStatusKind(kind) && lastReason?.trim() ? (
           <Text color={theme.text.secondary} wrap="wrap">

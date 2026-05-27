@@ -132,7 +132,7 @@ function truncateStderrSnippet(stderr: string): string {
   if (t.length <= STDERR_LOG_MAX_CHARS) {
     return t;
   }
-  return `${t.slice(0, STDERR_LOG_MAX_CHARS)}…`;
+  return `${t.slice(0, STDERR_LOG_MAX_CHARS)}...`;
 }
 
 function redactArgsForLog(args: string[]): string {
@@ -1053,7 +1053,7 @@ async function crawlWithGitLsFiles(
       return null;
     }
     // `git ls-files -t` emits "<status><one separator char><path>" (space or tab).
-    // Do not trim further — the path may start with spaces.
+    // Do not trim further -- the path may start with spaces.
     if (line.length >= 3 && /\s/.test(line[1]) && /[A-Za-z]/.test(line[0])) {
       return { status: line[0].toUpperCase(), filePath: line.slice(2) };
     }
@@ -1315,7 +1315,7 @@ async function crawlWithFdir(options: CrawlOptions): Promise<string[]> {
   }
 
   // fdir `withDirs()` already emits directory rows with trailing slashes. Do not
-  // run `buildResultsFromFileSet` here — it would duplicate every directory
+  // run `buildResultsFromFileSet` here -- it would duplicate every directory
   // (it also synthesizes parents from file paths). Git/rg only list files and
   // need that helper; fdir does not.
   const mapped = results
@@ -1435,7 +1435,7 @@ export async function crawl(options: CrawlOptions): Promise<string[]> {
     return results;
   }
 
-  // Ripgrep failed — fdir is the slowest crawl path (including non-git trees).
+  // Ripgrep failed -- fdir is the slowest crawl path (including non-git trees).
   // eslint-disable-next-line no-console -- operator-visible crawl strategy degradation
   console.warn('[crawler] falling back to fdir (ripgrep unavailable)');
 

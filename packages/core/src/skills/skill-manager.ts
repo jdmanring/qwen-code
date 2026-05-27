@@ -100,7 +100,7 @@ export class SkillManager {
   /**
    * Adds a listener that will be called when skills change. Listeners may
    * return a Promise, which `notifyChangeListeners` will await before
-   * resolving — callers (e.g. `matchAndActivateByPath`) can therefore wait
+   * resolving -- callers (e.g. `matchAndActivateByPath`) can therefore wait
    * for downstream consumers like `SkillTool.refreshSkills()` to apply the
    * updated state before continuing.
    * @returns A function to remove the listener.
@@ -123,19 +123,19 @@ export class SkillManager {
    * Listeners run in parallel via `Promise.allSettled`. They're
    * independent reads (each rebuilds its own derived state from the
    * shared registry); serializing them used to make `matchAndActivateByPaths`
-   * scale linearly with the number of registered listeners — a real
+   * scale linearly with the number of registered listeners -- a real
    * cost since per-subagent SkillTool instances each register one.
    * `allSettled` (not `Promise.all`) so a single listener throwing
    * still lets the others finish.
    */
   private async notifyChangeListeners(): Promise<void> {
     // Cap each listener at 30s. Without this, a hung listener (e.g.
-    // `SkillTool.refreshSkills` → `setTools()` blocked on a network
+    // `SkillTool.refreshSkills` -> `setTools()` blocked on a network
     // call inside the gemini client) would permanently stall
     // `matchAndActivateByPaths` and `refreshCache`. The activation
     // registry itself has already been mutated synchronously in the
     // caller, so dropping a slow listener after the timeout is the
-    // best-effort behavior — the listener can still finish later, it
+    // best-effort behavior -- the listener can still finish later, it
     // just no longer holds up the activation reminder.
     const TIMEOUT_MS = 30_000;
     const withTimeout = (p: Promise<unknown>): Promise<unknown> => {
@@ -238,8 +238,8 @@ export class SkillManager {
     // Always return a stable alphabetical order. `priority:` only affects the
     // `/skills` listing, which applies its own priority sort at the display
     // layer (skillsCommand). Keeping listSkills() name-sorted means
-    // programmatic consumers — notably SkillTool's model-facing
-    // `<available_skills>` description — are not reordered by priority.
+    // programmatic consumers -- notably SkillTool's model-facing
+    // `<available_skills>` description -- are not reordered by priority.
     skills.sort((a, b) => a.name.localeCompare(b.name));
 
     debugLogger.info(`Listed ${skills.length} unique skills`);
@@ -356,7 +356,7 @@ export class SkillManager {
     // Use allSettled so an unrecoverable error at one level (e.g. a hung
     // FS, a permission denial, an OS-level enoent on a removed config dir)
     // does not nuke the other three. Each level's own internal loop is
-    // already error-isolated per skill — this guard catches errors that
+    // already error-isolated per skill -- this guard catches errors that
     // bubble up to the level boundary.
     const settled = await Promise.allSettled(
       levels.map(async (level) => {
@@ -421,7 +421,7 @@ export class SkillManager {
         this.parseErrors.set(
           `${skill.filePath}#paths[${pattern}]`,
           new SkillError(
-            `Invalid glob in "paths": ${pattern} — ${error.message}`,
+            `Invalid glob in "paths": ${pattern} -- ${error.message}`,
             SkillErrorCode.INVALID_CONFIG,
             skill.name,
           ),
@@ -450,7 +450,7 @@ export class SkillManager {
   /**
    * Activate any conditional skills whose `paths:` globs match `filePath`.
    * Returns the names of skills newly activated by this call. When at least
-   * one skill activates, change listeners are notified and awaited — so by
+   * one skill activates, change listeners are notified and awaited -- so by
    * the time this method resolves, downstream consumers (notably
    * `SkillTool.refreshSkills` updating the model-facing tool description)
    * have applied the new state. Callers can therefore announce the
@@ -624,7 +624,7 @@ export class SkillManager {
 
       // Convert to strings
       const name = String(nameRaw);
-      // Reject unsafe names early — the value flows into the SkillTool
+      // Reject unsafe names early -- the value flows into the SkillTool
       // description, schema enums, and the path-activation
       // <system-reminder>, all of which the model treats as trusted text.
       validateSkillName(name);
@@ -688,7 +688,7 @@ export class SkillManager {
 
       // Optional `priority` frontmatter: higher values sort first.
       // Pass our own logger so the warning is tagged [SKILL_MANAGER]
-      // rather than [SKILL_LOAD] — matches the namespace of the rest of
+      // rather than [SKILL_LOAD] -- matches the namespace of the rest of
       // the project/user/bundled parse path.
       const priority = parsePriorityField(frontmatter, filePath, (msg) =>
         debugLogger.warn(msg),
@@ -1004,7 +1004,7 @@ export class SkillManager {
           // For symlinks, verify the target (a) resolves and (b) is a
           // directory. Shared with `skill-load.ts` so the two parsers
           // stay in sync. Targets pointing outside `baseDir` are
-          // allowed — see `symlinkScope.ts` for the rationale.
+          // allowed -- see `symlinkScope.ts` for the rationale.
           if (isSymlink) {
             const check = await validateSymlinkTarget(skillDir);
             if (!check.ok) {

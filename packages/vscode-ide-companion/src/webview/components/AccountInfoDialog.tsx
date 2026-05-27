@@ -98,7 +98,7 @@ export const AccountInfoDialog: FC<AccountInfoDialogProps> = ({
             onClick={onClose}
             aria-label="Close"
           >
-            ×
+            *
           </button>
         </div>
 

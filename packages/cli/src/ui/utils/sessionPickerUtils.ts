@@ -38,7 +38,7 @@ export function truncateText(text: string, maxWidth: number): string {
  * Returns true when the session matches the query as a substring on any of:
  * customTitle, first prompt, gitBranch.
  *
- * Empty queries match everything. The query is expected pre-normalized —
+ * Empty queries match everything. The query is expected pre-normalized --
  * `filterSessions` does the trim+lowercase once before the per-session
  * loop, so this helper can do straight `includes()` checks per haystack.
  */
@@ -63,7 +63,7 @@ function matchesQuery(
  *
  * Branch filter and query filter compose (AND): when both are active, a
  * session must satisfy both. Query is matched case-insensitively against
- * customTitle, prompt, and gitBranch — branch is included in query matching
+ * customTitle, prompt, and gitBranch -- branch is included in query matching
  * so users can type a branch name without first toggling branch-filter.
  */
 export function filterSessions(

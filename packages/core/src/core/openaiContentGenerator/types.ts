@@ -51,7 +51,7 @@ export interface RequestContext {
   /**
    * Per-stream mutable state for cumulative-delta normalization on the visible
    * content channel. Initialised lazily on first use. Must NOT be shared or
-   * reused across requests — stale state will silently corrupt text output.
+   * reused across requests -- stale state will silently corrupt text output.
    */
   textDeltaState?: StreamingTextDeltaState;
   /**

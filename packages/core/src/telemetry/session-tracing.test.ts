@@ -9,7 +9,7 @@ import { SpanStatusCode } from '@opentelemetry/api';
 
 const mockState = vi.hoisted(() => ({
   sdkInitialized: true,
-  // Toggles to force span.setAttributes/setStatus to throw — exercises the
+  // Toggles to force span.setAttributes/setStatus to throw -- exercises the
   // try/catch hardening in end*Span helpers (span.end() must still run).
   throwOnSetAttributes: false,
   throwOnSetStatus: false,
@@ -217,7 +217,7 @@ describe('session-tracing', () => {
       expect(mockSpans[0]!.statuses[0]!.code).toBe(SpanStatusCode.OK);
     });
 
-    it('is idempotent — ending twice does not double-end', () => {
+    it('is idempotent -- ending twice does not double-end', () => {
       const config = createMockConfig();
       startInteractionSpan(config, {
         promptId: 'prompt-4',
@@ -340,7 +340,7 @@ describe('session-tracing', () => {
 
     it('LLM request span re-parents to active OTel span when no interaction is set (#4212)', () => {
       // Models a side-query LLM call running inside another OTel span (e.g.
-      // an HTTP-instrumented span in a subagent path) — the new span must
+      // an HTTP-instrumented span in a subagent path) -- the new span must
       // attach to the active span instead of skipping back to session root,
       // otherwise the trace tree flattens.
       const fakeActive = { kind: 'fake-active-span' };
@@ -353,7 +353,7 @@ describe('session-tracing', () => {
       expect(llmSpan?.parentContext).toMatchObject({
         __activeSpan: fakeActive,
       });
-      // Without an explicit parent we still mark the call as standalone —
+      // Without an explicit parent we still mark the call as standalone --
       // the OTel parent comes from instrumentation, not from interactionContext.
       expect(llmSpan?.attributes['llm_request.context']).toBe('standalone');
     });
@@ -378,7 +378,7 @@ describe('session-tracing', () => {
     });
   });
 
-  describe('LLM request spans — Phase 4a (timing decomposition + GenAI dual-emit)', () => {
+  describe('LLM request spans -- Phase 4a (timing decomposition + GenAI dual-emit)', () => {
     it('startLLMRequestSpan dual-emits gen_ai.request.model alongside qwen-code.model', () => {
       const span = startLLMRequestSpan('test-model', 'p');
       endLLMRequestSpan(span, { success: true });
@@ -451,7 +451,7 @@ describe('session-tracing', () => {
 
       const attrs = mockSpans[0]!.attributes;
       expect(attrs['ttft_ms']).toBe(234);
-      // Spec uses seconds as double — 234ms → 0.234s
+      // Spec uses seconds as double -- 234ms -> 0.234s
       expect(attrs['gen_ai.server.time_to_first_token']).toBeCloseTo(0.234, 6);
     });
 
@@ -524,7 +524,7 @@ describe('session-tracing', () => {
         success: true,
         ttftMs: 200,
         durationMs: 1325, // sampling_ms = 1125
-        outputTokens: 100, // otps = 100 / 1.125 = 88.888…
+        outputTokens: 100, // otps = 100 / 1.125 = 88.888...
       });
 
       expect(mockSpans[0]!.attributes['output_tokens_per_second']).toBe(88.89);
@@ -539,7 +539,7 @@ describe('session-tracing', () => {
         outputTokens: 50,
       });
 
-      // sampling_ms = 0 → otps would be Infinity, must be omitted
+      // sampling_ms = 0 -> otps would be Infinity, must be omitted
       expect(mockSpans[0]!.attributes['sampling_ms']).toBe(0);
       expect(
         mockSpans[0]!.attributes['output_tokens_per_second'],
@@ -723,7 +723,7 @@ describe('session-tracing', () => {
         (s) => s.name === 'qwen-code.tool.execution',
       );
       expect(record?.ended).toBe(true);
-      // No setStatus call — status stays UNSET, matching setToolSpanCancelled
+      // No setStatus call -- status stays UNSET, matching setToolSpanCancelled
       // on the parent tool span. Without this, success: false would set ERROR
       // and trace backends filtering for errors would false-positive on
       // user cancellations.
@@ -791,11 +791,11 @@ describe('session-tracing', () => {
       expect(blockedRecord?.ended).toBe(true);
       expect(blockedRecord?.attributes['decision']).toBe('cancel');
       expect(blockedRecord?.attributes['source']).toBe('cli');
-      // Waiting on the user is neither OK nor ERROR — status stays UNSET.
+      // Waiting on the user is neither OK nor ERROR -- status stays UNSET.
       expect(blockedRecord?.statuses).toHaveLength(0);
     });
 
-    it('is idempotent — second end is a no-op', () => {
+    it('is idempotent -- second end is a no-op', () => {
       const toolSpan = startToolSpan('Bash');
       const blockedSpan = startToolBlockedOnUserSpan(toolSpan);
       endToolBlockedOnUserSpan(blockedSpan, { decision: 'proceed_once' });
@@ -853,7 +853,7 @@ describe('session-tracing', () => {
 
     it('falls back to resolveParentContext when the tool span was already ended', () => {
       const toolSpan = startToolSpan('Bash');
-      // Simulate someone passing an already-ended tool span — the helper
+      // Simulate someone passing an already-ended tool span -- the helper
       // should still produce a span (correlated via the standard fallback
       // chain) instead of crashing.
       endToolSpan(toolSpan, { success: true });
@@ -909,7 +909,7 @@ describe('session-tracing', () => {
       const hookRecord = mockSpans.find((s) => s.name === 'qwen-code.hook');
       expect(hookRecord?.attributes['should_proceed']).toBe(false);
       expect(hookRecord?.attributes['block_type']).toBe('denied');
-      // Blocking is intentional, not an error — status must stay UNSET.
+      // Blocking is intentional, not an error -- status must stay UNSET.
       expect(hookRecord?.statuses).toHaveLength(0);
 
       endToolSpan(toolSpan, { success: false, error: 'denied' });
@@ -1055,7 +1055,7 @@ describe('session-tracing', () => {
         messageType: 'userQuery',
       });
       // Yield via setImmediate to schedule the continuation on a separate
-      // async resource — best-effort attempt to leave the ALS scope so
+      // async resource -- best-effort attempt to leave the ALS scope so
       // getActiveInteractionSpan must rely on lastInteractionCtx.
       await new Promise<void>((resolve) => setImmediate(resolve));
 
@@ -1092,7 +1092,7 @@ describe('session-tracing', () => {
     });
   });
 
-  describe('OTel error resilience — span.end() must run on attribute/status failure', () => {
+  describe('OTel error resilience -- span.end() must run on attribute/status failure', () => {
     it('endLLMRequestSpan: end() runs and activeSpans is cleared when setStatus throws', () => {
       const span = startLLMRequestSpan('test-model', 'prompt-x');
       const record = mockSpans.find((s) => s.name === 'qwen-code.llm_request')!;
@@ -1152,7 +1152,7 @@ describe('session-tracing', () => {
       const toolSpan = startToolSpan('staleTool');
       const record = mockSpans.find((s) => s.name === 'qwen-code.tool')!;
 
-      // 31 minutes after the span started — past the 30-min TTL.
+      // 31 minutes after the span started -- past the 30-min TTL.
       const staleNow = Date.now() + 31 * 60 * 1000;
       runTTLSweepForTesting(staleNow);
 
@@ -1164,7 +1164,7 @@ describe('session-tracing', () => {
         record.attributes['qwen-code.span.duration_ms'] as number,
       ).toBeGreaterThanOrEqual(31 * 60 * 1000 - 1000);
 
-      // Calling endToolSpan after the TTL fires must still be safe — span
+      // Calling endToolSpan after the TTL fires must still be safe -- span
       // already ended, attempt is a no-op.
       endToolSpan(toolSpan, { success: false });
     });
@@ -1173,7 +1173,7 @@ describe('session-tracing', () => {
       const toolSpan = startToolSpan('liveTool');
       const record = mockSpans.find((s) => s.name === 'qwen-code.tool')!;
 
-      // End normally, then run a sweep. The span is already ended → the
+      // End normally, then run a sweep. The span is already ended -> the
       // sweep must not retroactively stamp ttl_expired on it.
       endToolSpan(toolSpan, { success: true });
       runTTLSweepForTesting(Date.now() + 31 * 60 * 1000);
@@ -1216,14 +1216,14 @@ describe('session-tracing', () => {
       const oversized = 'a'.repeat(2000);
       const truncated = truncateSpanError(oversized);
       expect(truncated.length).toBeLessThan(oversized.length);
-      expect(truncated.endsWith('…[truncated]')).toBe(true);
+      expect(truncated.endsWith('...[truncated]')).toBe(true);
       expect(truncated.startsWith('a'.repeat(1024))).toBe(true);
     });
 
     it('does not double-suffix already-truncated input', () => {
       // Hard guarantee: the sentinel is only appended when the input
       // exceeds the cap. A short string with the suffix already present
-      // would NOT pass back through truncate at production sites — but
+      // would NOT pass back through truncate at production sites -- but
       // sanity-check the boundary anyway.
       const exactlyAtCap = 'b'.repeat(1024);
       expect(truncateSpanError(exactlyAtCap)).toBe(exactlyAtCap);
@@ -1234,23 +1234,23 @@ describe('session-tracing', () => {
       // 1024-char cap lands between the high + low surrogate of an
       // emoji or rare CJK character, truncateSpanError must back up one
       // code unit so we never emit a lone high surrogate.
-      // 🚀 is U+1F680, encoded as the surrogate pair [0xD83D, 0xDE80].
+      //  is U+1F680, encoded as the surrogate pair [0xD83D, 0xDE80].
       // Put it so the high surrogate is at char index 1023 (last byte
       // BEFORE the cap), low surrogate at 1024 (first byte AFTER the
       // cap): pad with 1023 'a's, then the rocket, then enough filler
       // to push above the cap.
-      const oversized = 'a'.repeat(1023) + '🚀' + 'b'.repeat(100);
+      const oversized = 'a'.repeat(1023) + '' + 'b'.repeat(100);
       const truncated = truncateSpanError(oversized);
       // The truncated string must not END with a lone high surrogate
       // (code point in [0xD800, 0xDBFF]). The implementation backs up
       // one code unit when needed.
-      const lastBeforeSentinel = truncated.slice(0, -'…[truncated]'.length);
+      const lastBeforeSentinel = truncated.slice(0, -'...[truncated]'.length);
       const lastCharCode = lastBeforeSentinel.charCodeAt(
         lastBeforeSentinel.length - 1,
       );
       expect(lastCharCode).not.toBeGreaterThanOrEqual(0xd800);
       // Validate there are no orphan high surrogates anywhere in the
-      // string — `Buffer.from(s, 'utf16le')` doesn't validate
+      // string -- `Buffer.from(s, 'utf16le')` doesn't validate
       // surrogate pairs (#4321 review-9), so test the property
       // directly with a regex that matches a high surrogate NOT
       // followed by a low surrogate.

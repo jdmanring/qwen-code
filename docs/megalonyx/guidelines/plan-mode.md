@@ -1,4 +1,4 @@
-# 🧠 Plan Mode Protocols
+#  Plan Mode Protocols
 
 Plan Mode is a specialized state used by the Orchestrator to perform high-level strategy, task decomposition, and roadmap management. It is a **non-execution** state where the primary goal is to build a verifiable and actionable blueprint for the user's approval.
 

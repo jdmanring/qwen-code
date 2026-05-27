@@ -3,17 +3,17 @@ the monorepo via the jdmanring/qwen-code fork. This is how upstream bug fixes en
 monorepo without overwriting Megalonyx work, and how our fixes reach QwenLM as PRs.
 
 Key files:
-- fork_sync_pipeline.py       — fork manager: --status, --sync (inbound), --contribute (outbound)
-- upstream_ingest_pipeline.py — monorepo pipeline: fetch fork → gate (boot/lint/symmetry) → promote
-- gate_failure_tests.py       — verifies all three monorepo gate failure modes block correctly
-- fork_sync_pipeline_tests.py — verifies all advisory and isolation gate functions
+- fork_sync_pipeline.py       -- fork manager: --status, --sync (inbound), --contribute (outbound)
+- upstream_ingest_pipeline.py -- monorepo pipeline: fetch fork -> gate (boot/lint/symmetry) -> promote
+- gate_failure_tests.py       -- verifies all three monorepo gate failure modes block correctly
+- fork_sync_pipeline_tests.py -- verifies all advisory and isolation gate functions
 
 Usage:
 
   # See where the fork stands relative to QwenLM and integration
   python3 tooling/sync-upstreams/fork_sync_pipeline.py --status
 
-  # Absorb new QwenLM commits into the fork (inbound — run this first)
+  # Absorb new QwenLM commits into the fork (inbound -- run this first)
   python3 tooling/sync-upstreams/fork_sync_pipeline.py --sync
   python3 tooling/sync-upstreams/fork_sync_pipeline.py --sync --dry-run
 

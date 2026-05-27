@@ -13,7 +13,7 @@ import * as path from 'node:path';
  * alone normalizes `..` and `.` segments and absolutizes, but on
  * case-insensitive filesystems (macOS APFS, Windows NTFS) `/Work/A`
  * and `/work/a` are the same directory yet `resolve` returns them
- * verbatim — without normalization the `boundWorkspace` check would
+ * verbatim -- without normalization the `boundWorkspace` check would
  * reject every request that spelled the path with different casing
  * and `sessionScope: 'single'` re-attach would silently degrade to
  * "one per spelling".
@@ -22,11 +22,11 @@ import * as path from 'node:path';
  * the on-disk casing; this matches what `config.ts` / `settings.ts` /
  * `sandbox.ts` use for their own workspace resolution. When the path
  * doesn't exist (test fixtures, ahead-of-mkdir flows) we fall back to
- * the resolved-but-uncanonicalized form rather than throwing — the
+ * the resolved-but-uncanonicalized form rather than throwing -- the
  * downstream `spawn({cwd})` will fail with a useful ENOENT if the
  * workspace truly doesn't exist.
  *
- * NOTE: This is a **cross-module contract** — `config.ts`,
+ * NOTE: This is a **cross-module contract** -- `config.ts`,
  * `settings.ts`, `sandbox.ts`, and the bridge layer all need to
  * canonicalize the same way for the bound-workspace check +
  * `sessionScope: 'single'` re-attach to work correctly across paths.
@@ -54,7 +54,7 @@ export function canonicalizeWorkspace(p: string): string {
   } catch (err) {
     // Only fall back to path.resolve for ENOENT (path doesn't exist
     // yet). Other filesystem errors (EACCES, EIO, ELOOP) should
-    // propagate — swallowing them would hide transient I/O failures
+    // propagate -- swallowing them would hide transient I/O failures
     // behind misleading workspace_mismatch rejections.
     if (
       err &&
@@ -69,7 +69,7 @@ export function canonicalizeWorkspace(p: string): string {
 
 /**
  * PATH_MAX on Linux is 4096; macOS / BSD is 1024. We use the Linux
- * value as a generous ceiling — anything bigger is either a
+ * value as a generous ceiling -- anything bigger is either a
  * malformed client request (memory amplification attack against the
  * 400 / stderr / error-message echo paths) or a synthetic test
  * input. The HTTP route's POST /session pre-check rejects bodies past

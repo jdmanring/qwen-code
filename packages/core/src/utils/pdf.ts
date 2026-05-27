@@ -16,7 +16,7 @@ const MAX_PDF_PAGE_NUMBER = 1_000_000;
 /**
  * Lightweight wrapper around execFile that returns { stdout, stderr, code,
  * maxBufferExceeded, timedOut }. Avoids importing shell-utils.ts (which
- * pulls in tool-utils → barrel index → circular dependency in vitest mock
+ * pulls in tool-utils -> barrel index -> circular dependency in vitest mock
  * environments).
  */
 function execCommand(
@@ -38,7 +38,7 @@ function execCommand(
       (error, stdout, stderr) => {
         if (error) {
           // Node sets error.code to the string 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER'
-          // when stdout or stderr exceeds the configured maxBuffer — the child
+          // when stdout or stderr exceeds the configured maxBuffer -- the child
           // is killed and the partial output is delivered. ENOENT (command
           // not found) is also a string code. Numeric codes are real exit codes.
           const errAny = error as {
@@ -84,9 +84,9 @@ function execCommand(
 /**
  * Parse a page range string into firstPage/lastPage numbers.
  * Supported formats:
- * - "5" → { firstPage: 5, lastPage: 5 }
- * - "1-10" → { firstPage: 1, lastPage: 10 }
- * - "3-" → { firstPage: 3, lastPage: Infinity }
+ * - "5" -> { firstPage: 5, lastPage: 5 }
+ * - "1-10" -> { firstPage: 1, lastPage: 10 }
+ * - "3-" -> { firstPage: 3, lastPage: Infinity }
  *
  * Returns null on invalid input (non-numeric, zero, inverted range).
  * Pages are 1-indexed.
@@ -99,7 +99,7 @@ export function parsePDFPageRange(
     return null;
   }
 
-  // Whole-string match — parseInt() would silently accept tokens like
+  // Whole-string match -- parseInt() would silently accept tokens like
   // "5abc", "1-2-3", "1.5", or "1x-2" because of its truncation behaviour.
   // Optional whitespace around the hyphen is allowed so "1 - 5" still parses
   // like the old parseInt-based implementation did. A hard ceiling on the
@@ -249,7 +249,7 @@ export async function extractPDFText(
     const { stdout, stderr, code, maxBufferExceeded, timedOut } =
       await execCommand('pdftotext', args, {
         timeout: 30000,
-        // Keep the buffer just above MAX_PDF_TEXT_OUTPUT_CHARS — anything
+        // Keep the buffer just above MAX_PDF_TEXT_OUTPUT_CHARS -- anything
         // past that is going to be truncated anyway, and capping the child
         // prevents unbounded memory use on pathological text-dense PDFs.
         maxBuffer: MAX_PDF_TEXT_OUTPUT_CHARS * 2,
@@ -262,7 +262,7 @@ export async function extractPDFText(
       };
     }
 
-    // pdftotext produced more than maxBuffer — Node killed the child and
+    // pdftotext produced more than maxBuffer -- Node killed the child and
     // delivered the partial stdout. Treat this the same as a post-hoc
     // truncation so large PDFs degrade to a usable prefix instead of a
     // generic execution failure. Require enough stdout to be confident

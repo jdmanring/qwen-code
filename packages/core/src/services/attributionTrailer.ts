@@ -23,7 +23,7 @@ const GIT_NOTES_REF = 'refs/notes/ai-attribution';
  * git executable path, the other argv entries, and separators, so
  * the note itself has to fit in that minus a safety margin (~2 KB)
  * for everything else. Linux/macOS ARG_MAX is much larger; sizing
- * for Windows just means we cap earlier on those platforms — the
+ * for Windows just means we cap earlier on those platforms -- the
  * note is meant to be small metadata, not a payload, so the limit
  * is rarely the binding constraint.
  */
@@ -33,7 +33,7 @@ const MAX_NOTE_BYTES = 30 * 1024; // 30 KB
  * argv-form git notes invocation, designed for `child_process.execFile`.
  *
  * We return argv rather than a shell-quoted command string because the JSON
- * note travels as a separate argv entry — no shell quoting is needed and no
+ * note travels as a separate argv entry -- no shell quoting is needed and no
  * shell metacharacters can be re-evaluated. This matters most on Windows
  * where bash-style single-quote escaping (`'\''`) is invalid and would
  * corrupt the note (or, worse, allow interpolation under PowerShell/cmd).
@@ -46,7 +46,7 @@ export interface GitNotesCommand {
 /**
  * Build the git notes add invocation to attach attribution metadata to a
  * specific commit. `targetCommit` MUST be the SHA the caller captured
- * after detecting the commit's HEAD movement — passing the symbolic
+ * after detecting the commit's HEAD movement -- passing the symbolic
  * `'HEAD'` opens a TOCTOU window where a post-commit hook, a chained
  * `git commit && git tag -m ...`, or a parallel process can advance
  * HEAD between capture and exec, and `-f` would silently overwrite the

@@ -178,7 +178,7 @@ function convertSettingToJsonSchema(
       !Array.isArray(defaultVal) &&
       Object.keys(defaultVal).length > 0
     ) {
-      // Non-empty plain object — publish so IDE editors can surface the
+      // Non-empty plain object -- publish so IDE editors can surface the
       // default value (e.g. `{commit: true, pr: true}` for gitCoAuthor).
       schema.default = defaultVal;
     }
@@ -191,7 +191,7 @@ function convertSettingToJsonSchema(
   //
   // Lift `description` and `default` to the outer (anyOf) level so IDE
   // editors that surface schema-driven defaults / descriptions still see
-  // them — burying these behind `anyOf[N]` makes most validators ignore
+  // them -- burying these behind `anyOf[N]` makes most validators ignore
   // the `default`, which loses the "enabled by default" hint for any
   // setting using `legacyTypes`.
   if (setting.legacyTypes && setting.legacyTypes.length > 0) {
@@ -226,7 +226,7 @@ function generateJsonSchema(
     );
   }
 
-  // Add $version property — sourced from settings.ts so a SETTINGS_VERSION
+  // Add $version property -- sourced from settings.ts so a SETTINGS_VERSION
   // bump propagates here instead of needing a parallel manual edit.
   jsonSchema.properties!['$version'] = {
     type: 'number',

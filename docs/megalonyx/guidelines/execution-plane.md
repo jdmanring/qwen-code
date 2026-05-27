@@ -1,4 +1,4 @@
-# 🛠️ Execution Plane Protocols
+#  Execution Plane Protocols
 
 This document defines the mandatory, deterministic workflows for all code discovery, modification, and verification tasks within the Mega Code stack. These protocols are designed to eliminate probabilistic "guessing" and ensure a verifiable chain of custody for every change.
 

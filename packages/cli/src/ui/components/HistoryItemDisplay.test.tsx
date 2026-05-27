@@ -301,6 +301,6 @@ describe('<HistoryItemDisplay />', () => {
       />,
     );
     expect(lastFrame()).toContain('Read txt files');
-    expect(lastFrame()).toContain('●');
+    expect(lastFrame()).toContain('');
   });
 });

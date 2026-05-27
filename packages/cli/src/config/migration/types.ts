@@ -6,7 +6,7 @@
 
 /**
  * Interface that all settings migrations must implement.
- * Each migration handles a single version transition (N → N+1).
+ * Each migration handles a single version transition (N -> N+1).
  */
 export interface SettingsMigration {
   /** Source version number */

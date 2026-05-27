@@ -238,9 +238,9 @@ grep_search(pattern="function", glob="*.js", limit=10)
 
 When reading files, Qwen Code detects the file's encoding using a multi-step strategy:
 
-1. **UTF-8** — tried first (most modern tooling outputs UTF-8)
-2. **chardet** — statistical detection for non-UTF-8 content
-3. **System encoding** — falls back to the OS code page (Windows `chcp` / Unix `LANG`)
+1. **UTF-8** -- tried first (most modern tooling outputs UTF-8)
+2. **chardet** -- statistical detection for non-UTF-8 content
+3. **System encoding** -- falls back to the OS code page (Windows `chcp` / Unix `LANG`)
 
 Both `write_file` and `edit` preserve the original encoding and BOM (byte order mark) of existing files. If a file was read as GBK with a UTF-8 BOM, it will be written back the same way.
 
@@ -266,7 +266,7 @@ Set it in `.qwen/settings.json` or `~/.qwen/settings.json`:
 
 ### Windows: CRLF for batch files
 
-On Windows, `.bat` and `.cmd` files are automatically written with CRLF (`\r\n`) line endings. This is required because `cmd.exe` uses CRLF as its line delimiter — LF-only endings can break multi-line `if`/`else`, `goto` labels, and `for` loops. This applies regardless of encoding settings and only on Windows.
+On Windows, `.bat` and `.cmd` files are automatically written with CRLF (`\r\n`) line endings. This is required because `cmd.exe` uses CRLF as its line delimiter -- LF-only endings can break multi-line `if`/`else`, `goto` labels, and `for` loops. This applies regardless of encoding settings and only on Windows.
 
 ### Windows: UTF-8 BOM for PowerShell scripts
 
@@ -281,7 +281,7 @@ This automatic BOM only applies when:
 
 PowerShell 7+ (pwsh) defaults to UTF-8 and handles BOM transparently, so the BOM is harmless there.
 
-If you explicitly set `defaultFileEncoding` to `"utf-8"`, the automatic BOM is disabled — this is an intentional escape hatch for repositories or tooling that reject BOMs.
+If you explicitly set `defaultFileEncoding` to `"utf-8"`, the automatic BOM is disabled -- this is an intentional escape hatch for repositories or tooling that reject BOMs.
 
 ### Summary
 

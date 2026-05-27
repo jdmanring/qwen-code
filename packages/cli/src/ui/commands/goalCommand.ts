@@ -35,7 +35,7 @@ const CLEAR_KEYWORDS = new Set([
 
 const MAX_GOAL_LENGTH = 4000;
 
-// Keep the surrounding `"…"` quote structure intact: collapse newlines so the
+// Keep the surrounding `"..."` quote structure intact: collapse newlines so the
 // condition stays on one line, and downgrade embedded double-quotes to single
 // quotes so they don't visually close the wrapping quote.
 function sanitizeConditionForPrompt(condition: string): string {
@@ -45,9 +45,9 @@ function sanitizeConditionForPrompt(condition: string): string {
 const goalInstructionPrompt = (condition: string): string =>
   `A session-scoped Stop hook is now active with condition: "${sanitizeConditionForPrompt(condition)}". ` +
   `Briefly acknowledge the goal, then immediately start (or continue) working ` +
-  `toward it — treat the condition itself as your directive and do not pause to ` +
+  `toward it -- treat the condition itself as your directive and do not pause to ` +
   `ask the user what to do. The hook will block stopping until the condition ` +
-  `holds. It auto-clears once the condition is met — do not tell the user to ` +
+  `holds. It auto-clears once the condition is met -- do not tell the user to ` +
   `run \`/goal clear\` after success; that's only for clearing a goal early.`;
 
 const formatTurns = (n: number) => `${n} ${n === 1 ? 'turn' : 'turns'}`;
@@ -79,7 +79,7 @@ function formatTerminalSummary(event: GoalTerminalEvent): string {
   if (event.iterations > 0) stats.push(formatTurns(event.iterations));
   if (typeof event.durationMs === 'number')
     stats.push(formatDuration(event.durationMs, { hideTrailingZeros: true }));
-  const subtitle = stats.length > 0 ? ` · ${stats.join(' · ')}` : '';
+  const subtitle = stats.length > 0 ? `  ${stats.join('  ')}` : '';
   const reason = event.lastReason?.trim();
   const reasonLine = reason ? `\nLast check: ${reason}` : '';
   return `${title}${subtitle}\nGoal: ${event.condition}${reasonLine}`;
@@ -96,7 +96,7 @@ function errorMessage(content: string): MessageActionReturn {
 export const goalCommand: SlashCommand = {
   name: 'goal',
   get description() {
-    return t('Set a goal — keep working until the condition is met');
+    return t('Set a goal -- keep working until the condition is met');
   },
   argumentHint: '[<condition> | clear]',
   kind: CommandKind.BUILT_IN,
@@ -112,7 +112,7 @@ export const goalCommand: SlashCommand = {
     const sessionId = config.getSessionId();
     const q = args.trim();
 
-    // ── Branch 1: empty arg → show current status ─────────────────────────
+    // -- Branch 1: empty arg -> show current status -------------------------
     if (q === '') {
       const active = getActiveGoal(sessionId);
       if (active) {
@@ -127,7 +127,7 @@ export const goalCommand: SlashCommand = {
           `Goal active: ${active.condition} (${turns})${lastReason}`,
         );
       }
-      // No active goal — surface a summary of the most recent automatic
+      // No active goal -- surface a summary of the most recent automatic
       // terminal goal for this session. User-initiated `/goal clear` does not
       // populate it.
       const last = getLastGoalTerminal(sessionId);
@@ -139,7 +139,7 @@ export const goalCommand: SlashCommand = {
       );
     }
 
-    // ── Branch 2: clear keyword ──────────────────────────────────────────
+    // -- Branch 2: clear keyword ------------------------------------------
     //
     // When an active goal exists, drop the Stop hook and emit a `cleared`
     // history sentinel. When no active goal exists, this is a no-op that just
@@ -164,14 +164,14 @@ export const goalCommand: SlashCommand = {
       return;
     }
 
-    // ── Branch 3: length cap ─────────────────────────────────────────────
+    // -- Branch 3: length cap ---------------------------------------------
     if (q.length > MAX_GOAL_LENGTH) {
       return errorMessage(
         `Goal condition is limited to ${MAX_GOAL_LENGTH} characters (got ${q.length}).`,
       );
     }
 
-    // ── Branch 4: gates ──────────────────────────────────────────────────
+    // -- Branch 4: gates --------------------------------------------------
     if (!config.isTrustedFolder()) {
       return errorMessage(
         '/goal is only available in trusted workspaces. Trust this folder via `/trust` and try again.',
@@ -188,7 +188,7 @@ export const goalCommand: SlashCommand = {
       );
     }
 
-    // ── Branch 5: register hook + emit set card + kick off first turn ────
+    // -- Branch 5: register hook + emit set card + kick off first turn ----
     let registered;
     try {
       registered = registerGoalHook({

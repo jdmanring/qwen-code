@@ -45,7 +45,7 @@ export function useDoublePress(
       onPending?.(false);
       onDoublePress();
     } else {
-      // First press — start the timer
+      // First press -- start the timer
       onPending?.(true);
       timeoutRef.current = setTimeout(() => {
         timeoutRef.current = null;

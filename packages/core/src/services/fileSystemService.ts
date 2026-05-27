@@ -131,7 +131,7 @@ export function needsUtf8Bom(filePath: string): boolean {
 }
 
 /**
- * Reset the UTF-8 BOM cache — useful for testing.
+ * Reset the UTF-8 BOM cache -- useful for testing.
  */
 export function resetUtf8BomCache(): void {
   cachedIsNonUtf8Windows = undefined;
@@ -217,7 +217,7 @@ function prepareTextFileContent(
     iconvEncodingExists(encoding);
 
   if (isNonUtf8Encoding) {
-    // Non-UTF-8 encoding (e.g. GBK, Big5, Shift_JIS, UTF-16LE, UTF-32BE…)
+    // Non-UTF-8 encoding (e.g. GBK, Big5, Shift_JIS, UTF-16LE, UTF-32BE...)
     // Use iconv-lite to encode the content. When the file originally had a BOM
     // (bom: true), prepend the correct BOM bytes for this encoding so the
     // byte-order mark is preserved on write-back.

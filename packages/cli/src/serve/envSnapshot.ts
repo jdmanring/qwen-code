@@ -17,7 +17,7 @@ import {
 /**
  * Whitelisted environment variables whose **presence** the daemon will
  * surface on `/workspace/env`. These are credential-bearing, so cells emit
- * `present: boolean` only — never the value, not even masked.
+ * `present: boolean` only -- never the value, not even masked.
  */
 const SECRET_ENV_VARS = [
   'OPENAI_API_KEY',
@@ -31,7 +31,7 @@ const SECRET_ENV_VARS = [
 
 /**
  * Whitelisted environment variables whose **presence** is reported. Values
- * are still omitted to keep the env_var cell shape uniform — clients always
+ * are still omitted to keep the env_var cell shape uniform -- clients always
  * see `{ name, present }` and never have to decide whether `value` is safe
  * to display. Non-credential context (proxy host, runtime, sandbox name) is
  * surfaced through other `kind`s with structured value fields.
@@ -59,7 +59,7 @@ const PROXY_VARS = [
  * Resolve a proxy env var, preferring the uppercase canonical form and
  * falling back to the lowercase variant only when the uppercase is
  * **absent** (`undefined`). Exported solely so tests can verify the
- * `??`-vs-`||` semantics with an injected env object — `process.env`
+ * `??`-vs-`||` semantics with an injected env object -- `process.env`
  * itself is case-insensitive on Windows, so the production caller passes
  * a snapshot of `process.env` while the unit test passes a plain JS
  * object with both keys distinct.
@@ -83,11 +83,11 @@ export function readProxyVar(
  *
  * For URL-shaped values, `new URL(raw).host` discards userinfo and gives
  * us host:port directly. The catch ladder handles two malformed shapes:
- * authority-only (`user:pass@host:port` without a scheme — `URL` throws,
+ * authority-only (`user:pass@host:port` without a scheme -- `URL` throws,
  * but prepending a dummy scheme parses cleanly), and anything else (last
  * resort: aggressive string scrub of `[^@/]*@` prefix and post-`/?#` tail).
  *
- * The catch path NEVER returns the redacted-but-otherwise-raw input —
+ * The catch path NEVER returns the redacted-but-otherwise-raw input --
  * `redactProxyCredentials` deliberately preserves SSH-like authority
  * (`git@github.com:22`) so its output can still leak credentials when the
  * shape is non-URL-like. Defense-in-depth.
@@ -106,7 +106,7 @@ function safeProxyValue(name: string, raw: string): string {
   } catch {
     /* fall through to scrub */
   }
-  // Strip leading `<userinfo>@` and trailing `[/?#]…`. Whatever's left
+  // Strip leading `<userinfo>@` and trailing `[/?#]...`. Whatever's left
   // is at most a host:port literal; never an unredacted credential.
   const stripped = raw.replace(/^[^@/?#]*@/, '').split(/[/?#]/)[0] ?? '';
   return stripped || '<unparseable>';
@@ -114,7 +114,7 @@ function safeProxyValue(name: string, raw: string): string {
 
 /**
  * Build the daemon's environment snapshot from `process.*` state. Pure
- * function — no I/O, no ACP roundtrip, no globals beyond `process.env`.
+ * function -- no I/O, no ACP roundtrip, no globals beyond `process.env`.
  *
  * The daemon owns runtime locality (#4175): all checks reflect the daemon
  * process, not a client-side environment.
@@ -123,7 +123,7 @@ export function buildEnvStatusFromProcess(
   workspaceCwd: string,
   acpChannelLive: boolean,
 ): ServeWorkspaceEnvStatus {
-  // `process.env` is shared mutable state — any concurrent code path
+  // `process.env` is shared mutable state -- any concurrent code path
   // (auth flow, settings reload, child boot) can mutate it mid-snapshot.
   // Snapshot once at function entry so all 14+ cells observe the same
   // env, and a client polling `/workspace/env` can never see a torn

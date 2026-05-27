@@ -1,4 +1,4 @@
-# 🛠️ Maintenance Automation Specification
+#  Maintenance Automation Specification
 
 This document defines the functional requirements for the automation suite located in `/tooling`. These scripts are designed to eliminate manual Git errors and ensure the monorepo remains stable during high-frequency upstream updates.
 

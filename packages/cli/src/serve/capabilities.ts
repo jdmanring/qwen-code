@@ -23,7 +23,7 @@ export interface ServeCapabilityDescriptor {
   /**
    * Sub-mode names supported by this capability, when the feature has
    * more than one operating mode and clients benefit from feature-
-   * detecting the active set. Optional — baseline tags (always-on,
+   * detecting the active set. Optional -- baseline tags (always-on,
    * single behavior) omit this field.
    *
    * Introduced for `mcp_guardrails` (issue #4175 PR 14) where the
@@ -50,11 +50,11 @@ export const SERVE_CAPABILITY_REGISTRY = {
   session_events: { since: 'v1' },
   // Daemon emits `slow_client_warning` synthetic frames at 75% queue
   // fill and honors `?maxQueued=N` (range [16, 2048]) on
-  // `GET /session/:id/events`. Old daemons silently lack both — SDK
+  // `GET /session/:id/events`. Old daemons silently lack both -- SDK
   // clients pre-flight this tag before opting in.
   slow_client_warning: { since: 'v1' },
   // SDK consumers can detect `KnownDaemonEvent` schema support without
-  // pinning against this SDK release — `narrowDaemonEvent` falls back
+  // pinning against this SDK release -- `narrowDaemonEvent` falls back
   // to `kind: 'unknown'` for daemons that don't advertise the tag,
   // so the tag is purely informational.
   typed_event_schema: { since: 'v1' },
@@ -89,7 +89,7 @@ export const SERVE_CAPABILITY_REGISTRY = {
   // `--mcp-client-budget=N` flag with `--mcp-budget-mode={enforce,
   // warn, off}`, and a `disabledReason: 'budget'` tag on per-server
   // cells when refused at discovery. `modes` enumerates the
-  // implemented behaviors — clients pre-flight `'enforce'` before
+  // implemented behaviors -- clients pre-flight `'enforce'` before
   // relying on refusal semantics, since a future split (e.g. PR 23
   // shared pool) could shift enforcement elsewhere. Listed BEFORE
   // `require_auth` so always-on tags stay grouped together;
@@ -112,7 +112,7 @@ export const SERVE_CAPABILITY_REGISTRY = {
   // surface: `GET /file`, `GET /list`, `GET /glob`, `GET /stat`. The
   // four routes are gated as a single feature because they share the
   // same backing `WorkspaceFileSystem` boundary (PR 18) and the same
-  // failure shape — clients that pre-flight one of them get the
+  // failure shape -- clients that pre-flight one of them get the
   // others for free, and a future deprecation would have to coordinate
   // across all four anyway. Per-route tags would force four
   // simultaneous registry entries with no operator-meaningful
@@ -130,7 +130,7 @@ export const SERVE_CAPABILITY_REGISTRY = {
   workspace_file_write: { since: 'v1' },
   // #4175 Wave 4 PR 17. Daemon hosts the session-level approval-mode
   // control route `POST /session/:id/approval-mode` (gated by the
-  // mutation gate, strict). The route accepts `{mode, persist?}` —
+  // mutation gate, strict). The route accepts `{mode, persist?}` --
   // `persist:true` also writes `tools.approvalMode` to workspace
   // settings via the daemon's `loadedSettings` handle. SDK helper:
   // `DaemonClient.setSessionApprovalMode`.
@@ -140,14 +140,14 @@ export const SERVE_CAPABILITY_REGISTRY = {
   // bridge writes the settings file directly (no ACP roundtrip) and
   // fan-outs a `tool_toggled` event to all live session SSE buses.
   // Already-registered tools in active sessions are NOT retroactively
-  // unregistered — the toggle takes effect on the next ACP child spawn
+  // unregistered -- the toggle takes effect on the next ACP child spawn
   // (`tools.disabled` is consulted at `Config` construction time).
   workspace_tool_toggle: { since: 'v1' },
   // #4175 Wave 4 PR 17. `POST /workspace/init` scaffolds an empty
   // `QWEN.md` (or whatever `getCurrentGeminiMdFilename()` returns) at
   // the bound workspace root. Body: `{force?: boolean}`. Default
   // refuses with 409 when the file already exists; `force: true`
-  // overwrites. Mechanical only — does NOT call the LLM. To AI-fill
+  // overwrites. Mechanical only -- does NOT call the LLM. To AI-fill
   // the file, the caller should follow up with
   // `POST /session/:id/prompt`.
   workspace_init: { since: 'v1' },
@@ -164,7 +164,7 @@ export const SERVE_CAPABILITY_REGISTRY = {
   workspace_mcp_restart: { since: 'v1' },
   // Issue #4175 PR 15. Daemon was booted with `--require-auth` (or
   // `requireAuth: true`), so even loopback callers must carry a bearer
-  // token. Advertised CONDITIONALLY — only when the flag is on — so
+  // token. Advertised CONDITIONALLY -- only when the flag is on -- so
   // SDK clients can branch on its presence to surface a clear "this
   // deployment requires auth" hint instead of speculatively trying
   // requests and parsing the resulting 401 body. Loopback developer
@@ -199,7 +199,7 @@ export interface AdvertiseFeatureToggles {
  * Subset of `ServeFeature` whose advertisement depends on runtime config
  * (currently just `require_auth`, which is announced only when the
  * daemon was started with `--require-auth`). Each entry pairs the
- * feature key with a predicate over `AdvertiseFeatureToggles` — the
+ * feature key with a predicate over `AdvertiseFeatureToggles` -- the
  * toggle decision lives next to the feature key, so adding a new
  * conditional tag is **two coordinated changes** instead of four:
  *
@@ -211,20 +211,20 @@ export interface AdvertiseFeatureToggles {
  *
  * The previous `Set` + per-feature `if`-branch shape needed FOUR
  * coordinated changes (registry, set, toggles interface, predicate
- * branch) and silently fail-CLOSED when the branch was missed —
+ * branch) and silently fail-CLOSED when the branch was missed --
  * fail-CLOSED is good, but invisible to the contributor adding the
  * tag. The Map shape collapses the predicate-decision and the
  * set-membership into one entry, so a future contributor either
  * registers the predicate (advertised when toggle on) or doesn't
  * register the tag in the Map at all (advertised unconditionally
- * like baseline tags) — both are intentional, neither is a silent
+ * like baseline tags) -- both are intentional, neither is a silent
  * miss.
  *
  * Reviewed-through-failure: the
  * `every conditional tag advertises when its toggle is on` test in
  * `server.test.ts` iterates this Map's keys, so a future tag added
  * here whose predicate isn't honored by `getAdvertisedServeFeatures`
- * fails the suite — adoption-of-record for the Map shape rather than
+ * fails the suite -- adoption-of-record for the Map shape rather than
  * relying on a hand-maintained invariant.
  */
 export const CONDITIONAL_SERVE_FEATURES: ReadonlyMap<

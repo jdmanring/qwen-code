@@ -30,8 +30,8 @@ import type {
 describe('AgentCore.runInAgentFrames', () => {
   // The deferred-approval `respond` callback that AgentCore hands to the
   // UI must restore both ALS frames the agent normally runs under, so any
-  // tool body resumed via approval — including ones that trigger LLM
-  // calls — sees the agent's ContentGenerator (modalities, auth) and is
+  // tool body resumed via approval -- including ones that trigger LLM
+  // calls -- sees the agent's ContentGenerator (modalities, auth) and is
   // attributed to the agent in token stats.
   //
   // The reasoning loop uses the same wrap, so anything that breaks here
@@ -94,7 +94,7 @@ describe('AgentCore.runInAgentFrames', () => {
     const core = makeCore('approval-agent', view);
 
     // Capture a thunk equivalent to the `respond` closure that AgentCore
-    // emits with TOOL_WAITING_APPROVAL — the wrap is identical.
+    // emits with TOOL_WAITING_APPROVAL -- the wrap is identical.
     let capturedRespond: (() => Promise<void>) | undefined;
     const onConfirmInvocations: Array<{
       view: RuntimeContentGeneratorView | undefined;
@@ -109,7 +109,7 @@ describe('AgentCore.runInAgentFrames', () => {
 
     await core.runInAgentFrames(async () => {
       // Inside the reasoning-loop frame the agent would build the
-      // closure that the UI later invokes — same shape as line 938 of
+      // closure that the UI later invokes -- same shape as line 938 of
       // agent-core.ts.
       capturedRespond = () => core.runInAgentFrames(onConfirm);
     });
@@ -147,7 +147,7 @@ describe('AgentCore.runInAgentFrames', () => {
     // owns no view of its own, but its tool bodies (e.g. `read_file`
     // checking modalities) need the parent's view. The reasoning loop
     // sees it via ALS, but the deferred-approval `respond` callback runs
-    // from a fresh async chain where that frame is gone — so the agent
+    // from a fresh async chain where that frame is gone -- so the agent
     // must capture it at emit time and pass it back through.
     const parentView: RuntimeContentGeneratorView = {
       contentGenerator: {
@@ -215,7 +215,7 @@ describe('AgentCore.runInAgentFrames', () => {
 
   it("prefers the agent's own view over inheritedView when both are present", async () => {
     // Defensive: if a future caller wires both, the agent's explicit view
-    // wins — we never want a captured snapshot to override the agent's
+    // wins -- we never want a captured snapshot to override the agent's
     // declared view.
     const ownView: RuntimeContentGeneratorView = {
       contentGenerator: {
@@ -247,8 +247,8 @@ describe('AgentCore.runInAgentFrames', () => {
 });
 
 describe('AgentCore.prepareTools', () => {
-  // Subagents that opt into the wildcard (`tools: ['*']`) — or omit
-  // toolConfig entirely — must inherit DEFERRED tools too. Otherwise a
+  // Subagents that opt into the wildcard (`tools: ['*']`) -- or omit
+  // toolConfig entirely -- must inherit DEFERRED tools too. Otherwise a
   // subagent configured with `tools: ['*']` against a registry that
   // includes MCP / lsp / cron_* tools would silently lose them once
   // ToolSearch was introduced (the main chat sees them via the
@@ -326,7 +326,7 @@ describe('AgentCore.prepareTools', () => {
 
   it('explicit tools list does NOT use the wildcard inherit path', async () => {
     // When the subagent enumerates tools by name, deferred-tool inclusion
-    // is not the wildcard branch's responsibility — getFunctionDeclarationsFiltered
+    // is not the wildcard branch's responsibility -- getFunctionDeclarationsFiltered
     // is used instead. This pins that the wildcard arm and the explicit
     // arm don't get crossed up by future refactors.
     const { core, getFunctionDeclarationsSpy } = buildAgentForTools(

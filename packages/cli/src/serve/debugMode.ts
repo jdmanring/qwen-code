@@ -22,7 +22,7 @@
  * `"0" / "false" / "off" / "no"` (case-insensitive, with surrounding
  * whitespace trimmed) disable. Matches the bridge's existing
  * `isServeDebugLoggingEnabled` semantics so the two toggles move in
- * lockstep — operators set `QWEN_SERVE_DEBUG=1` and get both stderr
+ * lockstep -- operators set `QWEN_SERVE_DEBUG=1` and get both stderr
  * verbosity and response-body detail.
  */
 export function isServeDebugMode(): boolean {

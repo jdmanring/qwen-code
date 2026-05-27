@@ -160,7 +160,7 @@ export function useExportCompletion(
     nextTextChangeWasUserInputRef.current = false;
   }, [buffer.text, exportCycleFormats]);
 
-  // Reset navigated flag on every popup visibility transition (true↔false)
+  // Reset navigated flag on every popup visibility transition (true<->false)
   // and on every buffer text change, to prevent flag stickiness when the
   // user navigates, then backspaces and retypes the command.
   useEffect(() => {

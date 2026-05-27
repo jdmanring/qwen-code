@@ -1,4 +1,4 @@
-# Megalonyx — System Overview
+# Megalonyx -- System Overview
 
 ## Purpose
 
@@ -35,21 +35,21 @@ The Qwen Code stack provides a comprehensive set of agentic coding features:
 
 
 Qwen Code CLI
-↓
+
 MCP Servers
-↓
+
 Embedding Router (single source of truth)
-↓
-┌──────────────────────────┐
-│ LOCAL RAG │
-│ MiniLM (384 dims) │
-│ Qdrant local │
-└──────────────────────────┘
-┌──────────────────────────┐
-│ CLOUD RAG │
-│ Gemini Embedding 2 │
-│ Qdrant cloud │
-└──────────────────────────┘
+
++----------------------------+--
+| LOCAL RAG |
+| MiniLM (384 dims) |
+| Qdrant local |
+\_-----------------------------
++----------------------------+--
+| CLOUD RAG |
+| Gemini Embedding 2 |
+| Qdrant cloud |
+\_-----------------------------
 
 
 ---

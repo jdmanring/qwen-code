@@ -24,7 +24,7 @@ import {
 import { StreamingState } from '../types.js';
 import { useTimer } from './useTimer.js';
 
-// ─── Types ──────────────────────────────────────────────────
+// --- Types --------------------------------------------------
 
 export interface AgentStreamingInfo {
   /** The agent's current lifecycle status. */
@@ -39,14 +39,14 @@ export interface AgentStreamingInfo {
   lastPromptTokenCount: number;
 }
 
-// ─── Hook ───────────────────────────────────────────────────
+// --- Hook ---------------------------------------------------
 
 /**
  * Subscribe to an AgentInteractive's events and derive UI streaming state.
  *
  * @param interactiveAgent - The agent instance, or undefined if not yet registered.
  * @param events - Which event types trigger a re-render. Defaults to
- *   STATUS_CHANGE, TOOL_WAITING_APPROVAL, and TOOL_RESULT — sufficient for
+ *   STATUS_CHANGE, TOOL_WAITING_APPROVAL, and TOOL_RESULT -- sufficient for
  *   composer / footer use. Callers like AgentChatView can pass a broader set
  *   (e.g. include TOOL_CALL, ROUND_END, TOOL_OUTPUT_UPDATE) for richer updates.
  */
@@ -54,7 +54,7 @@ export function useAgentStreamingState(
   interactiveAgent: AgentInteractive | undefined,
   events?: ReadonlyArray<(typeof AgentEventType)[keyof typeof AgentEventType]>,
 ): AgentStreamingInfo {
-  // ── Force-render on agent events ──
+  // -- Force-render on agent events --
 
   const [, setTick] = useState(0);
   const tickRef = useRef(0);
@@ -63,7 +63,7 @@ export function useAgentStreamingState(
     setTick(tickRef.current);
   }, []);
 
-  // ── Track last prompt token count from USAGE_METADATA events ──
+  // -- Track last prompt token count from USAGE_METADATA events --
 
   const [lastPromptTokenCount, setLastPromptTokenCount] = useState(
     () => interactiveAgent?.getLastPromptTokenCount() ?? 0,
@@ -82,7 +82,7 @@ export function useAgentStreamingState(
       emitter.on(evt, handler);
     }
 
-    // Dedicated listener for usage metadata — updates React state directly
+    // Dedicated listener for usage metadata -- updates React state directly
     // so the token count is available immediately (even if no other event
     // triggers a re-render). Context usage tracks prompt size; output
     // isn't in history yet.
@@ -105,7 +105,7 @@ export function useAgentStreamingState(
     };
   }, [interactiveAgent, forceRender, subscribedEvents]);
 
-  // ── Derived state ──
+  // -- Derived state --
 
   const status = interactiveAgent?.getStatus();
   const pendingApprovals = interactiveAgent?.getPendingApprovals();
@@ -128,7 +128,7 @@ export function useAgentStreamingState(
     status !== undefined &&
     !isTerminalStatus(status);
 
-  // ── Timer (resets each time we enter Responding) ──
+  // -- Timer (resets each time we enter Responding) --
 
   const [timerResetKey, setTimerResetKey] = useState(0);
   const prevStreamingRef = useRef(streamingState);
@@ -156,7 +156,7 @@ export function useAgentStreamingState(
   };
 }
 
-// ─── Defaults ───────────────────────────────────────────────
+// --- Defaults -----------------------------------------------
 
 const DEFAULT_EVENTS = [
   AgentEventType.STATUS_CHANGE,

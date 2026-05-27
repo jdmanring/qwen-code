@@ -296,7 +296,7 @@ export const modelCommand: SlashCommand = {
 
     // Non-interactive/ACP: set model if an arg was provided, otherwise show current model
     if (context.executionMode !== 'interactive') {
-      // /model with no args — show current model
+      // /model with no args -- show current model
       const currentModel = config.getModel() ?? 'unknown';
       return {
         type: 'message',

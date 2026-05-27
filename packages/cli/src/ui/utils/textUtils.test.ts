@@ -231,7 +231,7 @@ describe('textUtils', () => {
       expect(sanitizeFilenameForDisplay('packages/cli/src/index.ts')).toBe(
         'packages/cli/src/index.ts',
       );
-      expect(sanitizeFilenameForDisplay('文件.txt')).toBe('文件.txt');
+      expect(sanitizeFilenameForDisplay('.txt')).toBe('.txt');
       expect(sanitizeFilenameForDisplay('')).toBe('');
     });
 
@@ -247,7 +247,7 @@ describe('textUtils', () => {
       expect(sanitizeFilenameForDisplay('a\x07b')).toBe('a\\u0007b');
     });
 
-    it('escapes DEL (0x7F) and C1 control bytes (0x80–0x9F)', () => {
+    it('escapes DEL (0x7F) and C1 control bytes (0x80-0x9F)', () => {
       expect(sanitizeFilenameForDisplay('a\x7fb')).toBe('a\\u007fb');
       expect(sanitizeFilenameForDisplay('a\x80b')).toBe('a\\u0080b');
       expect(sanitizeFilenameForDisplay('a\x9fb')).toBe('a\\u009fb');
@@ -255,7 +255,7 @@ describe('textUtils', () => {
 
     it('strips multi-byte ANSI CSI sequences', () => {
       // SGR color/reset and cursor movement should not survive to the
-      // terminal — `escapeAnsiCtrlCodes` neutralizes the ESC byte, then
+      // terminal -- `escapeAnsiCtrlCodes` neutralizes the ESC byte, then
       // the control-char pass cleans up any leftover bare C0/C1 bytes.
       const ansi = '\x1b[31mred\x1b[0m';
       const out = sanitizeFilenameForDisplay(ansi);

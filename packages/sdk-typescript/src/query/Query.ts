@@ -491,7 +491,7 @@ export class Query implements AsyncIterable<SDKMessage> {
       }
     } catch (error) {
       /**
-       * Timeout or error → deny (fail-safe).
+       * Timeout or error -> deny (fail-safe).
        * This ensures that any issues with the permission callback
        * result in a safe default of denying access.
        */

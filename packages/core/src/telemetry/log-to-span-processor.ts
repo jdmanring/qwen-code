@@ -384,7 +384,7 @@ function safeStringify(value: unknown): string {
  * Derive span status from log record attributes.
  * Marks the span as ERROR when explicit error indicators are present
  * (truthy `error`, `error_message`, or `error_type` attributes).
- * Does NOT treat `success: false` as an error — declined/cancelled
+ * Does NOT treat `success: false` as an error -- declined/cancelled
  * operations are a normal outcome, not failures.
  */
 function deriveSpanStatus(attrs: Record<string, unknown> | undefined): {

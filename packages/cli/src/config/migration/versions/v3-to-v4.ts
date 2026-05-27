@@ -13,7 +13,7 @@ import {
 const GIT_CO_AUTHOR_PATH = 'general.gitCoAuthor';
 
 /**
- * V3 -> V4 migration (gitCoAuthor boolean → object expansion).
+ * V3 -> V4 migration (gitCoAuthor boolean -> object expansion).
  *
  * Before V4, `general.gitCoAuthor` was a single boolean that governed both
  * commit message attribution and PR body attribution. V4 splits those into
@@ -25,7 +25,7 @@ const GIT_CO_AUTHOR_PATH = 'general.gitCoAuthor';
  * Compatibility strategy:
  * - Boolean values are expanded in place.
  * - Object values with `commit`/`pr` keys are left untouched (forward-
- *   compatible — a user who edited their settings.json by hand to the new
+ *   compatible -- a user who edited their settings.json by hand to the new
  *   shape is already on V4-equivalent data).
  * - Any other present value (string, number, array, null) is dropped with
  *   a warning so the caller sees an actionable message.
@@ -56,7 +56,7 @@ export class V3ToV4Migration implements SettingsMigration {
     if (s['$version'] === undefined) {
       const value = getNestedProperty(s, GIT_CO_AUTHOR_PATH);
       if (value === undefined) return false;
-      // Already in the v4 shape — leave the loader to stamp $version: 4.
+      // Already in the v4 shape -- leave the loader to stamp $version: 4.
       if (
         typeof value === 'object' &&
         value !== null &&
@@ -85,7 +85,7 @@ export class V3ToV4Migration implements SettingsMigration {
     const value = getNestedProperty(result, GIT_CO_AUTHOR_PATH);
 
     if (typeof value === 'boolean') {
-      // Legacy shape — rewrite as { commit, pr } preserving the prior choice.
+      // Legacy shape -- rewrite as { commit, pr } preserving the prior choice.
       setNestedPropertySafe(result, GIT_CO_AUTHOR_PATH, {
         commit: value,
         pr: value,
@@ -125,7 +125,7 @@ export class V3ToV4Migration implements SettingsMigration {
       (typeof value !== 'object' || value === null || Array.isArray(value))
     ) {
       // Invalid non-string shape (number, array, null). Drop and
-      // disable rather than re-enable on ambiguity — same
+      // disable rather than re-enable on ambiguity -- same
       // safer-by-default contract as `pickBool` at runtime.
       setNestedPropertySafe(result, GIT_CO_AUTHOR_PATH, {
         commit: false,

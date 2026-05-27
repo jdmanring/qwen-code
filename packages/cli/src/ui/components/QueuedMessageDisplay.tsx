@@ -28,7 +28,7 @@ export const QueuedMessageDisplay = ({
     return null;
   }
 
-  // Increment counter only on queue transition from empty → non-empty
+  // Increment counter only on queue transition from empty -> non-empty
   // (not on every re-render while queue stays non-empty).
   if (wasEmptyRef.current) {
     hintSeenCountRef.current++;
@@ -63,7 +63,7 @@ export const QueuedMessageDisplay = ({
       {showHint && (
         <Box paddingLeft={2}>
           <Text dimColor italic>
-            {t('Press ↑ to edit queued messages')}
+            {t('Press  to edit queued messages')}
           </Text>
         </Box>
       )}

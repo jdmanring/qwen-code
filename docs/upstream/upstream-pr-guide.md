@@ -15,7 +15,7 @@ of Megalonyx**. No Megalonyx config, no Megalonyx-specific paths, no references 
 private tooling, no pnpm-specific changes (they use npm).
 
 The upstream maintainers review everything that goes into their project. A single leaked
-internal detail — a private URL, an internal package name, a reference to our stack —
+internal detail -- a private URL, an internal package name, a reference to our stack --
 creates confusion, erodes trust, and may cause the PR to be closed. Isolation is not
 optional.
 
@@ -25,7 +25,7 @@ optional.
 
 A fix or upgrade belongs upstream when **all three** of these are true:
 
-1. The problem exists in `QwenLM/qwen-code` independently — it would reproduce in a fresh
+1. The problem exists in `QwenLM/qwen-code` independently -- it would reproduce in a fresh
    clone of their repo without any Megalonyx additions.
 2. The fix touches only code that lives in their repository: `packages/core/`, `packages/cli/`,
    `packages/sdk-python/`, `packages/acp-bridge/`, or `packages/channels/`.
@@ -50,14 +50,14 @@ If it passes, the fix is upstream-eligible.
 ## One-Time Setup: The Mirror Remote
 
 The public fork (`jdmanring/qwen-code`) is the outbound channel for upstream contributions.
-Upstream code never flows through it — it flows inbound via the `upstream` remote. The fork
+Upstream code never flows through it -- it flows inbound via the `upstream` remote. The fork
 is exclusively for submitting PRs.
 
 Add it once:
 
 ```bash
-# upstream remote is already configured — verify:
-git remote -v  # should show: upstream → git@github.com:jdmanring/qwen-code.git
+# upstream remote is already configured -- verify:
+git remote -v  # should show: upstream -> git@github.com:jdmanring/qwen-code.git
 git fetch upstream
 ```
 
@@ -79,10 +79,10 @@ git remote -v
 
 ## Preparing a PR: The Full Procedure
 
-### Step 1 — Identify the commit
+### Step 1 -- Identify the commit
 
 Find the commit on `develop` that contains only the fix you want to contribute.
-If the fix was bundled with other changes, it cannot be cherry-picked cleanly — you must
+If the fix was bundled with other changes, it cannot be cherry-picked cleanly -- you must
 either split it first or apply the fix manually on a clean branch.
 
 ```bash
@@ -90,7 +90,7 @@ git log --oneline develop | grep <keyword>
 git show <commit-hash> --stat   # verify what files it touches
 ```
 
-### Step 2 — Create a clean branch from upstream/main
+### Step 2 -- Create a clean branch from upstream/main
 
 ```bash
 git fetch upstream
@@ -105,9 +105,9 @@ Examples:
 - `upstream-contrib/chore/diff-v9-upgrade`
 - `upstream-contrib/fix/eslint-node-modules`
 
-### Step 3 — Apply the change
+### Step 3 -- Apply the change
 
-**Option A — Cherry-pick (preferred when the commit is clean):**
+**Option A -- Cherry-pick (preferred when the commit is clean):**
 
 ```bash
 git cherry-pick <commit-hash>
@@ -116,11 +116,11 @@ git cherry-pick <commit-hash>
 If cherry-pick conflicts: resolve conflicts, keeping only the upstream-relevant parts.
 Do not let conflict resolution introduce any Megalonyx code.
 
-**Option B — Manual apply (when the commit mixed concerns):**
+**Option B -- Manual apply (when the commit mixed concerns):**
 
 Apply only the relevant lines manually. Commit with the same message.
 
-### Step 4 — Verify isolation (mandatory)
+### Step 4 -- Verify isolation (mandatory)
 
 **Preferred: use the automated pipeline.** The isolation gates run automatically when you
 use `--contribute` mode, so for single-commit cherry-picks you can skip manual grep checks:
@@ -129,22 +129,22 @@ use `--contribute` mode, so for single-commit cherry-picks you can skip manual g
 # Runs all isolation gates, then creates the branch and pushes if gates pass
 python3 tooling/sync-upstreams/fork_sync_pipeline.py --contribute <hash> <branch-name>
 
-# Gates only — no branch created (safe to run first)
+# Gates only -- no branch created (safe to run first)
 python3 tooling/sync-upstreams/fork_sync_pipeline.py --contribute <hash> <branch-name> --dry-run
 ```
 
 The pipeline runs five gates and hard-blocks if any fail:
-- `GATE-MEGALONYX` — diff contains 'megalonyx'
-- `GATE-PNPM` — diff contains 'pnpm-workspace'
-- `GATE-JDMANRING` — diff contains 'jdmanring'
-- `GATE-CONFIG` — diff contains 'config/megalonyx'
-- `GATE-CIFILES` — diff touches any file in `PROTECTED_FILES`
+- `GATE-MEGALONYX` -- diff contains 'megalonyx'
+- `GATE-PNPM` -- diff contains 'pnpm-workspace'
+- `GATE-JDMANRING` -- diff contains 'jdmanring'
+- `GATE-CONFIG` -- diff contains 'config/megalonyx'
+- `GATE-CIFILES` -- diff touches any file in `PROTECTED_FILES`
 
 **For multi-commit or manual PRs**, run the checks by hand:
 
 ```bash
 git diff upstream/main HEAD -- .
-# Read every line — does it make sense in a fresh QwenLM clone?
+# Read every line -- does it make sense in a fresh QwenLM clone?
 
 # Should each return nothing:
 git diff upstream/main HEAD | grep -i megalonyx
@@ -155,7 +155,7 @@ git diff upstream/main HEAD | grep -i 'config/megalonyx'
 
 If any check returns output, the branch is not clean. Fix it before proceeding.
 
-### Step 5 — Verify the change works in their environment
+### Step 5 -- Verify the change works in their environment
 
 QwenLM uses **npm**, not pnpm. Their tests run with `npm ci` + `npm run test:ci`.
 
@@ -174,13 +174,13 @@ For dependency bumps only, verify the package resolves:
 npm install <package>@<version> --dry-run
 ```
 
-### Step 6 — Push to the fork
+### Step 6 -- Push to the fork
 
 ```bash
 git push upstream upstream-contrib/<branch-name>
 ```
 
-### Step 7 — Open the PR
+### Step 7 -- Open the PR
 
 Open the PR against `QwenLM/qwen-code main` from your fork branch.
 
@@ -207,10 +207,10 @@ Follow conventional commits. QwenLM uses this format throughout their repo.
 ```
 
 Types:
-- `fix` — corrects a bug
-- `chore(deps)` — dependency version bump with no behavior change
-- `refactor` — restructuring with no behavior change
-- `feat` — new capability (rare for our contribution type)
+- `fix` -- corrects a bug
+- `chore(deps)` -- dependency version bump with no behavior change
+- `refactor` -- restructuring with no behavior change
+- `feat` -- new capability (rare for our contribution type)
 
 Scope is the package or subsystem: `core`, `cli`, `lint`, `deps`, `openai`, `acp`.
 
@@ -218,9 +218,9 @@ Examples from our planned PRs:
 ```
 fix(lint): extend node_modules ignore pattern to cover package-level dirs
 fix(openai): narrow toolCall union type before accessing .function property
-chore(deps): upgrade diff ^7.0.0 → ^9.0.0; fix renamed types
-chore(deps): upgrade undici ^6.22.0 → ^8.3.0
-chore(deps): upgrade @agentclientprotocol/sdk 0.14→0.22; fix renamed APIs
+chore(deps): upgrade diff ^7.0.0 -> ^9.0.0; fix renamed types
+chore(deps): upgrade undici ^6.22.0 -> ^8.3.0
+chore(deps): upgrade @agentclientprotocol/sdk 0.14->0.22; fix renamed APIs
 fix(core): bypass simple-git unsafe-operations block on core.hooksPath config
 ```
 
@@ -250,7 +250,7 @@ need to understand what the code changes are before they can approve a dep bump.
 Example:
 ```
 Required code changes for diff v9:
-- `packages/core/src/tools/diffOptions.ts`: `Hunk` → `StructuredPatchHunk`, `ParsedDiff` → `StructuredPatch`
+- `packages/core/src/tools/diffOptions.ts`: `Hunk` -> `StructuredPatchHunk`, `ParsedDiff` -> `StructuredPatch`
 - `packages/core/src/services/fileHistoryService.ts`: same `Hunk` rename
 - `packages/core/src/utils/gitDiff.ts`: same `Hunk` rename
 ```
@@ -265,13 +265,13 @@ State explicitly what was tested and how:
 Example:
 ```
 `npm run test:ci` passes. The diff package changes are covered by existing tests in
-`packages/core/src/tools/` and `packages/core/src/utils/`. No new tests required —
+`packages/core/src/tools/` and `packages/core/src/utils/`. No new tests required --
 the type renames are compile-time only.
 ```
 
 ### Compatibility note (for breaking changes)
 
-If the upstream code changes behavior in any way — even subtly — document it here.
+If the upstream code changes behavior in any way -- even subtly -- document it here.
 If it is purely a refactor or type-level change with no runtime behavior change, say so.
 
 ---
@@ -292,9 +292,9 @@ Their CI runs automatically on every PR. It must be green before a PR will be me
 | CodeQL | GitHub CodeQL | Static security analysis |
 
 **If CI fails on your PR:**
-1. Read the failure log — do not guess
+1. Read the failure log -- do not guess
 2. Fix the issue on your local branch
-3. `git push upstream upstream-contrib/<branch-name>` — CI re-runs automatically
+3. `git push upstream upstream-contrib/<branch-name>` -- CI re-runs automatically
 4. Do not close and re-open the PR; update the branch in place
 
 Their ESLint config runs `eslint-plugin-import` and `@typescript-eslint`. Their vitest
@@ -305,18 +305,18 @@ when verifying locally, not our versions.
 
 ## Handling Reviewer Feedback
 
-QwenLM maintainers review community PRs. Response time varies — simple bug fixes may
+QwenLM maintainers review community PRs. Response time varies -- simple bug fixes may
 merge in days; dependency bumps may take weeks.
 
 When reviewers request changes:
 
 1. **Read the comment carefully before responding.** Understand what they are asking
    before making any changes.
-2. **Apply the change on the existing branch**, not a new PR. Push to the same branch —
+2. **Apply the change on the existing branch**, not a new PR. Push to the same branch --
    GitHub shows the diff and keeps review context intact.
 3. **Reply to each review comment** after pushing. Confirm what you did or explain
    why you chose a different approach. Do not leave review comments unaddressed.
-4. **Re-request review** after all comments are resolved. Use the GitHub UI — the
+4. **Re-request review** after all comments are resolved. Use the GitHub UI -- the
    reviewer is not notified automatically when you push.
 
 If a PR is rejected:
@@ -335,15 +335,15 @@ Submit in this order. Simpler PRs first builds a credibility track record.
 |---|---|---|
 | PR-1 | `fix(lint): extend node_modules ignore + yargs import` | None |
 | PR-2 | `fix(openai): narrow toolCall union type` | None |
-| PR-3 | `chore(deps): upgrade diff 7→9; fix renamed types` | None |
-| PR-4 | `chore(deps): upgrade undici ^6.22.0 → ^8.3.0` | None |
-| PR-5 | `chore(deps): upgrade glob ^10.5.0 → ^13.0.0` | None |
+| PR-3 | `chore(deps): upgrade diff 7->9; fix renamed types` | None |
+| PR-4 | `chore(deps): upgrade undici ^6.22.0 -> ^8.3.0` | None |
+| PR-5 | `chore(deps): upgrade glob ^10.5.0 -> ^13.0.0` | None |
 | PR-6 | `chore(deps): upgrade html-to-text, https-proxy-agent, marked` | None |
-| PR-7 | `chore(deps): upgrade openai 5.11.0 → ^6.39.0` | PR-2 merged |
-| PR-8 | `chore(deps): upgrade yargs ^17.7.2 → ^18.0.0` | PR-1 merged |
-| PR-9 | `chore(deps): upgrade @agentclientprotocol/sdk 0.14→0.22; fix renamed APIs` | None |
-| PR-10 | `chore(deps): upgrade @anthropic-ai/sdk ^0.36.1 → ^0.98.0` | None |
-| PR-11 | `@google/genai` — **do not open**. PR #4485 is already open. Comment on it instead. | — |
+| PR-7 | `chore(deps): upgrade openai 5.11.0 -> ^6.39.0` | PR-2 merged |
+| PR-8 | `chore(deps): upgrade yargs ^17.7.2 -> ^18.0.0` | PR-1 merged |
+| PR-9 | `chore(deps): upgrade @agentclientprotocol/sdk 0.14->0.22; fix renamed APIs` | None |
+| PR-10 | `chore(deps): upgrade @anthropic-ai/sdk ^0.36.1 -> ^0.98.0` | None |
+| PR-11 | `@google/genai` -- **do not open**. PR #4485 is already open. Comment on it instead. | -- |
 | PR-12 | `chore(deps): upgrade iconv-lite, comment-json, chokidar` | None |
 | PR-13 | `fix(core): migrate archiver v8 API in github.test.ts` | None |
 | PR-14 | `fix(core): bypass simple-git unsafe-operations block on core.hooksPath` | None |
@@ -356,7 +356,7 @@ Track PR status in the master plan file.
 
 | Document | Purpose |
 |---|---|
-| `docs/upstream/upstream-pr-checklist.md` | Gate-by-gate checklist — run before every submission |
+| `docs/upstream/upstream-pr-checklist.md` | Gate-by-gate checklist -- run before every submission |
 | `docs/upstream/sync-policy.md` | What we take from upstream and what we skip |
 | `docs/meta/git-strategy.md` | Branch architecture and pipeline flow |
 | `tooling/sync-upstreams/contribute-upstream.sh` | Script for single-commit cherry-pick submissions |

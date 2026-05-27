@@ -7,12 +7,12 @@ via the jdmanring/qwen-code fork ('upstream' remote).
 
 The fork serves two roles:
 
-  Inbound filter  — New QwenLM commits land in the fork first. A human reviews
+  Inbound filter  -- New QwenLM commits land in the fork first. A human reviews
                     them here before upstream_ingest_pipeline.py absorbs them
                     into integration. This prevents QwenLM breakage from entering
                     our pipeline unexamined.
 
-  Outbound channel — Fixes destined for QwenLM are pushed to the fork as clean
+  Outbound channel -- Fixes destined for QwenLM are pushed to the fork as clean
                      branches, then opened as PRs. The fork keeps all monorepo
                      history out of the upstream diff.
 
@@ -32,23 +32,23 @@ Usage (run from the monorepo root):
 Inbound flow (--sync):
   QwenLM/qwen-code
     | fetch to temp ref (no persistent remote added to monorepo)
-    | GATE-CIFILES   — .github/workflows/ files changed?  (advisory)
-    | GATE-PROTECTED — PROTECTED_FILES changed?            (advisory)
-    | GATE-MANIFESTS — package.json / lockfiles changed?  (advisory)
-    | GATE-NEWFILES  — new files added to the repo?       (advisory)
+    | GATE-CIFILES   -- .github/workflows/ files changed?  (advisory)
+    | GATE-PROTECTED -- PROTECTED_FILES changed?            (advisory)
+    | GATE-MANIFESTS -- package.json / lockfiles changed?  (advisory)
+    | GATE-NEWFILES  -- new files added to the repo?       (advisory)
     | human confirmation (explicit 'y' required)
   upstream/main  (jdmanring/qwen-code)
     | next step: python3 tooling/sync-upstreams/upstream_ingest_pipeline.py
 
 Outbound flow (--contribute <hash> <branch>):
   commit on develop
-    | GATE-MEGALONYX — diff contains 'megalonyx'?          HARD BLOCK
-    | GATE-PNPM      — diff contains 'pnpm-workspace'?     HARD BLOCK
-    | GATE-JDMANRING — diff contains 'jdmanring'?          HARD BLOCK
-    | GATE-CONFIG    — diff contains 'config/megalonyx'?   HARD BLOCK
-    | GATE-CIFILES   — diff touches PROTECTED_FILES?       HARD BLOCK
+    | GATE-MEGALONYX -- diff contains 'megalonyx'?          HARD BLOCK
+    | GATE-PNPM      -- diff contains 'pnpm-workspace'?     HARD BLOCK
+    | GATE-JDMANRING -- diff contains 'jdmanring'?          HARD BLOCK
+    | GATE-CONFIG    -- diff contains 'config/megalonyx'?   HARD BLOCK
+    | GATE-CIFILES   -- diff touches PROTECTED_FILES?       HARD BLOCK
     | cherry-pick onto contribute/<branch> from upstream/main
-  upstream fork  →  PR to QwenLM/qwen-code
+  upstream fork  ->  PR to QwenLM/qwen-code
 """
 
 import argparse
@@ -59,7 +59,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent.parent.resolve()
 
-# URL of the upstream source. Never added as a persistent remote —
+# URL of the upstream source. Never added as a persistent remote --
 # fetched into a temporary ref only during --sync and --status.
 QWENLM_URL = "https://github.com/QwenLM/qwen-code.git"
 
@@ -158,10 +158,10 @@ def _check_preflight(git: _GitRunner) -> None:
         )
 
 
-# ── Advisory gates (inbound --sync) ──────────────────────────────────────────
+# -- Advisory gates (inbound --sync) ------------------------------------------
 #
 # Advisory gates flag changes that need human attention before absorbing QwenLM
-# commits into the fork. They do not hard-block — the human acknowledges each
+# commits into the fork. They do not hard-block -- the human acknowledges each
 # flagged item and then confirms (or cancels) the sync.
 
 
@@ -178,7 +178,7 @@ def gate_ci_files(changed_files: list[str]) -> GateResult:
         name="GATE-CIFILES",
         passed=not hits,
         message=(
-            "CI workflow file(s) changed — our CI is patched for pnpm. "
+            "CI workflow file(s) changed -- our CI is patched for pnpm. "
             "Verify these do not overwrite our patches."
         ),
         lines=hits,
@@ -198,7 +198,7 @@ def gate_protected_files(changed_files: list[str]) -> GateResult:
         name="GATE-PROTECTED",
         passed=not hits,
         message=(
-            "PROTECTED_FILES changed — these are owned by Megalonyx and "
+            "PROTECTED_FILES changed -- these are owned by Megalonyx and "
             "maintained differently from upstream."
         ),
         lines=hits,
@@ -218,7 +218,7 @@ def gate_manifests(changed_files: list[str]) -> GateResult:
     return GateResult(
         name="GATE-MANIFESTS",
         passed=not hits,
-        message="Package manifest/lockfile changed — evaluate dep bumps before absorbing.",
+        message="Package manifest/lockfile changed -- evaluate dep bumps before absorbing.",
         lines=hits,
     )
 
@@ -233,15 +233,15 @@ def gate_new_files(added_files: list[str]) -> GateResult:
     return GateResult(
         name="GATE-NEWFILES",
         passed=not added_files,
-        message="New file(s) added — review before absorbing into the pipeline.",
+        message="New file(s) added -- review before absorbing into the pipeline.",
         lines=added_files,
     )
 
 
-# ── Isolation gates (outbound --contribute) ───────────────────────────────────
+# -- Isolation gates (outbound --contribute) -----------------------------------
 #
 # Isolation gates prevent Megalonyx-specific content from leaking into upstream
-# PRs. These are HARD BLOCKS — no override. A failed isolation gate means the
+# PRs. These are HARD BLOCKS -- no override. A failed isolation gate means the
 # commit must be cleaned up before it can go upstream.
 
 
@@ -265,7 +265,7 @@ def run_isolation_gates(diff: str, changed_files: list[str]) -> list[GateResult]
     """
     Runs all five isolation gates against a commit diff.
 
-    Returns a list of GateResult — any failure is a hard block. No cherry-pick
+    Returns a list of GateResult -- any failure is a hard block. No cherry-pick
     is attempted if any gate fails.
 
     Args:
@@ -277,25 +277,25 @@ def run_isolation_gates(diff: str, changed_files: list[str]) -> list[GateResult]
             diff,
             "megalonyx",
             "GATE-MEGALONYX",
-            "Diff contains 'megalonyx' — remove all Megalonyx-specific references.",
+            "Diff contains 'megalonyx' -- remove all Megalonyx-specific references.",
         ),
         _gate_isolation_pattern(
             diff,
             "pnpm-workspace",
             "GATE-PNPM",
-            "Diff contains 'pnpm-workspace' — pnpm config must not appear upstream.",
+            "Diff contains 'pnpm-workspace' -- pnpm config must not appear upstream.",
         ),
         _gate_isolation_pattern(
             diff,
             "jdmanring",
             "GATE-JDMANRING",
-            "Diff contains 'jdmanring' — fork owner references must not go upstream.",
+            "Diff contains 'jdmanring' -- fork owner references must not go upstream.",
         ),
         _gate_isolation_pattern(
             diff,
             "config/megalonyx",
             "GATE-CONFIG",
-            "Diff contains 'config/megalonyx' — private config paths must not go upstream.",
+            "Diff contains 'config/megalonyx' -- private config paths must not go upstream.",
         ),
     ]
     protected_hits = [f for f in changed_files if f in PROTECTED_FILES]
@@ -303,20 +303,20 @@ def run_isolation_gates(diff: str, changed_files: list[str]) -> list[GateResult]
         GateResult(
             name="GATE-CIFILES",
             passed=not protected_hits,
-            message=("Diff touches PROTECTED_FILES — our patched CI/config must not go upstream."),
+            message=("Diff touches PROTECTED_FILES -- our patched CI/config must not go upstream."),
             lines=protected_hits,
         )
     )
     return results
 
 
-# ── Mode implementations ──────────────────────────────────────────────────────
+# -- Mode implementations ------------------------------------------------------
 
 
 def cmd_status(git: _GitRunner) -> None:
     """
     Shows the fork's position relative to QwenLM and integration.
-    Read-only — no git state is modified.
+    Read-only -- no git state is modified.
 
     Fetches from QwenLM (via URL, no persistent remote) and from the fork to
     get current commit counts for both directions.
@@ -357,7 +357,7 @@ def cmd_status(git: _GitRunner) -> None:
         elif fork_lag == "0":
             log_warn(
                 f"Fork is {fork_ahead} commit(s) ahead of QwenLM "
-                "(e.g. merged PRs not yet in QwenLM main — this is normal)."
+                "(e.g. merged PRs not yet in QwenLM main -- this is normal)."
             )
         else:
             log_warn(f"Fork is {fork_lag} commit(s) behind QwenLM:")
@@ -416,7 +416,7 @@ def cmd_sync(git: _GitRunner, dry_run: bool = False) -> None:
     Inbound: fetches new QwenLM commits, runs advisory gates, and on confirmation
     fast-forward pushes them to the fork (upstream remote).
 
-    Advisory gates are informational — they display flagged items so the human
+    Advisory gates are informational -- they display flagged items so the human
     can make an informed decision. After reviewing, an explicit 'y' is required
     to proceed. Any answer other than 'y' cancels the sync safely.
 
@@ -454,7 +454,7 @@ def cmd_sync(git: _GitRunner, dry_run: bool = False) -> None:
 
         if qwenlm_ahead == 0:
             if fork_ahead > 0:
-                log_warn(f"Fork is {fork_ahead} commit(s) ahead of QwenLM — nothing to absorb.")
+                log_warn(f"Fork is {fork_ahead} commit(s) ahead of QwenLM -- nothing to absorb.")
             else:
                 log_success("Fork is already up to date with QwenLM.")
             return
@@ -511,7 +511,7 @@ def cmd_sync(git: _GitRunner, dry_run: bool = False) -> None:
                 for line in g.lines:
                     print(f"         {Colors.YELLOW}{line}{Colors.NC}")
             print()
-            log_warn(f"{len(flagged)} advisory flag(s) — review each before confirming.")
+            log_warn(f"{len(flagged)} advisory flag(s) -- review each before confirming.")
         else:
             log_success("Advisory gates: nothing flagged.")
 
@@ -535,7 +535,7 @@ def cmd_sync(git: _GitRunner, dry_run: bool = False) -> None:
         )
         if not is_ff:
             raise RuntimeError(
-                "QwenLM history has diverged from the fork — cannot fast-forward.\n"
+                "QwenLM history has diverged from the fork -- cannot fast-forward.\n"
                 "The fork has commits not in QwenLM. Manual resolution required."
             )
 
@@ -549,7 +549,7 @@ def cmd_sync(git: _GitRunner, dry_run: bool = False) -> None:
         git.run(["git", "push", UPSTREAM_REMOTE, f"{QWENLM_TEMP_REF}:main"])
         log_success("Fork updated.")
         print()
-        log_info("Next step — absorb into integration:")
+        log_info("Next step -- absorb into integration:")
         print("  python3 tooling/sync-upstreams/upstream_ingest_pipeline.py")
         print()
 
@@ -589,7 +589,7 @@ def cmd_contribute(
     changed_files = changed_raw.splitlines() if changed_raw else []
 
     print()
-    log_info(f"Commit  : {full_hash[:12]} — {commit_msg}")
+    log_info(f"Commit  : {full_hash[:12]} -- {commit_msg}")
     log_info(f"Files   : {len(changed_files)} changed")
     for f in changed_files:
         print(f"          {f}")
@@ -607,7 +607,7 @@ def cmd_contribute(
             if len(g.lines) > 5:
                 print(f"         ... and {len(g.lines) - 5} more")
         print()
-        log_error("Isolation gates FAILED — commit is not upstream-eligible. No branch created.")
+        log_error("Isolation gates FAILED -- commit is not upstream-eligible. No branch created.")
         sys.exit(1)
 
     log_success("All isolation gates passed.")
@@ -664,13 +664,13 @@ def cmd_contribute(
         git.run(["git", "branch", "-D", pr_branch], check=False)
 
 
-# ── CLI entry point ───────────────────────────────────────────────────────────
+# -- CLI entry point -----------------------------------------------------------
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
-            "Fork Sync Pipeline — manages bidirectional code flow between\n"
+            "Fork Sync Pipeline -- manages bidirectional code flow between\n"
             "QwenLM/qwen-code and the monorepo via the jdmanring/qwen-code fork.\n\n"
             "Start with --status to see what is pending, then use --sync (inbound)\n"
             "or --contribute (outbound) to act."

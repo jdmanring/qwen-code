@@ -327,7 +327,7 @@ describe('SessionService - rename and custom title', () => {
       // perf work removed `messageCount` from. This test pins both
       // contracts: matched items must have `messageCount === undefined`,
       // and the per-match `fs.createReadStream` count pass must not run
-      // — re-introducing it would silently bring back the O(file-size)
+      // -- re-introducing it would silently bring back the O(file-size)
       // cost without any other test failing.
       const titleContent =
         JSON.stringify({
@@ -580,7 +580,7 @@ describe('SessionService - rename and custom title', () => {
 
     it('leaves titleSource undefined for legacy records without the field', async () => {
       // Back-compat: old sessions written before titleSource existed should
-      // be treated as manual (via `undefined` — consumers check `=== 'auto'`),
+      // be treated as manual (via `undefined` -- consumers check `=== 'auto'`),
       // so auto-generation never dims a title the user chose pre-upgrade.
       const now = Date.now();
       const titleContent =

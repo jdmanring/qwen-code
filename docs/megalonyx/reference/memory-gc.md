@@ -1,4 +1,4 @@
-# 🧹 Memory Maintenance & "Dreaming" (Garbage Collection)
+#  Memory Maintenance & "Dreaming" (Garbage Collection)
 
 This document describes the data retention policies and maintenance procedures for the Mega Code memory system. In alignment with Qwen Code terminology, the periodic cleanup of semantic memory is referred to as **Dreaming**.
 

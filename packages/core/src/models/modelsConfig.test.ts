@@ -739,13 +739,13 @@ describe('ModelsConfig', () => {
     modelsConfig.syncAfterAuthRefresh(AuthType.USE_OPENAI, 'provider-model');
 
     const gc = currentGenerationConfig(modelsConfig);
-    // Same authType + same modelId → apiKey preserved via save/restore around applyResolvedModelDefaults
+    // Same authType + same modelId -> apiKey preserved via save/restore around applyResolvedModelDefaults
     expect(gc.apiKey).toBe('programmatic-key');
   });
 
   it('should NOT preserve env apiKey with via.modelProviders during model switch', () => {
     // When switching from model-a to model-b, model-a's provider-specific
-    // envKey value should NOT be reused for model-b — they may target
+    // envKey value should NOT be reused for model-b -- they may target
     // different services with different credentials.
     const envKeyA = 'PROVIDER_KEY_A_TEST_3417';
     const envKeyB = 'PROVIDER_KEY_B_TEST_3417';
@@ -806,7 +806,7 @@ describe('ModelsConfig', () => {
   });
 
   it('should NOT preserve settings-sourced apiKey when switching to a different provider within same authType', () => {
-    // Cross-provider switch: provider-A (settings-sourced key) → provider-B
+    // Cross-provider switch: provider-A (settings-sourced key) -> provider-B
     // Settings key must NOT leak to provider-B which may have a different baseUrl.
     const envKeyA = 'PROVIDER_KEY_A_SETTINGS_TEST';
     const envKeyB = 'PROVIDER_KEY_B_SETTINGS_TEST';
@@ -856,7 +856,7 @@ describe('ModelsConfig', () => {
   });
 
   it('should NOT preserve CLI-sourced apiKey when switching to a different provider within same authType', () => {
-    // Cross-provider switch: provider-A (CLI-sourced key) → provider-B
+    // Cross-provider switch: provider-A (CLI-sourced key) -> provider-B
     const envKeyA = 'PROVIDER_KEY_A_CLI_TEST';
     const envKeyB = 'PROVIDER_KEY_B_CLI_TEST';
     delete process.env[envKeyA];
@@ -905,7 +905,7 @@ describe('ModelsConfig', () => {
   it('should NOT preserve apiKey on first syncAfterAuthRefresh when previousAuthType is undefined (cold start)', () => {
     // Cold start: ModelsConfig created without initialAuthType, then
     // syncAfterAuthRefresh is called for the first time. previousAuthType
-    // is undefined, so isUnchanged must be false — no key preservation.
+    // is undefined, so isUnchanged must be false -- no key preservation.
     const envKey = 'COLD_START_KEY_TEST_3417';
     delete process.env[envKey];
 
@@ -932,11 +932,11 @@ describe('ModelsConfig', () => {
       },
     });
 
-    // First auth refresh — previousAuthType is undefined
+    // First auth refresh -- previousAuthType is undefined
     modelsConfig.syncAfterAuthRefresh(AuthType.USE_OPENAI, 'cold-start-model');
 
     const gc = currentGenerationConfig(modelsConfig);
-    // previousAuthType (undefined) !== USE_OPENAI → isUnchanged is false → no preservation
+    // previousAuthType (undefined) !== USE_OPENAI -> isUnchanged is false -> no preservation
     expect(gc.apiKey).toBeUndefined();
     expect(gc.model).toBe('cold-start-model');
   });
@@ -1003,7 +1003,7 @@ describe('ModelsConfig', () => {
     modelsConfig.syncAfterAuthRefresh(AuthType.USE_OPENAI, 'hot-reload-model');
 
     const gc = currentGenerationConfig(modelsConfig);
-    // envKey changed → isUnchanged is false → old key must NOT be preserved
+    // envKey changed -> isUnchanged is false -> old key must NOT be preserved
     expect(gc.apiKey).toBeUndefined();
     expect(gc.apiKeyEnvKey).toBe(newEnvKey);
     expect(gc.model).toBe('hot-reload-model');
@@ -1069,7 +1069,7 @@ describe('ModelsConfig', () => {
     modelsConfig.syncAfterAuthRefresh(AuthType.USE_OPENAI, 'url-reload-model');
 
     const gc = currentGenerationConfig(modelsConfig);
-    // baseUrl changed → isUnchanged is false → old key must NOT be preserved
+    // baseUrl changed -> isUnchanged is false -> old key must NOT be preserved
     expect(gc.apiKey).toBeUndefined();
     expect(gc.baseUrl).toBe('https://new-api.example.com/v1');
     expect(gc.model).toBe('url-reload-model');
@@ -1129,7 +1129,7 @@ describe('ModelsConfig', () => {
     modelsConfig.syncAfterAuthRefresh(AuthType.USE_OPENAI, 'no-envkey-model');
 
     const gc = currentGenerationConfig(modelsConfig);
-    // baseUrl changed → isProviderChanged is true even without envKey
+    // baseUrl changed -> isProviderChanged is true even without envKey
     expect(gc.apiKey).toBeUndefined();
     expect(gc.baseUrl).toBe('https://new-api.example.com/v1');
     expect(gc.model).toBe('no-envkey-model');
@@ -1153,7 +1153,7 @@ describe('ModelsConfig', () => {
     };
 
     // resolveCliGenerationConfig resolved apiKey from OPENAI_API_KEY (layer 3)
-    // — source has kind:'env' but no 'via' (general env var, not provider-specific)
+    // -- source has kind:'env' but no 'via' (general env var, not provider-specific)
     const modelsConfig = new ModelsConfig({
       initialAuthType: AuthType.USE_OPENAI,
       modelProvidersConfig,

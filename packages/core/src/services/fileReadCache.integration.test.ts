@@ -1,6 +1,6 @@
 /**
  * Integration tests for the FileReadCache short-circuit. Real
- * filesystem, real ReadFileTool, real microcompactHistory — verify
+ * filesystem, real ReadFileTool, real microcompactHistory -- verify
  * that the placeholder fast-path stays correct under history rewrites.
  */
 
@@ -71,7 +71,7 @@ describe('FileReadCache integration: read after history rewrite', () => {
     const config = makeConfig(tmpDir, cache);
     const tool = new ReadFileTool(config);
 
-    // STEP 1 — first real Read populates the cache.
+    // STEP 1 -- first real Read populates the cache.
     const r1 = await tool.buildAndExecute(
       { file_path: filePath },
       new AbortController().signal,
@@ -80,7 +80,7 @@ describe('FileReadCache integration: read after history rewrite', () => {
     expect(r1.llmContent as string).toContain('export function hello');
     expect(cache.size()).toBe(1);
 
-    // STEP 2 — build a conversation history mirroring real flow:
+    // STEP 2 -- build a conversation history mirroring real flow:
     // 6 prior read_file functionResponses with the foo.ts content.
     // microcompact's keepRecent=1 will clear the oldest 5.
     const history: Content[] = [];
@@ -109,7 +109,7 @@ describe('FileReadCache integration: read after history rewrite', () => {
       });
     }
 
-    // STEP 3 — microcompact fires (>60min idle).
+    // STEP 3 -- microcompact fires (>60min idle).
     const mcResult = microcompactHistory(history, Date.now() - 90 * 60_000, {
       toolResultsThresholdMinutes: 60,
       toolResultsNumToKeep: 1,
@@ -127,7 +127,7 @@ describe('FileReadCache integration: read after history rewrite', () => {
     // Only 1 fresh entry remains; the other 5 are placeholders.
     expect(fooContentEntries).toHaveLength(1);
 
-    // STEP 4 — pre-fix code path: cache is NOT cleared after microcompact.
+    // STEP 4 -- pre-fix code path: cache is NOT cleared after microcompact.
     // User reads foo.ts again. File on disk is unchanged.
     const r2 = await tool.buildAndExecute(
       { file_path: filePath },
@@ -144,12 +144,12 @@ describe('FileReadCache integration: read after history rewrite', () => {
     //   - history: 5 entries are [Old tool result content cleared],
     //              1 entry has real content (the most-recent kept one)
     //   - fresh tool response: a placeholder pointing at "earlier in
-    //     this conversation" — which is partly true (1 entry remains)
+    //     this conversation" -- which is partly true (1 entry remains)
     //     but if the LLM trusted the placeholder and discarded the
     //     last surviving entry, the bytes are unrecoverable.
     //
     // In a longer chain (e.g. 20 reads, keep 1, microcompact clears
-    // 19), the surviving entry might not even be foo.ts — it would be
+    // 19), the surviving entry might not even be foo.ts -- it would be
     // whatever was read most recently. Then the placeholder points at
     // ZERO bytes the model can find.
   });
@@ -261,7 +261,7 @@ describe('FileReadCache integration: read after history rewrite', () => {
       false,
     );
 
-    // Now Read foo.ts again — pre-fix, cache returns placeholder.
+    // Now Read foo.ts again -- pre-fix, cache returns placeholder.
     const r = await tool.buildAndExecute(
       { file_path: filePath },
       new AbortController().signal,
@@ -271,8 +271,8 @@ describe('FileReadCache integration: read after history rewrite', () => {
       'unchanged since last read in this session',
     );
     // Total foo.ts content reachable to the model:
-    //   history → 0 bytes
-    //   fresh tool result → placeholder, 0 bytes
+    //   history -> 0 bytes
+    //   fresh tool result -> placeholder, 0 bytes
     // The model literally cannot recover the file contents.
   });
 });

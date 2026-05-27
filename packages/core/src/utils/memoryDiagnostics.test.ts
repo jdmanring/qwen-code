@@ -173,8 +173,8 @@ describe('collectMemoryDiagnostics', () => {
         total_heap_size_executable: 0,
         total_physical_size: 2_000,
         used_heap_size: 1_600,
-        // 32 MB malloced, well above 2× the tiny heap but below the 64 MB
-        // floor — should not flag as a leak indicator.
+        // 32 MB malloced, well above 2* the tiny heap but below the 64 MB
+        // floor -- should not flag as a leak indicator.
         malloced_memory: 32 * 1024 * 1024,
         peak_malloced_memory: 32 * 1024 * 1024,
         does_zap_garbage: 0,

@@ -342,7 +342,7 @@ export function getAndClearCapturedInput(): Buffer {
   inputBuffer.chunks = [];
   inputBuffer.totalBytes = 0;
   pendingTerminalResponse = Buffer.alloc(0);
-  // Keep captured=true — capture has completed, don't re-arm
+  // Keep captured=true -- capture has completed, don't re-arm
   return buffer;
 }
 

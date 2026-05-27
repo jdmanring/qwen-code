@@ -7,7 +7,7 @@ The decision to implement a custom UDS Bridge instead of using the official MCP 
 
 ### 1. Lifecycle & State
 - **Standard MCP**: The server is a child process of the client. When the client (e.g., Claude Desktop) is closed, the server is killed. Any in-memory state, cached embeddings, or active background tasks are lost.
-- **UDS Bridge**: The server is a system daemon. It exists independently of any client. This enables "The Dreaming Pipeline"—a background process that consolidates memories while the user is offline.
+- **UDS Bridge**: The server is a system daemon. It exists independently of any client. This enables "The Dreaming Pipeline"--a background process that consolidates memories while the user is offline.
 
 ### 2. Connection Topology
 - **Standard MCP**: 1:1 Relationship. One client $\to$ One server process. If you have three different AI tools using the same memory, you must spawn three identical server processes, tripling the RAM usage.

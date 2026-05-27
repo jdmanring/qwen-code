@@ -62,7 +62,7 @@ public void testSession() throws AgentInitializeException, SessionNewException, 
 
     try {
         // Send a prompt to the agent
-        acpClient.sendPrompt(Collections.singletonList(new TextContent("你是谁")),
+        acpClient.sendPrompt(Collections.singletonList(new TextContent("")),
                 new AgentEventConsumer().setContentEventConsumer(new ContentEventSimpleConsumer() {
                     @Override
                     public void onAgentMessageChunkSessionUpdate(AgentMessageChunkSessionUpdate sessionUpdate) {

@@ -33,7 +33,7 @@ describe('parseDurationSeconds', () => {
     },
   );
 
-  it('rejects sub-second budgets — they fire before any model round-trip', () => {
+  it('rejects sub-second budgets -- they fire before any model round-trip', () => {
     // Previously a tiny budget like `500ms` parsed cleanly and immediately
     // aborted the run on the next event-loop tick. That's a typo, not a
     // useful guardrail.
@@ -60,7 +60,7 @@ describe('validateMaxWallTimeSetting', () => {
     expect(validateMaxWallTimeSetting(1)).toBe(1);
   });
 
-  it('rejects 0 (mirrors CLI flag behavior — 0 is a foot-gun)', () => {
+  it('rejects 0 (mirrors CLI flag behavior -- 0 is a foot-gun)', () => {
     expect(() => validateMaxWallTimeSetting(0)).toThrow();
   });
 
@@ -91,7 +91,7 @@ describe('validateMaxToolCalls', () => {
   });
 
   it('accepts 0 (no-tool-calls-allowed sentinel)', () => {
-    // Asymmetric with wall-time where 0 is fatal — for tool-calls, 0 means
+    // Asymmetric with wall-time where 0 is fatal -- for tool-calls, 0 means
     // "the first tick aborts", which is a legitimate "model must answer
     // without invoking tools" mode.
     expect(validateMaxToolCalls(0)).toBe(0);
@@ -102,7 +102,7 @@ describe('validateMaxToolCalls', () => {
     expect(validateMaxToolCalls(1000)).toBe(1000);
   });
 
-  it('rejects NaN — yargs coerces non-numeric flag values to NaN', () => {
+  it('rejects NaN -- yargs coerces non-numeric flag values to NaN', () => {
     // `qwen -p '...' --max-tool-calls abc` would otherwise silently
     // disable the budget; the >= 0 gate in tickToolCall is false for NaN.
     expect(() => validateMaxToolCalls(Number.NaN)).toThrow();
@@ -114,7 +114,7 @@ describe('validateMaxToolCalls', () => {
 
   it('rejects negatives other than -1', () => {
     // `--max-tool-calls=-5` (typo for `5`) would otherwise silently
-    // disable the budget — the exact foot-gun the wall-time validator
+    // disable the budget -- the exact foot-gun the wall-time validator
     // was built to prevent.
     expect(() => validateMaxToolCalls(-5)).toThrow();
     expect(() => validateMaxToolCalls(-2)).toThrow();
@@ -215,7 +215,7 @@ describe('RunBudgetEnforcer', () => {
     expect(enforcer.getExceeded()).toBeNull();
   });
 
-  it('start() is idempotent — only one wall-clock timer is armed', () => {
+  it('start() is idempotent -- only one wall-clock timer is armed', () => {
     const ac = new AbortController();
     const enforcer = new RunBudgetEnforcer({ maxWallTimeSeconds: 5 }, ac);
     enforcer.start();

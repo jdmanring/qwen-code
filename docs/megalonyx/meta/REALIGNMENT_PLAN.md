@@ -1,15 +1,15 @@
-# 🗺️ Realignment Roadmap: From Posturing to Functional
+#  Realignment Roadmap: From Posturing to Functional
 
 This document defines the engineering path to bridge the implementation gaps identified in [IMPLEMENTATION_GAPS.md](/docs/meta/IMPLEMENTATION_GAPS.md). The goal is to move from a collection of independent services to a unified, persistent, and self-verifying system.
 
 ---
 
-## 🎯 Objective
+##  Objective
 **Eliminate the Persistence Gap.** Ensure that every "generation" or "discovery" made by the system is materialized into the Source Repository or Runtime Environment, and that every "standard" is programmatically enforced.
 
 ---
 
-## 🛠️ Technical Resolution Path
+##  Technical Resolution Path
 
 ### 1. Agent Materialization (The "Hand" for Agent Gen)
 **Problem**: Generated agents are ephemeral.
@@ -48,18 +48,18 @@ This document defines the engineering path to bridge the implementation gaps ide
 
 ---
 
-## 📅 Execution Priority
+##  Execution Priority
 
 | Priority | Task | Target File(s) | Impact |
 | :--- | :--- | :--- | :--- |
-| **P0** | Agent Persistence | `packages/core/src/skill_bridge.py` | 🔴 Critical (Core Functionality) |
-| **P1** | Mirroring Integration | `config/QWEN.md`, `skill_bridge.py` | 🟡 High (System Integrity) |
-| **P2** | Memory Mandates | `config/agents/*/persona.md` | 🟡 High (Memory Efficiency) |
-| **P3** | Infra Sync | `scripts/sync-blueprint.py` | 🟢 Medium (Developer UX) |
+| **P0** | Agent Persistence | `packages/core/src/skill_bridge.py` |  Critical (Core Functionality) |
+| **P1** | Mirroring Integration | `config/QWEN.md`, `skill_bridge.py` |  High (System Integrity) |
+| **P2** | Memory Mandates | `config/agents/*/persona.md` |  High (Memory Efficiency) |
+| **P3** | Infra Sync | `scripts/sync-blueprint.py` |  Medium (Developer UX) |
 
 ---
 
-## ✅ Verification Matrix (Proof of Life)
+##  Verification Matrix (Proof of Life)
 A feature is only "Implemented" when it passes this test:
 - **Agent Gen**: `User Request` $\to$ `create_agent` $\to$ `ls config/agents/` $\to$ `Verify File Exists`.
 - **Mirroring**: `Edit config/settings.json` $\to$ `run symmetry-check` $\to$ `Expect Fail` $\to$ `Edit docs/settings.md` $\to$ `run symmetry-check` $\to$ `Expect Pass`.

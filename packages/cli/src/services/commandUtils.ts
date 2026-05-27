@@ -22,7 +22,7 @@ import {
  *
  * All commands must explicitly declare `supportedModes` (Phase 2+ requirement).
  * If a command omits it, this function falls back to a conservative default
- * based on `CommandKind` — built-in commands default to interactive-only,
+ * based on `CommandKind` -- built-in commands default to interactive-only,
  * while file/skill/mcp-prompt commands default to all modes.
  *
  * @param cmd The slash command to evaluate.
@@ -53,7 +53,7 @@ export function getEffectiveSupportedModes(cmd: SlashCommand): ExecutionMode[] {
  * Filters a list of commands to those available in the given execution mode.
  *
  * This function replaces `filterCommandsForNonInteractive`. It does NOT filter
- * out hidden commands — that responsibility belongs to the caller (e.g.,
+ * out hidden commands -- that responsibility belongs to the caller (e.g.,
  * CommandService.getCommandsForMode).
  *
  * @param commands The full list of loaded commands.

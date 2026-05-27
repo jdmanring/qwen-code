@@ -1,4 +1,4 @@
-# 🗺️ Integration Roadmap: Transition to Monorepo
+#  Integration Roadmap: Transition to Monorepo
 
 This document is the **Technical Specification** and **Migration Plan** for moving the `qwen_code_stack` (Blueprint) into the `megacode-monorepo` (Monorepo). 
 
@@ -6,7 +6,7 @@ The goal is to transition from a fragmented prototype to a unified, professional
 
 ---
 
-## 🎯 Target Architecture: The Monorepo
+##  Target Architecture: The Monorepo
 
 The destination is the `megacode-monorepo` monorepo. All components will be refactored into the following intuitive structure:
 
@@ -32,7 +32,7 @@ Any code moving into the monorepo must meet these clarity and quality requiremen
 
 ---
 
-## 🧠 Logic Port Specification
+##  Logic Port Specification
 
 The core value of the `qwen_code_stack` is its verified execution loop. This will be ported to `packages/core` in TypeScript.
 
@@ -52,7 +52,7 @@ The `GeminiClient` in `packages/core` will implement the **Act $\to$ Observe $\t
 
 ---
 
-## 💾 Memory Bridge Specification
+##  Memory Bridge Specification
 
 The memory system will be unified into a single `MemoryBridge` in `packages/core/src/memory/`.
 
@@ -70,7 +70,7 @@ The bridge manages a tiered memory system:
 
 ---
 
-## 🛠️ Component Mapping & Migration Path
+##  Component Mapping & Migration Path
 
 | Legacy Component (`qwen_code_stack`) | Target Destination (`megacode-runtime-stack`) | Migration Action |
 | :--- | :--- | :--- |
@@ -84,7 +84,7 @@ The bridge manages a tiered memory system:
 
 ---
 
-## 🚀 Execution Plan: The Migration
+##  Execution Plan: The Migration
 
 ### Phase 1: Monorepo Scaffolding
 1. Initialize `apps/qwen-orchestrator` and `packages/core`.
@@ -109,7 +109,7 @@ The bridge manages a tiered memory system:
 
 ---
 
-## 🏁 User Experience Completion
+##  User Experience Completion
 
 The migration is complete when the user can:
 1. Launch the system via `packages/cli`.

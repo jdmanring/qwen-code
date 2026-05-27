@@ -1,4 +1,4 @@
-# 🗺️ Memory System Technical Map
+#  Memory System Technical Map
 
 This document provides a comprehensive technical mapping of the Mega Code memory system, detailing the responsibilities, data flows, and logic of each component.
 

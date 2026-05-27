@@ -111,7 +111,7 @@ if __name__ == "__main__":
                         search_tool=MagicMock(),
                         root_context=MagicMock(),
                     )
-                print("✅ PROC-01: Daemon SIGKILL handled gracefully.")
+                print(" PROC-01: Daemon SIGKILL handled gracefully.")
             except ConnectionRefusedError:
                 pytest.fail("ControlPlane should handle ConnectionRefusedError internally")
 
@@ -166,7 +166,7 @@ if __name__ == "__main__":
 
         # 3. Verify Cleanup
         assert not os.path.exists(proc.socket_path), "Socket should have been removed on SIGTERM"
-        print("✅ PROC-02: Daemon SIGTERM cleanup verified.")
+        print(" PROC-02: Daemon SIGTERM cleanup verified.")
 
     finally:
         proc.cleanup()

@@ -19,7 +19,7 @@ export { v3ToV4Migration, V3ToV4Migration } from './versions/v3-to-v4.js';
 import { SETTINGS_VERSION } from '../settings.js';
 
 // Ordered array of all migrations for use with MigrationScheduler
-// Each migration handles one version transition (N → N+1)
+// Each migration handles one version transition (N -> N+1)
 // Order matters: migrations must be sorted by ascending version
 import { v1ToV2Migration } from './versions/v1-to-v2.js';
 import { v2ToV3Migration } from './versions/v2-to-v3.js';

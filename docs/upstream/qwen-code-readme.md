@@ -9,16 +9,16 @@
 
 **An open-source AI agent that lives in your terminal.**
 
-<a href="https://qwenlm.github.io/qwen-code-docs/zh/users/overview">中文</a> |
+<a href="https://qwenlm.github.io/qwen-code-docs/zh/users/overview"></a> |
 <a href="https://qwenlm.github.io/qwen-code-docs/de/users/overview">Deutsch</a> |
-<a href="https://qwenlm.github.io/qwen-code-docs/fr/users/overview">français</a> |
-<a href="https://qwenlm.github.io/qwen-code-docs/ja/users/overview">日本語</a> |
-<a href="https://qwenlm.github.io/qwen-code-docs/ru/users/overview">Русский</a> |
-<a href="https://qwenlm.github.io/qwen-code-docs/pt-BR/users/overview">Português (Brasil)</a>
+<a href="https://qwenlm.github.io/qwen-code-docs/fr/users/overview">franais</a> |
+<a href="https://qwenlm.github.io/qwen-code-docs/ja/users/overview"></a> |
+<a href="https://qwenlm.github.io/qwen-code-docs/ru/users/overview"></a> |
+<a href="https://qwenlm.github.io/qwen-code-docs/pt-BR/users/overview">Portugus (Brasil)</a>
 
 </div>
 
-## 🎉 News
+##  News
 
 - **2026-04-15**: Qwen OAuth free tier has been discontinued. To continue using Qwen Code, switch to [Alibaba Cloud Coding Plan](https://modelstudio.console.alibabacloud.com/?tab=coding-plan#/efm/coding-plan-index), [OpenRouter](https://openrouter.ai), [Fireworks AI](https://app.fireworks.ai), or bring your own API key. Run `qwen auth` to configure.
 
@@ -33,7 +33,7 @@
 Qwen Code is an open-source AI agent for the terminal, optimized for Qwen series models. It helps you understand large codebases, automate tedious work, and ship faster.
 
 - **Multi-protocol, flexible providers**: use OpenAI / Anthropic / Gemini-compatible APIs, [Alibaba Cloud Coding Plan](https://modelstudio.console.alibabacloud.com/?tab=coding-plan#/efm/coding-plan-index), [OpenRouter](https://openrouter.ai), [Fireworks AI](https://app.fireworks.ai), or bring your own API key.
-- **Open-source, co-evolving**: both the framework and the Qwen3-Coder model are open-source—and they ship and evolve together.
+- **Open-source, co-evolving**: both the framework and the Qwen3-Coder model are open-source--and they ship and evolve together.
 - **Agentic workflow, feature-rich**: rich built-in tools (Skills, SubAgents) for a full agentic workflow and a Claude Code-like experience.
 - **Terminal-first, IDE-friendly**: built for developers who live in the command line, with optional integration for VS Code, Zed, and JetBrains IDEs.
 
@@ -108,7 +108,7 @@ Your browser does not support the video tag.
 
 </details>
 
-## 🦞 Use Qwen Code for Coding Tasks in Claw
+##  Use Qwen Code for Coding Tasks in Claw
 
 Copy the prompt below and paste it into your agent:
 
@@ -125,7 +125,7 @@ Qwen Code supports the following authentication methods:
 - **API Key (recommended)**: use an API key from Alibaba Cloud Model Studio ([Beijing](https://bailian.console.aliyun.com/) / [intl](https://modelstudio.console.alibabacloud.com/)) or any supported provider (OpenAI, Anthropic, Google GenAI, and other compatible endpoints).
 - **Coding Plan**: subscribe to the Alibaba Cloud Coding Plan ([Beijing](https://bailian.console.aliyun.com/cn-beijing?tab=coding-plan#/efm/coding-plan-index) / [intl](https://modelstudio.console.alibabacloud.com/?tab=coding-plan#/efm/coding-plan-index)) for a fixed monthly fee with higher quotas.
 
-> ⚠️ **Qwen OAuth was discontinued on April 15, 2026.** If you were previously using Qwen OAuth, please switch to one of the methods above. Run `qwen` and then `/auth` to reconfigure.
+>  **Qwen OAuth was discontinued on April 15, 2026.** If you were previously using Qwen OAuth, please switch to one of the methods above. Run `qwen` and then `/auth` to reconfigure.
 
 #### API Key (recommended)
 
@@ -182,7 +182,7 @@ Here is a complete example:
 | `security.auth.selectedType` | The protocol to use on startup (`openai`, `anthropic`, `gemini`, `vertex-ai`).                                                        |
 | `model.name`                 | The default model to use when Qwen Code starts.                                                                                       |
 
-**Step 3:** Start Qwen Code — your configuration takes effect automatically:
+**Step 3:** Start Qwen Code -- your configuration takes effect automatically:
 
 ```bash
 qwen
@@ -193,7 +193,7 @@ Use the `/model` command at any time to switch between all configured models.
 ##### More Examples
 
 <details>
-<summary>Coding Plan (Alibaba Cloud ModelStudio) — fixed monthly fee, higher quotas</summary>
+<summary>Coding Plan (Alibaba Cloud ModelStudio) -- fixed monthly fee, higher quotas</summary>
 
 ```json
 {
@@ -345,13 +345,13 @@ Use the `/model` command at any time to switch between all configured models.
 
 </details>
 
-> **Tip:** You can also set API keys via `export` in your shell or `.env` files, which take higher priority than `settings.json` → `env`. See the [authentication guide](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/auth/) for full details.
+> **Tip:** You can also set API keys via `export` in your shell or `.env` files, which take higher priority than `settings.json` -> `env`. See the [authentication guide](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/auth/) for full details.
 
 > **Security note:** Never commit API keys to version control. The `~/.qwen/settings.json` file is in your home directory and should stay private.
 
 #### Local Model Setup (Ollama / vLLM)
 
-You can also run models locally — no API key or cloud account needed. This is not an authentication method; instead, configure your local model endpoint in `~/.qwen/settings.json` using the `modelProviders` field.
+You can also run models locally -- no API key or cloud account needed. This is not an authentication method; instead, configure your local model endpoint in `~/.qwen/settings.json` using the `modelProviders` field.
 
 Set `generationConfig.contextWindowSize` inside the matching provider entry
 and adjust it to the context length configured on your local server.
@@ -434,7 +434,7 @@ As an open-source terminal agent, you can use Qwen Code in five primary ways:
 2. Headless mode (scripts, CI)
 3. IDE integration (VS Code, Zed)
 4. SDKs (TypeScript, Python, Java)
-5. Daemon mode — `qwen serve` exposes ACP over HTTP+SSE so multiple clients share one agent (experimental)
+5. Daemon mode -- `qwen serve` exposes ACP over HTTP+SSE so multiple clients share one agent (experimental)
 
 #### Interactive mode
 
@@ -452,7 +452,7 @@ cd your-project/
 qwen -p "your question"
 ```
 
-Use `-p` to run Qwen Code without the interactive UI—ideal for scripts, automation, and CI/CD. Learn more: [Headless mode](https://qwenlm.github.io/qwen-code-docs/en/users/features/headless).
+Use `-p` to run Qwen Code without the interactive UI--ideal for scripts, automation, and CI/CD. Learn more: [Headless mode](https://qwenlm.github.io/qwen-code-docs/en/users/features/headless).
 
 #### IDE integration
 
@@ -467,10 +467,10 @@ Use Qwen Code inside your editor (VS Code, Zed, and JetBrains IDEs):
 ```bash
 cd your-project/
 qwen serve
-# → qwen serve listening on http://127.0.0.1:4170 (mode=http-bridge)
+# -> qwen serve listening on http://127.0.0.1:4170 (mode=http-bridge)
 ```
 
-Run Qwen Code as a local HTTP daemon so IDE plugins, web UIs, CI scripts and custom CLIs all share **one** agent session over HTTP+SSE — instead of each spawning their own subprocess. Loopback bind has no auth by default (set `QWEN_SERVER_TOKEN` to enable bearer auth even on loopback); remote binds (`--hostname 0.0.0.0`) **require** a token — boot refuses without one. See:
+Run Qwen Code as a local HTTP daemon so IDE plugins, web UIs, CI scripts and custom CLIs all share **one** agent session over HTTP+SSE -- instead of each spawning their own subprocess. Loopback bind has no auth by default (set `QWEN_SERVER_TOKEN` to enable bearer auth even on loopback); remote binds (`--hostname 0.0.0.0`) **require** a token -- boot refuses without one. See:
 
 - [Daemon mode user guide](https://qwenlm.github.io/qwen-code-docs/en/users/qwen-serve)
 - [HTTP protocol reference](https://qwenlm.github.io/qwen-code-docs/en/developers/qwen-serve-protocol)
@@ -572,7 +572,7 @@ If you encounter issues, check the [troubleshooting guide](https://qwenlm.github
 
 **Common issues:**
 
-- **`Qwen OAuth free tier was discontinued on 2026-04-15`**: Qwen OAuth is no longer available. Run `qwen` → `/auth` and switch to API Key or Coding Plan. See the [Authentication](#authentication) section above for setup instructions.
+- **`Qwen OAuth free tier was discontinued on 2026-04-15`**: Qwen OAuth is no longer available. Run `qwen` -> `/auth` and switch to API Key or Coding Plan. See the [Authentication](#authentication) section above for setup instructions.
 
 To report a bug from within the CLI, run `/bug` and include a short title and repro steps.
 

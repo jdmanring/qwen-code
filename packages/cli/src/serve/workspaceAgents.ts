@@ -26,7 +26,7 @@ import { InvalidClientIdError, type HttpAcpBridge } from './httpAcpBridge.js';
  * malformed path component (containing slashes, dots, control chars,
  * leading hyphen) is rejected at the boundary instead of trickling
  * through `findSubagentByNameAtLevel`'s readdir scan. Defense in
- * depth — `findSubagentByNameAtLevel` already prevents path traversal
+ * depth -- `findSubagentByNameAtLevel` already prevents path traversal
  * via filename matching, but failing fast at the route layer keeps
  * surprising inputs out of downstream code paths.
  */
@@ -75,16 +75,16 @@ import {
  *
  * Wraps `SubagentManager` over five HTTP routes:
  *
- *   GET    /workspace/agents             — list project + user + builtin + extension
- *   POST   /workspace/agents             — create at project or user level (409 on collision)
- *   GET    /workspace/agents/:agentType  — full detail incl. systemPrompt
- *   POST   /workspace/agents/:agentType  — update existing (404 missing, 403 read-only)
- *   DELETE /workspace/agents/:agentType  — delete (idempotent for SDK callers)
+ *   GET    /workspace/agents             -- list project + user + builtin + extension
+ *   POST   /workspace/agents             -- create at project or user level (409 on collision)
+ *   GET    /workspace/agents/:agentType  -- full detail incl. systemPrompt
+ *   POST   /workspace/agents/:agentType  -- update existing (404 missing, 403 read-only)
+ *   DELETE /workspace/agents/:agentType  -- delete (idempotent for SDK callers)
  *
  * The daemon doesn't have a full `Config` instance, so we instantiate
  * `SubagentManager` against a CRUD-scoped `Config` stub that
  * implements only `getSdkMode / getProjectRoot / getActiveExtensions`
- * — the methods the manager's CRUD paths actually touch (verified
+ * -- the methods the manager's CRUD paths actually touch (verified
  * against `subagent-manager.ts:365,932,954,958`). A `Proxy` makes any
  * future use of an unimplemented method throw immediately so a
  * silent dependency creep can't ship as a 500.
@@ -111,14 +111,14 @@ export function mountWorkspaceAgentsRoutes(
       // while the daemon is running) appear immediately. Without it
       // `SubagentManager.listSubagents()` serves a stale cache and
       // diverges from `GET /workspace/agents/:agentType`, which always
-      // reads from disk (`loadSubagent → findSubagentByNameAtLevel →
+      // reads from disk (`loadSubagent -> findSubagentByNameAtLevel ->
       // listSubagentsAtLevel`). Bringing the LIST route to parity is
       // sub-millisecond for the typical 0-50 agents and matches the
       // detail route's "filesystem is the source of truth" contract.
       //
       // No TTL cache or `fs.watch`-based invalidation here despite the
       // 4-level walk per request. Reasoning:
-      //   - 4 levels × <50 agents on local SSD = sub-ms IO, well below
+      //   - 4 levels * <50 agents on local SSD = sub-ms IO, well below
       //     the per-request budget for any client UI.
       //   - A short-TTL cache would re-introduce the exact stale-list
       //     bug Codex P2 #2 fixed (a recently-edited file invisible
@@ -219,7 +219,7 @@ export function mountWorkspaceAgentsRoutes(
           if (err.code === SubagentErrorCode.FILE_ERROR) {
             // `SubagentError(FILE_ERROR)` wraps Node fs error
             // messages like `"ENOENT: no such file or directory, open
-            // '/Users/<x>/.qwen/agents/foo.md'"` — leaking the
+            // '/Users/<x>/.qwen/agents/foo.md'"` -- leaking the
             // operator's absolute filesystem layout through an
             // authenticated route response. Gate the message behind
             // `QWEN_SERVE_DEBUG` so default production responses
@@ -254,7 +254,7 @@ export function mountWorkspaceAgentsRoutes(
       if (!created) {
         // Race window: createSubagent already wrote the file to disk,
         // but the subsequent loadSubagent walked the cache and found
-        // nothing — typically a cache-refresh ordering bug. The file
+        // nothing -- typically a cache-refresh ordering bug. The file
         // persists (no rollback) because deleting on a half-failed
         // create would lose work for an agent that's actually fine on
         // disk. Operators MUST be able to correlate the orphan file
@@ -265,7 +265,7 @@ export function mountWorkspaceAgentsRoutes(
         // arrives.
         writeStderrLine(
           `qwen serve: agent_create_reload_failed (name=${safeLogValue(config.name)} ` +
-            `level=${level}) — file likely persisted on disk; check ` +
+            `level=${level}) -- file likely persisted on disk; check ` +
             `\`GET /workspace/agents\` for a phantom entry`,
         );
         res.status(500).json({
@@ -345,7 +345,7 @@ export function mountWorkspaceAgentsRoutes(
       // Empty / no-op update detection. An empty body or a body whose
       // recognized fields all match `existing` would otherwise rewrite
       // the file (mtime bump) AND fan out an `agent_changed` event for
-      // a request that didn't change anything — the same misleading
+      // a request that didn't change anything -- the same misleading
       // signal the memory route avoids for whitespace-only appends.
       // Reject empty payloads with 400; short-circuit no-op updates
       // with 200 + `changed: false` so adapters can suppress redundant
@@ -437,7 +437,7 @@ export function mountWorkspaceAgentsRoutes(
         // state on disk; subsequent reads will pick it up.
         writeStderrLine(
           `qwen serve: agent_update_reload_failed (name=${safeLogValue(agentType)} ` +
-            `level=${existing.level}) — disk write completed; check ` +
+            `level=${existing.level}) -- disk write completed; check ` +
             `\`GET /workspace/agents/${safeLogValue(agentType)}\` for the new state`,
         );
         res.status(500).json({
@@ -530,7 +530,7 @@ export function mountWorkspaceAgentsRoutes(
       // `fs.unlink()` failures (subagent-manager.ts:332-336) and
       // returns success as long as ANY level was removed. Trusting
       // that signal would let us publish `agent_changed`/`deleted`
-      // for a file still on disk (EACCES / EBUSY / EPERM) — the
+      // for a file still on disk (EACCES / EBUSY / EPERM) -- the
       // client UI would drop a still-active definition from cache.
       // Verify each pre-checked level's file is actually gone via
       // `fs.access`; only fan out the event for confirmed removals.
@@ -542,31 +542,31 @@ export function mountWorkspaceAgentsRoutes(
         if (!found.filePath) {
           // Synthetic / no-file entries (impossible at project /
           // user levels, defensive guard) treat as "no verification
-          // possible" → assume removed to match legacy behavior.
+          // possible" -> assume removed to match legacy behavior.
           removed.push(found);
           continue;
         }
         try {
           await fs.access(found.filePath);
-          // Still present → unlink failed silently.
+          // Still present -> unlink failed silently.
           remaining.push(found);
         } catch {
           // Any access error (typically ENOENT) means the file is
-          // gone — count as successfully removed.
+          // gone -- count as successfully removed.
           removed.push(found);
         }
       }
 
       if (remaining.length > 0) {
         writeStderrLine(
-          `qwen serve: DELETE /workspace/agents/${safeLogValue(agentType)} partial — ` +
+          `qwen serve: DELETE /workspace/agents/${safeLogValue(agentType)} partial -- ` +
             `removed=${removed.map((r) => r.level).join(',') || 'none'} ` +
             `remaining=${remaining
               .map((r) => `${r.level}:${r.filePath}`)
               .join(',')}`,
         );
         // Still publish events for files we DID remove so subscribers
-        // get partial-success signals — but emit them BEFORE the 500
+        // get partial-success signals -- but emit them BEFORE the 500
         // so a client reading the response can correlate.
         for (const found of removed) {
           const evtLevel: 'project' | 'user' =
@@ -583,7 +583,7 @@ export function mountWorkspaceAgentsRoutes(
         }
         res.status(500).json({
           error:
-            `Failed to delete every level of subagent "${agentType}" — ` +
+            `Failed to delete every level of subagent "${agentType}" -- ` +
             `${remaining.length} level(s) still have their file on disk`,
           code: 'agent_delete_partial',
           name: agentType,
@@ -597,10 +597,10 @@ export function mountWorkspaceAgentsRoutes(
       // event metadata for toasts/audit/echo-suppression see the
       // complete picture. Without this split, an unscoped DELETE that
       // removed both project AND user shadows would publish only one
-      // event with one level — misleading the receiver about which
+      // event with one level -- misleading the receiver about which
       // file(s) actually went away.
       if (existingAtLevels.length === 0) {
-        // `deleteSubagent` succeeded with no pre-checked level — could
+        // `deleteSubagent` succeeded with no pre-checked level -- could
         // happen if a file landed between the loadSubagent check and
         // the unlink. Emit a single best-effort event with the level
         // hint we know.
@@ -642,7 +642,7 @@ export function mountWorkspaceAgentsRoutes(
  * visible-as-quoted-noise rather than a forged log line. Mirrors
  * `safeLogValue` in `server.ts` (kept private there); we copy the
  * 82-byte truncation budget so attacker-controlled long names can't
- * blow up the operator's log shipper. Defense-in-depth — the
+ * blow up the operator's log shipper. Defense-in-depth -- the
  * route's `validateAgentType` regex already rejects names with
  * control chars, but escaping also covers `agentType` derived from
  * sources we don't fully control (legacy on-disk shadows, future
@@ -655,7 +655,7 @@ function safeLogValue(raw: unknown): string {
 /**
  * Pull `:agentType` off the request and reject malformed values at
  * the route boundary. Returns the validated string, or `null` AFTER
- * sending its own 400 — caller must short-circuit on `null`.
+ * sending its own 400 -- caller must short-circuit on `null`.
  */
 function validateAgentType(req: Request, res: Response): string | null {
   // Express 5 types params as string | string[]; named route params are always
@@ -689,7 +689,7 @@ function validateAgentType(req: Request, res: Response): string | null {
  *     resolution / both levels);
  *   - the resolved `SubagentLevel` when valid;
  *   - `null` when the query was malformed AND the response was
- *     already sent — caller must short-circuit.
+ *     already sent -- caller must short-circuit.
  *
  * Centralizes the duplicated parser block from the POST update +
  * DELETE handlers so a future scope addition (e.g. `extension`)
@@ -721,7 +721,7 @@ function parseScopeQuery(
 /**
  * Reject mutation attempts targeting a read-only agent
  * (built-in / extension / session). Returns `true` after sending
- * the 403 — caller must short-circuit on `true`. Returns `false`
+ * the 403 -- caller must short-circuit on `true`. Returns `false`
  * when the entry is mutable (`project` / `user`).
  *
  * Centralizes the duplicated guard from the POST update + DELETE
@@ -793,11 +793,11 @@ function parseAgentConfig(
   // Apply the same regex + length contract `validateAgentType` uses
   // for `:agentType` URL parameters. Without this, a client could
   // `POST /workspace/agents` with `name: "my/agent"` or
-  // `name: "a".repeat(100)` — names that the route's regex would
+  // `name: "a".repeat(100)` -- names that the route's regex would
   // reject if echoed back through GET / DELETE, plus the core's
   // `SubagentValidator` would reject with a different error shape.
   // Failing at the body-validation boundary keeps the round-trip
-  // (POST → GET → DELETE) coherent under one error shape.
+  // (POST -> GET -> DELETE) coherent under one error shape.
   if (
     name.length < AGENT_TYPE_MIN_LENGTH ||
     name.length > AGENT_TYPE_MAX_LENGTH ||
@@ -815,7 +815,7 @@ function parseAgentConfig(
   // and write a project-level file at `<workspace>/.qwen/agents/
   // general-purpose.md`. List/load resolve the project entry first
   // (project > builtin), but `SubagentManager.deleteSubagent` rejects
-  // by name alone (`subagent-manager.ts:302`) — so DELETE returns 403
+  // by name alone (`subagent-manager.ts:302`) -- so DELETE returns 403
   // `agent_readonly` and the file becomes undeleteable through the
   // API. Surface the conflict at create time instead. The check is
   // case-insensitive (`BuiltinAgentRegistry.isBuiltinAgent` lowercases
@@ -883,7 +883,7 @@ function parseAgentConfig(
   if (disallowedTools !== undefined) config.disallowedTools = disallowedTools;
 
   // Optional scalar fields. Present-but-wrong-type fails closed (422)
-  // rather than silently dropping the field — `SubagentValidator`
+  // rather than silently dropping the field -- `SubagentValidator`
   // doesn't reject these, and `serializeSubagent` only writes recognized
   // values, so without explicit validation a `model: 123` payload would
   // 201 with no `model` field on the file (masking client-serialization
@@ -934,7 +934,7 @@ function parseAgentUpdates(
     // Match the create-side rule: `description` is required and
     // non-empty after trim. The previous update path silently
     // accepted `"   "` and let `mergeConfigurations` write a blank
-    // description to the file — divergent from create which would
+    // description to the file -- divergent from create which would
     // 422 the same payload.
     if (typeof value !== 'string' || value.trim().length === 0) {
       res.status(422).json({
@@ -1083,7 +1083,7 @@ function rejectIfPresentWrongType(
 }
 
 /**
- * Detect a no-op update — every supplied field already matches the
+ * Detect a no-op update -- every supplied field already matches the
  * existing agent's value. Without this check an empty (or
  * value-unchanged) PATCH still rewrites the file, bumps mtime, and
  * fans out a misleading `agent_changed` event. The recognized-field
@@ -1143,7 +1143,7 @@ function isNoOpUpdate(
     // caller actually intends to change. Comparing every known field
     // against `existing` would treat any partial update as non-no-op
     // because absent keys would be `undefined` while existing has a
-    // value — a false positive that would re-emit `agent_changed`
+    // value -- a false positive that would re-emit `agent_changed`
     // for a request that didn't actually mutate anything.
     const e = existing.runConfig ?? {};
     const u = updates.runConfig;
@@ -1177,9 +1177,9 @@ function shallowArrayEqual(
  * self-documenting at the route boundary.
  *
  * - `undefined` is impossible here (caller checks `'runConfig' in body`).
- * - `null` (sent) → 422 invalid_config (the route handler converts
+ * - `null` (sent) -> 422 invalid_config (the route handler converts
  *   the null sentinel to a short-circuit).
- * - Right-shape object → returns a new object with only `max_time_minutes`
+ * - Right-shape object -> returns a new object with only `max_time_minutes`
  *   and `max_turns` if they validate as finite positive numbers.
  */
 function sanitizeRunConfig(
@@ -1311,7 +1311,7 @@ export function createDaemonSubagentManager(
     // Mirror the `get` trap. Without a `has` trap, a SubagentManager
     // path that does `if ('someMethod' in this.config)` would consult
     // `Reflect.has(target, prop)` directly and silently return false
-    // for unimplemented methods — bypassing the throw the `get` trap
+    // for unimplemented methods -- bypassing the throw the `get` trap
     // is supposed to surface. With the trap, an `in` check on an
     // unknown method throws the same way a property access would, so
     // both code paths behave consistently.

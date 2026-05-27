@@ -3,7 +3,7 @@
 ## Component Identity
 The **Skill Schema** defines the structural requirements for any "Skill" (sub-agent) added to the Megalonyx. It ensures that all agentic capabilities are defined consistently, allowing the orchestrator to load and trigger them predictably.
 
-## 🛠️ Implementation Status
+##  Implementation Status
 
 **Status: Declarative**
 

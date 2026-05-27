@@ -10,15 +10,15 @@
  * PR #4291 follow-up review (qwen-latest, #1): the catch block in
  * `poll()` adds 4 distinct branches (AbortError skip, structured
  * `QwenOAuthPollError`, generic `Error` with name+length redaction,
- * non-Error throw) that drive what — if anything — lands in the
+ * non-Error throw) that drive what -- if anything -- lands in the
  * operator audit. The security-critical pieces are:
  *
  * - `device_code` + PKCE verifier are POSTed to the IdP per RFC 8628
- *   §3.4. A WAF / reverse proxy that echoes the request body in its
+ *   3.4. A WAF / reverse proxy that echoes the request body in its
  *   error response would put both into stderr if we naively logged
- *   `err.message` — violating the BrandedSecret-style "secrets never
+ *   `err.message` -- violating the BrandedSecret-style "secrets never
  *   appear in logs" contract the registry depends on.
- * - The cancel/dispose lifecycle MUST stay quiet — emitting a "poll
+ * - The cancel/dispose lifecycle MUST stay quiet -- emitting a "poll
  *   failed" line on every normal cancellation pollutes the audit.
  *
  * These tests pin all four branches against a stub `IQwenOAuth2Client`
@@ -53,7 +53,7 @@ function fakeClient(
   };
 }
 
-describe('QwenOAuthDeviceFlowProvider.poll() — stderr audit branches', () => {
+describe('QwenOAuthDeviceFlowProvider.poll() -- stderr audit branches', () => {
   let stderrLines: string[];
   let stderrSpy: ReturnType<typeof vi.fn>;
   let originalWrite: typeof process.stderr.write;
@@ -83,7 +83,7 @@ describe('QwenOAuthDeviceFlowProvider.poll() — stderr audit branches', () => {
 
   it('skips stderr audit when caller aborted before poll started (signal.aborted check)', async () => {
     // The early `opts.signal.aborted` short-circuit returns `pending`
-    // without invoking `pollDeviceToken` at all — no fetch, no catch,
+    // without invoking `pollDeviceToken` at all -- no fetch, no catch,
     // no audit. Pin the negative case so a future refactor that
     // accidentally writes a stderr line on this path fails CI.
     const provider = new QwenOAuthDeviceFlowProvider(fakeClient());
@@ -100,7 +100,7 @@ describe('QwenOAuthDeviceFlowProvider.poll() — stderr audit branches', () => {
     // `cancel()` / `dispose()` aborts the AbortController and the
     // underlying fetch throws an `AbortError`-like exception. This
     // is normal lifecycle. The post-await `opts.signal.aborted`
-    // check is what proves WE caused the abort — that's the gate,
+    // check is what proves WE caused the abort -- that's the gate,
     // not the error name itself.
     const abortErr = new Error('The operation was aborted.');
     abortErr.name = 'AbortError';
@@ -125,7 +125,7 @@ describe('QwenOAuthDeviceFlowProvider.poll() — stderr audit branches', () => {
 
   it('LOGS unexpected AbortError when the registry-owned signal is NOT aborted (transport / proxy / undici)', async () => {
     // PR #4291 follow-up review (gpt-5.5, #1): an `AbortError` can
-    // come from sources we did NOT initiate — upstream IdP TCP RST,
+    // come from sources we did NOT initiate -- upstream IdP TCP RST,
     // proxy timeout, undici/node-fetch wrapping unrelated transport
     // failures as AbortError. Earlier shape silently dropped these
     // because of the `err.name === 'AbortError'` skip; now we only
@@ -141,7 +141,7 @@ describe('QwenOAuthDeviceFlowProvider.poll() — stderr audit branches', () => {
       }),
     );
     const result = await provider.poll(makeState(), {
-      // Signal NOT aborted — the abort came from an upstream source.
+      // Signal NOT aborted -- the abort came from an upstream source.
       signal: new AbortController().signal,
     });
     expect(result.kind).toBe('error');
@@ -204,7 +204,7 @@ describe('QwenOAuthDeviceFlowProvider.poll() — stderr audit branches', () => {
     expect(line).toContain('qwen device-flow poll failed');
     expect(line).toContain('oauthError=slow_down');
     // The raw default message ("Device token poll failed: slow_down -
-    // Polling too fast") MUST NOT appear — only the structured field.
+    // Polling too fast") MUST NOT appear -- only the structured field.
     expect(line).not.toContain('Device token poll failed:');
     expect(line).not.toContain('device-code-secret');
     expect(line).not.toContain('pkce-verifier-secret');
@@ -216,7 +216,7 @@ describe('QwenOAuthDeviceFlowProvider.poll() — stderr audit branches', () => {
     // its message). Log just the constructor name + length so
     // on-call gets a triage-able breadcrumb without the request body.
     const longMessage =
-      'HTTP 502 from qwen IdP: <html><body>Forbidden — request body: device_code=device-code-secret-AAAA1111&code_verifier=pkce-verifier-secret-BBBB2222</body></html>';
+      'HTTP 502 from qwen IdP: <html><body>Forbidden -- request body: device_code=device-code-secret-AAAA1111&code_verifier=pkce-verifier-secret-BBBB2222</body></html>';
     const provider = new QwenOAuthDeviceFlowProvider(
       fakeClient({
         pollDeviceToken: async () => {
@@ -246,12 +246,12 @@ describe('QwenOAuthDeviceFlowProvider.poll() — stderr audit branches', () => {
   it('logs <non-Error throw: typeof> placeholder when a non-Error value is thrown', async () => {
     // `throw 'string'` is bad practice but fetch wrappers sometimes
     // do it (or `throw { code: 'X' }`). The catch block writes a
-    // typeof-bound placeholder and gives up on extracting more —
+    // typeof-bound placeholder and gives up on extracting more --
     // the typed return shape (`upstream_error`) carries enough for
     // the SSE consumer.
     // The catch in poll() must handle non-Error throws. We wrap the
     // raw throw inside a sync function called from the async path so
-    // the lint rule against literal throws can stay enabled — the
+    // the lint rule against literal throws can stay enabled -- the
     // reject value is what we're testing, not the throw idiom.
     const nonErrorThrower = (): never => {
       const value: unknown = 'this is not an Error instance';
@@ -304,7 +304,7 @@ describe('QwenOAuthDeviceFlowProvider.poll() — stderr audit branches', () => {
     // PR #4291 follow-up review (gpt-5.5, #2): the OAuth `error` field
     // comes directly from the upstream JSON. A compromised IdP / WAF
     // / proxy can return a value containing newlines, terminal control
-    // characters, or ANSI escape sequences — interpolating that
+    // characters, or ANSI escape sequences -- interpolating that
     // verbatim into a stderr line would forge additional log entries
     // or inject color/cursor-movement sequences into operator
     // terminals. `sanitizeForStderr` strips C0/C1 controls + DEL.
@@ -337,7 +337,7 @@ describe('QwenOAuthDeviceFlowProvider.poll() — stderr audit branches', () => {
     // Newline inside the value is gone.
     expect(line).not.toMatch(/\n\[serve\] FORGED/);
     // The literal text after the controls is preserved (operator can
-    // still see what the IdP claimed) — only the harmful bytes are
+    // still see what the IdP claimed) -- only the harmful bytes are
     // replaced.
     expect(line).toContain('FORGED LOG ENTRY');
     expect(line).toContain('RED');

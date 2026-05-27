@@ -148,7 +148,7 @@ describe('handleUpdate', () => {
         expect.any(Function),
       );
       expect(mockWriteStdoutLine).toHaveBeenCalledWith(
-        'Extension "test-extension" successfully updated: 1.0.0 → 2.0.0.',
+        'Extension "test-extension" successfully updated: 1.0.0 -> 2.0.0.',
       );
     });
 
@@ -220,8 +220,8 @@ describe('handleUpdate', () => {
       await handleUpdate({ all: true });
 
       expect(mockWriteStdoutLine).toHaveBeenCalledWith(
-        'Extension "extension-1" successfully updated: 1.0.0 → 2.0.0.\n' +
-          'Extension "extension-2" successfully updated: 1.0.0 → 1.5.0.',
+        'Extension "extension-1" successfully updated: 1.0.0 -> 2.0.0.\n' +
+          'Extension "extension-2" successfully updated: 1.0.0 -> 1.5.0.',
       );
     });
 
@@ -243,7 +243,7 @@ describe('handleUpdate', () => {
       await handleUpdate({ all: true });
 
       expect(mockWriteStdoutLine).toHaveBeenCalledWith(
-        'Extension "extension-1" successfully updated: 1.0.0 → 2.0.0.',
+        'Extension "extension-1" successfully updated: 1.0.0 -> 2.0.0.',
       );
     });
 

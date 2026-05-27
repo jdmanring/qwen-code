@@ -9,16 +9,16 @@
  * notifications, tab status indicators, and multiplexer passthrough.
  */
 
-// ── Escape sequence primitives ──────────────────────────────────────
+// -- Escape sequence primitives --------------------------------------
 
 export const ESC = '\x1b';
 export const BEL = '\x07';
-/** String Terminator — used by Kitty instead of BEL */
+/** String Terminator -- used by Kitty instead of BEL */
 export const ST = ESC + '\\';
 export const OSC_PREFIX = ESC + ']';
 const SEP = ';';
 
-// ── OSC type codes ──────────────────────────────────────────────────
+// -- OSC type codes --------------------------------------------------
 
 export const OSC = {
   /** iTerm2 notification / progress */
@@ -29,7 +29,7 @@ export const OSC = {
   GHOSTTY: 777,
 } as const;
 
-// ── Terminal type detection ─────────────────────────────────────────
+// -- Terminal type detection -----------------------------------------
 
 export type TerminalType =
   | 'iTerm.app'
@@ -43,11 +43,11 @@ export type TerminalType =
  *
  * Strategy: check TERM_PROGRAM first (identifies the actual emulator),
  * then fall back to TERM (describes capabilities, but Ghostty/Kitty set
- * distinctive TERM values when TERM_PROGRAM is absent — e.g. over SSH
+ * distinctive TERM values when TERM_PROGRAM is absent -- e.g. over SSH
  * or inside multiplexers), and finally check terminal-specific env vars.
  */
 export function detectTerminal(): TerminalType {
-  // 1. TERM_PROGRAM — most reliable for identifying the emulator
+  // 1. TERM_PROGRAM -- most reliable for identifying the emulator
   const termProgram = process.env['TERM_PROGRAM'];
   switch (termProgram) {
     case 'iTerm.app':
@@ -62,7 +62,7 @@ export function detectTerminal(): TerminalType {
       break;
   }
 
-  // 2. TERM — Ghostty and Kitty set distinctive TERM values even when
+  // 2. TERM -- Ghostty and Kitty set distinctive TERM values even when
   //    TERM_PROGRAM is absent (SSH sessions, multiplexers)
   if (process.env['TERM'] === 'xterm-ghostty') {
     return 'ghostty';
@@ -77,7 +77,7 @@ export function detectTerminal(): TerminalType {
   return 'unknown';
 }
 
-// ── Sanitization ───────────────────────────────────────────────────
+// -- Sanitization ---------------------------------------------------
 
 /**
  * Strip control characters that could break out of an OSC payload.
@@ -90,7 +90,7 @@ export function sanitizeOscPayload(text: string): string {
   return text.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f\x80-\x9f]/g, '');
 }
 
-// ── Core OSC builders ───────────────────────────────────────────────
+// -- Core OSC builders -----------------------------------------------
 
 /**
  * Build an OSC escape sequence from parts.
@@ -120,7 +120,7 @@ export function osc(...parts: Array<string | number>): string {
  * - tmux: DCS `\ePtmux;\e<seq>\e\\` with ESC doubling inside
  * - screen: DCS `\eP<seq>\e\\`
  *
- * BEL should NOT be wrapped — raw BEL triggers tmux's bell-action,
+ * BEL should NOT be wrapped -- raw BEL triggers tmux's bell-action,
  * whereas a wrapped BEL becomes an opaque DCS payload and is ignored.
  */
 export function wrapForMultiplexer(sequence: string): string {
@@ -135,7 +135,7 @@ export function wrapForMultiplexer(sequence: string): string {
   return sequence;
 }
 
-// ── Encoding helpers ───────────────────────────────────────────────
+// -- Encoding helpers -----------------------------------------------
 
 /**
  * Base64-encode a UTF-8 string for Kitty OSC 99 payloads.
@@ -146,7 +146,7 @@ export function encodeKittyPayload(text: string): string {
   return Buffer.from(text, 'utf8').toString('base64');
 }
 
-// ── Notification helpers ────────────────────────────────────────────
+// -- Notification helpers --------------------------------------------
 
 /**
  * iTerm2 notification via OSC 9.

@@ -171,9 +171,9 @@ export abstract class ChannelBase {
     this.registerCommand('help', async (envelope) => {
       const lines = [
         'Commands:',
-        '/help — Show this help',
-        '/clear — Clear your session (aliases: /reset, /new)',
-        '/status — Show session info',
+        '/help -- Show this help',
+        '/clear -- Clear your session (aliases: /reset, /new)',
+        '/status -- Show session info',
       ];
 
       // Platform-specific commands (registered by adapters, not shared ones)
@@ -191,7 +191,7 @@ export abstract class ChannelBase {
       if (agentCommands.length > 0) {
         lines.push('', 'Agent commands (forwarded to Qwen Code):');
         for (const cmd of agentCommands) {
-          lines.push(`/${cmd.name} — ${cmd.description}`);
+          lines.push(`/${cmd.name} -- ${cmd.description}`);
         }
       }
 
@@ -239,7 +239,7 @@ export abstract class ChannelBase {
     // 1. Group gate: policy + allowlist + mention gating
     const groupResult = this.groupGate.check(envelope);
     if (!groupResult.allowed) {
-      return; // silently drop — no pairing, no reply
+      return; // silently drop -- no pairing, no reply
     }
 
     // 2. Sender gate: allowlist / pairing / open
@@ -251,7 +251,7 @@ export abstract class ChannelBase {
       return;
     }
 
-    // 3. Slash command handling — before session/agent routing
+    // 3. Slash command handling -- before session/agent routing
     const parsed = this.parseCommand(envelope.text);
     if (parsed) {
       const handler = this.commands.get(parsed.command);
@@ -304,7 +304,7 @@ export abstract class ChannelBase {
       this.instructedSessions.add(sessionId);
     }
 
-    // Resolve dispatch mode: per-group override → channel config → default
+    // Resolve dispatch mode: per-group override -> channel config -> default
     const groupCfg = envelope.isGroup
       ? this.config.groups[envelope.chatId] || this.config.groups['*']
       : undefined;
@@ -341,7 +341,7 @@ export abstract class ChannelBase {
           break;
         }
         default: {
-          // Exhaustive check — should never happen
+          // Exhaustive check -- should never happen
           const _exhaustive: never = mode;
           throw new Error(`Unknown dispatch mode: ${_exhaustive}`);
         }
@@ -410,7 +410,7 @@ export abstract class ChannelBase {
           const syntheticEnvelope: Envelope = {
             ...lastEnvelope,
             text: coalesced,
-            // Clear attachments/references — already resolved in original text
+            // Clear attachments/references -- already resolved in original text
             referencedText: undefined,
             attachments: undefined,
             imageBase64: undefined,

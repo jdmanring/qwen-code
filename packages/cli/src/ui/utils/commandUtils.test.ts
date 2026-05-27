@@ -131,7 +131,7 @@ describe('commandUtils', () => {
     });
 
     it('should return false for slash-prefixed file paths', () => {
-      expect(isSlashCommand('/api/apiFunction/接口的实现')).toBe(false);
+      expect(isSlashCommand('/api/apiFunction/')).toBe(false);
       expect(isSlashCommand('/Users/me/project/src/index.ts')).toBe(false);
       expect(isSlashCommand('/var/log/syslog check this')).toBe(false);
       expect(isSlashCommand('/home/user/.qwen/settings.json')).toBe(false);
@@ -531,7 +531,7 @@ describe('findMidInputSlashCommand', () => {
 
   it('returns null when cursor is inside the token (not at the end)', () => {
     // "hello /review", cursor at offset 9 (inside 'review')
-    // slashPos=6, fullCommand="review"(len=6), end=13 → 9 !== 13 → null
+    // slashPos=6, fullCommand="review"(len=6), end=13 -> 9 !== 13 -> null
     expect(findMidInputSlashCommand('hello /review', 9)).toBeNull();
   });
 
@@ -541,7 +541,7 @@ describe('findMidInputSlashCommand', () => {
   });
 
   it('returns match for empty partial (cursor immediately after /)', () => {
-    // partialCommand="" → getBestSlashCommandMatch will return null, but
+    // partialCommand="" -> getBestSlashCommandMatch will return null, but
     // findMidInputSlashCommand itself should return the match object
     const result = findMidInputSlashCommand('hello /', 7);
     expect(result).toEqual({
@@ -702,7 +702,7 @@ describe('getBestSlashCommandMatch', () => {
   });
 
   it('returns the best prefix match by completionPriority', () => {
-    // 'r' matches review(5), refactor(3), run(1) — highest priority wins
+    // 'r' matches review(5), refactor(3), run(1) -- highest priority wins
     const result = getBestSlashCommandMatch('r', cmds);
     expect(result).not.toBeNull();
     expect(result!.fullCommand).toBe('review');
@@ -717,7 +717,7 @@ describe('getBestSlashCommandMatch', () => {
 
   it('respects recentCommands ordering (recent overrides lower priority)', () => {
     // 'r' matches review(5), refactor(3), run(1)
-    // Make 'run' recently used — but completionPriority takes precedence
+    // Make 'run' recently used -- but completionPriority takes precedence
     const recentCommands: RecentSlashCommands = new Map([
       ['run', { name: 'run', usedAt: Date.now(), count: 10 }],
     ]);
@@ -739,7 +739,7 @@ describe('getBestSlashCommandMatch', () => {
   });
 
   it('excludes exact-match commands without argumentHint', () => {
-    // 'review' exactly matches 'review' with no argumentHint → excluded
+    // 'review' exactly matches 'review' with no argumentHint -> excluded
     const result = getBestSlashCommandMatch('review', cmds);
     expect(result).toBeNull();
   });

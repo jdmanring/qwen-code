@@ -16,7 +16,7 @@ The `/loop` [bundled skill](skills.md) is the quickest way to schedule a recurri
 /loop 5m check if the deployment finished and tell me what happened
 ```
 
-Qwen Code parses the interval, converts it to a cron expression, schedules the job, and confirms the cadence and job ID. It then immediately executes the prompt once — you don't have to wait for the first cron fire.
+Qwen Code parses the interval, converts it to a cron expression, schedules the job, and confirms the cadence and job ID. It then immediately executes the prompt once -- you don't have to wait for the first cron fire.
 
 ### Interval syntax
 
@@ -111,7 +111,7 @@ The offset is derived from the task ID, so the same task always gets the same of
 
 Recurring tasks automatically expire 3 days after creation. The task fires one final time, then deletes itself. This bounds how long a forgotten loop can run. If you need a recurring task to last longer, cancel and recreate it before it expires.
 
-One-shot tasks do not expire on a timer — they simply delete themselves after firing once.
+One-shot tasks do not expire on a timer -- they simply delete themselves after firing once.
 
 ## Cron expression reference
 
@@ -126,7 +126,7 @@ One-shot tasks do not expire on a timer — they simply delete themselves after 
 | `0 9 * * 1-5`  | Weekdays at 9am local        |
 | `30 14 15 3 *` | March 15 at 2:30pm local     |
 
-Day-of-week uses `0` or `7` for Sunday through `6` for Saturday. When both day-of-month and day-of-week are constrained (neither is `*`), a date matches if either field matches — this follows standard vixie-cron semantics.
+Day-of-week uses `0` or `7` for Sunday through `6` for Saturday. When both day-of-month and day-of-week are constrained (neither is `*`), a date matches if either field matches -- this follows standard vixie-cron semantics.
 
 Extended syntax like `L`, `W`, `?`, and name aliases such as `MON` or `JAN` is not supported.
 

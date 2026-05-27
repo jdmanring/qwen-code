@@ -44,7 +44,7 @@ export interface SessionPickerProps {
   initialSessions?: SessionData[];
 
   /**
-   * Enable Space-to-preview. Off by default — preview's Enter shortcut
+   * Enable Space-to-preview. Off by default -- preview's Enter shortcut
    * forwards to `onSelect`, which for resume flows is "resume", but for
    * destructive flows (e.g. delete) would commit the action. Only opt in
    * for non-destructive selection flows.
@@ -77,9 +77,9 @@ export interface SessionPickerProps {
 }
 
 const PREFIX_CHARS = {
-  selected: '› ',
-  scrollUp: '↑ ',
-  scrollDown: '↓ ',
+  selected: ' ',
+  scrollUp: ' ',
+  scrollDown: ' ',
   normal: '  ',
 };
 
@@ -100,7 +100,7 @@ interface SessionListItemViewProps {
   boldSelectedPrefix?: boolean;
   /** When defined, render a leading `[x]`/`[ ]` checkbox. */
   isChecked?: boolean;
-  /** Item cannot be checked — render dim and append a hint. */
+  /** Item cannot be checked -- render dim and append a hint. */
   isDisabled?: boolean;
   /** Reason text shown beside disabled rows (e.g. "current"). */
   disabledHint?: string;
@@ -122,7 +122,7 @@ function SessionListItemView({
 }: SessionListItemViewProps): React.JSX.Element {
   const timeAgo = formatRelativeTime(session.mtime);
   // `messageCount` is now optional on `SessionListItem` because counting
-  // requires a full readline pass over the JSONL — far too expensive to do
+  // requires a full readline pass over the JSONL -- far too expensive to do
   // in the listing path. The row simply omits the "N messages" segment
   // when the count isn't available; preview-style consumers that care can
   // call `SessionService.countSessionMessages(sessionId)` lazily.
@@ -152,7 +152,7 @@ function SessionListItemView({
   );
   // Dim auto-generated titles so users can distinguish a model guess from
   // a title they chose themselves with `/rename`. Selected row keeps the
-  // accent color — legibility of the focused row wins over source hinting.
+  // accent color -- legibility of the focused row wins over source hinting.
   const isAutoTitle =
     session.titleSource === 'auto' && Boolean(session.customTitle);
 
@@ -205,9 +205,9 @@ function SessionListItemView({
       <Box paddingLeft={2}>
         <Text color={theme.text.secondary}>
           {timeAgo}
-          {messageText !== undefined && ` · ${messageText}`}
-          {session.gitBranch && ` · ${session.gitBranch}`}
-          {isDisabled && disabledHint ? ` · ${disabledHint}` : ''}
+          {messageText !== undefined && `  ${messageText}`}
+          {session.gitBranch && `  ${session.gitBranch}`}
+          {isDisabled && disabledHint ? `  ${disabledHint}` : ''}
         </Text>
       </Box>
     </Box>
@@ -236,7 +236,7 @@ export function SessionPicker(props: SessionPickerProps) {
   // Calculate visible items.
   // Reserved space: header (1), search row (1), footer (1), separators (2),
   // borders (2). The search row is rendered as a thin "Press / to search"
-  // hint in list mode and a live query in search mode — same height in
+  // hint in list mode and a live query in search mode -- same height in
   // both, so the visible-item count doesn't shift between modes.
   const reservedLines = 7;
   // Each item takes 2 lines (prompt + metadata) + 1 line margin between items
@@ -320,11 +320,11 @@ export function SessionPicker(props: SessionPickerProps) {
           )}
         </Box>
 
-        {/* Search row — three states share this row at constant height so
+        {/* Search row -- three states share this row at constant height so
             the visible-item count doesn't shift between them:
-              - search: "Search: <query>▌" (live editing, caret visible)
+              - search: "Search: <query>" (live editing, caret visible)
               - list + non-empty query: "Filter: <query>" (read-only,
-                no caret — user has stopped typing but the filter sticks)
+                no caret -- user has stopped typing but the filter sticks)
               - list + empty query: "Press / to search" hint */}
         <Box paddingX={1}>
           {picker.isSearchActive ? (
@@ -332,7 +332,7 @@ export function SessionPicker(props: SessionPickerProps) {
               <Text color={theme.text.secondary}>{t('Search: ')}</Text>
               <Text color={theme.text.primary}>
                 {picker.searchQuery}
-                <Text color={theme.text.secondary}>▌</Text>
+                <Text color={theme.text.secondary}></Text>
               </Text>
             </>
           ) : picker.searchQuery !== '' ? (
@@ -347,7 +347,7 @@ export function SessionPicker(props: SessionPickerProps) {
 
         {/* Separator */}
         <Box>
-          <Text color={theme.border.default}>{'─'.repeat(boxWidth - 2)}</Text>
+          <Text color={theme.border.default}>{'-'.repeat(boxWidth - 2)}</Text>
         </Box>
 
         {/* Session list */}
@@ -399,7 +399,7 @@ export function SessionPicker(props: SessionPickerProps) {
                   isDisabled={enableMultiSelect && isDisabled}
                   disabledHint={
                     enableMultiSelect && isDisabled
-                      ? t('current — cannot delete')
+                      ? t('current -- cannot delete')
                       : undefined
                   }
                 />
@@ -410,7 +410,7 @@ export function SessionPicker(props: SessionPickerProps) {
 
         {/* Separator */}
         <Box>
-          <Text color={theme.border.default}>{'─'.repeat(boxWidth - 2)}</Text>
+          <Text color={theme.border.default}>{'-'.repeat(boxWidth - 2)}</Text>
         </Box>
 
         {/* Footer */}
@@ -418,7 +418,7 @@ export function SessionPicker(props: SessionPickerProps) {
           <Box flexDirection="row">
             {picker.isSearchActive ? (
               <Text color={theme.text.secondary}>
-                {t('Type to search · Enter to commit · Esc to clear')}
+                {t('Type to search  Enter to commit  Esc to clear')}
               </Text>
             ) : (
               <>
@@ -432,18 +432,18 @@ export function SessionPicker(props: SessionPickerProps) {
                     >
                       Ctrl+B
                     </Text>
-                    {t(' to toggle branch · ')}
+                    {t(' to toggle branch  ')}
                   </Text>
                 )}
                 {enablePreview && (
                   <Text color={theme.text.secondary}>
-                    {t('Space to preview · ')}
+                    {t('Space to preview  ')}
                   </Text>
                 )}
                 {enableMultiSelect &&
                   (() => {
                     // Count every checked id that's also committable
-                    // (not disabled) — regardless of whether the current
+                    // (not disabled) -- regardless of whether the current
                     // filter happens to hide it. This is the exact set
                     // Enter will commit, so the footer can't drift from
                     // it (no more "0 selected" while the user has 3
@@ -457,15 +457,15 @@ export function SessionPicker(props: SessionPickerProps) {
                     return (
                       <Text color={theme.text.secondary}>
                         {committableCheckedCount > 0
-                          ? t('Space to toggle · {{count}} selected · ', {
+                          ? t('Space to toggle  {{count}} selected  ', {
                               count: String(committableCheckedCount),
                             })
-                          : t('Space to select multiple · ')}
+                          : t('Space to select multiple  ')}
                       </Text>
                     );
                   })()}
                 <Text color={theme.text.secondary}>
-                  {t('↑↓ to navigate · Type to search · Esc to cancel')}
+                  {t(' to navigate  Type to search  Esc to cancel')}
                 </Text>
               </>
             )}

@@ -54,7 +54,7 @@ export const COMPACT_MAX_OUTPUT_TOKENS = 20_000;
 
 /**
  * Default proportional auto-compaction threshold. Used as a small-window
- * fallback / safety net inside computeThresholds — when the window is so
+ * fallback / safety net inside computeThresholds -- when the window is so
  * small that the absolute branch becomes degenerate, the proportional
  * branch keeps the trigger usable.
  */
@@ -77,7 +77,7 @@ export const SUMMARY_RESERVE = COMPACT_MAX_OUTPUT_TOKENS; // 20_000
 
 /**
  * Distance between auto threshold and effectiveWindow. Matches claude-code's
- * AUTOCOMPACT_BUFFER_TOKENS (autoCompact.ts:62) — empirically chosen to leave
+ * AUTOCOMPACT_BUFFER_TOKENS (autoCompact.ts:62) -- empirically chosen to leave
  * headroom for the compaction sideQuery round-trip plus a few user-message
  * turns before the window saturates.
  */
@@ -85,7 +85,7 @@ export const AUTOCOMPACT_BUFFER = 13_000;
 
 /**
  * Distance between warn threshold and auto threshold. Matches claude-code's
- * WARNING_THRESHOLD_BUFFER_TOKENS (autoCompact.ts:63) — sized so the warn
+ * WARNING_THRESHOLD_BUFFER_TOKENS (autoCompact.ts:63) -- sized so the warn
  * tier fires a couple of turns before auto-compaction in practice.
  */
 export const WARN_BUFFER = 20_000;
@@ -125,12 +125,12 @@ export interface CompactionThresholds {
  * the absolute branch, capping wasted reservation to ~33K instead of 30%
  * of the window.
  *
- * Pure function — no I/O, no shared state — safe to call repeatedly.
+ * Pure function -- no I/O, no shared state -- safe to call repeatedly.
  */
 export function computeThresholds(window: number): CompactionThresholds {
   // Clamp to 0 for tiny windows (window < SUMMARY_RESERVE) so the surfaced
   // value in `/context` stays meaningful. The Math.max guards on auto/warn/hard
-  // below absorb the floor — clamping does not shift those outputs because
+  // below absorb the floor -- clamping does not shift those outputs because
   // each is `max(proportional, absolute)` and the proportional branch
   // dominates whenever the absolute branch goes negative.
   const effectiveWindow = Math.max(0, window - SUMMARY_RESERVE);
@@ -188,16 +188,16 @@ function splitPointRetainingTrailingPairs(
  *
  * 1. **Scan:** walk left-to-right looking for the first non-functionResponse
  *    user message that lands past `fraction` of total chars. That's the
- *    "clean" split — the kept slice starts with a fresh user prompt.
+ *    "clean" split -- the kept slice starts with a fresh user prompt.
  *
  * 2. **Fallbacks** (no clean split found): the gate that gets us here has
  *    already decided we need to compress, so all three fallbacks bias toward
  *    *more* compression rather than less:
  *
- *    - last entry is `model` without functionCall → compress everything.
- *    - last entry is `user` with functionResponse → compress everything (the
+ *    - last entry is `model` without functionCall -> compress everything.
+ *    - last entry is `user` with functionResponse -> compress everything (the
  *      trailing tool round is complete; no orphans).
- *    - last entry is `model` with functionCall (in-flight) → compress
+ *    - last entry is `model` with functionCall (in-flight) -> compress
  *      everything except the trailing call plus the last `retainCount`
  *      complete tool rounds. The kept slice may start with `model+fc`;
  *      callers must inject a synthetic continuation user message between
@@ -227,7 +227,7 @@ export function findCompressSplitPoint(
   // use `DEFAULT_IMAGE_TOKEN_ESTIMATE` rather than the user's resolved
   // setting / env override. The only production caller is `compress()`,
   // which always passes precomputed counts, so the fallback is a
-  // test-friendly default — not a behavior path users can influence.
+  // test-friendly default -- not a behavior path users can influence.
   // Production callers MUST pass `precomputedCharCounts`.
   const charCounts =
     precomputedCharCounts ??
@@ -277,7 +277,7 @@ export interface CompressOptions {
    * `computeThresholds(contextWindowSize).auto` for the auto-compaction
    * gate, optionally augmented by the pending user message's estimated
    * token count via `estimatePromptTokens` (see Task 3 / Task 6). Callers
-   * source this from the per-chat counter (main session, subagents alike) —
+   * source this from the per-chat counter (main session, subagents alike) --
    * the service does not read or write any global telemetry.
    */
   originalTokenCount: number;
@@ -300,8 +300,8 @@ export interface CompressOptions {
    * Pre-computed effective-token count from `estimatePromptTokens()`. When
    * provided, the cheap-gate skips its own estimation pass (and the
    * accompanying `chat.getHistoryShallow(true)` clone). Callers that already
-   * computed this value upstream — primarily `sendMessageStream` for the
-   * hard-tier rescue — pass it through to avoid duplicate work.
+   * computed this value upstream -- primarily `sendMessageStream` for the
+   * hard-tier rescue -- pass it through to avoid duplicate work.
    * (review #4168 R1.3 / R1.4)
    */
   precomputedEffectiveTokens?: number;
@@ -326,7 +326,7 @@ export class ChatCompressionService {
     const chatCompressionSettings = config.getChatCompression();
     const slimmingConfig = resolveSlimmingConfig(chatCompressionSettings);
 
-    // Cheap gates first — these don't need the curated history. Forward
+    // Cheap gates first -- these don't need the curated history. Forward
     // originalTokenCount on NOOP (matching the threshold-gate branch below)
     // so telemetry consumers can distinguish "breaker tripped at N tokens"
     // from "session has zero tokens".
@@ -412,8 +412,8 @@ export class ChatCompressionService {
     // funcResponse never arrived, the user-initiated /compress between
     // turns can safely drop it before computing the split point.
     //
-    // Both automatic paths (trigger='auto') — cheap-gate (force=false) AND
-    // hard-rescue (force=true) — must NOT strip. They fire inside
+    // Both automatic paths (trigger='auto') -- cheap-gate (force=false) AND
+    // hard-rescue (force=true) -- must NOT strip. They fire inside
     // sendMessageStream() BEFORE the pending funcResponse is pushed onto
     // history, so the trailing funcCall is still active, not orphaned.
     //
@@ -543,7 +543,7 @@ export class ChatCompressionService {
 
     // Defensive guard: if the side-query hit COMPACT_MAX_OUTPUT_TOKENS, the
     // summary is likely truncated mid-content and unsafe to persist. Drop it
-    // and surface as a failure so the consecutive-failure breaker counts it —
+    // and surface as a failure so the consecutive-failure breaker counts it --
     // if the model consistently produces max-length summaries we want to stop
     // trying after MAX_CONSECUTIVE_FAILURES strikes rather than burn an API
     // call on every send. Reactive overflow still catches the catastrophic
@@ -573,8 +573,8 @@ export class ChatCompressionService {
           originalTokenCount,
           newTokenCount: originalTokenCount,
           // Distinct from EMPTY_SUMMARY so telemetry / logs can tell a
-          // prompt-quality failure (empty summary → tune prompt / splitter)
-          // apart from a capacity failure (output cap hit → raise cap or
+          // prompt-quality failure (empty summary -> tune prompt / splitter)
+          // apart from a capacity failure (output cap hit -> raise cap or
           // shrink splitter input). isCompressionFailureStatus() treats both
           // as failures so the persistence behaviour is unchanged. (R5.2)
           compressionStatus:

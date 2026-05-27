@@ -3,7 +3,7 @@
 ## Component Identity
 `settings.schema.json` is the formal JSON Schema that validates the global `settings.json` file. It ensures that all configuration keys are present, have the correct types, and fall within allowed ranges.
 
-## 🛠️ Implementation Status
+##  Implementation Status
 
 **Status: Declarative**
 

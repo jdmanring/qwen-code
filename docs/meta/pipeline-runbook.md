@@ -31,13 +31,13 @@ The pipeline checks these automatically at startup (pre-flight). If pre-flight f
 
 ---
 
-## Normal Run — Expected Output
+## Normal Run -- Expected Output
 
 ```
 [INFO] Running pre-flight checks...
 [OK]   Pre-flight passed.
 [INFO] Fetching upstream/main...
-[OK]   Already up to date — nothing to sync.      ← if no new upstream commits
+[OK]   Already up to date -- nothing to sync.      <- if no new upstream commits
 ```
 
 or, when upstream has new commits:
@@ -56,9 +56,9 @@ or, when upstream has new commits:
 [OK]   Boot gate passed.
 [INFO] Gate 2/3: Ruff lint...
 [OK]   Lint gate passed.
-[INFO] Gate 3/3: Symmetry check (config ↔ docs)...
+[INFO] Gate 3/3: Symmetry check (config <-> docs)...
 [OK]   Symmetry gate passed.
-[INFO] Promoting sync/staging-... → integration...
+[INFO] Promoting sync/staging-... -> integration...
 [OK]   Tagged as LKG-20260523-0426.
 [OK]   Pipeline complete. LKG tag: LKG-20260523-0426
 ```
@@ -76,7 +76,7 @@ git checkout integration
 
 **"Missing required remotes"**
 ```bash
-# upstream = jdmanring/qwen-code (our fork of QwenLM) — NOT QwenLM directly
+# upstream = jdmanring/qwen-code (our fork of QwenLM) -- NOT QwenLM directly
 git remote add upstream https://github.com/jdmanring/qwen-code.git
 git remote add origin https://github.com/jdmanring/megalonyx-monorepo.git
 ```
@@ -90,12 +90,12 @@ git diff HEAD    # inspect, then commit or discard
 
 ---
 
-### PIPELINE_ERROR — Merge Conflict
+### PIPELINE_ERROR -- Merge Conflict
 
 The pipeline aborts and leaves `integration` untouched. The error lists the conflicting files.
 
 ```
-Merge conflict — manual resolution required:
+Merge conflict -- manual resolution required:
   path/to/file.py
 
 Resolve, commit, then re-run the ingest pipeline.
@@ -103,15 +103,15 @@ Resolve, commit, then re-run the ingest pipeline.
 
 **Recovery:**
 1. The staging branch has already been deleted. `integration` is clean.
-2. Manually reconcile the conflict — either update `integration` to be compatible with upstream, or document why the divergence is intentional.
+2. Manually reconcile the conflict -- either update `integration` to be compatible with upstream, or document why the divergence is intentional.
 3. Re-run the pipeline.
 
 ---
 
-### VERIFICATION failure — Gate 1: Boot
+### VERIFICATION failure -- Gate 1: Boot
 
 ```
-[FAIL] Boot gate failed — lockfile out of sync:
+[FAIL] Boot gate failed -- lockfile out of sync:
        error: Unable to find lockfile at `uv.lock`...
 Fix with: uv lock
 ```
@@ -128,7 +128,7 @@ git commit -m "fix: regenerate uv.lock after upstream dependency change"
 
 ---
 
-### VERIFICATION failure — Gate 2: Lint
+### VERIFICATION failure -- Gate 2: Lint
 
 ```
 [FAIL] Lint gate failed. Auto-fix attempt: uv run ruff check --fix .
@@ -148,7 +148,7 @@ git commit -m "fix(lint): resolve upstream ruff violations"
 
 ---
 
-### VERIFICATION failure — Gate 3: Symmetry
+### VERIFICATION failure -- Gate 3: Symmetry
 
 ```
 [FAIL] Symmetry gate failed. config/ and docs/ are out of sync.
@@ -216,7 +216,7 @@ git tag -l "LKG-*" | sort -r | head -10
 # Inspect a tag without changing branch
 git show LKG-20260523-0426
 
-# Roll back integration to a prior LKG (destructive — confirm first)
+# Roll back integration to a prior LKG (destructive -- confirm first)
 git checkout integration
 git reset --hard LKG-20260523-0426
 ```
@@ -229,14 +229,14 @@ After a rollback, the pipeline can be re-run to attempt a fresh sync from the cu
 
 Absorbing new QwenLM commits requires two scripts, run in order:
 
-**Step 1 — sync the fork from QwenLM:**
+**Step 1 -- sync the fork from QwenLM:**
 ```bash
 # Sync jdmanring/qwen-code fork to match QwenLM/qwen-code main
 python3 tooling/sync-upstreams/fork_sync_pipeline.py --sync
 ```
 This prompts `y/N` for confirmation. It fetches QwenLM commits and fast-forward pushes them to `upstream` (our fork). Must be run before the ingest pipeline, because the pipeline fetches from the fork, not from QwenLM directly.
 
-**Step 2 — ingest from the fork into integration:**
+**Step 2 -- ingest from the fork into integration:**
 ```bash
 git checkout integration
 python3 tooling/sync-upstreams/upstream_ingest_pipeline.py
@@ -244,7 +244,7 @@ python3 tooling/sync-upstreams/upstream_ingest_pipeline.py
 
 This is the normal pipeline run. It fetches from `upstream/main` (the fork, now up to date), runs the three gates, and promotes to `integration`.
 
-**Step 3 — fast-forward develop:**
+**Step 3 -- fast-forward develop:**
 ```bash
 git checkout develop
 git merge integration --ff-only
@@ -270,13 +270,13 @@ Contribution branches are based on `upstream/main`, which has a different workin
 
 | File | Conflict type | Resolution |
 | :--- | :--- | :--- |
-| `pnpm-lock.yaml` | DU (deleted-by-us) | `git rm pnpm-lock.yaml` — it doesn't exist on upstream/main |
+| `pnpm-lock.yaml` | DU (deleted-by-us) | `git rm pnpm-lock.yaml` -- it doesn't exist on upstream/main |
 | `package.json` (root) | UU | `git checkout --ours` (take QwenLM's), then manually re-apply version bumps |
-| Test files (`.test.ts`) | UU | `git checkout --theirs` (take our version) — diffs are typically auto-fix formatting |
+| Test files (`.test.ts`) | UU | `git checkout --theirs` (take our version) -- diffs are typically auto-fix formatting |
 
 After resolving: `git add` the resolved files, then `git cherry-pick --continue`.
 
-The pre-commit hook conditionally skips `project_standards_linter.py` when `tooling/` is absent (contribution branches based on `upstream/main` don't have it). This is expected — the hook will print `skipped — tooling not present on this branch`.
+The pre-commit hook conditionally skips `project_standards_linter.py` when `tooling/` is absent (contribution branches based on `upstream/main` don't have it). This is expected -- the hook will print `skipped -- tooling not present on this branch`.
 
 ---
 

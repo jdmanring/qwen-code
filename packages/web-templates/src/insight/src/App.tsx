@@ -107,7 +107,7 @@ function InsightApp({ data }: { data: InsightData }) {
               {data.totalMessages
                 ? `${data.totalMessages.toLocaleString()} messages across ${data.totalSessions?.toLocaleString()} sessions`
                 : 'Your personalized coding journey and patterns'}
-              {dateRangeStr && ` · ${dateRangeStr}`}
+              {dateRangeStr && `  ${dateRangeStr}`}
             </p>
           </div>
 

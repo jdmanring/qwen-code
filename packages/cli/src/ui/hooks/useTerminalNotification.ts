@@ -20,7 +20,7 @@ import {
   oscGhosttyNotify,
 } from '../../utils/osc.js';
 
-// ── Types ──────────────────────────────────────────────────────────
+// -- Types ----------------------------------------------------------
 
 type WriteRaw = (data: string) => void;
 
@@ -31,7 +31,7 @@ export interface TerminalNotification {
   notifyBell: () => void;
 }
 
-// ── Factory (no React context needed) ──────────────────────────────
+// -- Factory (no React context needed) ------------------------------
 
 /**
  * Build a TerminalNotification object from a raw write function.
@@ -55,7 +55,7 @@ export function buildTerminalNotification(
       writeRaw(wrapForMultiplexer(oscGhosttyNotify(title, message)));
     },
     notifyBell() {
-      // Raw BEL — inside tmux this triggers tmux's bell-action (window flag).
+      // Raw BEL -- inside tmux this triggers tmux's bell-action (window flag).
       // Wrapping would make it opaque DCS payload and lose that fallback.
       writeRaw(BEL);
     },

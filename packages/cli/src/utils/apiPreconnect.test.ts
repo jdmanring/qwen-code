@@ -18,8 +18,8 @@ const { mockGetOrCreateSharedDispatcher, mockDebugLogger } = vi.hoisted(() => {
 });
 
 // Mock fetch. apiPreconnect.ts now uses `import { fetch } from 'undici'`
-// rather than the global fetch, so we have to intercept the module export —
-// vi.stubGlobal('fetch', …) would not catch the named import.
+// rather than the global fetch, so we have to intercept the module export --
+// vi.stubGlobal('fetch', ...) would not catch the named import.
 const { mockFetch } = vi.hoisted(() => ({
   mockFetch: vi.fn().mockResolvedValue(undefined),
 }));
@@ -240,13 +240,13 @@ describe('apiPreconnect', () => {
     });
 
     it('should retry when targetUrl was unavailable on first call', () => {
-      // First call: unknown authType, no resolvedBaseUrl → no targetUrl
+      // First call: unknown authType, no resolvedBaseUrl -> no targetUrl
       preconnectApi('unknown-auth', {
         proxy: 'http://proxy.example.com:8080',
       });
       expect(mockFetch).not.toHaveBeenCalled();
 
-      // Second call: valid authType → should fire
+      // Second call: valid authType -> should fire
       preconnectApi('qwen-oauth', {
         proxy: 'http://proxy.example.com:8080',
       });

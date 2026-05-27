@@ -61,7 +61,7 @@ describe('DeepSeekOpenAICompatibleProvider', () => {
       expect(result).toBe(false);
     });
 
-    it('returns true for deepseek model on a non-deepseek baseUrl (e.g. sglang) — issue #3613', () => {
+    it('returns true for deepseek model on a non-deepseek baseUrl (e.g. sglang) -- issue #3613', () => {
       const config = {
         ...mockContentGeneratorConfig,
         baseUrl: 'https://my-sglang.example.com:8000/v1',
@@ -179,7 +179,7 @@ describe('DeepSeekOpenAICompatibleProvider', () => {
       });
     });
 
-    // https://github.com/QwenLM/qwen-code/issues/3695 — DeepSeek's thinking
+    // https://github.com/QwenLM/qwen-code/issues/3695 -- DeepSeek's thinking
     // mode rejects subsequent requests when any prior assistant turn omits
     // reasoning_content, even if the model itself returned no reasoning text.
     // The provider must always send the field.
@@ -262,7 +262,7 @@ describe('DeepSeekOpenAICompatibleProvider', () => {
       expect(assistant.reasoning_content).toBe('');
     });
 
-    // https://api-docs.deepseek.com/zh-cn/api/create-chat-completion —
+    // https://api-docs.deepseek.com/zh-cn/api/create-chat-completion --
     // DeepSeek expects a flat `reasoning_effort` body parameter (high/max);
     // the standard `reasoning: { effort }` shape from the OpenAI pipeline
     // would otherwise be ignored.

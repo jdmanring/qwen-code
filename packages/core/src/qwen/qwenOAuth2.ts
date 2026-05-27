@@ -354,7 +354,7 @@ export class QwenOAuth2Client implements IQwenOAuth2Client {
         'x-request-id': randomUUID(),
       },
       body: objectToUrlEncoded(bodyData),
-      // PR #4255 — daemon device-flow registry passes its
+      // PR #4255 -- daemon device-flow registry passes its
       // `cancelController.signal` so dispose / cancel during a slow
       // device-authorization request actually aborts the in-flight
       // socket immediately. Pre-existing CLI callers omit it; the
@@ -372,7 +372,7 @@ export class QwenOAuth2Client implements IQwenOAuth2Client {
     const result = (await response.json()) as DeviceAuthorizationResponse;
     // PR #4255 fold-in 9 review thread #12: do NOT log the full
     // result. `device_code` is an RFC 8628 bearer-equivalent
-    // credential — anyone holding it within the grant's lifetime
+    // credential -- anyone holding it within the grant's lifetime
     // can complete the token exchange. The daemon device-flow
     // registry's `BrandedSecret` keeps `device_code` out of HTTP
     // bodies / events / logs, but a debug-mode `console.log(result)`
@@ -425,7 +425,7 @@ export class QwenOAuth2Client implements IQwenOAuth2Client {
         Accept: 'application/json',
       },
       body: objectToUrlEncoded(bodyData),
-      // PR #4255 — daemon device-flow registry passes its per-entry
+      // PR #4255 -- daemon device-flow registry passes its per-entry
       // `cancelController.signal` so cancel() / dispose() during a
       // slow IdP response actually aborts the in-flight socket
       // instead of waiting for the upstream timeout.
@@ -904,7 +904,7 @@ async function authWithQwenDeviceFlow(
 
           // Cache the new tokens. `cacheQwenCredentials` itself folds
           // in `SharedTokenManager.clearCache()` (PR #4255 review D1) so
-          // we no longer need a paired call here — the previous explicit
+          // we no longer need a paired call here -- the previous explicit
           // post-cache clear was a duplicate that fired clearCache twice
           // on the success path.
           await cacheQwenCredentials(credentials);
@@ -1069,9 +1069,9 @@ export async function cacheQwenCredentials(
     // PR #4255 round-11 #2 (gpt-5.5 review): atomic write with
     // permission hardening BEFORE the secret payload becomes
     // accessible at the canonical filename. The earlier shape was
-    //   1. fs.writeFile(filePath, creds, {mode: 0o600})  ← creates
+    //   1. fs.writeFile(filePath, creds, {mode: 0o600})  <- creates
     //      with 0o600 OR retains existing broader perms
-    //   2. fs.chmod(filePath, 0o600)                     ← post-hoc
+    //   2. fs.chmod(filePath, 0o600)                     <- post-hoc
     //      tightening
     // which left a window where, if `oauth_creds.json` already
     // existed with broader perms (operator pre-creation, prior
@@ -1081,13 +1081,13 @@ export async function cacheQwenCredentials(
     // to a warning while the broadly-readable tokens stayed.
     //
     // New shape: write to a temp file (created with 0o600 atomically
-    // via the `mode` flag — which DOES apply on creation since the
+    // via the `mode` flag -- which DOES apply on creation since the
     // path didn't exist), verify perms, then `rename` over the
     // canonical filename. `fs.rename` is atomic on POSIX (within a
     // filesystem) and on Windows. The canonical filename never
     // contains the new tokens until they're already at 0o600.
     //
-    // PR #4255 fold-in 3 (#10): `signal` threading is preserved —
+    // PR #4255 fold-in 3 (#10): `signal` threading is preserved --
     // both `writeFile` AND the temp-file path honor the registry's
     // persist-timeout + cancelController.
     const tempPath = `${filePath}.tmp.${process.pid}.${randomUUID()}`;
@@ -1098,7 +1098,7 @@ export async function cacheQwenCredentials(
       });
       // Defensive: if the platform ignored `mode` on creation
       // (some Windows FSes), explicit chmod tightens the temp BEFORE
-      // it's renamed into place. Failure here is a HARD ERROR — we
+      // it's renamed into place. Failure here is a HARD ERROR -- we
       // refuse to publish broadly-readable tokens to the canonical
       // path. A non-cooperative FS that can't tighten a 0o600 file
       // shouldn't be serving credentials anyway.
@@ -1107,7 +1107,7 @@ export async function cacheQwenCredentials(
       } catch (chmodErr) {
         if (process.platform !== 'win32') {
           throw new Error(
-            `cacheQwenCredentials: refusing to publish credentials — chmod 0o${QWEN_CREDENTIAL_FILE_MODE.toString(8)} on temp file failed: ${
+            `cacheQwenCredentials: refusing to publish credentials -- chmod 0o${QWEN_CREDENTIAL_FILE_MODE.toString(8)} on temp file failed: ${
               chmodErr instanceof Error ? chmodErr.message : String(chmodErr)
             }`,
           );
@@ -1127,7 +1127,7 @@ export async function cacheQwenCredentials(
       // the new creds, never a partial mix.
       await fs.rename(tempPath, filePath);
     } catch (writeErr) {
-      // Best-effort cleanup of the temp file — if rename succeeded
+      // Best-effort cleanup of the temp file -- if rename succeeded
       // there's nothing to clean (path no longer points anywhere);
       // if it failed there's a leftover .tmp.<pid>.<uuid> file we
       // shouldn't leave on disk. Swallow ENOENT (already-renamed)
@@ -1156,7 +1156,7 @@ export async function cacheQwenCredentials(
       // (worst case: device auth re-prompts), but the silent swallow
       // it used to be made the symptom invisible. Warn so logs show
       // it. Unit tests stubbing `SharedTokenManager.getInstance()`
-      // with a minimal shape will also flow through here — acceptable
+      // with a minimal shape will also flow through here -- acceptable
       // noise for the production-visibility win.
       debugLogger.warn(
         `cacheQwenCredentials: SharedTokenManager.clearCache failed; in-process callers may serve stale credentials until the next mtime poll: ${

@@ -261,7 +261,7 @@ describe('DaemonSessionClient', () => {
     // `BridgeClient.earlyEvents` until `byId.set(sessionId, entry)`
     // runs. The bridge drains them onto the per-session bus before
     // `spawnOrAttach` returns, so they live in the replay ring with
-    // ids — but the SDK's old default of `lastEventId: undefined`
+    // ids -- but the SDK's old default of `lastEventId: undefined`
     // started subscriptions live, so consumers never observed them.
     //
     // Fix: when `session.attached === false` (newly-created), seed
@@ -286,7 +286,7 @@ describe('DaemonSessionClient', () => {
 
     const session = await DaemonSessionClient.createOrAttach(client, {
       workspaceCwd: '/work/a',
-      // No `modelServiceId` — the only signal that triggered seed
+      // No `modelServiceId` -- the only signal that triggered seed
       // pre-fix. With the fix, `attached: false` alone is enough.
     });
 

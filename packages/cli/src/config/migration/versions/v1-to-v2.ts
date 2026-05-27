@@ -263,5 +263,5 @@ export class V1ToV2Migration implements SettingsMigration {
   }
 }
 
-/** Singleton instance of V1→V2 migration */
+/** Singleton instance of V1->V2 migration */
 export const v1ToV2Migration = new V1ToV2Migration();

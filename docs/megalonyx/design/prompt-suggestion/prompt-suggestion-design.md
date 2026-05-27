@@ -11,50 +11,50 @@ A **prompt suggestion** (Next-step Suggestion / NES) is a short prediction (2-12
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  AppContainer (CLI)                                         │
-│                                                             │
-│  Responding → Idle transition                               │
-│       │                                                     │
-│       ▼                                                     │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │  Guard Conditions (11 categories)                    │    │
-│  │  settings, interactive, sdk, plan mode, dialogs,    │    │
-│  │  elicitation, API error                             │    │
-│  └────────────────────┬────────────────────────────────┘    │
-│                       │                                     │
-│                       ▼                                     │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │  generatePromptSuggestion()                         │    │
-│  │                                                     │    │
-│  │  ┌─── CacheSafeParams available? ───┐               │    │
-│  │  │                                  │               │    │
-│  │  ▼ YES                         NO ▼                 │    │
-│  │  runForkedQuery()      BaseLlmClient.generateJson() │    │
-│  │  (cache-aware)         (standalone fallback)        │    │
-│  │                                                     │    │
-│  │  ──── SUGGESTION_PROMPT ────                        │    │
-│  │  ──── 12 filter rules ──────                        │    │
-│  │  ──── getFilterReason() ────                        │    │
-│  └────────────────────┬────────────────────────────────┘    │
-│                       │                                     │
-│                       ▼                                     │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │  FollowupController (framework-agnostic)            │    │
-│  │  300ms delay → show as ghost text                   │    │
-│  │                                                     │    │
-│  │  Tab    → accept (fill input)                       │    │
-│  │  Enter  → accept + submit                           │    │
-│  │  Right  → accept (fill input)                       │    │
-│  │  Type   → dismiss + abort speculation               │    │
-│  └─────────────────────────────────────────────────────┘    │
-│                                                             │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │  Telemetry (PromptSuggestionEvent)                  │    │
-│  │  outcome, accept_method, timing, similarity,        │    │
-│  │  keystroke, focus, suppression reason, prompt_id     │    │
-│  └─────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────┘
++---------------------------------------------------------------+--
+|  AppContainer (CLI)                                         |
+|                                                             |
+|  Responding -> Idle transition                               |
+|       |                                                     |
+|                                                            |
+|  +-------------------------------------------------------+--    |
+|  |  Guard Conditions (11 categories)                    |    |
+|  |  settings, interactive, sdk, plan mode, dialogs,    |    |
+|  |  elicitation, API error                             |    |
+|  \_-------------------------------------------------------    |
+|                       |                                     |
+|                                                            |
+|  +-------------------------------------------------------+--    |
+|  |  generatePromptSuggestion()                         |    |
+|  |                                                     |    |
+|  |  +----- CacheSafeParams available? ---+--               |    |
+|  |  |                                  |               |    |
+|  |   YES                         NO                  |    |
+|  |  runForkedQuery()      BaseLlmClient.generateJson() |    |
+|  |  (cache-aware)         (standalone fallback)        |    |
+|  |                                                     |    |
+|  |  ---- SUGGESTION_PROMPT ----                        |    |
+|  |  ---- 12 filter rules ------                        |    |
+|  |  ---- getFilterReason() ----                        |    |
+|  \_-------------------------------------------------------    |
+|                       |                                     |
+|                                                            |
+|  +-------------------------------------------------------+--    |
+|  |  FollowupController (framework-agnostic)            |    |
+|  |  300ms delay -> show as ghost text                   |    |
+|  |                                                     |    |
+|  |  Tab    -> accept (fill input)                       |    |
+|  |  Enter  -> accept + submit                           |    |
+|  |  Right  -> accept (fill input)                       |    |
+|  |  Type   -> dismiss + abort speculation               |    |
+|  \_--------------------------------------------------------    |
+|                                                             |
+|  +-------------------------------------------------------+--    |
+|  |  Telemetry (PromptSuggestionEvent)                  |    |
+|  |  outcome, accept_method, timing, similarity,        |    |
+|  |  keystroke, focus, suppression reason, prompt_id     |    |
+|  \_--------------------------------------------------------    |
+\_----------------------------------------------------------------
 ```
 
 ## Suggestion Generation
@@ -64,7 +64,7 @@ A **prompt suggestion** (Next-step Suggestion / NES) is a short prediction (2-12
 ```
 [SUGGESTION MODE: Suggest what the user might naturally type next.]
 
-FIRST: Read the LAST FEW LINES of the assistant's most recent message — that's where
+FIRST: Read the LAST FEW LINES of the assistant's most recent message -- that's where
 next-step hints, tips, and actionable suggestions usually appear. Then check the user's
 recent messages and original request.
 
@@ -75,11 +75,11 @@ PRIORITY: If the assistant's last message contains a tip or hint like "Tip: type
 or "type X to ...", extract X as the suggestion. These are explicit next-step hints.
 
 EXAMPLES:
-Assistant says "Tip: type post comments to publish findings" → "post comments"
-Assistant says "type /review to start" → "/review"
-User asked "fix the bug and run tests", bug is fixed → "run the tests"
-After code written → "try it out"
-Task complete, obvious follow-up → "commit this" or "push it"
+Assistant says "Tip: type post comments to publish findings" -> "post comments"
+Assistant says "type /review to start" -> "/review"
+User asked "fix the bug and run tests", bug is fixed -> "run the tests"
+After code written -> "try it out"
+Task complete, obvious follow-up -> "commit this" or "push it"
 
 Format: 2-12 words, match the user's style. Or nothing.
 Reply with ONLY the suggestion, no quotes or explanation.
@@ -111,7 +111,7 @@ Reply with ONLY the suggestion, no quotes or explanation.
 | Settings toggle      | `enableFollowupSuggestions`                         |
 | Non-interactive      | `config.isInteractive()`                            |
 | SDK mode             | `!config.getSdkMode()`                              |
-| Streaming transition | `Responding → Idle` (2 checks)                      |
+| Streaming transition | `Responding -> Idle` (2 checks)                      |
 | API error (history)  | `historyManager.history[last]?.type !== 'error'`    |
 | API error (pending)  | `!pendingGeminiHistoryItems.some(type === 'error')` |
 | Confirmation dialogs | shell + general + loop detection (3 checks)         |
@@ -148,10 +148,10 @@ interface FollowupState {
 
 Framework-agnostic controller shared by CLI (Ink) and WebUI (React):
 
-- `setSuggestion(text)` — 300ms delayed show, null clears immediately
-- `accept(method)` — clears state, fires `onAccept` via microtask, 100ms debounce lock
-- `dismiss()` — clears state, logs `ignored` telemetry
-- `clear()` — hard reset all state + timers
+- `setSuggestion(text)` -- 300ms delayed show, null clears immediately
+- `accept(method)` -- clears state, fires `onAccept` via microtask, 100ms debounce lock
+- `dismiss()` -- clears state, logs `ignored` telemetry
+- `clear()` -- hard reset all state + timers
 - `Object.freeze(INITIAL_FOLLOWUP_STATE)` prevents accidental mutation
 
 ## Keyboard Interaction
@@ -218,20 +218,20 @@ Background operations use dedicated prompt IDs (`INTERNAL_PROMPT_IDS` in `utils/
 
 **Filtering applied:**
 
-- `loggingContentGenerator` — skips `logApiRequest` and OpenAI interaction logging for internal IDs
-- `logApiResponse` / `logApiError` — skips `chatRecordingService.recordUiTelemetryEvent`
-- `logToolCall` — skips `chatRecordingService.recordUiTelemetryEvent`
-- `uiTelemetryService.addEvent` — **not filtered** (ensures `/stats` token tracking works)
+- `loggingContentGenerator` -- skips `logApiRequest` and OpenAI interaction logging for internal IDs
+- `logApiResponse` / `logApiError` -- skips `chatRecordingService.recordUiTelemetryEvent`
+- `logToolCall` -- skips `chatRecordingService.recordUiTelemetryEvent`
+- `uiTelemetryService.addEvent` -- **not filtered** (ensures `/stats` token tracking works)
 
 ### Thinking Mode
 
 Thinking/reasoning is explicitly disabled (`thinkingConfig: { includeThoughts: false }`) for all background task paths:
 
-- **Forked query path** (`createForkedChat`) — overrides `thinkingConfig` in the cloned `generationConfig`, covering both suggestion generation and speculation
-- **BaseLlm fallback path** (`generateViaBaseLlm`) — per-request config overrides base content generator's thinking settings
+- **Forked query path** (`createForkedChat`) -- overrides `thinkingConfig` in the cloned `generationConfig`, covering both suggestion generation and speculation
+- **BaseLlm fallback path** (`generateViaBaseLlm`) -- per-request config overrides base content generator's thinking settings
 
 This is safe because:
 
-- Cache prefix is determined by systemInstruction + tools + history, not `thinkingConfig` — cache hits are unaffected
-- All backends (Gemini, OpenAI-compatible, Anthropic) handle `includeThoughts: false` by omitting the thinking field — no API errors on models without thinking support
+- Cache prefix is determined by systemInstruction + tools + history, not `thinkingConfig` -- cache hits are unaffected
+- All backends (Gemini, OpenAI-compatible, Anthropic) handle `includeThoughts: false` by omitting the thinking field -- no API errors on models without thinking support
 - Suggestion generation and speculation don't benefit from reasoning tokens

@@ -5,16 +5,16 @@
  */
 
 /**
- * `qwen serve` daemon — streaming / multi-client / recovery integration.
+ * `qwen serve` daemon -- streaming / multi-client / recovery integration.
  *
  * These tests need a working model credential because they fire real
  * prompts and observe the resulting SSE stream. They cover three flows
  * that unit tests can't fully exercise:
  *
- *   1. Real `qwen --acp` child crash → daemon publishes `session_died`,
+ *   1. Real `qwen --acp` child crash -> daemon publishes `session_died`,
  *      removes the dead entry from the maps, and a subsequent
  *      `createOrAttachSession` for the same workspace spawns fresh.
- *   2. Two SSE subscribers + a tool that needs permission → both see
+ *   2. Two SSE subscribers + a tool that needs permission -> both see
  *      the SAME `permission_request` event (cross-client fan-out);
  *      two concurrent votes resolve as 200/404 (first-responder wins).
  *   3. SSE consumer disconnects after seeing N events; reconnect with
@@ -44,7 +44,7 @@ const REPO_ROOT = path.resolve(__dirname, '../..');
 // Skip when:
 //   - explicit `SKIP_LLM_TESTS=1` (CI envs without provider API keys), OR
 //   - Windows: this suite shells out to `pgrep` / `kill -KILL` to
-//     simulate child-process crashes for the SIGKILL → `session_died`
+//     simulate child-process crashes for the SIGKILL -> `session_died`
 //     test, and those binaries are POSIX-only. A Windows-equivalent
 //     (`taskkill`) would need different test scaffolding; deferred to
 //     a follow-up rather than smuggling shell-shape divergence into
@@ -71,15 +71,15 @@ beforeAll(async () => {
       TOKEN,
       '--hostname',
       '127.0.0.1',
-      // Per #3803 §02 (1 daemon = 1 workspace), pin the bound
+      // Per #3803 02 (1 daemon = 1 workspace), pin the bound
       // workspace so every `createOrAttachSession({ workspaceCwd:
       // REPO_ROOT })` below matches. Without this the daemon inherits
       // the test runner's cwd (CI / IDE-launcher / direct vitest
       // invocations all differ) and every session create returns
-      // 400 workspace_mismatch — the SSE / permission / Last-Event-ID
+      // 400 workspace_mismatch -- the SSE / permission / Last-Event-ID
       // tests below would all silently 404 once `SKIP_LLM_TESTS` is
       // unset. Same fix the sibling routes test received earlier in
-      // this PR — missed in this file in the original §02 pass.
+      // this PR -- missed in this file in the original 02 pass.
       '--workspace',
       REPO_ROOT,
     ],
@@ -87,7 +87,7 @@ beforeAll(async () => {
   );
   port = await new Promise<number>((resolve, reject) => {
     let buf = '';
-    // Capture the timeout handle so we can clear it on success — an
+    // Capture the timeout handle so we can clear it on success -- an
     // un-cleared 10s timer outlives the spawn promise and keeps the
     // vitest event loop alive past the test, manifesting as
     // intermittent flakes on slow CI.
@@ -140,12 +140,12 @@ async function* sseFrames(
   // Forward the abort signal into parseSseStream so a post-connect
   // abort stops iteration immediately. Without this, the parser
   // stays parked on `reader.read()` until the upstream actually
-  // closes — fine for happy-path tests but flaky for any test that
+  // closes -- fine for happy-path tests but flaky for any test that
   // wants to abort mid-stream.
   yield* parseSseStream(res.body!, opts.signal);
 }
 
-describeLLM('qwen serve — child-crash recovery (real SIGKILL)', () => {
+describeLLM('qwen serve -- child-crash recovery (real SIGKILL)', () => {
   it('publishes session_died after the qwen --acp child is SIGKILL-ed', async () => {
     const session = await client.createOrAttachSession({
       workspaceCwd: REPO_ROOT,
@@ -220,7 +220,7 @@ describeLLM('qwen serve — child-crash recovery (real SIGKILL)', () => {
   }, 60_000);
 });
 
-describeLLM('qwen serve — multi-client first-responder permission', () => {
+describeLLM('qwen serve -- multi-client first-responder permission', () => {
   it('fans out permission_request to both subscribers; only one vote wins', async () => {
     const session = await client.createOrAttachSession({
       workspaceCwd: REPO_ROOT,
@@ -289,7 +289,7 @@ describeLLM('qwen serve — multi-client first-responder permission', () => {
       data1.options.find((o) => o.kind === 'allow_once')?.optionId ??
       data1.options[0]?.optionId;
 
-    // Race two concurrent votes — exactly one should win.
+    // Race two concurrent votes -- exactly one should win.
     const [voteA, voteB] = await Promise.all([
       fetch(`${base}/permission/${data1.requestId}`, {
         method: 'POST',
@@ -326,7 +326,7 @@ describeLLM('qwen serve — multi-client first-responder permission', () => {
   }, 90_000);
 });
 
-describeLLM('qwen serve — Last-Event-ID resume', () => {
+describeLLM('qwen serve -- Last-Event-ID resume', () => {
   it('reconnect with Last-Event-ID:N yields events with id > N', async () => {
     const session = await client.createOrAttachSession({
       workspaceCwd: REPO_ROOT,

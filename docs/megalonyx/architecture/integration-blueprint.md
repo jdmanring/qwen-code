@@ -1,4 +1,4 @@
-# 🏛️ Runtime Integration Blueprint: The Unified Engineering Engine (v2.0 - Enterprise Grade)
+#  Runtime Integration Blueprint: The Unified Engineering Engine (v2.0 - Enterprise Grade)
 
 ## 1. Executive Summary
 The objective is to transition from a wrapper-based architecture to an **Independent Monorepo**. This involves merging the core capabilities of Qwen Code with specialized features from Aider, Cline, OpenHands, OpenCode, OmniRoute, Claw Code, and T3.
@@ -15,47 +15,47 @@ The repository uses **Nx** as a polyglot meta-manager to handle the dependency g
 
 ```text
 /home/james/Projects/qwen_code_stack/
-├── .qwen/                       # Global AI context and operational laws
-├── docs/                        # System-wide technical documentation
-├── tooling/                     # Automation Suite (Foolproof Scripts)
-│   ├── build/                   # Unified build scripts
-│   └── scripts/                 # sync-upstreams.sh, integrate-package.sh, verify-bridges.sh
-├── packages/
-│   ├── core/                    # [FORK] Qwen Code Orchestrator (The Brain)
-│   │   ├── src/
-│   │   │   ├── agent/           # Main agentic loops and state machines
-│   │   │   ├── planner/         # High-level task decomposition
-│   │   │   └── supervisor/      # Quality control and verification logic
-│   │   └── tests/
-│   ├── bridge/                  # THE INTEGRATION LAYER (Contracts & Adapters)
-│   │   ├── src/
-│   │   │   ├── contracts/       # Interface definitions (Execution, Routing, Memory)
-│   │   │   └── adapters/        # Concrete adapters (e.g., aider_adapter.ts)
-│   │   └── tests/
-│   ├── routing/                 # [INTEGRATION] OmniRoute (The Switchboard)
-│   │   ├── src/
-│   │   │   ├── dispatcher/      # Intent-based routing logic
-│   │   │   └── registry/        # Map of available tool capabilities
-│   │   └── tests/
-│   ├── execution/               # [INTEGRATION] The "Hands" (Action Providers)
-│   │   ├── aider/               # Precise diffing and file editing logic
-│   │   ├── openhands/           # Sandbox execution and runtime environments
-│   │   └── claw/                # Autonomous system-level execution loops
-│   ├── interaction/             # [INTEGRATION] The "Face" (User Interfaces)
-│   │   ├── t3/                  # Advanced TUI/UX components (See docs/architecture/interaction-plane.md)
-│   │   ├── opencode/            # IDE integration and plugins (See docs/architecture/interaction-plane.md)
-│   │   └── cline/               # MCP (Model Context Protocol) implementation
-│   └── memory/                  # [INTEGRATION] State & Context Management
-│       ├── src/
-│       │   ├── vector_db/       # Long-term semantic storage
-│       │   ├── graph_db/        # Repository structural mapping
-│       │   └── session/         # Short-term conversation state
-│       └── tests/
-├── shared/                      # Common types, utilities, and JSON schemas
-│   ├── types/                   # Unified inter-package communication schemas
-│   └── utils/                   # Shared logging, file I/O, and network helpers
-├── COMPLIANCE.json              # Licensing and Upstream Audit Registry
-└── README.md
+|---- .qwen/                       # Global AI context and operational laws
+|---- docs/                        # System-wide technical documentation
+|---- tooling/                     # Automation Suite (Foolproof Scripts)
+|   |---- build/                   # Unified build scripts
+|   \_-- scripts/                 # sync-upstreams.sh, integrate-package.sh, verify-bridges.sh
+|---- packages/
+|   |---- core/                    # [FORK] Qwen Code Orchestrator (The Brain)
+|   |   |---- src/
+|   |   |   |---- agent/           # Main agentic loops and state machines
+|   |   |   |---- planner/         # High-level task decomposition
+|   |   |   \_-- supervisor/      # Quality control and verification logic
+|   |   \_-- tests/
+|   |---- bridge/                  # THE INTEGRATION LAYER (Contracts & Adapters)
+|   |   |---- src/
+|   |   |   |---- contracts/       # Interface definitions (Execution, Routing, Memory)
+|   |   |   \_-- adapters/        # Concrete adapters (e.g., aider_adapter.ts)
+|   |   \_-- tests/
+|   |---- routing/                 # [INTEGRATION] OmniRoute (The Switchboard)
+|   |   |---- src/
+|   |   |   |---- dispatcher/      # Intent-based routing logic
+|   |   |   \_-- registry/        # Map of available tool capabilities
+|   |   \_-- tests/
+|   |---- execution/               # [INTEGRATION] The "Hands" (Action Providers)
+|   |   |---- aider/               # Precise diffing and file editing logic
+|   |   |---- openhands/           # Sandbox execution and runtime environments
+|   |   \_-- claw/                # Autonomous system-level execution loops
+|   |---- interaction/             # [INTEGRATION] The "Face" (User Interfaces)
+|   |   |---- t3/                  # Advanced TUI/UX components (See docs/architecture/interaction-plane.md)
+|   |   |---- opencode/            # IDE integration and plugins (See docs/architecture/interaction-plane.md)
+|   |   \_-- cline/               # MCP (Model Context Protocol) implementation
+|   \_-- memory/                  # [INTEGRATION] State & Context Management
+|       |---- src/
+|       |   |---- vector_db/       # Long-term semantic storage
+|       |   |---- graph_db/        # Repository structural mapping
+|       |   \_-- session/         # Short-term conversation state
+|       \_-- tests/
+|---- shared/                      # Common types, utilities, and JSON schemas
+|   |---- types/                   # Unified inter-package communication schemas
+|   \_-- utils/                   # Shared logging, file I/O, and network helpers
+|---- COMPLIANCE.json              # Licensing and Upstream Audit Registry
+\_-- README.md
 ```
 
 ---

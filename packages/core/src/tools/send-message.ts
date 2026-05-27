@@ -5,7 +5,7 @@
  */
 
 /**
- * @fileoverview SendMessage tool — lets the model send a text message to
+ * @fileoverview SendMessage tool -- lets the model send a text message to
  * a background task. Running tasks receive the message at the next tool-round
  * boundary; paused recovered tasks are resumed first and take the message as
  * their first continuation instruction.
@@ -48,7 +48,7 @@ class SendMessageInvocation extends BaseToolInvocation<
   /**
    * Send-message routes free-form text into a running background task,
    * which will then execute it as a new instruction with full tool
-   * access. Treat it as a privileged sink — the L4 default must not be
+   * access. Treat it as a privileged sink -- the L4 default must not be
    * 'allow', because that would let the scheduler auto-approve in
    * AUTO mode (where 'allow' short-circuits the classifier). 'ask' lets
    * AUTO route through the classifier so the destination task and
@@ -145,7 +145,7 @@ export class SendMessageTool extends BaseDeclarativeTool<
       },
       true, // isOutputMarkdown
       false, // canUpdateOutput
-      true, // shouldDefer — sending messages to tasks is infrequent
+      true, // shouldDefer -- sending messages to tasks is infrequent
       false, // alwaysLoad
       'send message task communicate notify',
     );
@@ -158,7 +158,7 @@ export class SendMessageTool extends BaseDeclarativeTool<
   }
 
   /**
-   * Forward both fields verbatim to the classifier — `task_id` identifies
+   * Forward both fields verbatim to the classifier -- `task_id` identifies
    * the privileged sink and the `message` itself is the new instruction
    * the background task will execute, so the classifier needs the full
    * text to evaluate the action's safety.

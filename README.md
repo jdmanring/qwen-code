@@ -2,12 +2,12 @@
 
 This is a private monorepo with two jobs. First, it tracks changes from the upstream
 [QwenLM/qwen-code](https://github.com/QwenLM/qwen-code) CLI project and selectively ingests
-them through a quality gate pipeline. Second, it houses the Megalonyx agent stack — a set of
+them through a quality gate pipeline. Second, it houses the Megalonyx agent stack -- a set of
 Python services that extend the CLI with persistent memory, task decomposition, and model routing.
 
 The two halves live side by side. Upstream code arrives on the `integration` branch via the sync
 pipeline. Megalonyx work lives on `develop`. Nothing in `apps/` or `packages/agent-*` is upstream
-code — it was written here and has no relation to the qwen-code project.
+code -- it was written here and has no relation to the qwen-code project.
 
 ---
 
@@ -43,7 +43,7 @@ graph TD
     CLI_Tools --> FS[File System / Shell]
 ```
 
-The three Python packages form a dependency chain: `agent-infra` ← `agent-memory` ← `control-plane-daemon`. They are members of a `uv` workspace rooted at the monorepo root.
+The three Python packages form a dependency chain: `agent-infra` <- `agent-memory` <- `control-plane-daemon`. They are members of a `uv` workspace rooted at the monorepo root.
 
 ---
 
@@ -56,8 +56,8 @@ The three Python packages form a dependency chain: `agent-infra` ← `agent-memo
 | `develop` | All Megalonyx development. This is where active work happens. | Developers |
 | `main` | Stable releases. | Merge from develop when ready |
 
-The pipeline flow is: `QwenLM/qwen-code` → `upstream-mirror` → gate checks → `integration`.
-Megalonyx work flows: `develop` → `main`.
+The pipeline flow is: `QwenLM/qwen-code` -> `upstream-mirror` -> gate checks -> `integration`.
+Megalonyx work flows: `develop` -> `main`.
 
 To promote a verified state of `develop` to `integration` for a combined release, do a fast-forward merge.
 
@@ -77,7 +77,7 @@ pnpm install
 pnpm build
 
 # Verify the build
-node dist/cli.js --version   # → 0.16.1
+node dist/cli.js --version   # -> 0.16.1
 ```
 
 Run the CLI directly from the build output:
@@ -104,7 +104,7 @@ Common development commands:
 | Type-check | `pnpm run typecheck` | tsc --noEmit per package |
 | Format | `pnpm run format` | Prettier via nx |
 | Clean dist + node_modules | `pnpm run clean` | Safe to re-run pnpm install after |
-| Full preflight | `pnpm run preflight` | install → build → lint → typecheck → test |
+| Full preflight | `pnpm run preflight` | install -> build -> lint -> typecheck -> test |
 
 **Coming from QwenLM/qwen-code?** The pnpm equivalents are:
 
@@ -117,7 +117,7 @@ Common development commands:
 | `npm run typecheck` | `pnpm run typecheck` |
 | `npm run preflight` | `pnpm run preflight` |
 
-**Why pnpm?** Strict package isolation — each package can only import what it explicitly declares.
+**Why pnpm?** Strict package isolation -- each package can only import what it explicitly declares.
 This catches phantom dependencies that slip through npm's flat hoisting and would cause runtime
 failures in environments without a matching global install. Installs are also significantly faster
 via a content-addressed store shared across projects.
@@ -135,7 +135,7 @@ uv run python -c "import control_plane_daemon; import agent_memory; import agent
 bash tooling/install-hooks.sh
 ```
 
-Set up runtime configuration (lives outside the repo — never committed):
+Set up runtime configuration (lives outside the repo -- never committed):
 ```bash
 # Qwen Code CLI settings: model providers, MCP server list (no secrets)
 cp config/settings.example.json ~/.config/qwen/settings.json
@@ -183,7 +183,7 @@ Run them before committing.
 uv run ruff check .                                                        # lint
 uv run ruff format --check .                                               # formatting
 uv run mypy tooling/ packages/sdk-python/src/                             # types
-uv run python3 tooling/symmetry_check.py                                   # .qwen/config/ ↔ docs/ mirror
+uv run python3 tooling/symmetry_check.py                                   # .qwen/config/ <-> docs/ mirror
 uv run python3 tooling/project_standards_linter.py --strict tooling/ docs/meta/  # naming + standards
 ```
 
@@ -223,13 +223,13 @@ See `docs/meta/git-strategy.md` for the full workflow.
 | `packages/core/` | Qwen Code core library: tool registry, MCP client, model providers (upstream) |
 | `tooling/sync-upstreams/` | Upstream ingest pipeline and contribution tooling |
 | `tooling/project_standards_linter.py` | Enforces naming standards and config/docs symmetry |
-| `tooling/symmetry_check.py` | Checks `.qwen/config/` ↔ `docs/` 1:1 mirror |
-| `tooling/git-hooks/pre-commit` | Pre-commit hook source — install via `tooling/install-hooks.sh` |
+| `tooling/symmetry_check.py` | Checks `.qwen/config/` <-> `docs/` 1:1 mirror |
+| `tooling/git-hooks/pre-commit` | Pre-commit hook source -- install via `tooling/install-hooks.sh` |
 | `bin/` | Executable entry points: `mega-memory`, `mega-tasks`, `mega-status` |
 | `config/settings.example.json` | Qwen Code runtime config template (API keys, models, MCP servers) |
 | `config/megalonyx/.env.example` | Megalonyx environment variable template |
-| `.qwen/agents/` | Execution profiles — YAML+Markdown files that configure model selection per task type |
-| `.qwen/skills/` | Skill definitions — reusable instruction sets the CLI can invoke |
+| `.qwen/agents/` | Execution profiles -- YAML+Markdown files that configure model selection per task type |
+| `.qwen/skills/` | Skill definitions -- reusable instruction sets the CLI can invoke |
 | `docs/meta/engineering-standards.md` | Naming and code quality requirements |
 | `docs/meta/git-strategy.md` | Branch architecture, pipeline flow, upstream contribution guide |
 | `docs/meta/pipeline-runbook.md` | What to do when a gate fails |
@@ -241,7 +241,7 @@ See `docs/meta/git-strategy.md` for the full workflow.
 
 ## Documentation
 
-- `docs/upstream/` — How the inherited Qwen Code systems work (from a maintainer's perspective)
-- `docs/megalonyx/` — How the Megalonyx Python stack works
-- `docs/meta/` — Engineering standards, git strategy, pipeline operations
-- `docs/gap-analysis.md` — Which qwen-code systems we use, replace, or ignore
+- `docs/upstream/` -- How the inherited Qwen Code systems work (from a maintainer's perspective)
+- `docs/megalonyx/` -- How the Megalonyx Python stack works
+- `docs/meta/` -- Engineering standards, git strategy, pipeline operations
+- `docs/gap-analysis.md` -- Which qwen-code systems we use, replace, or ignore

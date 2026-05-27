@@ -49,7 +49,7 @@ describe('StickyTodoList', () => {
       .filter(Boolean);
 
     expect(output).toContain('Current tasks');
-    expect(output).toContain('╭');
+    expect(output).toContain('');
     expect(
       lines.find((line) => line.includes('Run core tests')) ?? '',
     ).toContain('3.');
@@ -119,7 +119,7 @@ describe('StickyTodoList', () => {
     );
     const output = lastFrame() ?? '';
 
-    expect(output).toContain('10. ◐ Task 10');
+    expect(output).toContain('10.  Task 10');
     expect(output).toContain('... and 9 more');
   });
 

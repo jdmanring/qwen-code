@@ -6,25 +6,25 @@ Qwen Code offers five distinct permission modes that allow you to flexibly contr
 
 | Mode           | File Editing                | Shell Commands              | Best For                                                                                               | Risk Level |
 | -------------- | --------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------ | ---------- |
-| **Plan**​      | ❌ Read-only analysis only  | ❌ Not executed             | • Code exploration <br>• Planning complex changes <br>• Safe code review                               | Lowest     |
-| **Default**​   | ✅ Manual approval required | ✅ Manual approval required | • New/unfamiliar codebases <br>• Critical systems <br>• Team collaboration <br>• Learning and teaching | Low        |
-| **Auto-Edit**​ | ✅ Auto-approved            | ❌ Manual approval required | • Daily development tasks <br>• Refactoring and code improvements <br>• Safe automation                | Medium     |
-| **Auto**​      | ✅ Classifier-evaluated     | ✅ Classifier-evaluated     | • Long autonomous sessions <br>• When Auto-Edit is too cautious but YOLO is too risky                  | Medium     |
-| **YOLO**​      | ✅ Auto-approved            | ✅ Auto-approved            | • Trusted personal projects <br>• Automated scripts/CI/CD <br>• Batch processing tasks                 | Highest    |
+| **Plan**      |  Read-only analysis only  |  Not executed             |  Code exploration <br> Planning complex changes <br> Safe code review                               | Lowest     |
+| **Default**   |  Manual approval required |  Manual approval required |  New/unfamiliar codebases <br> Critical systems <br> Team collaboration <br> Learning and teaching | Low        |
+| **Auto-Edit** |  Auto-approved            |  Manual approval required |  Daily development tasks <br> Refactoring and code improvements <br> Safe automation                | Medium     |
+| **Auto**      |  Classifier-evaluated     |  Classifier-evaluated     |  Long autonomous sessions <br> When Auto-Edit is too cautious but YOLO is too risky                  | Medium     |
+| **YOLO**      |  Auto-approved            |  Auto-approved            |  Trusted personal projects <br> Automated scripts/CI/CD <br> Batch processing tasks                 | Highest    |
 
 ### Quick Reference Guide
 
 - **Start in Plan Mode**: Great for understanding before making changes
 - **Work in Default Mode**: The balanced choice for most development work
 - **Switch to Auto-Edit**: When you're making lots of safe code changes
-- **Try Auto Mode**: When you want fewer interruptions but still want safety on shell commands and network calls — an LLM classifier evaluates each call
+- **Try Auto Mode**: When you want fewer interruptions but still want safety on shell commands and network calls -- an LLM classifier evaluates each call
 - **Use YOLO sparingly**: Only for trusted automation in controlled environments
 
 > [!tip]
 >
-> You can quickly cycle through modes during a session using **Shift+Tab** (or **Tab** on Windows). The terminal status bar shows your current mode, so you always know what permissions Qwen Code has.
+> You can quickly cycle through modes during a session using **Shift+Tab** (or **Tab** on Windows). The terminal status bar shows your current mode, so you always know what permissions Qwen Code has.
 
-> The cycle order is: **plan → default → auto-edit → auto → yolo → plan → ...**
+> The cycle order is: **plan -> default -> auto-edit -> auto -> yolo -> plan -> ...**
 
 ## 1. Use Plan Mode for safe code analysis
 
@@ -42,7 +42,7 @@ Plan Mode instructs Qwen Code to create a plan by analyzing the codebase with **
 
 You can switch into Plan Mode during a session using **Shift+Tab** (or **Tab** on Windows) to cycle through permission modes.
 
-If you are in Normal Mode, **Shift+Tab** (or **Tab** on Windows) first switches into `auto-edits` Mode, indicated by `⏵⏵ accept edits on` at the bottom of the terminal. A subsequent **Shift+Tab** (or **Tab** on Windows) will switch into Plan Mode, indicated by `⏸ plan mode`.
+If you are in Normal Mode, **Shift+Tab** (or **Tab** on Windows) first switches into `auto-edits` Mode, indicated by ` accept edits on` at the bottom of the terminal. A subsequent **Shift+Tab** (or **Tab** on Windows) will switch into Plan Mode, indicated by ` plan mode`.
 
 **Use the `/plan` command**
 
@@ -112,7 +112,7 @@ Default Mode is the standard way to work with Qwen Code. In this mode, you maint
 
 **Turn on Default Mode during a session**
 
-You can switch into Default Mode during a session using **Shift+Tab**​ (or **Tab** on Windows) to cycle through permission modes. If you're in any other mode, pressing **Shift+Tab** (or **Tab** on Windows) will eventually cycle back to Default Mode, indicated by the absence of any mode indicator at the bottom of the terminal.
+You can switch into Default Mode during a session using **Shift+Tab** (or **Tab** on Windows) to cycle through permission modes. If you're in any other mode, pressing **Shift+Tab** (or **Tab** on Windows) will eventually cycle back to Default Mode, indicated by the absence of any mode indicator at the bottom of the terminal.
 
 **Start a new session in Default Mode**
 
@@ -185,8 +185,8 @@ Shift+Tab (or Tab on Windows) # Switch from other modes
 
 1. You ask Qwen Code to refactor a function
 2. AI analyzes the code and proposes changes
-3. **Automatically**​ applies all file changes without confirmation
-4. If tests need to be run, it will **request approval**​ to execute `npm test`
+3. **Automatically** applies all file changes without confirmation
+4. If tests need to be run, it will **request approval** to execute `npm test`
 
 ## 4. Auto Mode - Classifier-Driven Approval
 
@@ -360,10 +360,10 @@ qwen --prompt "Run the test suite, fix all failing tests, then commit changes"
 
 ### Keyboard Shortcut Switching
 
-During a Qwen Code session, use **Shift+Tab**​ (or **Tab** on Windows) to quickly cycle through the four modes:
+During a Qwen Code session, use **Shift+Tab** (or **Tab** on Windows) to quickly cycle through the four modes:
 
 ```
-Default Mode → Auto-Edit Mode → YOLO Mode → Plan Mode → Default Mode
+Default Mode -> Auto-Edit Mode -> YOLO Mode -> Plan Mode -> Default Mode
 ```
 
 ### Persistent Configuration
@@ -382,7 +382,7 @@ Default Mode → Auto-Edit Mode → YOLO Mode → Plan Mode → Default Mode
 
 ### Mode Usage Recommendations
 
-1. **New to codebase**: Start with **Plan Mode**​ for safe exploration
-2. **Daily development tasks**: Use **Auto-Accept Edits**​ (default mode), efficient and safe
-3. **Automated scripts**: Use **YOLO Mode**​ in controlled environments for full automation
-4. **Complex refactoring**: Use **Plan Mode**​ first for detailed planning, then switch to appropriate mode for execution
+1. **New to codebase**: Start with **Plan Mode** for safe exploration
+2. **Daily development tasks**: Use **Auto-Accept Edits** (default mode), efficient and safe
+3. **Automated scripts**: Use **YOLO Mode** in controlled environments for full automation
+4. **Complex refactoring**: Use **Plan Mode** first for detailed planning, then switch to appropriate mode for execution

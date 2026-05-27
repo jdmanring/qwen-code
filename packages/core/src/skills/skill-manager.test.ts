@@ -113,7 +113,7 @@ describe('SkillManager', () => {
         if (yamlString.includes('paths: []')) {
           paths = [];
         } else if (yamlString.includes('paths: "src/**/*.tsx"')) {
-          // Invalid (scalar) — surface as string so our validator rejects it.
+          // Invalid (scalar) -- surface as string so our validator rejects it.
           paths = 'src/**/*.tsx';
         } else if (yamlString.includes('src/**/*.tsx')) {
           paths = yamlString.includes('test/**/*.tsx')
@@ -1088,7 +1088,7 @@ Review content`);
 
     it('awaits async listeners before resolving', async () => {
       // Regression: notifyChangeListeners must await the Promises returned
-      // by listeners (e.g. SkillTool.refreshSkills) before resolving — the
+      // by listeners (e.g. SkillTool.refreshSkills) before resolving -- the
       // <system-reminder> envelope is emitted off the resolution of
       // matchAndActivateByPath, and announcing a skill before
       // SkillTool.setTools() finishes leaves the model unable to invoke
@@ -1121,7 +1121,7 @@ Review content`);
       expect(listenerObserved).toBe(true);
     });
 
-    it('isolates listener throws via allSettled — siblings still run', async () => {
+    it('isolates listener throws via allSettled -- siblings still run', async () => {
       // Regression: a single buggy listener (e.g. a third-party hook
       // throwing during refresh) must not stop the other listeners or
       // make refreshCache itself reject. allSettled preserves this; if
@@ -1143,7 +1143,7 @@ Review content`);
       expect(sibling).toHaveBeenCalled();
     });
 
-    it('isolates async listener rejections — siblings still run', async () => {
+    it('isolates async listener rejections -- siblings still run', async () => {
       // Same property as the sync-throw case but via a rejected Promise:
       // the wrapper `Promise.resolve().then(listener)` flips both shapes
       // into the same Promise pipeline, but it's worth pinning explicitly
@@ -1180,7 +1180,7 @@ Review content`);
         [] as unknown as Awaited<ReturnType<typeof fs.readdir>>,
       );
 
-      // Capture timer ids set during the refresh — only the listener
+      // Capture timer ids set during the refresh -- only the listener
       // timeouts use setTimeout in this code path. Other tests in this
       // file can leak setTimeout calls (chokidar, etc.) so we diff
       // before/after.
@@ -1263,7 +1263,7 @@ Body.
       ).toEqual(['tsx-helper']);
       expect(listener).toHaveBeenCalledTimes(1);
 
-      // Same pattern touched again — skill already active, no new
+      // Same pattern touched again -- skill already active, no new
       // notification.
       expect(
         await manager.matchAndActivateByPath('/test/project/src/B.tsx'),
@@ -1373,7 +1373,7 @@ Body.
       // Regression for ultrareview bug_001: cross-level skills with the
       // same name but different `paths:` globs. listSkills() dedupes by
       // precedence (project wins), so the model only sees the project
-      // copy. The activation registry must use the same precedence —
+      // copy. The activation registry must use the same precedence --
       // otherwise the user copy's globs activate the visible (project)
       // skill, even when the touched file is outside the project skill's
       // declared paths.
@@ -1480,7 +1480,7 @@ User body.
         },
       ] as unknown as Awaited<ReturnType<typeof fs.readdir>>);
       vi.mocked(fs.access).mockResolvedValue(undefined);
-      // 70 KB pattern — picomatch's default pattern length cap is 65,536
+      // 70 KB pattern -- picomatch's default pattern length cap is 65,536
       // chars, so it throws at compile time.
       const oversizedGlob = 'a'.repeat(70_000);
       vi.mocked(fs.readFile).mockResolvedValue(`---
@@ -1515,7 +1515,7 @@ Body.
         },
       ] as unknown as Awaited<ReturnType<typeof fs.readdir>>);
 
-      // Symlink target can point anywhere on disk — out-of-tree
+      // Symlink target can point anywhere on disk -- out-of-tree
       // targets are the supported user workflow.
       vi.mocked(fs.realpath).mockResolvedValue(
         '/elsewhere/skills-repo/symlink-skill',

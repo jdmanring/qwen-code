@@ -154,11 +154,11 @@ function wrapIdeContext(contextText: string): string {
  * Handle for a non-blocking auto-memory recall prefetch.
  *
  * Lifecycle:
- *  1. Created on UserQuery/Cron — the recall promise fires immediately,
+ *  1. Created on UserQuery/Cron -- the recall promise fires immediately,
  *     `pendingMemoryPrefetch` is set to this handle.
  *  2. Consumed at either of two opportunistic points: a zero-wait
  *     `settledAt !== null` poll just before the UserQuery main request,
- *     or — if recall hadn't settled yet — on the first ToolResult turn.
+ *     or -- if recall hadn't settled yet -- on the first ToolResult turn.
  *  3. Aborted-and-discarded by every cleanup path (resetChat,
  *     MaxSessionTurns, etc.) or replaced when a new UserQuery arrives.
  */
@@ -166,7 +166,7 @@ type MemoryPrefetchHandle = {
   promise: Promise<RelevantAutoMemoryPromptResult>;
   /** Set by promise.finally(). null until the promise settles. */
   settledAt: number | null;
-  /** True after memory has been injected — prevents double-inject. */
+  /** True after memory has been injected -- prevents double-inject. */
   consumed: boolean;
   controller: AbortController;
 };
@@ -204,7 +204,7 @@ export class GeminiClient {
   /**
    * Timestamp (epoch ms) of the last completed API call.
    * Used to detect idle periods for thinking block cleanup.
-   * Starts as null — on the first query there is no prior thinking to clean,
+   * Starts as null -- on the first query there is no prior thinking to clean,
    * so the idle check is skipped until the first API call completes.
    */
   private lastApiCompletionTimestamp: number | null = null;
@@ -374,10 +374,10 @@ export class GeminiClient {
    *     prior failed attempt before re-sending.
    *   - The auto-restore-on-cancel flow in AppContainer, which rewinds
    *     a user prompt out of the UI transcript and the disk-backed
-   *     ↑-history; this is the third place the cancelled prompt lives.
+   *     -history; this is the third place the cancelled prompt lives.
    *     Without calling this from auto-restore, the next request's wire
-   *     payload would carry two consecutive user turns — the cancelled
-   *     one and the new one — and the model would see context the user
+   *     payload would carry two consecutive user turns -- the cancelled
+   *     one and the new one -- and the model would see context the user
    *     thought had been undone.
    */
   stripOrphanedUserEntriesFromHistory() {
@@ -386,7 +386,7 @@ export class GeminiClient {
     chat.stripOrphanedUserEntriesFromHistory();
     const after = chat.getHistoryLength();
     if (after >= before) {
-      // Nothing to strip — leave caches and IDE context alone.
+      // Nothing to strip -- leave caches and IDE context alone.
       return;
     }
     // Stripped trailing user entries can include read_file
@@ -412,7 +412,7 @@ export class GeminiClient {
    * {@link stripOrphanedUserEntriesFromHistory}, which only handles trailing
    * `user` entries.
    *
-   * This `GeminiClient` method is the resume-path entry point — called once
+   * This `GeminiClient` method is the resume-path entry point -- called once
    * from {@link startChat} after the transcript loads, covering `--resume`
    * of a session that crashed between a partial-tool_use push and the
    * tool's eventual completion.
@@ -421,14 +421,14 @@ export class GeminiClient {
    * `stripOrphanedUserEntriesFromHistory`, and the defensive pass at the
    * start of every UserQuery / Cron send) live one layer down inside
    * `GeminiChat.sendMessageStream` and call the standalone
-   * `repairOrphanedToolUseTurns(history)` function directly — they don't
+   * `repairOrphanedToolUseTurns(history)` function directly -- they don't
    * route through this wrapper. Anyone tracing the repair-pass coupling
    * between the client and chat layers should follow that path
    * separately rather than expect everything to funnel through here.
    *
    * Synthesizes an `error` `functionResponse`. The React tool scheduler
    * (`useGeminiStream.handleCompletedTools`) MUST dedupe by `callId` against
-   * the live history before submitting its own `tool_result` — otherwise a
+   * the live history before submitting its own `tool_result` -- otherwise a
    * late real result lands as a second `user[tool_result]` block (orphan
    * because the synthetic already consumed the matching `tool_use`).
    */
@@ -475,7 +475,7 @@ export class GeminiClient {
   }
 
   truncateHistory(keepCount: number) {
-    // Use the O(1) length getter rather than getHistory() — the latter
+    // Use the O(1) length getter rather than getHistory() -- the latter
     // structuredClone's the entire history just to read .length, which
     // gets expensive in long-running sessions.
     const prevLen = this.getChat().getHistoryLength();
@@ -509,12 +509,12 @@ export class GeminiClient {
     // Rebuild the system instruction so its "Deferred Tools" section
     // matches the registry's current state. Without this refresh, MCP
     // tools that land in the registry after startChat() (progressive
-    // discovery — see Config.startMcpDiscoveryInBackground) stay invisible
+    // discovery -- see Config.startMcpDiscoveryInBackground) stay invisible
     // to the model: they're filtered out of `toolDeclarations` by
     // `shouldDefer`, and the prompt's deferred listing was frozen at the
     // built-in-only snapshot taken inside startChat(). The model then has
     // no signal that an MCP tool exists and never invokes ToolSearch to
-    // reveal it — silently regressing non-interactive `--prompt` runs.
+    // reveal it -- silently regressing non-interactive `--prompt` runs.
     this.getChat().setSystemInstruction(
       this.getMainSessionSystemInstruction(deferredTools),
     );
@@ -536,12 +536,12 @@ export class GeminiClient {
 
   /**
    * Abort and release the pending auto-memory prefetch in one step.
-   * Safe to call when no prefetch is pending — does nothing. Centralises
+   * Safe to call when no prefetch is pending -- does nothing. Centralises
    * the abort-then-clear idiom so every cleanup path (resetChat, early
    * returns, finally) cannot half-fix one without the other.
    *
    * If the handle has already settled (recall completed but consume point
-   * hadn't run yet), the settled result is discarded — logged at debug so
+   * hadn't run yet), the settled result is discarded -- logged at debug so
    * operators can diagnose missing-memory scenarios.
    */
   private cancelPendingMemoryPrefetch(): void {
@@ -687,7 +687,7 @@ export class GeminiClient {
    * so all three render the same "Deferred Tools" section for a given
    * registry state.
    *
-   * Caller MUST `await toolRegistry.warmAll()` first — this method only
+   * Caller MUST `await toolRegistry.warmAll()` first -- this method only
    * inspects the registry's eager state and would otherwise miss factory-
    * backed deferred tools.
    *
@@ -695,7 +695,7 @@ export class GeminiClient {
    * tool_search` or a deny rule), every deferred tool is eagerly revealed
    * here so it lands in the declaration list. Skipping this would leave the
    * tool both off the declarations AND off the deferred-summary list (since
-   * `undefined` is returned in that branch) — a silent disappearance that's
+   * `undefined` is returned in that branch) -- a silent disappearance that's
    * harder to diagnose than seeing the tool name absent from `/mcp` output.
    *
    * Returns `undefined` when ToolSearch is unavailable: the prompt's
@@ -779,7 +779,7 @@ export class GeminiClient {
       // Warm the tool registry before building the system prompt so we know
       // which tools are marked `shouldDefer`. The deferred list is appended to
       // the prompt so the model knows which tools are reachable via
-      // ToolSearch. warmAll() is idempotent — setTools() below reuses the
+      // ToolSearch. warmAll() is idempotent -- setTools() below reuses the
       // warmed state. Revealed-deferred state is NOT cleared here because
       // startChat is also taken by the compression path (which preserves the
       // session); `/clear` clears the revealed set via resetChat() before
@@ -832,7 +832,7 @@ export class GeminiClient {
       // subsystem is trying to escape. (Belt-and-suspenders: the same
       // helper runs again inside `chat.sendMessageStream` after the user
       // content is pushed, so a dangling left here by setHistory /
-      // compaction reordering is also caught — but doing it here keeps
+      // compaction reordering is also caught -- but doing it here keeps
       // any pre-send code reading `chat.history` from seeing a malformed
       // shape.)
       this.repairOrphanedToolUseTurnsInHistory();
@@ -1227,7 +1227,7 @@ export class GeminiClient {
       // submission, lastPrompt === fr parts) closes the pair via the real
       // `functionResponse` before we synthesize an error one. Doing the
       // repair here would happen pre-push and race against the user
-      // content's own pairing — see PR #4176 review for the corner.
+      // content's own pairing -- see PR #4176 review for the corner.
     }
 
     // Fire UserPromptSubmit hook through MessageBus (only if hooks are enabled)
@@ -1288,7 +1288,7 @@ export class GeminiClient {
     }
 
     // Notifications start a fresh Turn with a new prompt_id, so the loop
-    // detector must reset — otherwise a prior turn's count can trip
+    // detector must reset -- otherwise a prior turn's count can trip
     // LoopDetected early on the notification turn.
     const isTopLevelInteraction =
       messageType === SendMessageType.UserQuery ||
@@ -1307,7 +1307,7 @@ export class GeminiClient {
         interactionSpan &&
         this.config.getTelemetryIncludeSensitiveSpanAttributes?.()
       ) {
-        // Guard partToString — addUserPromptAttributes would early-return
+        // Guard partToString -- addUserPromptAttributes would early-return
         // anyway, but the argument is evaluated unconditionally otherwise.
         addUserPromptAttributes(
           this.config,
@@ -1388,7 +1388,7 @@ export class GeminiClient {
         }
 
         // Track prompt count for commit attribution. Only the user typing a
-        // fresh prompt should bump the counter — `ToolResult` (tool-call
+        // fresh prompt should bump the counter -- `ToolResult` (tool-call
         // continuation), `Retry`, `Hook`, `Cron`, and `Notification` are all
         // model-driven or background-driven re-entries of the same logical
         // turn. Counting them inflates the "N-shotted" label in the PR
@@ -1433,7 +1433,7 @@ export class GeminiClient {
             );
             fileReadCache.clear();
           } else {
-            // Concurrent stats — don't serialize N FS round-trips
+            // Concurrent stats -- don't serialize N FS round-trips
             // before the next turn.
             const statResults = await Promise.all(
               m.evictedReadPaths.map((p) =>
@@ -1516,7 +1516,7 @@ export class GeminiClient {
       }
 
       // Auto-compaction happens inside GeminiChat.sendMessageStream and surfaces
-      // via the `compressed → ChatCompressed` bridge in turn.ts. Manual /compress
+      // via the `compressed -> ChatCompressed` bridge in turn.ts. Manual /compress
       // still calls tryCompressChat directly for the full reset (env refresh +
       // forceFullIdeContext flip).
       const sessionTokenLimit = this.config.getSessionTokenLimit();
@@ -1639,7 +1639,7 @@ export class GeminiClient {
             const configPath = `${sessionDir}/config.json`;
             systemReminders.push(getArenaSystemReminder(configPath));
           } catch {
-            // Arena config not yet initialized — skip
+            // Arena config not yet initialized -- skip
           }
         }
 
@@ -1647,8 +1647,8 @@ export class GeminiClient {
         // Done AFTER the async reminder setup above so recall settling during
         // those awaits still gets caught here. (settledAt is set in
         // promise.finally(); microtask ordering guarantees it's visible
-        // after any await prior to this point — flatMapTextParts above is
-        // the natural drain.) If still not settled, skip — the ToolResult
+        // after any await prior to this point -- flatMapTextParts above is
+        // the natural drain.) If still not settled, skip -- the ToolResult
         // inject point will retry on the next turn.
         const userQueryMemory = await this.tryConsumeMemoryPrefetch();
         if (userQueryMemory?.prompt) {
@@ -1668,7 +1668,7 @@ export class GeminiClient {
         if (toolResultMemory?.prompt) {
           // Append (not prepend): on a ToolResult turn, requestToSend leads
           // with functionResponse parts that must immediately follow the
-          // model's functionCall (Qwen API constraint — same reason the
+          // model's functionCall (Qwen API constraint -- same reason the
           // IDE-context block above is skipped while a tool call is pending,
           // see the `hasPendingToolCall` guard). Putting the memory text
           // after the functionResponse parts keeps the call/response pairing
@@ -1729,13 +1729,13 @@ export class GeminiClient {
             return turn;
           }
         }
-        // Update arena status on Finished events — stats are derived
+        // Update arena status on Finished events -- stats are derived
         // automatically from uiTelemetryService by the reporter.
         if (arenaAgentClient && event.type === GeminiEventType.Finished) {
           await arenaAgentClient.updateStatus();
         }
 
-        // Re-send a full IDE context blob on the next regular message — auto
+        // Re-send a full IDE context blob on the next regular message -- auto
         // compaction inside chat.sendMessageStream may have summarized away
         // the previous merged IDE context.
         if (event.type === GeminiEventType.ChatCompressed) {
@@ -1957,7 +1957,7 @@ export class GeminiClient {
       }
 
       if (!turn.pendingToolCalls.length && signal && !signal.aborted) {
-        // Save cache-safe params here — before any early return — so that
+        // Save cache-safe params here -- before any early return -- so that
         // background extract/dream agents calling getCacheSafeParams() always
         // see the current turn's history regardless of which path exits below.
         try {
@@ -1973,7 +1973,7 @@ export class GeminiClient {
             this.config.getModel(),
           );
         } catch {
-          // Best-effort — don't block the main flow
+          // Best-effort -- don't block the main flow
         }
 
         if (this.config.getSkipNextSpeakerCheck()) {
@@ -2011,7 +2011,7 @@ export class GeminiClient {
           if (isTopLevelInteraction)
             endInteractionSpan(signal.aborted ? 'cancelled' : 'ok');
           // Preserve the pending prefetch: same reasoning as the
-          // `return hookTurn` site above — the recursive Hook turn may
+          // `return hookTurn` site above -- the recursive Hook turn may
           // have produced tool calls whose ToolResult turn still needs
           // the recall result.
           normalCompletion = true;
@@ -2021,7 +2021,7 @@ export class GeminiClient {
         this.runManagedAutoMemoryBackgroundTasks(messageType);
 
         if (arenaAgentClient) {
-          // No continuation needed — agent completed its task
+          // No continuation needed -- agent completed its task
           await arenaAgentClient.reportCompleted();
         }
       }
@@ -2034,7 +2034,7 @@ export class GeminiClient {
       if (isTopLevelInteraction) {
         endInteractionSpan(signal?.aborted ? 'cancelled' : 'ok');
       }
-      // Reached the bottom of the try — this turn ended cleanly. Preserve
+      // Reached the bottom of the try -- this turn ended cleanly. Preserve
       // any still-pending memory prefetch so the next ToolResult turn can
       // consume it (the whole point of the fire-and-forget design).
       normalCompletion = true;
@@ -2174,7 +2174,7 @@ export class GeminiClient {
       debugLogger.debug('[FILE_READ_CACHE] clear after tryCompressChat');
       this.config.getFileReadCache().clear();
       this.getChat().setLastPromptTokenCount(info.newTokenCount);
-      // Re-send a full IDE context blob on the next regular message —
+      // Re-send a full IDE context blob on the next regular message --
       // compression may have summarized away the merged IDE context
       // that lived inside the previous user prompt.
       this.forceFullIdeContext = true;

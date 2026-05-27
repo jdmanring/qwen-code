@@ -50,7 +50,7 @@ async def test_stat_01_corrupted_settings():
         with pytest.raises((json.JSONDecodeError, FileNotFoundError, RuntimeError)):
             adv.get_control_plane()
 
-        print("✅ STAT-01: Corrupted settings handled.")
+        print(" STAT-01: Corrupted settings handled.")
     finally:
         adv.cleanup()
 
@@ -82,7 +82,7 @@ async def test_stat_04_invalid_model_id():
 
             # Should fallback to default intent
             assert result["intent"] == "Exploratory Analysis"
-            print("✅ STAT-04: Invalid model ID handled via fallback.")
+            print(" STAT-04: Invalid model ID handled via fallback.")
 
     finally:
         adv.cleanup()

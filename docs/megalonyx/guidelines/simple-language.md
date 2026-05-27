@@ -1,10 +1,10 @@
-# 🗣️ Simple Language Guide
+#  Simple Language Guide
 
 This guide is a "translation cheat sheet" to help agents move from technical "AI-speak" to grounded, human language. The goal is to be relatable and clear, not impressive.
 
 ---
 
-## 🛠️ The Translation Table
+##  The Translation Table
 
 When writing for humans (READMEs, guides, status reports), use the **Human-Speak** column.
 
@@ -22,7 +22,7 @@ When writing for humans (READMEs, guides, status reports), use the **Human-Speak
 
 ---
 
-## 📏 Three Simple Rules for Writing
+##  Three Simple Rules for Writing
 
 1. **The "Grandparent" Test**: If you wouldn't say it to a non-technical person to explain what the project does, don't write it in the README.
 2. **Verbs over Nouns**: Instead of "The implementation of the memory system," use "We built a way for the AI to remember things."
@@ -30,7 +30,7 @@ When writing for humans (READMEs, guides, status reports), use the **Human-Speak
 
 ---
 
-## ❌ Common "Posturing" Traps
+##  Common "Posturing" Traps
 - **Avoid**: "Leveraging state-of-the-art paradigms to optimize..."
 - **Use**: "Using a new method to make the system faster..."
 - **Avoid**: "Orchestrating a symphony of specialized agents..."

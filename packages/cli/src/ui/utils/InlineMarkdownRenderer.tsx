@@ -70,7 +70,7 @@ const RenderInlineInternal: React.FC<RenderInlineProps> = ({
 
   const nodes: React.ReactNode[] = [];
   let lastIndex = 0;
-  // Capability is stable for the duration of a single render — read it once
+  // Capability is stable for the duration of a single render -- read it once
   // here so each matched link/URL doesn't re-walk the env-var table.
   const canHyperlink = supportsHyperlinks();
   const inlineRegex = enableInlineMath
@@ -157,7 +157,7 @@ const RenderInlineInternal: React.FC<RenderInlineProps> = ({
           const linkText = linkMatch[1] ?? '';
           const url = linkMatch[2] ?? '';
           const wrapOsc8 = shouldWrapMarkdownLink(url, canHyperlink);
-          // When OSC 8 is active, render ONLY the markdown label — the
+          // When OSC 8 is active, render ONLY the markdown label -- the
           // clickable target lives in the envelope, so repeating a long URL
           // in plain text would just clutter the output. Empty labels
           // (`[](url)`) fall back to showing the URL so the link stays
@@ -177,7 +177,7 @@ const RenderInlineInternal: React.FC<RenderInlineProps> = ({
           const safeLabel = wrapOsc8 ? sanitizeForOsc(linkText) : linkText;
           const safeUrl = wrapOsc8 ? sanitizeForOsc(url) : url;
           // Keep the `(url)` suffix visible when the label itself looks
-          // like a (mismatched) URL — pre-OSC-8 rendering always showed the
+          // like a (mismatched) URL -- pre-OSC-8 rendering always showed the
           // target; eliding it now would let `[https://google.com](https://attacker.com)`
           // present a clickable "google.com" that resolves elsewhere.
           const showUrlSuffix = wrapOsc8 && labelMayDeceive(safeLabel, safeUrl);
@@ -231,7 +231,7 @@ const RenderInlineInternal: React.FC<RenderInlineProps> = ({
         );
       } else if (fullMatch.match(/^https?:\/\//)) {
         // The bare-URL regex greedily eats trailing punctuation (`.`, `)`,
-        // `,`, …). Trim that off the OSC 8 *target* so the clickable link
+        // `,`, ...). Trim that off the OSC 8 *target* so the clickable link
         // resolves correctly, while leaving the visible bytes unchanged so
         // unsupported terminals see today's output exactly. The bare-URL
         // alternative is anchored on `https?://`, so `isSafeOscScheme` is

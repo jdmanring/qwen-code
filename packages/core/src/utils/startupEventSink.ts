@@ -10,7 +10,7 @@
  * The cli package owns the actual startup profiler (`packages/cli/src/utils/startupProfiler.ts`)
  * but core-package code (config init, MCP discovery, GeminiClient.setTools, etc.) is
  * the source of several first-screen / first-paint metrics. To avoid an
- * undesirable core → cli dependency, core code records events via this sink,
+ * undesirable core -> cli dependency, core code records events via this sink,
  * and the cli registers a real handler at startup.
  *
  * When no handler is registered (the common case in tests / non-interactive
@@ -55,7 +55,7 @@ export function recordStartupEvent(
       // but route the failure through `debugLogger` so a corrupted sink
       // doesn't silently drop every subsequent event. `debugLogger` is
       // quiet by default and visible under `QWEN_CODE_DEBUG=1` and in the
-      // debug log file — matching how other "must never throw" sites in
+      // debug log file -- matching how other "must never throw" sites in
       // this PR (e.g. AppContainer's `setTools` flush) surface errors.
       debugLogger.error(
         `startup event sink threw for '${name}': ${err instanceof Error ? err.message : String(err)}`,

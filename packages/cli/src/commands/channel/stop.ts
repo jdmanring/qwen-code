@@ -22,7 +22,7 @@ export const stopCommand: CommandModule = {
 
     if (!signalService(info.pid, 'SIGTERM')) {
       writeStderrLine(
-        'Failed to send signal — process may have already exited.',
+        'Failed to send signal -- process may have already exited.',
       );
       removeServiceInfo();
       process.exit(0);

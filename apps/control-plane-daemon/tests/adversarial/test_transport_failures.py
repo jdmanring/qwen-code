@@ -86,7 +86,7 @@ async def test_trans_01_socket_deleted_mid_session():
                     except BrokenPipeError:
                         pytest.fail("ControlPlane should handle BrokenPipeError internally")
 
-            print("✅ TRANS-01: Socket deletion handled gracefully.")
+            print(" TRANS-01: Socket deletion handled gracefully.")
     finally:
         trans.cleanup()
 
@@ -117,7 +117,7 @@ async def test_trans_03_permission_denied():
             # Using the internal method since there's no public 'connect'
             await mgr._get_session("forbidden")
 
-        print("✅ TRANS-03: Permission denied reported correctly.")
+        print(" TRANS-03: Permission denied reported correctly.")
     finally:
         # Restore permissions to allow cleanup
         os.chmod(trans.socket_path, 0o666)

@@ -1,4 +1,4 @@
-🏛️ 
+ 
 # Tool Isolation: WASM Sandboxing
 
 This document defines the technical specification for the isolation of tool execution within the `qwen_code_stack` using WebAssembly (WASM).

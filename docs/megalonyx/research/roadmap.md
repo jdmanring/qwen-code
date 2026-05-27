@@ -1,4 +1,4 @@
-# 🚀 Bleeding Edge Research Roadmap
+#  Bleeding Edge Research Roadmap
 
 This document outlines the advanced, experimental directions for the Qwen Code stack. These are "high-risk, high-reward" research goals designed to move the system from a highly capable tool to a near-autonomous agentic ecosystem.
 

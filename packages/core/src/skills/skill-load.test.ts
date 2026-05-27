@@ -338,7 +338,7 @@ Valid skill.
         },
       ] as unknown as Awaited<ReturnType<typeof fs.readdir>>);
 
-      // Symlink target — realpath returns wherever the link points.
+      // Symlink target -- realpath returns wherever the link points.
       // Out-of-tree targets are allowed (the supported user workflow
       // is symlinking into ~/.qwen/skills/ from a separate repo).
       vi.mocked(fs.realpath).mockResolvedValue(
@@ -565,7 +565,7 @@ Symlinked skill body.
     it('returns undefined for explicit null (YAML `paths:` with no value)', () => {
       // Regression: YAML `paths:` followed by no list parses to `null`.
       // Treat the same as omission so the whole skill isn't dropped via a
-      // parse error — matches the leniency of `argumentHint` and
+      // parse error -- matches the leniency of `argumentHint` and
       // `whenToUse` for non-string scalar values.
       expect(parsePathsField({ paths: null })).toBeUndefined();
     });
@@ -598,12 +598,12 @@ Symlinked skill body.
       const { validateSkillName } = await import('./types.js');
       // Regression: the previous /^[a-zA-Z0-9_:.-]+$/ rejected every
       // non-ASCII name, silently dropping CJK skills on upgrade. The
-      // structural-injection guard targets <>"'/\\\n\r\t etc — entire
+      // structural-injection guard targets <>"'/\\\n\r\t etc -- entire
       // Unicode planes are not the threat.
-      expect(() => validateSkillName('中文助手')).not.toThrow();
-      expect(() => validateSkillName('помощник')).not.toThrow();
-      expect(() => validateSkillName('café-helper')).not.toThrow();
-      expect(() => validateSkillName('日本語_v2')).not.toThrow();
+      expect(() => validateSkillName('')).not.toThrow();
+      expect(() => validateSkillName('')).not.toThrow();
+      expect(() => validateSkillName('caf-helper')).not.toThrow();
+      expect(() => validateSkillName('_v2')).not.toThrow();
     });
   });
 
@@ -667,7 +667,7 @@ Symlinked skill body.
       // Regression: the extension parser previously dropped the
       // disable-model-invocation field, so an extension SKILL.md with
       // both `paths:` and `disable-model-invocation: true` would still
-      // be eligible for path activation — directly contradicting the
+      // be eligible for path activation -- directly contradicting the
       // bug_004 fix at the project/user level.
       mockParseYaml.mockReturnValueOnce({
         name: 'secret-helper',
@@ -699,7 +699,7 @@ Symlinked skill body.
     it('sets skillRoot to the SKILL.md directory (parity with managed parser)', () => {
       // Regression: extension parser previously omitted `skillRoot`, so
       // `registerSkillHooks.ts` skipped setting `QWEN_SKILL_ROOT` for
-      // command-type hooks on extension skills — `$QWEN_SKILL_ROOT/...`
+      // command-type hooks on extension skills -- `$QWEN_SKILL_ROOT/...`
       // references in those hooks broke silently.
       mockParseYaml.mockReturnValueOnce({
         name: 'tsx-helper',
@@ -776,7 +776,7 @@ Symlinked skill body.
 
   // Direct unit tests for the exported priority helpers. The behavior is
   // also exercised end-to-end via parseSkillContent and listSkills, but
-  // those paths can't surface single-input regressions cleanly — e.g. a
+  // those paths can't surface single-input regressions cleanly -- e.g. a
   // future change that accepts numeric strings, swallows Infinity, or
   // mishandles -0 wouldn't necessarily fail the integration tests.
   describe('parsePriorityField', () => {
@@ -799,7 +799,7 @@ Symlinked skill body.
     });
 
     it('rejects booleans (regression guard for the old Number() coercion)', () => {
-      // Number(true) === 1, Number(false) === 0 — both pass isFinite, so a
+      // Number(true) === 1, Number(false) === 0 -- both pass isFinite, so a
       // pre-fix implementation would have silently accepted these.
       expect(parsePriorityField({ priority: true }, filePath)).toBeUndefined();
       expect(parsePriorityField({ priority: false }, filePath)).toBeUndefined();

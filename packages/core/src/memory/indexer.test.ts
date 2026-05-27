@@ -52,7 +52,7 @@ describe('managed auto-memory indexer', () => {
       },
     ]);
 
-    expect(content).toBe('- [User Memory](user/terse.md) — User profile');
+    expect(content).toBe('- [User Memory](user/terse.md) -- User profile');
   });
 
   it('rewrites MEMORY.md from topic file contents', async () => {

@@ -5,7 +5,7 @@
  */
 
 /**
- * @fileoverview AgentCore — the shared execution engine for subagents.
+ * @fileoverview AgentCore -- the shared execution engine for subagents.
  *
  * AgentCore encapsulates the model reasoning loop, tool scheduling, stats,
  * and event emission. It is composed by both AgentHeadless (one-shot tasks)
@@ -96,7 +96,7 @@ export const EXCLUDED_TOOLS_FOR_SUBAGENTS: ReadonlySet<string> = new Set([
   ToolNames.CRON_DELETE,
   ToolNames.TASK_STOP,
   ToolNames.SEND_MESSAGE,
-  // Worktree management belongs to the parent session — a subagent must
+  // Worktree management belongs to the parent session -- a subagent must
   // never enter or exit the user's worktree state independently.
   ToolNames.ENTER_WORKTREE,
   ToolNames.EXIT_WORKTREE,
@@ -182,7 +182,7 @@ export interface ExecutionStats {
 }
 
 /**
- * AgentCore — shared execution engine for model reasoning and tool scheduling.
+ * AgentCore -- shared execution engine for model reasoning and tool scheduling.
  *
  * This class encapsulates:
  * - Chat/model session creation (`createChat`)
@@ -192,7 +192,7 @@ export interface ExecutionStats {
  * - Statistics tracking and event emission
  *
  * It does NOT manage lifecycle (start/stop/terminate), abort signals,
- * or final result interpretation — those are the caller's responsibility.
+ * or final result interpretation -- those are the caller's responsibility.
  */
 export class AgentCore {
   readonly subagentId: string;
@@ -203,7 +203,7 @@ export class AgentCore {
   readonly runConfig: RunConfig;
   readonly toolConfig?: ToolConfig;
   /**
-   * Event emitter for this agent. Always present — if the caller doesn't
+   * Event emitter for this agent. Always present -- if the caller doesn't
    * pass one, AgentCore allocates its own so the observable state below
    * is populated regardless of who constructs the agent.
    */
@@ -214,7 +214,7 @@ export class AgentCore {
    * When the agent runs with a model different from the parent session,
    * this view is published via AsyncLocalStorage during execution so any
    * `Config.getContentGenerator{,Config}()` call inside the run resolves
-   * to the agent's values — even from tools that captured the parent
+   * to the agent's values -- even from tools that captured the parent
    * Config at construction.
    */
   readonly runtimeView?: RuntimeContentGeneratorView;
@@ -287,7 +287,7 @@ export class AgentCore {
     this.setupStateListeners();
   }
 
-  // ─── Chat Creation ────────────────────────────────────────
+  // --- Chat Creation ----------------------------------------
 
   /**
    * Creates a GeminiChat instance configured for this agent.
@@ -338,7 +338,7 @@ export class AgentCore {
     // Build generationConfig. For fork subagents, `renderedSystemPrompt`
     // carries the parent's exact rendered systemInstruction so the fork
     // shares a byte-identical cache prefix. Otherwise, template
-    // `systemPrompt` via buildChatSystemPrompt (which may throw — kept
+    // `systemPrompt` via buildChatSystemPrompt (which may throw -- kept
     // outside the try/catch so template errors surface to the caller).
     const generationConfig: GenerateContentConfig & {
       systemInstruction?: string | Content;
@@ -362,7 +362,7 @@ export class AgentCore {
       // Seed the per-chat token count so the auto-compaction threshold
       // gate sees the inherited history's true size on the first send.
       // Without this, fork subagents start at 0 and the gate NOOPs even
-      // when `startHistory` is already huge — first API call can 400.
+      // when `startHistory` is already huge -- first API call can 400.
       chat.setLastPromptTokenCount(this.lastPromptTokenCount);
       return chat;
     } catch (error) {
@@ -376,7 +376,7 @@ export class AgentCore {
     }
   }
 
-  // ─── Tool Preparation ─────────────────────────────────────
+  // --- Tool Preparation -------------------------------------
 
   /**
    * Prepares the list of tools available to this agent.
@@ -407,7 +407,7 @@ export class AgentCore {
         hasWildcard ||
         (asStrings.length === 0 && onlyInlineDecls.length === 0)
       ) {
-        // Subagents inherit the full tool surface — including deferred tools
+        // Subagents inherit the full tool surface -- including deferred tools
         // (MCP, low-frequency built-ins). Subagents are one-shot and don't
         // have the same "save tokens" lifecycle as the main chat, and they
         // don't see the "Deferred Tools" section of the system prompt, so
@@ -435,7 +435,7 @@ export class AgentCore {
         ),
       );
     } else {
-      // Inherit all available tools by default when not specified — see the
+      // Inherit all available tools by default when not specified -- see the
       // wildcard branch above for why deferred tools are included.
       toolsList.push(
         ...toolRegistry
@@ -460,13 +460,13 @@ export class AgentCore {
     return toolsList;
   }
 
-  // ─── Reasoning Loop ───────────────────────────────────────
+  // --- Reasoning Loop ---------------------------------------
 
   /**
    * Runs the inner model reasoning loop.
    *
    * This is the core execution cycle:
-   * send messages → stream response → collect tool calls → execute tools → repeat.
+   * send messages -> stream response -> collect tool calls -> execute tools -> repeat.
    *
    * The loop terminates when:
    * - The model produces a text response without tool calls (normal completion)
@@ -511,7 +511,7 @@ export class AgentCore {
    *    consult agent context, such as Monitor, keep subagent ownership.
    *
    * Used both around the reasoning loop and around the deferred-approval
-   * `onConfirm` continuation — the latter runs from the parent UI's input
+   * `onConfirm` continuation -- the latter runs from the parent UI's input
    * handler, on a different async chain than the loop, so without this
    * re-entry the resumed tool body would fall back to the parent's view
    * and mis-attribute its tokens.
@@ -547,7 +547,7 @@ export class AgentCore {
 
   /**
    * Wraps `fn` in the effective runtime view: this agent's own view if
-   * set, else `inheritedView` if the caller captured one. Internal —
+   * set, else `inheritedView` if the caller captured one. Internal --
    * public callers should use {@link runInAgentFrames}, which also
    * restores the subagent-name frame.
    */
@@ -573,7 +573,7 @@ export class AgentCore {
     let terminateMode: AgentTerminateMode | null = null;
 
     while (true) {
-      // Check abort before starting a new round — prevents unnecessary API
+      // Check abort before starting a new round -- prevents unnecessary API
       // calls after processFunctionCalls was unblocked by an abort signal.
       if (abortController.signal.aborted) {
         terminateMode = AgentTerminateMode.CANCELLED;
@@ -641,7 +641,7 @@ export class AgentCore {
             };
           }
 
-          // Handle retry events — reset all per-attempt state so a successful
+          // Handle retry events -- reset all per-attempt state so a successful
           // retry does not inherit stale data (e.g. wasOutputTruncated) from a
           // previous attempt that may have hit MAX_TOKENS.
           if (streamEvent.type === 'retry') {
@@ -745,7 +745,7 @@ export class AgentCore {
             );
             // Emit one event per injection so observers (e.g. the JSONL
             // transcript writer) can persist each external message as a
-            // user-role record. The framing prefix is stripped — the prefix
+            // user-role record. The framing prefix is stripped -- the prefix
             // is a model-facing detail, not part of the original message.
             this.emitExternalInputEvents(externalInputs);
           }
@@ -797,7 +797,7 @@ export class AgentCore {
             ];
             continue;
           } else {
-            // No tool calls — treat this as the model's final answer.
+            // No tool calls -- treat this as the model's final answer.
             if (roundText && roundText.trim().length > 0) {
               finalText = roundText.trim();
               // Emit ROUND_END for the final round so all consumers see it.
@@ -834,7 +834,7 @@ export class AgentCore {
         } as AgentRoundEvent);
       } finally {
         // Reverse-cleanup fires whether the iteration ended normally, broke,
-        // returned, or threw — preventing parent-listener accumulation on
+        // returned, or threw -- preventing parent-listener accumulation on
         // long-running parents like the per-message roundAbortController in
         // AgentInteractive or the session-lived externalSignal in headless.
         roundAbortController.abort();
@@ -989,7 +989,7 @@ export class AgentCore {
     }
   }
 
-  // ─── Tool Execution ───────────────────────────────────────
+  // --- Tool Execution ---------------------------------------
 
   /**
    * Processes a list of function calls via CoreToolScheduler.
@@ -1071,7 +1071,7 @@ export class AgentCore {
     const responded = new Set<string>();
     let resolveBatch: (() => void) | null = null;
     const emittedCallIds = new Set<string>();
-    // pidMap: callId → PTY PID, populated by onToolCallsUpdate when a shell
+    // pidMap: callId -> PTY PID, populated by onToolCallsUpdate when a shell
     // tool spawns a PTY. Shared with outputUpdateHandler via closure so the
     // PID is included in TOOL_OUTPUT_UPDATE events for interactive shell support.
     const pidMap = new Map<string, number>();
@@ -1196,7 +1196,7 @@ export class AgentCore {
             // Snapshot the ambient runtime view here, while the loop frame
             // is still live. For inheriting agents (no own runtimeView)
             // this captures the parent's view so the deferred-approval
-            // continuation — invoked later from the UI's async chain — can
+            // continuation -- invoked later from the UI's async chain -- can
             // restore it. See `runInAgentFrames` for the wiring.
             const inheritedView = getRuntimeContentGenerator();
             const inheritedAgentId = getCurrentAgentId();
@@ -1334,7 +1334,7 @@ export class AgentCore {
         await scheduler.schedule(requests, abortController.signal);
         await batchDone;
       } finally {
-        // Always remove `onAbort` — otherwise a throw from scheduler.schedule
+        // Always remove `onAbort` -- otherwise a throw from scheduler.schedule
         // or batchDone would leak it on the round controller, and the round's
         // outer try/finally `.abort()` would later fire spurious cancellation
         // TOOL_RESULT events for every un-emitted callId (corrupting the
@@ -1353,7 +1353,7 @@ export class AgentCore {
     return [{ role: 'user', parts: toolResponseParts }];
   }
 
-  // ─── Observable state accessors ────────────────────────────
+  // --- Observable state accessors ----------------------------
 
   getMessages(): readonly AgentMessage[] {
     return this.messages;
@@ -1411,7 +1411,7 @@ export class AgentCore {
     this.pendingApprovals.clear();
   }
 
-  // ─── Stats & Events ───────────────────────────────────────
+  // --- Stats & Events ---------------------------------------
 
   getEventEmitter(): AgentEventEmitter {
     return this.eventEmitter;
@@ -1524,7 +1524,7 @@ export class AgentCore {
     );
   }
 
-  // ─── Private Helpers ──────────────────────────────────────
+  // --- Private Helpers --------------------------------------
 
   /**
    * TOOL_WAITING_APPROVAL is deliberately NOT listened to here because
@@ -1590,8 +1590,8 @@ export class AgentCore {
     });
 
     // Mirror send_message injections into the observable message stream so
-    // the TUI detail dialog shows parent→child messages alongside what the
-    // JSONL transcript records. The framing prefix is stripped — that's a
+    // the TUI detail dialog shows parent->child messages alongside what the
+    // JSONL transcript records. The framing prefix is stripped -- that's a
     // model-facing detail, not what the user wants to see in the dialog.
     emitter.on(
       AgentEventType.EXTERNAL_MESSAGE,
@@ -1649,7 +1649,7 @@ Important Rules:
     const totalTok = Number(usage.totalTokenCount || 0);
     // Context usage tracks prompt size; output isn't in history yet.
     // Guard against malformed provider values (`Infinity`/`NaN`) so the
-    // downstream compaction math doesn't get poisoned — `Infinity` is
+    // downstream compaction math doesn't get poisoned -- `Infinity` is
     // truthy and would otherwise overwrite a valid prior reading.
     const contextTok = inTok || totalTok;
     if (isFinite(contextTok) && contextTok > 0) {

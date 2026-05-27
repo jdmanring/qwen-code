@@ -143,7 +143,7 @@ export const compressCommand: SlashCommand = {
         content: `Context compressed (${compressed.originalTokenCount} -> ${compressed.newTokenCount}).`,
       };
     } catch (e) {
-      // If cancelled via ESC, don't show error — cancelSlashCommand already handled UI
+      // If cancelled via ESC, don't show error -- cancelSlashCommand already handled UI
       if (abortSignal?.aborted) {
         return;
       }

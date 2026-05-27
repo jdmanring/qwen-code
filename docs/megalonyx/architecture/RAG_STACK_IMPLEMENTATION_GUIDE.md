@@ -1,4 +1,4 @@
-🏛️ 
+ 
 # RAG Stack Implementation Guide
 
 This document defines the technical infrastructure powering the semantic memory and retrieval capabilities of the Qwen Code stack. We follow the "Best Overall Free Stack" architecture to maximize intelligence while maintaining zero cost. For a detailed component breakdown, see the [Memory Technical Map](reference/memory-technical-map.md).

@@ -482,7 +482,7 @@ export interface QueryOptions {
     mcpRequest?: number;
 
     /**
-     * Timeout for SDK→CLI control requests.
+     * Timeout for SDK->CLI control requests.
      * This applies to internal control operations like initialize, interrupt,
      * setPermissionMode, setModel, etc.
      * @default 60000 (1 minute)

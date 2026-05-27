@@ -247,7 +247,7 @@ function checkMcpServers(context: CommandContext): DoctorCheckResult[] {
   }
 
   return Object.keys(servers).map((name) => {
-    // Skip disabled servers — report as informational pass
+    // Skip disabled servers -- report as informational pass
     if (config?.isMcpServerDisabled(name)) {
       return {
         category: t('MCP Servers'),
@@ -350,7 +350,7 @@ async function checkGit(context: CommandContext): Promise<DoctorCheckResult> {
       message: t('available'),
     };
   }
-  // services.git is undefined in non-interactive mode — probe the binary directly
+  // services.git is undefined in non-interactive mode -- probe the binary directly
   const version = await getGitVersion();
   if (version === 'unknown') {
     return {

@@ -59,7 +59,7 @@ export async function assertRealProjectSkillPath(
   try {
     realSkillsRoot = await fs.realpath(skillsRoot);
   } catch {
-    // Skills root does not exist yet — nothing to traverse.
+    // Skills root does not exist yet -- nothing to traverse.
     return;
   }
 
@@ -69,13 +69,13 @@ export async function assertRealProjectSkillPath(
   for (;;) {
     try {
       const real = await fs.realpath(check);
-      // Found an existing node — verify it is inside the real skills root.
+      // Found an existing node -- verify it is inside the real skills root.
       if (
         real !== realSkillsRoot &&
         !real.startsWith(realSkillsRoot + path.sep)
       ) {
         throw new Error(
-          `Skills write blocked: symlink traversal detected — resolved path "${real}" ` +
+          `Skills write blocked: symlink traversal detected -- resolved path "${real}" ` +
             `is outside the project skills directory "${realSkillsRoot}".`,
         );
       }
@@ -94,7 +94,7 @@ export async function assertRealProjectSkillPath(
             );
           }
         } catch (lstatErr) {
-          // lstat itself threw — re-throw only if it's not ENOENT (path truly
+          // lstat itself threw -- re-throw only if it's not ENOENT (path truly
           // doesn't exist at all, which is safe to walk up from).
           if ((lstatErr as NodeJS.ErrnoException).code !== 'ENOENT') {
             throw lstatErr;

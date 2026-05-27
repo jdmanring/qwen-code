@@ -59,8 +59,8 @@ export class RestoreInProgressError extends Error {
  * outside the `'single' | 'thread'` enum. The HTTP route validates the
  * body field at the boundary first (so HTTP callers get a typed
  * `400 invalid_session_scope` before ever reaching the bridge); this
- * class exists for direct callers — tests, embeds, future entry points
- * — and so the route's catch-block can translate it back to the same
+ * class exists for direct callers -- tests, embeds, future entry points
+ * -- and so the route's catch-block can translate it back to the same
  * 400 shape rather than the generic 500 every other thrown `Error`
  * collapses to. Distinct type so routes can branch without
  * text-matching the message.
@@ -81,7 +81,7 @@ export class InvalidSessionScopeError extends Error {
  * Thrown by `spawnOrAttach` when a fresh-spawn would push `sessionCount`
  * past `BridgeOptions.maxSessions`. The HTTP route maps this to 503
  * with a `Retry-After` hint. Attaches (same workspace under `single`
- * scope) never trip this — only NEW children. Distinct error type so
+ * scope) never trip this -- only NEW children. Distinct error type so
  * routes can branch without text-matching.
  */
 export class SessionLimitExceededError extends Error {
@@ -95,7 +95,7 @@ export class SessionLimitExceededError extends Error {
 
 /**
  * Thrown by `spawnOrAttach` when the requested `workspaceCwd` doesn't
- * canonicalize to the daemon's bound workspace. Per #3803 §02 every
+ * canonicalize to the daemon's bound workspace. Per #3803 02 every
  * bridge instance is bound to exactly one workspace; cross-workspace
  * requests are rejected at the daemon boundary. The server route
  * translates this to a 400 response with `code: 'workspace_mismatch'`
@@ -110,7 +110,7 @@ export class WorkspaceMismatchError extends Error {
     // can't amplify a multi-MB `cwd` body through this error.
     const safeRequested =
       requested.length > MAX_WORKSPACE_PATH_LENGTH
-        ? `${requested.slice(0, MAX_WORKSPACE_PATH_LENGTH)}…[truncated]`
+        ? `${requested.slice(0, MAX_WORKSPACE_PATH_LENGTH)}...[truncated]`
         : requested;
     super(
       `Workspace mismatch: daemon is bound to "${bound}" but ` +
@@ -197,7 +197,7 @@ export class WorkspaceInitConflictError extends Error {
  * #4282 fold-in 1 (gpt-5.5 C5). Thrown by `restartMcpServer` when the
  * caller asks for a server name that isn't in the daemon's
  * `McpServers` config. Translated to HTTP 404 + structured body by
- * the route — distinguishable from a generic 500 so a bad server
+ * the route -- distinguishable from a generic 500 so a bad server
  * name doesn't look like an internal daemon failure.
  */
 export class McpServerNotFoundError extends Error {

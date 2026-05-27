@@ -11,13 +11,13 @@ import { diag } from '@opentelemetry/api';
  * source (env var or settings.json). Attempts to set these are dropped with
  * a warning, and the runtime-injected value is used instead.
  *
- * - `service.version` — telemetry integrity (no version spoofing).
- * - `session.id` — runtime-injected; allowing user override would either bypass
+ * - `service.version` -- telemetry integrity (no version spoofing).
+ * - `session.id` -- runtime-injected; allowing user override would either bypass
  *   the metric cardinality toggle (Resource attrs auto-attach to every metric
  *   data point) or silently shadow the real session id.
  *
- * `service.name` is NOT in this set — it follows its own precedence chain
- * (see design doc §4.2 for details).
+ * `service.name` is NOT in this set -- it follows its own precedence chain
+ * (see design doc 4.2 for details).
  */
 export const RESERVED_RESOURCE_ATTRIBUTE_KEYS: ReadonlySet<string> = new Set([
   'service.version',
@@ -45,14 +45,14 @@ function warn(msg: string, warnings?: ResourceAttributeWarnings): void {
  * the OTel spec / W3C Baggage:
  * https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/
  *
- * Behavior on malformed input is permissive — bad pairs are skipped with a
+ * Behavior on malformed input is permissive -- bad pairs are skipped with a
  * `diag.warn` and parsing continues. The goal is to never block telemetry
  * startup on a single malformed value.
  *
  * Duplicate keys: last-write-wins, matching the OTel SDK reference behavior.
  *
  * Note on warn visibility: `diag.warn` routes to the debug log file
- * (`~/.qwen/log/otel-*.log`), not console — see PR #3986. The SDK emits a
+ * (`~/.qwen/log/otel-*.log`), not console -- see PR #3986. The SDK emits a
  * single console summary at startup when this list is non-empty so users
  * notice silent drops without scanning the debug log.
  */
@@ -81,7 +81,7 @@ export function parseOtelResourceAttributes(
     const valueRaw = trimmed.slice(idx + 1).trim();
     // Keys are also percent-encoded per the OTel/W3C spec. If we did not
     // decode them, a key like `service%2Eversion` would land verbatim and
-    // miss the RESERVED filter — collectors that decode keys downstream
+    // miss the RESERVED filter -- collectors that decode keys downstream
     // could then resurrect `service.version` and bypass reserved-key
     // protection. Decode key + value identically.
     let key: string;

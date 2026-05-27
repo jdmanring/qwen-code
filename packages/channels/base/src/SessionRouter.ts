@@ -9,9 +9,9 @@ interface PersistedEntry {
 }
 
 export class SessionRouter {
-  private toSession: Map<string, string> = new Map(); // routing key → session ID
-  private toTarget: Map<string, SessionTarget> = new Map(); // session ID → target
-  private toCwd: Map<string, string> = new Map(); // session ID → cwd
+  private toSession: Map<string, string> = new Map(); // routing key -> session ID
+  private toTarget: Map<string, SessionTarget> = new Map(); // session ID -> target
+  private toCwd: Map<string, string> = new Map(); // session ID -> cwd
 
   private bridge: AcpBridge;
   private defaultCwd: string;
@@ -151,7 +151,7 @@ export class SessionRouter {
 
   /**
    * Restore session mappings from a previous bridge.
-   * Called after bridge restart — attempts loadSession for each saved mapping.
+   * Called after bridge restart -- attempts loadSession for each saved mapping.
    * Failed loads are silently dropped (new session on next message).
    */
   async restoreSessions(): Promise<{
@@ -183,7 +183,7 @@ export class SessionRouter {
         this.toCwd.set(sessionId, entry.cwd);
         restored++;
       } catch {
-        // Session can't be loaded — will create fresh on next message
+        // Session can't be loaded -- will create fresh on next message
         failed++;
       }
     }
@@ -228,7 +228,7 @@ export class SessionRouter {
     try {
       writeFileSync(this.persistPath, JSON.stringify(data, null, 2), 'utf-8');
     } catch {
-      // best-effort — don't break message flow for persistence failure
+      // best-effort -- don't break message flow for persistence failure
     }
   }
 }

@@ -15,7 +15,7 @@ export const MICROCOMPACT_CLEARED_IMAGE_PREFIX = '[Old inline media cleared:';
 
 // IMPORTANT: any new file-touching tool added here MUST also be added
 // to FILE_PATH_TOOLS below, or microcompaction will blank its output
-// without reporting the eviction — silently reintroducing issue #4239.
+// without reporting the eviction -- silently reintroducing issue #4239.
 const COMPACTABLE_TOOLS = new Set<string>([
   ToolNames.READ_FILE,
   ToolNames.SHELL,
@@ -39,7 +39,7 @@ const FILE_PATH_TOOLS = new Set<string>([
 ]);
 
 /**
- * Build a `callId → file_path[]` map for every file-tool call. The path
+ * Build a `callId -> file_path[]` map for every file-tool call. The path
  * lives on the request-side `functionCall.args`, not on the
  * `functionResponse` microcompaction blanks, so this is the only way
  * to recover which file a cleared result referred to. Calls missing an
@@ -47,7 +47,7 @@ const FILE_PATH_TOOLS = new Set<string>([
  *
  * Paths accumulate per id rather than overwrite: if a (malformed or
  * resumed) history reuses a `functionCall.id` across different files,
- * disarming *all* candidate paths is the safe choice — over-disarming
+ * disarming *all* candidate paths is the safe choice -- over-disarming
  * costs at most a redundant re-read, whereas keeping the wrong file
  * armed would resurrect the dangling-placeholder hazard (issue #4239).
  */
@@ -129,7 +129,7 @@ function hasNestedMedia(part: Part): boolean {
  * Collect references to individual compactable parts across the
  * history, in encounter order, grouped by kind:
  *
- * - `tool`: functionResponse parts produced by compactable tools — the
+ * - `tool`: functionResponse parts produced by compactable tools -- the
  *   whole result (including any nested media) is cleared as a unit.
  * - `media`: top-level `inlineData` / `fileData` parts under user-role
  *   messages (e.g. attachments pasted via @reference).
@@ -156,7 +156,7 @@ function collectCompactablePartRefs(history: Content[]): CollectedRefs {
       if (fnName && COMPACTABLE_TOOLS.has(fnName)) {
         tool.push({ contentIndex: ci, partIndex: pi, kind: 'tool' });
       } else if (part.functionResponse && hasNestedMedia(part)) {
-        // Non-compactable tool result with media attached — clear only
+        // Non-compactable tool result with media attached -- clear only
         // the nested media so the tool's text output survives.
         nestedMedia.push({
           contentIndex: ci,
@@ -183,7 +183,7 @@ function isErrorResponse(part: Part): boolean {
  * reporting (`MicrocompactMeta.tokensSaved`) and the
  * `if (tokensSaved === 0) return { history }` short-circuit, so the
  * value just needs to be roughly proportional to the part's real cost
- * — exactness is not required.
+ * -- exactness is not required.
  *
  * Image/document parts use a fixed budget rather than base64 length
  * divided by 4: a 1 MB inline PNG occupies ~1,280 visual tokens on
@@ -229,7 +229,7 @@ function stripNestedMedia(
   fnResp: NonNullable<Part['functionResponse']>,
 ): NonNullable<Part['functionResponse']> {
   // `parts` isn't declared on the standard FunctionResponse type but is
-  // a qwen-code extension — see `coreToolScheduler.createFunctionResponsePart`.
+  // a qwen-code extension -- see `coreToolScheduler.createFunctionResponsePart`.
   const { parts: _droppedNested, ...rest } = fnResp as typeof fnResp & {
     parts?: unknown;
   };
@@ -256,7 +256,7 @@ export interface MicrocompactMeta {
   /**
    * Count of blanked file results whose path could NOT be recovered
    * (e.g. provider didn't populate `functionCall.id`). Non-zero means
-   * the caller MUST fall back to the blanket wipe — an unrecovered
+   * the caller MUST fall back to the blanket wipe -- an unrecovered
    * armed entry would serve a dangling placeholder.
    */
   unresolvedEvictedReads: number;
@@ -310,7 +310,7 @@ export function microcompactHistory(
     return { history };
   }
 
-  // Build a lookup: contentIndex → Map of partIndex → kind
+  // Build a lookup: contentIndex -> Map of partIndex -> kind
   const clearMap = new Map<number, Map<number, PartKind>>();
   for (const ref of clearRefs) {
     let parts = clearMap.get(ref.contentIndex);

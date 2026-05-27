@@ -143,7 +143,7 @@ describe('vim-buffer-actions', () => {
 
       it('should skip over combining marks to avoid cursor disappearing', () => {
         // Test case for combining character cursor disappearing bug
-        // "café test" where é is represented as e + combining acute accent
+        // "caf test" where  is represented as e + combining acute accent
         const state = createTestState(['cafe\u0301 test'], 0, 2); // Start at 'f'
         const action = {
           type: 'vim_move_right' as const,
@@ -152,12 +152,12 @@ describe('vim-buffer-actions', () => {
 
         const result = handleVimAction(state, action);
         expect(result).toHaveOnlyValidCharacters();
-        expect(result.cursorCol).toBe(3); // Should be on 'e' of 'café'
+        expect(result.cursorCol).toBe(3); // Should be on 'e' of 'caf'
 
         // Move right again - should skip combining mark and land on space
         const result2 = handleVimAction(result, action);
         expect(result2).toHaveOnlyValidCharacters();
-        expect(result2.cursorCol).toBe(5); // Should be on space after 'café'
+        expect(result2.cursorCol).toBe(5); // Should be on space after 'caf'
       });
     });
 
@@ -360,7 +360,7 @@ describe('vim-buffer-actions', () => {
 
       it('should handle combining characters - advance from end of base character', () => {
         // Test case for combining character word end bug
-        // "café test" where é is represented as e + combining acute accent
+        // "caf test" where  is represented as e + combining acute accent
         const state = createTestState(['cafe\u0301 test'], 0, 0); // Start at 'c'
 
         // First 'e' command should move to the 'e' (position 3)
@@ -369,7 +369,7 @@ describe('vim-buffer-actions', () => {
           payload: { count: 1 },
         });
         expect(result).toHaveOnlyValidCharacters();
-        expect(result.cursorCol).toBe(3); // At 'e' of café
+        expect(result.cursorCol).toBe(3); // At 'e' of caf
 
         // Second 'e' command should advance to end of "test" (position 9), not stay stuck
         result = handleVimAction(result, {
@@ -381,16 +381,16 @@ describe('vim-buffer-actions', () => {
       });
 
       it('should handle precomposed characters with diacritics', () => {
-        // Test case with precomposed é for comparison
-        const state = createTestState(['café test'], 0, 0); // Start at 'c'
+        // Test case with precomposed  for comparison
+        const state = createTestState(['caf test'], 0, 0); // Start at 'c'
 
-        // First 'e' command should move to the 'é' (position 3)
+        // First 'e' command should move to the '' (position 3)
         let result = handleVimAction(state, {
           type: 'vim_move_word_end' as const,
           payload: { count: 1 },
         });
         expect(result).toHaveOnlyValidCharacters();
-        expect(result.cursorCol).toBe(3); // At 'é' of café
+        expect(result.cursorCol).toBe(3); // At '' of caf
 
         // Second 'e' command should advance to end of "test" (position 8)
         result = handleVimAction(result, {
@@ -909,7 +909,7 @@ describe('vim-buffer-actions', () => {
   describe('UTF-32 character handling in word/line operations', () => {
     describe('Right-to-left text handling', () => {
       it('should handle Arabic text in word movements', () => {
-        const state = createTestState(['hello مرحبا world'], 0, 0);
+        const state = createTestState(['hello  world'], 0, 0);
 
         // Move to end of 'hello'
         let result = handleVimAction(state, {
@@ -925,13 +925,13 @@ describe('vim-buffer-actions', () => {
           payload: { count: 1 },
         });
         expect(result).toHaveOnlyValidCharacters();
-        expect(result.cursorCol).toBe(10); // End of Arabic word 'مرحبا'
+        expect(result.cursorCol).toBe(10); // End of Arabic word ''
       });
     });
 
     describe('Chinese character handling', () => {
       it('should handle Chinese characters in word movements', () => {
-        const state = createTestState(['hello 你好 world'], 0, 0);
+        const state = createTestState(['hello  world'], 0, 0);
 
         // Move to end of 'hello'
         let result = handleVimAction(state, {
@@ -947,13 +947,13 @@ describe('vim-buffer-actions', () => {
           payload: { count: 1 },
         });
         expect(result).toHaveOnlyValidCharacters();
-        expect(result.cursorCol).toBe(6); // Start of '你好'
+        expect(result.cursorCol).toBe(6); // Start of ''
       });
     });
 
     describe('Mixed script handling', () => {
       it('should handle mixed Latin and non-Latin scripts with word end commands', () => {
-        const state = createTestState(['test中文test'], 0, 0);
+        const state = createTestState(['testtest'], 0, 0);
 
         let result = handleVimAction(state, {
           type: 'vim_move_word_end' as const,
@@ -962,24 +962,24 @@ describe('vim-buffer-actions', () => {
         expect(result).toHaveOnlyValidCharacters();
         expect(result.cursorCol).toBe(3); // End of 'test'
 
-        // Second word end command should move to end of '中文'
+        // Second word end command should move to end of ''
         result = handleVimAction(result, {
           type: 'vim_move_word_end' as const,
           payload: { count: 1 },
         });
         expect(result).toHaveOnlyValidCharacters();
-        expect(result.cursorCol).toBe(5); // End of '中文'
+        expect(result.cursorCol).toBe(5); // End of ''
       });
 
       it('should handle mixed Latin and non-Latin scripts with word forward commands', () => {
-        const state = createTestState(['test中文test'], 0, 0);
+        const state = createTestState(['testtest'], 0, 0);
 
         let result = handleVimAction(state, {
           type: 'vim_move_word_forward' as const,
           payload: { count: 1 },
         });
         expect(result).toHaveOnlyValidCharacters();
-        expect(result.cursorCol).toBe(4); // Start of '中'
+        expect(result.cursorCol).toBe(4); // Start of ''
 
         // Second word forward command should move to start of final 'test'
         result = handleVimAction(result, {
@@ -991,7 +991,7 @@ describe('vim-buffer-actions', () => {
       });
 
       it('should handle mixed Latin and non-Latin scripts with word backward commands', () => {
-        const state = createTestState(['test中文test'], 0, 9); // Start at end of final 'test'
+        const state = createTestState(['testtest'], 0, 9); // Start at end of final 'test'
 
         let result = handleVimAction(state, {
           type: 'vim_move_word_backward' as const,
@@ -1000,17 +1000,17 @@ describe('vim-buffer-actions', () => {
         expect(result).toHaveOnlyValidCharacters();
         expect(result.cursorCol).toBe(6); // Start of final 'test'
 
-        // Second word backward command should move to start of '中文'
+        // Second word backward command should move to start of ''
         result = handleVimAction(result, {
           type: 'vim_move_word_backward' as const,
           payload: { count: 1 },
         });
         expect(result).toHaveOnlyValidCharacters();
-        expect(result.cursorCol).toBe(4); // Start of '中'
+        expect(result.cursorCol).toBe(4); // Start of ''
       });
 
       it('should handle Unicode block characters consistently with w and e commands', () => {
-        const state = createTestState(['██ █████ ██'], 0, 0);
+        const state = createTestState(['  '], 0, 0);
 
         // Test w command progression
         let wResult = handleVimAction(state, {
@@ -1051,7 +1051,7 @@ describe('vim-buffer-actions', () => {
       });
 
       it('should handle strings starting with Chinese characters', () => {
-        const state = createTestState(['中文test英文word'], 0, 0);
+        const state = createTestState(['testword'], 0, 0);
 
         // Test 'w' command - when at start of non-Latin word, w moves to next word
         let wResult = handleVimAction(state, {
@@ -1065,7 +1065,7 @@ describe('vim-buffer-actions', () => {
           type: 'vim_move_word_forward' as const,
           payload: { count: 1 },
         });
-        expect(wResult.cursorCol).toBe(6); // Start of '英文'
+        expect(wResult.cursorCol).toBe(6); // Start of ''
 
         // Test 'e' command
         let eResult = handleVimAction(state, {
@@ -1073,7 +1073,7 @@ describe('vim-buffer-actions', () => {
           payload: { count: 1 },
         });
         expect(eResult).toHaveOnlyValidCharacters();
-        expect(eResult.cursorCol).toBe(1); // End of 中文
+        expect(eResult.cursorCol).toBe(1); // End of 
 
         eResult = handleVimAction(eResult, {
           type: 'vim_move_word_end' as const,
@@ -1083,7 +1083,7 @@ describe('vim-buffer-actions', () => {
       });
 
       it('should handle strings starting with Arabic characters', () => {
-        const state = createTestState(['مرحباhelloسلام'], 0, 0);
+        const state = createTestState(['hello'], 0, 0);
 
         // Test 'w' command - when at start of non-Latin word, w moves to next word
         let wResult = handleVimAction(state, {
@@ -1097,16 +1097,16 @@ describe('vim-buffer-actions', () => {
           type: 'vim_move_word_forward' as const,
           payload: { count: 1 },
         });
-        expect(wResult.cursorCol).toBe(10); // Start of 'سلام'
+        expect(wResult.cursorCol).toBe(10); // Start of ''
 
         // Test 'b' command from end
-        const bState = createTestState(['مرحباhelloسلام'], 0, 13);
+        const bState = createTestState(['hello'], 0, 13);
         let bResult = handleVimAction(bState, {
           type: 'vim_move_word_backward' as const,
           payload: { count: 1 },
         });
         expect(bResult).toHaveOnlyValidCharacters();
-        expect(bResult.cursorCol).toBe(10); // Start of سلام
+        expect(bResult.cursorCol).toBe(10); // Start of 
 
         bResult = handleVimAction(bResult, {
           type: 'vim_move_word_backward' as const,

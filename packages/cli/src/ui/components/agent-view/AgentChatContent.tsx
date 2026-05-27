@@ -32,12 +32,12 @@ import { agentMessagesToHistoryItems } from './agentHistoryAdapter.js';
 import { AgentHeader } from './AgentHeader.js';
 
 export interface AgentChatContentProps {
-  /** The agent's AgentCore — the source of truth for transcript state. */
+  /** The agent's AgentCore -- the source of truth for transcript state. */
   core: AgentCore;
   /**
    * The InteractiveAgent wrapper, if any. Present for live arena tabs;
    * omit for read-only transcript surfaces. When provided, drives the
-   * spinner and the embedded-shell affordance — all reads happen inside
+   * spinner and the embedded-shell affordance -- all reads happen inside
    * this component, which re-renders on the relevant events, so state
    * stays fresh without plumbing props from an ancestor that doesn't
    * subscribe.
@@ -63,7 +63,7 @@ export const AgentChatContent = ({
   const contentWidth = terminalWidth - 4;
 
   // Force re-render on message updates and status changes.
-  // STREAM_TEXT is deliberately excluded — model text is shown only after
+  // STREAM_TEXT is deliberately excluded -- model text is shown only after
   // each round completes (via committed messages), avoiding per-chunk re-renders.
   const [, setRenderTick] = useState(0);
   const tickRef = useRef(0);
@@ -107,7 +107,7 @@ export const AgentChatContent = ({
   const liveOutputs = core.getLiveOutputs();
   const shellPids = core.getShellPids();
 
-  // Read status/PTY/timing state fresh on every render — this component
+  // Read status/PTY/timing state fresh on every render -- this component
   // re-renders on STATUS_CHANGE/TOOL_CALL/TOOL_OUTPUT_UPDATE so the reads
   // stay current without prop plumbing from a non-subscribed ancestor.
   const status = interactiveAgent?.getStatus() ?? AgentStatus.COMPLETED;
@@ -120,7 +120,7 @@ export const AgentChatContent = ({
     status === AgentStatus.RUNNING || status === AgentStatus.INITIALIZING;
 
   // Embedded-shell focus (Ctrl+F toggle). Lives here so the auto-reset
-  // effect sees a fresh activePtyId — AgentChatView above us doesn't
+  // effect sees a fresh activePtyId -- AgentChatView above us doesn't
   // subscribe to agent events, so driving this from there would leave
   // focus stuck on a terminated PTY.
   const [embeddedShellFocused, setEmbeddedShellFocused] = useState(false);
@@ -172,8 +172,8 @@ export const AgentChatContent = ({
     ],
   );
 
-  // Any tool_group with an Executing or Confirming tool — plus everything
-  // after it — stays in the live area so confirmation dialogs remain
+  // Any tool_group with an Executing or Confirming tool -- plus everything
+  // after it -- stays in the live area so confirmation dialogs remain
   // interactive (Ink's <Static> cannot receive input).
   const splitIndex = useMemo(() => {
     for (let idx = allItems.length - 1; idx >= 0; idx--) {
@@ -196,7 +196,7 @@ export const AgentChatContent = ({
   const pendingItems = allItems.slice(splitIndex);
 
   const agentWorkingDir = core.runtimeContext.getTargetDir() ?? '';
-  // Cache the branch — it won't change during the agent's lifetime and
+  // Cache the branch -- it won't change during the agent's lifetime and
   // getGitBranch uses synchronous execSync which blocks the render loop.
   const agentGitBranch = useMemo(
     () => (agentWorkingDir ? getGitBranch(agentWorkingDir) : ''),
@@ -236,7 +236,7 @@ export const AgentChatContent = ({
         {(item) => item}
       </Static>
 
-      {/* Live area — tool groups awaiting confirmation or still executing.
+      {/* Live area -- tool groups awaiting confirmation or still executing.
           Must remain outside Static so confirmation dialogs are interactive. */}
       {pendingItems.map((item) => (
         <HistoryItemDisplay

@@ -14,18 +14,22 @@ This document defines the mandatory requirements for any code entering the monor
     - Python: must pass `uv run ruff check` and `uv run ruff format`.
     - TypeScript: must pass `eslint`.
     - Max line length: 80 characters.
+- **ASCII Compliance**
+    - All files must contain only ASCII characters (0-127).
+    - No emojis, non-standard symbols, or Unicode logic characters.
+    - Rationale: Maximizes token efficiency and ensures uniform context representation across different LLM tokenizers.
 
 ## 2. Naming Requirements
 
 Names must be immediately descriptive. An AI or engineer reading a name should be able to predict what it contains or does without opening it.
 
-### 🚫 Anti-Buzzword Rule
+###  Anti-Buzzword Rule
 The use of "status adjectives" or "branding labels" to describe technical components is strictly forbidden. These terms provide no functional information and create semantic noise.
 
 - **Forbidden Buzzwords**: `Sovereign`, `Standalone`, `Runtime` (as a status label), `Frontier`, `Omni`, `Ultra`, `Hyper`, `Core` (unless referring to a specific `core/` directory).
 - **The Noun-First Principle**: Name components by **what they are** or **what they do**, not by their "tier" or "status".
 
-| ❌ Bad (Buzzword/Status) | ✅ Good (Technical/Descriptive) | Reason |
+|  Bad (Buzzword/Status) |  Good (Technical/Descriptive) | Reason |
 | :--- | :--- | :--- |
 | `standalone_scrub.py` | `intake_normalization.py` | "Standalone" is a status; "Normalization" is the function. |
 | `sovereign_bridge.py` | `uds_bridge.py` | "Sovereign" is branding; "UDS" is the technical protocol. |
@@ -35,7 +39,7 @@ The use of "status adjectives" or "branding labels" to describe technical compon
 
 - **What this means in practice**: prefer `gate_failure_tests.py` over `chaos_tests.py`, `intake_normalization` over `standalone_scrub`, `upstream_sync_pipeline` over `orchestrator`. An AI reading the name alone should predict the contents or behavior correctly at least 95% of the time.
 - **Case conventions**
-    - Python files: `snake_case.py` — never `kebab-case.py`.
+    - Python files: `snake_case.py` -- never `kebab-case.py`.
     - Python classes: `PascalCase`. Shell scripts: `kebab-case.sh`. Bin/CLI entrypoints: `kebab-case` (no extension).
     - JS/TS: `camelCase` for functions, `PascalCase` for classes/components.
     - Docs/Config files: `kebab-case`.
@@ -53,7 +57,7 @@ The use of "status adjectives" or "branding labels" to describe technical compon
 
 When importing code from an external source, it passes through intake normalization before being merged:
 
-`External code` → `Lint check` → `Format check` → `Type check` → `Naming review` → `Symmetry update` → `Merge`
+`External code` -> `Lint check` -> `Format check` -> `Type check` -> `Naming review` -> `Symmetry update` -> `Merge`
 
 ---
 
@@ -79,8 +83,8 @@ When importing code from an external source, it passes through intake normalizat
 ESLint 10 removed several deprecated context methods (`context.getFilename()`,
 `context.parserOptions`). Two plugins still rely on those APIs:
 
-- `eslint-plugin-react` — uses `context.getFilename()` (upstream ESLint 10 PR #3979 in progress)
-- `eslint-plugin-import` — uses `context.parserOptions.sourceType` (upstream ESLint 10 PR #3230 in progress)
+- `eslint-plugin-react` -- uses `context.getFilename()` (upstream ESLint 10 PR #3979 in progress)
+- `eslint-plugin-import` -- uses `context.parserOptions.sourceType` (upstream ESLint 10 PR #3230 in progress)
 
 **Do not remove the compat wrappers** until both PRs are merged and new plugin versions are
 released. The bridge is applied in `eslint.config.js`:
@@ -103,7 +107,7 @@ then run `pnpm -w run check` to confirm no regressions.
 The following rules are intentionally set to `'warn'` until dedicated code passes address them.
 Do not promote them to `'error'` without first cleaning up the violations.
 
-**react-hooks v7 new rules** — added at `'error'` in v7 but require upstream code changes:
+**react-hooks v7 new rules** -- added at `'error'` in v7 but require upstream code changes:
 
 | Rule | Why warn |
 |---|---|
@@ -121,7 +125,7 @@ Do not promote them to `'error'` without first cleaning up the violations.
 | `react-hooks/config` | Needs config pass |
 | `react-hooks/gating` | Needs gating pass |
 
-**ESLint 10 new core rules** — added to `eslint:recommended` in v10:
+**ESLint 10 new core rules** -- added to `eslint:recommended` in v10:
 
 | Rule | What it catches | Why warn |
 |---|---|---|
@@ -137,7 +141,7 @@ not `configs['recommended-latest']`:
 // Correct (v7+):
 reactHooks.configs.flat['recommended-latest']
 
-// Wrong — throws "plugins must be object format" in ESLint 10:
+// Wrong -- throws "plugins must be object format" in ESLint 10:
 reactHooks.configs['recommended-latest']
 ```
 
@@ -154,7 +158,7 @@ To avoid blind iteration and "guess-and-check" loops, the following diagnostic s
 
 To ensure the Megalonyx stack can be deployed and run independently of the monorepo source code, all components must adhere to strict pathing standards.
 
-### ✅ Mandatory Pathing Standards
+###  Mandatory Pathing Standards
 All paths must be resolved dynamically using the following hierarchy:
 1. **Environment Variables**: Use `QWEN_HOME` for CLI settings and `$STACK_ROOT` for daemon artifacts.
 2. **Configuration Files**: Paths must be read from the runtime configuration files located in the user's home directory.
@@ -162,7 +166,7 @@ All paths must be resolved dynamically using the following hierarchy:
     - **Config**: `~/.config/qwen/` and `~/.config/megalonyx/`
     - **Data/State**: `~/.local/share/megalonyx/`
 
-### 🚫 Forbidden Pathing Patterns
+###  Forbidden Pathing Patterns
 The use of relative paths that assume the project is running from the monorepo root is strictly forbidden.
 - **No `__file__` relative jumps**: Do not use `os.path.dirname(__file__)` to climb up to the root (e.g., `../../config/`).
 - **No hardcoded monorepo paths**: Do not use paths like `/home/james/projects/megalonyx-monorepo/...`.

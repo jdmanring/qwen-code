@@ -1161,7 +1161,7 @@ export function logSpeculation(config: Config, event: SpeculationEvent): void {
   logger.emit(logRecord);
 }
 
-// ─── Auto-Memory Log Functions ───────────────────────────────────────────────
+// --- Auto-Memory Log Functions -----------------------------------------------
 
 export function logMemoryExtract(
   config: Config,

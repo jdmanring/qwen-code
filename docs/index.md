@@ -11,9 +11,9 @@ this file should be able to predict the contents of any listed document without 
 |---|---|
 | `README.md` | What this repo is, what's in it, how to get started, key files |
 | `docs/onboarding.md` | "Life of a Request" narrative and component mapping |
-| `todo.md` | Current work tracking — what's done and what's next |
-| `CLAUDE.md` | AI agent guide — how to operate in this repo without asking questions |
-| `QWEN.md` | Qwen Code agent guide — loaded by Qwen Code at session start |
+| `todo.md` | Current work tracking -- what's done and what's next |
+| `CLAUDE.md` | AI agent guide -- how to operate in this repo without asking questions |
+| `QWEN.md` | Qwen Code agent guide -- loaded by Qwen Code at session start |
 
 ---
 
@@ -63,7 +63,7 @@ this file should be able to predict the contents of any listed document without 
 
 | File | What it covers |
 |---|---|
-| `docs/meta/engineering-standards.md` | Naming requirements, code quality rules — the binding standard |
+| `docs/meta/engineering-standards.md` | Naming requirements, code quality rules -- the binding standard |
 | `docs/meta/git-strategy.md` | Branch architecture, pipeline flow, upstream contribution workflow |
 | `docs/meta/contribution-checklist.md` | Hardened verification protocol for upstream contributions |
 | `docs/meta/pipeline-runbook.md` | What to do when a pipeline gate fails |

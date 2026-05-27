@@ -203,9 +203,9 @@ describe('Composer', () => {
       expect(output).not.toContain('Should not show');
     });
 
-    // ─── Narrow-terminal suppression (suppressBottomLoadingIndicator) ───
+    // --- Narrow-terminal suppression (suppressBottomLoadingIndicator) ---
     // The indicator is hidden only when actively Responding on a terminal
-    // ≤ 30 cols wide. WaitingForConfirmation must NEVER be suppressed.
+    // <= 30 cols wide. WaitingForConfirmation must NEVER be suppressed.
 
     it('hides LoadingIndicator when Responding on a 30-col terminal', () => {
       const uiState = createMockUIState({
@@ -255,7 +255,7 @@ describe('Composer', () => {
       const output = lastFrame();
       expect(output).toContain('LoadingIndicator');
       // The minimal fallback string only appears when the full indicator is
-      // suppressed — when LoadingIndicator renders, it owns the cancel hint.
+      // suppressed -- when LoadingIndicator renders, it owns the cancel hint.
       expect(output).not.toContain('Esc to cancel');
     });
 
@@ -271,7 +271,7 @@ describe('Composer', () => {
     });
 
     it('shows LoadingIndicator when WaitingForConfirmation even on a 25-col terminal', () => {
-      // Confirmation prompts must remain visible regardless of width — the
+      // Confirmation prompts must remain visible regardless of width -- the
       // user needs to see something is awaiting their input.
       const uiState = createMockUIState({
         streamingState: StreamingState.WaitingForConfirmation,

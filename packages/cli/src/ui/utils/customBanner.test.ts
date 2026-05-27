@@ -167,7 +167,7 @@ describe('resolveCustomBanner', () => {
         userUi: { customAsciiArt: 'A\x9b31mB\x9c\x90X' },
       }),
     );
-    // 0x9b (single-byte CSI), 0x9c (ST), 0x90 (DCS) are all C1 — must be
+    // 0x9b (single-byte CSI), 0x9c (ST), 0x90 (DCS) are all C1 -- must be
     // replaced with space, not interpreted by the terminal.
     expect(out.asciiArt.small).not.toMatch(/[\x80-\x9f]/);
     expect(out.asciiArt.small).toContain('A');
@@ -200,7 +200,7 @@ describe('resolveCustomBanner', () => {
     ]);
   });
 
-  it('caps art at 200 lines × 200 cols', () => {
+  it('caps art at 200 lines * 200 cols', () => {
     const tooManyLines = Array.from({ length: 250 }, () => 'x').join('\n');
     const out1 = resolveCustomBanner(
       makeSettings({ userUi: { customAsciiArt: tooManyLines } }),
@@ -228,7 +228,7 @@ describe('resolveCustomBanner', () => {
     expect(out.asciiArt.small).toBe('ABS\nART');
   });
 
-  it('refuses to open a FIFO at the configured path (POSIX) — must not hang startup', () => {
+  it('refuses to open a FIFO at the configured path (POSIX) -- must not hang startup', () => {
     if (process.platform === 'win32') return;
     const fifoPath = path.join(tmpDir, 'pipe.fifo');
     // mkfifo via child_process keeps this test self-contained without
@@ -272,7 +272,7 @@ describe('resolveCustomBanner', () => {
         userPath: path.join(tmpDir, 'settings.json'),
       }),
     );
-    // O_NOFOLLOW makes openSync throw ELOOP — resolver soft-fails, so the
+    // O_NOFOLLOW makes openSync throw ELOOP -- resolver soft-fails, so the
     // tier ends up undefined rather than reading through the symlink.
     expect(out.asciiArt.small).toBeUndefined();
   });
@@ -317,7 +317,7 @@ describe('resolveCustomBanner', () => {
         userPath: '/home/u/.qwen/settings.json',
       }),
     );
-    // The resolver must NOT silently let `path` win — both forms are
+    // The resolver must NOT silently let `path` win -- both forms are
     // dropped and we fall through to the default art.
     expect(out.asciiArt.small).toBeUndefined();
     expect(out.asciiArt.large).toBeUndefined();
@@ -327,17 +327,17 @@ describe('resolveCustomBanner', () => {
     // 200 fullwidth CJK characters render at ~400 cells; before the fix
     // the .length cap let them through. The cap is now visual width, so
     // ~100 fullwidth chars max per line.
-    const fullwidth = '一'.repeat(150); // 150 chars × 2 cells = 300 cells
+    const fullwidth = ''.repeat(150); // 150 chars * 2 cells = 300 cells
     const out = resolveCustomBanner(
       makeSettings({ userUi: { customAsciiArt: fullwidth } }),
     );
     const small = out.asciiArt.small ?? '';
     // Truncated by visual width: each fullwidth char is 2 cells, so
-    // ≤ 100 chars fit under MAX_ART_COLS=200.
+    // <= 100 chars fit under MAX_ART_COLS=200.
     expect(small.length).toBeLessThanOrEqual(100);
     // And it's a valid string of fullwidth chars (no surrogate / split
-    // mid-codepoint — every char is a full BMP code point here).
-    expect(/^一+$/.test(small)).toBe(true);
+    // mid-codepoint -- every char is a full BMP code point here).
+    expect(/^+$/.test(small)).toBe(true);
   });
 
   it('falls back when a {path} entry lives in a scope with no associated file path', () => {
@@ -391,14 +391,14 @@ describe('resolveCustomBanner', () => {
     expect(out.asciiArt.small).toBeUndefined();
   });
 
-  it('ignores untrusted workspace settings — does not honor an untrusted checkout (no inline render, no file read)', () => {
+  it('ignores untrusted workspace settings -- does not honor an untrusted checkout (no inline render, no file read)', () => {
     const file = path.join(tmpDir, 'evil.txt');
     fs.writeFileSync(file, 'EVIL');
     const out = resolveCustomBanner(
       makeSettings({
         isTrusted: false,
         // Workspace tries to provide both an inline string AND a {path}
-        // tier — both must be ignored when the workspace is untrusted.
+        // tier -- both must be ignored when the workspace is untrusted.
         workspaceUi: {
           customAsciiArt: {
             small: 'WORKSPACE-INLINE',
@@ -539,7 +539,7 @@ describe('resolveCustomBanner', () => {
     // Newline folds to a single space; the 0x9b (single-byte CSI) is
     // replaced with a space; the literal "31m" parameter chars survive
     // as plain text (they were never going to be interpreted without the
-    // leading control byte) — exactly the same shape the title sanitizer
+    // leading control byte) -- exactly the same shape the title sanitizer
     // produces for the equivalent input.
     expect(out.subtitle).not.toMatch(/[\x80-\x9f]/);
     expect(out.subtitle).not.toContain('\n');

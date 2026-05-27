@@ -59,7 +59,7 @@ describe('ensureToolResultPairing', () => {
           { functionCall: { name: 'edit', args: {} } },
         ],
       },
-      // No functionResponse follows — boundary truncation
+      // No functionResponse follows -- boundary truncation
     ];
     const result = ensureToolResultPairing(messages);
     expect(result).toHaveLength(2);

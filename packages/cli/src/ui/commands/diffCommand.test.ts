@@ -330,7 +330,7 @@ describe('diffCommand interactive mode', () => {
 });
 
 describe('computeDiffColumnWidths', () => {
-  // Direct contract test — both the Ink component and the plain-text
+  // Direct contract test -- both the Ink component and the plain-text
   // renderer call this helper, so its output binds their column alignment.
   // If anyone changes the formula, both paths must shift together.
 
@@ -452,7 +452,7 @@ describe('renderDiffModelText filename sanitization', () => {
     const content = await renderText(
       new Map([[evil, { added: 1, removed: 0, isBinary: false }]]),
     );
-    // The raw ESC byte must not survive into the text output — it would
+    // The raw ESC byte must not survive into the text output -- it would
     // otherwise be interpreted as an SGR by any downstream terminal.
     expect(content).not.toContain('\x1b[');
     // The literal escaped form is what `escapeAnsiCtrlCodes` produces.

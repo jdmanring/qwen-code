@@ -724,7 +724,7 @@ describe('Gemini Client (client.ts)', () => {
     });
   });
 
-  describe('startChat — deferred tools', () => {
+  describe('startChat -- deferred tools', () => {
     // Pulls the registry mock used by the surrounding suite so each test
     // can stub the deferred-summary + ToolSearch availability per case.
     function getRegistryMock() {
@@ -739,7 +739,7 @@ describe('Gemini Client (client.ts)', () => {
     it('re-reveals deferred tools that appear in resumed history', async () => {
       // Resume contract: a transcript referencing `cron_create` (a
       // deferred tool) must re-reveal it on startChat so the API
-      // declaration list includes its schema — otherwise a follow-up
+      // declaration list includes its schema -- otherwise a follow-up
       // call to that tool would be rejected as unknown.
       const reg = getRegistryMock();
       reg.getDeferredToolSummary.mockReturnValue([
@@ -764,14 +764,14 @@ describe('Gemini Client (client.ts)', () => {
       ]);
 
       expect(reg.revealDeferredTool).toHaveBeenCalledWith('cron_create');
-      // cron_list NOT in history → must NOT be revealed by the resume scan.
+      // cron_list NOT in history -> must NOT be revealed by the resume scan.
       expect(reg.revealDeferredTool).not.toHaveBeenCalledWith('cron_list');
     });
 
     it('eagerly reveals every deferred tool when ToolSearch is unavailable', async () => {
       // When ToolSearch is filtered out (deny rule / --exclude-tools
       // tool_search), the model has no way to reach deferred schemas.
-      // Silent disappearance is the worst failure mode — instead, reveal
+      // Silent disappearance is the worst failure mode -- instead, reveal
       // every deferred tool eagerly so they all land in the declaration
       // list. The token-saving rationale of deferral was predicated on
       // the discovery surface being available.
@@ -791,7 +791,7 @@ describe('Gemini Client (client.ts)', () => {
 
     it('does NOT eagerly reveal when ToolSearch is available', async () => {
       // When ToolSearch IS registered, deferred tools stay hidden until
-      // the model discovers them — that's the whole point of deferral.
+      // the model discovers them -- that's the whole point of deferral.
       const reg = getRegistryMock();
       reg.getDeferredToolSummary.mockReturnValue([
         { name: 'cron_create', description: 'schedule' },
@@ -802,7 +802,7 @@ describe('Gemini Client (client.ts)', () => {
 
       await client.startChat();
 
-      // No history scan match, ToolSearch available → no reveal at all.
+      // No history scan match, ToolSearch available -> no reveal at all.
       expect(reg.revealDeferredTool).not.toHaveBeenCalled();
     });
 
@@ -1006,7 +1006,7 @@ describe('Gemini Client (client.ts)', () => {
     });
   });
 
-  describe('startChat — repair orphan tool_use on resume', () => {
+  describe('startChat -- repair orphan tool_use on resume', () => {
     it('synthesizes a functionResponse for a transcript ending in a dangling model[functionCall]', async () => {
       // --resume of a session that crashed (OOM / SIGKILL / process exit)
       // between the partial-tool_use push in `processStreamResponse` and
@@ -1015,7 +1015,7 @@ describe('Gemini Client (client.ts)', () => {
       // `functionResponse`. Without the repair pass running at session
       // load, the first API call after `--resume` would 400 with
       // "tool_use_id ... must have a corresponding tool_use block in
-      // the previous message" — exactly the wedge this PR is supposed
+      // the previous message" -- exactly the wedge this PR is supposed
       // to escape. Covers the only resume-time integration point for
       // the repair, so a future reorder/removal of the call in
       // `startChat()` regresses this test.
@@ -1072,7 +1072,7 @@ describe('Gemini Client (client.ts)', () => {
       ]);
 
       const history = client.getHistory();
-      // No functionResponse anywhere — repair did nothing.
+      // No functionResponse anywhere -- repair did nothing.
       const hasAnyFunctionResponse = history.some((h) =>
         h.parts?.some((p) => p.functionResponse),
       );
@@ -1080,12 +1080,12 @@ describe('Gemini Client (client.ts)', () => {
     });
   });
 
-  describe('setTools — system instruction refresh', () => {
+  describe('setTools -- system instruction refresh', () => {
     // Regression coverage for the progressive-MCP wiring bug: when MCP
     // discovery completes AFTER startChat() (the new default), `setTools()`
     // is the only hook that can teach the model about the freshly-registered
     // MCP tools. Because MCP tools are `shouldDefer=true`, they never appear
-    // in `tools` declarations — the model only learns of them via the
+    // in `tools` declarations -- the model only learns of them via the
     // system prompt's "Deferred Tools" listing. So `setTools()` MUST
     // rebuild the system instruction with the up-to-date deferred summary,
     // not just update `chat.tools`.
@@ -1119,7 +1119,7 @@ describe('Gemini Client (client.ts)', () => {
 
     it('rebuilds systemInstruction so newly-registered MCP tools land in the prompt', async () => {
       const reg = getRegistryMock();
-      // ToolSearch IS available — this is the standard case (the only
+      // ToolSearch IS available -- this is the standard case (the only
       // path that fails before this fix). MCP discovery has now finished,
       // so a freshly-arrived MCP tool appears in the deferred summary.
       reg.getTool.mockImplementation((n: string) => n === 'tool_search' ? ({} as never) : null,
@@ -1331,7 +1331,7 @@ describe('Gemini Client (client.ts)', () => {
     });
 
     it('clears revealedDeferred set so /clear gives a clean tool slate', async () => {
-      // resetChat() must call clearRevealedDeferredTools() — without
+      // resetChat() must call clearRevealedDeferredTools() -- without
       // this, deferred tools revealed via ToolSearch in the previous
       // session would carry over as phantom declarations, defeating
       // the "clean slate" expectation of `/clear`.
@@ -1449,12 +1449,12 @@ describe('Gemini Client (client.ts)', () => {
     it('truncateHistory does NOT clear the cache when nothing was removed (keepCount >= history length)', () => {
       const cacheClear = mockFileReadCacheClear();
 
-      // keepCount equals history length — nothing dropped.
+      // keepCount equals history length -- nothing dropped.
       client['chat'] = mockChatWithLengths(2, 2);
       client.truncateHistory(2);
       expect(cacheClear).not.toHaveBeenCalled();
 
-      // keepCount exceeds history length — also a no-op.
+      // keepCount exceeds history length -- also a no-op.
       client['chat'] = mockChatWithLengths(2, 2);
       client.truncateHistory(99);
       expect(cacheClear).not.toHaveBeenCalled();
@@ -1463,7 +1463,7 @@ describe('Gemini Client (client.ts)', () => {
     it('truncateHistory clears the cache when a non-finite keepCount empties history (NaN regression)', () => {
       // slice(0, NaN) returns [], but `NaN < prevLen` evaluates to
       // false. Comparing the actual post-truncate length closes that
-      // hole — without this guard the cache would survive a history
+      // hole -- without this guard the cache would survive a history
       // wipe and the file_unchanged placeholder bug returns.
       const cacheClear = mockFileReadCacheClear();
       client['chat'] = mockChatWithLengths(3, 0);
@@ -1492,7 +1492,7 @@ describe('Gemini Client (client.ts)', () => {
     it('stripOrphanedUserEntriesFromHistory forces full IDE context only when entries were removed', async () => {
       const cacheClear = mockFileReadCacheClear();
       const strip = vi.fn();
-      // Case 1: history actually shrank → forceFullIdeContext + cache clear.
+      // Case 1: history actually shrank -> forceFullIdeContext + cache clear.
       client['chat'] = {
         getHistoryLength: vi.fn().mockReturnValueOnce(3).mockReturnValueOnce(1),
         stripOrphanedUserEntriesFromHistory: strip,
@@ -1505,7 +1505,7 @@ describe('Gemini Client (client.ts)', () => {
       expect(cacheClear).toHaveBeenCalled();
       expect(client['forceFullIdeContext']).toBe(true);
 
-      // Case 2: no entries removed → don't touch caches / IDE context.
+      // Case 2: no entries removed -> don't touch caches / IDE context.
       const cacheClear2 = mockFileReadCacheClear();
       const strip2 = vi.fn();
       client['chat'] = {
@@ -1525,7 +1525,7 @@ describe('Gemini Client (client.ts)', () => {
       const cacheClear = mockFileReadCacheClear();
       const stripOrphanedUserEntriesFromHistory = vi.fn();
       // The wrapper now gates cache-clear / forceFullIdeContext on a
-      // before/after length comparison — return one value pre-strip
+      // before/after length comparison -- return one value pre-strip
       // (mocked first) and a smaller value post-strip (subsequent
       // calls) so the simulated mutation actually triggers the
       // post-strip cleanup branch.
@@ -1578,7 +1578,7 @@ describe('Gemini Client (client.ts)', () => {
 
   /**
    * Like {@link mockFileReadCacheClear} but also exposes the
-   * `markReadEvictedFromHistory` spy — the surgical per-file fast-path
+   * `markReadEvictedFromHistory` spy -- the surgical per-file fast-path
    * disarm that microcompaction now uses instead of a blanket wipe
    * (issue #4239).
    */
@@ -1735,7 +1735,7 @@ describe('Gemini Client (client.ts)', () => {
       }
 
       expect(setHistory).toHaveBeenCalled();
-      // The blanket wipe is gone — read-before-write state is preserved.
+      // The blanket wipe is gone -- read-before-write state is preserved.
       expect(clear).not.toHaveBeenCalled();
       // Exactly the one blanked file (oldest of 6, keepRecent=5) had its
       // fast-path disarmed.
@@ -1795,7 +1795,7 @@ describe('Gemini Client (client.ts)', () => {
       expect(markReadEvictedFromHistory).not.toHaveBeenCalled();
     });
 
-    it('falls back to a blanket clear when an evicted path cannot be stat’d (Codex P2)', async () => {
+    it('falls back to a blanket clear when an evicted path cannot be stat'd (Codex P2)', async () => {
       // Path is recovered (id linkage present) so it lands in
       // evictedReadPaths, but the file does not exist on disk, so the
       // client's stat fails. Leaving the entry armed would risk a
@@ -1853,7 +1853,7 @@ describe('Gemini Client (client.ts)', () => {
       expect(markReadEvictedFromHistory).not.toHaveBeenCalled();
     });
 
-    it('falls back to a blanket clear on a MIXED batch — one path on disk, one a ghost (mimo F9)', async () => {
+    it('falls back to a blanket clear on a MIXED batch -- one path on disk, one a ghost (mimo F9)', async () => {
       // Most realistic production case: several files evicted, most on
       // disk, one deleted since. A single unresolvable path must still
       // force the safe blanket wipe rather than a partial disarm.
@@ -1916,7 +1916,7 @@ describe('Gemini Client (client.ts)', () => {
         /* drain */
       }
 
-      // The ghost path makes the batch not-fully-disarmed → safe wipe.
+      // The ghost path makes the batch not-fully-disarmed -> safe wipe.
       expect(clear).toHaveBeenCalled();
       // The on-disk path was still attempted before the batch was
       // deemed unresolvable.
@@ -1963,7 +1963,7 @@ describe('Gemini Client (client.ts)', () => {
         getHistory: vi.fn().mockReturnValue(history),
         setHistory: vi.fn(),
       } as unknown as GeminiChat;
-      // Recent activity — microcompaction must not fire.
+      // Recent activity -- microcompaction must not fire.
       client['lastApiCompletionTimestamp'] = Date.now() - 30 * 1000;
 
       const stream = client.sendMessageStream(
@@ -2420,9 +2420,9 @@ describe('Gemini Client (client.ts)', () => {
 
     it('flips forceFullIdeContext when ChatCompressed flows through sendMessageStream', async () => {
       // Auto-compaction lives inside chat.sendMessageStream and surfaces via
-      // the compressed → ChatCompressed bridge in turn.ts. The flip on this
+      // the compressed -> ChatCompressed bridge in turn.ts. The flip on this
       // path is owned by the for-await loop in client.sendMessageStream, not
-      // by tryCompressChat — so this test feeds the event in directly.
+      // by tryCompressChat -- so this test feeds the event in directly.
       vi.spyOn(client, 'tryCompressChat').mockResolvedValue({
         originalTokenCount: 0,
         newTokenCount: 0,
@@ -2823,7 +2823,7 @@ hello
     });
 
     it('should not block the main request when auto-memory recall is slow', async () => {
-      // Recall never settles — settledAt stays null so the UserQuery consume
+      // Recall never settles -- settledAt stays null so the UserQuery consume
       // point skips it and turn.run() is called immediately without memory.
       mockMemoryManager.recall.mockReturnValue(new Promise(() => {}));
 
@@ -2894,7 +2894,7 @@ hello
     });
 
     it('should inject auto-memory on first ToolResult when recall settles after UserQuery', async () => {
-      // Controllable promise — recall stays pending across the UserQuery turn
+      // Controllable promise -- recall stays pending across the UserQuery turn
       // and only settles before the ToolResult turn runs.
       let resolveRecall:
         | ((value: {
@@ -2920,7 +2920,7 @@ hello
       };
       client['chat'] = mockChat as GeminiChat;
 
-      // Turn 1: UserQuery — recall still pending, no injection
+      // Turn 1: UserQuery -- recall still pending, no injection
       const userStream = client.sendMessageStream(
         [{ text: 'What is my name?' }],
         new AbortController().signal,
@@ -2949,7 +2949,7 @@ hello
       await Promise.resolve();
       await Promise.resolve();
 
-      // Turn 2: ToolResult — settledAt is now non-null, memory should inject
+      // Turn 2: ToolResult -- settledAt is now non-null, memory should inject
       mockTurnRunFn.mockReturnValue(
         (async function* () {
           yield { type: 'content', value: 'world' };
@@ -3016,7 +3016,7 @@ hello
     });
 
     it('should abort the previous prefetch when a new UserQuery arrives mid-flight', async () => {
-      // Pending recall on first UserQuery — never resolves on its own.
+      // Pending recall on first UserQuery -- never resolves on its own.
       const abortSignals: AbortSignal[] = [];
       mockMemoryManager.recall.mockImplementation((_root, _query, opts) => {
         abortSignals.push(opts.abortSignal as AbortSignal);
@@ -3034,7 +3034,7 @@ hello
         })(),
       );
 
-      // First UserQuery — installs prefetch #1
+      // First UserQuery -- installs prefetch #1
       const stream1 = client.sendMessageStream(
         [{ text: 'first' }],
         new AbortController().signal,
@@ -3047,7 +3047,7 @@ hello
       expect(abortSignals.length).toBe(1);
       expect(abortSignals[0].aborted).toBe(false);
 
-      // Second UserQuery — should abort #1 before installing #2
+      // Second UserQuery -- should abort #1 before installing #2
       mockTurnRunFn.mockReturnValue(
         (async function* () {
           yield { type: 'content', value: 'Hello again' };
@@ -3152,7 +3152,7 @@ hello
       // Self-inflicted-regression guard for the round-4 finding:
       // the bottom-of-try `normalCompletion = true` doesn't cover the
       // `return continueTurn;` path, so the outer's finally used to cancel
-      // the still-pending prefetch — meaning a subsequent ToolResult turn
+      // the still-pending prefetch -- meaning a subsequent ToolResult turn
       // would have no memory to consume.
       let abortHandlerInvoked = false;
       mockMemoryManager.recall.mockImplementation((_root, _query, opts) => {
@@ -3249,7 +3249,7 @@ hello
     });
 
     it('should proceed normally when recall rejects', async () => {
-      // Simulate a recall that throws — the .catch() handler should swallow
+      // Simulate a recall that throws -- the .catch() handler should swallow
       // the error and the main request should complete without memory content
       mockMemoryManager.recall.mockRejectedValue(new Error('recall failed'));
 
@@ -5856,13 +5856,13 @@ Other open files:
       const contents = [{ role: 'user', parts: [{ text: 'hello' }] }];
       const abortSignal = new AbortController().signal;
 
-      // getResolvedModel returns undefined — model not found in registry
+      // getResolvedModel returns undefined -- model not found in registry
       const getResolvedModel = vi.fn().mockReturnValue(undefined);
       vi.mocked(mockConfig.getModelsConfig).mockReturnValue({
         getResolvedModel,
       } as unknown as ModelsConfig);
 
-      // Should not throw — falls back to main generator
+      // Should not throw -- falls back to main generator
       await expect(
         client.generateContent(
           contents,
@@ -5887,7 +5887,7 @@ Other open files:
       );
 
       // buildAgentContentGeneratorConfig must NOT be called when the model is
-      // not in the registry — the fallback path skips config construction.
+      // not in the registry -- the fallback path skips config construction.
       expect(buildAgentContentGeneratorConfig).not.toHaveBeenCalled();
     });
 
@@ -6012,7 +6012,7 @@ Other open files:
         getResolvedModel,
       } as unknown as ModelsConfig);
 
-      // Main config uses QWEN_OAUTH — fast model registered under USE_OPENAI
+      // Main config uses QWEN_OAUTH -- fast model registered under USE_OPENAI
       vi.mocked(mockConfig.getContentGeneratorConfig).mockReturnValue({
         authType: AuthType.QWEN_OAUTH,
         apiKey: 'test-key',
@@ -6059,7 +6059,7 @@ Other open files:
 
       vi.mocked(createContentGenerator).mockResolvedValue(mockContentGenerator);
 
-      // First call — populates cache
+      // First call -- populates cache
       await client.generateContent(
         contents,
         {},
@@ -6071,7 +6071,7 @@ Other open files:
       // Reset chat should clear the cache
       await client.resetChat();
 
-      // Second call after reset — cache should be cleared, generator recreated
+      // Second call after reset -- cache should be cleared, generator recreated
       await client.generateContent(
         contents,
         {},

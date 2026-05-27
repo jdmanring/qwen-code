@@ -34,7 +34,7 @@ function formatModalities(modalities?: InputModalities): string {
   if (modalities.audio) parts.push(t('audio'));
   if (modalities.video) parts.push(t('video'));
   if (parts.length === 0) return t('text-only');
-  return `${t('text')} · ${parts.join(' · ')}`;
+  return `${t('text')}  ${parts.join('  ')}`;
 }
 
 /**
@@ -88,7 +88,7 @@ function maskApiKey(apiKey: string | undefined): string {
   if (trimmed.length <= 6) return '***';
   const head = trimmed.slice(0, 3);
   const tail = trimmed.slice(-4);
-  return `${head}…${tail}`;
+  return `${head}...${tail}`;
 }
 
 function persistModelSelection(
@@ -288,7 +288,7 @@ export function ModelDialog({
               : 'Runtime model';
           }
           if (isQwenOAuth && !isRuntime) {
-            description = t('Discontinued — switch to Coding Plan or API Key');
+            description = t('Discontinued -- switch to Coding Plan or API Key');
           }
 
           return {
@@ -327,7 +327,7 @@ export function ModelDialog({
   // When `/model --fast <bare-id>` validated the model across all providers,
   // the setting persists as a bare model ID (no authType prefix) so that
   // runtime cross-auth lookups still work. Highlight the row that owns it
-  // regardless of which provider that turns out to be — otherwise the
+  // regardless of which provider that turns out to be -- otherwise the
   // dialog would default to the current auth's first row and Enter would
   // silently overwrite the user's fast-model setting.
   const preferredFastModelEntry =
@@ -579,7 +579,7 @@ export function ModelDialog({
             !highlightedEntry.isRuntime && (
               <Box marginTop={1}>
                 <Text color={theme.status.warning}>
-                  ⚠ {t('Discontinued — switch to Coding Plan or API Key')}
+                   {t('Discontinued -- switch to Coding Plan or API Key')}
                 </Text>
               </Box>
             )}
@@ -611,14 +611,14 @@ export function ModelDialog({
       {errorMessage && (
         <Box marginTop={1} flexDirection="column" paddingX={1}>
           <Text color={theme.status.error} wrap="wrap">
-            ✕ {errorMessage}
+             {errorMessage}
           </Text>
         </Box>
       )}
 
       <Box marginTop={1} flexDirection="column">
         <Text color={theme.text.secondary}>
-          {t('Enter to select, ↑↓ to navigate, Esc to close')}
+          {t('Enter to select,  to navigate, Esc to close')}
         </Text>
       </Box>
     </Box>

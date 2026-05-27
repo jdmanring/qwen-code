@@ -12,7 +12,7 @@ The AI-OS is designed around a strict separation between **Cognitive Synthesis (
 
 ## 2. Delegation Standards
 
-### ❌ The Forbidden Pattern: Outcome-Based Delegation
+###  The Forbidden Pattern: Outcome-Based Delegation
 Do NOT prompt sub-agents for outcomes that require synthesis, analysis of multiple documents, or high-level planning. 
 
 **Examples of Forbidden Prompts:**
@@ -23,7 +23,7 @@ Do NOT prompt sub-agents for outcomes that require synthesis, analysis of multip
 
 **Why it fails**: These prompts trigger long, complex ReAct loops that are prone to timeouts, context exhaustion, and "Subagent execution failed" errors.
 
-### ✅ The Mandatory Pattern: Atomic Execution
+###  The Mandatory Pattern: Atomic Execution
 Prompt sub-agents for a single, verifiable, and narrow data point.
 
 **Examples of Atomic Prompts:**
@@ -60,12 +60,12 @@ To achieve a complex goal, the Orchestrator must use a series of atomic cycles:
 
 | Task Type | Delegate to Agent? | Requirement |
 | :--- | :--- | :--- |
-| **Search / Find** | ✅ YES | Use specific keywords, return paths only. |
-| **Read / Extract** | ✅ YES | Use specific paths, line ranges, or blocks. |
-| **Validate / Check** | ✅ YES | Boolean result or specific error message. |
-| **Analyze / Reason** | ❌ NO | Perform this in the Orchestrator context. |
-| **Synthesize / Write** | ❌ NO | Perform this in the Orchestrator context. |
-| **Plan / Decompose** | ❌ NO | Perform this in the Orchestrator context. |
+| **Search / Find** |  YES | Use specific keywords, return paths only. |
+| **Read / Extract** |  YES | Use specific paths, line ranges, or blocks. |
+| **Validate / Check** |  YES | Boolean result or specific error message. |
+| **Analyze / Reason** |  NO | Perform this in the Orchestrator context. |
+| **Synthesize / Write** |  NO | Perform this in the Orchestrator context. |
+| **Plan / Decompose** |  NO | Perform this in the Orchestrator context. |
 
 ---
 
@@ -83,7 +83,7 @@ The AI-OS is designed around a strict separation between **Cognitive Synthesis (
 
 ## 2. Delegation Standards
 
-### ❌ The Forbidden Pattern: Outcome-Based Delegation
+###  The Forbidden Pattern: Outcome-Based Delegation
 Do NOT prompt sub-agents for outcomes that require synthesis, analysis of multiple documents, or high-level planning.
 
 **Examples of Forbidden Prompts:**
@@ -94,7 +94,7 @@ Do NOT prompt sub-agents for outcomes that require synthesis, analysis of multip
 
 **Why it fails**: These prompts trigger long, complex ReAct loops that are prone to timeouts, context exhaustion, and "Subagent execution failed" errors.
 
-### ✅ The Mandatory Pattern: Atomic Execution
+###  The Mandatory Pattern: Atomic Execution
 Prompt sub-agents for a single, verifiable, and narrow data point.
 
 **Examples of Atomic Prompts:**
@@ -131,12 +131,12 @@ To achieve a complex goal, the Orchestrator must use a series of atomic cycles:
 
 | Task Type | Delegate to Agent? | Requirement |
 | :--- | :--- | :--- |
-| **Search / Find** | ✅ YES | Use specific keywords, return paths only. |
-| **Read / Extract** | ✅ YES | Use specific paths, line ranges, or blocks. |
-| **Validate / Check** | ✅ YES | Boolean result or specific error message. |
-| **Analyze / Reason** | ❌ NO | Perform this in the Orchestrator context. |
-| **Synthesize / Write** | ❌ NO | Perform this in the Orchestrator context. |
-| **Plan / Decompose** | ❌ NO | Perform this in the Orchestrator context. |
+| **Search / Find** |  YES | Use specific keywords, return paths only. |
+| **Read / Extract** |  YES | Use specific paths, line ranges, or blocks. |
+| **Validate / Check** |  YES | Boolean result or specific error message. |
+| **Analyze / Reason** |  NO | Perform this in the Orchestrator context. |
+| **Synthesize / Write** |  NO | Perform this in the Orchestrator context. |
+| **Plan / Decompose** |  NO | Perform this in the Orchestrator context. |
 
 ---
 
@@ -149,10 +149,10 @@ Any prompt that requires the sub-agent to "think," "analyze," or "summarize" is 
 
 To prevent timeouts and resource exhaustion, long-running or massive tasks must be managed using the following protocols.
 
-### ❌ The Forbidden Pattern: Blind Retries
+###  The Forbidden Pattern: Blind Retries
 Do NOT attempt to re-run the exact same large-scale command after a timeout or failure. This causes "Looping Behavior" and wastes computational resources.
 
-### ✅ The Mandatory Patterns:
+###  The Mandatory Patterns:
 
 #### A. Background Execution (The "Daemon" Mode)
 For operations that are expected to run for several minutes or indefinitely (e.g., installing heavy dependencies, starting servers, or mass-cloning repositories), use the `is_background: true` flag. 

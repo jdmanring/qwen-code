@@ -147,7 +147,7 @@ describe('combineAbortSignals', () => {
 
   it('auto-cleans input-signal listeners when the timeout fires', async () => {
     // Timeout-driven aborts must run the same auto-cleanup as source-driven
-    // aborts — otherwise long-lived input signals (e.g. a session-lived
+    // aborts -- otherwise long-lived input signals (e.g. a session-lived
     // AbortSignal) accumulate dead listeners across many short-lived
     // combinedSignal calls. Verifies cleanup is wired to the COMBINED
     // controller abort path, not just to source-signal events.
@@ -232,9 +232,9 @@ describe('combineAbortSignals', () => {
     }) as AbortSignal;
     const { signal } = combineAbortSignals([a.signal, proxied, c.signal]);
     // Per-iteration check fires when the loop reaches proxied (2nd `aborted`
-    // access) and short-circuits → controller aborts, loop breaks before c.
+    // access) and short-circuits -> controller aborts, loop breaks before c.
     expect(signal.aborted).toBe(true);
-    // a was iterated before the break and DID get a listener — cleanup must
+    // a was iterated before the break and DID get a listener -- cleanup must
     // run synchronously (since adding to an already-aborted signal is a no-op),
     // otherwise the listener leaks on the long-lived input.
     expect(getEventListeners(a.signal, 'abort').length).toBe(0);
@@ -247,7 +247,7 @@ describe('combineAbortSignals', () => {
     // block (not the pre-loop fast path): the Proxy reports `aborted=false`
     // on the initial scan and `aborted=true` once the loop re-checks it.
     // Spy on setTimeout so we can distinguish "guard skipped scheduling"
-    // from "scheduled then immediately cleared by synchronous cleanup" —
+    // from "scheduled then immediately cleared by synchronous cleanup" --
     // the latter would be observationally indistinguishable via timer
     // advancement alone since cleanup() runs synchronously and clears the
     // timer it just scheduled.
@@ -300,7 +300,7 @@ describe('lifetime contract', () => {
     // Real-world pattern: caller pipes child.signal into an async API and
     // does not hold the controller object itself. The parent listener
     // closure keeps the controller alive long enough for parent abort to
-    // reach the signal — verified WITHOUT --expose-gc because we don't
+    // reach the signal -- verified WITHOUT --expose-gc because we don't
     // depend on GC behavior at all, only on the strong reference inside
     // the listener closure.
     const parent = createAbortController();
@@ -322,7 +322,7 @@ describe('GC safety (best-effort, requires --expose-gc)', () => {
 
   itGc('controller becomes GC-eligible after the child aborts', async () => {
     // After child.abort(), the reverse-cleanup listener removes the
-    // parent's handler closure — which was the strong holder of the
+    // parent's handler closure -- which was the strong holder of the
     // controller. With no other refs, the controller is collectable.
     const parent = createAbortController();
     let weakChild: WeakRef<AbortController>;

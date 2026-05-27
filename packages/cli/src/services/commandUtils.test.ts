@@ -22,7 +22,7 @@ function makeCmd(overrides: Partial<SlashCommand>): SlashCommand {
 }
 
 describe('getEffectiveSupportedModes', () => {
-  // ── Explicit supportedModes ────────────────────────────────────────────
+  // -- Explicit supportedModes --------------------------------------------
   it('uses explicit supportedModes when declared', () => {
     const cmd = makeCmd({ supportedModes: ['interactive'] });
     expect(getEffectiveSupportedModes(cmd)).toEqual(['interactive']);
@@ -44,7 +44,7 @@ describe('getEffectiveSupportedModes', () => {
     expect(getEffectiveSupportedModes(cmd)).toEqual([]);
   });
 
-  // ── CommandKind fallback (no supportedModes) ───────────────────────────
+  // -- CommandKind fallback (no supportedModes) ---------------------------
   it('CommandKind.BUILT_IN without supportedModes falls back to interactive only', () => {
     const cmd = makeCmd({ kind: CommandKind.BUILT_IN });
     expect(getEffectiveSupportedModes(cmd)).toEqual(['interactive']);
@@ -147,11 +147,11 @@ describe('filterCommandsForMode', () => {
       makeCmd({
         name: 'hidden-cmd',
         hidden: true,
-        // no supportedModes → BUILT_IN fallback → interactive only
+        // no supportedModes -> BUILT_IN fallback -> interactive only
       }),
     ];
     const result = filterCommandsForMode(withHidden, 'non_interactive');
-    // filterCommandsForMode does NOT filter hidden — it only filters by mode
+    // filterCommandsForMode does NOT filter hidden -- it only filters by mode
     expect(result.some((c) => c.name === 'hidden-cmd')).toBe(false);
   });
 
@@ -165,7 +165,7 @@ describe('filterCommandsForMode', () => {
       }),
     ];
     const result = filterCommandsForMode(withHidden, 'non_interactive');
-    // filterCommandsForMode passes it through — CommandService.getCommandsForMode removes hidden
+    // filterCommandsForMode passes it through -- CommandService.getCommandsForMode removes hidden
     expect(result.some((c) => c.name === 'hidden-cmd')).toBe(true);
   });
 

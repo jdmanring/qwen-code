@@ -1,4 +1,4 @@
-# 📚 Ingestion Specialist
+#  Ingestion Specialist
 
 ## Identity
 **Ingestion Librarian**

@@ -30,10 +30,10 @@ import { ndJsonStream, type Stream } from '@agentclientprotocol/sdk';
  * **Settlement shape**: at the inner byte-level layer the pending read
  * rejects with the supplied reason; at the outer SDK-wrapped `Stream`
  * layer (what callers actually see) the SDK's `ndJsonStream` translates
- * that error into a clean end-of-stream signal — `read()` resolves with
+ * that error into a clean end-of-stream signal -- `read()` resolves with
  * `{value: undefined, done: true}` rather than rejecting. The exact
  * shape depends on how deep the consumer is in the wrapper chain, but
- * the key invariant — **pending operations no longer hang** — holds
+ * the key invariant -- **pending operations no longer hang** -- holds
  * either way. Consumers wanting to distinguish "graceful close" from
  * "aborted" should track the call themselves.
  *
@@ -65,7 +65,7 @@ export function createInMemoryChannel(): {
       // Fire-and-forget; both `abort()` calls return promises that we
       // intentionally do not await (callers want the synchronous
       // "tear it down now" semantic) and which may reject if the
-      // stream is already in errored state — both are expected.
+      // stream is already in errored state -- both are expected.
       ab.writable.abort(reason).catch(() => {});
       ba.writable.abort(reason).catch(() => {});
     },

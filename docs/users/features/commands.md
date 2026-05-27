@@ -35,7 +35,7 @@ Commands for adjusting interface appearance and work environment.
 | ------------ | ---------------------------------------- | ----------------------------- |
 | `/clear`     | Clear terminal screen content            | `/clear` (shortcut: `Ctrl+L`) |
 | `/context`   | Show context window usage breakdown      | `/context`                    |
-| → `detail`   | Show per-item context usage breakdown    | `/context detail`             |
+| -> `detail`   | Show per-item context usage breakdown    | `/context detail`             |
 | `/theme`     | Change Qwen Code visual theme            | `/theme`                      |
 | `/vim`       | Turn input area Vim editing mode on/off  | `/vim`                        |
 | `/directory` | Manage multi-directory support workspace | `/dir add ./src,./tests`      |
@@ -48,8 +48,8 @@ Commands specifically for controlling interface and output language.
 | Command               | Description                      | Usage Examples             |
 | --------------------- | -------------------------------- | -------------------------- |
 | `/language`           | View or change language settings | `/language`                |
-| → `ui [language]`     | Set UI interface language        | `/language ui zh-CN`       |
-| → `output [language]` | Set LLM output language          | `/language output Chinese` |
+| -> `ui [language]`     | Set UI interface language        | `/language ui zh-CN`       |
+| -> `output [language]` | Set LLM output language          | `/language output Chinese` |
 
 - Available built-in UI languages: `zh-CN` (Simplified Chinese), `en-US` (English), `ru-RU` (Russian), `de-DE` (German), `ja-JP` (Japanese), `pt-BR` (Portuguese - Brazil), `fr-FR` (French), `ca-ES` (Catalan)
 - Output language examples: `Chinese`, `English`, `Japanese`, etc.
@@ -65,10 +65,10 @@ Commands for managing AI tools and models.
 | `/skills`        | List and run available skills                 | `/skills`, `/skills <name>`                   |
 | `/plan`          | Switch to plan mode or exit plan mode         | `/plan`, `/plan <task>`, `/plan exit`         |
 | `/approval-mode` | Change approval mode for tool usage           | `/approval-mode <mode (auto-edit)> --project` |
-| →`plan`          | Analysis only, no execution                   | Secure review                                 |
-| →`default`       | Require approval for edits                    | Daily use                                     |
-| →`auto-edit`     | Automatically approve edits                   | Trusted environment                           |
-| →`yolo`          | Automatically approve all                     | Quick prototyping                             |
+| ->`plan`          | Analysis only, no execution                   | Secure review                                 |
+| ->`default`       | Require approval for edits                    | Daily use                                     |
+| ->`auto-edit`     | Automatically approve edits                   | Trusted environment                           |
+| ->`yolo`          | Automatically approve all                     | Quick prototyping                             |
 | `/model`         | Switch model used in current session          | `/model`                                      |
 | `/model --fast`  | Set a lighter model for prompt suggestions    | `/model --fast qwen3-coder-flash`             |
 | `/extensions`    | List all active extensions in current session | `/extensions`                                 |
@@ -101,8 +101,8 @@ The `/btw` command allows you to ask quick side questions without interrupting o
 **How It Works:**
 
 - The side question is sent as a separate API call with recent conversation context (up to the last 20 messages)
-- The response is displayed above the Composer — you can continue typing while waiting
-- The main conversation is **not blocked** — it continues independently
+- The response is displayed above the Composer -- you can continue typing while waiting
+- The main conversation is **not blocked** -- it continues independently
 - The side question response does **not** become part of the main conversation history
 - Answers are rendered with full Markdown support (code blocks, lists, tables, etc.)
 
@@ -121,27 +121,27 @@ The `/btw` command allows you to ask quick side questions without interrupting o
 
 > /btw What's the difference between let and var in JavaScript?
 
-  ╭──────────────────────────────────────────╮
-  │ /btw What's the difference between let   │
-  │     and var in JavaScript?               │
-  │                                          │
-  │ + Answering...                           │
-  │ Press Escape, Ctrl+C, or Ctrl+D to cancel│
-  ╰──────────────────────────────────────────╯
-  > (Composer remains active — keep typing)
+  ------------------------------------------
+  | /btw What's the difference between let   |
+  |     and var in JavaScript?               |
+  |                                          |
+  | + Answering...                           |
+  | Press Escape, Ctrl+C, or Ctrl+D to cancel|
+  ------------------------------------------
+  > (Composer remains active -- keep typing)
 
 (After the answer arrives)
 
-  ╭──────────────────────────────────────────╮
-  │ /btw What's the difference between let   │
-  │     and var in JavaScript?               │
-  │                                          │
-  │ `let` is block-scoped, while `var` is    │
-  │ function-scoped. `let` was introduced    │
-  │ in ES6 and doesn't hoist the same way.   │
-  │                                          │
-  │ Press Space, Enter, or Escape to dismiss │
-  ╰──────────────────────────────────────────╯
+  ------------------------------------------
+  | /btw What's the difference between let   |
+  |     and var in JavaScript?               |
+  |                                          |
+  | `let` is block-scoped, while `var` is    |
+  | function-scoped. `let` was introduced    |
+  | in ES6 and doesn't hoist the same way.   |
+  |                                          |
+  | Press Space, Enter, or Escape to dismiss |
+  ------------------------------------------
   > (Composer still active)
 ```
 
@@ -171,13 +171,13 @@ back through pages of history.
 
 - Uses the configured fast model (`fastModel` setting) when available, falling
   back to the main session model. A small, cheap model is enough for a recap.
-- The recent conversation (up to 30 messages, text only — tool calls and tool
+- The recent conversation (up to 30 messages, text only -- tool calls and tool
   responses are filtered out) is sent to the model with a tight system prompt.
-- The recap is rendered in dim color with a `❯` prefix so it stands apart
+- The recap is rendered in dim color with a `` prefix so it stands apart
   from real assistant replies.
 - Refuses with an inline error if a model turn is in flight or another command
   is processing. If there is no usable conversation, or the underlying
-  generation fails, `/recap` shows a short info message instead of a recap —
+  generation fails, `/recap` shows a short info message instead of a recap --
   the manual command always responds with something.
 
 **Auto-trigger when returning from being away:**
@@ -196,7 +196,7 @@ this setting.
 ```
 > /recap
 
-❯ Refactoring loopDetectionService.ts to address long-session OOM caused by
+ Refactoring loopDetectionService.ts to address long-session OOM caused by
   unbounded streamContentHistory and contentStats. The next step is to
   implement option B (LRU sliding window with FNV-1a) pending confirmation.
 ```
@@ -230,7 +230,7 @@ Commands for obtaining information and performing system settings.
 | ------------------ | ----------------------- | ---------------------- |
 | `Ctrl/cmd+L`       | Clear screen            | Equivalent to `/clear` |
 | `Ctrl/cmd+T`       | Toggle tool description | MCP tool management    |
-| `Ctrl/cmd+C`×2     | Exit confirmation       | Secure exit mechanism  |
+| `Ctrl/cmd+C`*2     | Exit confirmation       | Secure exit mechanism  |
 | `Ctrl/cmd+Z`       | Undo input              | Text editing           |
 | `Ctrl/cmd+Shift+Z` | Redo input              | Text editing           |
 
@@ -266,7 +266,7 @@ Exclamation commands allow you to execute system commands directly within Qwen C
 | Command Format     | Description                                                        | Examples                               |
 | ------------------ | ------------------------------------------------------------------ | -------------------------------------- |
 | `!<shell command>` | Execute command in sub-Shell                                       | `!ls -la`, `!git status`               |
-| Standalone `!`     | Switch Shell mode, any input is executed directly as Shell command | `!`(enter) → Input command → `!`(exit) |
+| Standalone `!`     | Switch Shell mode, any input is executed directly as Shell command | `!`(enter) -> Input command -> `!`(exit) |
 
 Environment Variables: Commands executed via `!` will set the `QWEN_CODE=1` environment variable.
 
@@ -347,10 +347,10 @@ Use {{args}} for parameter injection.
 
 | Input Situation | Processing Method                                      | Example                                        |
 | --------------- | ------------------------------------------------------ | ---------------------------------------------- |
-| Has parameters  | Append to end of prompt (separated by two line breaks) | `/cmd parameter` → Original prompt + parameter |
-| No parameters   | Send prompt as is                                      | `/cmd` → Original prompt                       |
+| Has parameters  | Append to end of prompt (separated by two line breaks) | `/cmd parameter` -> Original prompt + parameter |
+| No parameters   | Send prompt as is                                      | `/cmd` -> Original prompt                       |
 
-🚀 Dynamic Content Injection
+ Dynamic Content Injection
 
 | Injection Type        | Syntax         | Processing Order    | Purpose                          |
 | --------------------- | -------------- | ------------------- | -------------------------------- |
@@ -364,7 +364,7 @@ Use {{args}} for parameter injection.
 | ------------------------------- | -------------------- |
 | 1. Parse command and parameters | -                    |
 | 2. Automatic Shell escaping     | -                    |
-| 3. Show confirmation dialog     | ✅ User confirmation |
+| 3. Show confirmation dialog     |  User confirmation |
 | 4. Execute command              | -                    |
 | 5. Inject output to prompt      | -                    |
 
@@ -386,10 +386,10 @@ Please generate a Commit message based on the following diff:
 
 | File Type    | Support Status         | Processing Method           |
 | ------------ | ---------------------- | --------------------------- |
-| Text Files   | ✅ Full Support        | Directly inject content     |
-| Images/PDF   | ✅ Multi-modal Support | Encode and inject           |
-| Binary Files | ⚠️ Limited Support     | May be skipped or truncated |
-| Directory    | ✅ Recursive Injection | Follow .gitignore rules     |
+| Text Files   |  Full Support        | Directly inject content     |
+| Images/PDF   |  Multi-modal Support | Encode and inject           |
+| Binary Files |  Limited Support     | May be skipped or truncated |
+| Directory    |  Recursive Injection | Follow .gitignore rules     |
 
 Example: Code Review Command
 
@@ -412,7 +412,7 @@ Review {{args}}, reference standards:
 | 1. Create directory structure | `mkdir -p ~/.qwen/commands/refactor`      |
 | 2. Create command file        | `touch ~/.qwen/commands/refactor/pure.md` |
 | 3. Edit command content       | Refer to the complete code below.         |
-| 4. Test command               | `@file.js` → `/refactor:pure`             |
+| 4. Test command               | `@file.js` -> `/refactor:pure`             |
 
 ```markdown
 ---

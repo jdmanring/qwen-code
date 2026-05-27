@@ -3,7 +3,7 @@
  * Copyright 2025 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
  *
- * Smoke Tests — E2E verification of core followup modules working together.
+ * Smoke Tests -- E2E verification of core followup modules working together.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -26,7 +26,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { randomUUID } from 'node:crypto';
 
-describe('SMOKE TESTS — E2E Verification', () => {
+describe('SMOKE TESTS -- E2E Verification', () => {
   describe('Smoke 1: Filter against realistic LLM outputs', () => {
     const good = [
       'commit this',
@@ -66,7 +66,7 @@ describe('SMOKE TESTS — E2E Verification', () => {
   });
 
   describe('Smoke 2: OverlayFs full round-trip', () => {
-    it('write → read overlay → apply → verify real file', async () => {
+    it('write -> read overlay -> apply -> verify real file', async () => {
       const dir = join(tmpdir(), `smoke-${randomUUID().slice(0, 8)}`);
       await mkdir(dir, { recursive: true });
       const realFile = join(dir, 'app.ts');
@@ -89,7 +89,7 @@ describe('SMOKE TESTS — E2E Verification', () => {
     });
   });
 
-  describe('Smoke 3: ToolGate → OverlayFs integration', () => {
+  describe('Smoke 3: ToolGate -> OverlayFs integration', () => {
     it('write redirects to overlay, read resolves from overlay', async () => {
       const dir = join(tmpdir(), `smoke-gate-${randomUUID().slice(0, 8)}`);
       await mkdir(dir, { recursive: true });
@@ -127,7 +127,7 @@ describe('SMOKE TESTS — E2E Verification', () => {
   });
 
   describe('Smoke 4: CacheSafeParams lifecycle', () => {
-    it('save → get → mutate → verify isolation → clear', () => {
+    it('save -> get -> mutate -> verify isolation -> clear', () => {
       clearCacheSafeParams();
 
       const config = {

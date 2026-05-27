@@ -82,14 +82,14 @@ export function ArenaStopDialog({
         ) {
           pushMessage({
             messageType: 'info',
-            content: 'Stopping Arena agents…',
+            content: 'Stopping Arena agents...',
           });
           await mgr.cancel();
         }
         await mgr.waitForSettled();
         pushMessage({
           messageType: 'info',
-          content: 'Cleaning up Arena resources…',
+          content: 'Cleaning up Arena resources...',
         });
 
         if (action === 'preserve') {

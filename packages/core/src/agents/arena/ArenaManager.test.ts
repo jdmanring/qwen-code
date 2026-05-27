@@ -31,7 +31,7 @@ vi.mock('../index.js', async (importOriginal) => {
 // The class mock includes static methods used by ArenaManager.
 //
 // Preserve every other export via `importActual` so unrelated
-// consumers of the module (e.g. `worktreeCleanup.ts` →
+// consumers of the module (e.g. `worktreeCleanup.ts` ->
 // `AGENT_WORKTREE_SLUG_PATTERN`, `worktreeBranchForSlug`,
 // `generateAgentWorktreeSlug`, `WORKTREE_BRANCH_PREFIX`,
 // session-marker helpers) keep working. Without this, vitest replaces

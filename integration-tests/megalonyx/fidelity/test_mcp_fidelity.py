@@ -85,9 +85,9 @@ async def test_cwd_independence():
         )
 
         if b"result" in stdout and b"protocolVersion" in stdout:
-            print("✅ PASS")
+            print(" PASS")
         else:
-            print(f"❌ FAIL (Code: {code})")
+            print(f" FAIL (Code: {code})")
             print(f"    Stderr: {stderr.decode(errors='replace')}")
             return False
     return True
@@ -101,7 +101,7 @@ async def test_stdout_pollution():
     )
 
     if not stdout:
-        print("❌ FAIL: No output received.")
+        print(" FAIL: No output received.")
         return False
 
     # Split stdout into lines
@@ -111,10 +111,10 @@ async def test_stdout_pollution():
         if not line:
             continue
         if not line.startswith("{"):
-            print(f"❌ FAIL: Pollution detected at line {i + 1}: {repr(line)}")
+            print(f" FAIL: Pollution detected at line {i + 1}: {repr(line)}")
             return False
 
-    print("✅ PASS: Stdout is clean JSON-RPC.")
+    print(" PASS: Stdout is clean JSON-RPC.")
     return True
 
 
@@ -133,9 +133,9 @@ async def test_shell_robustness():
         )
 
         if b"result" in stdout:
-            print("✅ PASS")
+            print(" PASS")
         else:
-            print(f"❌ FAIL (Code: {code})")
+            print(f" FAIL (Code: {code})")
             print(f"    Stderr: {stderr.decode(errors='replace')}")
             return False
     return True
@@ -157,9 +157,9 @@ async def test_clean_room():
     )
 
     if b"result" in stdout:
-        print("✅ PASS")
+        print(" PASS")
     else:
-        print(f"❌ FAIL (Code: {code})")
+        print(f" FAIL (Code: {code})")
         print(f"    Stderr: {stderr.decode(errors='replace')}")
         return False
 
@@ -192,10 +192,10 @@ async def test_handshake_latency():
     await process.wait()
 
     if latency < 500:
-        print("✅ PASS: Latency is within limits.")
+        print(" PASS: Latency is within limits.")
         return True
     else:
-        print("❌ FAIL: Latency too high (> 500ms).")
+        print(" FAIL: Latency too high (> 500ms).")
         return False
 
 
@@ -219,7 +219,7 @@ async def main():
     print("=" * 50)
     all_passed = True
     for name, res in results:
-        status = "✅ PASS" if res else "❌ FAIL"
+        status = " PASS" if res else " FAIL"
         if not res:
             all_passed = False
         print(f"{name:25}: {status}")

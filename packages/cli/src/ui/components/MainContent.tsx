@@ -61,7 +61,7 @@ function addSourceBlockCounts(
 }
 
 // Issue #3899: Ink's <Static> renders all items synchronously on (re)mount.
-// For long histories that's O(N) blocking work — bad on Ctrl+O which clears
+// For long histories that's O(N) blocking work -- bad on Ctrl+O which clears
 // the terminal and forces a full remount. To keep input responsive, we
 // progressively grow the slice of history fed to <Static> when the catch-up
 // gap is large (initial mount of a resumed session, or post-Ctrl+O remount).
@@ -97,7 +97,7 @@ export const MainContent = () => {
   } = uiState;
 
   // Set of callIds whose label is absorbed by a compact-mode tool_group header.
-  // Computed from RAW history (not merged) — force-expand status depends only
+  // Computed from RAW history (not merged) -- force-expand status depends only
   // on the tool_group's own state, and mergeable groups don't change force-
   // expand status when merged. Iterating raw history avoids a circular
   // dependency with mergedHistory (which receives absorbedCallIds).
@@ -106,8 +106,8 @@ export const MainContent = () => {
   // CompactToolGroupDisplay and consume the label as their header replacement.
   // Force-expanded groups (errors, confirmations, user-initiated, focused
   // shell) render through the full ToolGroupMessage path and ignore
-  // compactLabel — their callIds are intentionally NOT in this set so the
-  // standalone `● <label>` line in HistoryItemDisplay is the label's only
+  // compactLabel -- their callIds are intentionally NOT in this set so the
+  // standalone ` <label>` line in HistoryItemDisplay is the label's only
   // path to the screen.
   const absorbedCallIds = useMemo(() => {
     const absorbed = new Set<string>();
@@ -136,7 +136,7 @@ export const MainContent = () => {
   // Merge consecutive tool_groups for compact mode display. Summaries for
   // absorbed call IDs are dropped during merge so refreshStatic fires;
   // summaries for force-expanded (non-absorbed) groups pass through so
-  // HistoryItemDisplay can render them as standalone `● <label>` lines.
+  // HistoryItemDisplay can render them as standalone ` <label>` lines.
   const mergedHistory = useMemo(
     () =>
       compactMode
@@ -156,16 +156,16 @@ export const MainContent = () => {
     ],
   );
 
-  // Build a callId → summary lookup from `tool_use_summary` history items so
+  // Build a callId -> summary lookup from `tool_use_summary` history items so
   // compact-mode tool groups can render a semantic label instead of a generic
-  // "Tool × N" line. A summary is indexed under every callId it covers; when
+  // "Tool * N" line. A summary is indexed under every callId it covers; when
   // multiple groups are merged, the first group's summary wins (see below).
   const summaryByCallId = useMemo(() => {
     const map = new Map<string, string>();
     for (const item of uiState.history) {
       if (item.type === 'tool_use_summary') {
         for (const callId of item.precedingToolUseIds) {
-          // First summary wins — earlier summaries represent the opening
+          // First summary wins -- earlier summaries represent the opening
           // intent of a batch streak, later ones would override it otherwise.
           if (!map.has(callId)) {
             map.set(callId, item.summary);
@@ -191,12 +191,12 @@ export const MainContent = () => {
       // Look up ONLY the first tool's callId. A merged group concatenates
       // batch A (earliest calls) then batch B; earlier iterations scanned
       // all callIds and returned "first hit", but async resolution order
-      // breaks that — if B's summary resolves first, the header renders
+      // breaks that -- if B's summary resolves first, the header renders
       // SB; when A later resolves, the next render flips to SA. Anchoring
       // on item.tools[0].callId gives stable "leading batch governs"
       // semantics; if A's call failed and only B resolved, the header
-      // stays blank for that group (acceptable — the fallback is the
-      // default "Tool × N" rendering once the lookup misses).
+      // stays blank for that group (acceptable -- the fallback is the
+      // default "Tool * N" rendering once the lookup misses).
       return summaryByCallId.get(item.tools[0].callId);
     },
     [summaryByCallId],
@@ -223,7 +223,7 @@ export const MainContent = () => {
     const currHLen = uiState.history.length;
     const prevMLen = prevMergedLengthRef.current;
     const currMLen = mergedHistory.length;
-    // History grew, but merged length stayed same or shrank → a merge happened.
+    // History grew, but merged length stayed same or shrank -> a merge happened.
     if (currHLen > prevHLen && currMLen <= prevMLen) {
       uiActions.refreshStatic();
     }
@@ -309,7 +309,7 @@ export const MainContent = () => {
   // new <Static> and we'd hit the freeze the PR is trying to avoid. The
   // canonical "store previous prop in state" pattern queues a re-render
   // that discards this one before commit, so <Static> never sees the
-  // stale full slice. Refs alone won't work — they don't trigger a re-render.
+  // stale full slice. Refs alone won't work -- they don't trigger a re-render.
   // See: https://react.dev/reference/react/useState#storing-information-from-previous-renders
   const [lastRemountKey, setLastRemountKey] = useState(historyRemountKey);
   if (lastRemountKey !== historyRemountKey) {
@@ -332,7 +332,7 @@ export const MainContent = () => {
     return () => clearImmediate(handle);
   }, [replayCount, mergedHistory.length]);
 
-  // Render the full list when the tail gap is small (≤ CHUNK_SIZE). This
+  // Render the full list when the tail gap is small (<= CHUNK_SIZE). This
   // covers the normal append path: a pending item finalizes, replayCount is
   // already close to the new length, so we skip one useless slice frame.
   // Without this, a just-finalized item could briefly disappear for one tick

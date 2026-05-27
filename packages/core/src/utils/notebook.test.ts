@@ -282,7 +282,7 @@ describe('notebook utilities', () => {
   });
 
   it('should strip OSC hyperlink escape sequences (not just CSI colour codes)', async () => {
-    // ESC ] 8 ; ; <url> BEL <text> ESC ] 8 ; ; BEL — a Jupyter or click-
+    // ESC ] 8 ; ; <url> BEL <text> ESC ] 8 ; ; BEL -- a Jupyter or click-
     // -style terminal hyperlink. The earlier CSI-only regex left these
     // intact and they leaked into the LLM prompt.
     const filePath = await writeNotebook('osc-link.ipynb', {

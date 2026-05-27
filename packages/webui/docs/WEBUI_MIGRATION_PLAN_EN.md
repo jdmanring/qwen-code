@@ -30,29 +30,29 @@ For excellent software engineering architecture, we need to unify and reuse UI c
 
 ```
 webview/
-├── App.tsx                    # Main entry
-├── components/
-│   ├── icons/                 # 8 icon components
-│   ├── layout/                # 8 layout components
-│   │   ├── ChatHeader.tsx
-│   │   ├── InputForm.tsx
-│   │   ├── SessionSelector.tsx
-│   │   ├── EmptyState.tsx
-│   │   ├── Onboarding.tsx
-│   │   └── ...
-│   ├── messages/              # Message display components
-│   │   ├── UserMessage.tsx
-│   │   ├── Assistant/
-│   │   ├── MarkdownRenderer/
-│   │   ├── ThinkingMessage.tsx
-│   │   ├── Waiting/
-│   │   └── toolcalls/         # 16 tool call components
-│   ├── PermissionDrawer/      # Permission request drawer
-│   └── Tooltip.tsx
-├── hooks/                     # Custom hooks
-├── handlers/                  # Message handlers
-├── styles/                    # CSS styles
-└── utils/                     # Utility functions
+|---- App.tsx                    # Main entry
+|---- components/
+|   |---- icons/                 # 8 icon components
+|   |---- layout/                # 8 layout components
+|   |   |---- ChatHeader.tsx
+|   |   |---- InputForm.tsx
+|   |   |---- SessionSelector.tsx
+|   |   |---- EmptyState.tsx
+|   |   |---- Onboarding.tsx
+|   |   \_-- ...
+|   |---- messages/              # Message display components
+|   |   |---- UserMessage.tsx
+|   |   |---- Assistant/
+|   |   |---- MarkdownRenderer/
+|   |   |---- ThinkingMessage.tsx
+|   |   |---- Waiting/
+|   |   \_-- toolcalls/         # 16 tool call components
+|   |---- PermissionDrawer/      # Permission request drawer
+|   \_-- Tooltip.tsx
+|---- hooks/                     # Custom hooks
+|---- handlers/                  # Message handlers
+|---- styles/                    # CSS styles
+\_-- utils/                     # Utility functions
 ```
 
 ### 2.2 Key Dependency Analysis
@@ -64,18 +64,18 @@ webview/
 - Some type definitions come from `../types/` directory
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    App.tsx (Entry)                       │
-├─────────────────────────────────────────────────────────┤
-│  hooks/          │  handlers/       │  components/      │
-│  ├─useVSCode ◄───┼──────────────────┼──────────────────┤
-│  ├─useSession    │  ├─MessageRouter │  ├─icons/        │
-│  ├─useFileContext│  ├─AuthHandler   │  ├─layout/       │
-│  └─...           │  └─...           │  ├─messages/     │
-│                  │                  │  └─PermDrawer/   │
-├─────────────────────────────────────────────────────────┤
-│            VSCode API (acquireVsCodeApi)                │
-└─────────────────────────────────────────────────────────┘
++-----------------------------------------------------------+--
+|                    App.tsx (Entry)                       |
+|-----------------------------------------------------------
+|  hooks/          |  handlers/       |  components/      |
+|  |---useVSCode ---------------------------------------------
+|  |---useSession    |  |---MessageRouter |  |---icons/        |
+|  |---useFileContext|  |---AuthHandler   |  |---layout/       |
+|  \_-...           |  \_-...           |  |---messages/     |
+|                  |                  |  \_-PermDrawer/   |
+|-----------------------------------------------------------
+|            VSCode API (acquireVsCodeApi)                |
+\_------------------------------------------------------------
 ```
 
 ---
@@ -85,28 +85,28 @@ webview/
 ### 3.1 Layered Architecture Design
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│              Layer 3: Platform Adapters                 │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐    │
-│  │VSCode Adapter│ │Chrome Adapter│ │ Web Adapter  │    │
-│  └──────┬───────┘ └──────┬───────┘ └──────┬───────┘    │
-├─────────┼────────────────┼────────────────┼────────────┤
-│         │                │                │             │
-│         ▼                ▼                ▼             │
-│  ┌─────────────────────────────────────────────────┐   │
-│  │           Platform Context Provider              │   │
-│  └─────────────────────────────────────────────────┘   │
-├─────────────────────────────────────────────────────────┤
-│              Layer 2: Chat Components                   │
-│  ┌────────────┐ ┌────────────┐ ┌────────────┐          │
-│  │ MessageList│ │ ChatHeader │ │ InputForm  │          │
-│  └────────────┘ └────────────┘ └────────────┘          │
-├─────────────────────────────────────────────────────────┤
-│              Layer 1: Primitives (Pure UI)              │
-│  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐          │
-│  │ Button │ │ Input  │ │ Icons  │ │Tooltip │          │
-│  └────────┘ └────────┘ └────────┘ └────────┘          │
-└─────────────────────────────────────────────────────────┘
++-----------------------------------------------------------+--
+|              Layer 3: Platform Adapters                 |
+|  +----------------+-- +----------------+-- +----------------+--    |
+|  |VSCode Adapter| |Chrome Adapter| | Web Adapter  |    |
+|  \_---------------- \_---------------- \_----------------    |
+|----------------------------------------------------------------
+|         |                |                |             |
+|                                                      |
+|  +---------------------------------------------------+--   |
+|  |           Platform Context Provider              |   |
+|  \_----------------------------------------------------   |
+|-----------------------------------------------------------
+|              Layer 2: Chat Components                   |
+|  +--------------+-- +--------------+-- +--------------+--          |
+|  | MessageList| | ChatHeader | | InputForm  |          |
+|  \_--------------- \_--------------- \_---------------          |
+|-----------------------------------------------------------
+|              Layer 1: Primitives (Pure UI)              |
+|  +----------+-- +----------+-- +----------+-- +----------+--          |
+|  | Button | | Input  | | Icons  | |Tooltip |          |
+|  \_----------- \_----------- \_----------- \_-----------          |
+\_------------------------------------------------------------
 ```
 
 ### 3.2 Platform Context Design
@@ -188,12 +188,12 @@ module.exports = {
 
 ```
 packages/webui/
-├── .storybook/
-│   ├── main.ts      # Storybook config
-│   ├── preview.ts   # Global decorators
-│   └── manager.ts   # UI config
-└── src/
-    └── stories/     # Story files
+|---- .storybook/
+|   |---- main.ts      # Storybook config
+|   |---- preview.ts   # Global decorators
+|   \_-- manager.ts   # UI config
+\_-- src/
+    \_-- stories/     # Story files
 ```
 
 ---
@@ -252,17 +252,17 @@ packages/webui/
 ### 6.2 Migration Workflow
 
 ```
-Developer ──► @qwen-code/webui ──► vscode-ide-companion
-  │              │                      │
-  │   1. Copy component to webui        │
-  │   2. Add Story for verification     │
-  │   3. Export from index.ts           │
-  │              │                      │
-  │              └──────────────────────┤
-  │                                     │
-  │                      4. Update import path
-  │                      5. Delete original component
-  │                      6. Build and test
+Developer -- @qwen-code/webui -- vscode-ide-companion
+  |              |                      |
+  |   1. Copy component to webui        |
+  |   2. Add Story for verification     |
+  |   3. Export from index.ts           |
+  |              |                      |
+  |              \_----------------------
+  |                                     |
+  |                      4. Update import path
+  |                      5. Delete original component
+  |                      6. Build and test
 ```
 
 ### 6.3 Example: Migrating Icons
@@ -380,27 +380,27 @@ Each migration task completion requires:
 ### 10.1 Component Development Flow
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Development Workflow                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  1. Develop/Modify Component                                     │
-│     └── Edit files in @qwen-code/webui/src/                     │
-│                                                                  │
-│  2. Debug with Storybook                                         │
-│     └── npm run storybook (port 6006)                           │
-│     └── View component in isolation                              │
-│     └── Test different props/states                              │
-│                                                                  │
-│  3. Build Library                                                │
-│     └── npm run build                                            │
-│     └── Outputs: dist/index.js, dist/index.cjs, dist/index.d.ts │
-│                                                                  │
-│  4. Use in VSCode Extension                                      │
-│     └── import { Component } from '@qwen-code/webui'            │
-│     └── No UI code modifications in vscode-ide-companion        │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
++-------------------------------------------------------------------+--
+|                    Development Workflow                          |
+|-------------------------------------------------------------------
+|                                                                  |
+|  1. Develop/Modify Component                                     |
+|     \_-- Edit files in @qwen-code/webui/src/                     |
+|                                                                  |
+|  2. Debug with Storybook                                         |
+|     \_-- npm run storybook (port 6006)                           |
+|     \_-- View component in isolation                              |
+|     \_-- Test different props/states                              |
+|                                                                  |
+|  3. Build Library                                                |
+|     \_-- npm run build                                            |
+|     \_-- Outputs: dist/index.js, dist/index.cjs, dist/index.d.ts |
+|                                                                  |
+|  4. Use in VSCode Extension                                      |
+|     \_-- import { Component } from '@qwen-code/webui'            |
+|     \_-- No UI code modifications in vscode-ide-companion        |
+|                                                                  |
+\_--------------------------------------------------------------------
 ```
 
 ### 10.2 Debugging Commands

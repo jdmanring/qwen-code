@@ -393,9 +393,9 @@ For each configured server in `mcpServers`:
 
 1. **Status tracking begins:** Server status is set to `CONNECTING`
 2. **Transport selection:** Based on configuration properties:
-   - `httpUrl` → `StreamableHTTPClientTransport`
-   - `url` → `SSEClientTransport`
-   - `command` → `StdioClientTransport`
+   - `httpUrl` -> `StreamableHTTPClientTransport`
+   - `url` -> `SSEClientTransport`
+   - `command` -> `StdioClientTransport`
 3. **Connection establishment:** The MCP client attempts to connect with the configured timeout
 4. **Error handling:** Connection failures are logged and the server status is set to `DISCONNECTED`
 
@@ -462,8 +462,8 @@ if (this.trust) {
 
 The system maintains internal allow-lists for:
 
-- **Server-level:** `serverName` → All tools from this server are trusted
-- **Tool-level:** `serverName.toolName` → This specific tool is trusted
+- **Server-level:** `serverName` -> All tools from this server are trusted
+- **Tool-level:** `serverName.toolName` -> This specific tool is trusted
 
 #### User Choice Handling
 
@@ -522,17 +522,17 @@ This displays:
 ```
 MCP Servers Status:
 
-📡 pythonTools (CONNECTED)
+ pythonTools (CONNECTED)
   Command: python -m my_mcp_server --port 8080
   Working Directory: ./mcp-servers/python
   Timeout: 15000ms
   Tools: calculate_sum, file_analyzer, data_processor
 
-🔌 nodeServer (DISCONNECTED)
+ nodeServer (DISCONNECTED)
   Command: node dist/server.js --verbose
   Error: Connection refused
 
-🐳 dockerizedServer (CONNECTED)
+ dockerizedServer (CONNECTED)
   Command: docker run -i --rm -e API_KEY my-mcp-server:latest
   Tools: docker__deploy, docker__status
 

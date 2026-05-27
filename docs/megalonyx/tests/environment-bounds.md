@@ -1,4 +1,4 @@
-# 🛡️ Environment Boundaries
+#  Environment Boundaries
 
 This document defines the operational boundaries of the Mega Code agentic stack. It specifies the limits of the agent's authority over the host system to ensure security, predictability, and testability.
 

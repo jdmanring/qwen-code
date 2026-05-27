@@ -127,7 +127,7 @@ const TRANSCRIPT_PART_CHAR_CAP = 4_000;
  * Calls a small fast model (or the main model if no fast model is configured)
  * to evaluate whether the goal condition holds after the latest turn.
  *
- * Any failure — timeout, non-JSON response, missing fields, aborted signal —
+ * Any failure -- timeout, non-JSON response, missing fields, aborted signal --
  * is converted into `{ok:false, reason:<fallback>}` so the /goal loop can keep
  * running and the user retains control via `/goal clear`. We deliberately fail
  * "not met" so a flaky judge never short-circuits a real goal.
@@ -221,7 +221,7 @@ function collectTranscript(
     const tail = full.map(capContent);
     if (tail.length === 0) return fallbackTranscript(lastAssistantText);
     // If the live history's last assistant text doesn't include the supplied
-    // `lastAssistantText`, splice it in — the Stop hook can fire before the
+    // `lastAssistantText`, splice it in -- the Stop hook can fire before the
     // chat history commit on some code paths.
     const lastModelText = lastModelTextOf(tail);
     const haveLast =
@@ -265,7 +265,7 @@ function capPart(part: Part): Part {
     return part.text.length > TRANSCRIPT_PART_CHAR_CAP
       ? {
           ...part,
-          text: part.text.slice(0, TRANSCRIPT_PART_CHAR_CAP) + '…[truncated]',
+          text: part.text.slice(0, TRANSCRIPT_PART_CHAR_CAP) + '...[truncated]',
         }
       : part;
   }
@@ -303,7 +303,7 @@ function capStructuredValue(value: unknown): unknown {
   return {
     truncated: true,
     originalLength: serialized.length,
-    preview: serialized.slice(0, TRANSCRIPT_PART_CHAR_CAP) + '…[truncated]',
+    preview: serialized.slice(0, TRANSCRIPT_PART_CHAR_CAP) + '...[truncated]',
   };
 }
 

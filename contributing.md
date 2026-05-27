@@ -50,7 +50,7 @@ To help reviewers understand your change quickly and prioritize reviews, please 
 
 - **For bug fixes:** Show the before and after behavior.
 - **For new features:** Show the feature working end-to-end.
-- **For refactors or internal-only changes:** Simply note "N/A — no user-facing change" in the demo section.
+- **For refactors or internal-only changes:** Simply note "N/A -- no user-facing change" in the demo section.
 
 PRs with visual demos tend to get reviewed much faster, so this is in your interest too!
 

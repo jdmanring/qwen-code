@@ -593,7 +593,7 @@ describe('LoopDetectionService', () => {
 
     it('should not detect a loop for repeating complex box-drawing dividers', () => {
       service.reset('');
-      const dividerContent = '╭─'.repeat(CONTENT_CHUNK_SIZE / 2);
+      const dividerContent = '-'.repeat(CONTENT_CHUNK_SIZE / 2);
       let isLoop = false;
       for (let i = 0; i < CONTENT_LOOP_THRESHOLD + 5; i++) {
         isLoop = service.addAndCheck(createContentEvent(dividerContent));
@@ -675,7 +675,7 @@ describe('LoopDetectionService', () => {
       // any thought appeared >= THRESHOLD times anywhere in the retained
       // history. A healthy long-running session where the model revisits
       // the same phrase after making progress on unrelated steps should
-      // *not* trip this detector — only a sustained consecutive run does.
+      // *not* trip this detector -- only a sustained consecutive run does.
       service.addAndCheck(createThoughtEvent('Plan', 'Inspect the schema.'));
       service.addAndCheck(
         createThoughtEvent('Analysis', 'Consider migration.'),
@@ -779,7 +779,7 @@ describe('LoopDetectionService', () => {
       // project" opens with parallel read_file / list_directory calls and
       // must not trip READ_FILE_LOOP before any write/execute action has
       // fired. This exercises FILE_READ_WINDOW+ consecutive reads with no
-      // prior non-read tool — nothing should fire.
+      // prior non-read tool -- nothing should fire.
       for (let i = 0; i < 20; i++) {
         const name = i % 2 === 0 ? 'read_file' : 'list_directory';
         const isLoop = service.addAndCheck(
@@ -804,7 +804,7 @@ describe('LoopDetectionService', () => {
       }
       expect(loggers.logLoopDetected).not.toHaveBeenCalled();
 
-      // A non-read tool lands — gate opens.
+      // A non-read tool lands -- gate opens.
       service.addAndCheck(
         createToolCallRequestEvent('write_file', {
           path: 'out.txt',

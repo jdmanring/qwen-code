@@ -1,4 +1,4 @@
-# 🛡️ Model Stability & Repetition Control
+#  Model Stability & Repetition Control
 
 This document tracks known model-level instabilities and the corresponding sampling configurations required to maintain deterministic, non-looping output.
 

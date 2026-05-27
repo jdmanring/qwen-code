@@ -140,7 +140,7 @@ describe('dreamAgentPlanner', () => {
     // runForkedAgent maps AgentTerminateMode.CANCELLED to a resolved
     // `{status: 'cancelled'}` rather than a rejection. Without
     // re-throwing here, `runDreamByAgent` and downstream callers would
-    // treat an aborted run as a normal completion — bumping
+    // treat an aborted run as a normal completion -- bumping
     // `lastDreamAt` metadata and overwriting a user-cancelled task
     // record with `'completed'`. The throw lets the manager's existing
     // catch path (which checks `signal.aborted && status === 'cancelled'`)

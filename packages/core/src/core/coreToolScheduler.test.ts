@@ -63,7 +63,7 @@ type ToolSpanRecord = {
   spanAttributes: Record<string, string | number | boolean>;
   ended: boolean;
   /**
-   * Metadata passed to endToolSpan / endToolExecutionSpan — captured so
+   * Metadata passed to endToolSpan / endToolExecutionSpan -- captured so
    * tests can assert success/error/cancelled values are forwarded correctly.
    */
   endMetadata?: { success?: boolean; error?: string; cancelled?: boolean };
@@ -910,7 +910,7 @@ describe('CoreToolScheduler', () => {
     // Without the explicitErrorType extraction in the scheduler's
     // catch block, every getConfirmationDetails throw (including
     // structured prior-read enforcement rejections) would collapse
-    // into UNHANDLED_EXCEPTION — losing the new
+    // into UNHANDLED_EXCEPTION -- losing the new
     // EDIT_REQUIRES_PRIOR_READ / FILE_CHANGED_SINCE_READ /
     // PRIOR_READ_VERIFICATION_FAILED / EDIT_NO_OCCURRENCE_FOUND /
     // ... contracts that StructuredToolError exists to carry. Pin
@@ -2058,7 +2058,7 @@ describe('CoreToolScheduler cancellation during executing with live output', () 
       'Tool execution cancelled by user',
     );
     // #4302 review: cancelled: true so the exec sub-span ends UNSET (not
-    // ERROR) — matches setToolSpanCancelled on the parent tool span.
+    // ERROR) -- matches setToolSpanCancelled on the parent tool span.
     expect(execSpanRecord?.endMetadata?.cancelled).toBe(true);
   });
 });
@@ -3499,7 +3499,7 @@ describe('CoreToolScheduler telemetry spans', () => {
     expect(execute).not.toHaveBeenCalled();
     expect(completedCalls[0].status).toBe('error');
     // This test exercises the actual PreToolUse hook deny path inside
-    // _executeToolCallBody — which is the only site that should still emit
+    // _executeToolCallBody -- which is the only site that should still emit
     // 'pre_hook_blocked' (#4321 review C-Critical).
     expectSanitizedFailure(
       spanRecord,
@@ -3535,7 +3535,7 @@ describe('CoreToolScheduler telemetry spans', () => {
       disableHooks: false,
     });
 
-    // setToolSpanFailure(span, kind, msg) → safeSetStatus({code: ERROR,
+    // setToolSpanFailure(span, kind, msg) -> safeSetStatus({code: ERROR,
     // message: truncateSpanError(msg)}). The mock returns the sentinel
     // for that single call, so the span's status message must equal it.
     const errorStatusCall = spanRecord.statusCalls.find(
@@ -3805,7 +3805,7 @@ describe('CoreToolScheduler telemetry spans', () => {
     expect(spanRecord.ended).toBe(true);
   });
 
-  // tool span `success` boolean attribute — must always be present so
+  // tool span `success` boolean attribute -- must always be present so
   // observability backends can filter failures with the same query they
   // use for llm_request spans (which carry `success` unconditionally).
 
@@ -3851,7 +3851,7 @@ describe('CoreToolScheduler telemetry spans', () => {
     expect(spanRecord.spanAttributes).toHaveProperty('success', false);
   });
 
-  // tool.execution sub-span lifecycle assertions —
+  // tool.execution sub-span lifecycle assertions --
   // ensure the sub-span is started/ended on every meaningful path so that
   // future regressions (e.g. dropping the sub-span call or mis-marking a
   // failed result as success) fail loudly.
@@ -3938,7 +3938,7 @@ describe('CoreToolScheduler telemetry spans', () => {
     expect(exec).toBeDefined();
     expect(exec!.endMetadata?.success).toBe(false);
     // Operators filtering exec spans for errors should NOT see cancellation
-    // messages here — only real exception messages.
+    // messages here -- only real exception messages.
     expect(exec!.endMetadata?.error).toBe('Tool execution cancelled by user');
     // #4302 review: catch-path cancellation also threads cancelled: true so
     // the exec sub-span lands UNSET, not ERROR.
@@ -3951,14 +3951,14 @@ describe('CoreToolScheduler telemetry spans', () => {
     });
     const exec = getExecutionSpan();
     expect(exec).toBeDefined();
-    // signal not aborted — this is a real exception, must surface as ERROR
+    // signal not aborted -- this is a real exception, must surface as ERROR
     // status. cancelled stays falsy.
     expect(exec!.endMetadata?.cancelled).toBeFalsy();
   });
 
   // -------------------------------------------------------------------
-  // #3731 Phase 2 — tool span lifecycle now spans validating →
-  // awaiting_approval → executing in one span; blocked_on_user is a child
+  // #3731 Phase 2 -- tool span lifecycle now spans validating ->
+  // awaiting_approval -> executing in one span; blocked_on_user is a child
   // span; each hook fire site gets its own hook span.
   // -------------------------------------------------------------------
 
@@ -3986,15 +3986,15 @@ describe('CoreToolScheduler telemetry spans', () => {
     const toolSpans = getToolSpans();
     expect(toolSpans).toHaveLength(1);
     expect(toolSpans[0].ended).toBe(true);
-    // No execution sub-span — request didn't reach _executeToolCallBody.
+    // No execution sub-span -- request didn't reach _executeToolCallBody.
     expect(getExecutionSpan()).toBeUndefined();
-    // No blocked span either — the deny path takes the permission_hook
+    // No blocked span either -- the deny path takes the permission_hook
     // branch BEFORE awaiting_approval is set.
     expect(getBlockedSpans()).toHaveLength(0);
   });
 
   it('blocked_on_user span ends with cancel when the user rejects (#3731 Phase 2)', async () => {
-    // Reuses MockEditTool — same setup as the existing edit-cancellation
+    // Reuses MockEditTool -- same setup as the existing edit-cancellation
     // test in `CoreToolScheduler edit cancellation`, just instrumented for
     // the new Phase 2 spans.
     toolSpanRecords.length = 0;
@@ -4088,7 +4088,7 @@ describe('CoreToolScheduler telemetry spans', () => {
 
     // #4321 review: the awaiting_approval phase produces exactly one
     // blocked_on_user span across the lifecycle. ModifyWithEditor's
-    // intentional invariant is the same — re-entering awaiting_approval
+    // intentional invariant is the same -- re-entering awaiting_approval
     // must NOT spawn a second span. This assertion guards against a
     // future refactor that re-starts the blocked span on each transition.
     expect(blockedSpans).toHaveLength(1);
@@ -4132,7 +4132,7 @@ describe('CoreToolScheduler telemetry spans', () => {
 
     // shouldProceed defaults to true on hookError, so the tool runs and
     // a PostToolUse hook span fires too. The PreToolUse one is the one
-    // we care about — it must report failure + the actual error.
+    // we care about -- it must report failure + the actual error.
     const preHookSpan = getHookSpans().find(
       (s) => s.attributes['hook_event'] === 'PreToolUse',
     );
@@ -4180,7 +4180,7 @@ describe('CoreToolScheduler telemetry spans', () => {
     // _executeToolCallBody catch fires PostToolUseFailure with
     // isInterrupt:true when the abort signal is set. Operators rely on
     // is_interrupt to separate user-initiated cancellations from real
-    // exceptions in dashboards — assert the hook span carries the
+    // exceptions in dashboards -- assert the hook span carries the
     // correct value.
     toolSpanRecords.length = 0;
     const abortController = new AbortController();
@@ -4211,7 +4211,7 @@ describe('CoreToolScheduler telemetry spans', () => {
   });
 
   it('PostToolUseFailure hook span records is_interrupt=false on real exception path (#4321)', async () => {
-    // Companion to the abort test — same hook event but the
+    // Companion to the abort test -- same hook event but the
     // executeError-not-from-abort branch tags is_interrupt:false. A
     // copy-paste regression flipping the flag would be invisible
     // without this assertion.
@@ -4258,7 +4258,7 @@ describe('CoreToolScheduler telemetry spans', () => {
   });
 
   // -------------------------------------------------------------------
-  // #4321 follow-up review tests — three behaviors introduced by the
+  // #4321 follow-up review tests -- three behaviors introduced by the
   // 6767469b2 follow-up that were not previously asserted.
   // -------------------------------------------------------------------
 
@@ -4324,7 +4324,7 @@ describe('CoreToolScheduler telemetry spans', () => {
   it('blocked_on_user span ends with decision=error when getConfirmationDetails throws (#4321)', async () => {
     // Trigger _schedule's outer catch (line ~1711) by making
     // getConfirmationDetails throw. The blocked span hasn't been started
-    // yet at the catch point — the span only opens AFTER setStatusInternal
+    // yet at the catch point -- the span only opens AFTER setStatusInternal
     // 'awaiting_approval' which never runs in this path. So the outer
     // finalizeBlockedSpan('error', 'system') call is a no-op. Assert the
     // tool span still ends correctly.
@@ -4463,7 +4463,7 @@ describe('CoreToolScheduler telemetry spans', () => {
       'awaiting_approval',
     )) as WaitingToolCall;
 
-    // Abort the signal AND pass Cancel as outcome — both conditions true.
+    // Abort the signal AND pass Cancel as outcome -- both conditions true.
     abortController.abort();
     await awaitingCall.confirmationDetails.onConfirm(
       ToolConfirmationOutcome.Cancel,
@@ -4517,7 +4517,7 @@ describe('CoreToolScheduler telemetry spans', () => {
     // Defensive error-recovery path added by this PR: if anything inside
     // _handleConfirmationResponseInner throws (originalOnConfirm,
     // modifyWithEditor, _applyInlineModify, attemptExecutionOfScheduledCalls),
-    // both spans must be finalized and the error rethrown — otherwise
+    // both spans must be finalized and the error rethrown -- otherwise
     // operators see a leak until the 30-min TTL.
     toolSpanRecords.length = 0;
     const { scheduler, onToolCallsUpdate } = buildApprovalScheduler({});
@@ -4534,7 +4534,7 @@ describe('CoreToolScheduler telemetry spans', () => {
       new AbortController().signal,
     );
 
-    // Wait until the call is awaiting_approval — both blocked + tool spans
+    // Wait until the call is awaiting_approval -- both blocked + tool spans
     // are in the scheduler's Maps at this point.
     await waitForStatus(onToolCallsUpdate, 'awaiting_approval');
 
@@ -4828,7 +4828,7 @@ describe('CoreToolScheduler telemetry spans', () => {
   it('background-agent auto-deny emits failure_kind=background_agent_denied (#4321)', async () => {
     // _schedule line ~1697: getShouldAvoidPermissionPrompts() === true
     // forces an auto-deny because background agents have no UI to prompt
-    // on. This branch is otherwise untested — a regression dropping the
+    // on. This branch is otherwise untested -- a regression dropping the
     // setToolSpanFailure call would silently lose attribution for a key
     // deployment mode.
     toolSpanRecords.length = 0;
@@ -4905,14 +4905,14 @@ describe('CoreToolScheduler telemetry spans', () => {
     // firePermissionRequestHook) and before opening the blocked span.
     // Without this guard, an abort that resolves during one of those
     // awaits would leave the tool in awaiting_approval on an already-
-    // aborted signal — the per-batch drain (deferred via setTimeout(0))
+    // aborted signal -- the per-batch drain (deferred via setTimeout(0))
     // could have fired before the new entry exists, leaking it until
     // TTL.
     //
     // Drive the path by making `getConfirmationDetails` abort the
     // signal as it returns: top-of-loop check passes (signal not yet
     // aborted), evaluatePermissionFlow resolves, getConfirmationDetails
-    // resolves AND aborts → the re-check must fire the cancel path
+    // resolves AND aborts -> the re-check must fire the cancel path
     // before any awaiting_approval transition or blocked span open.
     toolSpanRecords.length = 0;
     const abortController = new AbortController();
@@ -4943,7 +4943,7 @@ describe('CoreToolScheduler telemetry spans', () => {
           override async getConfirmationDetails(
             _signal: AbortSignal,
           ): Promise<ToolCallConfirmationDetails> {
-            // Abort BEFORE returning — by the time _schedule's
+            // Abort BEFORE returning -- by the time _schedule's
             // re-check runs, signal.aborted is true.
             abortController.abort();
             return {
@@ -5040,10 +5040,10 @@ describe('CoreToolScheduler telemetry spans', () => {
   it('prelude throw in _executeToolCallBody transitions tool from scheduled to error (#4321)', async () => {
     // _executeToolCallBody's prelude (addToolInputAttributes,
     // getMessageBus, startToolExecutionSpan, etc.) runs BEFORE the
-    // `scheduled → executing` transition. If a synchronous throw escapes
+    // `scheduled -> executing` transition. If a synchronous throw escapes
     // the prelude, the catch in executeSingleToolCall must finalize the
     // tool span with failure_kind=tool_exception AND transition the
-    // toolCall to 'error' — otherwise checkAndNotifyCompletion never
+    // toolCall to 'error' -- otherwise checkAndNotifyCompletion never
     // sees a terminal state and the scheduler stalls (#4321 review-8
     // wenshao Critical refinement of review-7 SF-H2).
     toolSpanRecords.length = 0;
@@ -5091,7 +5091,7 @@ describe('CoreToolScheduler telemetry spans', () => {
       getGeminiClient: () => null,
       getChatRecordingService: () => undefined,
       getMessageBus: vi.fn(() => {
-        throw new Error('prelude boom — getMessageBus throws');
+        throw new Error('prelude boom -- getMessageBus throws');
       }),
       getDisableAllHooks: vi.fn().mockReturnValue(false),
     } as unknown as Config;
@@ -5104,12 +5104,12 @@ describe('CoreToolScheduler telemetry spans', () => {
       onEditorClose: vi.fn(),
     });
 
-    // The prelude throw re-throws out of executeSingleToolCall →
-    // attemptExecutionOfScheduledCalls → _schedule. That's expected;
+    // The prelude throw re-throws out of executeSingleToolCall ->
+    // attemptExecutionOfScheduledCalls -> _schedule. That's expected;
     // the caller surfaces the error. The critical regression is
     // whether the toolCall transitions out of `scheduled` BEFORE the
     // throw propagates so checkAndNotifyCompletion sees a terminal
-    // state — without that transition the scheduler is stuck and
+    // state -- without that transition the scheduler is stuck and
     // onAllToolCallsComplete never fires.
     await expect(
       scheduler.schedule(
@@ -5127,8 +5127,8 @@ describe('CoreToolScheduler telemetry spans', () => {
     ).rejects.toThrow('prelude boom');
 
     // onAllToolCallsComplete fired (synchronously dispatched from
-    // setStatusInternal → checkAndNotifyCompletion) with the call in
-    // 'error' status — proves the catch transitioned it out of
+    // setStatusInternal -> checkAndNotifyCompletion) with the call in
+    // 'error' status -- proves the catch transitioned it out of
     // 'scheduled' BEFORE re-throwing.
     expect(onAllToolCallsComplete).toHaveBeenCalled();
     const completedCalls = onAllToolCallsComplete.mock.calls.at(
@@ -5166,7 +5166,7 @@ describe('CoreToolScheduler telemetry spans', () => {
       abortController.signal,
     );
 
-    // Wait until the call is awaiting_approval — both Maps populated.
+    // Wait until the call is awaiting_approval -- both Maps populated.
     await waitForStatus(onToolCallsUpdate, 'awaiting_approval');
     expect(
       (scheduler as unknown as { toolSpans: Map<string, unknown> }).toolSpans
@@ -5177,7 +5177,7 @@ describe('CoreToolScheduler telemetry spans', () => {
         .blockedSpans.size,
     ).toBe(1);
 
-    // Abort the signal — the listener registered in _schedule schedules
+    // Abort the signal -- the listener registered in _schedule schedules
     // the drain via setTimeout(0). Flush macrotasks so it runs before
     // assertions.
     abortController.abort();
@@ -5280,7 +5280,7 @@ describe('CoreToolScheduler telemetry spans', () => {
   it('pre-aborted signal: tool span ends without entering execution (#4321)', async () => {
     // _schedule line ~1487 early-exit when signal.aborted is true at the
     // start of the for-loop. setToolSpanCancelled + finalizeToolSpan
-    // here are otherwise untested — a regression dropping either would
+    // here are otherwise untested -- a regression dropping either would
     // leak the span or land it in ERROR rather than UNSET.
     toolSpanRecords.length = 0;
     const execute = vi
@@ -5295,13 +5295,13 @@ describe('CoreToolScheduler telemetry spans', () => {
       (r) => r.name === 'tool.mockTool',
     );
     expect(toolSpan?.ended).toBe(true);
-    // setToolSpanCancelled records UNSET status — distinguishes from
+    // setToolSpanCancelled records UNSET status -- distinguishes from
     // setToolSpanFailure paths which would land ERROR.
     expect(toolSpan?.statusCalls).toEqual([{ code: SpanStatusCode.UNSET }]);
   });
 
   it('signal.abort during awaiting_approval: blocked span ends with aborted/system (#4321)', async () => {
-    // Companion to "signal.abort drains scheduler-local Maps" — that test
+    // Companion to "signal.abort drains scheduler-local Maps" -- that test
     // covers tool span cancellation; this one specifically asserts the
     // blocked_on_user decision label/source for the same drain path so
     // dashboards filtering on `decision: 'aborted'` are guarded.
@@ -5334,7 +5334,7 @@ describe('CoreToolScheduler telemetry spans', () => {
   });
 
   it('handleConfirmationResponse outer catch routes aborted-signal throw to aborted/system (#4321)', async () => {
-    // Companion to the existing rethrow test — covers the OTHER branch
+    // Companion to the existing rethrow test -- covers the OTHER branch
     // of the catch, where signal.aborted is true at throw time. Without
     // this assertion, dropping the abort branch would silently
     // misattribute the throw as 'error'/'tool_exception'.
@@ -5478,7 +5478,7 @@ describe('CoreToolScheduler telemetry spans', () => {
     expect(
       toolSpan?.spanAttributes['qwen-code.tool.modify_with_editor_unavailable'],
     ).toBe(true);
-    // Span stays open — user can recover via Cancel/Proceed.
+    // Span stays open -- user can recover via Cancel/Proceed.
     expect(toolSpan?.ended).toBe(false);
   });
 
@@ -5511,7 +5511,7 @@ describe('CoreToolScheduler telemetry spans', () => {
     );
 
     // Tool ran fully synchronously (auto-approved), so its tool span
-    // finalized inside _schedule → releaseBatchListenerIfDrained ran.
+    // finalized inside _schedule -> releaseBatchListenerIfDrained ran.
     const listenersAfter = (
       abortController.signal as unknown as {
         listenerCount?: (e: string) => number;
@@ -6004,7 +6004,7 @@ describe('Fire hook functions integration', () => {
         execute: async (params) => {
           const id = (params as { id: string }).id;
           executionLog.push(`start:${id}`);
-          // Simulate async work — concurrent agents will interleave here
+          // Simulate async work -- concurrent agents will interleave here
           await new Promise((r) => setTimeout(r, 50));
           executionLog.push(`end:${id}`);
           return {
@@ -6153,7 +6153,7 @@ describe('Fire hook functions integration', () => {
       expect(completedCalls).toHaveLength(4);
       expect(completedCalls.every((c) => c.status === 'success')).toBe(true);
 
-      // All 4 tools are concurrency-safe → they should all start
+      // All 4 tools are concurrency-safe -> they should all start
       // before any of them finishes (parallel execution).
       const allStarts = [
         executionLog.indexOf('read:start:1'),
@@ -6305,8 +6305,8 @@ describe('Fire hook functions integration', () => {
         onToolCallsUpdate,
       );
 
-      // [Read₁, Read₂, Edit, Read₃]
-      // Expected batches: [Read₁,Read₂](parallel) → [Edit](seq) → [Read₃](seq)
+      // [Read, Read, Edit, Read]
+      // Expected batches: [Read,Read](parallel) -> [Edit](seq) -> [Read](seq)
       const requests = [
         {
           callId: '1',
@@ -6346,7 +6346,7 @@ describe('Fire hook functions integration', () => {
       expect(completedCalls).toHaveLength(4);
       expect(completedCalls.every((c) => c.status === 'success')).toBe(true);
 
-      // Batch 1: Read₁ and Read₂ run in parallel (both start before either ends)
+      // Batch 1: Read and Read run in parallel (both start before either ends)
       const read1Start = executionLog.indexOf('read:start:1');
       const read2Start = executionLog.indexOf('read:start:2');
       const firstReadEnd = Math.min(
@@ -6368,7 +6368,7 @@ describe('Fire hook functions integration', () => {
       expect(editStart).not.toBe(-1);
       expect(editStart).toBeGreaterThan(lastReadEnd);
 
-      // Batch 3: Read₃ starts after Edit completes
+      // Batch 3: Read starts after Edit completes
       const editEnd = executionLog.indexOf('edit:end:E');
       const read3Start = executionLog.indexOf('read:start:3');
       expect(editEnd).not.toBe(-1);
@@ -6405,8 +6405,8 @@ describe('Fire hook functions integration', () => {
         onToolCallsUpdate,
       );
 
-      // "git log" and "ls" are read-only → concurrent
-      // "npm install" is not read-only → sequential, breaks the batch
+      // "git log" and "ls" are read-only -> concurrent
+      // "npm install" is not read-only -> sequential, breaks the batch
       const requests = [
         {
           callId: '1',
@@ -7019,7 +7019,7 @@ describe('CoreToolScheduler validation retry loop detection', () => {
     msg = getLastErrorMessage(onToolCallsUpdate);
     expect(msg).not.toContain(RETRY_LOOP_STOP_DIRECTIVE);
 
-    // Turn 3: same bad params — should trigger directive
+    // Turn 3: same bad params -- should trigger directive
     await scheduler.schedule(
       [makeRequest('c3', 'strictStringTool', { value: 123 })],
       new AbortController().signal,
@@ -7049,7 +7049,7 @@ describe('CoreToolScheduler validation retry loop detection', () => {
       new AbortController().signal,
     );
 
-    // Turn 4: back to tool — should be count 1 again (no directive)
+    // Turn 4: back to tool -- should be count 1 again (no directive)
     await scheduler.schedule(
       [makeRequest('c4', 'strictStringTool', { value: 123 })],
       new AbortController().signal,
@@ -7079,7 +7079,7 @@ describe('CoreToolScheduler validation retry loop detection', () => {
       new AbortController().signal,
     );
 
-    // Two more failures — count should restart at 1, not jump to 3+.
+    // Two more failures -- count should restart at 1, not jump to 3+.
     await scheduler.schedule(
       [makeRequest('c4', 'strictStringTool', { value: 123 })],
       new AbortController().signal,
@@ -7220,7 +7220,7 @@ describe('CoreToolScheduler validation retry loop detection', () => {
       new AbortController().signal,
     );
 
-    // Now a batch for tool B only — tool A's counter must be pruned because
+    // Now a batch for tool B only -- tool A's counter must be pruned because
     // A is not present in this batch.
     await scheduler.schedule(
       [makeRequest('b1', StrictToolAlt.Name, { other: 456 })],
@@ -7295,7 +7295,7 @@ describe('extractToolFilePaths', () => {
     // Realistic per-tool dispatch: read_file does not look at `path`,
     // `filePath`, or `paths`; grep_search does not look at `filePath`
     // or `paths`. The previous generic extractor accepted everything for
-    // every FS tool — overly permissive given that the field names mean
+    // every FS tool -- overly permissive given that the field names mean
     // different things across tools.
     expect(
       extractToolFilePaths(FS_TOOL, {
@@ -7440,7 +7440,7 @@ describe('extractToolFilePaths', () => {
   });
 
   it('uses forward slashes regardless of host OS', () => {
-    // Regression: `path.join` is OS-aware — on Windows it emits
+    // Regression: `path.join` is OS-aware -- on Windows it emits
     // backslashes and silently diverges from the forward-slash form
     // the registry matches against. Plain concat with a literal `/`
     // keeps the candidate cross-platform consistent.
@@ -7473,8 +7473,8 @@ describe('extractToolFilePaths', () => {
   });
 
   it('canonicalizes legacy tool-name aliases before the allowlist check', () => {
-    // Regression: the tool registry resolves `replace` → `edit`,
-    // `search_file_content` → `grep_search`, etc. at execution time, so
+    // Regression: the tool registry resolves `replace` -> `edit`,
+    // `search_file_content` -> `grep_search`, etc. at execution time, so
     // a model call like `replace({ file_path: 'src/App.tsx' })` actually
     // runs EditTool. If the activation pipeline gates on the raw alias
     // name, conditional rules and skill activation silently skip every
@@ -7509,7 +7509,7 @@ describe('extractToolFilePaths', () => {
 
 describe('CoreToolScheduler activation wiring', () => {
   // Integration coverage for the scheduler-side hook that ties
-  // extractToolFilePaths → matchAndActivateByPaths → system-reminder
+  // extractToolFilePaths -> matchAndActivateByPaths -> system-reminder
   // append. Unit tests on extractToolFilePaths alone don't catch
   // wiring regressions (e.g. forgetting the await, dropping the
   // SkillTool gate, posting the reminder before the listener chain
@@ -7822,7 +7822,7 @@ describe('CoreToolScheduler activation wiring', () => {
       new AbortController().signal,
     );
 
-    // Activation registry still mutates (correct — model in another
+    // Activation registry still mutates (correct -- model in another
     // context might want it), but the reminder is suppressed for this
     // subagent's tool result because invoking the announced skill from
     // here would fail.
@@ -7835,7 +7835,7 @@ describe('CoreToolScheduler activation wiring', () => {
 
   it('coalesces rules + activation reminders into a single <system-reminder> envelope', async () => {
     // Regression: previously each matching rule emitted its own
-    // `<system-reminder>` and skill activation emitted another — a
+    // `<system-reminder>` and skill activation emitted another -- a
     // multi-path tool could produce N+1 envelopes. Coalesce so the
     // model gets one block per tool call.
     const matchAndActivateByPaths = vi.fn().mockResolvedValue(['tsx-helper']);
@@ -8119,13 +8119,13 @@ describe('CoreToolScheduler activation wiring', () => {
   it('scrubs literal </system-reminder> in rule content to prevent envelope breakout', async () => {
     // A rule body containing literal `</system-reminder>` (e.g. a
     // documentation rule about how reminders work) would close our
-    // envelope early. Scrub the closing-tag literal — minimal escape
+    // envelope early. Scrub the closing-tag literal -- minimal escape
     // needed to keep the wrapper intact, without mangling code blocks.
     const responseText = await runSchedulerWithRule(
       'Rule about reminders: never write </system-reminder> in your output.',
     );
 
-    // Exactly one closing tag — the envelope's. The literal in the
+    // Exactly one closing tag -- the envelope's. The literal in the
     // body is rewritten to <\/system-reminder> so it doesn't close
     // the wrapper.
     const closeCount = (responseText.match(/<\/system-reminder>/g) || [])
@@ -8136,7 +8136,7 @@ describe('CoreToolScheduler activation wiring', () => {
     expect(responseText).toContain('<\\\\/system-reminder>');
   });
 
-  // Obfuscated closing-tag variants must be neutralized too — these
+  // Obfuscated closing-tag variants must be neutralized too -- these
   // are the cases the previous narrow `</system-reminder>` regex let
   // through but the shared escapeSystemReminderTags helper now catches.
   // A rule body containing any of these forms must not close the
@@ -8157,15 +8157,15 @@ describe('CoreToolScheduler activation wiring', () => {
     },
     {
       name: 'zero-width space inside the name',
-      body: 'Rule body with <​/system-reminder> inside.',
+      body: 'Rule body with </system-reminder> inside.',
     },
     {
       name: 'word joiner between letters',
-      body: 'Rule body with </s​ys⁠tem-reminder> inside.',
+      body: 'Rule body with </system-reminder> inside.',
     },
     {
       name: 'variation selector after the name',
-      body: 'Rule body with </system-reminder️> inside.',
+      body: 'Rule body with </system-reminder> inside.',
     },
   ])(
     'scrubs obfuscated </system-reminder> variant: $name',
@@ -8176,14 +8176,14 @@ describe('CoreToolScheduler activation wiring', () => {
         .length;
       expect(closeCount).toBe(1);
       // None of the raw variants should survive into the model-facing
-      // payload — they would otherwise be interpreted as envelope
+      // payload -- they would otherwise be interpreted as envelope
       // boundaries by a tolerant parser or by the model itself.
       expect(responseText).not.toContain('</system-reminder >');
       expect(responseText).not.toContain('< /system-reminder>');
       expect(responseText).not.toContain('</ system-reminder>');
-      expect(responseText).not.toContain('<​/system-reminder>');
-      expect(responseText).not.toContain('</s​ys⁠tem-reminder>');
-      expect(responseText).not.toContain('</system-reminder️>');
+      expect(responseText).not.toContain('</system-reminder>');
+      expect(responseText).not.toContain('</system-reminder>');
+      expect(responseText).not.toContain('</system-reminder>');
     },
   );
 
@@ -8242,7 +8242,7 @@ describe('CoreToolScheduler shell-tool promote integration (#3831 PR-2)', () => 
     // currently-executing shell tool call by callId and abort
     // `tc.promoteAbortController`; if the scheduler stops populating
     // that field, the keybind silently breaks. Direct
-    // ShellToolInvocation tests can't see this — they don't go
+    // ShellToolInvocation tests can't see this -- they don't go
     // through the scheduler.
     let exposedAc: AbortController | undefined;
     class TestShellInvocation extends ShellToolInvocation {
@@ -8266,7 +8266,7 @@ describe('CoreToolScheduler shell-tool promote integration (#3831 PR-2)', () => 
 
     class TestShellTool extends ShellTool {
       protected override createInvocation(params: ShellToolParams) {
-        // Cast through unknown — the test invocation extends the real
+        // Cast through unknown -- the test invocation extends the real
         // ShellToolInvocation prototype so the scheduler's `instanceof
         // ShellToolInvocation` check still routes the call through
         // the shell-tool-specific branch (which is the branch that
@@ -8344,7 +8344,7 @@ describe('CoreToolScheduler shell-tool promote integration (#3831 PR-2)', () => 
     // Find a tool-calls-update emitted while the call was 'executing'
     // that carries the promoteAbortController. The exact ordering of
     // updates depends on the scheduler's internal flow, but at SOME
-    // point during the executing window the field must be populated —
+    // point during the executing window the field must be populated --
     // otherwise PR-3's Ctrl+B keybind has nothing to abort.
     const updateBatches = onToolCallsUpdate.mock.calls;
     const sawPromoteAcWhileExecuting = updateBatches.some((batch) => {

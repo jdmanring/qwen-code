@@ -166,7 +166,7 @@ export class MessageRouter {
   }
 
   /**
-   * Set auth interactive handler — interactive auth flow.
+   * Set auth interactive handler -- interactive auth flow.
    * Also registers the handler on the session handler so
    * "Configure" prompts in session flows trigger the interactive flow.
    */

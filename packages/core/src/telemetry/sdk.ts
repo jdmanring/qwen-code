@@ -100,7 +100,7 @@ const SHUTDOWN_TIMEOUT_MS = 10_000;
  * trace context stays internal to the user's OTLP collector and is not
  * written into outbound `fetch` requests to third-party LLM providers.
  *
- * UndiciInstrumentation still creates client HTTP spans — the propagator
+ * UndiciInstrumentation still creates client HTTP spans -- the propagator
  * only governs whether `propagation.inject()` writes `traceparent` into
  * the outgoing request's header carrier. With this propagator installed,
  * inject is a no-op and outbound requests carry no trace headers. PR
@@ -188,7 +188,7 @@ export function initializeTelemetry(config: Config): void {
   const userAttrs = config.getTelemetryResourceAttributes() ?? {};
   const userServiceName = userAttrs['service.name'];
   // Strip keys we re-inject below (service.name, service.version) plus
-  // session.id, which never belongs on the Resource — Resource attributes
+  // session.id, which never belongs on the Resource -- Resource attributes
   // auto-attach to every metric data point, which would bypass the metric
   // cardinality toggle. The resolver normally drops session.id from user
   // input already; this destructure is defense-in-depth for callers that
@@ -305,7 +305,7 @@ export function initializeTelemetry(config: Config): void {
         });
       }
     } else {
-      // grpc — per-signal endpoints are not supported with gRPC protocol.
+      // grpc -- per-signal endpoints are not supported with gRPC protocol.
       if (!parsedEndpoint) {
         const warning =
           'Per-signal OTLP endpoints are only supported with HTTP protocol. ' +
@@ -343,12 +343,12 @@ export function initializeTelemetry(config: Config): void {
   // If no exporter is configured for a signal, it is silently skipped.
 
   // Build OTLP exporter URL prefixes once. Both HttpInstrumentation (which
-  // patches Node's built-in `http`/`https` — used by the OTLP HTTP exporter)
-  // and UndiciInstrumentation (which patches `fetch` / undici — used by LLM
+  // patches Node's built-in `http`/`https` -- used by the OTLP HTTP exporter)
+  // and UndiciInstrumentation (which patches `fetch` / undici -- used by LLM
   // SDKs but also by some OTLP exporters when configured) must ignore
   // requests to these endpoints. Otherwise an upload would create a span
   // that gets exported, creating an infinite feedback loop. Use WHATWG URL
-  // parsing so a parsed prefix is always { origin, pathname } — never the
+  // parsing so a parsed prefix is always { origin, pathname } -- never the
   // dangerous bare `"http"` fallback that startsWith would match against
   // every HTTP URL on the wire. See PR #4390 review feedback (wenshao).
   function normalizeOtlpPrefix(
@@ -356,24 +356,24 @@ export function initializeTelemetry(config: Config): void {
   ): { origin: string; pathname: string } | undefined {
     if (!raw) return undefined;
     // Trim surrounding whitespace + ASCII quotes a user may have placed in
-    // settings.json (`"value"` → `value`). Use the SAME lenient regex as
+    // settings.json (`"value"` -> `value`). Use the SAME lenient regex as
     // `parseOtlpEndpoint` (line 109) so any endpoint the exporter accepts
     // also gets a feedback-loop guard. Asymmetric quotes (e.g. `"value'`)
-    // are almost certainly typos but `parseOtlpEndpoint` strips them too —
+    // are almost certainly typos but `parseOtlpEndpoint` strips them too --
     // mismatching here would let the exporter connect while the guard
     // returned `undefined`, reintroducing the parasitic-span loop. See PR
     // #4390 review feedback (wenshao).
     const s = raw.trim().replace(/^["']|["']$/g, '');
     try {
       const u = new URL(s);
-      // Drop ?query and #fragment — they're never part of the request
+      // Drop ?query and #fragment -- they're never part of the request
       // signature an instrumentation observer sees on outbound requests.
       // Strip a trailing `/` from path to keep prefix matching tight.
       const pathname = u.pathname === '/' ? '' : u.pathname.replace(/\/$/, '');
       return { origin: u.origin, pathname };
     } catch {
       // Unparseable URL (e.g. typo, placeholder). Reject entirely rather than
-      // attempt a string-level fallback — a fallback like `"http"` from input
+      // attempt a string-level fallback -- a fallback like `"http"` from input
       // `"http"` would `startsWith`-match every outbound HTTP request and
       // silently disable all instrumentation. Returning undefined means this
       // misconfigured endpoint loses its feedback-loop guard, but the rest of
@@ -430,11 +430,11 @@ export function initializeTelemetry(config: Config): void {
   // who want server-side trace stitching (e.g. ARMS+DashScope) opt in via
   // `outboundCorrelation.propagateTraceContext: true`, which leaves the
   // SDK's default W3C composite propagator in place. UndiciInstrumentation
-  // still creates client HTTP spans either way — the propagator only
+  // still creates client HTTP spans either way -- the propagator only
   // governs whether trace ids leak onto third-party request streams.
   const textMapPropagator: TextMapPropagator | undefined =
     config.getOutboundCorrelationPropagateTraceContext()
-      ? undefined // undefined → NodeSDK keeps its default W3C propagator
+      ? undefined // undefined -> NodeSDK keeps its default W3C propagator
       : NOOP_PROPAGATOR;
 
   sdk = new NodeSDK({
@@ -455,17 +455,17 @@ export function initializeTelemetry(config: Config): void {
       new HttpInstrumentation({
         // OTLP HTTP exporter uses node:http (patched here, not by undici).
         // Without this, every OTLP upload batch creates a parasitic client
-        // span that itself gets exported → feedback loop. See PR #4390
+        // span that itself gets exported -> feedback loop. See PR #4390
         // review feedback (wenshao).
         ignoreOutgoingRequestHook: (req) => {
           if (otlpUrlPrefixes.length === 0) return false;
           // Protocol must be known to compare reliably. The previous
           // `|| 'http'` fallback silently mis-bucketed HTTPS requests as
           // HTTP when `req.protocol` was unset, so HTTPS OTLP endpoints
-          // wouldn't match their prefix → guard bypassed → feedback loop.
-          // Now: when proto can't be determined, fail open (return false →
+          // wouldn't match their prefix -> guard bypassed -> feedback loop.
+          // Now: when proto can't be determined, fail open (return false ->
           // request gets instrumented). Worst case is a parasitic client
-          // span for an OTLP request — observable and recoverable, vs. the
+          // span for an OTLP request -- observable and recoverable, vs. the
           // unbounded feedback loop the previous default produced. See PR
           // #4390 review feedback (wenshao).
           const proto = req.protocol
@@ -474,10 +474,10 @@ export function initializeTelemetry(config: Config): void {
           if (!proto) return false;
           // `req.host` may already include `:port` (e.g. `"collector:4318"`).
           // Naively concatenating `:${req.port}` below would yield
-          // `"http://collector:4318:4318"`, which `new URL()` rejects → catch
-          // returns false → silent guard bypass. Currently unreachable because
+          // `"http://collector:4318:4318"`, which `new URL()` rejects -> catch
+          // returns false -> silent guard bypass. Currently unreachable because
           // `@opentelemetry/otlp-exporter-base` always sets `hostname`, but
-          // the fallback exists and must be correct. Strip the port — IPv6
+          // the fallback exists and must be correct. Strip the port -- IPv6
           // literals like `"[::1]:443"` keep their bracketed host. See PR
           // #4390 review feedback (wenshao).
           let host = req.hostname || '';
@@ -567,11 +567,11 @@ export async function shutdownTelemetry(): Promise<void> {
     let timer: ReturnType<typeof setTimeout> | undefined;
     let timedOut = false;
     try {
-      // Wrap in Promise.resolve for safety — auto-mocked shutdown()
+      // Wrap in Promise.resolve for safety -- auto-mocked shutdown()
       // may return undefined in test environments.
       const sdkShutdown = Promise.resolve(currentSdk.shutdown());
       // Prevent unhandled rejection if sdk.shutdown() rejects after the
-      // timeout wins the race — the process is exiting anyway.
+      // timeout wins the race -- the process is exiting anyway.
       // Only log when the timeout actually won; otherwise the catch block
       // below handles the rejection with full diag.error logging.
       sdkShutdown.catch((err) => {

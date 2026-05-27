@@ -154,7 +154,7 @@ export class WebViewProvider {
     this.agentManager = new QwenAgentManager();
     this.conversationStore = new ConversationStore(context);
     this.panelManager = new PanelManager(extensionUri, () => {
-      // Panel dispose callback — unblock any pending ACP Promises
+      // Panel dispose callback -- unblock any pending ACP Promises
       if (this.pendingPermissionResolve) {
         this.pendingPermissionResolve('cancel');
         this.pendingPermissionResolve = null;
@@ -176,14 +176,14 @@ export class WebViewProvider {
       (message) => this.sendMessageToWebView(message),
     );
 
-    // Set auth interactive handler — interactive auth flow (QuickPick → InputBox → write settings → reconnect)
+    // Set auth interactive handler -- interactive auth flow (QuickPick -> InputBox -> write settings -> reconnect)
     this.messageHandler.setAuthInteractiveHandler(
       async (providerConfig, inputs) => {
         await this.handleAuthInteractive(providerConfig, inputs);
       },
     );
 
-    // Watch for auth-related VSCode settings changes — auto-sync and reconnect.
+    // Watch for auth-related VSCode settings changes -- auto-sync and reconnect.
     // The isSyncingToVSCode guard prevents a loop when we programmatically populate VSCode settings.
     const configChangeDisposable = vscode.workspace.onDidChangeConfiguration(
       async (e) => {
@@ -197,7 +197,7 @@ export class WebViewProvider {
           );
           const synced = await this.syncVSCodeSettingsToQwenConfig();
           if (synced && this.agentInitialized) {
-            // Settings changed and we have an active connection — reconnect
+            // Settings changed and we have an active connection -- reconnect
             try {
               this.agentManager.disconnect();
               this.agentInitialized = false;
@@ -218,14 +218,14 @@ export class WebViewProvider {
           ) {
             // Only de-auth when qwen-code.apiKey itself was cleared.
             // Other auth-related settings (provider, codingPlanRegion) returning
-            // synced=false is normal for api-key providers — those are managed by
+            // synced=false is normal for api-key providers -- those are managed by
             // the interactive auth flow, not VS Code Settings sync.
             const apiKey = vscode.workspace
               .getConfiguration('qwen-code')
               .get<string>('apiKey', '');
             if (!apiKey) {
               console.log(
-                '[WebViewProvider] apiKey cleared — de-authenticating and clearing persisted credentials',
+                '[WebViewProvider] apiKey cleared -- de-authenticating and clearing persisted credentials',
               );
               clearPersistedAuth();
               this.agentManager.disconnect();
@@ -521,7 +521,7 @@ export class WebViewProvider {
               optionId.toLowerCase().includes('reject');
 
             // For switch_mode (exit_plan_mode), cancel means "reject
-            // the plan and stay in plan mode" — the agent keeps running.
+            // the plan and stay in plan mode" -- the agent keeps running.
             const isSwitchMode =
               (request.toolCall as { kind?: string } | undefined)?.kind ===
               'switch_mode';
@@ -530,7 +530,7 @@ export class WebViewProvider {
             void vscode.commands.executeCommand('qwen.diff.closeAll');
 
             if (isCancel) {
-              // Fire and forget — for normal tool calls, cancel generation and
+              // Fire and forget -- for normal tool calls, cancel generation and
               // end the stream; for switch_mode, keep the session alive but
               // still mark the permission tool call as failed in the UI.
               void (async () => {
@@ -602,7 +602,7 @@ export class WebViewProvider {
                 }
               })();
             } else {
-              // Allowed/proceeded — suppress diff re-open briefly
+              // Allowed/proceeded -- suppress diff re-open briefly
               void vscode.commands.executeCommand('qwen.diff.suppressBriefly');
             }
           };
@@ -861,7 +861,7 @@ export class WebViewProvider {
       return;
     }
 
-    // Create new panel — reset stale dot state from a previous sidebar interaction.
+    // Create new panel -- reset stale dot state from a previous sidebar interaction.
     this.dotState = null;
 
     // Create new panel
@@ -1032,7 +1032,7 @@ export class WebViewProvider {
   }
 
   /**
-   * Launch the interactive auth flow (QuickPick → InputBox → write settings → reconnect).
+   * Launch the interactive auth flow (QuickPick -> InputBox -> write settings -> reconnect).
    * Guards against concurrent launches: if auto-auth was scheduled by
    * doInitializeAgentConnection's deferred timeout, it is cancelled first.
    */
@@ -1093,7 +1093,7 @@ export class WebViewProvider {
       writeCodingPlanConfig(region, apiKey);
 
       console.log(
-        `[WebViewProvider] Synced VSCode settings → ~/.qwen/settings.json (provider=${provider})`,
+        `[WebViewProvider] Synced VSCode settings -> ~/.qwen/settings.json (provider=${provider})`,
       );
       return true;
     } catch (error) {
@@ -1115,7 +1115,7 @@ export class WebViewProvider {
       }
 
       console.log(
-        '[WebViewProvider] Syncing ~/.qwen/settings.json → VSCode settings',
+        '[WebViewProvider] Syncing ~/.qwen/settings.json -> VSCode settings',
       );
 
       // Set guard to prevent onDidChangeConfiguration from triggering a write-back
@@ -1165,7 +1165,7 @@ export class WebViewProvider {
 
   /**
    * Attempt to restore authentication state and initialize connection.
-   * On startup, sync ~/.qwen/settings.json → VSCode settings so the Settings UI
+   * On startup, sync ~/.qwen/settings.json -> VSCode settings so the Settings UI
    * reflects existing non-secret CLI config, then attempt a connection.
    * Writing back to ~/.qwen/settings.json happens through the auth flow and
    * auth-related VSCode setting changes.
@@ -1256,7 +1256,7 @@ export class WebViewProvider {
           // Initialize empty conversation to allow browsing history
           await this.initializeEmptyConversation();
 
-          // Auto-launch the interactive auth flow (QuickPick → InputBox)
+          // Auto-launch the interactive auth flow (QuickPick -> InputBox)
           // so the user is immediately guided to configure their provider,
           // mirroring CLI's behavior of showing AuthDialog on first run.
           // Deferred to avoid conflicting with the current connection init.
@@ -1318,7 +1318,7 @@ export class WebViewProvider {
   }
 
   /**
-   * Handle auth interactive — interactive auth flow result.
+   * Handle auth interactive -- interactive auth flow result.
    * Writes provider config to ~/.qwen/settings.json and reconnects.
    * Mirrors the CLI's `qwen auth coding-plan` / `qwen auth` flow.
    */
@@ -1355,7 +1355,7 @@ export class WebViewProvider {
     // without this a rejected key would persist and every VS Code restart
     // would keep retrying it.
     const rollbackSnapshot = snapshotSettingsForRollback();
-    // restoreSettingsSnapshot → writeSettings can itself throw (EPERM on
+    // restoreSettingsSnapshot -> writeSettings can itself throw (EPERM on
     // Windows renameSync, disk full, EACCES). Never let a rollback failure
     // mask the original auth error or skip the user-facing error message.
     const safeRollback = () => {
@@ -1401,7 +1401,7 @@ export class WebViewProvider {
 
       // Only emit authSuccess when the reconnection actually authenticated.
       // doInitializeAgentConnection sets this.authState via sendMessageToWebView
-      // — when credentials are rejected (wrong key / bad endpoint) it stays
+      // -- when credentials are rejected (wrong key / bad endpoint) it stays
       // false, and showing a success toast then would mislead the user.
       if (this.authState === true) {
         this.sendMessageToWebView({
@@ -1409,7 +1409,7 @@ export class WebViewProvider {
           data: { message: 'Provider configured successfully!' },
         });
       } else {
-        // Auth failed against the live backend — roll the bad credentials
+        // Auth failed against the live backend -- roll the bad credentials
         // back off disk so a restart doesn't keep retrying them, and tear
         // down the agent still holding the rejected key in memory.
         safeRollback();
@@ -1426,12 +1426,12 @@ export class WebViewProvider {
       const errorMsg = getErrorMessage(error);
       console.error('[WebViewProvider] authInteractive failed:', error);
       // A throw can land here after the plan committed but before/while
-      // reconnecting — restore the snapshot so partial/bad state doesn't
+      // reconnecting -- restore the snapshot so partial/bad state doesn't
       // linger. (Redundant but harmless if the plan's own rollback already
       // ran: it just rewrites the same pre-state.) safeRollback swallows a
       // rollback throw so it can't pre-empt the authError message below.
       // doInitializeAgentConnection may have partially initialized the agent
-      // (agentInitialized=true) before throwing, so disconnect it too —
+      // (agentInitialized=true) before throwing, so disconnect it too --
       // mirrors the else-branch so a half-connected stale-credential agent
       // doesn't linger.
       safeRollback();
@@ -1909,7 +1909,7 @@ export class WebViewProvider {
    * Play the user's system alert / notification sound.
    *
    * SECURITY: all arguments to execFile are hardcoded string literals.
-   * Never interpolate user-supplied data into these arguments — execFile
+   * Never interpolate user-supplied data into these arguments -- execFile
    * bypasses the shell but PowerShell still interprets its -c argument.
    */
   private playNotificationSound(): void {
@@ -1963,7 +1963,7 @@ export class WebViewProvider {
           if (panel) {
             panel.reveal();
           } else if (this.isViewHost) {
-            // Sidebar / secondary bar — focus the view via its command.
+            // Sidebar / secondary bar -- focus the view via its command.
             void vscode.commands.executeCommand('qwen-code.focusChat');
           }
         }
@@ -1992,7 +1992,7 @@ export class WebViewProvider {
 
   /** Called when the agent finishes a turn (authoritative end-of-task event). */
   private handleAgentIdle(): void {
-    // Read agentStartTime but do NOT reset it here — multi-turn tasks fire
+    // Read agentStartTime but do NOT reset it here -- multi-turn tasks fire
     // onEndTurn multiple times and resetting would lose the true start time.
     // It is reset when the user sends the next message (see onDidReceiveMessage).
     const startTime = this.agentStartTime;

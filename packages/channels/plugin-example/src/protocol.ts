@@ -2,7 +2,7 @@
  * Shared protocol types for mock channel WebSocket communication.
  */
 
-/** Server → Plugin Channel (WebSocket) */
+/** Server -> Plugin Channel (WebSocket) */
 export interface InboundMessage {
   type: 'inbound';
   messageId: string;
@@ -12,7 +12,7 @@ export interface InboundMessage {
   text: string;
 }
 
-/** Plugin Channel → Server (WebSocket) — streaming chunk */
+/** Plugin Channel -> Server (WebSocket) -- streaming chunk */
 export interface ChunkMessage {
   type: 'chunk';
   messageId: string;
@@ -20,7 +20,7 @@ export interface ChunkMessage {
   text: string;
 }
 
-/** Plugin Channel → Server (WebSocket) — final response */
+/** Plugin Channel -> Server (WebSocket) -- final response */
 export interface OutboundMessage {
   type: 'outbound';
   messageId: string;

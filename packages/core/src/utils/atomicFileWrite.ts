@@ -102,7 +102,7 @@ async function resolveSymlinkChain(filePath: string): Promise<string> {
  * 3. Preserve the original file's permissions (or apply `options.mode`).
  * 4. Atomic rename (POSIX) with retry (Windows).
  * 5. On EXDEV (cross-device rename), fall back to direct write.
- *    **Note:** the EXDEV fallback is non-atomic — a crash mid-write
+ *    **Note:** the EXDEV fallback is non-atomic -- a crash mid-write
  *    can leave a partially-written file. EXDEV only occurs when the
  *    resolved target path is on a different filesystem than its parent
  *    directory, which is rare in practice.
@@ -152,7 +152,7 @@ export async function atomicWriteFile(
     try {
       await fs.chmod(target, desiredMode);
     } catch {
-      // Ignore — not all filesystems support chmod.
+      // Ignore -- not all filesystems support chmod.
     }
   };
 
@@ -168,7 +168,7 @@ export async function atomicWriteFile(
       // Ignore cleanup errors.
     }
 
-    // EXDEV: cross-device rename not supported — fall back to direct write.
+    // EXDEV: cross-device rename not supported -- fall back to direct write.
     if (isNodeError(error) && error.code === 'EXDEV') {
       await fs.writeFile(targetPath, data, writeOptions);
       await tryChmod(targetPath);
@@ -186,7 +186,7 @@ export async function atomicWriteFile(
  * write-to-temp + rename flow.
  *
  * Note: if `filePath` is a symlink, the write resolves the chain
- * and updates the real target file — the symlink itself is preserved.
+ * and updates the real target file -- the symlink itself is preserved.
  *
  * The parent directory of `filePath` must already exist.
  */

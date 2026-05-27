@@ -5,7 +5,7 @@
  */
 
 /**
- * Contextual tip registry — defines tips, their conditions, and display rules.
+ * Contextual tip registry -- defines tips, their conditions, and display rules.
  */
 
 import { type CompactionThresholds } from '@qwen-code/qwen-code-core';
@@ -40,7 +40,7 @@ export const tipRegistry: ContextualTip[] = [
   {
     id: 'context-critical',
     content:
-      'Context near hard limit — auto-compact will force on next send. Consider /clear if you want to start fresh.',
+      'Context near hard limit -- auto-compact will force on next send. Consider /clear if you want to start fresh.',
     trigger: 'post-response',
     isRelevant: (ctx) =>
       ctx.thresholds !== undefined &&
@@ -182,7 +182,7 @@ export const tipRegistry: ContextualTip[] = [
   {
     id: 'compact-mode',
     content:
-      'Press Ctrl+O to toggle compact mode — hide tool output and thinking for a cleaner view.',
+      'Press Ctrl+O to toggle compact mode -- hide tool output and thinking for a cleaner view.',
     trigger: 'startup',
     isRelevant: () => true,
     cooldownPrompts: 0,

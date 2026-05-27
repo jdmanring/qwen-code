@@ -12,8 +12,8 @@ if [ -d "$LAB_DIR/.git" ]; then
   cd "$LAB_DIR"
   git fetch origin
   git reset --hard origin/main
-  echo "✅ Upstream kernel updated to latest version."
+  echo " Upstream kernel updated to latest version."
 else
-  echo "❌ Error: Lab directory not found or not a git repository."
+  echo " Error: Lab directory not found or not a git repository."
   exit 1
 fi

@@ -67,7 +67,7 @@ The `/labs` directory is our "Intelligence Repository." It is a dedicated worksp
 ### The CSF-Ingestion Protocol
 To prevent "Intelligence Debt" and maintain a clean architecture, all additions to the Lab must follow the **Cognitive-Symmetry Framework (CSF) Ingestion Protocol**.
 
-This protocol ensures that external code is not just cloned, but "Cognitively Integrated"—meaning it has a structural map, mirrored documentation, and extracted axiomatic laws.
+This protocol ensures that external code is not just cloned, but "Cognitively Integrated"--meaning it has a structural map, mirrored documentation, and extracted axiomatic laws.
 
 **The Mandatory Workflow**:
 1. **Consult the Protocol**: Follow the step-by-step pipeline defined in [CSF-Ingestion Protocol](../process/csf-ingestion-protocol.md).

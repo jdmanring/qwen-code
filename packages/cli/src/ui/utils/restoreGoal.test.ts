@@ -260,7 +260,7 @@ describe('findLastTerminalGoal', () => {
   it('returns the most recent achieved, skipping `set` and `cleared`', () => {
     // Aligned with Claude Code's `yjK`: sentinel-style entries (set / cleared)
     // are skipped, so a trailing `cleared` does NOT dismiss an earlier
-    // achievement — subsequent empty `/goal` still surfaces it.
+    // achievement -- subsequent empty `/goal` still surfaces it.
     const result = findLastTerminalGoal([
       goalItem({ kind: 'set', condition: 'goal A' }),
       goalItem({ kind: 'achieved', condition: 'goal A', iterations: 2 }),

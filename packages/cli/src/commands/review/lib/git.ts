@@ -20,7 +20,7 @@ export function git(...args: string[]): string {
 /**
  * Run `git`, return null on non-zero exit (e.g. ref / file does not exist).
  *
- * Unlike `git`, this swallows the child's stderr too — callers use it to
+ * Unlike `git`, this swallows the child's stderr too -- callers use it to
  * probe for things that may be absent (a tag, a file in `git show`,
  * a branch name) and don't want git's "fatal: ..." chatter on the user's
  * terminal.

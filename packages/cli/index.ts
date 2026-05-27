@@ -96,7 +96,7 @@ main().catch((error) => {
   // AlreadyReportedError means an upstream layer (e.g. the non-interactive
   // stream-error handler) has already written the user-facing message to
   // stderr and just wants to surface a non-zero exit code. Don't print
-  // "An unexpected critical error occurred:" with a stack trace — that
+  // "An unexpected critical error occurred:" with a stack trace -- that
   // framing is for genuinely unexpected, programmer-level bugs, and a
   // routine 4xx from an upstream API does not qualify.
   if (error instanceof AlreadyReportedError) {

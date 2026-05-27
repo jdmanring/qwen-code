@@ -1,8 +1,8 @@
-# 🏗️ The Hybrid Stack: Cognitive & Interface Layers
+#  The Hybrid Stack: Cognitive & Interface Layers
 
 This document describes the architectural split between the cognitive engine and the user interface in the Runtime Stack.
 
-## 🧩 The Architectural Split
+##  The Architectural Split
 
 The Runtime Stack is implemented as a hybrid system to separate deep cognitive reasoning from high-performance UI rendering.
 
@@ -28,7 +28,7 @@ The Runtime Stack is implemented as a hybrid system to separate deep cognitive r
 
 ---
 
-## 🔄 Communication Flow
+##  Communication Flow
 
 The Interface Layer communicates with the Cognitive Engine as a backend service.
 
@@ -41,7 +41,7 @@ The Interface Layer communicates with the Cognitive Engine as a backend service.
 
 ---
 
-## ⚙️ Configuration Hierarchy
+##  Configuration Hierarchy
 
 The system uses a layered configuration approach to ensure flexibility:
 

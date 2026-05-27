@@ -332,13 +332,13 @@ describe('<MainContent />', () => {
       staticItemsSpy.mock.calls.at(-1)?.[0].length ?? 0;
 
     // Initial render: only the first chunk (50) plus the 3 prefix items
-    // should be in Static — long history must not block the input thread.
+    // should be in Static -- long history must not block the input thread.
     const TOTAL = 203; // 200 history + 3 prefix items
     expect(lengthAtLastCall()).toBe(53);
     expect(lengthAtLastCall()).toBeLessThan(TOTAL);
 
     // Drain setImmediate ticks. Each iteration must not regress the visible
-    // count (monotonic) and we must reach TOTAL inside the loop budget — a
+    // count (monotonic) and we must reach TOTAL inside the loop budget -- a
     // silent regression that stops advancing will fail the final assert
     // rather than spuriously time out.
     let prev = lengthAtLastCall();
@@ -357,7 +357,7 @@ describe('<MainContent />', () => {
   it('renders newly finalized item without a disappear frame when gap is within CHUNK_SIZE (issue #3899)', () => {
     // Regression: when a pending item finalizes, it is removed from
     // pendingHistoryItems immediately. If replayCount still lags behind
-    // mergedHistory.length by ≤ PROGRESSIVE_REPLAY_CHUNK_SIZE, the item
+    // mergedHistory.length by <= PROGRESSIVE_REPLAY_CHUNK_SIZE, the item
     // would be absent from BOTH areas for one render frame. The gap-based
     // condition must render the full list synchronously in that case.
     //
@@ -378,7 +378,7 @@ describe('<MainContent />', () => {
     expect(staticItemsSpy.mock.calls.at(-1)?.[0]).toHaveLength(103);
 
     // Simulate a pending item finalizing: history grows by 1, same remount key.
-    // replayCount is 100; new length is 101; gap = 1 ≤ PROGRESSIVE_REPLAY_CHUNK_SIZE (50).
+    // replayCount is 100; new length is 101; gap = 1 <= PROGRESSIVE_REPLAY_CHUNK_SIZE (50).
     staticItemsSpy.mockClear();
     rerender(
       <AppContext.Provider value={{ version: '1.2.3', startupWarnings: [] }}>
@@ -402,7 +402,7 @@ describe('<MainContent />', () => {
       </AppContext.Provider>,
     );
 
-    // The first render after the append must show all 104 items — no frame
+    // The first render after the append must show all 104 items -- no frame
     // where the 101st item disappears (which would register as 103 here).
     expect(staticItemsSpy.mock.calls[0]?.[0]).toHaveLength(104);
   });
@@ -433,7 +433,7 @@ describe('<MainContent />', () => {
     }
     expect(staticItemsSpy.mock.calls.at(-1)?.[0]).toHaveLength(TOTAL);
 
-    // Re-render with a bumped key — analogous to refreshStatic() firing.
+    // Re-render with a bumped key -- analogous to refreshStatic() firing.
     // The very next render must immediately drop back to the first chunk;
     // if reset were deferred to useEffect, <Static> would receive 203 items
     // first and Ink would do the synchronous full-history layout the PR is
@@ -464,14 +464,14 @@ describe('<MainContent />', () => {
     // is new but historyRemountKey is still the old value. <Static>'s key is
     // `${historyRemountKey}-${currentModel}`, so the key changes (Ink remounts
     // Static), but the render-phase reset (lastRemountKey !== historyRemountKey)
-    // does NOT fire — so the new <Static> is mounted with the full pre-catch-up
+    // does NOT fire -- so the new <Static> is mounted with the full pre-catch-up
     // replayCount, and Ink does the synchronous full-history layout the PR is
     // meant to avoid.
     //
     // This test reproduces only the dangerous half of that interleaving:
     // currentModel flips while historyRemountKey is held constant. Under the
     // correct (single-batch) AppContainer wiring this combination never
-    // appears in practice, but the test pins the MainContent invariant —
+    // appears in practice, but the test pins the MainContent invariant --
     // currentModel alone must not trigger progressive-replay reset, which
     // makes any future "two-effect" regression visible here as a freeze.
     staticItemsSpy.mockClear();
@@ -500,7 +500,7 @@ describe('<MainContent />', () => {
 
     // Re-render with a NEW currentModel but the SAME historyRemountKey.
     // <Static>'s key will change (Ink remounts), but replayCount must stay
-    // at TOTAL — i.e. progressive replay must NOT re-trigger. Any future
+    // at TOTAL -- i.e. progressive replay must NOT re-trigger. Any future
     // refactor that re-introduces a one-render gap between setCurrentModel
     // and the historyRemountKey bump will trip this assertion the moment
     // someone correctly drives the reset off the model dimension instead.

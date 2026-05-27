@@ -48,17 +48,17 @@ Examples:
         scenarioFiles.push(abs);
       }
     } catch {
-      console.error(`❌ Not found: ${arg}`);
+      console.error(` Not found: ${arg}`);
       process.exit(1);
     }
   }
 
   if (scenarioFiles.length === 0) {
-    console.error('❌ No .ts scenario files found');
+    console.error(' No .ts scenario files found');
     process.exit(1);
   }
 
-  console.log(`🎬 Running ${scenarioFiles.length} scenario(s)...\n`);
+  console.log(` Running ${scenarioFiles.length} scenario(s)...\n`);
 
   // Run scenarios sequentially (single file can export an array)
   const results: RunResult[] = [];
@@ -71,9 +71,9 @@ Examples:
   }
 
   // Summary
-  console.log(`\n${'═'.repeat(60)}`);
-  console.log('📊 Summary');
-  console.log('═'.repeat(60));
+  console.log(`\n${''.repeat(60)}`);
+  console.log(' Summary');
+  console.log(''.repeat(60));
 
   const passed = results.filter((r) => r.success);
   const failed = results.filter((r) => !r.success);
@@ -84,10 +84,10 @@ Examples:
   const totalTime = results.reduce((sum, r) => sum + r.durationMs, 0);
 
   for (const r of results) {
-    const icon = r.success ? '✅' : '❌';
+    const icon = r.success ? '' : '';
     const time = (r.durationMs / 1000).toFixed(1);
     console.log(
-      `  ${icon} ${r.name} — ${r.screenshots.length} screenshots, ${time}s`,
+      `  ${icon} ${r.name} -- ${r.screenshots.length} screenshots, ${time}s`,
     );
     if (r.error) console.log(`     ${r.error}`);
   }

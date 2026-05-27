@@ -490,7 +490,7 @@ export const DialogManager = ({
     );
   }
 
-  // Background tasks dialog — lowest priority so other dialogs
+  // Background tasks dialog -- lowest priority so other dialogs
   // (permissions, trust prompts, auth, etc.) always take precedence. The
   // dialog is part of the shared dialogsVisible machinery (see
   // AppContainer) so its visibility mutes the composer and the global

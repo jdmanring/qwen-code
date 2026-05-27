@@ -45,6 +45,6 @@ This protocol defines the mandatory procedure for transforming raw source reposi
 
 ---
 
-## 🔗 Mirror Link
+##  Mirror Link
 This protocol is the SSOT for the `ingestion-specialist` agent.
 `../../config/agents/ingestion-specialist.md` $\leftrightarrow$ `csf-ingestion-protocol.md`

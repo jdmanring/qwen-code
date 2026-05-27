@@ -134,11 +134,11 @@ To ensure reproducibility and auditability, specific high-impact actions are res
 
 | Action                        | Allowed tool | Agent that must perform it |
 |-----------------------------------|---|-----------------------------------|
-| File edits (`edit`, `write_file`) | – | **Developer**                     |
-| Symbol / code search              | – | **Scout**                         |
-| High‑level design or architecture | – | **Architect**                     |
-| Documentation generation          | – | **Doc‑Expert**                    |
-| Security review                   | – | **Security‑Auditor**              |
+| File edits (`edit`, `write_file`) | - | **Developer**                     |
+| Symbol / code search              | - | **Scout**                         |
+| Highlevel design or architecture | - | **Architect**                     |
+| Documentation generation          | - | **DocExpert**                    |
+| Security review                   | - | **SecurityAuditor**              |
 
 ---
 

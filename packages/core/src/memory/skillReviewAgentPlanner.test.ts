@@ -7,7 +7,7 @@
 /**
  * Tests for the #4437 fix:
  *  - `write_file` to an existing path inside the project skills root is
- *    denied (was 'allow' before — silently clobbered the prior SKILL.md).
+ *    denied (was 'allow' before -- silently clobbered the prior SKILL.md).
  *  - `edit` semantics for existing auto-skills are preserved.
  *  - `buildTaskPrompt` enumerates existing skill directory names so the
  *    agent picks a fresh name on the first attempt.
@@ -36,7 +36,7 @@ function makeMinimalConfig(projectRoot: string): Config {
  * Build the scoped Config and return its non-null PermissionManager.
  * `createSkillScopedAgentConfig` always installs one, but Config's
  * declared `getPermissionManager(): PermissionManager | null` forces
- * tests to launder the null at the call site — this helper does it
+ * tests to launder the null at the call site -- this helper does it
  * once with an assertion that fires loudly if the contract ever breaks.
  */
 function scopedPm(projectRoot: string) {
@@ -81,7 +81,7 @@ description: hand-authored
 human body
 `;
 
-describe('skillReviewAgentPlanner — write_file collision deny (#4437)', () => {
+describe('skillReviewAgentPlanner -- write_file collision deny (#4437)', () => {
   let tempDir: string;
   let projectRoot: string;
 
@@ -95,7 +95,7 @@ describe('skillReviewAgentPlanner — write_file collision deny (#4437)', () => 
     await fs.rm(tempDir, { recursive: true, force: true });
   });
 
-  it("denies write_file to an existing AUTO-skill path (the #4437 bug — was 'allow')", async () => {
+  it("denies write_file to an existing AUTO-skill path (the #4437 bug -- was 'allow')", async () => {
     const filePath = await writeSkillFile(projectRoot, 'my-skill', AUTO_SKILL);
     const pm = scopedPm(projectRoot);
 
@@ -106,7 +106,7 @@ describe('skillReviewAgentPlanner — write_file collision deny (#4437)', () => 
     expect(decision).toBe('deny');
   });
 
-  it('denies write_file to an existing USER-skill path (already worked — kept as regression guard)', async () => {
+  it('denies write_file to an existing USER-skill path (already worked -- kept as regression guard)', async () => {
     const filePath = await writeSkillFile(projectRoot, 'my-skill', USER_SKILL);
     const pm = scopedPm(projectRoot);
 
@@ -170,7 +170,7 @@ describe('skillReviewAgentPlanner — write_file collision deny (#4437)', () => 
 
   it('denies write_file to a path outside the project skills root', async () => {
     // Security-boundary regression guard for the `isProjectSkillPath`
-    // false branch — without it the agent could escape to anywhere
+    // false branch -- without it the agent could escape to anywhere
     // reachable from CWD.
     const escape = path.join(projectRoot, 'NOT-SKILLS', 'evil.md');
     const pm = scopedPm(projectRoot);
@@ -184,7 +184,7 @@ describe('skillReviewAgentPlanner — write_file collision deny (#4437)', () => 
 
   it('denies write_file to a non-SKILL.md path inside the skills root', async () => {
     // Auxiliary files (NOTES.md, attachments) must not land in the
-    // skills dir — SkillManager would ignore them but they'd still
+    // skills dir -- SkillManager would ignore them but they'd still
     // pollute the layout. Tightening the basename invariant is the
     // hard guard for that.
     const aux = path.join(
@@ -226,8 +226,8 @@ describe('skillReviewAgentPlanner — write_file collision deny (#4437)', () => 
   it('denies write_file when the target path is a directory, not a file', async () => {
     // `fs.stat` on a directory SUCCEEDS (returning stats with
     // `isDirectory: true`); it does not throw EISDIR. So this exercise
-    // path A in evaluateScopedDecision — `try { await fs.stat(); return
-    // 'deny'; }` — i.e. "target exists" rather than the non-ENOENT
+    // path A in evaluateScopedDecision -- `try { await fs.stat(); return
+    // 'deny'; }` -- i.e. "target exists" rather than the non-ENOENT
     // catch. WriteFileTool would later fail with EISDIR on the actual
     // write, but the permission layer catches it earlier here.
     const dirAsFile = path.join(
@@ -249,7 +249,7 @@ describe('skillReviewAgentPlanner — write_file collision deny (#4437)', () => 
 
   // Note on coverage of the `fs.stat` catch branch in
   // evaluateScopedDecision:
-  // The branch is defense-in-depth — anything that would make `fs.stat`
+  // The branch is defense-in-depth -- anything that would make `fs.stat`
   // throw a non-ENOENT error (EACCES, ELOOP, ENAMETOOLONG, EIO) also
   // throws from `assertRealProjectSkillPath`'s `realpath`/`lstat` one
   // step earlier, which is exercised by the symlink-traversal test
@@ -343,7 +343,7 @@ describe('buildTaskPrompt', () => {
   });
 
   it('displays the project skills root derived from the same projectRoot used for enumeration', async () => {
-    // Regression guard for the param collapse — the displayed root and
+    // Regression guard for the param collapse -- the displayed root and
     // the enumerated names always come from the same source.
     await writeSkillFile(projectRoot, 'real', AUTO_SKILL);
     const prompt = await buildTaskPrompt(projectRoot);

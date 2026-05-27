@@ -1,5 +1,5 @@
 /**
- * Dev entry point — injects mock data then mounts the app.
+ * Dev entry point -- injects mock data then mounts the app.
  * Used by `vite` dev server via index.html.
  */
 import type { InsightData } from './types';
@@ -124,7 +124,7 @@ const MOCK_DATA: InsightData = {
         {
           title: 'Autonomous Test-Iterate-Fix Loop',
           whats_possible:
-            'An agent that runs your full test suite, identifies failures, generates fixes, and re-runs tests in a closed loop until achieving 100% pass rate—no human intervention required. The system could learn from each iteration, applying increasingly targeted fixes while tracking which approaches work best for different failure types.',
+            'An agent that runs your full test suite, identifies failures, generates fixes, and re-runs tests in a closed loop until achieving 100% pass rate--no human intervention required. The system could learn from each iteration, applying increasingly targeted fixes while tracking which approaches work best for different failure types.',
           how_to_try:
             "Configure your AI to watch test output files, parse failure messages, and apply fixes using your test framework's reporters; Vitest and Jest both support JSON output for easy parsing.",
           copyable_prompt:
@@ -142,7 +142,7 @@ const MOCK_DATA: InsightData = {
         {
           title: 'Continuous Code Health Agent',
           whats_possible:
-            'A background agent that continuously monitors your codebase for code smells, missing tests, security vulnerabilities, and refactoring opportunities—automatically creating pull requests with improvements while you sleep. It could maintain a living document of technical debt, prioritize fixes by impact, and learn from code review feedback to improve its suggestions over time.',
+            'A background agent that continuously monitors your codebase for code smells, missing tests, security vulnerabilities, and refactoring opportunities--automatically creating pull requests with improvements while you sleep. It could maintain a living document of technical debt, prioritize fixes by impact, and learn from code review feedback to improve its suggestions over time.',
           how_to_try:
             'Set up a scheduled CI/CD job that runs your AI against changed files with a comprehensive code health checklist, using git hooks to trigger analysis on commits.',
           copyable_prompt:
@@ -185,7 +185,7 @@ const MOCK_DATA: InsightData = {
     },
     memorableMoment: {
       headline:
-        "User paused mid-work to verify Qwen's corporate identity—\"Are you Alibaba's model or Zhipu's GLM?\"",
+        "User paused mid-work to verify Qwen's corporate identity--\"Are you Alibaba's model or Zhipu's GLM?\"",
       detail:
         "During what appears to be routine development work, a user stopped everything to ask Qwen to confirm its corporate origins. Qwen correctly identified itself as Alibaba's model, not Zhipu's GLM. A rare moment of AI identity verification in the wild.",
     },
@@ -295,17 +295,17 @@ const MOCK_DATA: InsightData = {
     },
     interactionStyle: {
       narrative:
-        'Your interaction pattern shows **high-frequency, low-intensity engagement** with Qwen Code. With 314 sessions over just 68 days (averaging 4-5 sessions daily) and 58% of analyzed sessions being "warmup_minimal," you treat Qwen as a readily-available assistant you check in with frequently but often don\'t have specific tasks ready. You say "hi" or "nihao" and wait to see what happens, suggesting you keep Qwen accessible as a background tool rather than planning extensive work sessions.\n\nWhen you do have actual work, you\'re **iterative and feedback-driven rather than specification-heavy**. Examples: when creating PRs, you accepted an initial implementation that created empty content, then reported the issue for Qwen to fix; when implementing ESC cancellation support, you tested the code, discovered the signal wasn\'t being passed through, and reported the specific bug for correction; when requesting tests for DataProcessor, you worked through multiple rounds of fixing mock implementation issues. You don\'t provide exhaustive upfront requirements—you point Qwen at a problem, see what it produces, and course-correct.\n\n**You trust Qwen to explore autonomously but intervene when things go wrong.** Your tool usage (209 read_file calls, 166 shell commands, 98 edits) shows you let Qwen investigate and modify freely. The friction data reveals low rejection rates (0 user_rejected_action, 0 excessive_changes) and zero misunderstood requests, indicating you give Qwen space to work. However, 5 instances of buggy code required your feedback to fix, and you clearly communicate specific issues when they arise ("abort() was called but execution didn\'t stop"). You\'re a collaborative debugger who provides precise problem descriptions rather than vague complaints.',
+        'Your interaction pattern shows **high-frequency, low-intensity engagement** with Qwen Code. With 314 sessions over just 68 days (averaging 4-5 sessions daily) and 58% of analyzed sessions being "warmup_minimal," you treat Qwen as a readily-available assistant you check in with frequently but often don\'t have specific tasks ready. You say "hi" or "nihao" and wait to see what happens, suggesting you keep Qwen accessible as a background tool rather than planning extensive work sessions.\n\nWhen you do have actual work, you\'re **iterative and feedback-driven rather than specification-heavy**. Examples: when creating PRs, you accepted an initial implementation that created empty content, then reported the issue for Qwen to fix; when implementing ESC cancellation support, you tested the code, discovered the signal wasn\'t being passed through, and reported the specific bug for correction; when requesting tests for DataProcessor, you worked through multiple rounds of fixing mock implementation issues. You don\'t provide exhaustive upfront requirements--you point Qwen at a problem, see what it produces, and course-correct.\n\n**You trust Qwen to explore autonomously but intervene when things go wrong.** Your tool usage (209 read_file calls, 166 shell commands, 98 edits) shows you let Qwen investigate and modify freely. The friction data reveals low rejection rates (0 user_rejected_action, 0 excessive_changes) and zero misunderstood requests, indicating you give Qwen space to work. However, 5 instances of buggy code required your feedback to fix, and you clearly communicate specific issues when they arise ("abort() was called but execution didn\'t stop"). You\'re a collaborative debugger who provides precise problem descriptions rather than vague complaints.',
       key_pattern:
-        'You use Qwen Code as a high-frequency, low-commitment tool with iterative feedback loops—many brief check-ins with "hi" or minimal interaction, and when real work happens, you prefer to test implementations and report specific issues for correction rather than providing comprehensive upfront specifications.',
+        'You use Qwen Code as a high-frequency, low-commitment tool with iterative feedback loops--many brief check-ins with "hi" or minimal interaction, and when real work happens, you prefer to test implementations and report specific issues for correction rather than providing comprehensive upfront specifications.',
     },
     atAGlance: {
       whats_working:
-        'You take a direct, task-oriented approach—submitting clear requests for PR creation, test generation, and refactoring work. Your test generation sessions were particularly effective, producing comprehensive test suites that passed after iteration, and your debugging work successfully identified root causes like missing context providers.',
+        'You take a direct, task-oriented approach--submitting clear requests for PR creation, test generation, and refactoring work. Your test generation sessions were particularly effective, producing comprehensive test suites that passed after iteration, and your debugging work successfully identified root causes like missing context providers.',
       whats_hindering:
-        "On Qwen's side: some implementations needed follow-up fixes (missing signal passing in abort handling, initial empty PR content), and buggy code generation required multiple iterations—especially around mocking patterns. The code-reviewer skill also failed during a large PR review. On your side: many sessions were empty or just greetings without actual requests, and some friction around iterative debugging could be smoothed with more upfront context about testing frameworks and patterns you prefer.",
+        "On Qwen's side: some implementations needed follow-up fixes (missing signal passing in abort handling, initial empty PR content), and buggy code generation required multiple iterations--especially around mocking patterns. The code-reviewer skill also failed during a large PR review. On your side: many sessions were empty or just greetings without actual requests, and some friction around iterative debugging could be smoothed with more upfront context about testing frameworks and patterns you prefer.",
       quick_wins:
-        'Try using subagents more deliberately for complex tasks like code reviews (you only called skills 4 times)—they can handle multi-step analysis autonomously. When generating tests, specify your preferred mocking patterns upfront to reduce iteration cycles.',
+        'Try using subagents more deliberately for complex tasks like code reviews (you only called skills 4 times)--they can handle multi-step analysis autonomously. When generating tests, specify your preferred mocking patterns upfront to reduce iteration cycles.',
       ambitious_workflows:
         "As models improve, you'll be able to hand off larger autonomous refactoring tasks across many files (you've only done multi-file changes once). Complex debugging sessions that currently require multiple iterations could become single-shot successes. Large PR reviews that stalled due to skill failures will flow smoothly through automated analysis, letting you focus on architectural decisions rather than line-by-line review.",
     },

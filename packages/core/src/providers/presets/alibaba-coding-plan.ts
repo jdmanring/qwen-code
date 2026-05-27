@@ -57,7 +57,7 @@ const MODELSTUDIO_MODELS: ModelSpec[] = [
 export const codingPlanProvider: ProviderConfig = {
   id: 'coding-plan',
   label: 'Coding Plan',
-  description: 'For individual developers · Weekly quota included',
+  description: 'For individual developers  Weekly quota included',
   protocol: AuthType.USE_OPENAI,
   baseUrl: [
     {

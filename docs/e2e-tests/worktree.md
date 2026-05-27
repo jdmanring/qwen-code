@@ -226,11 +226,11 @@ jq 'select(.type=="user") | .message.content[] | select(.tool_use_id) | .content
 
 This is harder to test e2e because it requires aging. Cover via unit tests in `worktreeCleanup.test.ts`:
 
-- Worktree with mtime > 30 days ago and matching `agent-<7hex>` pattern → removed
-- Worktree with mtime > 30 days ago but user-named (e.g., `my-feature`) → preserved
-- Worktree with mtime < 30 days → preserved
-- Worktree with uncommitted changes → preserved (fail-closed)
-- Worktree with unpushed commits → preserved (fail-closed)
+- Worktree with mtime > 30 days ago and matching `agent-<7hex>` pattern -> removed
+- Worktree with mtime > 30 days ago but user-named (e.g., `my-feature`) -> preserved
+- Worktree with mtime < 30 days -> preserved
+- Worktree with uncommitted changes -> preserved (fail-closed)
+- Worktree with unpushed commits -> preserved (fail-closed)
 
 E2E spot check (optional): manually `touch -t 200001010000 .qwen/worktrees/agent-aabcdef0` and invoke cleanup; verify removal.
 
@@ -243,7 +243,7 @@ E2E spot check (optional): manually `touch -t 200001010000 .qwen/worktrees/agent
 ```bash
 # Setup: requires Arena-enabled config. Detailed steps depend on Arena CLI invocation.
 # Pre-implementation: arena worktrees are under ~/.qwen/arena/.
-# Post-implementation: SAME — arena path is independent.
+# Post-implementation: SAME -- arena path is independent.
 ```
 
 (If Arena is not easily reachable from headless mode, this group is verified by unit test that ArenaManager.ts:125 (`this.arenaBaseDir = arenaSettings?.worktreeBaseDir ?? path.join(Storage.getGlobalQwenDir(), 'arena')`) is unchanged.)
@@ -281,16 +281,16 @@ Local build at `dist/cli.js` (commit at the tip of `claude/trusting-euclid-6fdfb
 
 | Group | Result                               | Notes                                                                                                                                                                 |
 | ----- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A1    | ✅                                   | `enter_worktree` and `exit_worktree` listed in `system.tools`                                                                                                         |
-| A3    | ✅                                   | `.qwen/worktrees/my-feature` created, branch `worktree-my-feature` present                                                                                            |
+| A1    |                                    | `enter_worktree` and `exit_worktree` listed in `system.tools`                                                                                                         |
+| A3    |                                    | `.qwen/worktrees/my-feature` created, branch `worktree-my-feature` present                                                                                            |
 | A4    | covered by unit test                 | `validateUserWorktreeSlug` rejects path-traversal etc. (`enter-worktree.test.ts`)                                                                                     |
-| B1    | ✅                                   | `keep` action preserved both directory and branch                                                                                                                     |
-| B2    | ✅                                   | `remove` action deleted directory and branch                                                                                                                          |
-| B3    | ✅                                   | `remove` refused with `Refusing to remove worktree "dirty-test" — it has 0 tracked change(s) and 1 untracked file(s).`                                                |
+| B1    |                                    | `keep` action preserved both directory and branch                                                                                                                     |
+| B2    |                                    | `remove` action deleted directory and branch                                                                                                                          |
+| B3    |                                    | `remove` refused with `Refusing to remove worktree "dirty-test" -- it has 0 tracked change(s) and 1 untracked file(s).`                                                |
 | C1    | scope-out                            | SessionService persistence deferred from Phase A (see scope notes in `docs/design/worktree.md`)                                                                       |
-| D1    | ✅                                   | Agent invocation accepted `isolation: 'worktree'`, created `agent-2c4e759`                                                                                            |
-| D2    | ✅                                   | After agent finished with no changes, worktrees dir was empty                                                                                                         |
-| D3    | ✅                                   | After agent wrote `test.txt`, worktree `agent-bad55bd` and branch `worktree-agent-bad55bd` preserved; result included `[worktree preserved: ... (branch ...)]` suffix |
+| D1    |                                    | Agent invocation accepted `isolation: 'worktree'`, created `agent-2c4e759`                                                                                            |
+| D2    |                                    | After agent finished with no changes, worktrees dir was empty                                                                                                         |
+| D3    |                                    | After agent wrote `test.txt`, worktree `agent-bad55bd` and branch `worktree-agent-bad55bd` preserved; result included `[worktree preserved: ... (branch ...)]` suffix |
 | E1    | covered by unit test                 | `worktreeCleanup.test.ts` verifies `isEphemeralSlug` matches only `agent-<7hex>`                                                                                      |
 | F1    | scope-out (no Arena E2E in this run) | Arena code paths untouched: `ArenaManager.ts:125` and `setupWorktrees()` unchanged                                                                                    |
 

@@ -8,7 +8,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createLoadedSettingsAdapter } from './loadedSettingsAdapter.js';
 import { SettingScope } from './settings.js';
 
-// settingsUtils makes real fs calls in backup/restore — stub them out so the
+// settingsUtils makes real fs calls in backup/restore -- stub them out so the
 // tests can focus on adapter behavior without touching disk.
 vi.mock('../utils/settingsUtils.js', async (importOriginal) => {
   const actual =
@@ -22,7 +22,7 @@ vi.mock('../utils/settingsUtils.js', async (importOriginal) => {
 });
 
 // Named shape so dot-access on the known keys (`env`, `modelProviders`) is not
-// treated as access through an index signature — keeps the strict TS option
+// treated as access through an index signature -- keeps the strict TS option
 // `noPropertyAccessFromIndexSignature` happy while still allowing arbitrary
 // extra keys via the index signature.
 interface SettingsShape {
@@ -119,7 +119,7 @@ describe('createLoadedSettingsAdapter', () => {
     expect(() => adapter.setValue('prototype.x', 'x')).toThrow(
       /reserved segment/,
     );
-    // The guard short-circuits before delegating to LoadedSettings — that's the
+    // The guard short-circuits before delegating to LoadedSettings -- that's the
     // contract this test exists to lock in.
     expect(setValue).not.toHaveBeenCalled();
   });
@@ -148,7 +148,7 @@ describe('createLoadedSettingsAdapter', () => {
     );
 
     // backup/restore/cleanupBackup are optional in the contract, but
-    // createLoadedSettingsAdapter always installs them — assert + use !.
+    // createLoadedSettingsAdapter always installs them -- assert + use !.
     expect(adapter.backup).toBeTypeOf('function');
     adapter.backup!();
 

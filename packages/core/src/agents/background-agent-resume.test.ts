@@ -61,7 +61,7 @@ describe('BackgroundAgentResumeService', () => {
     // Stub registry exposed on both `parent.getToolRegistry()` and the
     // override built by `createApprovalModeOverride` (which now rebuilds
     // the tool registry on the resumed agent's Config so bound tools
-    // resolve to the resumed agent — see PR #3873). Without these
+    // resolve to the resumed agent -- see PR #3873). Without these
     // mocks the override helper throws and every resume test fails.
     const stubToolRegistry = {
       copyDiscoveredToolsFrom: vi.fn(),

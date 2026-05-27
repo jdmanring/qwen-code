@@ -66,14 +66,14 @@ cd packages/cli && npx vitest run src/path/to/file.test.ts --update
 
 **Avoid:**
 
-- `npm run test -- --filter=...` — does NOT filter; runs the entire suite
-- `npx vitest` from the project root — fails due to package-specific vitest
+- `npm run test -- --filter=...` -- does NOT filter; runs the entire suite
+- `npx vitest` from the project root -- fails due to package-specific vitest
   configs
 - Running the whole test suite unless necessary (e.g., final PR verification)
 
 **Test gotchas:**
 
-- In CLI tests, use `vi.hoisted()` for mocks consumed by `vi.mock()` — the
+- In CLI tests, use `vi.hoisted()` for mocks consumed by `vi.mock()` -- the
   mock factory runs at module load time, before test execution.
 
 ### Integration Testing
@@ -94,7 +94,7 @@ cd integration-tests && \
   cross-env QWEN_SANDBOX=false npx vitest run cli interactive
 ```
 
-**Gotcha:** In interactive tests, always call `session.idle()` between sends —
+**Gotcha:** In interactive tests, always call `session.idle()` between sends --
 ANSI output streams asynchronously.
 
 ### Linting & Formatting
@@ -104,8 +104,8 @@ npm run lint       # ESLint check
 npm run lint:fix   # Auto-fix lint issues
 npm run format     # Prettier formatting
 npm run typecheck  # TypeScript type checking
-npm run preflight  # Full check: clean → install → format → lint → build
-                   # → typecheck → test
+npm run preflight  # Full check: clean -> install -> format -> lint -> build
+                   # -> typecheck -> test
 ```
 
 ## Code Conventions
@@ -113,14 +113,14 @@ npm run preflight  # Full check: clean → install → format → lint → build
 - **Module system**: ESM throughout (`"type": "module"` in all packages)
 - **TypeScript**: Strict mode with `noImplicitAny`, `strictNullChecks`,
   `noUnusedLocals`, `verbatimModuleSyntax`
-- **Formatting**: Prettier — single quotes, semicolons, trailing commas,
+- **Formatting**: Prettier -- single quotes, semicolons, trailing commas,
   2-space indent, 80-char width
 - **Linting**: No `any` types, consistent type imports, no relative imports
   between packages
 - **Tests**: Collocated with source (`file.test.ts` next to `file.ts`),
   vitest framework
 - **File naming**: `PascalCase.tsx` for React components, `kebab-case.ts` for
-  new non-component files. Leave existing `camelCase` files alone — renaming breaks `git blame` and imports.
+  new non-component files. Leave existing `camelCase` files alone -- renaming breaks `git blame` and imports.
 - **Comments**: Default to none. Add only when _why_ is non-obvious; don't delete existing ones as cleanup.
 - **Commits**: Conventional Commits (e.g., `feat(cli): Add --json flag`)
 - **Node.js**: Development and production both require `>=22` (Ink 7 + React 19.2 requirement)
@@ -129,15 +129,15 @@ npm run preflight  # Full check: clean → install → format → lint → build
 
 ### General workflow
 
-1. **Design doc for non-trivial work** — write one in `.qwen/design/` if the
+1. **Design doc for non-trivial work** -- write one in `.qwen/design/` if the
    change touches multiple files or involves design decisions. Skip for small
    bugfixes.
-2. **Test plan for behavioral changes** — write an E2E test plan in
+2. **Test plan for behavioral changes** -- write an E2E test plan in
    `.qwen/e2e-tests/` when the change affects user-observable behavior. Dry-run
    against the global `qwen` CLI first to confirm the baseline.
 3. **Build + typecheck before declaring done**:
    `npm run build && npm run typecheck`.
-4. **Code review** — run `/review` when available. Triage each comment:
+4. **Code review** -- run `/review` when available. Triage each comment:
    valid / false positive / overthinking.
 
 ### Feature development
@@ -152,7 +152,7 @@ verify, test, and code review.
 
 ## GitHub Operations
 
-Use the `gh` CLI for all GitHub-related operations — issues, pull requests,
+Use the `gh` CLI for all GitHub-related operations -- issues, pull requests,
 comments, CI checks, releases, and API calls. Prefer `gh issue view`,
 `gh pr view`, `gh pr checks`, `gh run view`, `gh api`, etc. over web fetches
 or manual REST calls.
@@ -162,13 +162,13 @@ or manual REST calls.
 - **Bug reproduction & verification**: spawn the `test-engineer` agent. It
   reads code and docs to understand the bug, then reproduces it via E2E testing
   (or a test-script fallback). It also handles post-fix verification. It cannot
-  edit source code — only observe and report.
+  edit source code -- only observe and report.
 - **Hard bugs**: use the `structured-debugging` skill when debugging requires
-  more than a quick glance — especially when the first attempt at a fix didn't
+  more than a quick glance -- especially when the first attempt at a fix didn't
   work or the behavior seems impossible.
 - **E2E testing**: the `e2e-testing` skill covers headless mode, interactive
   (tmux) mode, MCP server testing, and API traffic inspection. The
-  `test-engineer` agent invokes this skill internally — you typically don't
+  `test-engineer` agent invokes this skill internally -- you typically don't
   need to use it directly.
 
 ## Submitting PRs

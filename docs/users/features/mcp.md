@@ -13,7 +13,7 @@ With MCP servers connected, you can ask Qwen Code to:
 
 > [!tip]
 >
-> If you’re looking for the “one command to get started”, jump to [Quick start](#quick-start).
+> If you're looking for the "one command to get started", jump to [Quick start](#quick-start).
 
 ## Quick start
 
@@ -36,7 +36,7 @@ qwen mcp add --transport http my-server http://localhost:3000/mcp
 qwen mcp
 ```
 
-3. Restart Qwen Code in the same project (or start it if it wasn’t running yet), then ask the model to use tools from that server.
+3. Restart Qwen Code in the same project (or start it if it wasn't running yet), then ask the model to use tools from that server.
 
 ## Where configuration is stored (scopes)
 
@@ -71,7 +71,7 @@ qwen mcp add --scope user --transport http my-server http://localhost:3000/mcp
 
 ### Configure via `settings.json` vs `qwen mcp add`
 
-Both approaches produce the same `mcpServers` entries in your `settings.json`—use whichever you prefer.
+Both approaches produce the same `mcpServers` entries in your `settings.json`--use whichever you prefer.
 
 #### Stdio server (local process)
 
@@ -194,7 +194,7 @@ Override per server when needed:
 
 The existing `timeout` field is **tool-call** timeout (used for each
 `tools/call` request, default 10 minutes) and is unaffected by
-`discoveryTimeoutMs` — a long-running tool invocation is not a startup
+`discoveryTimeoutMs` -- a long-running tool invocation is not a startup
 pathology.
 
 ### Rolling back progressive MCP
@@ -289,7 +289,7 @@ Use the `/mcp auth` command within Qwen Code to manage OAuth authentication inte
 
 ### Tool filtering (allow/deny tools per server)
 
-Use `includeTools` / `excludeTools` to restrict tools exposed by a server (from Qwen Code’s perspective).
+Use `includeTools` / `excludeTools` to restrict tools exposed by a server (from Qwen Code's perspective).
 
 Example: include only a few tools:
 
@@ -326,9 +326,9 @@ Example:
 
 ## Troubleshooting
 
-- **Server shows “Disconnected” in `qwen mcp list`**: verify the URL/command is correct, then increase `timeout`.
+- **Server shows "Disconnected" in `qwen mcp list`**: verify the URL/command is correct, then increase `timeout`.
 - **Stdio server fails to start**: use an absolute `command` path, and double-check `cwd`/`env`.
-- **Environment variables in JSON don’t resolve**: ensure they exist in the environment where Qwen Code runs (shell vs GUI app environments can differ).
+- **Environment variables in JSON don't resolve**: ensure they exist in the environment where Qwen Code runs (shell vs GUI app environments can differ).
 
 ## Reference
 
@@ -395,24 +395,24 @@ qwen mcp add [options] <name> <commandOrUrl> [args...]
 
 | Argument/Option             | Description                                                         | Default                                | Example                                                            |
 | --------------------------- | ------------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------ |
-| `<name>`                    | A unique name for the server.                                       | —                                      | `example-server`                                                   |
-| `<commandOrUrl>`            | The command to execute (for `stdio`) or the URL (for `http`/`sse`). | —                                      | `/usr/bin/python` or `http://localhost:8`                          |
-| `[args...]`                 | Optional arguments for a `stdio` command.                           | —                                      | `--port 5000`                                                      |
+| `<name>`                    | A unique name for the server.                                       | --                                      | `example-server`                                                   |
+| `<commandOrUrl>`            | The command to execute (for `stdio`) or the URL (for `http`/`sse`). | --                                      | `/usr/bin/python` or `http://localhost:8`                          |
+| `[args...]`                 | Optional arguments for a `stdio` command.                           | --                                      | `--port 5000`                                                      |
 | `-s`, `--scope`             | Configuration scope (user or project).                              | `project`                              | `-s user`                                                          |
 | `-t`, `--transport`         | Transport type (`stdio`, `sse`, `http`).                            | `stdio`                                | `-t sse`                                                           |
-| `-e`, `--env`               | Set environment variables.                                          | —                                      | `-e KEY=value`                                                     |
-| `-H`, `--header`            | Set HTTP headers for SSE and HTTP transports.                       | —                                      | `-H "X-Api-Key: abc123"`                                           |
-| `--timeout`                 | Set connection timeout in milliseconds.                             | —                                      | `--timeout 30000`                                                  |
-| `--trust`                   | Trust the server (bypass all tool call confirmation prompts).       | — (`false`)                            | `--trust`                                                          |
-| `--description`             | Set the description for the server.                                 | —                                      | `--description "Local tools"`                                      |
+| `-e`, `--env`               | Set environment variables.                                          | --                                      | `-e KEY=value`                                                     |
+| `-H`, `--header`            | Set HTTP headers for SSE and HTTP transports.                       | --                                      | `-H "X-Api-Key: abc123"`                                           |
+| `--timeout`                 | Set connection timeout in milliseconds.                             | --                                      | `--timeout 30000`                                                  |
+| `--trust`                   | Trust the server (bypass all tool call confirmation prompts).       | -- (`false`)                            | `--trust`                                                          |
+| `--description`             | Set the description for the server.                                 | --                                      | `--description "Local tools"`                                      |
 | `--include-tools`           | A comma-separated list of tools to include.                         | all tools included                     | `--include-tools mytool,othertool`                                 |
 | `--exclude-tools`           | A comma-separated list of tools to exclude.                         | none                                   | `--exclude-tools mytool`                                           |
-| `--oauth-client-id`         | OAuth client ID for MCP server authentication.                      | —                                      | `--oauth-client-id your-client-id`                                 |
-| `--oauth-client-secret`     | OAuth client secret for MCP server authentication.                  | —                                      | `--oauth-client-secret your-client-secret`                         |
+| `--oauth-client-id`         | OAuth client ID for MCP server authentication.                      | --                                      | `--oauth-client-id your-client-id`                                 |
+| `--oauth-client-secret`     | OAuth client secret for MCP server authentication.                  | --                                      | `--oauth-client-secret your-client-secret`                         |
 | `--oauth-redirect-uri`      | OAuth redirect URI for authentication callback.                     | `http://localhost:7777/oauth/callback` | `--oauth-redirect-uri https://your-server.com/oauth/callback`      |
-| `--oauth-authorization-url` | OAuth authorization URL.                                            | —                                      | `--oauth-authorization-url https://provider.example.com/authorize` |
-| `--oauth-token-url`         | OAuth token URL.                                                    | —                                      | `--oauth-token-url https://provider.example.com/token`             |
-| `--oauth-scopes`            | OAuth scopes (comma-separated).                                     | —                                      | `--oauth-scopes scope1,scope2`                                     |
+| `--oauth-authorization-url` | OAuth authorization URL.                                            | --                                      | `--oauth-authorization-url https://provider.example.com/authorize` |
+| `--oauth-token-url`         | OAuth token URL.                                                    | --                                      | `--oauth-token-url https://provider.example.com/token`             |
+| `--oauth-scopes`            | OAuth scopes (comma-separated).                                     | --                                      | `--oauth-scopes scope1,scope2`                                     |
 
 > `--oauth-*` flags apply only to `--transport sse` and `--transport http`. Combining them with `--transport stdio` is rejected.
 

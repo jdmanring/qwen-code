@@ -91,7 +91,7 @@ export function getMemoryBaseDir(): string {
   return Storage.getGlobalQwenDir();
 }
 
-// Memoize by projectRoot — findCanonicalGitRoot() walks the file system (existsSync
+// Memoize by projectRoot -- findCanonicalGitRoot() walks the file system (existsSync
 // per directory) and is called from hot-path code such as schedulers and scanners.
 const _autoMemoryRootCache = new Map<string, string>();
 

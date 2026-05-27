@@ -24,11 +24,11 @@ const TABLE_NAME =
 const TABLE_NAME_SUFFIX = '244650615';
 const PROMPT_TEXT = 'Render the table inline-code wrap regression fixture.';
 const MARKDOWN_RESPONSE = [
-  '已找到您有权限的 1 张表：',
+  ' 1 :',
   '',
-  '| 表名 | 生命周期 | 备注 |',
+  '|  |  |  |',
   '| --- | --- | --- |',
-  `| \`${TABLE_NAME}\` | N/A | 测试视图 |`,
+  `| \`${TABLE_NAME}\` | N/A |  |`,
   '',
   'REGRESSION_TABLE_DONE',
 ].join('\n');

@@ -14,20 +14,20 @@ export const CUSTOM_API_KEY_ENV_PREFIX = 'QWEN_CUSTOM_API_KEY_';
  * Derive the env-var key that holds the API token for a custom provider.
  *
  * The readable part (`PROTOCOL_NORMALIZED_URL`) is kept for human eyeballing
- * of settings.json, but URL normalization is lossy — `api.example.com`,
+ * of settings.json, but URL normalization is lossy -- `api.example.com`,
  * `api-example.com`, and `api_example.com` all collapse to
  * `API_EXAMPLE_COM`. A 12-hex-char (48-bit) suffix derived from a SHA-256
  * of the canonicalized (protocol, baseUrl) pair disambiguates structurally
  * distinct endpoints so configuring one custom provider can't silently
- * overwrite another's API key. 48 bits gives ~280 trillion values — well
+ * overwrite another's API key. 48 bits gives ~280 trillion values -- well
  * past the point where an attacker controlling a user-typed URL could
  * realistically collide an existing entry to redirect an API key write,
  * while still keeping the env var name pasteable into a dashboard.
  *
- * Migration note: this suffix changed from 6 → 12 chars in a recent commit.
+ * Migration note: this suffix changed from 6 -> 12 chars in a recent commit.
  * Old 6-char keys persist in settings.json (and ~/.qwen/env-equivalent
  * stores) until either the user reconnects under the same URL (which writes
- * the new 12-char key but leaves the old one as orphan disk state — harmless,
+ * the new 12-char key but leaves the old one as orphan disk state -- harmless,
  * never read) or runs the "clear auth" flow. The old key is never read by
  * applyProviderInstallPlan because the new model provider entries point at
  * the new key.
@@ -112,7 +112,7 @@ export const customProvider: ProviderConfig = {
   showAdvancedConfig: true,
   // Without this, applyModelProvidersPatch falls back to id+baseUrl identity
   // matching, so reinstalling a custom provider under a different baseUrl
-  // leaves the old model entries behind — they accumulate over time.
+  // leaves the old model entries behind -- they accumulate over time.
   // Every key we mint via generateCustomEnvKey starts with the well-known
   // prefix, so a prefix match cleanly identifies "ours" without false
   // positives against preset entries.

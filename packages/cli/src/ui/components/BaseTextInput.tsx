@@ -5,7 +5,7 @@
  */
 
 /**
- * @fileoverview BaseTextInput — shared text input component with rendering
+ * @fileoverview BaseTextInput -- shared text input component with rendering
  * and common readline keyboard handling.
  *
  * Provides:
@@ -31,7 +31,7 @@ import stringWidth from 'string-width';
 import { cpSlice, cpLen } from '../utils/textUtils.js';
 import { theme } from '../semantic-colors.js';
 
-// ─── Types ──────────────────────────────────────────────────
+// --- Types --------------------------------------------------
 
 export interface RenderLineOptions {
   /** The text content of this visual line. */
@@ -81,7 +81,7 @@ export interface BaseTextInputProps {
   renderLine?: (opts: RenderLineOptions) => React.ReactNode;
 }
 
-// ─── Default line renderer ──────────────────────────────────
+// --- Default line renderer ----------------------------------
 
 /**
  * Renders a single visual line with an inverse-video block cursor.
@@ -99,7 +99,7 @@ export function defaultRenderLine({
 
   const len = cpLen(lineText);
 
-  // Cursor past end of line — append inverse space
+  // Cursor past end of line -- append inverse space
   if (cursorCol >= len) {
     return (
       <Text>
@@ -122,7 +122,7 @@ export function defaultRenderLine({
   );
 }
 
-// ─── Component ──────────────────────────────────────────────
+// --- Component ----------------------------------------------
 
 export const BaseTextInput: React.FC<BaseTextInputProps> = ({
   buffer,
@@ -136,7 +136,7 @@ export const BaseTextInput: React.FC<BaseTextInputProps> = ({
   isActive = true,
   renderLine = defaultRenderLine,
 }) => {
-  // ── Keyboard handling ──
+  // -- Keyboard handling --
 
   const handleKey = useCallback(
     (key: Key) => {
@@ -149,7 +149,7 @@ export const BaseTextInput: React.FC<BaseTextInputProps> = ({
         return;
       }
 
-      // ── Standard readline shortcuts ──
+      // -- Standard readline shortcuts --
 
       // Submit (Enter, no modifiers)
       if (keyMatchers[Command.SUBMIT](key)) {
@@ -167,7 +167,7 @@ export const BaseTextInput: React.FC<BaseTextInputProps> = ({
         return;
       }
 
-      // Escape → clear input
+      // Escape -> clear input
       if (keyMatchers[Command.ESCAPE](key)) {
         if (buffer.text.length > 0) {
           buffer.setText('');
@@ -175,7 +175,7 @@ export const BaseTextInput: React.FC<BaseTextInputProps> = ({
         return;
       }
 
-      // Ctrl+C → clear input
+      // Ctrl+C -> clear input
       if (keyMatchers[Command.CLEAR_INPUT](key)) {
         if (buffer.text.length > 0) {
           buffer.setText('');
@@ -183,43 +183,43 @@ export const BaseTextInput: React.FC<BaseTextInputProps> = ({
         return;
       }
 
-      // Ctrl+A → home
+      // Ctrl+A -> home
       if (keyMatchers[Command.HOME](key)) {
         buffer.move('home');
         return;
       }
 
-      // Ctrl+E → end
+      // Ctrl+E -> end
       if (keyMatchers[Command.END](key)) {
         buffer.move('end');
         return;
       }
 
-      // Ctrl+K → kill to end of line
+      // Ctrl+K -> kill to end of line
       if (keyMatchers[Command.KILL_LINE_RIGHT](key)) {
         buffer.killLineRight();
         return;
       }
 
-      // Ctrl+U → kill to start of line
+      // Ctrl+U -> kill to start of line
       if (keyMatchers[Command.KILL_LINE_LEFT](key)) {
         buffer.killLineLeft();
         return;
       }
 
-      // Ctrl+W / Alt+Backspace → delete word backward
+      // Ctrl+W / Alt+Backspace -> delete word backward
       if (keyMatchers[Command.DELETE_WORD_BACKWARD](key)) {
         buffer.deleteWordLeft();
         return;
       }
 
-      // Ctrl+X Ctrl+E → open in external editor
+      // Ctrl+X Ctrl+E -> open in external editor
       if (keyMatchers[Command.OPEN_EXTERNAL_EDITOR](key)) {
         buffer.openInExternalEditor();
         return;
       }
 
-      // Tab — never insert literal tab characters into the buffer;
+      // Tab -- never insert literal tab characters into the buffer;
       // consumers that need Tab behaviour should intercept it via onKeypress.
       if ((key.name === 'tab' || key.sequence === '\t') && !key.paste) {
         return;
@@ -235,7 +235,7 @@ export const BaseTextInput: React.FC<BaseTextInputProps> = ({
         return;
       }
 
-      // Fallthrough — delegate to buffer's built-in input handler
+      // Fallthrough -- delegate to buffer's built-in input handler
       buffer.handleInput(key);
     },
     [buffer, onSubmit, onKeypress],
@@ -243,7 +243,7 @@ export const BaseTextInput: React.FC<BaseTextInputProps> = ({
 
   useKeypress(handleKey, { isActive });
 
-  // ── Rendering ──
+  // -- Rendering --
 
   const linesToRender = buffer.viewportVisualLines;
   const [cursorVisualRow, cursorVisualCol] = buffer.visualCursor;
@@ -255,13 +255,13 @@ export const BaseTextInput: React.FC<BaseTextInputProps> = ({
   );
 
   const columns = process.stdout.columns || 80;
-  // Build the top border line: ─────── label ──
+  // Build the top border line: ------- label --
   // Label takes: 1 space + text + 1 space + 2 trailing dashes = label.length + 4
   const labelWidth = topRightLabel ? stringWidth(topRightLabel) + 4 : 0;
   const dashCount = Math.max(1, columns - labelWidth);
   const topBorderLine = topRightLabel
-    ? `${'─'.repeat(dashCount)} ${topRightLabel} ${'─'.repeat(2)}`
-    : '─'.repeat(columns);
+    ? `${'-'.repeat(dashCount)} ${topRightLabel} ${'-'.repeat(2)}`
+    : '-'.repeat(columns);
 
   return (
     <Box flexDirection="column">

@@ -103,7 +103,7 @@ interface SpanContext {
     | 'llm_request'
     | 'tool'
     | 'tool.execution'
-    // Phase 2 forward-declarations (no start*/end* helpers wired yet —
+    // Phase 2 forward-declarations (no start*/end* helpers wired yet --
     // see docs/design/workflow-tracing-gaps.md). Listed here so Phase 2
     // can add helpers without touching this type.
     | 'tool.blocked_on_user'
@@ -114,14 +114,14 @@ interface SpanContext {
  * Resolve the parent OTel Context for a new span.
  *
  * Priority:
- *  1. Explicit parent (from `interactionContext` / `toolContext` ALS) — keeps
+ *  1. Explicit parent (from `interactionContext` / `toolContext` ALS) -- keeps
  *     the LLM/tool/exec span attached to its logical owner.
- *  2. Currently-active OTel span — preserves the trace tree when an
+ *  2. Currently-active OTel span -- preserves the trace tree when an
  *     LLM or tool call is nested inside another span (e.g. subagent inside a
  *     tool, or any nested-tool path) but the ALS parent has already exited.
  *     Without this, the new span re-parents to the synthetic session root and
  *     the trace flattens.
- *  3. Synthetic session-root context — keeps side-query spans (auto-title,
+ *  3. Synthetic session-root context -- keeps side-query spans (auto-title,
  *     recap, etc.) correlated with the session even when they run outside
  *     any interaction.
  *  4. Active context as a no-op fallback.
@@ -129,7 +129,7 @@ interface SpanContext {
  * Mirrors `tracer.ts:getParentContext()` (#4126 review follow-up, #4212).
  *
  * SYNC: keep parent-resolution logic in step with getParentContext() in
- * telemetry/tracer.ts — drift here re-introduces the trace-tree flattening
+ * telemetry/tracer.ts -- drift here re-introduces the trace-tree flattening
  * issue #4212 set out to fix (#4302 review).
  */
 function resolveParentContext(parent: SpanContext | undefined): Context {
@@ -195,7 +195,7 @@ function sweepStaleSpans(now: number): void {
           });
         } catch (error) {
           // OTel errors must not prevent span.end() from running, but
-          // they're worth surfacing — dropping the sentinel attrs makes
+          // they're worth surfacing -- dropping the sentinel attrs makes
           // a TTL-aborted span look identical to a deliberately-UNSET
           // one in dashboards (#4321 review-7 silent-failure-hunter).
           debugLogger.warn(
@@ -247,7 +247,7 @@ const SPAN_ERROR_MAX_CHARS = 1024;
  * any field exceeds their limit (#4321 review-3 wenshao Critical).
  *
  * Truncates by UTF-16 code units (`String.length`/`String.slice`), not
- * bytes — for ASCII-heavy text this approximates a 1KB byte limit, but
+ * bytes -- for ASCII-heavy text this approximates a 1KB byte limit, but
  * CJK/emoji-heavy errors can land in the ~2-3KB range after UTF-8
  * encoding. That's still well under all major OTel backends'
  * per-attribute limits (Jaeger ~64KB, Honeycomb ~64KB, OTLP default
@@ -257,14 +257,14 @@ const SPAN_ERROR_MAX_CHARS = 1024;
 export function truncateSpanError(s: string): string {
   if (s.length <= SPAN_ERROR_MAX_CHARS) return s;
   // Back up one code unit if the cut lands on a high surrogate so we
-  // don't emit a lone surrogate followed by the sentinel — strict
+  // don't emit a lone surrogate followed by the sentinel -- strict
   // OTLP/gRPC collectors reject span batches with invalid UTF-8
   // (a lone high surrogate encodes to an invalid byte sequence)
   // (#4321 review-8 wenshao Suggestion).
   let end = SPAN_ERROR_MAX_CHARS;
   const code = s.charCodeAt(end - 1);
   if (code >= 0xd800 && code <= 0xdbff) end--;
-  return s.slice(0, end) + '…[truncated]';
+  return s.slice(0, end) + '...[truncated]';
 }
 
 function getTracer() {
@@ -395,7 +395,7 @@ export function endLLMRequestSpan(
 
   // Use spanCtx.span for mutations to stay consistent with endToolSpan/
   // endToolExecutionSpan. (It's the same object as the passed `span`
-  // since we just looked it up by spanId — but matching the lookup
+  // since we just looked it up by spanId -- but matching the lookup
   // pattern across helpers prevents subtle drift if the lookup ever
   // gains caching/normalization.)
   try {
@@ -414,7 +414,7 @@ export function endLLMRequestSpan(
       }
       if (metadata.cachedInputTokens !== undefined) {
         endAttributes['cached_input_tokens'] = metadata.cachedInputTokens;
-        // Dual-emit OTel GenAI semconv (Experimental — may rename before Stable).
+        // Dual-emit OTel GenAI semconv (Experimental -- may rename before Stable).
         endAttributes['gen_ai.usage.cached_tokens'] =
           metadata.cachedInputTokens;
       }
@@ -436,7 +436,7 @@ export function endLLMRequestSpan(
       // Derived: sampling_ms = time from first user-visible chunk to end
       // (== output generation time, excluding setup + first-token delay).
       // Computable only when ttftMs is set. requestSetupMs defaults to 0
-      // when undefined (no retries) — this gives the correct sampling
+      // when undefined (no retries) -- this gives the correct sampling
       // duration in both Phase 4a (no retry data) and Phase 4b (with).
       if (metadata.ttftMs !== undefined) {
         const samplingMs = Math.max(
@@ -529,7 +529,7 @@ export function startToolSpan(
 /**
  * Runs a callback within the tool span's AsyncLocalStorage context AND
  * OpenTelemetry context. Use this instead of enterWith() to scope the
- * context to a single async call tree — safe for concurrent tool calls.
+ * context to a single async call tree -- safe for concurrent tool calls.
  *
  * Setting the OTel context ensures any nested OTel spans/logs emitted
  * during the callback (HTTP instrumentation, hooks, log-bridge spans)
@@ -544,7 +544,7 @@ export function runInToolSpanContext<T>(span: Span, fn: () => T): T {
 }
 
 /**
- * When metadata is omitted, span status is NOT set — callers on failure paths
+ * When metadata is omitted, span status is NOT set -- callers on failure paths
  * must pre-set status via setToolSpanFailure/setToolSpanCancelled before calling
  * this. This asymmetry with endLLMRequestSpan (which defaults to OK) is intentional:
  * tool spans have multiple failure modes that set status before endToolSpan runs.
@@ -608,7 +608,7 @@ export function startToolExecutionSpan(): Span {
   const parentCtx = toolContext.getStore();
   if (!parentCtx) {
     debugLogger.warn(
-      'startToolExecutionSpan called outside runInToolSpanContext — span will not be parented to tool span',
+      'startToolExecutionSpan called outside runInToolSpanContext -- span will not be parented to tool span',
     );
   }
   // Without an explicit toolContext parent we still try the active OTel span
@@ -710,7 +710,7 @@ export type ToolBlockedDecision =
   | 'cancel'
   | 'aborted'
   | 'auto_approved'
-  // System-error close — distinct from user 'cancel' so dashboards counting
+  // System-error close -- distinct from user 'cancel' so dashboards counting
   // user cancels don't double-count thrown exceptions in the approval path.
   | 'error';
 
@@ -720,7 +720,7 @@ export type ToolBlockedSource = 'cli' | 'ide' | 'hook' | 'auto' | 'system';
  * Brackets the time a tool spends in `awaiting_approval` waiting on the user.
  *
  * The parent is passed explicitly because this span starts BEFORE the tool
- * body's `runInToolSpanContext` block — so `toolContext.getStore()` is empty.
+ * body's `runInToolSpanContext` block -- so `toolContext.getStore()` is empty.
  * Passing the span object also avoids the `findLast`-by-type concurrency bug
  * (claude-code's sessionTracing has it; we deliberately don't).
  */
@@ -731,19 +731,19 @@ export function startToolBlockedOnUserSpan(
   if (!isTelemetrySdkInitialized()) {
     return NOOP_SPAN;
   }
-  // Idempotent — kick off the 30-min TTL cleanup in case this span is
+  // Idempotent -- kick off the 30-min TTL cleanup in case this span is
   // started in a code path where no interaction span has been created
   // yet (sub-agent tool calls, side queries, future patterns).
   ensureCleanupInterval();
 
   const parentSpanId = getSpanId(toolSpan);
   const parentSpanCtx = activeSpans.get(parentSpanId)?.deref();
-  // If the tool span was already ended (defensive — shouldn't happen on the
+  // If the tool span was already ended (defensive -- shouldn't happen on the
   // happy path), fall back to the standard parent-resolution chain so we
   // still produce a span correlated with the session.
   if (!parentSpanCtx) {
     debugLogger.debug(
-      'startToolBlockedOnUserSpan: tool span not in activeSpans (already ended?) — using resolveParentContext fallback',
+      'startToolBlockedOnUserSpan: tool span not in activeSpans (already ended?) -- using resolveParentContext fallback',
     );
   }
   const ctx = parentSpanCtx
@@ -774,7 +774,7 @@ export function startToolBlockedOnUserSpan(
 }
 
 /**
- * Status stays UNSET — waiting on the user is neither OK nor ERROR.
+ * Status stays UNSET -- waiting on the user is neither OK nor ERROR.
  * The decision/source attributes are the canonical signal.
  */
 export function endToolBlockedOnUserSpan(
@@ -836,7 +836,7 @@ export interface HookSpanMetadata {
   /** Discriminator for blocking decision when applicable. */
   blockType?: 'denied' | 'ask' | 'stop';
   hasAdditionalContext?: boolean;
-  /** Hook threw — span ends as ERROR with this message. */
+  /** Hook threw -- span ends as ERROR with this message. */
   error?: string;
 }
 
@@ -844,13 +844,13 @@ export function startHookSpan(opts: StartHookSpanOptions): Span {
   if (!isTelemetrySdkInitialized()) {
     return NOOP_SPAN;
   }
-  // Same defensive cleanup-interval kick as startToolBlockedOnUserSpan —
+  // Same defensive cleanup-interval kick as startToolBlockedOnUserSpan --
   // hook spans may run before any interaction span has been created.
   ensureCleanupInterval();
 
   // Hooks fire from inside `runInToolSpanContext` so toolContext is the
   // natural parent. resolveParentContext also covers the rare case where a
-  // hook span is started outside any tool (defensive — keeps the trace tree
+  // hook span is started outside any tool (defensive -- keeps the trace tree
   // correlated with the session).
   const parentCtx =
     toolContext.getStore() ?? interactionContext.getStore() ?? undefined;
@@ -885,7 +885,7 @@ export function startHookSpan(opts: StartHookSpanOptions): Span {
 
 /**
  * Status: UNSET on normal flow (including blocking decisions like
- * shouldProceed: false or shouldStop: true — those are intentional, not
+ * shouldProceed: false or shouldStop: true -- those are intentional, not
  * errors). Only an actual hook-side throw (caught by the safelyFire wrapper
  * or rethrown) maps to ERROR via the `error` metadata field.
  */

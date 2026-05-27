@@ -12,7 +12,7 @@ Use `modelProviders` to declare curated model lists per auth type that the `/mod
 
 > [!note]
 >
-> **Model uniqueness:** Models within the same `authType` are uniquely identified by the combination of `id` + `baseUrl`. This means you can define the same model ID (e.g., `"gpt-4o"`) multiple times under a single `authType` as long as each entry has a different `baseUrl` — for example, one pointing to OpenAI directly and another to a proxy endpoint. If two entries share both the same `id` and the same `baseUrl` (or both omit `baseUrl`), the first occurrence wins and subsequent duplicates are skipped with a warning.
+> **Model uniqueness:** Models within the same `authType` are uniquely identified by the combination of `id` + `baseUrl`. This means you can define the same model ID (e.g., `"gpt-4o"`) multiple times under a single `authType` as long as each entry has a different `baseUrl` -- for example, one pointing to OpenAI directly and another to a proxy endpoint. If two entries share both the same `id` and the same `baseUrl` (or both omit `baseUrl`), the first occurrence wins and subsequent duplicates are skipped with a warning.
 
 ## Configuration Examples by Auth Type
 
@@ -389,14 +389,14 @@ If you prefer to manually configure Coding Plan models, you can add them to your
 
 The effective auth/model/credential values are chosen per field using the following precedence (first present wins). You can combine `--auth-type` with `--model` to point directly at a provider entry; these CLI flags run before other layers.
 
-| Layer (highest → lowest)   | authType                            | model                                           | apiKey                                              | baseUrl                                              | apiKeyEnvKey           | proxy                             |
+| Layer (highest -> lowest)   | authType                            | model                                           | apiKey                                              | baseUrl                                              | apiKeyEnvKey           | proxy                             |
 | -------------------------- | ----------------------------------- | ----------------------------------------------- | --------------------------------------------------- | ---------------------------------------------------- | ---------------------- | --------------------------------- |
-| Programmatic overrides     | `/auth`                             | `/auth` input                                   | `/auth` input                                       | `/auth` input                                        | —                      | —                                 |
-| Model provider selection   | —                                   | `modelProvider.id`                              | `env[modelProvider.envKey]`                         | `modelProvider.baseUrl`                              | `modelProvider.envKey` | —                                 |
-| CLI arguments              | `--auth-type`                       | `--model`                                       | `--openaiApiKey` (or provider-specific equivalents) | `--openaiBaseUrl` (or provider-specific equivalents) | —                      | —                                 |
-| Environment variables      | —                                   | Provider-specific mapping (e.g. `OPENAI_MODEL`) | Provider-specific mapping (e.g. `OPENAI_API_KEY`)   | Provider-specific mapping (e.g. `OPENAI_BASE_URL`)   | —                      | —                                 |
-| Settings (`settings.json`) | `security.auth.selectedType`        | `model.name`                                    | `security.auth.apiKey`                              | `security.auth.baseUrl`                              | —                      | —                                 |
-| Default / computed         | Falls back to `AuthType.QWEN_OAUTH` | Built-in default (OpenAI ⇒ `qwen3-coder-plus`)  | —                                                   | —                                                    | —                      | `Config.getProxy()` if configured |
+| Programmatic overrides     | `/auth`                             | `/auth` input                                   | `/auth` input                                       | `/auth` input                                        | --                      | --                                 |
+| Model provider selection   | --                                   | `modelProvider.id`                              | `env[modelProvider.envKey]`                         | `modelProvider.baseUrl`                              | `modelProvider.envKey` | --                                 |
+| CLI arguments              | `--auth-type`                       | `--model`                                       | `--openaiApiKey` (or provider-specific equivalents) | `--openaiBaseUrl` (or provider-specific equivalents) | --                      | --                                 |
+| Environment variables      | --                                   | Provider-specific mapping (e.g. `OPENAI_MODEL`) | Provider-specific mapping (e.g. `OPENAI_API_KEY`)   | Provider-specific mapping (e.g. `OPENAI_BASE_URL`)   | --                      | --                                 |
+| Settings (`settings.json`) | `security.auth.selectedType`        | `model.name`                                    | `security.auth.apiKey`                              | `security.auth.baseUrl`                              | --                      | --                                 |
+| Default / computed         | Falls back to `AuthType.QWEN_OAUTH` | Built-in default (OpenAI  `qwen3-coder-plus`)  | --                                                   | --                                                    | --                      | `Config.getProxy()` if configured |
 
 \*When present, CLI auth flags override settings. Otherwise, `security.auth.selectedType` or the implicit default determine the auth type. Qwen OAuth and OpenAI are the only auth types surfaced without extra configuration.
 
@@ -412,7 +412,7 @@ The configuration resolution follows a strict layering model with one crucial ru
 
 1. **When a modelProvider model IS selected** (e.g., via `/model` command choosing a provider-configured model):
    - The entire `generationConfig` from the provider is applied **atomically**
-   - **The provider layer is completely impermeable** — lower layers (CLI, env, settings) do not participate in generationConfig resolution at all
+   - **The provider layer is completely impermeable** -- lower layers (CLI, env, settings) do not participate in generationConfig resolution at all
    - All fields defined in `modelProviders[].generationConfig` use the provider's values
    - All fields **not defined** by the provider are set to `undefined` (not inherited from settings)
    - This ensures provider configurations act as a complete, self-contained "sealed package"
@@ -426,7 +426,7 @@ The configuration resolution follows a strict layering model with one crucial ru
 
 2. **When NO modelProvider model is selected** (e.g., using `--model` with a raw model ID, or using CLI/env/settings directly):
    - The resolution falls through to lower layers
-   - Fields are populated from CLI → env → settings → defaults
+   - Fields are populated from CLI -> env -> settings -> defaults
    - This creates a **Runtime Model** (see next section)
 
 ### Per-field precedence for `generationConfig`
@@ -478,7 +478,7 @@ When `gpt-4o` is selected from modelProviders:
 
 - `timeout` = 60000 (from provider, overrides settings)
 - `samplingParams.temperature` = 0.2 (from provider, completely replaces settings object)
-- `samplingParams.max_tokens` = **undefined** (not defined in provider, and provider layer does not inherit from settings — fields are explicitly set to undefined if not provided)
+- `samplingParams.max_tokens` = **undefined** (not defined in provider, and provider layer does not inherit from settings -- fields are explicitly set to undefined if not provided)
 
 When using a raw model via `--model gpt-4` (not from modelProviders, creates a Runtime Model):
 
@@ -490,7 +490,7 @@ The merge strategy for `modelProviders` itself is REPLACE: the entire `modelProv
 
 ## Reasoning / thinking configuration
 
-The optional `reasoning` field under `generationConfig` controls how aggressively the model reasons before responding. The Anthropic and Gemini converters always honor it. The OpenAI-compatible pipeline honors it **unless** `generationConfig.samplingParams` is set — see the "Interaction with `samplingParams`" caveat below.
+The optional `reasoning` field under `generationConfig` controls how aggressively the model reasons before responding. The Anthropic and Gemini converters always honor it. The OpenAI-compatible pipeline honors it **unless** `generationConfig.samplingParams` is set -- see the "Interaction with `samplingParams`" caveat below.
 
 ```jsonc
 {
@@ -503,9 +503,9 @@ The optional `reasoning` field under `generationConfig` controls how aggressivel
         "envKey": "DEEPSEEK_API_KEY",
         "generationConfig": {
           // The four-tier scale:
-          //   'low'    | 'medium' — server-mapped to 'high' on DeepSeek
-          //   'high'   — default reasoning intensity
-          //   'max'    — DeepSeek-specific extra-strong tier
+          //   'low'    | 'medium' -- server-mapped to 'high' on DeepSeek
+          //   'high'   -- default reasoning intensity
+          //   'max'    -- DeepSeek-specific extra-strong tier
           // Or set `false` to disable reasoning entirely.
           "reasoning": { "effort": "max" },
         },
@@ -519,17 +519,17 @@ The optional `reasoning` field under `generationConfig` controls how aggressivel
 
 | Protocol / provider                          | Wire shape                                                           | Notes                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | -------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **OpenAI / DeepSeek** (`api.deepseek.com`)   | Flat `reasoning_effort: <effort>` body parameter                     | When `reasoning.effort` is set in the nested config shape, it's rewritten to flat `reasoning_effort` and `'low'`/`'medium'` are normalized to `'high'`, `'xhigh'` to `'max'` — mirroring DeepSeek's [server-side back-compat](https://api-docs.deepseek.com/zh-cn/api/create-chat-completion). Top-level `samplingParams.reasoning_effort` or `extra_body.reasoning_effort` overrides skip this normalization and ship verbatim. |
+| **OpenAI / DeepSeek** (`api.deepseek.com`)   | Flat `reasoning_effort: <effort>` body parameter                     | When `reasoning.effort` is set in the nested config shape, it's rewritten to flat `reasoning_effort` and `'low'`/`'medium'` are normalized to `'high'`, `'xhigh'` to `'max'` -- mirroring DeepSeek's [server-side back-compat](https://api-docs.deepseek.com/zh-cn/api/create-chat-completion). Top-level `samplingParams.reasoning_effort` or `extra_body.reasoning_effort` overrides skip this normalization and ship verbatim. |
 | **OpenAI** (other compatible servers)        | `reasoning: { effort, ... }` passed through verbatim                 | Set via `samplingParams` (e.g. `samplingParams.reasoning_effort` for GPT-5/o-series) when the provider expects a different shape.                                                                                                                                                                                                                                                                                                |
 | **Anthropic** (real `api.anthropic.com`)     | `output_config: { effort }` plus the `effort-2025-11-24` beta header | Real Anthropic accepts `'low'`/`'medium'`/`'high'` only. `'max'` is **clamped to `'high'`** with a `debugLogger.warn` line (once per generator); if you want max effort, switch the baseURL to a DeepSeek-compatible endpoint that supports it.                                                                                                                                                                                  |
 | **Anthropic** (`api.deepseek.com/anthropic`) | Same `output_config: { effort }` + beta header                       | `'max'` is passed through unchanged.                                                                                                                                                                                                                                                                                                                                                                                             |
-| **Gemini** (`@google/genai`)                 | `thinkingConfig: { includeThoughts: true, thinkingLevel }`           | `'low'` → `LOW`, `'high'`/`'max'` → `HIGH`, others → `THINKING_LEVEL_UNSPECIFIED` (Gemini has no `MAX` tier).                                                                                                                                                                                                                                                                                                                    |
+| **Gemini** (`@google/genai`)                 | `thinkingConfig: { includeThoughts: true, thinkingLevel }`           | `'low'` -> `LOW`, `'high'`/`'max'` -> `HIGH`, others -> `THINKING_LEVEL_UNSPECIFIED` (Gemini has no `MAX` tier).                                                                                                                                                                                                                                                                                                                    |
 
 ### `reasoning: false`
 
-Setting `reasoning: false` (the literal boolean) explicitly disables thinking on every provider — useful for cheap side queries that don't benefit from reasoning. This is honored at the request level too via `request.config.thinkingConfig.includeThoughts: false` for one-off calls (e.g. suggestion generation).
+Setting `reasoning: false` (the literal boolean) explicitly disables thinking on every provider -- useful for cheap side queries that don't benefit from reasoning. This is honored at the request level too via `request.config.thinkingConfig.includeThoughts: false` for one-off calls (e.g. suggestion generation).
 
-On a `api.deepseek.com` baseURL, the OpenAI pipeline emits the explicit `thinking: { type: 'disabled' }` field that DeepSeek V4+ requires — the server-side default is `'enabled'`, so simply omitting `reasoning_effort` would still pay thinking latency/cost. Self-hosted DeepSeek backends (sglang/vllm) and other OpenAI-compatible servers do **not** receive this field; if you need to disable thinking on those, inject `thinking: { type: 'disabled' }` (or whatever knob your inference framework exposes) via `samplingParams`/`extra_body`.
+On a `api.deepseek.com` baseURL, the OpenAI pipeline emits the explicit `thinking: { type: 'disabled' }` field that DeepSeek V4+ requires -- the server-side default is `'enabled'`, so simply omitting `reasoning_effort` would still pay thinking latency/cost. Self-hosted DeepSeek backends (sglang/vllm) and other OpenAI-compatible servers do **not** receive this field; if you need to disable thinking on those, inject `thinking: { type: 'disabled' }` (or whatever knob your inference framework exposes) via `samplingParams`/`extra_body`.
 
 ### Interaction with `samplingParams` (OpenAI-compatible only)
 
@@ -537,9 +537,9 @@ On a `api.deepseek.com` baseURL, the OpenAI pipeline emits the explicit `thinkin
 >
 > When `generationConfig.samplingParams` is set on an OpenAI-compatible provider, the pipeline ships those keys to the wire **verbatim** and skips the separate `reasoning` injection entirely. So a config like `{ samplingParams: { temperature: 0.5 }, reasoning: { effort: 'max' } }` will silently drop the reasoning field on OpenAI/DeepSeek requests.
 >
-> If you set `samplingParams`, include the reasoning knob inside it directly — for DeepSeek that's `samplingParams.reasoning_effort`, for GPT-5/o-series it's `samplingParams.reasoning_effort` (their flat field) or `samplingParams.reasoning` (the nested object). For OpenRouter and other providers the field name varies; consult the provider docs.
+> If you set `samplingParams`, include the reasoning knob inside it directly -- for DeepSeek that's `samplingParams.reasoning_effort`, for GPT-5/o-series it's `samplingParams.reasoning_effort` (their flat field) or `samplingParams.reasoning` (the nested object). For OpenRouter and other providers the field name varies; consult the provider docs.
 >
-> The Anthropic and Gemini converters are unaffected — they always read `reasoning.effort` directly regardless of `samplingParams`.
+> The Anthropic and Gemini converters are unaffected -- they always read `reasoning.effort` directly regardless of `samplingParams`.
 
 ### `budget_tokens`
 
@@ -549,7 +549,7 @@ You can pin an exact thinking-token budget by including `budget_tokens` alongsid
 "reasoning": { "effort": "high", "budget_tokens": 50000 }
 ```
 
-For Anthropic this becomes `thinking.budget_tokens`. For OpenAI/DeepSeek the field is preserved but currently ignored by the server — `reasoning_effort` is the load-bearing knob.
+For Anthropic this becomes `thinking.budget_tokens`. For OpenAI/DeepSeek the field is preserved but currently ignored by the server -- `reasoning_effort` is the load-bearing knob.
 
 ## Provider Models vs Runtime Models
 
@@ -567,7 +567,7 @@ Qwen Code distinguishes between two types of model configurations:
 
 - Created dynamically when using raw model IDs via CLI (`--model`), environment variables, or settings
 - Not defined in `modelProviders`
-- Configuration is built by "projecting" through resolution layers (CLI → env → settings → defaults)
+- Configuration is built by "projecting" through resolution layers (CLI -> env -> settings -> defaults)
 - Automatically captured as a **RuntimeModelSnapshot** when a complete configuration is detected
 - Allows reuse without re-entering credentials
 

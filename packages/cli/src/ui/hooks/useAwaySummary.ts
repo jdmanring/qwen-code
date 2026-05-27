@@ -66,10 +66,10 @@ function shouldFireRecap(history: HistoryItem[]): boolean {
 
 /**
  * Generates and displays a 1-3 sentence "where you left off" recap when the
- * user returns to a terminal that has been blurred for ≥ AWAY_THRESHOLD_MS.
+ * user returns to a terminal that has been blurred for >= AWAY_THRESHOLD_MS.
  *
  * Best-effort: silently no-ops on disabled, unavailable config, in-flight
- * turn, or any generation failure. The recap is debounced per blur cycle —
+ * turn, or any generation failure. The recap is debounced per blur cycle --
  * a single back-and-forth produces at most one recap.
  */
 export function useAwaySummary(options: UseAwaySummaryOptions): void {
@@ -90,7 +90,7 @@ export function useAwaySummary(options: UseAwaySummaryOptions): void {
   const isIdleRef = useRef(isIdle);
   isIdleRef.current = isIdle;
 
-  // Latest history snapshot, read at fire time only — keeps history out
+  // Latest history snapshot, read at fire time only -- keeps history out
   // of the effect's deps so we don't re-evaluate on every message.
   const historyRef = useRef(history);
   historyRef.current = history;
@@ -131,7 +131,7 @@ export function useAwaySummary(options: UseAwaySummaryOptions): void {
     // (with isIdle in the deps) when the streaming turn finishes.
     if (!isIdleRef.current) return;
 
-    // Skip if the conversation hasn't moved enough since the last recap —
+    // Skip if the conversation hasn't moved enough since the last recap --
     // a brief alt-tab cycle right after a recap shouldn't produce a near-
     // duplicate one.
     if (!shouldFireRecap(historyRef.current)) {
@@ -156,7 +156,7 @@ export function useAwaySummary(options: UseAwaySummaryOptions): void {
 
         // Mirror the recording the slash-command processor does for
         // manual `/recap`, so the auto-fired recap also survives `/resume`.
-        // Only record the `result` phase — recording an `invocation`
+        // Only record the `result` phase -- recording an `invocation`
         // would replay a fake `> /recap` user line on resume.
         try {
           config.getChatRecordingService?.()?.recordSlashCommand({
@@ -165,7 +165,7 @@ export function useAwaySummary(options: UseAwaySummaryOptions): void {
             outputHistoryItems: [{ ...item } as Record<string, unknown>],
           });
         } catch {
-          // Recap is best-effort — never let a recording failure surface.
+          // Recap is best-effort -- never let a recording failure surface.
         }
       })
       .finally(() => {

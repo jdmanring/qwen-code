@@ -6,7 +6,7 @@ This manifest serves as the semantic index for the `/labs` directory. It provide
 
 ---
 
-## 🎯 Targets
+##  Targets
 *Repositories used for direct absorption, wrapping, or primary implementation.*
 
 ### Orchestration & Multi-Agent Frameworks
@@ -44,7 +44,7 @@ This manifest serves as the semantic index for the `/labs` directory. It provide
 
 ---
 
-## 💡 Inspiration
+##  Inspiration
 *Repositories used for architectural study, pattern recognition, and design reference.*
 
 ### Architectural Patterns & Research
@@ -63,7 +63,7 @@ This manifest serves as the semantic index for the `/labs` directory. It provide
 
 ---
 
-## 🌐 Ecosystem
+##  Ecosystem
 *Specialized environment tools and specific implementations.*
 
 | Name | URL | Strategic Value |

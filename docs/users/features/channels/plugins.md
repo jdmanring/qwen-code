@@ -73,14 +73,14 @@ qwen channel start my-bot
 
 Custom channels automatically support everything built-in channels do:
 
-- **Sender policies** — `allowlist`, `pairing`, and `open` access control
-- **Group policies** — Per-group settings with optional @mention gating
-- **Session routing** — Per-user, per-thread, or single shared sessions
-- **DM pairing** — Full pairing code flow for unknown users
-- **Slash commands** — `/help`, `/clear`, `/status` work out of the box
-- **Custom instructions** — Prepended to the first message in each session
-- **Crash recovery** — Automatic restart with session preservation
-- **Per-session serialization** — Messages are queued to prevent race conditions
+- **Sender policies** -- `allowlist`, `pairing`, and `open` access control
+- **Group policies** -- Per-group settings with optional @mention gating
+- **Session routing** -- Per-user, per-thread, or single shared sessions
+- **DM pairing** -- Full pairing code flow for unknown users
+- **Slash commands** -- `/help`, `/clear`, `/status` work out of the box
+- **Custom instructions** -- Prepended to the first message in each session
+- **Crash recovery** -- Automatic restart with session preservation
+- **Per-session serialization** -- Messages are queued to prevent race conditions
 
 ## Building Your Own Channel Plugin
 

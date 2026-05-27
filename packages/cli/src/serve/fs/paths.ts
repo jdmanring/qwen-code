@@ -10,7 +10,7 @@ import { isWithinRoot } from '@qwen-code/qwen-code-core';
 import { FsError, type FsErrorKind } from './errors.js';
 
 // `canonicalizeWorkspace` and `MAX_WORKSPACE_PATH_LENGTH` lifted to
-// `@qwen-code/acp-bridge` in #4175 PR 22b — the bridge package owns the
+// `@qwen-code/acp-bridge` in #4175 PR 22b -- the bridge package owns the
 // cross-module workspace-canonicalization contract directly. Imported
 // here for the local `canonicalizeBoundWorkspaceCached` fast-path AND
 // re-exported so callers like `config.ts` / `settings.ts` /
@@ -56,7 +56,7 @@ export type ResolvedPath = string & { readonly __brand: 'ResolvedPath' };
 export type Intent = 'read' | 'write' | 'edit' | 'list' | 'glob' | 'stat';
 
 /**
- * Intents that tolerate a non-existent leaf — see `Intent`'s
+ * Intents that tolerate a non-existent leaf -- see `Intent`'s
  * docstring for why each is in the set. Adding a new intent here
  * is a deliberate decision: the resolver's ancestor walk returns
  * a synthetic canonical path that the caller MUST be prepared to
@@ -87,13 +87,13 @@ const ENOENT_TOLERATING_INTENTS: ReadonlySet<Intent> = new Set([
  *    `\\?\` long-path prefixes).
  *
  * Checked patterns:
- * - NTFS ADS (`:` after position 2 — drive-letter slot exempted)
+ * - NTFS ADS (`:` after position 2 -- drive-letter slot exempted)
  * - 8.3 short names (`~\d`)
  * - Long-path prefixes (`\\?\`, `\\.\`, `//?/`, `//./`)
  * - Trailing dots / spaces (Windows strips during resolution)
  * - DOS device names as final extension (`.CON`, `.PRN`, ...)
  * - Three-or-more consecutive dots used as a path component
- * - UNC prefix (`\\server\share`, `//server/share`) — also blocks
+ * - UNC prefix (`\\server\share`, `//server/share`) -- also blocks
  *   loopback DNS / SMB lookups during resolution.
  *
  * NTFS-on-Linux mounts (`ntfs-3g`) admit the same bypasses except
@@ -109,11 +109,11 @@ export function hasSuspiciousPathPattern(p: string): boolean {
   // NTFS 8.3 short-name suffix: `LONGFILENAME~1.TXT`. Two fixes
   // over the original `/~\d/`:
   //
-  // 1. Multi-digit (`~10`, `~99`) — NTFS allocates `~1`..`~4` for
+  // 1. Multi-digit (`~10`, `~99`) -- NTFS allocates `~1`..`~4` for
   //    the first 4 collisions, then switches to a hashed scheme
   //    where `~10` and above are real, common short names. The
   //    original regex missed those entirely.
-  // 2. Gate on Windows — on POSIX, `~\d` is a legitimate filename
+  // 2. Gate on Windows -- on POSIX, `~\d` is a legitimate filename
   //    character used by editor swap files (`file~1.swp`),
   //    backup tools (`notes~2.md`, `backup~1.txt`), and version
   //    schemes. The daemon's actual filesystem on Linux/macOS
@@ -136,7 +136,7 @@ export function hasSuspiciousPathPattern(p: string): boolean {
     (p.startsWith('\\\\') && p.length > 2 && p[2] !== '\\') ||
     (p.startsWith('//') && p.length > 2 && p[2] !== '/')
   ) {
-    // UNC prefix `\\server\share` / `//server/share` — never legitimate
+    // UNC prefix `\\server\share` / `//server/share` -- never legitimate
     // input from a daemon client. The earlier long-path check covers
     // the special device variants (`\\?\`, `\\.\`).
     return true;
@@ -144,7 +144,7 @@ export function hasSuspiciousPathPattern(p: string): boolean {
   if (/(^|\/|\\)\.{3,}(\/|\\|$)/.test(p)) return true;
   // Per-component checks below: skip empty segments and the legitimate
   // POSIX traversal tokens `.` / `..`. Bare `.` and `..` are fine
-  // inputs — the boundary's `path.resolve` + `isWithinRoot` will reject
+  // inputs -- the boundary's `path.resolve` + `isWithinRoot` will reject
   // any traversal that lands outside the workspace.
   for (const seg of p.split(/[\\/]/)) {
     if (seg === '' || seg === '.' || seg === '..') continue;
@@ -160,7 +160,7 @@ export function hasSuspiciousPathPattern(p: string): boolean {
     // form. Anchor to either start (bare or first-ext) or `.`
     // (last-ext or middle-ext) to cover the full set. Names
     // containing the reserved word as a substring of a longer
-    // segment (e.g. `BACON`, `concat.txt`) are NOT reserved — the
+    // segment (e.g. `BACON`, `concat.txt`) are NOT reserved -- the
     // boundary anchor `(^|\.)` keeps those legitimate.
     if (/(^|\.)(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(\.|$)/i.test(seg)) {
       return true;
@@ -173,7 +173,7 @@ export function hasSuspiciousPathPattern(p: string): boolean {
 const MAX_ANCESTOR_HOPS = 40;
 
 /**
- * Module-level memo cache for `boundWorkspace → canonical`
+ * Module-level memo cache for `boundWorkspace -> canonical`
  * mapping. The factory already canonicalizes once at build time,
  * so the inner call inside `resolveWithinWorkspace` is paying for
  * a redundant `realpathSync.native` per request. The cache turns
@@ -182,7 +182,7 @@ const MAX_ANCESTOR_HOPS = 40;
  * already-canonical input).
  *
  * Cache size is bounded only by the number of *distinct*
- * `boundWorkspace` values a daemon ever sees — `1 daemon = 1
+ * `boundWorkspace` values a daemon ever sees -- `1 daemon = 1
  * workspace` per #4175, so the steady-state size is exactly 1.
  * Tests that exercise multiple workspaces add an entry per
  * scratch dir; entries never have to be evicted because realpath
@@ -223,7 +223,7 @@ async function findExistingAncestor(
         // path segment we tried to traverse through; Windows
         // returns `ENOENT` for the same case (CI failure on
         // commit a81ada43f flagged the divergence). Either errno
-        // means "the *current* path doesn't resolve" — keep
+        // means "the *current* path doesn't resolve" -- keep
         // walking up and let the post-walk dirent-kind check
         // below decide whether to accept the ancestor.
       } else {
@@ -238,7 +238,7 @@ async function findExistingAncestor(
       // canonical ancestor and let the eventual write surface a
       // confusing late failure. Reject up-front with
       // `parse_error`. `fsp.stat` follows symlinks, so
-      // `stat.isDirectory()` reflects the symlink target's kind —
+      // `stat.isDirectory()` reflects the symlink target's kind --
       // exactly what we want. Cross-platform: works the same on
       // POSIX and Windows because the kind check fires regardless
       // of which errno surfaced during the walk-up.
@@ -335,7 +335,7 @@ export async function resolveWithinWorkspace(
   } catch (err) {
     const code = (err as NodeJS.ErrnoException)?.code;
     if (code === 'ENOENT' && ENOENT_TOLERATING_INTENTS.has(intent)) {
-      // Captured iff the symlink chain validated successfully —
+      // Captured iff the symlink chain validated successfully --
       // we then return this verified canonical instead of falling
       // through to a re-walk from `absolute` (which would
       // re-traverse the chain and could pick up an attacker's
@@ -346,7 +346,7 @@ export async function resolveWithinWorkspace(
       // (where the target doesn't exist YET) throws ENOENT here.
       // Without this branch the ENOENT-tolerant ancestor walk
       // below would happily walk up to the workspace root and
-      // return `<ws>/leak` as the canonical write target — but
+      // return `<ws>/leak` as the canonical write target -- but
       // the OS-level write would follow the symlink to
       // `/etc/cron.d/evil` and create the file there. `lstat`
       // detects the symlink without following it; `readlink` +
@@ -358,7 +358,7 @@ export async function resolveWithinWorkspace(
         // (where `middle` is itself a symlink): `findExistingAncestor`
         // uses `fsp.stat` which follows the rest of the chain,
         // landed on the target's parent, and reported the
-        // intermediate hop as canonical — letting the OS write
+        // intermediate hop as canonical -- letting the OS write
         // follow the full chain to the escape target. The loop
         // below dereferences every layer up to a max-depth bound
         // and tracks visited inodes to surface cycles as
@@ -377,7 +377,7 @@ export async function resolveWithinWorkspace(
           } catch (lstatErr) {
             const lcode = (lstatErr as NodeJS.ErrnoException)?.code;
             if (lcode === 'ENOENT' || lcode === 'ENOTDIR') {
-              // Reached a non-existent leaf — no symlink to chase
+              // Reached a non-existent leaf -- no symlink to chase
               // here. Run the deepest-existing-ancestor check on
               // `cursor` so the eventual write target is bounded.
               resolvedFully = true;
@@ -386,7 +386,7 @@ export async function resolveWithinWorkspace(
             throw lstatErr;
           }
           if (!linkStat.isSymbolicLink()) {
-            // Reached a real file/dir — chain terminates here.
+            // Reached a real file/dir -- chain terminates here.
             resolvedFully = true;
             break;
           }
@@ -421,7 +421,7 @@ export async function resolveWithinWorkspace(
           );
         }
         // Only run the containment check when we actually traversed
-        // at least one symlink — `firstHopTarget !== null` means the
+        // at least one symlink -- `firstHopTarget !== null` means the
         // input was a symlink (vs a path through a non-existent
         // ancestor that wasn't itself a symlink). The verified
         // `canonicalTarget` becomes the function's result; we DO
@@ -442,7 +442,7 @@ export async function resolveWithinWorkspace(
               'symlink_escape',
               `dangling symlink target escapes workspace: ${input}`,
               {
-                // Hint must NOT embed the symlink target — `recordDenied`
+                // Hint must NOT embed the symlink target -- `recordDenied`
                 // forwards `hint` into `fs.denied` even in privacy mode,
                 // and an absolute outside-target string would leak the
                 // attacker's intended exfiltration path through audit
@@ -459,7 +459,7 @@ export async function resolveWithinWorkspace(
         if (err2 instanceof FsError) throw err2;
         // `lstat` ENOENT on the very first hop means the input
         // path itself doesn't exist (input is a path through a
-        // non-existent ancestor) — no symlink to worry about;
+        // non-existent ancestor) -- no symlink to worry about;
         // fall through to the ancestor walk.
         const code2 = (err2 as NodeJS.ErrnoException)?.code;
         if (code2 !== 'ENOENT') throw err2;

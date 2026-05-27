@@ -20,15 +20,15 @@ export interface AnthropicTokenParts {
  * `input_tokens`, `cache_read_input_tokens`, `cache_creation_input_tokens`.
  * The full prompt is the sum.
  *
- * `cache_creation_input_tokens` is unique to Anthropic's protocol — OpenAI
- * has no equivalent — so its presence is a strong signal the response
+ * `cache_creation_input_tokens` is unique to Anthropic's protocol -- OpenAI
+ * has no equivalent -- so its presence is a strong signal the response
  * follows real Anthropic semantics. Use that as the primary discriminator:
  *
- *   - cache_creation > 0  → Anthropic semantics, sum all three
- *   - else if cache_read > 0 and input ≥ cache_read → OpenAI-style on the
+ *   - cache_creation > 0  -> Anthropic semantics, sum all three
+ *   - else if cache_read > 0 and input >= cache_read -> OpenAI-style on the
  *     Anthropic protocol (input already covers the cached portion), trust
  *     input alone
- *   - else                → sum (when no cache activity, sum equals input)
+ *   - else                -> sum (when no cache activity, sum equals input)
  *
  * An earlier version of this guard compared `inputTokens` to *both* cache
  * fields and fell back to "input alone" whenever input was the larger

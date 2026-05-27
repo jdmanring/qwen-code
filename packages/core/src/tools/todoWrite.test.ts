@@ -683,7 +683,7 @@ describe('TodoWriteTool', () => {
   });
 });
 
-describe('TodoWriteTool – runtime output directory', () => {
+describe('TodoWriteTool - runtime output directory', () => {
   let tool: TodoWriteTool;
   let mockAbortSignal: AbortSignal;
   let mockConfig: Config;

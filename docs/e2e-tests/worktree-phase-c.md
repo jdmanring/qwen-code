@@ -7,14 +7,14 @@ End-to-end verification of Phase C features against the local build at
 
 Phase C delivers:
 
-- **Task 1, 3, 4** — `WorktreeSession` sidecar JSON file at
+- **Task 1, 3, 4** -- `WorktreeSession` sidecar JSON file at
   `~/.qwen/tmp/<projectHash>/chats/<sessionId>.worktree.json`
-- **Task 2** — `core.hooksPath` configured inside new worktrees
-- **Task 5–6** — `useWorktreeSession` hook, `UIState.activeWorktree`, Footer
+- **Task 2** -- `core.hooksPath` configured inside new worktrees
+- **Task 5-6** -- `useWorktreeSession` hook, `UIState.activeWorktree`, Footer
   worktree indicator, `StatusLineCommandInput.worktree` field
-- **Task 7** — `--resume` injects an INFO history item when active worktree
+- **Task 7** -- `--resume` injects an INFO history item when active worktree
   still exists; cleans up stale sidecar otherwise
-- **Task 8** — `WorktreeExitDialog` with dirty-state inspection, intercepts
+- **Task 8** -- `WorktreeExitDialog` with dirty-state inspection, intercepts
   second Ctrl+C in active worktree
 
 ## Binaries
@@ -28,7 +28,7 @@ Each group runs in its own temp git repo and tmux session:
 
 ```bash
 TEST_DIR=$(mktemp -d -t qwen-wt-phc-XXXXXX)
-TEST_DIR=$(cd "$TEST_DIR" && pwd -P)   # resolve symlinks (macOS /var → /private/var)
+TEST_DIR=$(cd "$TEST_DIR" && pwd -P)   # resolve symlinks (macOS /var -> /private/var)
 cd "$TEST_DIR"
 git init -q -b main
 git config user.email t@e.com
@@ -207,7 +207,7 @@ SIDECAR=~/.qwen/projects/$PROJECT_ID/chats/$SESSION.worktree.json
 rm -rf "$TEST_DIR/.qwen/worktrees/c2-test"
 test -f "$SIDECAR" || { echo "SKIP: sidecar was already gone"; exit 0; }
 
-# Resume — should clean up the stale sidecar
+# Resume -- should clean up the stale sidecar
 node $QWEN --resume "$SESSION" "hello" --approval-mode yolo --output-format json 2>/dev/null > /dev/null
 test ! -f "$SIDECAR" && echo "PASS: stale sidecar cleaned" || echo "FAIL: stale sidecar still present"
 ```
@@ -238,12 +238,12 @@ done
 
 # Capture and look for the worktree indicator line in Footer area
 tmux capture-pane -t wt-d1 -p -S -100 > /tmp/wt-d1.out
-grep -E "⎇.*worktree-d1-test.*\(d1-test\)" /tmp/wt-d1.out && echo "PASS" || \
-  { echo "FAIL — captured output:"; cat /tmp/wt-d1.out; }
+grep -E ".*worktree-d1-test.*\(d1-test\)" /tmp/wt-d1.out && echo "PASS" || \
+  { echo "FAIL -- captured output:"; cat /tmp/wt-d1.out; }
 tmux kill-session -t wt-d1
 ```
 
-**Expected:** Footer contains a line like `⎇ worktree-d1-test (d1-test)`.
+**Expected:** Footer contains a line like ` worktree-d1-test (d1-test)`.
 
 ### D2: Footer indicator disappears after exit_worktree (keep)
 
@@ -260,7 +260,7 @@ tmux send-keys -t wt-d2 Enter
 for i in $(seq 1 30); do sleep 2; tmux capture-pane -t wt-d2 -p | grep -q "Type your message" && break; done
 
 # Verify indicator showed
-tmux capture-pane -t wt-d2 -p -S -100 | grep -q "⎇.*d2-test" || { echo "FAIL: indicator missing before exit"; tmux kill-session -t wt-d2; exit 1; }
+tmux capture-pane -t wt-d2 -p -S -100 | grep -q ".*d2-test" || { echo "FAIL: indicator missing before exit"; tmux kill-session -t wt-d2; exit 1; }
 
 # Exit the worktree (keep)
 tmux send-keys -t wt-d2 "use exit_worktree with name='d2-test' action='keep'"
@@ -271,7 +271,7 @@ for i in $(seq 1 30); do sleep 2; tmux capture-pane -t wt-d2 -p | grep -q "Kept 
 sleep 2  # give Footer a tick to refresh after sidecar removal
 tmux capture-pane -t wt-d2 -p -S -100 > /tmp/wt-d2-after.out
 # After exit, the indicator should be gone from the bottom panel area
-tail -5 /tmp/wt-d2-after.out | grep -q "⎇.*d2-test" && \
+tail -5 /tmp/wt-d2-after.out | grep -q ".*d2-test" && \
   echo "FAIL: indicator still showing" || echo "PASS"
 tmux kill-session -t wt-d2
 ```
@@ -302,7 +302,7 @@ sleep 0.3
 tmux capture-pane -t wt-e1 -p | grep -q "Press Ctrl+C again" || \
   { echo "FAIL: first Ctrl+C didn't show warning"; tmux kill-session -t wt-e1; exit 1; }
 
-# Second Ctrl+C — should show the WorktreeExitDialog, NOT quit
+# Second Ctrl+C -- should show the WorktreeExitDialog, NOT quit
 tmux send-keys -t wt-e1 C-c
 sleep 2
 
@@ -311,7 +311,7 @@ tmux capture-pane -t wt-e1 -p -S -50 > /tmp/wt-e1.out
 grep -q "Active worktree.*e1-test" /tmp/wt-e1.out && \
   grep -q "Keep worktree" /tmp/wt-e1.out && \
   grep -q "Remove worktree" /tmp/wt-e1.out && \
-  echo "PASS" || { echo "FAIL — captured:"; cat /tmp/wt-e1.out; }
+  echo "PASS" || { echo "FAIL -- captured:"; cat /tmp/wt-e1.out; }
 tmux kill-session -t wt-e1
 ```
 
@@ -346,7 +346,7 @@ sleep 3   # allow time for git status / rev-list
 
 tmux capture-pane -t wt-e2 -p -S -50 > /tmp/wt-e2.out
 grep -qE "new commit|uncommitted file" /tmp/wt-e2.out && echo "PASS" || \
-  { echo "FAIL — captured:"; cat /tmp/wt-e2.out; }
+  { echo "FAIL -- captured:"; cat /tmp/wt-e2.out; }
 tmux kill-session -t wt-e2
 ```
 
@@ -382,7 +382,7 @@ sleep 2
 
 # Dialog should be gone; input prompt should be back
 tmux capture-pane -t wt-e3 -p | grep -q "Type your message" && echo "PASS" || \
-  { echo "FAIL — captured:"; tmux capture-pane -t wt-e3 -p; }
+  { echo "FAIL -- captured:"; tmux capture-pane -t wt-e3 -p; }
 
 # Verify the worktree was NOT removed
 test -d "$TEST_DIR/.qwen/worktrees/e3-test" && echo "worktree intact" || echo "FAIL: worktree gone"
@@ -472,7 +472,7 @@ tmux kill-session -t wt-e5 2>/dev/null || true
 
 ## Group F: Real-user workflow simulation (interactive tmux)
 
-### F1: Full enter → edit → commit → resume → exit (keep) flow
+### F1: Full enter -> edit -> commit -> resume -> exit (keep) flow
 
 **Steps:**
 
@@ -567,7 +567,7 @@ cp -f /tmp/qwen-settings-backup.json "$SETTINGS_FILE" 2>/dev/null || rm -f "$SET
 
 - `/tmp/qwen-wt-statusline-input.json` has `.worktree.name == "f2-test"`, `.path`, `.branch` set
 - Custom statusline output `WT=f2-test` appears in Footer
-- Built-in `⎇ worktree-...` row is NOT rendered (suppressed by custom statusline)
+- Built-in ` worktree-...` row is NOT rendered (suppressed by custom statusline)
 
 ---
 
@@ -583,7 +583,7 @@ cp -f /tmp/qwen-settings-backup.json "$SETTINGS_FILE" 2>/dev/null || rm -f "$SET
 | B     | B3 hook fires in wt        | marker file written                          |
 | C     | C1 resume injects context  | INFO message present                         |
 | C     | C2 stale sidecar cleanup   | sidecar removed                              |
-| D     | D1 footer shows wt         | `⎇ worktree-...` rendered                    |
+| D     | D1 footer shows wt         | ` worktree-...` rendered                    |
 | D     | D2 footer hides after exit | indicator disappears                         |
 | E     | E1 dialog on 2nd Ctrl+C    | dialog visible, alive                        |
 | E     | E2 dirty-state counts      | commits + files shown                        |

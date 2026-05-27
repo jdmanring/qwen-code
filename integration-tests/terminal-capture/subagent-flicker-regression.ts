@@ -12,7 +12,7 @@
  *   4. answers the main loop's follow-up turn with another final message.
  *
  * Then we read every byte the PTY produced inside the SubAgent display window
- * and count the ANSI sequences Ink emits when redrawing — clear-terminal
+ * and count the ANSI sequences Ink emits when redrawing -- clear-terminal
  * triples (`\x1b[2J\x1b[3J\x1b[H`), erase-line, cursor-up.
  *
  * Scope: this is an end-to-end *ratchet*, not a full flicker stress test. It
@@ -25,11 +25,11 @@
  *     ("does not clear the terminal just because width changed")
  *   - Visual-height budgeting: AgentExecutionDisplay.test.tsx
  *     ("keeps the rendered running/completed frame within availableHeight")
- *   - End-to-end byte trail:   *this script* — catches regressions that
+ *   - End-to-end byte trail:   *this script* -- catches regressions that
  *                              slip past the unit-level assertions.
  *
  * Reference numbers (M2 Pro Mac, 60-col / 18-row terminal, 5 tool calls,
- * compact → default → verbose mode transitions):
+ * compact -> default -> verbose mode transitions):
  *
  *   With visual-height fix (current):
  *     clearTerminalPair=5, clearScreen=10, eraseLine=434, cursorUp=130
@@ -37,20 +37,20 @@
  *     clearTerminalPair=2, clearScreen=4,  eraseLine=469, cursorUp=134
  *
  * The clear-pair / clear-screen counts go *up* with the fix in this scenario
- * — the new "Showing N visual lines" footer + bounded slicing trigger extra
+ * -- the new "Showing N visual lines" footer + bounded slicing trigger extra
  * commits to Ink's static area, which are committed pieces of the static
  * area, not flicker churn. The signal that *does* separate fix from no-fix
- * is `eraseLine` — the in-place-update count drops by ~7% because Ink no
+ * is `eraseLine` -- the in-place-update count drops by ~7% because Ink no
  * longer needs to repaint individual rows when the SubAgent display stays
  * inside its assigned slot. That's why this script asserts an upper bound
  * on `eraseLine` in addition to the clear-screen ratchets.
  *
  * Default thresholds are calibrated so the build fails if the visual-height
  * fix is reverted to the old hard-coded behavior:
- *   - eraseLine > 460        → fix is broken (no-fix observed at 469).
- *   - clearTerminalPair > 10 → unrelated regression (e.g. width-driven
+ *   - eraseLine > 460        -> fix is broken (no-fix observed at 469).
+ *   - clearTerminalPair > 10 -> unrelated regression (e.g. width-driven
  *                              refreshStatic comes back).
- *   - clearScreen > 20       → unrelated regression.
+ *   - clearScreen > 20       -> unrelated regression.
  *
  * Usage:
  *   npm run build && npm run bundle
@@ -62,7 +62,7 @@
  *   QWEN_TUI_E2E_OUT=/tmp/qwen-tui-subagent-flicker
  *   QWEN_TUI_E2E_MAX_CLEAR_PAIRS=10       (default: 10)
  *   QWEN_TUI_E2E_MAX_CLEAR_SCREEN=20      (default: 20)
- *   QWEN_TUI_E2E_MAX_ERASE_LINE=460       (default: 460 — separates fix from
+ *   QWEN_TUI_E2E_MAX_ERASE_LINE=460       (default: 460 -- separates fix from
  *                                          no-fix; reverting the fix raises
  *                                          this counter to ~469)
  *   QWEN_TUI_E2E_SUBAGENT_TOOL_CALLS=5
@@ -401,7 +401,7 @@ async function startFakeOpenAIServer(
       // SubAgent loop is identified by the marker we planted in the prompt.
       // Main-loop tool-call arguments also contain the marker (it's embedded
       // in the assistant's tool_call we returned), so we additionally require
-      // the marker to appear as a `user` or `system` content — which only
+      // the marker to appear as a `user` or `system` content -- which only
       // happens after the parent dispatched into the SubAgent loop.
       const isSubagentLoop =
         body.includes('"role":"system"') &&
@@ -520,7 +520,7 @@ async function main(): Promise<void> {
     QWEN_CODE_DISABLE_SYNCHRONIZED_OUTPUT: '1',
     QWEN_CODE_NO_RELAUNCH: '1',
     // Intentionally NOT setting QWEN_CODE_SIMPLE so the agent tool stays in
-    // the registry — see comment in qwenArgs() above.
+    // the registry -- see comment in qwenArgs() above.
     QWEN_SANDBOX: 'false',
     TERM: 'xterm-256color',
     HOME: homeDir,
@@ -570,15 +570,15 @@ async function main(): Promise<void> {
 
     // As soon as the SubAgent display materialises, expand to "default" then
     // "verbose" so the tool-call list is fully rendered. This is where the
-    // height-bounded slicing matters — without the fix, soft wraps caused by
+    // height-bounded slicing matters -- without the fix, soft wraps caused by
     // the narrow column count make every new tool_call shift the rendered
     // height and Ink commits a fresh full-screen draw.
     await terminal.waitFor('flicker probe', { timeout: 30000 });
-    await terminal.type(''); // Ctrl+E → default
+    await terminal.type(''); // Ctrl+E -> default
     await terminal.idle(150, 1000);
-    await terminal.type(''); // Ctrl+F → verbose
+    await terminal.type(''); // Ctrl+F -> verbose
 
-    // Wait for the SubAgent run to finish — main loop's final assistant
+    // Wait for the SubAgent run to finish -- main loop's final assistant
     // message lands once the subagent reports done and the parent's tool
     // result is returned. If anything stalls, idle() will time out and we
     // still capture whatever raw bytes accumulated.

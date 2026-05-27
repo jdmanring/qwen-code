@@ -83,7 +83,7 @@ const CUMULATIVE_DETECTION_WINDOW_BYTES = 1024;
  * stream layer appends it to the live transcript.
  *
  * State invariants and lifecycle:
- * - `state` is per-stream and per-channel — the content and reasoning
+ * - `state` is per-stream and per-channel -- the content and reasoning
  *   channels are tracked independently to avoid cross-contamination. State
  *   MUST NOT be shared or reused across requests; stale state will silently
  *   corrupt text output.
@@ -136,7 +136,7 @@ function normalizeStreamingTextDelta(
     );
     state.cumulativeMode = false;
     // Reset baseline to current chunk so future prefix checks use fresh state.
-    // Note: this is a verbatim-emit path with no overlap reconciliation — the
+    // Note: this is a verbatim-emit path with no overlap reconciliation -- the
     // diverged chunk is assumed to be fully fresh content. If a cumulative
     // provider were to emit a half-overlapping chunk on exit (rare; not
     // observed on DashScope-class providers) the overlap would be visible.
@@ -600,7 +600,7 @@ function processContent(
         // parts with HTTP 400 "Invalid 'messages' in payload". When the flag
         // is set, strip non-text media from this tool message and accumulate
         // it; the combined media is emitted as a single follow-up user
-        // message after the parts loop completes — preserving the
+        // message after the parts loop completes -- preserving the
         // "all tool responses contiguous" requirement for parallel tool
         // calls. Default (flag false) preserves prior behavior: media is
         // embedded in the tool message and permissive providers continue
@@ -745,7 +745,7 @@ function createToolMessage(
   }
 
   // Add nested parts from the function response. Most entries here are
-  // media (image/document attachments) — but the compaction slimmer
+  // media (image/document attachments) -- but the compaction slimmer
   // replaces inlineData/fileData with text placeholders like
   // `[image: image/png]` so the summary side-query doesn't carry raw
   // base64. Pass those text placeholders through as text content;
@@ -1171,7 +1171,7 @@ export function convertOpenAIChunkToGemini(
   const toolCallParser = requestContext.toolCallParser;
   if (!toolCallParser) {
     throw new Error(
-      'convertOpenAIChunkToGemini requires requestContext.toolCallParser — attach a fresh StreamingToolCallParser at stream start.',
+      'convertOpenAIChunkToGemini requires requestContext.toolCallParser -- attach a fresh StreamingToolCallParser at stream start.',
     );
   }
 

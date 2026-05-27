@@ -144,7 +144,7 @@ export function StatusLineDialog({
       {
         key: 'statusline-separator',
         value: { kind: 'separator' },
-        label: '───────────────────────',
+        label: '-----------------------',
         disabled: true,
         separator: true,
       },

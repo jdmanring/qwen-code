@@ -19,9 +19,9 @@ import * as path from 'node:path';
 import { GitWorktreeService } from './gitWorktreeService.js';
 
 // Real git invocations + user-global hooks (e.g. trustup) can take
-// 10–20s per setUp on slower runners; bump per-test and per-hook
+// 10-20s per setUp on slower runners; bump per-test and per-hook
 // timeouts so the suite isn't flaky on CI. (Phase C reviewer #4174.)
-describe('GitWorktreeService.createUserWorktree() — hooksPath setup', () => {
+describe('GitWorktreeService.createUserWorktree() -- hooksPath setup', () => {
   vi.setConfig({ testTimeout: 30000, hookTimeout: 30000 });
 
   let repoRoot: string;

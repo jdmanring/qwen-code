@@ -18,7 +18,7 @@ The bridge runs two concurrent asynchronous loops:
 ### 1. Stdin $\to$ UDS (`pipe_stdio_to_uds`)
 - Awaits data from the `StdioReader`.
 - Writes the raw bytes directly to the UDS `asyncio.StreamWriter`.
-- This is a "transparent pipe"—the bridge does not inspect or modify the MCP messages; it simply moves the bytes.
+- This is a "transparent pipe"--the bridge does not inspect or modify the MCP messages; it simply moves the bytes.
 
 ### 2. UDS $\to$ Stdout (`pipe_uds_to_stdio`)
 - Awaits data from the UDS `asyncio.StreamReader`.

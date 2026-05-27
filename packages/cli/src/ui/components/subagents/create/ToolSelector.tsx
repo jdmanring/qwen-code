@@ -225,18 +225,18 @@ export function ToolSelector({
                     <>
                       {categoryReadTools.length > 0 && (
                         <Text color={theme.text.secondary}>
-                          • {t('Read-only tools:')}{' '}
+                           {t('Read-only tools:')}{' '}
                           {categoryReadTools.join(', ')}
                         </Text>
                       )}
                       {categoryEditTools.length > 0 && (
                         <Text color={theme.text.secondary}>
-                          • {t('Edit tools:')} {categoryEditTools.join(', ')}
+                           {t('Edit tools:')} {categoryEditTools.join(', ')}
                         </Text>
                       )}
                       {categoryExecuteTools.length > 0 && (
                         <Text color={theme.text.secondary}>
-                          • {t('Execution tools:')}{' '}
+                           {t('Execution tools:')}{' '}
                           {categoryExecuteTools.join(', ')}
                         </Text>
                       )}

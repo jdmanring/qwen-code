@@ -5,7 +5,7 @@
 // forever.
 //
 // We need a real long-running child process so the baseline harness can
-// count it via `pgrep -P` and surface the P1 N×M amplification before
+// count it via `pgrep -P` and surface the P1 N*M amplification before
 // the M2 shared-pool fix tightens it. A real npm MCP package (e.g.
 // `@modelcontextprotocol/server-everything`) would also work but pulls
 // network + version-lock churn into CI; this fixture is deterministic
@@ -62,7 +62,7 @@ stdin.on('data', (chunk) => {
     } else if (msg.method === 'notifications/initialized') {
       // No response needed for notifications.
     } else if (msg.id !== undefined) {
-      // Unknown request — return a method-not-found error so the daemon
+      // Unknown request -- return a method-not-found error so the daemon
       // doesn't hang waiting on us.
       send({
         jsonrpc: '2.0',

@@ -9,7 +9,7 @@
   },
   "notes": [
     "Daemon defaults to sessionScope: \"single\", so N successive createOrAttachSession calls against the same workspace return the same sessionId. RSS scaling and MCP amplification metrics here reflect \"N attaches to one shared session\", not \"N distinct sessions\".",
-    "After Wave 2 PR 5 (per-request sessionScope override) lands, this harness will be updated to optionally pass sessionScope: \"thread\" so the same metrics expose per-session cost and surface the P1 MCP N×M amplification before M2 fixes it."
+    "After Wave 2 PR 5 (per-request sessionScope override) lands, this harness will be updated to optionally pass sessionScope: \"thread\" so the same metrics expose per-session cost and surface the P1 MCP N*M amplification before M2 fixes it."
   ],
   "config": {
     "promptIterations": 20,

@@ -10,74 +10,74 @@ When a prompt suggestion is shown, the **speculation engine** immediately starts
 
 ```
 User sees suggestion "commit this"
-           │
-           ▼
-┌──────────────────────────────────────────────────────────────┐
-│  startSpeculation()                                          │
-│                                                              │
-│  ┌─────────────────┐    ┌────────────────────┐               │
-│  │ Forked GeminiChat│    │  OverlayFs          │              │
-│  │ (cache-shared)   │    │  /tmp/qwen-         │              │
-│  │                  │    │   speculation/       │              │
-│  │  systemInstruction│   │   {pid}/{id}/        │              │
-│  │  + tools          │   │                      │              │
-│  │  + history prefix │   │  COW: first write    │              │
-│  │                  │    │  copies original     │              │
-│  └────────┬─────────┘    └──────────┬───────────┘             │
-│           │                         │                         │
-│           ▼                         │                         │
-│  ┌──────────────────────────────────┴──────────────────────┐  │
-│  │  Speculative Loop (max 20 turns, 100 messages)          │  │
-│  │                                                         │  │
-│  │  Model response                                         │  │
-│  │       │                                                 │  │
-│  │       ▼                                                 │  │
-│  │  ┌──────────────────────────────────────────────────┐   │  │
-│  │  │  speculationToolGate                             │   │  │
-│  │  │                                                  │   │  │
-│  │  │  Read/Grep/Glob/LS/LSP → allow (+ overlay read) │   │  │
-│  │  │  Edit/WriteFile → redirect to overlay            │   │  │
-│  │  │    (only in auto-edit/yolo mode)                 │   │  │
-│  │  │  Shell → AST check read-only? allow : boundary   │   │  │
-│  │  │  WebFetch/WebSearch → boundary                   │   │  │
-│  │  │  Agent/Skill/Memory/Ask → boundary               │   │  │
-│  │  │  Unknown/MCP → boundary                          │   │  │
-│  │  └──────────────────────────────────────────────────┘   │  │
-│  │       │                                                 │  │
-│  │       ▼                                                 │  │
-│  │  Tool execution: toolRegistry.getTool → build → execute │  │
-│  │  (bypasses CoreToolScheduler — gated by toolGate)       │  │
-│  │                                                         │  │
-│  └─────────────────────────────────────────────────────────┘  │
-│                                                              │
-│  On completion → generatePipelinedSuggestion()               │
-└──────────────────────────────────────────────────────────────┘
-           │
-           │  User presses Tab / Enter
-           ▼
-     ┌─── status === 'completed'? ───┐
-     │ YES                      NO (boundary) │
-     ▼                                ▼
-┌─────────────────────────┐  ┌────────────────────────┐
-│  acceptSpeculation()    │  │  Discard speculation    │
-│                         │  │  abort + cleanup        │
-│  1. applyToReal()       │  │  Submit query normally  │
-│  2. ensureToolPairing() │  │  (addMessage)           │
-│  3. addHistory()        │  └────────────────────────┘
-│  4. render tool_group   │
-│  5. cleanup overlay     │
-│  6. pipelined suggest   │
-└─────────────────────────┘
-           │
-           │  User types instead
-           ▼
-┌──────────────────────────────────────────────────────────────┐
-│  abortSpeculation()                                          │
-│                                                              │
-│  1. abortController.abort() — cancel LLM call               │
-│  2. overlayFs.cleanup() — delete temp directory              │
-│  3. Update speculation state (no telemetry on abort)         │
-└──────────────────────────────────────────────────────────────┘
+           |
+           
++----------------------------------------------------------------+--
+|  startSpeculation()                                          |
+|                                                              |
+|  +-------------------+--    +----------------------+--               |
+|  | Forked GeminiChat|    |  OverlayFs          |              |
+|  | (cache-shared)   |    |  /tmp/qwen-         |              |
+|  |                  |    |   speculation/       |              |
+|  |  systemInstruction|   |   {pid}/{id}/        |              |
+|  |  + tools          |   |                      |              |
+|  |  + history prefix |   |  COW: first write    |              |
+|  |                  |    |  copies original     |              |
+|  \_--------------------    \_------------------------             |
+|           |                         |                         |
+|                                    |                         |
+|  +----------------------------------------------------------+--  |
+|  |  Speculative Loop (max 20 turns, 100 messages)          |  |
+|  |                                                         |  |
+|  |  Model response                                         |  |
+|  |       |                                                 |  |
+|  |                                                        |  |
+|  |  +----------------------------------------------------+--   |  |
+|  |  |  speculationToolGate                             |   |  |
+|  |  |                                                  |   |  |
+|  |  |  Read/Grep/Glob/LS/LSP -> allow (+ overlay read) |   |  |
+|  |  |  Edit/WriteFile -> redirect to overlay            |   |  |
+|  |  |    (only in auto-edit/yolo mode)                 |   |  |
+|  |  |  Shell -> AST check read-only? allow : boundary   |   |  |
+|  |  |  WebFetch/WebSearch -> boundary                   |   |  |
+|  |  |  Agent/Skill/Memory/Ask -> boundary               |   |  |
+|  |  |  Unknown/MCP -> boundary                          |   |  |
+|  |  \_-----------------------------------------------------   |  |
+|  |       |                                                 |  |
+|  |                                                        |  |
+|  |  Tool execution: toolRegistry.getTool -> build -> execute |  |
+|  |  (bypasses CoreToolScheduler -- gated by toolGate)       |  |
+|  |                                                         |  |
+|  \_------------------------------------------------------------  |
+|                                                              |
+|  On completion -> generatePipelinedSuggestion()               |
+\_-----------------------------------------------------------------
+           |
+           |  User presses Tab / Enter
+           
+     +----- status === 'completed'? ---+--
+     | YES                      NO (boundary) |
+                                     
++---------------------------+--  +--------------------------+--
+|  acceptSpeculation()    |  |  Discard speculation    |
+|                         |  |  abort + cleanup        |
+|  1. applyToReal()       |  |  Submit query normally  |
+|  2. ensureToolPairing() |  |  (addMessage)           |
+|  3. addHistory()        |  \_---------------------------
+|  4. render tool_group   |
+|  5. cleanup overlay     |
+|  6. pipelined suggest   |
+\_----------------------------
+           |
+           |  User types instead
+           
++----------------------------------------------------------------+--
+|  abortSpeculation()                                          |
+|                                                              |
+|  1. abortController.abort() -- cancel LLM call               |
+|  2. overlayFs.cleanup() -- delete temp directory              |
+|  3. Update speculation state (no telemetry on abort)         |
+\_-----------------------------------------------------------------
 ```
 
 ## Copy-on-Write Overlay
@@ -87,19 +87,19 @@ Real CWD: /home/user/project/
 Overlay:  /tmp/qwen-speculation/12345/a1b2c3d4/
 
 Write to src/app.ts:
-  1. Copy /home/user/project/src/app.ts → overlay/src/app.ts (first time only)
+  1. Copy /home/user/project/src/app.ts -> overlay/src/app.ts (first time only)
   2. Tool writes to overlay/src/app.ts
 
 Read from src/app.ts:
-  - If in writtenFiles → read from overlay/src/app.ts
-  - Otherwise → read from /home/user/project/src/app.ts
+  - If in writtenFiles -> read from overlay/src/app.ts
+  - Otherwise -> read from /home/user/project/src/app.ts
 
 New file (src/new.ts):
   - Create overlay/src/new.ts directly (no original to copy)
 
 Accept:
-  - copyFile(overlay/src/app.ts → /home/user/project/src/app.ts)
-  - copyFile(overlay/src/new.ts → /home/user/project/src/new.ts)
+  - copyFile(overlay/src/app.ts -> /home/user/project/src/app.ts)
+  - copyFile(overlay/src/new.ts -> /home/user/project/src/new.ts)
   - rm -rf overlay/
 
 Abort:
@@ -140,9 +140,9 @@ After speculation completes (no boundary), a second LLM call generates the **nex
 
 ```
 Context: original conversation + "commit this" + speculated messages
-→ LLM predicts: "push it"
-→ Stored in state.pipelinedSuggestion
-→ On accept: setPromptSuggestion("push it") — appears instantly
+-> LLM predicts: "push it"
+-> Stored in state.pipelinedSuggestion
+-> On accept: setPromptSuggestion("push it") -- appears instantly
 ```
 
 This enables Tab-Tab-Tab workflows where each acceptance immediately shows the next step.
@@ -179,7 +179,7 @@ interface CacheSafeParams {
 - Saved after each successful main turn in `GeminiClient.sendMessageStream()`
 - Cleared on `startChat()` / `resetChat()` to prevent cross-session leakage
 - History truncated to 40 entries; `createForkedChat` uses shallow copies (params are already deep-cloned snapshots)
-- Thinking mode explicitly disabled (`thinkingConfig: { includeThoughts: false }`) — reasoning tokens are not needed for speculation and would waste cost/latency. This does not affect cache prefix matching (determined by systemInstruction + tools + history only)
+- Thinking mode explicitly disabled (`thinkingConfig: { includeThoughts: false }`) -- reasoning tokens are not needed for speculation and would waste cost/latency. This does not affect cache prefix matching (determined by systemInstruction + tools + history only)
 - Version detection via `JSON.stringify` comparison of systemInstruction + tools
 
 ### Cache Mechanism
@@ -205,11 +205,11 @@ The forked `GeminiChat` uses identical `generationConfig` (including tools) and 
 
 ```
 packages/core/src/followup/
-├── followupState.ts          # Framework-agnostic state controller
-├── suggestionGenerator.ts    # LLM-based suggestion generation + 12 filter rules
-├── forkedQuery.ts            # Cache-aware forked query infrastructure
-├── overlayFs.ts              # Copy-on-write overlay filesystem
-├── speculationToolGate.ts    # Tool boundary enforcement
-├── speculation.ts            # Speculation engine (start/accept/abort)
-└── index.ts                  # Module exports
+|---- followupState.ts          # Framework-agnostic state controller
+|---- suggestionGenerator.ts    # LLM-based suggestion generation + 12 filter rules
+|---- forkedQuery.ts            # Cache-aware forked query infrastructure
+|---- overlayFs.ts              # Copy-on-write overlay filesystem
+|---- speculationToolGate.ts    # Tool boundary enforcement
+|---- speculation.ts            # Speculation engine (start/accept/abort)
+\_-- index.ts                  # Module exports
 ```

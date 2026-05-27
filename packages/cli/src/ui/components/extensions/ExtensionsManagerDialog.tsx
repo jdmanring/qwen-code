@@ -368,7 +368,7 @@ export function ExtensionsManagerDialog({
         if (extensions.length === 0 || successMessage) {
           return t('Esc to close');
         }
-        return t('↑↓ to navigate · Enter to select · Esc to close');
+        return t(' to navigate  Enter to select  Esc to close');
       }
 
       if (currentStep === MANAGEMENT_STEPS.EXTENSION_DETAIL) {
@@ -376,14 +376,14 @@ export function ExtensionsManagerDialog({
       }
 
       if (currentStep === MANAGEMENT_STEPS.UNINSTALL_CONFIRMATION) {
-        return t('Y/Enter to confirm · N/Esc to cancel');
+        return t('Y/Enter to confirm  N/Esc to cancel');
       }
 
       if (currentStep === MANAGEMENT_STEPS.UPDATE_PROGRESS) {
         return updateInProgress ? t('Updating...') : '';
       }
 
-      return t('↑↓ to navigate · Enter to select · Esc to go back');
+      return t(' to navigate  Enter to select  Esc to go back');
     };
 
     return (

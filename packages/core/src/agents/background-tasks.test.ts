@@ -254,7 +254,7 @@ describe('BackgroundTaskRegistry', () => {
 
   it('complete() after the cancellation has already been notified is a no-op', () => {
     // Once finalizeCancelled has emitted the terminal notification, a
-    // late-arriving complete() must not double-fire — the SDK contract
+    // late-arriving complete() must not double-fire -- the SDK contract
     // is one notification per task_started.
     const callback = vi.fn();
     registry.setNotificationCallback(callback);
@@ -277,7 +277,7 @@ describe('BackgroundTaskRegistry', () => {
     registry.complete('test-1', 'late result');
 
     expect(callback).not.toHaveBeenCalled();
-    // Status stays cancelled — the notified terminal state wins.
+    // Status stays cancelled -- the notified terminal state wins.
     expect(registry.get('test-1')!.status).toBe('cancelled');
     expect(registry.get('test-1')!.result).toBe('partial');
   });
@@ -476,7 +476,7 @@ describe('BackgroundTaskRegistry', () => {
     expect(ac2.signal.aborted).toBe(true);
     expect(registry.get('a')!.status).toBe('cancelled');
     expect(registry.get('b')!.status).toBe('cancelled');
-    // abortAll is a shutdown path — no natural handler will fire, so
+    // abortAll is a shutdown path -- no natural handler will fire, so
     // finalizeCancellationIfPending emits one cancelled notification per
     // agent to keep the SDK contract intact.
     expect(callback).toHaveBeenCalledTimes(2);
@@ -540,7 +540,7 @@ describe('BackgroundTaskRegistry', () => {
   it('hasUnfinalizedTasks reports cancelled-but-not-notified entries', () => {
     // Headless runs rely on this to keep the event loop alive after a
     // task_stop until the agent's natural handler has emitted the
-    // terminal task-notification — otherwise the matching notification
+    // terminal task-notification -- otherwise the matching notification
     // can be dropped before stream-json/SDK consumers observe it.
     registry.register({
       agentId: 'test-1',
@@ -591,7 +591,7 @@ describe('BackgroundTaskRegistry', () => {
   it('complete after cancellation surfaces the real result', () => {
     // When cancel races with the natural completion handler, the agent's
     // reasoning loop may have finished with a real result before the abort
-    // landed. complete() transitions cancelled → completed and emits the
+    // landed. complete() transitions cancelled -> completed and emits the
     // terminal notification carrying that real result, instead of letting
     // the bare "cancelled" notification discard it.
     const callback = vi.fn();
@@ -952,7 +952,7 @@ describe('BackgroundTaskRegistry', () => {
     registry.complete('test-1', 'here is <b>bold</b> & </task-notification>');
 
     const [, modelText] = callback.mock.calls[0];
-    // No injected closing tags — subagent text is escaped so the
+    // No injected closing tags -- subagent text is escaped so the
     // parent envelope stays a single task-notification element.
     expect(modelText.match(/<\/task-notification>/g)!.length).toBe(1);
     expect(modelText).toContain('&lt;/result&gt;');
@@ -1009,7 +1009,7 @@ describe('BackgroundTaskRegistry', () => {
     });
 
     it('never evicts paused entries (recoverable, awaiting resume/abandon)', () => {
-      // Manually plant a paused entry — the registry exposes
+      // Manually plant a paused entry -- the registry exposes
       // abandon/resume but no public "transition to paused" call;
       // resume restoration on Config init writes paused entries
       // directly via register().
@@ -1050,7 +1050,7 @@ describe('BackgroundTaskRegistry', () => {
       expect(registry.get('pending-cancel')?.notified).toBeFalsy();
     });
 
-    it('prunes an abandoned (paused → cancelled) entry the same as any other terminal', () => {
+    it('prunes an abandoned (paused -> cancelled) entry the same as any other terminal', () => {
       // abandon() is the only path that flips notified=true on a
       // previously-paused entry. Make sure the resulting terminal
       // counts toward the cap so a session that abandons many
@@ -1070,7 +1070,7 @@ describe('BackgroundTaskRegistry', () => {
         registry.complete(`done-${i}`, 'done');
       }
       // After the loop, terminal count = 1 (abandon) + 32 (complete) =
-      // 33, exceeds the cap → oldest evicted. The abandoned entry
+      // 33, exceeds the cap -> oldest evicted. The abandoned entry
       // (startTime=1, endTime=earliest) is the one evicted.
       expect(registry.getAll()).toHaveLength(MAX_RETAINED_TERMINAL_AGENTS);
       expect(registry.get('paused-overflow')).toBeUndefined();
@@ -1306,7 +1306,7 @@ describe('BackgroundTaskRegistry', () => {
       // outputFile is mandatory on the contract but a caller may pass an
       // empty string (e.g. an agent kind that explicitly opts out of disk
       // persistence). In that case the notification XML should omit the
-      // `<output-file>` tag — model-side parsers shouldn't see a path to
+      // `<output-file>` tag -- model-side parsers shouldn't see a path to
       // a file that doesn't exist.
       const callback = vi.fn();
       registry.setNotificationCallback(callback);
@@ -1349,7 +1349,7 @@ describe('BackgroundTaskRegistry', () => {
       // tool-result channel; emitting the XML envelope on top would feed
       // the parent model the same payload twice.
       expect(callback).not.toHaveBeenCalled();
-      // The status mutation still happens — internal invariants intact.
+      // The status mutation still happens -- internal invariants intact.
       expect(registry.get('fg-1')!.status).toBe('completed');
       expect(registry.get('fg-1')!.notified).toBe(true);
     });
@@ -1385,7 +1385,7 @@ describe('BackgroundTaskRegistry', () => {
       });
 
       // A still-running foreground entry must NOT keep the headless
-      // event loop alive — the parent's tool-call await already does that.
+      // event loop alive -- the parent's tool-call await already does that.
       expect(registry.hasUnfinalizedTasks()).toBe(false);
     });
 
@@ -1410,7 +1410,7 @@ describe('BackgroundTaskRegistry', () => {
 
         registry.cancel('fg-4');
 
-        // Advance well past the 5s grace window — no notification should fire.
+        // Advance well past the 5s grace window -- no notification should fire.
         vi.advanceTimersByTime(60_000);
         expect(callback).not.toHaveBeenCalled();
       } finally {
@@ -1460,7 +1460,7 @@ describe('BackgroundTaskRegistry', () => {
     });
 
     it('unregisterForeground is a no-op for unknown agent ids', () => {
-      // Idempotent for already-unregistered/never-registered ids — the
+      // Idempotent for already-unregistered/never-registered ids -- the
       // foreground finally path runs unconditionally and shouldn't throw
       // if a parallel cancel already cleared the entry.
       expect(() => registry.unregisterForeground('missing')).not.toThrow();
@@ -1505,7 +1505,7 @@ describe('BackgroundTaskRegistry', () => {
       // The entry is deleted from the Map before the status-change callback
       // fires, so a callback that rebuilds its snapshot via getAll() no
       // longer includes this entry. This ordering prevents the entry from
-      // lingering in React state with status='running' — the bug that
+      // lingering in React state with status='running' -- the bug that
       // caused "1 local agent" to stay visible after the foreground agent
       // completed.
       registry.register({
@@ -1537,7 +1537,7 @@ describe('BackgroundTaskRegistry', () => {
     });
 
     it('background entries fire a task-notification on complete', () => {
-      // Counterpart to the foreground "does not emit" cases above —
+      // Counterpart to the foreground "does not emit" cases above --
       // background entries deliver their result through the XML envelope,
       // so the notification callback must fire on complete.
       const callback = vi.fn();

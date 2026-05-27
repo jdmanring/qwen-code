@@ -107,7 +107,7 @@ describe('AnthropicContentGenerator', () => {
   });
 
   it('uses claude-cli identity (User-Agent + x-app + Bearer auth) for non-Anthropic baseURLs', async () => {
-    // Non-Anthropic-native baseURL → IdeaLab-style proxy path:
+    // Non-Anthropic-native baseURL -> IdeaLab-style proxy path:
     //  - User-Agent presents as `claude-cli/<version> (external, cli)`
     //  - `x-app: cli` is sent
     //  - SDK is constructed with `authToken` (sends `Authorization: Bearer`)
@@ -186,7 +186,7 @@ describe('AnthropicContentGenerator', () => {
 
   it('treats *.anthropic.com subdomains as Anthropic-native', async () => {
     // Anthropic's own subdomains (regional endpoints, internal routes) all
-    // share the native auth/identity contract — none of them want the
+    // share the native auth/identity contract -- none of them want the
     // proxy-flavored Bearer auth or claude-cli UA.
     const { AnthropicContentGenerator } = await importGenerator();
     void new AnthropicContentGenerator(
@@ -240,7 +240,7 @@ describe('AnthropicContentGenerator', () => {
     // The auth/identity gate uses an Anthropic-native allow-list rather
     // than an IdeaLab-only allow-list, so `api.deepseek.com/anthropic`
     // gets the same Bearer + claude-cli + x-app bundle that proxies get.
-    // This documents the assumption — if DeepSeek's anthropic-compatible
+    // This documents the assumption -- if DeepSeek's anthropic-compatible
     // endpoint ever rejects `Authorization: Bearer`, this test pins the
     // shape we'd need to flip back, and any future change here surfaces
     // the auth contract decision instead of silently flipping behavior.
@@ -269,7 +269,7 @@ describe('AnthropicContentGenerator', () => {
   it('trims whitespace on config.baseUrl before classification', async () => {
     // A copy-pasted baseURL with leading/trailing whitespace would
     // otherwise trip `new URL(...)` in `isAnthropicNativeBaseUrl` and
-    // fall through to proxy identity — meaning real api.anthropic.com
+    // fall through to proxy identity -- meaning real api.anthropic.com
     // gets Bearer auth + claude-cli UA and 401s. Trim the config side
     // before classification, mirroring how the env-side already
     // handles whitespace.
@@ -296,7 +296,7 @@ describe('AnthropicContentGenerator', () => {
 
   it('does not match spoofed anthropic.com.evil.com hostnames', async () => {
     // Mirror of the DeepSeek hostname-spoof test: a suffix like
-    // `anthropic.com.evil.com` must NOT be classified as Anthropic-native —
+    // `anthropic.com.evil.com` must NOT be classified as Anthropic-native --
     // otherwise an attacker controlling DNS could route real Anthropic
     // credentials with `x-api-key` to their endpoint.
     const { AnthropicContentGenerator } = await importGenerator();
@@ -323,10 +323,10 @@ describe('AnthropicContentGenerator', () => {
 
   // Regression coverage for #4020 review: the SDK destructures with
   // defaults (`apiKey = readEnv('ANTHROPIC_API_KEY') ?? null`), which only
-  // fire for `undefined`. Spreading `{ authToken }` alone — without an
-  // explicit `apiKey: null` — used to let the env back-fill `apiKey`, and
+  // fire for `undefined`. Spreading `{ authToken }` alone -- without an
+  // explicit `apiKey: null` -- used to let the env back-fill `apiKey`, and
   // the SDK's auth resolver then preferred `apiKey` over `authToken`, so a
-  // user with `ANTHROPIC_API_KEY=sk-ant-…` exported alongside an IdeaLab
+  // user with `ANTHROPIC_API_KEY=sk-ant-...` exported alongside an IdeaLab
   // proxy `baseUrl` shipped their real Anthropic key to the proxy as
   // `X-Api-Key`. These tests pin the explicit-null suppression on both
   // branches, plus the matching baseURL-env resolution.
@@ -407,7 +407,7 @@ describe('AnthropicContentGenerator', () => {
       // Symmetric concern: pre-fix, `isAnthropicNativeBaseUrl` only read
       // `config.baseUrl`, so a user who set ANTHROPIC_BASE_URL only via
       // env (leaving qwen-code's baseUrl unset) had the SDK route to the
-      // proxy while our predicate thought it was Anthropic-native — wrong
+      // proxy while our predicate thought it was Anthropic-native -- wrong
       // UA, wrong auth shape, and the cache-scope beta + scope:'global'
       // shipped to a proxy that likely doesn't recognize them.
       process.env['ANTHROPIC_BASE_URL'] = 'https://idealab.example/anthropic';
@@ -436,7 +436,7 @@ describe('AnthropicContentGenerator', () => {
 
     it('keeps Anthropic-native identity when ANTHROPIC_BASE_URL is unset (SDK default applies)', async () => {
       // With no config.baseUrl and no env, the SDK defaults to
-      // api.anthropic.com — our predicate must agree and ship the native
+      // api.anthropic.com -- our predicate must agree and ship the native
       // identity bundle (so the SDK default isn't silently misclassified
       // as a proxy).
       delete process.env['ANTHROPIC_BASE_URL'];
@@ -509,7 +509,7 @@ describe('AnthropicContentGenerator', () => {
 
     const headers = (anthropicState.constructorOptions?.['defaultHeaders'] ||
       {}) as Record<string, string>;
-    // Beta headers moved out of defaultHeaders — see PR #3788 review feedback.
+    // Beta headers moved out of defaultHeaders -- see PR #3788 review feedback.
     // Only User-Agent and customHeaders remain at construction time.
     expect(headers['User-Agent']).toContain('claude-cli/1.2.3');
     expect(headers['X-Custom']).toBe('1');
@@ -517,7 +517,7 @@ describe('AnthropicContentGenerator', () => {
   });
 
   // Per-request header behavior moved into the generateContent describe
-  // block below — see "anthropic-beta header" cases.
+  // block below -- see "anthropic-beta header" cases.
 
   // Per-request anthropic-beta is computed from the actual fields present
   // in the request body (rather than the constructor-time reasoning config),
@@ -541,8 +541,8 @@ describe('AnthropicContentGenerator', () => {
     };
 
     // Default request shape carries a systemInstruction so the converter
-    // attaches `cache_control: { …, scope: 'global' }` to the system text
-    // — that's what `buildPerRequestHeaders` scans to decide whether the
+    // attaches `cache_control: { ..., scope: 'global' }` to the system text
+    // -- that's what `buildPerRequestHeaders` scans to decide whether the
     // `prompt-caching-scope-2026-01-05` beta ships. Without a system or
     // tools the body has nothing to attach scope to, and the beta is
     // correctly suppressed (covered by a separate degenerate-case test
@@ -615,7 +615,7 @@ describe('AnthropicContentGenerator', () => {
 
     it('drops only the cache-scope beta when enableCacheControl is false but reasoning is on', async () => {
       // With reasoning enabled, `interleaved-thinking` (and `effort` when
-      // applicable) still ride the per-request header — only the cache-scope
+      // applicable) still ride the per-request header -- only the cache-scope
       // flag is gated off, since there's no cache_control on the body to
       // pair it with.
       const headers = await callOnce({
@@ -637,7 +637,7 @@ describe('AnthropicContentGenerator', () => {
       // in place. A constructor-time cache on the converter would let the
       // body-side `cache_control` and the per-request `prompt-caching-scope`
       // beta header drift apart on a hot flip. Verify all three downstream
-      // surfaces — system block, last user message, and last tool entry —
+      // surfaces -- system block, last user message, and last tool entry --
       // sample the same live value so the wire shape stays coherent.
       const { AnthropicContentGenerator } = await importGenerator();
       anthropicState.createImpl.mockResolvedValue({
@@ -701,7 +701,7 @@ describe('AnthropicContentGenerator', () => {
       config.enableCacheControl = false;
 
       // 2nd request: beta header dropped AND body cache_control gone on
-      // every surface, in lockstep — the converter must not be reading a
+      // every surface, in lockstep -- the converter must not be reading a
       // stale constructor value.
       await generator.generateContent(requestWithTool);
       [req, options] = anthropicState.lastCreateArgs as AnthropicCreateArgs;
@@ -724,8 +724,8 @@ describe('AnthropicContentGenerator', () => {
       // The beta gate is a body-scan over `req.system` / `req.tools` for
       // any `cache_control.scope === 'global'` entry, not a re-read of
       // the `useGlobalCacheScope()` predicate. So a request with no
-      // systemInstruction AND no tools — predicate true but no body
-      // surface to attach scope to — correctly omits the beta.
+      // systemInstruction AND no tools -- predicate true but no body
+      // surface to attach scope to -- correctly omits the beta.
       const { AnthropicContentGenerator } = await importGenerator();
       anthropicState.createImpl.mockResolvedValue({
         id: 'msg-1',
@@ -876,7 +876,7 @@ describe('AnthropicContentGenerator', () => {
       // The per-request path owns anthropic-beta. If we also copied a
       // mixed-case `Anthropic-Beta` from customHeaders into defaultHeaders,
       // the wire request would carry two physical headers for the same
-      // logical name — one mixed-case (verbatim from defaultHeaders) and one
+      // logical name -- one mixed-case (verbatim from defaultHeaders) and one
       // lowercase (from the per-request override). SDK behavior on duplicate
       // headers with different casings is undefined.
       const { AnthropicContentGenerator } = await importGenerator();
@@ -943,7 +943,7 @@ describe('AnthropicContentGenerator', () => {
 
     it('sends only prompt-caching-scope when per-request thinkingConfig.includeThoughts=false', async () => {
       // Even though the global reasoning config sets effort, the per-request
-      // opt-out drops both `thinking` and `output_config` from the body — and
+      // opt-out drops both `thinking` and `output_config` from the body -- and
       // the thinking/effort beta flags must not be present.
       const headers = await callOnce(
         { ...baseConfig, reasoning: { effort: 'medium' } },
@@ -954,7 +954,7 @@ describe('AnthropicContentGenerator', () => {
 
     it('keeps customHeaders + User-Agent in defaultHeaders while sending computed anthropic-beta per-request', async () => {
       // The per-request override must NOT replace existing defaultHeaders
-      // (User-Agent and unrelated customHeaders entries) — it should only
+      // (User-Agent and unrelated customHeaders entries) -- it should only
       // contribute the computed `anthropic-beta` flags. Defends against a
       // future regression where headers might be set via a path that wipes
       // out the constructor-time defaults.
@@ -976,7 +976,7 @@ describe('AnthropicContentGenerator', () => {
         model: 'models/ignored',
         contents: 'Hi',
         // Include a system instruction so the converter attaches
-        // `cache_control: { …, scope: 'global' }` on the system block —
+        // `cache_control: { ..., scope: 'global' }` on the system block --
         // the beta-header builder body-scans for that field, so a
         // realistic request shape is needed to observe the
         // `prompt-caching-scope-2026-01-05` beta.
@@ -985,7 +985,7 @@ describe('AnthropicContentGenerator', () => {
 
       // defaultHeaders carries User-Agent and customHeaders (not beta).
       // baseConfig now targets api.anthropic.com, so this asserts the
-      // Anthropic-native UA (QwenCode) — the claude-cli identity bundle
+      // Anthropic-native UA (QwenCode) -- the claude-cli identity bundle
       // is covered by the proxy-baseURL tests at the top of the suite.
       const defaultHeaders = (anthropicState.constructorOptions?.[
         'defaultHeaders'
@@ -1027,7 +1027,7 @@ describe('AnthropicContentGenerator', () => {
         model: 'models/ignored',
         contents: 'Hi',
         // See the systemInstruction note in the non-streaming sibling
-        // test above — the body-scan beta gate needs an actual scope:
+        // test above -- the body-scan beta gate needs an actual scope:
         // 'global' field on the wire to fire.
         config: { systemInstruction: 'sys' },
       } as unknown as GenerateContentParameters);
@@ -1172,7 +1172,7 @@ describe('AnthropicContentGenerator', () => {
           apiKey: 'test-key',
           // The clamp decision uses hostname only, so a DeepSeek-shaped
           // baseURL is required for `'max'` to pass through (model-name
-          // alone won't bypass the clamp — that would let "deepseek-clone"
+          // alone won't bypass the clamp -- that would let "deepseek-clone"
           // routed to api.anthropic.com sneak past it).
           baseUrl: 'https://api.deepseek.com/anthropic',
           timeout: 10_000,
@@ -1286,8 +1286,8 @@ describe('AnthropicContentGenerator', () => {
       // effort-based ladder unconditionally, including the 'max' clamp.
       // So `{ effort: 'max', budget_tokens: 128_000 }` against real
       // api.anthropic.com lands as `output_config.effort: 'high'`
-      // (clamped — the effort enum would otherwise 400) but
-      // `thinking.budget_tokens: 128_000` (preserved verbatim — the
+      // (clamped -- the effort enum would otherwise 400) but
+      // `thinking.budget_tokens: 128_000` (preserved verbatim -- the
       // server accepts any int within the model's context window).
       const { AnthropicContentGenerator } = await importGenerator();
       anthropicState.createImpl.mockResolvedValue({
@@ -1402,7 +1402,7 @@ describe('AnthropicContentGenerator', () => {
       });
 
       it('honors explicit reasoning.budget_tokens before falling back to adaptive', async () => {
-        // Explicit budget_tokens is a user escape hatch — adaptive thinking
+        // Explicit budget_tokens is a user escape hatch -- adaptive thinking
         // would otherwise silently drop the user-supplied value because the
         // adaptive shape carries no budget field. The explicit branch must
         // run first.
@@ -1440,7 +1440,7 @@ describe('AnthropicContentGenerator', () => {
             maxRetries: 2,
             samplingParams: { max_tokens: 500 },
             schemaCompliance: 'auto',
-            // No `reasoning` key at all — different from `reasoning: false`.
+            // No `reasoning` key at all -- different from `reasoning: false`.
           },
           mockConfig,
         );
@@ -1448,7 +1448,7 @@ describe('AnthropicContentGenerator', () => {
           model: 'models/ignored',
           contents: 'Hello',
           // Include systemInstruction so the body carries a
-          // `cache_control: { scope: 'global' }` field — the beta gate
+          // `cache_control: { scope: 'global' }` field -- the beta gate
           // is now a body-scan, so the test needs an actual scope field
           // on the wire to observe the `prompt-caching-scope` flag.
           config: { systemInstruction: 'sys' },
@@ -1673,12 +1673,12 @@ describe('AnthropicContentGenerator', () => {
     });
   });
 
-  // https://github.com/QwenLM/qwen-code/issues/3786 — DeepSeek's
+  // https://github.com/QwenLM/qwen-code/issues/3786 -- DeepSeek's
   // anthropic-compatible API rejects requests in thinking mode when a prior
   // assistant turn carrying `tool_use` omits a thinking block. Plain-text
   // assistant turns without thinking are accepted unchanged.
   describe('DeepSeek anthropic-compatible provider', () => {
-    // Helper: tool-use assistant turn missing thinking — the only shape that
+    // Helper: tool-use assistant turn missing thinking -- the only shape that
     // actually triggers DeepSeek's HTTP 400.
     const toolUseConversation = [
       { role: 'user' as const, parts: [{ text: 'Run tool' }] },
@@ -1886,7 +1886,7 @@ describe('AnthropicContentGenerator', () => {
         anthropicState.lastCreateArgs as AnthropicCreateArgs;
       const messages = (anthropicRequest as { messages: unknown[] }).messages;
 
-      // Hostname differs from api.deepseek.com — must not inject even on
+      // Hostname differs from api.deepseek.com -- must not inject even on
       // tool_use turns.
       expect(messages[1]).toEqual(toolOnlyAssistant);
     });
@@ -1936,7 +1936,7 @@ describe('AnthropicContentGenerator', () => {
       // suggestionGenerator / forkedAgent path: the top-level `thinking`
       // parameter is dropped, but the session history may still carry
       // `thought: true` parts that the converter would otherwise replay as
-      // thinking blocks — same protocol mismatch the gate is meant to avoid.
+      // thinking blocks -- same protocol mismatch the gate is meant to avoid.
       const { AnthropicContentGenerator } = await importGenerator();
       anthropicState.createImpl.mockResolvedValue({
         id: 'msg-1',
@@ -1980,7 +1980,7 @@ describe('AnthropicContentGenerator', () => {
       expect(anthropicRequest).toEqual(
         expect.not.objectContaining({ thinking: expect.anything() }),
       );
-      // Existing thinking block dropped — no protocol mismatch.
+      // Existing thinking block dropped -- no protocol mismatch.
       expect(messages[1]).toEqual({
         role: 'assistant',
         content: [{ type: 'text', text: 'Hello!' }],
@@ -2011,7 +2011,7 @@ describe('AnthropicContentGenerator', () => {
 
       const generator = new AnthropicContentGenerator(config, mockConfig);
 
-      // Initial model isn't DeepSeek — no injection.
+      // Initial model isn't DeepSeek -- no injection.
       await generator.generateContent({
         model: 'models/ignored',
         contents: toolUseConversation,
@@ -2044,7 +2044,7 @@ describe('AnthropicContentGenerator', () => {
       // Same concern as above but for the per-request override used by
       // suggestionGenerator / forkedAgent / ArenaManager. Both the top-level
       // `thinking` field AND the reasoning-shaped `output_config` must be
-      // suppressed — leaving either behind reintroduces the protocol
+      // suppressed -- leaving either behind reintroduces the protocol
       // mismatch this gate is designed to avoid.
       const { AnthropicContentGenerator } = await importGenerator();
       anthropicState.createImpl.mockResolvedValue({
@@ -2334,7 +2334,7 @@ describe('AnthropicContentGenerator', () => {
       expect(last.candidates?.[0]?.finishReason).toBe(FinishReason.STOP);
       expect(last.usageMetadata).toEqual({
         cachedContentTokenCount: 7,
-        promptTokenCount: 9, // input(2) + cached(7) — Anthropic-true (input < cache_read)
+        promptTokenCount: 9, // input(2) + cached(7) -- Anthropic-true (input < cache_read)
         candidatesTokenCount: 5,
         totalTokenCount: 14,
       });
@@ -2346,7 +2346,7 @@ describe('AnthropicContentGenerator', () => {
       // (cache_creation), and the fresh tail (input). The streaming
       // accumulator must hold onto cache_creation alongside the other
       // buckets so the final chunk's usageMetadata reflects the full
-      // prompt size — otherwise the cache_creation portion is silently
+      // prompt size -- otherwise the cache_creation portion is silently
       // dropped from the displayed total and the Footer under-reports by
       // exactly that many tokens.
       const { AnthropicContentGenerator } = await importGenerator();

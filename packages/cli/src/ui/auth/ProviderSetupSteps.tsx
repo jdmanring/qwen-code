@@ -23,7 +23,7 @@ import type { ProviderSetupFlow } from './useProviderSetupFlow.js';
 const NAV_HINT_SELECT = () => (
   <Box marginTop={1}>
     <Text color={theme?.text?.secondary}>
-      {t('Enter to select, ↑↓ to navigate, Esc to go back')}
+      {t('Enter to select,  to navigate, Esc to go back')}
     </Text>
   </Box>
 );
@@ -233,8 +233,8 @@ function AdvancedConfigStep({
     modalityPdf,
     contextWindowSize,
   } = flow.state;
-  const checkmark = (v: boolean) => (v ? '◉' : '○');
-  const cursor = (index: number) => (focusedConfigIndex === index ? '›' : ' ');
+  const checkmark = (v: boolean) => (v ? '' : '');
+  const cursor = (index: number) => (focusedConfigIndex === index ? '' : ' ');
 
   const ctxIdx = modalityEnabled ? 6 : 2;
 
@@ -318,7 +318,7 @@ function AdvancedConfigStep({
       <Box marginTop={1}>
         <Text color={theme.text.secondary}>
           {t(
-            '↑↓ to navigate, Space to toggle, Enter to continue, Esc to go back',
+            ' to navigate, Space to toggle, Enter to continue, Esc to go back',
           )}
         </Text>
       </Box>
@@ -396,8 +396,8 @@ export function ProviderSetupSteps({
     (key) => {
       if (step === 'advancedConfig') {
         // The context-window row has an embedded TextInput that's conditionally
-        // active. Restrict the focus-row navigation to unambiguous shortcuts —
-        // arrow keys and the readline-style Ctrl+P/Ctrl+N — so typing a letter
+        // active. Restrict the focus-row navigation to unambiguous shortcuts --
+        // arrow keys and the readline-style Ctrl+P/Ctrl+N -- so typing a letter
         // into the context-window field never simultaneously moves the focus.
         const isFocusUp = key.name === 'up' || (key.ctrl && key.name === 'p');
         const isFocusDown =

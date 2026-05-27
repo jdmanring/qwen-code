@@ -70,7 +70,7 @@ describe('buildClassifierContents', () => {
       toolName: 'read_file',
       toolParams: { path: 'b.ts' },
     });
-    // No turn should carry the 'model' role — historical functionCalls are
+    // No turn should carry the 'model' role -- historical functionCalls are
     // rendered as user-role text turns so the request is converter-agnostic.
     expect(result.every((c) => c.role === 'user')).toBe(true);
     // The injection attempt in the model text must not survive.
@@ -184,7 +184,7 @@ describe('buildClassifierContents', () => {
       toolParams: { todos: ['x'] },
     });
     const priorText = (result[0].parts?.[0] as { text: string }).text;
-    // Empty-string sentinel → empty projected args; the underlying todo
+    // Empty-string sentinel -> empty projected args; the underlying todo
     // contents must not appear in the transcript.
     expect(priorText).toContain('todo_write({})');
     expect(priorText).not.toContain('secret task');
@@ -318,12 +318,12 @@ describe('buildClassifierContents', () => {
     expect(serialized).toContain('Prior action: run_shell_command');
   });
 
-  // ─── MAX_TRANSCRIPT_MESSAGES truncation ─────────────────────────────
+  // --- MAX_TRANSCRIPT_MESSAGES truncation -----------------------------
   // Security-relevant: without truncation, a long session's transcript
   // can overflow the fast model's context window, fail-close the
   // classifier, and trigger denialTracking. The constant is exported
   // so scheduler + Session can request exactly this slice from
-  // GeminiClient.getHistoryTail — verify the truncation actually fires
+  // GeminiClient.getHistoryTail -- verify the truncation actually fires
   // when the input exceeds the window.
 
   it('exports MAX_TRANSCRIPT_MESSAGES so callers can size getHistoryTail correctly', () => {
@@ -345,7 +345,7 @@ describe('buildClassifierContents', () => {
       toolParams: { path: 'x.ts' },
     });
     const serialized = JSON.stringify(result);
-    // The oldest message must NOT appear — got dropped by truncation.
+    // The oldest message must NOT appear -- got dropped by truncation.
     expect(serialized).not.toContain('"msg-0"');
     // Earliest retained message is at index N (where 2N is total input).
     expect(serialized).toContain(`"msg-${MAX_TRANSCRIPT_MESSAGES}"`);

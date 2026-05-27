@@ -102,7 +102,7 @@ export const DefaultAppLayout: React.FC = () => {
             )}
             <ExitWarning />
             {/*
-              LiveAgentPanel — always-on roster of running subagents,
+              LiveAgentPanel -- always-on roster of running subagents,
               anchored beneath the input footer (mirrors Claude Code's
               CoordinatorAgentStatus position). Hidden whenever any
               dialog is open (auth / permission / background tasks /
@@ -112,15 +112,15 @@ export const DefaultAppLayout: React.FC = () => {
 
               The panel renders INSIDE `mainControlsRef` so its rows
               are picked up by `measureElement` in `AppContainer`'s
-              `controlsHeight` useLayoutEffect — `availableTerminalHeight`
+              `controlsHeight` useLayoutEffect -- `availableTerminalHeight`
               then subtracts the panel's footprint and pending history
               items in MainContent stop racing it for screen real
               estate. (Pre-fix: the panel rendered outside the ref,
               long Read/Bash output could push the composer + panel
-              off-screen — a regression vs PR #3768 which suppressed
+              off-screen -- a regression vs PR #3768 which suppressed
               the inline frame in the live phase.)
 
-              Panel uses `terminalWidth`, not `mainAreaWidth` —
+              Panel uses `terminalWidth`, not `mainAreaWidth` --
               `mainAreaWidth` is hard-capped at 100 cols (intended
               for markdown / code blocks where soft-wrap matters);
               live progress lines have nothing to soft-wrap, so the

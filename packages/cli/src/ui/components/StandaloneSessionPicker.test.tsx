@@ -495,7 +495,7 @@ describe('SessionPicker', () => {
       // `listSessions()` now omits `messageCount` for perf, so this is the
       // default production shape. Pin the row's render contract: time and
       // branch still show, and the line must not contain a stray "messages"
-      // word, the literal "undefined", or a dangling " · " from the missing
+      // word, the literal "undefined", or a dangling "  " from the missing
       // count segment.
       const sessions = [
         createMockSession({
@@ -529,7 +529,7 @@ describe('SessionPicker', () => {
       // the row's metadata line (the one with the gitBranch) and check it.
       const metaLine =
         output.split('\n').find((l) => l.includes('feature-branch')) ?? '';
-      expect(metaLine).not.toMatch(/·\s*·/);
+      expect(metaLine).not.toMatch(/\s*/);
     });
 
     it('should show header and footer', async () => {
@@ -552,7 +552,7 @@ describe('SessionPicker', () => {
 
       const output = lastFrame();
       expect(output).toContain('Resume Session');
-      expect(output).toContain('↑↓ to navigate');
+      expect(output).toContain(' to navigate');
       expect(output).toContain('Esc to cancel');
       // The default footer points the user at typing to start a search.
       expect(output).toContain('Type to search');
@@ -763,7 +763,7 @@ describe('SessionPicker', () => {
     it('renders tool_group items without crashing (stub Providers mounted)', async () => {
       // The previewed session contains a function call + tool_result, which
       // produces a `tool_group` HistoryItem that exercises ToolGroupMessage
-      // and ToolMessage — the places that throw without stub Providers.
+      // and ToolMessage -- the places that throw without stub Providers.
       const toolSession = {
         conversation: {
           sessionId: 's1',
@@ -845,7 +845,7 @@ describe('SessionPicker', () => {
         await service.listSessions.mock.results[0]!.value;
       });
       act(() => {
-        stdin.write(' '); // Space → preview in list mode
+        stdin.write(' '); // Space -> preview in list mode
       });
       const loadSessionPromise = service.loadSession.mock.results[0]!
         .value as Promise<typeof toolSession>;
@@ -893,7 +893,7 @@ describe('SessionPicker', () => {
     it('without enablePreview, Space is a no-op and footer omits the hint', async () => {
       // Regression: SessionPicker is also reused by the delete-session
       // dialog, where `onSelect = handleDelete`. If preview were on by
-      // default, Space → preview → Enter would silently delete the session
+      // default, Space -> preview -> Enter would silently delete the session
       // while the preview UI still says "Enter to resume". The default must
       // stay opt-in.
       const sessions = [
@@ -912,7 +912,7 @@ describe('SessionPicker', () => {
           sessionService={service as never}
           onSelect={onSelect}
           onCancel={vi.fn()}
-          // intentionally NO enablePreview — emulates the delete dialog
+          // intentionally NO enablePreview -- emulates the delete dialog
         />,
       );
 
@@ -923,7 +923,7 @@ describe('SessionPicker', () => {
       // Space in destructive flows.
       expect(beforeFrame).not.toContain('Space to preview');
 
-      stdin.write(' '); // Space — no-op when preview is disabled
+      stdin.write(' '); // Space -- no-op when preview is disabled
       await flush();
       const afterFrame = lastFrame() ?? '';
       // No preview body, still on the list.

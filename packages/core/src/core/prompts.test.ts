@@ -496,7 +496,7 @@ describe('buildDeferredToolsSection', () => {
       },
     ]);
 
-    // Both name and description are wrapped as JSON string literals —
+    // Both name and description are wrapped as JSON string literals --
     // quotes and backslashes are escaped, surrounding double-quotes
     // mark them as data. No inline-code span is opened.
     expect(section).toContain(
@@ -519,7 +519,7 @@ describe('buildDeferredToolsSection', () => {
   it('renders names as JSON strings so embedded backticks cannot reopen code spans', () => {
     // Markdown inline-code spans don't honor backslash escapes, so the
     // earlier `\`${escape(name)}\`` form did NOT actually neutralize an
-    // embedded backtick — the closing backtick still terminated the
+    // embedded backtick -- the closing backtick still terminated the
     // code span (CodeQL flagged this as incomplete escaping). Render
     // the name via JSON.stringify instead: the entire string is a
     // quoted literal, so any embedded backtick is a plain character
@@ -563,10 +563,10 @@ describe('buildDeferredToolsSection', () => {
       { name: 'tool', description: longDesc },
     ]);
 
-    // Truncated to 159 chars + ellipsis, then JSON-encoded — the encoded
+    // Truncated to 159 chars + ellipsis, then JSON-encoded -- the encoded
     // form should NOT contain 500 raw 'x' characters.
     expect(section).not.toContain('x'.repeat(200));
-    expect(section).toContain('…');
+    expect(section).toContain('...');
   });
 });
 

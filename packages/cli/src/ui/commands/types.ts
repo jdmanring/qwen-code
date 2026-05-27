@@ -160,7 +160,7 @@ export interface OpenDialogActionReturn {
   /** Pre-filtered sessions for the picker (e.g., multiple title matches from /resume <title>). */
   matchedSessions?: SessionListItem[];
 
-  /** Optional session name for /branch — passed through to handleBranch. */
+  /** Optional session name for /branch -- passed through to handleBranch. */
   name?: string;
 
   dialog:
@@ -310,7 +310,7 @@ export interface SlashCommand {
   // Optional metadata for extension commands
   extensionName?: string;
 
-  // ── Phase 1: source & execution type ──────────────────────────────────
+  // -- Phase 1: source & execution type ----------------------------------
   /**
    * The source of this command. Set by the Loader, not by the command itself.
    * Will replace CommandKind as the canonical source identifier in a future phase.
@@ -319,11 +319,11 @@ export interface SlashCommand {
 
   /**
    * Human-readable source label for display in Help, completion badges, etc.
-   * - builtin-command → "Built-in"
-   * - bundled-skill   → "Skill"
-   * - skill-dir-command → "Custom"
-   * - plugin-command  → "Plugin: <extensionName>"
-   * - mcp-prompt      → "MCP: <serverName>"
+   * - builtin-command -> "Built-in"
+   * - bundled-skill   -> "Skill"
+   * - skill-dir-command -> "Custom"
+   * - plugin-command  -> "Plugin: <extensionName>"
+   * - mcp-prompt      -> "MCP: <serverName>"
    * Set by the Loader; may be overridden by the command itself.
    */
   sourceLabel?: string;
@@ -334,7 +334,7 @@ export interface SlashCommand {
    */
   sourceDetail?: CommandSourceDetail;
 
-  // ── Phase 1: mode capability ───────────────────────────────────────────
+  // -- Phase 1: mode capability -------------------------------------------
   /**
    * Which execution modes this command is available in.
    * Explicit declaration is always authoritative. If omitted, the system falls
@@ -343,7 +343,7 @@ export interface SlashCommand {
    */
   supportedModes?: ExecutionMode[];
 
-  // ── Phase 1: visibility ────────────────────────────────────────────────
+  // -- Phase 1: visibility ------------------------------------------------
   /**
    * Whether users can invoke this command via a slash command.
    * Defaults to true for all commands.
@@ -357,7 +357,7 @@ export interface SlashCommand {
    */
   modelInvocable?: boolean;
 
-  // ── Phase 3 reserved: UX metadata (defined now, unused until Phase 3) ─
+  // -- Phase 3 reserved: UX metadata (defined now, unused until Phase 3) -
   /**
    * Argument hint shown after the command name in the completion menu.
    * Example: "<model-id>" / "show|list|set <id>"
@@ -371,7 +371,7 @@ export interface SlashCommand {
   acceptsInput?: boolean;
 
   /**
-   * Describes when to use this command — injected into the model-visible
+   * Describes when to use this command -- injected into the model-visible
    * description for modelInvocable commands.
    */
   whenToUse?: string;

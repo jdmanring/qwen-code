@@ -69,14 +69,14 @@ The installer transforms the monorepo Blueprint into a standalone **Runtime Stac
 
 After install, two files need to be filled in before running the stack:
 
-**`~/.config/megalonyx/.env`** — API keys and runtime paths for the Python stack:
-- `QDRANT_LOCAL_URL` — default `http://localhost:6333`, change if Qdrant is remote
-- `QDRANT_CLOUD_URL` and `QDRANT_API_KEY` — only if using Qdrant Cloud
-- `GEMINI_API_KEY` — for Google Gemini embeddings
-- `OPENAI_API_KEY` — for OpenAI-compatible LLM providers
-- `GITHUB_TOKEN` — for GitHub Models / Copilot
+**`~/.config/megalonyx/.env`** -- API keys and runtime paths for the Python stack:
+- `QDRANT_LOCAL_URL` -- default `http://localhost:6333`, change if Qdrant is remote
+- `QDRANT_CLOUD_URL` and `QDRANT_API_KEY` -- only if using Qdrant Cloud
+- `GEMINI_API_KEY` -- for Google Gemini embeddings
+- `OPENAI_API_KEY` -- for OpenAI-compatible LLM providers
+- `GITHUB_TOKEN` -- for GitHub Models / Copilot
 
-**`~/.config/qwen/settings.json`** — Qwen Code CLI config: model provider selection, MCP servers. Review the providers section and set your preferred LLM backend.
+**`~/.config/qwen/settings.json`** -- Qwen Code CLI config: model provider selection, MCP servers. Review the providers section and set your preferred LLM backend.
 
 ---
 
@@ -133,4 +133,4 @@ npm run build --prefix packages/core
 npm run build --prefix packages/cli
 ```
 
-No reinstall needed — the wrapper picks up the new build automatically.
+No reinstall needed -- the wrapper picks up the new build automatically.

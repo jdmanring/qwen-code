@@ -131,7 +131,7 @@ function createMemoryScopedAgentConfig(
     },
     async isToolEnabled(toolName: string): Promise<boolean> {
       // Registry-level check: is this tool type allowed at all?
-      // Scoped tools (SHELL/EDIT/WRITE_FILE) are enabled — per-invocation
+      // Scoped tools (SHELL/EDIT/WRITE_FILE) are enabled -- per-invocation
       // restrictions are enforced in evaluate().
       if (isScopedTool(toolName)) {
         return true;
@@ -213,7 +213,7 @@ function truncate(text: string, maxChars: number): string {
   if (normalized.length <= maxChars) {
     return normalized;
   }
-  return `${normalized.slice(0, maxChars).trimEnd()}…`;
+  return `${normalized.slice(0, maxChars).trimEnd()}...`;
 }
 
 async function buildTopicSummaryBlock(projectRoot: string): Promise<string> {
@@ -228,7 +228,7 @@ async function buildTopicSummaryBlock(projectRoot: string): Promise<string> {
         MAX_TOPIC_SUMMARY_CHARS,
       );
       return [
-        `- [${doc.title}](${doc.relativePath}) — ${doc.description || '(no description)'}`,
+        `- [${doc.title}](${doc.relativePath}) -- ${doc.description || '(no description)'}`,
         `  topic=${doc.type}`,
         `  path=${doc.filePath}`,
         `  current=${body || '(empty)'}`,
@@ -253,8 +253,8 @@ function buildTaskPrompt(memoryRoot: string, topicSummaries: string): string {
     '',
     '## How to save memories',
     '',
-    '**Step 1** — write or update the memory file itself using the required frontmatter format.',
-    `**Step 2** — update \`${memoryRoot}/${AUTO_MEMORY_INDEX_FILENAME}\`. It is an index, not a memory: each entry must be one line in the form \`- [Title](relative/path.md) — one-line hook\`. Never write memory content directly into the index.`,
+    '**Step 1** -- write or update the memory file itself using the required frontmatter format.',
+    `**Step 2** -- update \`${memoryRoot}/${AUTO_MEMORY_INDEX_FILENAME}\`. It is an index, not a memory: each entry must be one line in the form \`- [Title](relative/path.md) -- one-line hook\`. Never write memory content directly into the index.`,
     '- If you create or delete a memory file, also update the managed memory index.',
     '- If nothing durable should be saved, make no file changes.',
     '',

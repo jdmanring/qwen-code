@@ -175,7 +175,7 @@ export function useDeleteCommand(
           .join(', ');
         const overflow = failedCount > 3 ? `, +${failedCount - 3} more` : '';
         const firstError = result.errors[0]?.error.message;
-        const reason = firstError ? ` — ${firstError}` : '';
+        const reason = firstError ? ` -- ${firstError}` : '';
 
         if (removedCount > 0 && failedCount === 0) {
           addItem?.(

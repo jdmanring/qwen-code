@@ -105,7 +105,7 @@ describe('SendMessageTool', () => {
   });
 
   it('rejects messages for a cancelled task', async () => {
-    // Once task_stop fires, the reasoning loop is winding down — there is
+    // Once task_stop fires, the reasoning loop is winding down -- there is
     // no next tool-round boundary to drain into, so the message would be
     // silently dropped. Reject instead of accepting a message that will
     // never be delivered.

@@ -43,7 +43,7 @@ describe('findProjectRoot', () => {
   it('returns the project root when .git is a FILE (git worktree / submodule layout)', async () => {
     // Git worktrees and submodules mark the repo root with a `.git` file
     // containing `gitdir: <path>`. The old implementation only checked
-    // `stats.isDirectory()` and silently returned null here — the bug
+    // `stats.isDirectory()` and silently returned null here -- the bug
     // that prompted the extraction.
     await fsPromises.writeFile(
       path.join(projectRoot, '.git'),
@@ -55,7 +55,7 @@ describe('findProjectRoot', () => {
   });
 
   it('returns null when no .git ancestor exists', async () => {
-    // No .git anywhere — neither directory nor file.
+    // No .git anywhere -- neither directory nor file.
     expect(await findProjectRoot(subDir)).toBeNull();
   });
 
@@ -72,14 +72,14 @@ describe('findProjectRoot', () => {
     // Edge: some setups symlink .git. lstat would NOT follow the link,
     // so this pins the behavior we get with the directory-or-file shape:
     // a symlink to a directory should still be recognized via the file
-    // branch (lstat reports it as a symlink, which is neither — so this
+    // branch (lstat reports it as a symlink, which is neither -- so this
     // documents the current behavior, not a guarantee).
     const target = path.join(testRootDir, 'real-git');
     await fsPromises.mkdir(target);
     await fsPromises.symlink(target, path.join(projectRoot, '.git'));
 
     // Symlinks aren't directories or regular files under lstat. Document
-    // that we do NOT chase them — caller would see null and fall back.
+    // that we do NOT chase them -- caller would see null and fall back.
     // If this assertion ever needs to flip, do it deliberately.
     expect(await findProjectRoot(projectRoot)).toBeNull();
   });

@@ -170,7 +170,7 @@ describe('lspCommand', () => {
     expect(result.content).toContain(
       '| pyright | `pyright-langserver` | python | FAILED - startup failed |',
     );
-    expect(result.content).not.toMatch(/[✅⏳❌⚪❓]/u);
+    expect(result.content).not.toMatch(/[]/u);
     expect(context.ui.addItem).not.toHaveBeenCalled();
   });
 

@@ -1,8 +1,8 @@
-# 📖 Project Technical Glossary
+#  Project Technical Glossary
 
 This document defines the authoritative technical terminology for the Megalonyx project. To ensure 100% intuitive AI understanding and zero ambiguity, every core concept must be referred to by a single, descriptive technical term.
 
-## 🏛️ Architectural Pillars
+##  Architectural Pillars
 
 | Term | Definition | Intuitive AI Understanding |
 | :--- | :--- | :--- |
@@ -11,7 +11,7 @@ This document defines the authoritative technical terminology for the Megalonyx 
 | **Runtime Venv** | The isolated Python environment in the Runtime Stack. | The specific Python interpreter and library set used for all system execution. |
 | **Independent Monorepo** | The project's private repository structure. | A codebase that integrates upstream sources while maintaining proprietary, decoupled advancements. |
 
-## 🔌 Connectivity & Transport
+##  Connectivity & Transport
 
 | Term | Definition | Intuitive AI Understanding |
 | :--- | :--- | :--- |
@@ -19,7 +19,7 @@ This document defines the authoritative technical terminology for the Megalonyx 
 | **Memory Daemon** | The long-running memory process (`memory_daemon.py`). | The central authority for semantic memory, embeddings, and Qdrant interaction. |
 | **UDS Socket** | The physical socket file (`megalonyx_memory.sock`). | The communication endpoint used by the Bridge to talk to the Daemon. |
 
-## ⚖️ Governance & Standards
+##  Governance & Standards
 
 | Term | Definition | Intuitive AI Understanding |
 | :--- | :--- | :--- |
@@ -27,14 +27,14 @@ This document defines the authoritative technical terminology for the Megalonyx 
 | **System Failure Analysis** | The record of technical regressions (SFMA). | Institutional memory of "how we broke things" and the architectural fixes applied. |
 | **Symmetry Law** | The 1:1 mirror between `config/` and `docs/`. | The requirement that every configuration has a corresponding technical explanation. |
 
-## 🛠️ Operational Tools
+##  Operational Tools
 
 | Term | Definition | Intuitive AI Understanding |
 | :--- | :--- | :--- |
 | **Runtime Stack Installer** | The `install-megalonyx-stack.sh` script. | The tool that transforms the Blueprint into a functional Runtime Stack. |
 | **Runtime Wrapper** | The shell scripts in `~/.local/bin/` (e.g., `mega-run-py`). | The entry points that activate the Runtime Venv and execute system tools. |
 
-## 🔍 Search & Retrieval
+##  Search & Retrieval
 
 | Term | Definition | Intuitive AI Understanding |
 | :--- | :--- | :--- |

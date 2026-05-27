@@ -148,7 +148,7 @@ export class PermissionController extends BaseController {
     switch (mode) {
       case 'yolo': // Allow all tools
       case 'auto-edit': // Auto-approve edit operations
-      case 'auto': // Auto-approve via LLM classifier — coreToolScheduler enforces the gate
+      case 'auto': // Auto-approve via LLM classifier -- coreToolScheduler enforces the gate
       case 'plan': // Auto-approve planning operations
         return { allowed: true };
 

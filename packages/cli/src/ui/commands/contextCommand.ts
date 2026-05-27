@@ -48,7 +48,7 @@ function currentTier(
 
 /**
  * Estimate token count for a string using a character-based heuristic.
- * ASCII chars ≈ 4 chars/token, CJK/non-ASCII chars ≈ 1.5 tokens/char.
+ * ASCII chars  4 chars/token, CJK/non-ASCII chars  1.5 tokens/char.
  */
 function estimateTokens(text: string): number {
   if (!text || text.length === 0) return 0;
@@ -116,8 +116,8 @@ export async function collectContextData(
 
   const toolRegistry = config.getToolRegistry();
   const allTools = toolRegistry ? toolRegistry.getAllTools() : [];
-  // Match what's actually sent to the model: deferred tools — MCP tools and
-  // low-frequency built-ins like web_fetch / monitor / cron_* — are absent
+  // Match what's actually sent to the model: deferred tools -- MCP tools and
+  // low-frequency built-ins like web_fetch / monitor / cron_* -- are absent
   // from the prompt unless ToolSearch has revealed them this session. See
   // client.ts which calls getFunctionDeclarations() with no args. The
   // per-tool loop below applies the same filter so allToolsTokens stays
@@ -197,7 +197,7 @@ export async function collectContextData(
 
   const thresholds = computeThresholds(contextWindowSize);
   // Keep the `(window - auto)` buffer for the legacy three-segment progress
-  // bar in ContextUsage.tsx — it visualizes the headroom between the auto
+  // bar in ContextUsage.tsx -- it visualizes the headroom between the auto
   // threshold and the window edge, which is exactly `contextWindowSize -
   // thresholds.auto`. New consumers should read `breakdown.thresholds`
   // directly.
@@ -317,13 +317,13 @@ export async function collectContextData(
   // dominated by system prompt / skills / MCP tools doesn't silently show
   // "safe". (R2.2)
   //
-  // SCOPE GAP (R5.1): `rawOverhead` excludes `messagesTokens` — the actual
+  // SCOPE GAP (R5.1): `rawOverhead` excludes `messagesTokens` -- the actual
   // chat history. A `--continue` restore with 100K of historical messages
   // (but small overhead) will still display "safe" here, even though the
   // cheap-gate inside chatCompressionService will trigger compression on
   // the very next send (it uses `estimatePromptTokens(history, ...)` which
-  // walks the real history). This is a UI/runtime divergence — for a
-  // single render — that resolves the moment any send happens.
+  // walks the real history). This is a UI/runtime divergence -- for a
+  // single render -- that resolves the moment any send happens.
   //
   // TODO: plumb the chat history into collectContextData and use
   // estimatePromptTokens(history, undefined, 0, imageTokenEstimate) here
@@ -431,7 +431,7 @@ export function formatContextUsageText(data: HistoryItemContextUsage): string {
     lines.push('');
     lines.push('**Compaction thresholds**');
     lines.push(
-      `  Effective window:   ${formatNum(breakdown.thresholds.effectiveWindow)}  (window − ${formatNum(contextWindowSize - breakdown.thresholds.effectiveWindow)} reserve)`,
+      `  Effective window:   ${formatNum(breakdown.thresholds.effectiveWindow)}  (window  ${formatNum(contextWindowSize - breakdown.thresholds.effectiveWindow)} reserve)`,
     );
     lines.push(`  Warn threshold:     ${formatNum(breakdown.thresholds.warn)}`);
     lines.push(`  Auto threshold:     ${formatNum(breakdown.thresholds.auto)}`);
@@ -476,7 +476,7 @@ export function formatContextUsageText(data: HistoryItemContextUsage): string {
       lines.push('**Built-in tools**');
       for (const tool of sortedBuiltin) {
         lines.push(
-          fmtCategoryRow(tool.name, tool.tokens, contextWindowSize, '  └ '),
+          fmtCategoryRow(tool.name, tool.tokens, contextWindowSize, '  \_ '),
         );
       }
     }
@@ -485,7 +485,7 @@ export function formatContextUsageText(data: HistoryItemContextUsage): string {
       lines.push('**MCP tools**');
       for (const tool of sortedMcp) {
         lines.push(
-          fmtCategoryRow(tool.name, tool.tokens, contextWindowSize, '  └ '),
+          fmtCategoryRow(tool.name, tool.tokens, contextWindowSize, '  \_ '),
         );
       }
     }
@@ -494,7 +494,7 @@ export function formatContextUsageText(data: HistoryItemContextUsage): string {
       lines.push('**Memory files**');
       for (const file of sortedMemory) {
         lines.push(
-          fmtCategoryRow(file.path, file.tokens, contextWindowSize, '  └ '),
+          fmtCategoryRow(file.path, file.tokens, contextWindowSize, '  \_ '),
         );
       }
     }
@@ -504,7 +504,7 @@ export function formatContextUsageText(data: HistoryItemContextUsage): string {
       for (const skill of sortedSkills) {
         const label = skill.loaded ? `${skill.name} (active)` : skill.name;
         lines.push(
-          fmtCategoryRow(label, skill.tokens, contextWindowSize, '  └ '),
+          fmtCategoryRow(label, skill.tokens, contextWindowSize, '  \_ '),
         );
         if (skill.loaded && skill.bodyTokens && skill.bodyTokens > 0) {
           lines.push(
@@ -512,7 +512,7 @@ export function formatContextUsageText(data: HistoryItemContextUsage): string {
               'body loaded',
               skill.bodyTokens,
               contextWindowSize,
-              '    └ ',
+              '    \_ ',
             ),
           );
         }

@@ -25,7 +25,7 @@ const vendorDir = path.join(packageRoot, 'vendor', 'ripgrep');
 function setupRipgrepBinaries() {
   try {
     if (!fs.existsSync(vendorDir)) {
-      console.log('ℹ Vendor directory not found, skipping ripgrep setup');
+      console.log(' Vendor directory not found, skipping ripgrep setup');
       return;
     }
 
@@ -41,13 +41,13 @@ function setupRipgrepBinaries() {
       }
     } else if (platform === 'win32') {
       // Windows doesn't need these fixes
-      console.log('ℹ Windows detected, skipping ripgrep setup');
+      console.log(' Windows detected, skipping ripgrep setup');
       return;
     }
 
     if (!binaryDir || !fs.existsSync(binaryDir)) {
       console.log(
-        `ℹ Binary directory not found for ${platform}-${arch}, skipping ripgrep setup`,
+        ` Binary directory not found for ${platform}-${arch}, skipping ripgrep setup`,
       );
       return;
     }
@@ -55,14 +55,14 @@ function setupRipgrepBinaries() {
     const rgBinary = path.join(binaryDir, 'rg');
 
     if (!fs.existsSync(rgBinary)) {
-      console.log(`ℹ Ripgrep binary not found at ${rgBinary}, skipping setup`);
+      console.log(` Ripgrep binary not found at ${rgBinary}, skipping setup`);
       return;
     }
 
     try {
       // Set executable permissions
       fs.chmodSync(rgBinary, 0o755);
-      console.log(`✓ Set executable permissions on ${rgBinary}`);
+      console.log(` Set executable permissions on ${rgBinary}`);
 
       // On macOS, remove quarantine attribute
       if (platform === 'darwin') {
@@ -70,21 +70,21 @@ function setupRipgrepBinaries() {
           execSync(`xattr -d com.apple.quarantine "${rgBinary}"`, {
             stdio: 'pipe',
           });
-          console.log(`✓ Removed quarantine attribute from ${rgBinary}`);
+          console.log(` Removed quarantine attribute from ${rgBinary}`);
         } catch {
           // Quarantine attribute might not exist, which is fine
-          console.log('ℹ Quarantine attribute not present or already removed');
+          console.log(' Quarantine attribute not present or already removed');
         }
       }
     } catch (error) {
       console.log(
-        `⚠ Could not complete ripgrep setup: ${error.message || 'Unknown error'}`,
+        ` Could not complete ripgrep setup: ${error.message || 'Unknown error'}`,
       );
       console.log('  This is not critical - ripgrep may still work correctly');
     }
   } catch (error) {
     console.log(
-      `⚠ Ripgrep setup encountered an issue: ${error.message || 'Unknown error'}`,
+      ` Ripgrep setup encountered an issue: ${error.message || 'Unknown error'}`,
     );
     console.log('  Continuing anyway - this should not affect functionality');
   }
@@ -95,6 +95,6 @@ try {
   setupRipgrepBinaries();
 } catch {
   // Last resort catch - never let errors block npm
-  console.log('⚠ Postinstall script encountered an unexpected error');
+  console.log(' Postinstall script encountered an unexpected error');
   console.log('  This will not affect the installation');
 }

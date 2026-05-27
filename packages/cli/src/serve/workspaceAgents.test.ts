@@ -219,7 +219,7 @@ describe('workspace agents routes', () => {
     // directly to disk, bypassing the daemon's POST route. Without
     // `force: true` on the LIST handler, `listSubagents()` would
     // serve the stale cache from the first call and silently miss
-    // the new entry — diverging from the detail route, which always
+    // the new entry -- diverging from the detail route, which always
     // re-reads disk.
     const projectAgentsDir = path.join(workspace, QWEN_DIR, 'agents');
     await fs.mkdir(projectAgentsDir, { recursive: true });
@@ -352,7 +352,7 @@ describe('workspace agents routes', () => {
     expect(res.body.code).toBe('invalid_config');
     expect(res.body.error).toMatch(/built-in/i);
 
-    // BuiltinAgentRegistry.isBuiltinAgent is case-insensitive — both
+    // BuiltinAgentRegistry.isBuiltinAgent is case-insensitive -- both
     // `Explore` and `explore` must reject so a project-level shadow
     // can never land regardless of how the client cases the name.
     const res2 = await request(app).post('/workspace/agents').send({
@@ -648,7 +648,7 @@ describe('workspace agents routes', () => {
     for (const evt of agentEvents) {
       expect(evt.originatorClientId).toBe('client_audit');
     }
-    // Sequence: created → updated → deleted.
+    // Sequence: created -> updated -> deleted.
     expect(
       agentEvents.map((e) => (e.data as { change: string }).change),
     ).toEqual(['created', 'updated', 'deleted']);
@@ -678,7 +678,7 @@ describe('workspace agents routes', () => {
 
   it('returns 500 agent_delete_partial when one level unlink silently fails', async () => {
     // Windows ignores Unix-style permission bits passed to
-    // `fs.chmod` — the user-agents directory stays writable, the
+    // `fs.chmod` -- the user-agents directory stays writable, the
     // unlink succeeds, and the partial-delete path this test
     // exercises is unreachable. SubagentManager's `unlink` import
     // (`import * as fs from 'fs/promises'`) creates a sealed
@@ -708,7 +708,7 @@ describe('workspace agents routes', () => {
     });
 
     // Lock the user-level agent's containing directory so the unlink
-    // raises EACCES — `SubagentManager.deleteSubagent` swallows the
+    // raises EACCES -- `SubagentManager.deleteSubagent` swallows the
     // error and returns "success" because the project-level unlink
     // worked. Without this PR's per-level `fs.access` verification,
     // the route would 204 and publish a misleading `agent_changed`
@@ -883,7 +883,7 @@ describe('workspace agents routes', () => {
       scope: 'workspace',
     });
     // Update path used to silently accept "   " and overwrite the
-    // description with blank — divergent from create which 422s.
+    // description with blank -- divergent from create which 422s.
     const res = await request(app)
       .post('/workspace/agents/whitespace-target')
       .send({ description: '   ' });
@@ -908,7 +908,7 @@ describe('workspace agents routes', () => {
       .events.length;
 
     // Partial update with the SAME max_time_minutes value. Without the
-    // fix, isNoOpUpdate compared `undefined !== existing.max_turns` →
+    // fix, isNoOpUpdate compared `undefined !== existing.max_turns` ->
     // true and re-wrote the file + emitted agent_changed.
     const res = await request(app)
       .post('/workspace/agents/runconfig-noop')

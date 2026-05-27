@@ -6,9 +6,9 @@ Qwen Code is an open-source AI coding assistant tool maintained by the Qwen Code
 
 Qwen Code supports three authentication methods to access AI models. Your authentication method determines which terms of service and privacy policies apply to your usage:
 
-1. **Qwen OAuth** — Log in with your qwen.ai account (free tier discontinued 2026-04-15)
-2. **Alibaba Cloud Coding Plan** — Use an API key from Alibaba Cloud
-3. **API Key** — Bring your own API key
+1. **Qwen OAuth** -- Log in with your qwen.ai account (free tier discontinued 2026-04-15)
+2. **Alibaba Cloud Coding Plan** -- Use an API key from Alibaba Cloud
+3. **API Key** -- Bring your own API key
 
 For each authentication method, different Terms of Service and Privacy Notices may apply depending on the underlying service provider.
 
@@ -33,8 +33,8 @@ When you authenticate using an API key from Alibaba Cloud, the applicable Terms 
 
 Alibaba Cloud Coding Plan is available in two regions:
 
-- **阿里云百炼 (aliyun.com)** — [bailian.console.aliyun.com](https://bailian.console.aliyun.com)
-- **Alibaba Cloud (alibabacloud.com)** — [bailian.console.alibabacloud.com](https://bailian.console.alibabacloud.com)
+- ** (aliyun.com)** -- [bailian.console.aliyun.com](https://bailian.console.aliyun.com)
+- **Alibaba Cloud (alibabacloud.com)** -- [bailian.console.alibabacloud.com](https://bailian.console.alibabacloud.com)
 
 > [!important]
 >

@@ -66,7 +66,7 @@ async function judgeGoalWithTimeout(
   // Abort the underlying judge API call when our own timeout fires. The hook
   // context signal in `args.signal` is never aborted by the timeout path, so
   // without this `judgeGoal`'s `generateContent` keeps running in the
-  // background — leaking one request per timeout that accumulates across
+  // background -- leaking one request per timeout that accumulates across
   // goal-loop iterations.
   const judgeController = new AbortController();
   const linkedSignal = abortSignalAny([args.signal, judgeController.signal]);
@@ -269,7 +269,7 @@ export function unregisterGoalHook(
 /**
  * Registers (or replaces) the /goal Stop hook for this session, primes the
  * activeGoal store, and returns the freshly stored goal. Throws when the
- * hook system is not available — callers gate on `Config.getHookSystem()`
+ * hook system is not available -- callers gate on `Config.getHookSystem()`
  * before invoking.
  */
 export function registerGoalHook(args: {
@@ -303,7 +303,7 @@ export function registerGoalHook(args: {
     {
       name: 'goal-stop-hook',
       description: `Continue until: ${condition}`,
-      statusMessage: 'Checking goal…',
+      statusMessage: 'Checking goal...',
       timeout: GOAL_HOOK_TIMEOUT_MS,
     },
   );

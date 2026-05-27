@@ -42,8 +42,8 @@ addFormatsFunc(ajvDefault);
 addFormatsFunc(ajv2020);
 
 // Canonical draft-2020-12 meta-schema URI (used by rmcp MCP servers).
-// JSON Schema authors commonly include both `…/schema` and `…/schema#`
-// — the trailing `#` is an empty fragment and points at the same
+// JSON Schema authors commonly include both `.../schema` and `.../schema#`
+// -- the trailing `#` is an empty fragment and points at the same
 // document. Normalize before comparing so either form selects ajv2020.
 const DRAFT_2020_12_SCHEMA = 'https://json-schema.org/draft/2020-12/schema';
 
@@ -76,10 +76,10 @@ export class SchemaValidator {
   /**
    * Strictly compiles a schema. Returns an error message if the schema is
    * malformed or uses unsupported draft/features for our Ajv configuration
-   * (see {@link getValidator} — `$schema` selects between draft-07 and
+   * (see {@link getValidator} -- `$schema` selects between draft-07 and
    * draft-2020-12; anything else falls through to draft-07's compiler).
    * Returns null on success. Unlike {@link validate}, this does NOT
-   * silently skip on compile failure — callers (e.g. the CLI's
+   * silently skip on compile failure -- callers (e.g. the CLI's
    * `--json-schema` parser) need to surface invalid schemas instead of
    * letting them no-op at runtime.
    */
@@ -90,7 +90,7 @@ export class SchemaValidator {
     // Use a dedicated Ajv with `strictSchema: true` so typos like
     // `propertees` raise instead of being silently ignored. The shared
     // ajvDefault/ajv2020 instances run with `strictSchema: false` so
-    // unknown MCP keywords don't break runtime validation — that
+    // unknown MCP keywords don't break runtime validation -- that
     // leniency is wrong for explicit user-supplied schemas where
     // `compileStrict` is exactly the surface meant to surface mistakes.
     //
@@ -254,7 +254,7 @@ function fixStringifiedJsonValues(
     ) {
       const accepted = getAcceptedTypes(propSchema);
       if (!accepted) continue;
-      // Only coerce if the schema does NOT accept string — otherwise the
+      // Only coerce if the schema does NOT accept string -- otherwise the
       // string value may be intentional.
       if (accepted.has('string')) continue;
       if (!accepted.has('array') && !accepted.has('object')) continue;
@@ -266,7 +266,7 @@ function fixStringifiedJsonValues(
           data[key] = parsed;
         }
       } catch {
-        // Not valid JSON — leave the value unchanged
+        // Not valid JSON -- leave the value unchanged
       }
     }
   }

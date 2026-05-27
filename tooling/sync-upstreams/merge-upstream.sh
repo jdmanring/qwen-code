@@ -1,5 +1,5 @@
 #!/bin/bash
-# DEPRECATED — superseded by the Upstream Ingest Pipeline.
+# DEPRECATED -- superseded by the Upstream Ingest Pipeline.
 #
 # This script used the old branch name 'upstream-main' (now 'upstream-mirror')
 # and performed no verification before merging. It is retained only for

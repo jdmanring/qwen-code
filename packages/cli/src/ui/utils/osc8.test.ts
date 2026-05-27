@@ -41,7 +41,7 @@ describe('osc8 helpers', () => {
       configurable: true,
       value: savedPlatform,
     });
-    // Symmetric isTTY reset — the early describes (sanitizer, scheme, trim)
+    // Symmetric isTTY reset -- the early describes (sanitizer, scheme, trim)
     // don't call setTTY() themselves, so without this they would inherit
     // whatever the previous test left behind.
     Object.defineProperty(process.stdout, 'isTTY', {
@@ -68,7 +68,7 @@ describe('osc8 helpers', () => {
     });
 
     it('strips C1 control bytes (\\x80-\\x9f)', () => {
-      // \x9c is 8-bit ST and \x9d is 8-bit OSC — terminals that honor C1
+      // \x9c is 8-bit ST and \x9d is 8-bit OSC -- terminals that honor C1
       // controls treat these as sequence boundaries, so they must not
       // survive inside an OSC 8 target.
       expect(sanitizeForOsc('a\x80b\x9cc\x9dd\x9fe')).toBe('abcde');
@@ -94,8 +94,8 @@ describe('osc8 helpers', () => {
     });
 
     it('keeps printable ASCII and unicode intact', () => {
-      expect(sanitizeForOsc('https://example.com/路径?q=v')).toBe(
-        'https://example.com/路径?q=v',
+      expect(sanitizeForOsc('https://example.com/?q=v')).toBe(
+        'https://example.com/?q=v',
       );
     });
   });
@@ -116,7 +116,7 @@ describe('osc8 helpers', () => {
     it('strips embedded escapes so they cannot break out of the envelope', () => {
       const malicious = `https://example.com${BEL}${ESC}]8;;evil${BEL}`;
       const out = osc8Hyperlink(malicious, `lbl${ESC}[31m`);
-      // Exactly two ESC and two BEL bytes — the envelope's own terminators.
+      // Exactly two ESC and two BEL bytes -- the envelope's own terminators.
       // eslint-disable-next-line no-control-regex
       expect((out.match(/\x1b/g) ?? []).length).toBe(2);
       // eslint-disable-next-line no-control-regex
@@ -154,7 +154,7 @@ describe('osc8 helpers', () => {
       'file:///etc/passwd',
       'chrome://settings',
       'about:blank',
-      // Relative / fragment / empty — no scheme at all.
+      // Relative / fragment / empty -- no scheme at all.
       '',
       '#anchor',
       '/relative/path',
@@ -174,7 +174,7 @@ describe('osc8 helpers', () => {
       expect(
         labelMayDeceive('Visit https://safe.com now', 'https://evil.com/x'),
       ).toBe(true);
-      // Scheme-only label still trips the heuristic — defensively
+      // Scheme-only label still trips the heuristic -- defensively
       // permissive: a bare `mailto:` label that doesn't equal the URL is
       // suspicious enough to keep the `(url)` suffix visible.
       expect(labelMayDeceive('mailto:friend', 'mailto:other')).toBe(true);
@@ -186,15 +186,15 @@ describe('osc8 helpers', () => {
     });
 
     it('flags bare-host labels whose host differs from the target', () => {
-      // The single most common click-deception shape in markdown — and one
-      // a careful attacker would prefer over a full `https://…` label,
+      // The single most common click-deception shape in markdown -- and one
+      // a careful attacker would prefer over a full `https://...` label,
       // since it looks more natural. Must NOT escape the heuristic.
       expect(labelMayDeceive('google.com', 'https://attacker.com')).toBe(true);
       expect(
         labelMayDeceive('paypal.com', 'https://phish.example.org/login'),
       ).toBe(true);
-      // Punycode IDN attack — label `google.com`, target is the lookalike
-      // punycode host. Label host does not equal target host → flag.
+      // Punycode IDN attack -- label `google.com`, target is the lookalike
+      // punycode host. Label host does not equal target host -> flag.
       expect(labelMayDeceive('google.com', 'https://xn--googl-fsa.com')).toBe(
         true,
       );
@@ -211,7 +211,7 @@ describe('osc8 helpers', () => {
     });
 
     it('flags IPv4 literal labels whose host differs from the target', () => {
-      // `[1.1.1.1](https://attacker.com)` — common shape (Cloudflare DNS,
+      // `[1.1.1.1](https://attacker.com)` -- common shape (Cloudflare DNS,
       // Google DNS) the model might emit. Same click-deception class as a
       // bare hostname but the alphabetic-TLD regex skips it, so a separate
       // dotted-quad rule has to catch it.
@@ -233,14 +233,14 @@ describe('osc8 helpers', () => {
       expect(
         labelMayDeceive('support@example.com', 'mailto:support@example.com'),
       ).toBe(false);
-      // …but a mismatched mailto domain IS deceptive.
+      // ...but a mismatched mailto domain IS deceptive.
       expect(
         labelMayDeceive('support@example.com', 'mailto:abuse@evil.com'),
       ).toBe(true);
     });
 
     it('flags same-host different-path labels', () => {
-      // `[https://google.com/safe](https://google.com/evil)` — same host but
+      // `[https://google.com/safe](https://google.com/evil)` -- same host but
       // the label hides which path. The `://` pattern fires here and the
       // user sees the real path in the `(url)` suffix.
       expect(
@@ -444,7 +444,7 @@ describe('osc8 helpers', () => {
       expect(supportsHyperlinks()).toBe(true);
     });
 
-    it('Konsole ≥ 21.04 is enabled via KONSOLE_VERSION', () => {
+    it('Konsole >= 21.04 is enabled via KONSOLE_VERSION', () => {
       setTTY(true);
       process.env['KONSOLE_VERSION'] = '230400';
       expect(supportsHyperlinks()).toBe(true);
@@ -491,7 +491,7 @@ describe('osc8 helpers', () => {
     });
 
     it('Warp Terminal is intentionally NOT auto-detected (no OSC 8 support yet)', () => {
-      // Warp's current rendering engine doesn't honor OSC 8 — it prints the
+      // Warp's current rendering engine doesn't honor OSC 8 -- it prints the
       // envelope as visible garbage. Falls through to the final return false
       // until Warp ships support. Users on a Warp build that does support
       // OSC 8 can opt in via FORCE_HYPERLINK=1.
@@ -502,10 +502,10 @@ describe('osc8 helpers', () => {
       expect(supportsHyperlinks()).toBe(true);
     });
 
-    it('mintty ≥ 3.3 is enabled, < 3.3 is not, missing version refuses', () => {
+    it('mintty >= 3.3 is enabled, < 3.3 is not, missing version refuses', () => {
       // Older mintty builds (still shipping in some Git-for-Windows distros
       // and dev environments like Laragon) print raw OSC 8 escape bytes as
-      // visible garbage instead of ignoring them — see issue #4420. mintty
+      // visible garbage instead of ignoring them -- see issue #4420. mintty
       // has set TERM_PROGRAM_VERSION since 2.7 (2017), so a missing version
       // implies an ancient build and we refuse.
       setTTY(true);
@@ -526,8 +526,8 @@ describe('osc8 helpers', () => {
       expect(supportsHyperlinks()).toBe(false);
       delete process.env['TERM_PROGRAM_VERSION'];
       expect(supportsHyperlinks()).toBe(false);
-      // Users on mintty 3.1–3.2 who know their build's OSC 8 implementation
-      // works can opt back in via FORCE_HYPERLINK=1 — same escape hatch the
+      // Users on mintty 3.1-3.2 who know their build's OSC 8 implementation
+      // works can opt back in via FORCE_HYPERLINK=1 -- same escape hatch the
       // Warp and Hyper tests above assert. Pin the contract so a future
       // refactor that reorders early-exit checks can't silently break it.
       process.env['TERM_PROGRAM_VERSION'] = '3.2.9';
@@ -560,7 +560,7 @@ describe('osc8 helpers', () => {
     it('FORCE_HYPERLINK=1 does NOT override non-TTY suppression', () => {
       // A user with `FORCE_HYPERLINK=1` in their shell profile (to enable
       // OSC 8 inside tmux interactively) must still get a clean pipe when
-      // running `qwen | cat` — escape bytes never go into a file/pipe.
+      // running `qwen | cat` -- escape bytes never go into a file/pipe.
       setTTY(false);
       process.env['FORCE_HYPERLINK'] = '1';
       expect(supportsHyperlinks()).toBe(false);

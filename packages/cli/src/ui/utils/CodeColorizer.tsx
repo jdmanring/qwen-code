@@ -30,12 +30,12 @@ import {
 
 const debugLogger = createDebugLogger('CODE_COLORIZER');
 
-// Lowlight is heavy (~1.5 MB bundled, ~36–60 ms V8 parse). It's loaded lazily
+// Lowlight is heavy (~1.5 MB bundled, ~36-60 ms V8 parse). It's loaded lazily
 // from `./lowlightLoader.js` via dynamic import so it lives in a separate
 // esbuild chunk that's only parsed once a code block actually needs
 // highlighting. To avoid leaving code blocks committed to ink's append-only
 // <Static> region as plain text for the rest of the session, AppContainer
-// fires `loadLowlight()` from a mount effect — in steady state the import
+// fires `loadLowlight()` from a mount effect -- in steady state the import
 // is already resolved by the time any colorize call lands. The fallback
 // below still handles the brief window before resolution and any
 // permanent-failure path (latched inside lowlightLoader).
@@ -87,7 +87,7 @@ function renderHastNode(
 
   // Handle Root Node: Start recursion with initially inherited color
   if (node.type === 'root') {
-    // Check if children array is empty - this happens when lowlight can't detect language – fall back to plain text
+    // Check if children array is empty - this happens when lowlight can't detect language - fall back to plain text
     if (!node.children || node.children.length === 0) {
       return null;
     }
@@ -110,7 +110,7 @@ function renderHastNode(
  * we aren't inside the loader's failure cooldown. Returns the current
  * instance (which may still be `null` if the load is in flight or cooling
  * down). Centralising this here lets callers kick the load off-the-hot-path
- * — `colorizeCode` fires once per block, not once per rendered line, which
+ * -- `colorizeCode` fires once per block, not once per rendered line, which
  * matters in the failure case: when the load is permanently broken, the
  * loader rejects synchronously and a per-line trigger would emit hundreds
  * of duplicate debug-log entries per code block.

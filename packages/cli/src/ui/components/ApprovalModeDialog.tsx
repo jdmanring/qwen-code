@@ -154,7 +154,7 @@ export function ApprovalModeDialog({
           {showWorkspacePriorityWarning && (
             <Box marginTop={1}>
               <Text color={theme.status.warning} wrap="wrap">
-                ⚠{' '}
+                {' '}
                 {t(
                   'Workspace approval mode exists and takes priority. User-level change will have no effect.',
                 )}

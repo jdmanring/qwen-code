@@ -531,7 +531,7 @@ describe('MonitorRegistry', () => {
       }),
     );
 
-    // Advance 4s, emit event, advance 4s again — should NOT timeout
+    // Advance 4s, emit event, advance 4s again -- should NOT timeout
     vi.advanceTimersByTime(4000);
     registry.emitEvent('mon-1', 'keep alive');
     vi.advanceTimersByTime(4000);
@@ -796,7 +796,7 @@ describe('MonitorRegistry', () => {
   });
 
   describe('setStatusChangeCallback', () => {
-    it('fires once on register (nothing → running)', () => {
+    it('fires once on register (nothing -> running)', () => {
       const cb = vi.fn();
       registry.setStatusChangeCallback(cb);
       registry.register(createEntry({ monitorId: 'a' }));
@@ -807,7 +807,7 @@ describe('MonitorRegistry', () => {
       });
     });
 
-    it('fires on every running → terminal transition (complete / fail / cancel)', () => {
+    it('fires on every running -> terminal transition (complete / fail / cancel)', () => {
       const cb = vi.fn();
       registry.register(createEntry({ monitorId: 'a' }));
       registry.register(createEntry({ monitorId: 'b' }));

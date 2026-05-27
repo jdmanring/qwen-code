@@ -27,13 +27,13 @@ export type FsErrorKind =
   | 'untrusted_workspace'
   | 'permission_denied'
   /**
-   * Environmental I/O failure that is *not* a permission decision —
+   * Environmental I/O failure that is *not* a permission decision --
    * disk full (`ENOSPC`), generic I/O error (`EIO`), filesystem busy
    * (`EBUSY`/`ETXTBSY`), path-too-long (`ENAMETOOLONG`), or
    * file-descriptor exhaustion (`EMFILE`/`ENFILE`).
    *
    * Separated from `permission_denied` because monitoring pipelines
-   * key on `errorKind` for alerting — conflating "ACL denied" with
+   * key on `errorKind` for alerting -- conflating "ACL denied" with
    * "disk full" pages the security oncall when the real action is
    * `df -h`. The 503 status communicates "service-level transient
    * failure" to PR 19/20 route handlers and SDK consumers.
@@ -44,7 +44,7 @@ export type FsErrorKind =
    * (`TypeError`, programmer-error throws, native module
    * exceptions, etc.). Distinguished from `permission_denied`
    * because monitoring pipelines key on `errorKind` for
-   * security alerting — conflating "code bug" with "ACL
+   * security alerting -- conflating "code bug" with "ACL
    * denied" pages security oncall for what should be a
    * developer ticket. The 500 status communicates "daemon
    * internal fault" to PR 19/20 route handlers.
@@ -55,7 +55,7 @@ export type FsErrorKind =
 /**
  * HTTP status codes the boundary maps onto. The status lives on the
  * error itself rather than being derived by the route handler so the
- * serialization is "one helper line" — see PR 19/20 plans. The set is
+ * serialization is "one helper line" -- see PR 19/20 plans. The set is
  * intentionally narrow: anything outside this map indicates the
  * boundary is being asked to model a transport-level concern that
  * doesn't belong here (5xx, 401/403 from auth, etc.).
@@ -88,7 +88,7 @@ const DEFAULT_STATUS_BY_KIND: Record<FsErrorKind, FsErrorStatus> = {
 };
 
 /**
- * Typed boundary error. PR 18 ships the class only — no route
+ * Typed boundary error. PR 18 ships the class only -- no route
  * serializes it yet. PR 19/20 add a `sendFsError(res, err)` helper
  * that maps `kind`/`status`/`hint` onto the envelope.
  *
@@ -130,8 +130,8 @@ export function isFsError(err: unknown): err is FsError {
 /**
  * Coerce an arbitrary thrown value into an `FsError`. Used by the
  * orchestrator's catch blocks so every body-level failure surfaces
- * as a typed error AND emits an `fs.denied` audit event — without
- * this, raw `fs.promises` errnos (`EACCES`, `ENOENT`, `ELOOP`, …)
+ * as a typed error AND emits an `fs.denied` audit event -- without
+ * this, raw `fs.promises` errnos (`EACCES`, `ENOENT`, `ELOOP`, ...)
  * propagate uncategorized, the audit log loses denial visibility,
  * and PR 19/20 routes degrade to opaque 5xx responses.
  *
@@ -160,12 +160,12 @@ export function wrapAsFsError(
     case 'EISDIR':
       return new FsError('parse_error', message, {
         cause: err,
-        hint: 'EISDIR — path is a directory but a regular file was expected',
+        hint: 'EISDIR -- path is a directory but a regular file was expected',
       });
     case 'ENOTDIR':
       return new FsError('parse_error', message, {
         cause: err,
-        hint: 'ENOTDIR — a path component is a regular file but a directory was expected',
+        hint: 'ENOTDIR -- a path component is a regular file but a directory was expected',
       });
     case 'ENOSPC':
       return new FsError('io_error', message, {

@@ -416,7 +416,7 @@ function analyzeMemoryDiagnostics(
   // Use mallocedMemory instead of rss - heapUsed. RSS includes normal process
   // overhead such as code segments, shared libraries, stacks, and mapped files,
   // which creates false positives on healthy Node.js processes. Also gate on
-  // an absolute floor so tiny startup heaps don't trip the 2× ratio.
+  // an absolute floor so tiny startup heaps don't trip the 2* ratio.
   const nativeMemory = diagnostics.v8HeapStats.mallocedMemory;
   if (
     nativeMemory >= NATIVE_MEMORY_PRESSURE_MIN_BYTES &&
@@ -424,7 +424,7 @@ function analyzeMemoryDiagnostics(
   ) {
     risks.push({
       type: 'native-memory-pressure',
-      message: `V8 native malloced memory (${formatMemoryUsage(nativeMemory)}) is more than 2× heap used (${formatMemoryUsage(diagnostics.memoryUsage.heapUsed)}).`,
+      message: `V8 native malloced memory (${formatMemoryUsage(nativeMemory)}) is more than 2* heap used (${formatMemoryUsage(diagnostics.memoryUsage.heapUsed)}).`,
     });
   }
 
@@ -436,7 +436,7 @@ function analyzeMemoryDiagnostics(
   ) {
     risks.push({
       type: 'rss-heap-gap',
-      message: `RSS (${formatMemoryUsage(diagnostics.memoryUsage.rss)}) is more than ${RSS_HEAP_GAP_RATIO}× heap used (${formatMemoryUsage(diagnostics.memoryUsage.heapUsed)}). Check native addons, libuv buffers, mapped files, or retained tool output.`,
+      message: `RSS (${formatMemoryUsage(diagnostics.memoryUsage.rss)}) is more than ${RSS_HEAP_GAP_RATIO}* heap used (${formatMemoryUsage(diagnostics.memoryUsage.heapUsed)}). Check native addons, libuv buffers, mapped files, or retained tool output.`,
     });
   }
 

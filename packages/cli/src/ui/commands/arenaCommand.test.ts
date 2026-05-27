@@ -41,8 +41,8 @@ describe('arenaCommand localization', () => {
   it('localizes descriptions and common errors in zh', async () => {
     await setLanguageAsync('zh');
 
-    expect(arenaCommand.description).toBe('管理 Arena 会话');
-    expect(getArenaSubCommand('stop').description).toBe('停止当前 Arena 会话');
+    expect(arenaCommand.description).toBe(' Arena ');
+    expect(getArenaSubCommand('stop').description).toBe(' Arena ');
 
     const stopContext = createMockCommandContext({
       executionMode: 'interactive',
@@ -60,7 +60,7 @@ describe('arenaCommand localization', () => {
     expect(stopResult).toEqual({
       type: 'message',
       messageType: 'error',
-      content: '未找到正在运行的 Arena 会话。',
+      content: ' Arena ',
     });
 
     const selectContext = createMockCommandContext({
@@ -81,7 +81,7 @@ describe('arenaCommand localization', () => {
     expect(selectResult).toEqual({
       type: 'message',
       messageType: 'error',
-      content: 'Arena 会话仍在运行中。请等待其完成，或先使用 /arena stop。',
+      content: 'Arena  /arena stop',
     });
   });
 });

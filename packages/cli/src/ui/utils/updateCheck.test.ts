@@ -77,7 +77,7 @@ describe('checkForUpdates', () => {
     });
 
     const result = await checkForUpdates();
-    expect(result?.message).toContain('1.0.0 → 1.1.0');
+    expect(result?.message).toContain('1.0.0 -> 1.1.0');
     expect(result?.update).toEqual({ current: '1.0.0', latest: '1.1.0' });
   });
 
@@ -156,7 +156,7 @@ describe('checkForUpdates', () => {
       }));
 
       const result = await checkForUpdates();
-      expect(result?.message).toContain('1.2.3-nightly.1 → 1.2.3-nightly.2');
+      expect(result?.message).toContain('1.2.3-nightly.1 -> 1.2.3-nightly.2');
       expect(result?.update.latest).toBe('1.2.3-nightly.2');
     });
   });

@@ -53,7 +53,7 @@ export function HooksListStep({
         <Text bold color={theme.text.primary}>
           {t('Hooks')}
         </Text>
-        <Text color={theme.text.secondary}>{` · ${hooksConfiguredText}`}</Text>
+        <Text color={theme.text.secondary}>{`  ${hooksConfiguredText}`}</Text>
       </Box>
 
       <Box marginBottom={1}>
@@ -74,7 +74,7 @@ export function HooksListStep({
           <Box key={hook.event}>
             <Box minWidth={2}>
               <Text color={isSelected ? theme.text.accent : theme.text.primary}>
-                {isSelected ? '❯' : ' '}
+                {isSelected ? '' : ' '}
               </Text>
             </Box>
             <Box width={hookNameWidth}>
@@ -95,7 +95,7 @@ export function HooksListStep({
 
       <Box marginTop={1}>
         <Text color={theme.text.secondary}>
-          {t('Enter to select · Esc to cancel')}
+          {t('Enter to select  Esc to cancel')}
         </Text>
       </Box>
     </Box>

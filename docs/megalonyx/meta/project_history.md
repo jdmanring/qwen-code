@@ -1,9 +1,9 @@
-🏛️ 
-# qwen-code-stack — Project Evolution & History
+ 
+# qwen-code-stack -- Project Evolution & History
 
 This document tracks the evolution of the qwen-code-stack from a simple CLI wrapper to a state-aware, resilient agentic system.
 
-## 🛠️ Evolution Timeline
+##  Evolution Timeline
 
 ### Phase 1: Foundation (Complete)
 - **Infrastructure**: Setup of Node.js, vLLM, and Qwen Code CLI.
@@ -49,7 +49,7 @@ This document tracks the evolution of the qwen-code-stack from a simple CLI wrap
 
 ---
 
-## 🚀 Current System State
+##  Current System State
 
 The system is now a **Professional-Grade Agentic Stack** featuring:
 - **Tiered Intelligence**: Routing tasks to the most capable model (up to 480B).

@@ -47,7 +47,7 @@ class SessionTest {
     public void testSession() throws AgentInitializeException, SessionNewException, IOException {
         AcpClient acpClient = new AcpClient(new ProcessTransport(new ProcessTransportOptions().setCommandArgs(new String[] {"qwen", "--acp", "-y"})));
         try {
-            acpClient.sendPrompt(Collections.singletonList(new TextContent("你是谁")), new AgentEventConsumer().setContentEventConsumer(new ContentEventSimpleConsumer(){
+            acpClient.sendPrompt(Collections.singletonList(new TextContent("")), new AgentEventConsumer().setContentEventConsumer(new ContentEventSimpleConsumer(){
                 @Override
                 public void onAgentMessageChunkSessionUpdate(AgentMessageChunkSessionUpdate sessionUpdate) {
                     logger.info(sessionUpdate.toString());
@@ -92,7 +92,7 @@ class SessionTest {
                         .setTerminal(true)
                         .setFs(new FileSystemCapability().setReadTextFile(true).setWriteTextFile(true))));
         Session session = acpClient.newSession(new NewSessionRequestParams());
-        session.sendPrompt(Collections.singletonList(new TextContent("你是谁")), new AgentEventConsumer());
+        session.sendPrompt(Collections.singletonList(new TextContent("")), new AgentEventConsumer());
     }
 
     @Test
@@ -104,7 +104,7 @@ class SessionTest {
                         .setTerminal(false)
                         .setFs(new FileSystemCapability(true, true))));
         Session session = acpClient.newSession(new NewSessionRequestParams());
-        session.sendPrompt(Collections.singletonList(new TextContent("创建一个test.touch文件"))
+        session.sendPrompt(Collections.singletonList(new TextContent("test.touch"))
                 , new AgentEventConsumer().setFileEventConsumer(new FileEventSimpleConsumer()).setPermissionEventConsumer(new PermissionEventConsumer() {
                     @Override
                     public RequestPermissionResponseResult onRequestPermissionRequest(RequestPermissionRequest request) throws EventConsumeException {

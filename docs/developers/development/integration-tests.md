@@ -119,11 +119,11 @@ This structure makes it easy to locate the artifacts for a specific test run, fi
 
 ```
 .integration-tests/
-└── <run-id>/
-    └── <test-file-name>.test.js/
-        └── <test-case-name>/
-            ├── output.log
-            └── ...other test artifacts...
+\_-- <run-id>/
+    \_-- <test-file-name>.test.js/
+        \_-- <test-case-name>/
+            |---- output.log
+            \_-- ...other test artifacts...
 ```
 
 ## Continuous integration

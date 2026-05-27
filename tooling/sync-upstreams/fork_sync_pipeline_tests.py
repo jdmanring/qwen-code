@@ -31,7 +31,7 @@ def run_test(name, fn):
         return False
 
 
-# ── Advisory gate tests ───────────────────────────────────────────────────────
+# -- Advisory gate tests -------------------------------------------------------
 
 
 def test_ci_gate_flags_workflow_change():
@@ -80,7 +80,7 @@ def test_new_files_gate_passes_empty_list():
     assert result.passed, "Should pass with no new files"
 
 
-# ── Isolation gate tests ──────────────────────────────────────────────────────
+# -- Isolation gate tests ------------------------------------------------------
 
 
 def test_isolation_blocks_megalonyx_reference():
@@ -154,10 +154,10 @@ TESTS = [
 
 def main():
     print()
-    print("Fork Sync Pipeline — Gate Tests")
-    print("─" * 55)
+    print("Fork Sync Pipeline -- Gate Tests")
+    print("-" * 55)
     results = [run_test(name, fn) for name, fn in TESTS]
-    print("─" * 55)
+    print("-" * 55)
     passed = sum(results)
     total = len(results)
     if passed == total:

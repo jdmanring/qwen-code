@@ -23,8 +23,8 @@ During a conversation, Qwen Code monitors your context window usage and shows ti
 | Context usage | Condition                      | Tip                                               |
 | ------------- | ------------------------------ | ------------------------------------------------- |
 | 50-80%        | After a few prompts in session | Suggests `/compress` to free up context           |
-| 80-95%        | —                              | Warns context is getting full                     |
-| >= 95%        | —                              | Urgent: run `/compress` now or `/new` to continue |
+| 80-95%        | --                              | Warns context is getting full                     |
+| >= 95%        | --                              | Urgent: run `/compress` now or `/new` to continue |
 
 Post-response tips have per-tip cooldowns to avoid being repetitive.
 

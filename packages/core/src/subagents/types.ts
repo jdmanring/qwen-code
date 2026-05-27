@@ -104,7 +104,7 @@ export interface SubagentConfig {
 
   /**
    * When true, this agent always runs as a background task when spawned.
-   * OR'd with the `run_in_background` tool parameter — if either is true,
+   * OR'd with the `run_in_background` tool parameter -- if either is true,
    * the agent runs in the background.
    */
   background?: boolean;

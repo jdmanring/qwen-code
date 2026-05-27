@@ -516,7 +516,7 @@ describe('validatePath', () => {
     expect(() => validatePath(config, workspaceRoot)).not.toThrow();
   });
 
-  it('does not cache ENOENT — recreating the path between calls succeeds', () => {
+  it('does not cache ENOENT -- recreating the path between calls succeeds', () => {
     // Regression guard: a path that's missing at first-check, then created,
     // must NOT be rejected on the second call. Positive stats are cached;
     // ENOENT paths are not. This lets the model create a file with Edit
@@ -533,7 +533,7 @@ describe('validatePath', () => {
     }
   });
 
-  it('caches positive isDirectory — repeat call does not re-stat', () => {
+  it('caches positive isDirectory -- repeat call does not re-stat', () => {
     const spy = vi.spyOn(fs, 'statSync');
     const dir = path.join(workspaceRoot, 'subdir');
     try {

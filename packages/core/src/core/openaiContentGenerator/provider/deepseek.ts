@@ -16,14 +16,14 @@ import { ensureReasoningContentOnAssistantMessage } from './utils.js';
  * rewritten into DeepSeek's flat `reasoning_effort` body parameter, and
  * whether to emit `thinking: { type: 'disabled' }` when reasoning is
  * turned off. The broader `isDeepSeekProvider` falls back to model-name
- * matching to cover self-hosted deployments (sglang/vllm/ollama) — that
+ * matching to cover self-hosted deployments (sglang/vllm/ollama) -- that
  * fallback is right for content-part flattening (a model-format
  * constraint) but trusting it for the body-shape rewrite would push a
  * DeepSeek extension at strict OpenAI-compat backends that may not
  * accept it. Keep the two decisions separated.
  *
  * Parses the baseUrl with `new URL(...)` and matches the hostname
- * against `api.deepseek.com` (and its subdomains) exactly — a naive
+ * against `api.deepseek.com` (and its subdomains) exactly -- a naive
  * substring check would false-positive on hostile hosts like
  * `https://api.deepseek.com.evil.com/v1`. Invalid URLs are treated as
  * non-DeepSeek. Mirrors `isDeepSeekAnthropicHostname` on the Anthropic
@@ -55,7 +55,7 @@ export function isDeepSeekHostname(
  * same input-format constraint, so the model-name fallback is
  * intentional. For decisions that depend on the wire shape DeepSeek's
  * own API exposes (e.g. `reasoning_effort`, `thinking`), use
- * `isDeepSeekHostname` instead — see https://github.com/QwenLM/qwen-code/issues/3613.
+ * `isDeepSeekHostname` instead -- see https://github.com/QwenLM/qwen-code/issues/3613.
  */
 export function isDeepSeekProvider(
   contentGeneratorConfig: ContentGeneratorConfig,
@@ -84,12 +84,12 @@ export class DeepSeekOpenAICompatibleProvider extends DefaultOpenAICompatiblePro
   /**
    * DeepSeek's API requires message content to be a plain string, not an
    * array of content parts. Flatten any text-part arrays into joined
-   * strings; non-text parts (image_url, audio, …) are replaced with a
+   * strings; non-text parts (image_url, audio, ...) are replaced with a
    * `[Unsupported content type: <type>]` placeholder so the request still
    * goes through with a textual breadcrumb rather than silently dropping
    * the part or raising mid-conversation. Also translate the standard
    * `reasoning.effort` config into DeepSeek's flat `reasoning_effort`
-   * body parameter — but only on actual DeepSeek hostnames, since the
+   * body parameter -- but only on actual DeepSeek hostnames, since the
    * model-name fallback above can match self-hosted/strict OpenAI-compat
    * backends that don't accept the DeepSeek extension.
    */
@@ -164,14 +164,14 @@ function flattenContentParts(
 }
 
 // DeepSeek's chat-completions endpoint accepts a flat `reasoning_effort`
-// body parameter (Possible values: high, max — see
+// body parameter (Possible values: high, max -- see
 // https://api-docs.deepseek.com/zh-cn/api/create-chat-completion). The
 // standard qwen-code config shape is `reasoning: { effort, ... }` which gets
 // passed through verbatim by the OpenAI pipeline. Translate to the flat
 // shape DeepSeek expects so user-configured effort levels actually take
 // effect; otherwise the nested `reasoning` object is ignored and the server
 // silently defaults to `high`. Backward-compatible mapping per the doc:
-// low / medium → high (the API does this anyway, but we surface it
+// low / medium -> high (the API does this anyway, but we surface it
 // explicitly so logs / dashboards are accurate).
 function translateReasoningEffort(
   request: OpenAI.Chat.ChatCompletionCreateParams,
@@ -193,7 +193,7 @@ function translateReasoningEffort(
     typeof next['reasoning_effort'] !== 'string' ||
     !next['reasoning_effort']
   ) {
-    // Backward-compat mapping per the doc: low/medium → high, xhigh → max.
+    // Backward-compat mapping per the doc: low/medium -> high, xhigh -> max.
     // Surface it client-side so logs reflect the wire value the server will
     // actually act on (the server does the same mapping if we passed the
     // raw value through, but explicit is better for observability).
@@ -206,7 +206,7 @@ function translateReasoningEffort(
   // Drop only the duplicated `effort` key from the nested form so we don't
   // ship two competing values for the same knob. Other keys inside
   // `reasoning` (e.g. an extra_body-injected `budget_tokens`) stay
-  // intact — they're orthogonal data the server can ignore or honor on
+  // intact -- they're orthogonal data the server can ignore or honor on
   // its own, and silently swallowing them here would be a surprise.
   if (nested && Object.keys(nested).length === 1) {
     delete next['reasoning'];

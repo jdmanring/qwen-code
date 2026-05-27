@@ -33,7 +33,7 @@ export function useCompletionTrigger(
   const LOADING_ITEM = useMemo<CompletionItem>(
     () => ({
       id: 'loading',
-      label: 'Loading…',
+      label: 'Loading...',
       type: 'info',
     }),
     [],

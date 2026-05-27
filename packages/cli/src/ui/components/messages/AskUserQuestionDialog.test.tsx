@@ -187,7 +187,7 @@ describe('<AskUserQuestionDialog />', () => {
       );
       await wait();
 
-      // Press '2' to select the second option (Blue) — should auto-submit
+      // Press '2' to select the second option (Blue) -- should auto-submit
       stdin.write('2');
       await wait();
 
@@ -214,7 +214,7 @@ describe('<AskUserQuestionDialog />', () => {
       stdin.write('4');
       await wait();
 
-      // Should NOT auto-submit — just highlight "Other" for text input
+      // Should NOT auto-submit -- just highlight "Other" for text input
       expect(onConfirm).not.toHaveBeenCalled();
       unmount();
     });
@@ -250,15 +250,15 @@ describe('<AskUserQuestionDialog />', () => {
       );
       await wait();
 
-      expect(clean(lastFrame())).toContain('❯ 1. Red');
+      expect(clean(lastFrame())).toContain(' 1. Red');
 
       stdin.write('j');
       await wait();
-      expect(clean(lastFrame())).toContain('❯ 2. Blue');
+      expect(clean(lastFrame())).toContain(' 2. Blue');
 
       stdin.write('k');
       await wait();
-      expect(clean(lastFrame())).toContain('❯ 1. Red');
+      expect(clean(lastFrame())).toContain(' 1. Red');
 
       unmount();
     });
@@ -275,15 +275,15 @@ describe('<AskUserQuestionDialog />', () => {
       );
       await wait();
 
-      expect(clean(lastFrame())).toContain('❯ 1. Red');
+      expect(clean(lastFrame())).toContain(' 1. Red');
 
       stdin.write('\u000E'); // Ctrl+N
       await wait();
-      expect(clean(lastFrame())).toContain('❯ 2. Blue');
+      expect(clean(lastFrame())).toContain(' 2. Blue');
 
       stdin.write('\u0010'); // Ctrl+P
       await wait();
-      expect(clean(lastFrame())).toContain('❯ 1. Red');
+      expect(clean(lastFrame())).toContain(' 1. Red');
 
       unmount();
     });
@@ -302,21 +302,21 @@ describe('<AskUserQuestionDialog />', () => {
 
       stdin.write('4'); // Select "Other" custom input
       await wait(150);
-      expect(clean(lastFrame())).toContain('❯ 4.');
+      expect(clean(lastFrame())).toContain(' 4.');
 
       stdin.write('j');
       await wait(150);
       stdin.write('k');
       await wait(150);
-      expect(clean(lastFrame())).toContain('❯ 4.');
+      expect(clean(lastFrame())).toContain(' 4.');
 
       stdin.write('\u0010'); // Ctrl+P
       await wait();
-      expect(clean(lastFrame())).toContain('❯ 3. Green');
+      expect(clean(lastFrame())).toContain(' 3. Green');
 
       stdin.write('\u000E'); // Ctrl+N
       await wait();
-      expect(clean(lastFrame())).toContain('❯ 4.');
+      expect(clean(lastFrame())).toContain(' 4.');
 
       unmount();
     });
@@ -337,7 +337,7 @@ describe('<AskUserQuestionDialog />', () => {
       );
       await wait();
 
-      // Press '2' — should only move highlight, not submit
+      // Press '2' -- should only move highlight, not submit
       stdin.write('2');
       await wait();
 
@@ -364,7 +364,7 @@ describe('<AskUserQuestionDialog />', () => {
       await wait();
 
       // Should show checked state
-      expect(lastFrame()).toContain('[✓]');
+      expect(lastFrame()).toContain('[]');
       unmount();
     });
   });
@@ -395,7 +395,7 @@ describe('<AskUserQuestionDialog />', () => {
         stdin.write('\u001B[C'); // Right
         await wait();
 
-        // Press '1' on Submit tab — should only highlight, not submit
+        // Press '1' on Submit tab -- should only highlight, not submit
         stdin.write('1');
         await wait();
 

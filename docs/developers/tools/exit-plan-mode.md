@@ -45,9 +45,9 @@ Use `exit_plan_mode` when:
 
 ### Examples of appropriate usage:
 
-- "Help me implement user authentication" → Use after planning the auth system implementation
-- "Add a new API endpoint for user management" → Use after designing the endpoint structure
-- "Refactor the database layer to use TypeORM" → Use after planning the refactoring approach
+- "Help me implement user authentication" -> Use after planning the auth system implementation
+- "Add a new API endpoint for user management" -> Use after designing the endpoint structure
+- "Refactor the database layer to use TypeORM" -> Use after planning the refactoring approach
 
 ## When NOT to Use This Tool
 
@@ -60,9 +60,9 @@ Do NOT use `exit_plan_mode` for:
 
 ### Examples of inappropriate usage:
 
-- "Search for and understand the implementation of vim mode in the codebase" → Don't use (research task)
-- "Explain how the authentication system works" → Don't use (analysis task)
-- "Find all TODO comments in the project" → Don't use (information gathering)
+- "Search for and understand the implementation of vim mode in the codebase" -> Don't use (research task)
+- "Explain how the authentication system works" -> Don't use (analysis task)
+- "Find all TODO comments in the project" -> Don't use (information gathering)
 
 ## `exit_plan_mode` examples
 

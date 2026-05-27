@@ -159,14 +159,14 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
     let detectedLineEnding: LineEnding = 'lf';
     // Prior-read enforcement runs before any content is read so that
     // the read pipeline below (and the content-derived error codes
-    // it can produce — NO_OCCURRENCE_FOUND, EXPECTED_OCCURRENCE_MISMATCH,
+    // it can produce -- NO_OCCURRENCE_FOUND, EXPECTED_OCCURRENCE_MISMATCH,
     // NO_CHANGE) cannot be used as a read-less content oracle on a
     // file the model has never legitimately Read.
     //
     // Run unconditionally (not gated on `fileExists`): checkPriorRead
     // re-stats so a file that sprang into existence between
-    // isFilefileExists() and here — the same TOCTOU window WriteFile
-    // had — is now caught. ENOENT (genuinely absent) returns ok:true
+    // isFilefileExists() and here -- the same TOCTOU window WriteFile
+    // had -- is now caught. ENOENT (genuinely absent) returns ok:true
     // and falls through to the new-file path; an existing file that
     // appeared in the race window is rejected as unread.
     if (!this.config.getFileReadCacheDisabled()) {
@@ -388,7 +388,7 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
       // model-facing tool response. `raw` carries the remediation
       // detail (file path, stale-vs-unread distinction, "without
       // offset / limit / pages" hint) that `execute()` already
-      // surfaces — confirmation-required flows should not lose it.
+      // surfaces -- confirmation-required flows should not lose it.
       throw new StructuredToolError(editData.error.raw, editData.error.type);
     }
 
@@ -480,7 +480,7 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
       // Mirrors the upstream `claude-code/src/tools/FileEditTool` ordering,
       // which has an explicit comment on the equivalent block:
       //
-      //   "These awaits must stay OUTSIDE the critical section below — a
+      //   "These awaits must stay OUTSIDE the critical section below -- a
       //    yield between the staleness check and writeTextContent lets
       //    concurrent edits interleave."
       //
@@ -488,14 +488,14 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
       // hundreds of milliseconds. The previous ordering ran it AFTER
       // `checkPriorRead` and before `writeTextFile`, which widened the
       // already-acknowledged stat-then-write window from "two adjacent
-      // syscalls" to "freshness check → potentially-multi-second backup →
+      // syscalls" to "freshness check -> potentially-multi-second backup ->
       // write". An external mutation landing inside the backup window was
       // therefore no longer detected before the write clobbered it.
       //
       // Backing up first is safe: backups are idempotent (deterministic
       // `{hash}@v{version}` filename) and per-snapshot. If the freshness
       // check below then rejects the edit, we keep an unused-but-correct
-      // backup of the pre-edit state — not corrupt state. The next
+      // backup of the pre-edit state -- not corrupt state. The next
       // makeSnapshot will reuse it if the file is unchanged.
       try {
         await this.config
@@ -510,13 +510,13 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
       // long after that (user approval, modify-and-confirm, etc.).
       // Between the post-read check and the writeTextFile below,
       // an external mutation could land and be silently overwritten.
-      // This last guard tightens the window from "post-read →
-      // writeTextFile (unbounded)" to "stat → writeTextFile (two
+      // This last guard tightens the window from "post-read ->
+      // writeTextFile (unbounded)" to "stat -> writeTextFile (two
       // adjacent syscalls)".
       //
       // It does NOT eliminate the race. A concurrent writer that
       // lands between this stat and the writeTextFile call below
-      // can still be clobbered — that residual is an OS-level
+      // can still be clobbered -- that residual is an OS-level
       // limitation of the stat-then-write pattern, and the only
       // way to close it is an atomic write (write to a temp file,
       // then rename) or a content-hash post-check that re-reads
@@ -537,12 +537,12 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
           this.params.file_path,
           'editing',
           // For an in-place edit (`!isNewFile`), the file existed at
-          // read time and must still exist now — an ENOENT here
+          // read time and must still exist now -- an ENOENT here
           // means the original target disappeared and we should
           // reject rather than fall through to a new-file write
           // that would silently re-create a file from stale bytes.
           // For genuine new-file creation, ENOENT is the expected
-          // pre-write state (ok:true → writeTextFile creates).
+          // pre-write state (ok:true -> writeTextFile creates).
           { expectExisting: !editData.isNewFile },
         );
         if (!writeDecision.ok) {
@@ -563,7 +563,7 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
 
       // Create parent directories AFTER the pre-write enforcement
       // check passes. Doing it before would leak intermediate
-      // directories on the failure path — a real (if minor) FS
+      // directories on the failure path -- a real (if minor) FS
       // litter that the previous order created on every rejected
       // edit.
       this.ensureParentDirectoriesExist(this.params.file_path);
@@ -611,7 +611,7 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
       // so a follow-up Read sees `lastReadAt < lastWriteAt` and falls
       // through to the full pipeline instead of returning the
       // pre-edit placeholder. Best-effort: a stat failure here does
-      // not undo the successful write — the next Read will simply
+      // not undo the successful write -- the next Read will simply
       // re-stat and treat the cache entry as stale.
       try {
         const postWriteStats = fs.statSync(this.params.file_path);
@@ -778,7 +778,7 @@ Expectation for required parameters:
   protected override validateToolParamValues(
     params: EditToolParams,
   ): string | null {
-    // Normalize shell-escaped paths (e.g. "my\ file.txt" → "my file.txt")
+    // Normalize shell-escaped paths (e.g. "my\ file.txt" -> "my file.txt")
     // that may reach the LLM via at-completion or manual typing.
     params.file_path = unescapePath(params.file_path.trim());
 
@@ -809,7 +809,7 @@ Expectation for required parameters:
     // prefix (~80 chars). In-workspace edits take the acceptEdits fast-
     // path and never reach this projection; the preview is therefore
     // only consulted for the smaller set of out-of-workspace writes
-    // (~/.npmrc, /etc/hosts, etc.) — exactly the case where the
+    // (~/.npmrc, /etc/hosts, etc.) -- exactly the case where the
     // classifier needs the longer window.
     return {
       file_path: params.file_path,

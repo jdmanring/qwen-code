@@ -1,7 +1,7 @@
 # Skill: Test Coverage Max
 
 ## 1. Skill Identity
-**Test Coverage Max** is a deterministic protocol designed to eliminate "dark logic"—untested code paths that may hide critical bugs. It forces the execution of every conditional branch and edge case within a target function, ensuring that the test suite is comprehensive and that no branch is left unverified.
+**Test Coverage Max** is a deterministic protocol designed to eliminate "dark logic"--untested code paths that may hide critical bugs. It forces the execution of every conditional branch and edge case within a target function, ensuring that the test suite is comprehensive and that no branch is left unverified.
 
 ## 2. Trigger Logic
 This skill is activated when:

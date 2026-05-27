@@ -1,4 +1,4 @@
-# ⚙️ System Management Guidelines
+#  System Management Guidelines
 
 This document defines the boundaries and protocols for how the agent interacts with the host system and its services.
 

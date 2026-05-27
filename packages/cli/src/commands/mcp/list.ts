@@ -112,16 +112,16 @@ export async function listMcpServers(): Promise<void> {
     let statusText = '';
     switch (status) {
       case MCPServerStatus.CONNECTED:
-        statusIndicator = COLOR_GREEN + '✓' + RESET_COLOR;
+        statusIndicator = COLOR_GREEN + '' + RESET_COLOR;
         statusText = 'Connected';
         break;
       case MCPServerStatus.CONNECTING:
-        statusIndicator = COLOR_YELLOW + '…' + RESET_COLOR;
+        statusIndicator = COLOR_YELLOW + '...' + RESET_COLOR;
         statusText = 'Connecting';
         break;
       case MCPServerStatus.DISCONNECTED:
       default:
-        statusIndicator = COLOR_RED + '✗' + RESET_COLOR;
+        statusIndicator = COLOR_RED + '' + RESET_COLOR;
         statusText = 'Disconnected';
         break;
     }

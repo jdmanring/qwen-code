@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Scenario 02-lite — single real-Qwen prompt under --trace-warnings.
+# Scenario 02-lite -- single real-Qwen prompt under --trace-warnings.
 # Demonstrates the steady-state path emits no MaxListenersExceededWarning.
 set -uo pipefail
 WT="${WT:-$(git rev-parse --show-toplevel)}"

@@ -3,7 +3,7 @@
  * Copyright 2026 Qwen Team
  * SPDX-License-Identifier: Apache-2.0
  *
- * Provider registry — imports all provider definitions and assembles the
+ * Provider registry -- imports all provider definitions and assembles the
  * lookup tables used by the UI and CLI commands.
  */
 

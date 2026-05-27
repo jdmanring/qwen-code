@@ -187,36 +187,36 @@ The `AssistantContentConsumers` interface handles different types of content wit
 
 **Processor Relationship:**
 
-- `SessionEventConsumers` → `AssistantContentConsumers` (SessionEventConsumers uses AssistantContentConsumers to process content within assistant messages)
+- `SessionEventConsumers` -> `AssistantContentConsumers` (SessionEventConsumers uses AssistantContentConsumers to process content within assistant messages)
 
 **Event Derivation Relationships:**
 
-- `onAssistantMessage` → `onText`, `onThinking`, `onToolUse`, `onToolResult`, `onOtherContent`, `onUsage`
-- `onPartialAssistantMessage` → `onText`, `onThinking`, `onToolUse`, `onToolResult`, `onOtherContent`
-- `onControlRequest` → `onPermissionRequest`, `onOtherControlRequest`
+- `onAssistantMessage` -> `onText`, `onThinking`, `onToolUse`, `onToolResult`, `onOtherContent`, `onUsage`
+- `onPartialAssistantMessage` -> `onText`, `onThinking`, `onToolUse`, `onToolResult`, `onOtherContent`
+- `onControlRequest` -> `onPermissionRequest`, `onOtherControlRequest`
 
 **Event Timeout Relationships:**
 
 Each event handler method has a corresponding timeout method that allows customizing the timeout behavior for that specific event:
 
-- `onSystemMessage` ↔ `onSystemMessageTimeout`
-- `onResultMessage` ↔ `onResultMessageTimeout`
-- `onAssistantMessage` ↔ `onAssistantMessageTimeout`
-- `onPartialAssistantMessage` ↔ `onPartialAssistantMessageTimeout`
-- `onUserMessage` ↔ `onUserMessageTimeout`
-- `onOtherMessage` ↔ `onOtherMessageTimeout`
-- `onControlResponse` ↔ `onControlResponseTimeout`
-- `onControlRequest` ↔ `onControlRequestTimeout`
+- `onSystemMessage` <-> `onSystemMessageTimeout`
+- `onResultMessage` <-> `onResultMessageTimeout`
+- `onAssistantMessage` <-> `onAssistantMessageTimeout`
+- `onPartialAssistantMessage` <-> `onPartialAssistantMessageTimeout`
+- `onUserMessage` <-> `onUserMessageTimeout`
+- `onOtherMessage` <-> `onOtherMessageTimeout`
+- `onControlResponse` <-> `onControlResponseTimeout`
+- `onControlRequest` <-> `onControlRequestTimeout`
 
 For AssistantContentConsumers timeout methods:
 
-- `onText` ↔ `onTextTimeout`
-- `onThinking` ↔ `onThinkingTimeout`
-- `onToolUse` ↔ `onToolUseTimeout`
-- `onToolResult` ↔ `onToolResultTimeout`
-- `onOtherContent` ↔ `onOtherContentTimeout`
-- `onPermissionRequest` ↔ `onPermissionRequestTimeout`
-- `onOtherControlRequest` ↔ `onOtherControlRequestTimeout`
+- `onText` <-> `onTextTimeout`
+- `onThinking` <-> `onThinkingTimeout`
+- `onToolUse` <-> `onToolUseTimeout`
+- `onToolResult` <-> `onToolResultTimeout`
+- `onOtherContent` <-> `onOtherContentTimeout`
+- `onPermissionRequest` <-> `onPermissionRequestTimeout`
+- `onOtherControlRequest` <-> `onOtherControlRequestTimeout`
 
 **Default Timeout Values:**
 

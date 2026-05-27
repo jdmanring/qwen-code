@@ -55,7 +55,7 @@ describe('readWorktreeSession', () => {
   });
 
   it('returns null when sidecar is missing required fields', async () => {
-    // Partial write or schema drift — must not propagate undefined paths
+    // Partial write or schema drift -- must not propagate undefined paths
     // to consumers (removeUserWorktree, git status, Footer rendering).
     await fs.writeFile(
       filePath,
@@ -208,7 +208,7 @@ describe('restoreWorktreeContext', () => {
   });
 
   it('cleans up sidecar with valid JSON but missing required fields', async () => {
-    // Partial write or schema drift — same recovery as malformed JSON.
+    // Partial write or schema drift -- same recovery as malformed JSON.
     await fs.writeFile(
       filePath,
       JSON.stringify({ slug: 'incomplete' }),

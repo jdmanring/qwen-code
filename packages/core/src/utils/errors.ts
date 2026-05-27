@@ -117,7 +117,7 @@ export function getErrorType(error: unknown): string {
     return 'unknown';
   }
 
-  // Prefer the constructor name — SDK subclasses like APIConnectionError,
+  // Prefer the constructor name -- SDK subclasses like APIConnectionError,
   // RateLimitError etc. have meaningful names.
   const constructorName =
     error instanceof Error && error.constructor.name !== 'Error'

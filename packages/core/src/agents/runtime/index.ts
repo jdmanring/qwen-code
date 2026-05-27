@@ -5,7 +5,7 @@
  */
 
 /**
- * @fileoverview Runtime barrel — re-exports agent execution primitives.
+ * @fileoverview Runtime barrel -- re-exports agent execution primitives.
  */
 
 export * from './agent-types.js';

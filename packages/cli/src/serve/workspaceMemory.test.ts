@@ -358,7 +358,7 @@ describe('workspace memory routes', () => {
     it('returns 413 memory_file_too_large when existing QWEN.md exceeds the 16 MB cap', async () => {
       // Write a 17 MB existing QWEN.md, then attempt append. The
       // helper's pre-read `fs.stat` must refuse with the typed
-      // error → the route maps it to 413.
+      // error -> the route maps it to 413.
       const filePath = path.join(workspace, 'QWEN.md');
       // 17 MB of `x` characters. Bypass the helper's mutex / cap by
       // writing directly via fs (simulating an externally-grown file
@@ -385,7 +385,7 @@ describe('workspace memory routes', () => {
 
     it('omits errorMessage + filePath in 500/413 responses unless QWEN_SERVE_DEBUG is on', async () => {
       // Windows ignores Unix-style permission bits passed to
-      // `fs.chmod` — the directory stays writable, the POST succeeds
+      // `fs.chmod` -- the directory stays writable, the POST succeeds
       // with 200, and the EACCES path this test exercises is
       // unreachable. The route logic itself is platform-agnostic; the
       // Ubuntu + macOS runs cover it. Mirrors the
@@ -394,7 +394,7 @@ describe('workspace memory routes', () => {
       if (process.platform === 'win32') return;
 
       // Default: production response carries no `errorMessage` or
-      // `filePath` fields — operators read the daemon stderr log
+      // `filePath` fields -- operators read the daemon stderr log
       // for the path. Setting QWEN_SERVE_DEBUG=1 enables both.
       const bridge = buildBridgeStub();
       const app = buildApp({ bridge, boundWorkspace: workspace });
@@ -441,7 +441,7 @@ describe('workspace memory routes', () => {
       const bridge = buildBridgeStub();
       const app = buildApp({ bridge, boundWorkspace: workspace });
       // Force the helper to throw by spying on `Storage.getGlobalQwenDir`
-      // — every call site of the discovery walk uses it.
+      // -- every call site of the discovery walk uses it.
       const failGlobal = vi
         .spyOn(Storage, 'getGlobalQwenDir')
         .mockImplementation(() => {
@@ -469,7 +469,7 @@ describe('workspace memory routes', () => {
     });
 
     // Reference InvalidClientIdError in case future refactors rename
-    // it — keeps the import non-tree-shakeable surface a real symbol.
+    // it -- keeps the import non-tree-shakeable surface a real symbol.
     it('exposes InvalidClientIdError from the bridge module', () => {
       expect(typeof InvalidClientIdError).toBe('function');
     });

@@ -49,7 +49,7 @@ describe('parseOtelResourceAttributes', () => {
     // Invalid percent-encoding in key falls back to raw key with a warn
     // (mirrors the invalid-value behavior on `a=val%ZZbad`).
     ['key%ZZ=val', { 'key%ZZ': 'val' }],
-  ])('parses %j → %j', (input, expected) => {
+  ])('parses %j -> %j', (input, expected) => {
     expect(parseOtelResourceAttributes(input)).toEqual(expected);
   });
 
@@ -64,7 +64,7 @@ describe('parseOtelResourceAttributes', () => {
 
   it('skips pairs with empty key without warning', () => {
     expect(parseOtelResourceAttributes('=value,a=1')).toEqual({ a: '1' });
-    // Empty-key paths skip silently — not a malformed-pair warning.
+    // Empty-key paths skip silently -- not a malformed-pair warning.
     expect(warnSpy).not.toHaveBeenCalled();
   });
 
@@ -142,7 +142,7 @@ describe('RESERVED_RESOURCE_ATTRIBUTE_KEYS', () => {
   });
 });
 
-describe('stripReservedResourceAttributes — session.id', () => {
+describe('stripReservedResourceAttributes -- session.id', () => {
   let warnSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {

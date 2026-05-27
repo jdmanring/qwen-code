@@ -54,7 +54,7 @@ describe('BackgroundShellRegistry', () => {
   });
 
   describe('complete', () => {
-    it('transitions running → completed with exitCode and endTime', () => {
+    it('transitions running -> completed with exitCode and endTime', () => {
       const reg = new BackgroundShellRegistry();
       reg.register(makeEntry({ shellId: 'a' }));
       reg.complete('a', 0, 2000);
@@ -81,7 +81,7 @@ describe('BackgroundShellRegistry', () => {
   });
 
   describe('fail', () => {
-    it('transitions running → failed with error and endTime', () => {
+    it('transitions running -> failed with error and endTime', () => {
       const reg = new BackgroundShellRegistry();
       reg.register(makeEntry({ shellId: 'a' }));
       reg.fail('a', 'spawn error', 2000);
@@ -161,7 +161,7 @@ describe('BackgroundShellRegistry', () => {
       reg.complete('a', 0, 2000); // already terminal
       reg.fail('a', 'late', 2000); // already terminal
       reg.cancel('a', 2000); // already terminal
-      reg.requestCancel('a'); // already terminal — also no fire
+      reg.requestCancel('a'); // already terminal -- also no fire
 
       expect(transitions).toEqual([]);
     });
@@ -329,7 +329,7 @@ describe('BackgroundShellRegistry', () => {
       const reg = new BackgroundShellRegistry();
       // Register one extra terminal entry beyond the cap, then a single
       // running entry. The running entry must be retained regardless of
-      // its launch order — pruning a still-running shell would lose the
+      // its launch order -- pruning a still-running shell would lose the
       // user's only handle on a live process.
       reg.register(makeEntry({ shellId: 'live', startTime: 1 }));
       for (let i = 0; i < MAX_RETAINED_TERMINAL_SHELLS + 1; i++) {
@@ -379,7 +379,7 @@ describe('BackgroundShellRegistry', () => {
   });
 
   describe('cancel', () => {
-    it('transitions running → cancelled and aborts the signal', () => {
+    it('transitions running -> cancelled and aborts the signal', () => {
       const reg = new BackgroundShellRegistry();
       const ac = new AbortController();
       reg.register(makeEntry({ shellId: 'a', abortController: ac }));

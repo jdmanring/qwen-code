@@ -140,7 +140,7 @@ function taskOutputPath(entry: TaskEntry): string | undefined {
       return entry.outputFile;
     case 'monitor':
       // Monitors stream to the agent via task_notification rather than a
-      // file on disk — no output path to surface here.
+      // file on disk -- no output path to surface here.
       return undefined;
     default: {
       const _exhaustive: never = entry;
@@ -155,11 +155,11 @@ export const tasksCommand: SlashCommand = {
   name: 'tasks',
   get description() {
     return t(
-      'List background tasks (text dump — interactive dialog opens via the footer pill)',
+      'List background tasks (text dump -- interactive dialog opens via the footer pill)',
     );
   },
   kind: CommandKind.BUILT_IN,
-  // Kept on all three modes: the interactive dialog (reachable via ↓ +
+  // Kept on all three modes: the interactive dialog (reachable via  +
   // Enter on the footer Background tasks pill) is the richer surface
   // when a TTY is available, but `non_interactive` and `acp` consumers
   // (headless `-p`, IDE bridges, SDK) have no dialog and rely on this
@@ -177,7 +177,7 @@ export const tasksCommand: SlashCommand = {
     }
 
     // Each registry already tags entries with `kind`, so no per-entry
-    // mapping is needed here — just spread into a single sorted list.
+    // mapping is needed here -- just spread into a single sorted list.
     const agentEntries: AgentTask[] = [
       ...config.getBackgroundTaskRegistry().getAll(),
     ];
@@ -205,17 +205,17 @@ export const tasksCommand: SlashCommand = {
     const lines: string[] = [];
     // Soft redirect: in interactive mode the dialog is richer (per-entry
     // detail view, live updates, cancel keybinding). Don't show the hint
-    // in non_interactive / acp — those consumers have no dialog to point
+    // in non_interactive / acp -- those consumers have no dialog to point
     // at and the noise just clutters their output. The wording avoids
     // pinning a single-key path because Down may pass through the Arena
     // agent tab bar first when subagents are present (`InputPrompt`
-    // focus chain: agent tab bar → bg pill); calling it "the footer
+    // focus chain: agent tab bar -> bg pill); calling it "the footer
     // Background tasks pill" lets the user reach it however the focus
     // chain routes them today.
     if (context.executionMode === 'interactive') {
       lines.push(
         t(
-          'Tip: focus the Background tasks pill in the footer (use ↓ from an empty composer) and press Enter for the interactive dialog with detail view + live updates.',
+          'Tip: focus the Background tasks pill in the footer (use  from an empty composer) and press Enter for the interactive dialog with detail view + live updates.',
         ),
         '',
       );
@@ -244,16 +244,16 @@ export const tasksCommand: SlashCommand = {
     // supplied strings (description, command, error from spawn / settle).
     // A maliciously-crafted value could otherwise reach the terminal
     // verbatim and corrupt display via:
-    //   - ANSI escape sequences (CSI / OSC / SGR — start with ESC)
+    //   - ANSI escape sequences (CSI / OSC / SGR -- start with ESC)
     //   - bare C0 control bytes (BEL 0x07 audible bell, BS 0x08 cursor
-    //     back, VT 0x0B, FF 0x0C, …)
-    //   - C1 control bytes (0x80–0x9F)
+    //     back, VT 0x0B, FF 0x0C, ...)
+    //   - C1 control bytes (0x80-0x9F)
     //   - VT control sequences
     // `stripUnsafeCharacters` (textUtils.ts) handles all four classes in
     // one pass while preserving TAB / CR / LF that we genuinely need
     // for line breaks and tabular formatting. Wrapping the joined
-    // output once covers every field — including any future kind's
-    // fields — without per-site sanitization sprawl.
+    // output once covers every field -- including any future kind's
+    // fields -- without per-site sanitization sprawl.
     return {
       type: 'message' as const,
       messageType: 'info' as const,

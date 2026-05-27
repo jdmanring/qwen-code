@@ -51,22 +51,22 @@ export function HooksDisabledStep({
         <Text bold color={theme.text.primary}>
           {t('When hooks are disabled:')}
         </Text>
-        {/* Note: Using middle dot (·) as bullet character. This is consistent with
+        {/* Note: Using middle dot () as bullet character. This is consistent with
             other CLI components. If a design system evolves, consider extracting
             to a shared constant or using a BulletList component. */}
         <Box>
           <Text color={theme.text.secondary}>
-            {`  · ${t('No hook commands will execute')}`}
+            {`   ${t('No hook commands will execute')}`}
           </Text>
         </Box>
         <Box>
           <Text color={theme.text.secondary}>
-            {`  · ${t('StatusLine will not be displayed')}`}
+            {`   ${t('StatusLine will not be displayed')}`}
           </Text>
         </Box>
         <Box>
           <Text color={theme.text.secondary}>
-            {`  · ${t('Tool operations will proceed without hook validation')}`}
+            {`   ${t('Tool operations will proceed without hook validation')}`}
           </Text>
         </Box>
       </Box>

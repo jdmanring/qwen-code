@@ -34,7 +34,7 @@ export const Composer = () => {
   } = uiState;
 
   // Real-time token animation is performed inside LoadingIndicator itself, so
-  // the 100ms polling only re-renders that one component — keeping InputPrompt
+  // the 100ms polling only re-renders that one component -- keeping InputPrompt
   // and Footer static avoids terminal flicker during streaming.
   const isStreaming =
     uiState.streamingState === StreamingState.Responding ||
@@ -81,7 +81,7 @@ export const Composer = () => {
   // narrow signal.
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Broad signal — any input-area Tab consumer. Forwarded to AppContainer
+  // Broad signal -- any input-area Tab consumer. Forwarded to AppContainer
   // via UIActionsContext so useAutoAcceptIndicator's `shouldBlockTab` can
   // suppress the Windows-only bare-Tab approval-mode fallback. See #4171.
   const handleTabConsumerChange = useCallback(
@@ -117,7 +117,7 @@ export const Composer = () => {
       )}
       {/*
        * Narrow-terminal fallback: when the full LoadingIndicator is suppressed
-       * (≤30 cols, actively Responding) we still surface a minimal `esc to
+       * (<=30 cols, actively Responding) we still surface a minimal `esc to
        * cancel` hint so users on ultra-narrow terminals retain the cancel
        * affordance during long-running calls. The full timer/spinner/phrase
        * UI is still suppressed to avoid layout breakage.

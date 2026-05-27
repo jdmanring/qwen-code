@@ -145,11 +145,11 @@ export class DefaultOpenAICompatibleProvider
    *    - Still apply CAPPED_DEFAULT_MAX_TOKENS as safeguard
    *
    * Examples:
-   * - User sets 4K, known model limit 64K → uses 4K (respects user preference)
-   * - User sets 100K, known model limit 64K → uses 64K (capped to avoid API error)
-   * - User sets 100K, unknown model → uses 100K (respects user, backend may support it)
-   * - User not set, model limit 64K → uses 8K (capped default for slot optimization)
-   * - User not set, model limit 4K → uses 4K (model limit is lower)
+   * - User sets 4K, known model limit 64K -> uses 4K (respects user preference)
+   * - User sets 100K, known model limit 64K -> uses 64K (capped to avoid API error)
+   * - User sets 100K, unknown model -> uses 100K (respects user, backend may support it)
+   * - User not set, model limit 64K -> uses 8K (capped default for slot optimization)
+   * - User not set, model limit 4K -> uses 4K (model limit is lower)
    * - User not set, env QWEN_CODE_MAX_OUTPUT_TOKENS=16000 -> uses 16K
    *
    * @param request - The chat completion request parameters
@@ -159,7 +159,7 @@ export class DefaultOpenAICompatibleProvider
     T extends { max_tokens?: number | null; model: string },
   >(request: T): T {
     // When samplingParams is set, it is the source of truth for the wire shape.
-    // Don't inject a max_tokens default — honor the user's explicit choice.
+    // Don't inject a max_tokens default -- honor the user's explicit choice.
     if (this.contentGeneratorConfig.samplingParams !== undefined) {
       return request;
     }
@@ -184,8 +184,8 @@ export class DefaultOpenAICompatibleProvider
         effectiveMaxTokens = userMaxTokens;
       }
     } else {
-      // No explicit user config — check env var, then use capped default.
-      // Capped default (8K) reduces GPU slot over-reservation by ~4×.
+      // No explicit user config -- check env var, then use capped default.
+      // Capped default (8K) reduces GPU slot over-reservation by ~4*.
       // Requests hitting the cap get one clean retry at 64K (geminiChat.ts).
       const envVal = process.env['QWEN_CODE_MAX_OUTPUT_TOKENS'];
       const envMaxTokens = envVal ? parseInt(envVal, 10) : NaN;

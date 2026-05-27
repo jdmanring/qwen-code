@@ -760,7 +760,7 @@ describe('UiTelemetryService', () => {
         __redacted: 'structured_output payload (see stdout result)',
       });
 
-      // Metrics still flow through normally — duration, success, decision.
+      // Metrics still flow through normally -- duration, success, decision.
       service.addEvent({
         ...structuredClone(event),
         'event.name': EVENT_TOOL_CALL,

@@ -11,7 +11,7 @@ This guide covers setting up a Qwen Code channel on Telegram.
 
 1. Open Telegram and search for [@BotFather](https://t.me/BotFather)
 2. Send `/newbot` and follow the prompts to choose a name and username
-3. BotFather will give you a bot token — save it securely
+3. BotFather will give you a bot token -- save it securely
 
 ## Finding Your User ID
 
@@ -20,7 +20,7 @@ To use `senderPolicy: "allowlist"` or `"pairing"`, you need your Telegram user I
 The easiest way to find it:
 
 1. Search for [@userinfobot](https://t.me/userinfobot) on Telegram
-2. Send it any message — it will reply with your user ID
+2. Send it any message -- it will reply with your user ID
 
 ## Configuration
 
@@ -71,7 +71,7 @@ Then open your bot in Telegram and send a message. You should see "Working..." a
 To use the bot in Telegram groups:
 
 1. Set `groupPolicy` to `"allowlist"` or `"open"` in your channel config
-2. **Disable privacy mode** in BotFather: `/mybots` → select your bot → Bot Settings → Group Privacy → Turn Off
+2. **Disable privacy mode** in BotFather: `/mybots` -> select your bot -> Bot Settings -> Group Privacy -> Turn Off
 3. Add the bot to a group. If it was already in the group, **remove and re-add it** (Telegram caches privacy settings from when the bot joined)
 4. If using `groupPolicy: "allowlist"`, add the group's chat ID to `groups` in your config
 
@@ -81,15 +81,15 @@ By default, the bot requires an @mention or a reply to respond in groups. Set `"
 
 You can send photos and documents to the bot, not just text.
 
-**Photos:** Send a photo and the agent will analyze it using its vision capabilities. This requires a multimodal model — add `"model": "qwen3.5-plus"` (or another vision-capable model) to your channel config. Photo captions are passed as the message text.
+**Photos:** Send a photo and the agent will analyze it using its vision capabilities. This requires a multimodal model -- add `"model": "qwen3.5-plus"` (or another vision-capable model) to your channel config. Photo captions are passed as the message text.
 
 **Documents:** Send a PDF, code file, or any document. The bot downloads it and saves it locally so the agent can read it with its file tools. This works with any model. Telegram's file size limit is 20MB.
 
 ## Tips
 
-- **Keep instructions concise-focused** — Telegram has a 4096-character message limit. Adding instructions like "keep responses short" helps the agent stay within bounds.
-- **Use `sessionScope: "user"`** — This gives each user their own conversation. Use `/clear` to start fresh.
-- **Restrict access** — Use `senderPolicy: "allowlist"` for a fixed set of users, or `"pairing"` to let new users request access with a code you approve via CLI. See [DM Pairing](./overview#dm-pairing) for details.
+- **Keep instructions concise-focused** -- Telegram has a 4096-character message limit. Adding instructions like "keep responses short" helps the agent stay within bounds.
+- **Use `sessionScope: "user"`** -- This gives each user their own conversation. Use `/clear` to start fresh.
+- **Restrict access** -- Use `senderPolicy: "allowlist"` for a fixed set of users, or `"pairing"` to let new users request access with a code you approve via CLI. See [DM Pairing](./overview#dm-pairing) for details.
 
 ## Message Formatting
 
@@ -107,7 +107,7 @@ The agent's markdown responses are automatically converted to Telegram-compatibl
 
 - Check that `groupPolicy` is set to `"allowlist"` or `"open"` (default is `"disabled"`)
 - If using `"allowlist"`, verify the group's chat ID is in the `groups` config
-- Make sure **Group Privacy is turned off** in BotFather — without this, the bot can't see non-command messages in groups
+- Make sure **Group Privacy is turned off** in BotFather -- without this, the bot can't see non-command messages in groups
 - If you changed privacy mode after adding the bot to a group, **remove and re-add the bot** to the group
 - By default, the bot requires an @mention or a reply. Send `@yourbotname hello` to test
 

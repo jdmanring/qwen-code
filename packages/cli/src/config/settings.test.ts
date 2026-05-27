@@ -1864,7 +1864,7 @@ describe('Settings Loading and Merging', () => {
         },
       );
 
-      // Should NOT throw — corrupted settings degrade gracefully
+      // Should NOT throw -- corrupted settings degrade gracefully
       const result = loadSettings(MOCK_WORKSPACE_DIR);
       expect(result).toBeDefined();
 
@@ -1944,7 +1944,7 @@ describe('Settings Loading and Merging', () => {
         },
       );
 
-      // Should NOT throw — falls through to rename-and-degrade
+      // Should NOT throw -- falls through to rename-and-degrade
       const result = loadSettings(MOCK_WORKSPACE_DIR);
       expect(result).toBeDefined();
 
@@ -1982,7 +1982,7 @@ describe('Settings Loading and Merging', () => {
         throw new Error('EACCES: permission denied');
       });
 
-      // Should still NOT throw — proceeds with empty settings
+      // Should still NOT throw -- proceeds with empty settings
       const result = loadSettings(MOCK_WORKSPACE_DIR);
       expect(result).toBeDefined();
 
@@ -2428,7 +2428,7 @@ describe('Settings Loading and Merging', () => {
         commentJsonUtils.updateSettingsFilePreservingFormat as Mock;
       mockFn.mockReturnValue(false);
 
-      // Should not throw — the error is caught and logged internally
+      // Should not throw -- the error is caught and logged internally
       expect(() => loadSettings(MOCK_WORKSPACE_DIR)).not.toThrow();
 
       // The mock should have been called (the migration path was reached)
@@ -3071,8 +3071,8 @@ describe('Settings Loading and Merging', () => {
       });
 
       it('should never set QWEN_HOME or QWEN_RUNTIME_DIR from settings.env', () => {
-        // Storage-routing vars must not come from settings.json — even at
-        // user scope — because a workspace settings.json could otherwise
+        // Storage-routing vars must not come from settings.json -- even at
+        // user scope -- because a workspace settings.json could otherwise
         // redirect global state after the path bootstrap has run.
         delete process.env['QWEN_HOME'];
         delete process.env['QWEN_RUNTIME_DIR'];
@@ -3231,7 +3231,7 @@ describe('Settings Loading and Merging', () => {
 
         loadEnvironment(loadSettings(MOCK_WORKSPACE_DIR).merged);
 
-        // All three should be set — DEBUG and DEBUG_MODE must NOT be excluded
+        // All three should be set -- DEBUG and DEBUG_MODE must NOT be excluded
         // because the .env lives inside the user-level QWEN_HOME directory.
         expect(process.env['DEBUG']).toEqual('true');
         expect(process.env['DEBUG_MODE']).toEqual('1');
@@ -3527,7 +3527,7 @@ describe('Settings Loading and Merging', () => {
 
         loadEnvironment(loadSettings(MOCK_WORKSPACE_DIR).merged);
 
-        // QWEN_HOME/.env must win — without the precedence fix, ~/.env would
+        // QWEN_HOME/.env must win -- without the precedence fix, ~/.env would
         // be returned by the walk-up before the QWEN_HOME fallback was ever
         // consulted.
         expect(process.env['QWEN_HOME_TEST_VAR']).toEqual('fromQwenHome');

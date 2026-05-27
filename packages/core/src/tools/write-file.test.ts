@@ -406,7 +406,7 @@ describe('WriteFileTool', () => {
     // pre-write checkPriorRead. The upstream `claude-code/src/tools/
     // FileEditTool` comment on the equivalent block says:
     //
-    //   "These awaits must stay OUTSIDE the critical section below — a
+    //   "These awaits must stay OUTSIDE the critical section below -- a
     //    yield between the staleness check and writeTextContent lets
     //    concurrent edits interleave."
     //
@@ -417,7 +417,7 @@ describe('WriteFileTool', () => {
     // Test strategy: install a `trackEdit` mock that mutates the file
     // on disk before returning. That mutation must be detected by the
     // pre-write `checkPriorRead`. That only happens if `trackEdit`
-    // runs BEFORE the pre-write check — the broken ordering would run
+    // runs BEFORE the pre-write check -- the broken ordering would run
     // the pre-write check first (passing on pre-mutation stats), then
     // trackEdit (which mutates), then write (which clobbers the
     // external mutation silently).
@@ -629,7 +629,7 @@ describe('WriteFileTool', () => {
 
         const result = await invocation.execute(abortSignal);
 
-        // Should succeed — file created at the unescaped (real) path
+        // Should succeed -- file created at the unescaped (real) path
         expect(result.llmContent).toMatch(/Successfully created and wrote/);
         expect(fs.existsSync(realPath)).toBe(true);
         expect(fs.readFileSync(realPath, 'utf8')).toBe(content);
@@ -978,7 +978,7 @@ describe('WriteFileTool', () => {
 
     it('marks aiCreated=false when overwriting an existing empty file', async () => {
       const filePath = path.join(rootDir, 'attr_existing_empty.txt');
-      // Create an empty file first — the distinction we're guarding
+      // Create an empty file first -- the distinction we're guarding
       // is that overwriting an empty existing file should NOT be
       // counted as a creation, even though both old contents are
       // length-0.
@@ -1008,10 +1008,10 @@ describe('WriteFileTool', () => {
     it('rejects a write that would overwrite an unread existing file', async () => {
       const filePath = path.join(rootDir, 'enforce-overwrite.txt');
       fs.writeFileSync(filePath, 'untouched bytes', 'utf-8');
-      // No seedPriorRead — model has not Read this file in the session.
+      // No seedPriorRead -- model has not Read this file in the session.
 
       // Spy on readTextFile to assert enforcement runs *before* any
-      // I/O against the file's contents — see the L4 review comment.
+      // I/O against the file's contents -- see the L4 review comment.
       const readSpy = vi.spyOn(fsService, 'readTextFile');
 
       const params = { file_path: filePath, content: 'clobber attempt' };
@@ -1065,8 +1065,8 @@ describe('WriteFileTool', () => {
       // than the truncate-tool-output limit recorded
       // `lastReadWasFull: false` (the model only saw the head), and
       // WriteFile's `requireFullRead: true` rejected the follow-up
-      // overwrite with "only been partially read … re-read without
-      // offset / limit / pages" — but a re-read produces the same
+      // overwrite with "only been partially read ... re-read without
+      // offset / limit / pages" -- but a re-read produces the same
       // truncated state, deadlocking the user. After dropping
       // `requireFullRead` (aligning with Claude Code), the truncated
       // read is enough to clear enforcement; the mtime/size drift
@@ -1211,7 +1211,7 @@ describe('WriteFileTool', () => {
         .build({ file_path: filePath, content: 'clobber' })
         .execute(abortSignal);
       // Distinct error code: the model may have legitimately read the
-      // file — we just cannot verify because stat itself failed.
+      // file -- we just cannot verify because stat itself failed.
       // EDIT_REQUIRES_PRIOR_READ would imply "definitely not read".
       expect(result.error?.type).toBe(
         ToolErrorType.PRIOR_READ_VERIFICATION_FAILED,

@@ -105,7 +105,7 @@ describe('ExitWorktreeTool', () => {
     });
   });
 
-  describe('confirmation type — round-7 AUTO_EDIT bypass guard', () => {
+  describe('confirmation type -- round-7 AUTO_EDIT bypass guard', () => {
     // Regression guard for the round-7 finding: `getDefaultPermission`
     // returning 'ask' was insufficient because BaseToolInvocation's
     // default `getConfirmationDetails` returned `type: 'info'`, which
@@ -146,12 +146,12 @@ describe('ExitWorktreeTool', () => {
     });
   });
 
-  // ── execute() integration: real git repo, real worktree ──────
+  // -- execute() integration: real git repo, real worktree ------
   // These tests provision a temp git repo so we exercise the
   // session-ownership guard, the keep path, and the missing-marker
   // fallback against the actual implementation rather than mocking
   // every git call.
-  describe('execute() — session ownership & lifecycle', () => {
+  describe('execute() -- session ownership & lifecycle', () => {
     let repoRoot: string;
 
     beforeEach(async () => {
@@ -233,7 +233,7 @@ describe('ExitWorktreeTool', () => {
     });
 
     it('allows removal when the worktree predates the session-marker guard', async () => {
-      // Manually create a worktree without writing the marker — this
+      // Manually create a worktree without writing the marker -- this
       // is the upgrade path. The tool should warn-log and proceed.
       const svc = new GitWorktreeService(repoRoot);
       const created = await svc.createUserWorktree('legacy');
@@ -292,7 +292,7 @@ describe('ExitWorktreeTool', () => {
     });
 
     it('marker also written by writeWorktreeSessionMarker survives round-trip', async () => {
-      // Direct service-level write, then read via the same helper —
+      // Direct service-level write, then read via the same helper --
       // covers the exclude-rule path (which is best-effort and may
       // not fire in unusual test layouts).
       const wtPath = await provisionWorktree('roundtrip');

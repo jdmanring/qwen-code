@@ -20,20 +20,20 @@ const FULL_MULTIMODAL: InputModalities = {
  */
 const MODALITY_PATTERNS: Array<[RegExp, InputModalities]> = [
   // -------------------
-  // Google Gemini — full multimodal
+  // Google Gemini -- full multimodal
   // -------------------
   [/^gemini-3/, FULL_MULTIMODAL],
   [/^gemini-/, FULL_MULTIMODAL],
 
   // -------------------
-  // OpenAI — image by default for all gpt/o-series models
+  // OpenAI -- image by default for all gpt/o-series models
   // -------------------
   [/^gpt-5/, { image: true }],
   [/^gpt-/, { image: true }],
   [/^o\d/, { image: true }],
 
   // -------------------
-  // Anthropic Claude — image + pdf
+  // Anthropic Claude -- image + pdf
   // -------------------
   [/^claude-/, { image: true, pdf: true }],
 
@@ -51,12 +51,12 @@ const MODALITY_PATTERNS: Array<[RegExp, InputModalities]> = [
 
   // Qwen coder / text models: text-only
   [/^qwen3-coder-/, {}],
-  // Qwen3.6-35B-A3B (local quant variants) — image + video
+  // Qwen3.6-35B-A3B (local quant variants) -- image + video
   [/^qwen3\.6-35b/, { image: true, video: true }],
   [/^qwen/, {}],
 
   // -------------------
-  // DeepSeek — text-only
+  // DeepSeek -- text-only
   // -------------------
   [/^deepseek/, {}],
 
@@ -68,7 +68,7 @@ const MODALITY_PATTERNS: Array<[RegExp, InputModalities]> = [
   [/^glm-/, {}],
 
   // -------------------
-  // MiniMax — text-only
+  // MiniMax -- text-only
   // -------------------
   [/^minimax-/, {}],
 

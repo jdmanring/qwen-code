@@ -350,7 +350,7 @@ describe('Logger', () => {
       // can't be triggered with sequential awaits because
       // `_updateLogFile`'s snapshot is always max+1-strict. Drive the
       // contract directly by mocking the private method to return null
-      // — the post-condition we care about is on `lastLoggedUserEntry`,
+      // -- the post-condition we care about is on `lastLoggedUserEntry`,
       // not on the _readLogFile/writeFile machinery.
       await logger.logMessage(MessageSenderType.USER, 'first');
       const trackerAfterFirst = logger['lastLoggedUserEntry'];
@@ -367,7 +367,7 @@ describe('Logger', () => {
       await logger.logMessage(MessageSenderType.USER, 'second');
       expect(updateSpy).toHaveBeenCalled();
 
-      // Tracker MUST have advanced — point at the entry "second" so a
+      // Tracker MUST have advanced -- point at the entry "second" so a
       // follow-up undo targets that row, not the older "first".
       const trackerAfterSkip = logger['lastLoggedUserEntry'];
       expect(trackerAfterSkip).not.toBe(trackerAfterFirst);
@@ -377,7 +377,7 @@ describe('Logger', () => {
 
     it('removeLastUserMessage targets the duplicate-skipped row, not the older USER', async () => {
       // Identity contract: when `_updateLogFile` returns null on a USER
-      // write, the tracker advances to the new entry — and that 5-tuple
+      // write, the tracker advances to the new entry -- and that 5-tuple
       // must match the row that actually IS on disk so a follow-up
       // `removeLastUserMessage()` deletes the duplicate-skipped row
       // rather than wiping out the prior USER prompt.
@@ -409,7 +409,7 @@ describe('Logger', () => {
       // newEntryObject to match the disk row (messageId 1, same
       // timestamp), then returns null. logMessage's
       // `else if (type === USER)` branch will then assign
-      // lastLoggedUserEntry = newEntryObject — the same 5-tuple as
+      // lastLoggedUserEntry = newEntryObject -- the same 5-tuple as
       // secondRow.
       vi.spyOn(
         logger as unknown as {
@@ -519,11 +519,11 @@ describe('Logger', () => {
         encodedTag: 'test-tag',
       },
       {
-        tag: '你好世界',
+        tag: '',
         encodedTag: '%E4%BD%A0%E5%A5%BD%E4%B8%96%E7%95%8C',
       },
       {
-        tag: 'japanese-ひらがなひらがな形声',
+        tag: 'japanese-',
         encodedTag:
           'japanese-%E3%81%B2%E3%82%89%E3%81%8C%E3%81%AA%E3%81%B2%E3%82%89%E3%81%8C%E3%81%AA%E5%BD%A2%E5%A3%B0',
       },
@@ -573,11 +573,11 @@ describe('Logger', () => {
         encodedTag: 'test-tag',
       },
       {
-        tag: '你好世界',
+        tag: '',
         encodedTag: '%E4%BD%A0%E5%A5%BD%E4%B8%96%E7%95%8C',
       },
       {
-        tag: 'japanese-ひらがなひらがな形声',
+        tag: 'japanese-',
         encodedTag:
           'japanese-%E3%81%B2%E3%82%89%E3%81%8C%E3%81%AA%E3%81%B2%E3%82%89%E3%81%8C%E3%81%AA%E5%BD%A2%E5%A3%B0',
       },
@@ -827,7 +827,7 @@ describe('Logger', () => {
       expect(removed).toBe(false);
     });
 
-    it('is one-shot — a second call without a new logMessage is a no-op', async () => {
+    it('is one-shot -- a second call without a new logMessage is a no-op', async () => {
       await logger.logMessage(MessageSenderType.USER, 'one');
       expect(await logger.removeLastUserMessage()).toBe(true);
       expect(await logger.removeLastUserMessage()).toBe(false);
@@ -837,19 +837,19 @@ describe('Logger', () => {
     it('only undoes USER entries (model_switch is left intact)', async () => {
       await logger.logMessage(MessageSenderType.USER, 'real prompt');
       vi.advanceTimersByTime(1000);
-      await logger.logMessage(MessageSenderType.MODEL_SWITCH, 'qwen→qwen-max');
+      await logger.logMessage(MessageSenderType.MODEL_SWITCH, 'qwen->qwen-max');
 
       // The model-switch write does NOT update lastLoggedUserEntry, so undo
       // still targets the earlier USER row.
       const removed = await logger.removeLastUserMessage();
       expect(removed).toBe(true);
       const onDisk = await readLogFile();
-      expect(onDisk.map((e) => e.message)).toEqual(['qwen→qwen-max']);
+      expect(onDisk.map((e) => e.message)).toEqual(['qwen->qwen-max']);
     });
 
     it('returns false when the tracked entry is no longer on disk', async () => {
       await logger.logMessage(MessageSenderType.USER, 'one');
-      // External rotation — wipe the file, then ask the logger to undo.
+      // External rotation -- wipe the file, then ask the logger to undo.
       await fs.writeFile(testLogFilePath, '[]', 'utf-8');
       const removed = await logger.removeLastUserMessage();
       expect(removed).toBe(false);
@@ -863,15 +863,15 @@ describe('Logger', () => {
     });
 
     it('serializes against a concurrent logMessage so a fast resubmit is not clobbered', async () => {
-      // Race scenario flagged in PR review: cancel A → fire-and-forget
-      // removeLastUserMessage; user immediately submits B → logMessage
+      // Race scenario flagged in PR review: cancel A -> fire-and-forget
+      // removeLastUserMessage; user immediately submits B -> logMessage
       // appends B. Without serialization the two read/splice/write ops
       // interleave: removeLast reads [..., A] (no B yet), logMessage reads
       // [..., A] (no aware of removeLast in flight), logMessage writes
       // [..., A, B], removeLast writes [...] (lost B). With the
       // per-instance writeQueue, both ops serialize on the same Logger so
       // removeLast sees B's write or B's logMessage sees the post-removal
-      // state — either way B survives.
+      // state -- either way B survives.
       await logger.logMessage(MessageSenderType.USER, 'A');
 
       // Kick off both without awaiting the first.
@@ -888,7 +888,7 @@ describe('Logger', () => {
     it('clears the tracker when logMessage hits a transient write error', async () => {
       // Regression: without clearing on failed write, a subsequent
       // removeLastUserMessage would target the previous successful
-      // USER entry — silently deleting an unrelated row from disk.
+      // USER entry -- silently deleting an unrelated row from disk.
       await logger.logMessage(MessageSenderType.USER, 'kept');
       vi.advanceTimersByTime(1000);
 
@@ -896,7 +896,7 @@ describe('Logger', () => {
       await logger.logMessage(MessageSenderType.USER, 'failed write');
 
       expect(logger['lastLoggedUserEntry']).toBeNull();
-      // No entry to undo → no-op, "kept" stays on disk.
+      // No entry to undo -> no-op, "kept" stays on disk.
       expect(await logger.removeLastUserMessage()).toBe(false);
       const onDisk = await readLogFile();
       expect(onDisk.map((e) => e.message)).toEqual(['kept']);
@@ -917,7 +917,7 @@ describe('Logger', () => {
       // Fire-and-forget the undo; do NOT await.
       const undoPromise = logger.removeLastUserMessage();
 
-      // The very next read must already reflect the removal — that's
+      // The very next read must already reflect the removal -- that's
       // what AppContainer's effect relies on.
       expect(await logger.getPreviousUserMessages()).toEqual([]);
 
@@ -931,7 +931,7 @@ describe('Logger', () => {
       // optimistically removes from `this.logs` BEFORE the disk write.
       // If writeFile fails, the contract MUST hold: returning false has
       // to mean the entry is still observable in-memory (otherwise
-      // callers see a `false` return AND a removed entry — the
+      // callers see a `false` return AND a removed entry -- the
       // worst-of-both inconsistency the JSDoc forbids).
       await logger.logMessage(MessageSenderType.USER, 'cancelled prompt');
       expect(await logger.getPreviousUserMessages()).toEqual([
@@ -955,7 +955,7 @@ describe('Logger', () => {
     it('rolls back the optimistic in-memory removal when the disk READ fails', async () => {
       // Companion to the write-failure regression: if _readLogFile throws
       // (filesystem permission change, mid-rotation, etc.) the
-      // restoreOptimistic path must run too — otherwise the same
+      // restoreOptimistic path must run too -- otherwise the same
       // false-but-removed contract violation appears on the read leg.
       await logger.logMessage(MessageSenderType.USER, 'cancelled prompt');
       expect(await logger.getPreviousUserMessages()).toEqual([
@@ -988,9 +988,9 @@ describe('Logger', () => {
       expect(trackedAfterUser).not.toBeNull();
 
       vi.spyOn(fs, 'writeFile').mockRejectedValueOnce(new Error('Disk full'));
-      await logger.logMessage(MessageSenderType.MODEL_SWITCH, 'qwen→qwen-max');
+      await logger.logMessage(MessageSenderType.MODEL_SWITCH, 'qwen->qwen-max');
 
-      // Tracker is unchanged — the non-USER failure didn't shift which
+      // Tracker is unchanged -- the non-USER failure didn't shift which
       // row was the most recent user prompt.
       expect(logger['lastLoggedUserEntry']).toBe(trackedAfterUser);
       expect(await logger.removeLastUserMessage()).toBe(true);

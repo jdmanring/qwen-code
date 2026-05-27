@@ -333,7 +333,7 @@ export async function loadServerHierarchicalMemory(
     implicitDiscoveryEnabled,
   );
 
-  // Resolve project root once — needed both for the QWEN.local.md slot
+  // Resolve project root once -- needed both for the QWEN.local.md slot
   // (below) and for rules discovery (further down).
   const resolvedCwd = path.resolve(currentWorkingDirectory);
   const foundRoot = await findProjectRoot(resolvedCwd);
@@ -366,7 +366,7 @@ export async function loadServerHierarchicalMemory(
         );
       }
     } catch {
-      // Not found, which is the common case — silently skip.
+      // Not found, which is the common case -- silently skip.
     }
   }
 

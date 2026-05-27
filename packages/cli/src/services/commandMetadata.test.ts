@@ -56,7 +56,7 @@ describe('getCommandSourceBadge', () => {
       getCommandSourceBadge(
         makeCmd({
           source: 'skill-dir-command',
-          sourceLabel: '用户',
+          sourceLabel: '',
           sourceDetail: 'user',
         }),
       ),
@@ -76,7 +76,7 @@ describe('getCommandSourceBadge', () => {
       getCommandSourceBadge(
         makeCmd({
           source: 'skill-dir-command',
-          sourceLabel: '项目',
+          sourceLabel: '',
           sourceDetail: 'project',
         }),
       ),
@@ -104,7 +104,7 @@ describe('getCommandSourceBadge', () => {
       getCommandSourceBadge(
         makeCmd({
           source: 'plugin-command',
-          sourceLabel: '扩展：my-ext',
+          sourceLabel: ':my-ext',
           sourceDetail: 'extension',
         }),
       ),

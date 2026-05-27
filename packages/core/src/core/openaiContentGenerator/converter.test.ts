@@ -452,7 +452,7 @@ describe('OpenAIContentConverter', () => {
 
       const toolMessage = messages.find((m) => m.role === 'tool');
       expect(toolMessage).toBeDefined();
-      // Tool message content is a plain string (or text-part array) — no media
+      // Tool message content is a plain string (or text-part array) -- no media
       expect(typeof toolMessage?.content === 'string').toBe(true);
       expect(toolMessage?.content).toContain('Image content');
 
@@ -550,7 +550,7 @@ describe('OpenAIContentConverter', () => {
       expect(messages[assistantIdx + 3]?.role).toBe('user');
 
       // Both tool messages have spec-compliant content (string OR array of
-      // text-typed parts only — no image_url / input_audio / video_url /
+      // text-typed parts only -- no image_url / input_audio / video_url /
       // file parts allowed by OpenAI on tool messages).
       const isSpecCompliantToolContent = (content: unknown): boolean => {
         if (typeof content === 'string') return true;
@@ -588,7 +588,7 @@ describe('OpenAIContentConverter', () => {
 
     it('should merge media from multiple media-bearing parallel tool responses into one follow-up user message (issue #3616)', () => {
       // Both tool responses return images. The accumulator must combine them
-      // into a single user message — we should NOT see two separate user
+      // into a single user message -- we should NOT see two separate user
       // messages (which would still violate the contiguity rule because the
       // first user message would split the tool messages apart).
       const request: GenerateContentParameters = {
@@ -721,7 +721,7 @@ describe('OpenAIContentConverter', () => {
                   id: 'c',
                   name: 'shot',
                   // null response triggers extractFunctionResponseContent
-                  // to return "" — the empty-text branch we want to cover.
+                  // to return "" -- the empty-text branch we want to cover.
                   response: null as unknown as Record<string, unknown>,
                   parts: [
                     { inlineData: { mimeType: 'image/png', data: 'xxx' } },
@@ -1505,7 +1505,7 @@ describe('OpenAIContentConverter', () => {
 
         const assistantMsg = messages.find((m) => m.role === 'assistant');
         expect(assistantMsg).toBeDefined();
-        // Must NOT be null – Ollama and other providers reject null content
+        // Must NOT be null - Ollama and other providers reject null content
         // when reasoning_content is present (HTTP 400).
         expect((assistantMsg as { content: unknown }).content).toBe('');
         // reasoning_content should still be preserved
@@ -1595,7 +1595,7 @@ describe('OpenAIContentConverter', () => {
      *
      * Ensures that when an MCP tool returns multiple content blocks
      * (e.g., text + image, or multiple text sections), all content
-     * ends up inside the tool message – NOT in a separate user message.
+     * ends up inside the tool message - NOT in a separate user message.
      *
      * These tests simulate the data shape produced by the *fixed*
      * convertToFunctionResponse(), where all text is joined into
@@ -2007,7 +2007,7 @@ describe('OpenAIContentConverter', () => {
 
     it('should ignore repeated cumulative chunks with no new suffix', () => {
       const ctx = withStreamParser();
-      // Must be ≥ CUMULATIVE_DELTA_EXACT_REPEAT_MIN_LENGTH (64 chars) so the
+      // Must be >= CUMULATIVE_DELTA_EXACT_REPEAT_MIN_LENGTH (64 chars) so the
       // exact-repeat branch enters cumulative mode rather than treating this
       // as a short legitimate repeat. Realistic cumulative providers replay
       // buffers of hundreds of bytes, so this length is representative.
@@ -2139,7 +2139,7 @@ describe('OpenAIContentConverter', () => {
 
       // Chunk 1: emits as-is (initial)
       // Chunk 2: cumulative mode entered, emits suffix only
-      // Chunk 3: NOT a prefix-extension — cumulative mode must exit and the
+      // Chunk 3: NOT a prefix-extension -- cumulative mode must exit and the
       //          new chunk must be appended verbatim (no silent loss)
       expect(emitted[0]).toBe('Step one is to gather inputs.');
       expect(emitted[1]).toBe('\nStep two is to validate them.');
@@ -2149,7 +2149,7 @@ describe('OpenAIContentConverter', () => {
     it('should resume prefix detection cleanly after exiting cumulative mode', () => {
       const ctx = withStreamParser();
       // Establish cumulative mode, then break it, then send another cumulative
-      // stream — the fresh baseline should allow re-entry into cumulative mode.
+      // stream -- the fresh baseline should allow re-entry into cumulative mode.
       const chunks = [
         'Step one is to gather inputs.',
         'Step one is to gather inputs.\nStep two is to validate them.',
@@ -2182,7 +2182,7 @@ describe('OpenAIContentConverter', () => {
       expect(emitted[1]).toBe('\nStep two is to validate them.');
       // Cumulative mode exits; fresh baseline = chunk 3
       expect(emitted[2]).toBe('Brand new unrelated message.');
-      // Chunk 4 prefix-extends chunk 3 — re-enters cumulative, emits suffix only
+      // Chunk 4 prefix-extends chunk 3 -- re-enters cumulative, emits suffix only
       expect(emitted[3]).toBe(' And more.');
     });
 
@@ -2215,9 +2215,9 @@ describe('OpenAIContentConverter', () => {
 
       // Chunk 1: initial
       expect(emitted[0]).toBe('Hi');
-      // Chunk 2: short exact repeat — passthrough, baseline stays 'Hi'
+      // Chunk 2: short exact repeat -- passthrough, baseline stays 'Hi'
       expect(emitted[1]).toBe('Hi');
-      // Chunk 3: prefix-extends 'Hi' — enters cumulative, emits suffix
+      // Chunk 3: prefix-extends 'Hi' -- enters cumulative, emits suffix
       expect(emitted[2]).toBe(' there, how are you today?');
     });
 
@@ -2273,7 +2273,7 @@ describe('OpenAIContentConverter', () => {
       // with no new suffix` test: the reasoning channel uses a separate state
       // object, so the exact-repeat entry path is exercised independently.
       const ctx = withStreamParser();
-      // Must be ≥ CUMULATIVE_DELTA_EXACT_REPEAT_MIN_LENGTH (64 chars).
+      // Must be >= CUMULATIVE_DELTA_EXACT_REPEAT_MIN_LENGTH (64 chars).
       const reasoning =
         'The reasoning section also starts with more than enough text to pass detection.';
       const emitted = [reasoning, reasoning].map((reasoning_content, index) => {
@@ -2299,7 +2299,7 @@ describe('OpenAIContentConverter', () => {
 
       // Chunk 1: emits as a thought part.
       expect(emitted[0]).toEqual({ text: reasoning, thought: true });
-      // Chunk 2: exact repeat — enters cumulative mode, suppressed (no part).
+      // Chunk 2: exact repeat -- enters cumulative mode, suppressed (no part).
       expect(emitted[1]).toEqual({ text: '', thought: false });
     });
 
@@ -2344,7 +2344,7 @@ describe('OpenAIContentConverter', () => {
         text: '\nStep two: validate.',
         thought: true,
       });
-      // Chunk 3: NOT a prefix-extension — cumulative mode must exit and the
+      // Chunk 3: NOT a prefix-extension -- cumulative mode must exit and the
       //          new chunk must be appended verbatim (no silent loss).
       expect(emitted[2]).toEqual({
         text: 'Brand new unrelated reasoning.',
@@ -2399,7 +2399,7 @@ describe('OpenAIContentConverter', () => {
         text: 'Brand new unrelated reasoning.',
         thought: true,
       });
-      // Chunk 4 prefix-extends chunk 3 — re-enters cumulative, emits suffix only.
+      // Chunk 4 prefix-extends chunk 3 -- re-enters cumulative, emits suffix only.
       expect(emitted[3]).toEqual({
         text: ' And further reflection.',
         thought: true,
@@ -2444,7 +2444,7 @@ describe('OpenAIContentConverter', () => {
       ]);
       // Content chunk 1: emits as text (independent state)
       expect(emitted[1]).toEqual([{ text: 'Here' }]);
-      // Reasoning chunk 2: cumulative extension — emits suffix only
+      // Reasoning chunk 2: cumulative extension -- emits suffix only
       expect(emitted[2]).toEqual([{ text: '\nStep two.', thought: true }]);
       // Content chunk 2: cumulative extension of content channel
       expect(emitted[3]).toEqual([{ text: ' is the answer.' }]);
@@ -2452,7 +2452,7 @@ describe('OpenAIContentConverter', () => {
 
     it('should enter cumulative mode on exact 64-char repeat (at threshold)', () => {
       const ctx = withStreamParser();
-      // Exactly 64 chars — meets CUMULATIVE_DELTA_EXACT_REPEAT_MIN_LENGTH.
+      // Exactly 64 chars -- meets CUMULATIVE_DELTA_EXACT_REPEAT_MIN_LENGTH.
       // The threshold sits well above realistic legit-repeat lengths (e.g. a
       // duplicate `import { foo } from './module';` is ~31 chars) so that
       // legitimate repeats are never silently suppressed.
@@ -2482,15 +2482,15 @@ describe('OpenAIContentConverter', () => {
 
       // Chunk 1: initial passthrough
       expect(emitted[0]).toBe(atThreshold);
-      // Chunk 2: exact 64-char repeat — enters cumulative mode, suppressed
+      // Chunk 2: exact 64-char repeat -- enters cumulative mode, suppressed
       expect(emitted[1]).toBe('');
-      // Chunk 3: cumulative extension — emits suffix only
+      // Chunk 3: cumulative extension -- emits suffix only
       expect(emitted[2]).toBe(' and more');
     });
 
     it('should pass through 63-char exact repeat without entering cumulative mode (below threshold)', () => {
       const ctx = withStreamParser();
-      // 63 chars — one short of CUMULATIVE_DELTA_EXACT_REPEAT_MIN_LENGTH
+      // 63 chars -- one short of CUMULATIVE_DELTA_EXACT_REPEAT_MIN_LENGTH
       const belowThreshold = 'A'.repeat(63);
       const chunks = [
         belowThreshold,
@@ -2521,9 +2521,9 @@ describe('OpenAIContentConverter', () => {
 
       // Chunk 1: initial passthrough
       expect(emitted[0]).toBe(belowThreshold);
-      // Chunk 2: 63-char repeat — below threshold, passes through unchanged
+      // Chunk 2: 63-char repeat -- below threshold, passes through unchanged
       expect(emitted[1]).toBe(belowThreshold);
-      // Chunk 3: prefix-extends prior — enters cumulative, emits suffix only
+      // Chunk 3: prefix-extends prior -- enters cumulative, emits suffix only
       expect(emitted[2]).toBe(' extra');
     });
 
@@ -2559,7 +2559,7 @@ describe('OpenAIContentConverter', () => {
           ).candidates?.[0]?.content?.parts?.[0]?.text ?? '',
       );
 
-      // All three chunks must reach the user — no suppression.
+      // All three chunks must reach the user -- no suppression.
       expect(emitted[0]).toBe(importLine);
       expect(emitted[1]).toBe(importLine);
       expect(emitted[2]).toBe('\nconst x = 1;');
@@ -2577,10 +2577,10 @@ describe('OpenAIContentConverter', () => {
       // wrongly short-circuit the passthrough path once the cap is reached.
       //
       // Note: this test does NOT cover the (currently unhandled) case where a
-      // later chunk happens to start with the frozen baseline — that chunk
+      // later chunk happens to start with the frozen baseline -- that chunk
       // would still trigger prefix-overlap detection against a stale
       // baseline. Such a chunk is vanishingly unlikely on a true incremental
-      // stream (≥1024 bytes of exact-prefix coincidence) but is not
+      // stream (>=1024 bytes of exact-prefix coincidence) but is not
       // explicitly defended against here.
       const ctx = withStreamParser();
       // 100 distinct incremental chunks of 20 chars = 2000 chars, well past the cap.
@@ -2609,7 +2609,7 @@ describe('OpenAIContentConverter', () => {
           ).candidates?.[0]?.content?.parts?.[0]?.text ?? '',
       );
 
-      // Every chunk should pass through verbatim — none of them overlap
+      // Every chunk should pass through verbatim -- none of them overlap
       // with prior emittedText, so prefix/exact-repeat detection never fires.
       expect(allEmitted).toEqual(incrementalChunks);
     });
@@ -2649,7 +2649,7 @@ describe('OpenAIContentConverter', () => {
 
       // Chunk 1: initial passthrough.
       expect(emitted[0]).toBe(firstChunk);
-      // Chunk 2: prefix-extends → cumulative mode, emits the 200-char suffix only.
+      // Chunk 2: prefix-extends -> cumulative mode, emits the 200-char suffix only.
       expect(emitted[1]).toBe('B'.repeat(200));
       // Chunk 3: continues in cumulative mode, emits only the new 50-char suffix.
       expect(emitted[2]).toBe('C'.repeat(50));
@@ -2719,7 +2719,7 @@ describe('OpenAIContentConverter', () => {
 
       // Incremental phase: every chunk passes through verbatim.
       expect(incrementalEmitted).toEqual(incremental);
-      // Cumulative chunk: only the new 14-byte tail must be emitted — not the
+      // Cumulative chunk: only the new 14-byte tail must be emitted -- not the
       // ~576 bytes between the cap (1024) and the true emitted total (1600).
       expect(cumulativeEmitted).toBe(tail);
       // Sanity: reassembled stream equals the original accumulated text.
@@ -2730,7 +2730,7 @@ describe('OpenAIContentConverter', () => {
 
     it('should suppress cumulative rewind (provider re-sends shorter accumulated string)', () => {
       const ctx = withStreamParser();
-      // Scenario: provider sends Hello → Hello World (extension) → Hello (rewind) → Hello World! (extension again)
+      // Scenario: provider sends Hello -> Hello World (extension) -> Hello (rewind) -> Hello World! (extension again)
       const chunks = ['Hello', 'Hello World', 'Hello', 'Hello World!'];
 
       const emitted = chunks.map(
@@ -2756,11 +2756,11 @@ describe('OpenAIContentConverter', () => {
 
       // Chunk 1: initial passthrough
       expect(emitted[0]).toBe('Hello');
-      // Chunk 2: prefix-extends 'Hello' → enters cumulative, emits suffix
+      // Chunk 2: prefix-extends 'Hello' -> enters cumulative, emits suffix
       expect(emitted[1]).toBe(' World');
-      // Chunk 3: rewind — 'Hello' is a strict prefix of emitted 'Hello World' → suppressed
+      // Chunk 3: rewind -- 'Hello' is a strict prefix of emitted 'Hello World' -> suppressed
       expect(emitted[2]).toBe('');
-      // Chunk 4: extension resumes from 'Hello World' → emits '!'
+      // Chunk 4: extension resumes from 'Hello World' -> emits '!'
       expect(emitted[3]).toBe('!');
     });
 
@@ -3663,7 +3663,7 @@ describe('MCP tool result end-to-end through OpenAI converter (issue #1520)', ()
    * End-to-end regression tests for https://github.com/QwenLM/qwen-code/issues/1520
    *
    * Simulates the full pipeline:
-   *   transformMcpContentToParts → convertToFunctionResponse → OpenAI converter
+   *   transformMcpContentToParts -> convertToFunctionResponse -> OpenAI converter
    *
    * Verifies that multi-part MCP tool results are properly carried through
    * into the OpenAI tool message, with no content leaking into user messages.
@@ -3831,7 +3831,7 @@ describe('MCP tool result end-to-end through OpenAI converter (issue #1520)', ()
   });
 
   it('should work correctly when MCP tool returns a single text part', () => {
-    // Single text part — the control case that has always worked
+    // Single text part -- the control case that has always worked
     const mcpTransformedParts: Part[] = [
       { text: 'Single text response from MCP tool' },
     ];
@@ -4064,7 +4064,7 @@ describe('Truncated tool call detection in streaming', () => {
           id: 'call_1',
           name: 'write_file',
           arguments: '{"file_path": "/tmp/test.cpp"',
-          // Missing closing brace and content field — truncated
+          // Missing closing brace and content field -- truncated
         },
       ],
       'stop',

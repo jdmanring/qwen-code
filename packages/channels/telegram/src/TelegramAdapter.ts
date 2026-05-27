@@ -54,7 +54,7 @@ export class TelegramChannel extends ChannelBase {
 
       const envelope = this.buildEnvelope(msg, text, msg.entities);
 
-      // Don't await — long prompts would block the update loop
+      // Don't await -- long prompts would block the update loop
       this.handleInbound(envelope).catch((err) => {
         process.stderr.write(
           `[Telegram:${this.name}] Error handling message: ${err}\n`,
@@ -218,7 +218,7 @@ export class TelegramChannel extends ChannelBase {
     process.once('SIGTERM', () => this.bot.stop());
   }
 
-  /** Per-chat typing interval — repeats every 4s since Telegram expires it after 5s. */
+  /** Per-chat typing interval -- repeats every 4s since Telegram expires it after 5s. */
   private typingIntervals = new Map<string, ReturnType<typeof setInterval>>();
 
   protected override onPromptStart(chatId: string): void {

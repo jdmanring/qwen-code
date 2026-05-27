@@ -115,7 +115,7 @@ const TOOL_FAILURE_KIND_POST_HOOK_STOPPED = 'post_hook_stopped';
 const TOOL_FAILURE_KIND_TOOL_ERROR = 'tool_error';
 const TOOL_FAILURE_KIND_TOOL_EXCEPTION = 'tool_exception';
 const TOOL_FAILURE_KIND_CANCELLED = 'cancelled';
-// Approval-flow failure kinds — distinct from `pre_hook_blocked` (which
+// Approval-flow failure kinds -- distinct from `pre_hook_blocked` (which
 // only applies to actual PreToolUse hook denials in `_executeToolCallBody`)
 // so dashboards can attribute denies to their real cause (#4321 review).
 const TOOL_FAILURE_KIND_PERMISSION_DENIED = 'permission_denied';
@@ -166,14 +166,14 @@ function setToolSpanFailure(
   try {
     span.setAttribute(TOOL_FAILURE_KIND_ATTRIBUTE, failureKind);
     // Always write `success: false` so trace backends can filter tool
-    // failures with the same query they use for llm_request spans —
+    // failures with the same query they use for llm_request spans --
     // mirrors the unconditional `success` attribute on llm_request.
     span.setAttribute('success', false);
   } catch {
     // OTel errors must not block the failure status update.
   }
   // Bound the status message size at this single ingress point so every
-  // setToolSpanFailure caller is protected — multiple call sites pass
+  // setToolSpanFailure caller is protected -- multiple call sites pass
   // raw error.message which can be unbounded (#4321 review-5 wenshao
   // Suggestion). Static-constant callers see no change since their
   // messages are well under 1024 chars.
@@ -330,7 +330,7 @@ export type CompletedToolCall =
  * this set prevents MCP tools (where `Record<string, unknown>` input
  * conventions reuse `path` / `paths` for HTTP routes, JSON keys, search
  * queries, etc.) from feeding non-filesystem strings into
- * ConditionalRulesRegistry / SkillActivationRegistry — which would
+ * ConditionalRulesRegistry / SkillActivationRegistry -- which would
  * resolve them under projectRoot, normalize, and false-match against
  * skill globs (e.g. `paths: ['**']` would activate on every MCP call).
  *
@@ -402,7 +402,7 @@ function pushLspPathCandidate(out: string[], v: unknown): void {
     try {
       out.push(fileURLToPath(v));
     } catch {
-      // Malformed file URI — drop silently rather than corrupt the
+      // Malformed file URI -- drop silently rather than corrupt the
       // activation pipeline.
     }
     return;
@@ -415,27 +415,27 @@ function pushLspPathCandidate(out: string[], v: unknown): void {
  * Pull the filesystem path-bearing fields out of a tool's input.
  * Per-tool dispatcher because the field name and shape differ:
  *
- *  - read_file / edit / write_file → `file_path`
- *  - notebook_edit → `notebook_path`
- *  - list_directory → `path` (search root)
- *  - glob → `path` (search root, optional) + `pattern` (path-shaped
+ *  - read_file / edit / write_file -> `file_path`
+ *  - notebook_edit -> `notebook_path`
+ *  - list_directory -> `path` (search root)
+ *  - glob -> `path` (search root, optional) + `pattern` (path-shaped
  *    selector); `<path>/<pattern>` is the effective glob walked
- *  - grep_search → `path` (search root, optional) + `glob` (path-shaped
+ *  - grep_search -> `path` (search root, optional) + `glob` (path-shaped
  *    file filter); `pattern` is a regex on contents, NOT a path
- *  - lsp → `filePath` (URI-aware: `file://` accepted, others dropped)
+ *  - lsp -> `filePath` (URI-aware: `file://` accepted, others dropped)
  *    plus `callHierarchyItem.uri` for incomingCalls / outgoingCalls
  *
  * Used by ConditionalRulesRegistry / SkillActivationRegistry hooks to
  * route every project-relative path the tool actually touched through
  * the same activation pipeline. Returns `[]` for tool names outside
- * `FS_PATH_TOOL_NAMES` — see that set's docstring for why this is gated.
+ * `FS_PATH_TOOL_NAMES` -- see that set's docstring for why this is gated.
  */
 export function extractToolFilePaths(
   toolName: string,
   toolInput: unknown,
 ): string[] {
-  // Canonicalize legacy aliases (e.g. `replace` → `edit`,
-  // `search_file_content` → `grep_search`) before the allowlist check.
+  // Canonicalize legacy aliases (e.g. `replace` -> `edit`,
+  // `search_file_content` -> `grep_search`) before the allowlist check.
   // The tool registry resolves these at execution time, so a tool call
   // like `replace({ file_path: 'src/App.tsx' })` actually runs EditTool;
   // gating only on the canonical name closes the alias-bypass hole.
@@ -445,7 +445,7 @@ export function extractToolFilePaths(
     // *looks* path-shaped: we silently skip path activation for it, but
     // the field naming suggests it might be a real FS tool that just
     // hasn't been added to FS_PATH_TOOL_NAMES yet (or an MCP tool whose
-    // input convention legitimately reuses these field names — both are
+    // input convention legitimately reuses these field names -- both are
     // worth the debug breadcrumb when chasing "why didn't my path-gated
     // skill activate?"). Cheap object-property reads, only fires when
     // the user has DEBUG=tool-scheduler enabled, no production noise.
@@ -459,7 +459,7 @@ export function extractToolFilePaths(
       ) {
         debugLogger.debug(
           `Tool "${toolName}" (canonical "${canonical}") has path-like input fields ` +
-            `but is not in FS_PATH_TOOL_NAMES — path-gated skills / conditional rules ` +
+            `but is not in FS_PATH_TOOL_NAMES -- path-gated skills / conditional rules ` +
             `will not see its paths. If this is a filesystem tool, add it to the allowlist.`,
         );
       }
@@ -477,7 +477,7 @@ export function extractToolFilePaths(
     case ToolNames.LSP: {
       // `filePath` may be a plain path, a `file://` URI, or a non-file
       // URI (`http://`, `git://`, etc.). Only the first two correspond
-      // to project files — everything else must be ignored, otherwise
+      // to project files -- everything else must be ignored, otherwise
       // an LSP call on a non-file resource could activate path-gated
       // skills without the model having touched the project.
       pushLspPathCandidate(out, obj['filePath']);
@@ -614,7 +614,7 @@ export function convertToFunctionResponse(
         mediaParts.push({ fileData: part.fileData });
       }
       // Other exotic part types (e.g. functionCall) are intentionally
-      // dropped here – they should not appear inside tool results.
+      // dropped here - they should not appear inside tool results.
     }
 
     const output =
@@ -681,7 +681,7 @@ const VALIDATION_RETRY_LOOP_THRESHOLD = 3;
 
 /** Directive injected when a tool call repeatedly fails validation. */
 const RETRY_LOOP_STOP_DIRECTIVE =
-  '\n\n⚠️ RETRY LOOP DETECTED: This tool call has failed validation multiple times with the same error. ' +
+  '\n\n RETRY LOOP DETECTED: This tool call has failed validation multiple times with the same error. ' +
   'STOP retrying the same approach. Re-examine the tool schema and parameter requirements, then try a ' +
   'fundamentally different approach. If you cannot resolve the validation error, explain the issue to the user ' +
   'instead of retrying.';
@@ -720,7 +720,7 @@ interface CoreToolSchedulerOptions {
   chatRecordingService?: ChatRecordingService;
 }
 
-// ─── Tool Concurrency Helpers ────────────────────────────────
+// --- Tool Concurrency Helpers --------------------------------
 
 interface ToolBatch {
   concurrent: boolean;
@@ -750,7 +750,7 @@ function isConcurrencySafe(call: ScheduledToolCall): boolean {
   // Shell commands: check if the command is read-only (e.g., git log, cat).
   // Uses the synchronous regex+shell-quote checker (not the async AST-based
   // one) because partitioning runs synchronously. The sync checker covers
-  // the same command whitelist and is fail-closed — unknown commands remain
+  // the same command whitelist and is fail-closed -- unknown commands remain
   // sequential. The AST version is used separately for permission decisions.
   if (call.tool.kind === Kind.Execute) {
     const command = (call.request.args as { command?: string }).command;
@@ -770,7 +770,7 @@ function isConcurrencySafe(call: ScheduledToolCall): boolean {
  * Consecutive safe tools are merged into a single parallel batch.
  * Each unsafe tool forms its own sequential batch.
  *
- * Example: [Read, Read, Edit, Read] → [[Read,Read](parallel), [Edit](seq), [Read](seq)]
+ * Example: [Read, Read, Edit, Read] -> [[Read,Read](parallel), [Edit](seq), [Read](seq)]
  */
 function partitionToolCalls(calls: ScheduledToolCall[]): ToolBatch[] {
   return calls.reduce<ToolBatch[]>((batches, call) => {
@@ -798,17 +798,17 @@ export class CoreToolScheduler {
   private isFinalizingToolCalls = false;
   private isScheduling = false;
   private validationRetryCounts = new Map<string, number>();
-  // Tool span lifecycle now spans validating → awaiting_approval → executing
-  // → terminal, so we hold the span across method boundaries by callId.
-  // Decoupling from ToolCall identity is intentional — setStatusInternal
+  // Tool span lifecycle now spans validating -> awaiting_approval -> executing
+  // -> terminal, so we hold the span across method boundaries by callId.
+  // Decoupling from ToolCall identity is intentional -- setStatusInternal
   // rebuilds the ToolCall on every status change, so a field on the
   // discriminated union would require threading on every transition.
   private toolSpans = new Map<string, Span>();
-  // blocked_on_user span — child of the corresponding tool span — covers the
+  // blocked_on_user span -- child of the corresponding tool span -- covers the
   // awaiting_approval phase. ModifyWithEditor stays inside one span until
   // the user makes a final decision (#3731 Phase 2).
   //
-  // Map drain on signal.abort: see drainSpansForBatch — without it,
+  // Map drain on signal.abort: see drainSpansForBatch -- without it,
   // entries leaked across awaiting-approval-then-abort would persist for
   // the scheduler's lifetime (the 30-min TTL ends the underlying spans
   // but cannot reach these scheduler-local Maps; #4321 review).
@@ -1073,7 +1073,7 @@ export class CoreToolScheduler {
   /**
    * End the tool span for `callId` (if any) and remove it from the map.
    * Centralizes terminal-state cleanup so every cancel/error/success path
-   * goes through one place — easier to audit for leaks. Idempotent:
+   * goes through one place -- easier to audit for leaks. Idempotent:
    * second call for the same callId is a no-op.
    *
    * No `metadata` parameter: every caller pre-sets span status via
@@ -1089,7 +1089,7 @@ export class CoreToolScheduler {
 
   /**
    * End the blocked_on_user span for `callId` (if any) and remove it from
-   * the map. Idempotent. ModifyWithEditor must NOT call this — the same
+   * the map. Idempotent. ModifyWithEditor must NOT call this -- the same
    * blocked span covers the entire awaiting period including editor side
    * trips.
    */
@@ -1102,8 +1102,8 @@ export class CoreToolScheduler {
     if (!span) return;
     this.blockedSpans.delete(callId);
     endToolBlockedOnUserSpan(span, { decision, source });
-    // Don't release the batch listener here — the tool span often
-    // outlives the blocked span (proceed → execute), so finalizeToolSpan
+    // Don't release the batch listener here -- the tool span often
+    // outlives the blocked span (proceed -> execute), so finalizeToolSpan
     // is the canonical drain point. The blocked span's release runs
     // through the same path on terminal states (cancel/error finalize
     // both spans together).
@@ -1133,7 +1133,7 @@ export class CoreToolScheduler {
   /**
    * Best-effort attribution of the surface that resolved the blocked
    * decision. When IDE mode is on, confirmations are most often resolved
-   * via the IDE diff flow (`openIdeDiffIfEnabled`) — but a CLI-fallback
+   * via the IDE diff flow (`openIdeDiffIfEnabled`) -- but a CLI-fallback
    * confirmation in IDE mode is also reported as 'ide' here. Operators
    * can drill into the trace if they need finer-grained attribution.
    */
@@ -1148,16 +1148,16 @@ export class CoreToolScheduler {
    * awaiting_approval and the session aborts).
    *
    * Deferred to a macrotask so existing finalize paths that await on the
-   * SAME aborted signal — explicit user Cancel via
+   * SAME aborted signal -- explicit user Cancel via
    * `handleConfirmationResponse`, mid-execution `setToolSpanCancelled`
-   * inside `_executeToolCallBody` — win the race and set the canonical
+   * inside `_executeToolCallBody` -- win the race and set the canonical
    * decision/status before this safety-net drain runs. By the time the
    * timer fires, those paths have removed the entries from the Maps and
    * the drain is a no-op for the common cases. Only the genuine
    * walk-away-then-abort case survives to be drained here.
    *
    * Idempotent for callIds whose spans were already finalized by a normal
-   * path — `finalizeBlockedSpan` / `finalizeToolSpan` are no-ops on
+   * path -- `finalizeBlockedSpan` / `finalizeToolSpan` are no-ops on
    * missing entries.
    */
   private drainSpansForBatch(callIds: Iterable<string>): void {
@@ -1165,7 +1165,7 @@ export class CoreToolScheduler {
     setTimeout(() => {
       for (const callId of ids) {
         // Per-callId try/catch so one bad finalize doesn't silently skip
-        // remaining entries — the timer callback would otherwise surface
+        // remaining entries -- the timer callback would otherwise surface
         // an unhandled exception (#4321 review-3 wenshao Suggestion).
         try {
           if (this.blockedSpans.has(callId)) {
@@ -1205,13 +1205,13 @@ export class CoreToolScheduler {
   /**
    * Wrap a hook fire site with span lifecycle management. Centralizes the
    * try/finally pattern across the 6 hook fire sites (PreToolUse,
-   * PostToolUse, 4× PostToolUseFailure) so future protocol changes
+   * PostToolUse, 4* PostToolUseFailure) so future protocol changes
    * (e.g. new metadata fields) can be made in one place instead of in
    * lockstep across each site (#4321 review wenshao Suggestion).
    *
    * On the happy path `toEndMeta(result)` builds the metadata recorded on
    * the span. On a throw, the default `endMeta = { success: false }`
-   * survives — today's hook helpers in `toolHookTriggers.ts` swallow
+   * survives -- today's hook helpers in `toolHookTriggers.ts` swallow
    * throws internally so this branch is unreachable, but the pattern
    * future-proofs the lifecycle if that contract changes.
    */
@@ -1222,8 +1222,8 @@ export class CoreToolScheduler {
   ): Promise<T> {
     const hookSpan = startHookSpan(opts);
     // Default endMeta carries an `error` so OTel maps the span to ERROR
-    // status if `fn()` ever throws (today unreachable — hook helpers
-    // catch internally — but kept as a defensive contract). Without
+    // status if `fn()` ever throws (today unreachable -- hook helpers
+    // catch internally -- but kept as a defensive contract). Without
     // an `error` field, the span would record `success: false` as an
     // attribute but `code: UNSET` as status, which trace backends
     // filtering on ERROR would miss (#4321 review code-reviewer).
@@ -1557,7 +1557,7 @@ export class CoreToolScheduler {
       // Maps on a real abort (walk-away-during-awaiting_approval), and is
       // automatically released by `releaseBatchListenerIfDrained` from
       // inside `finalizeToolSpan` when the batch's last live callId
-      // drains — keeping listener growth bounded across long sessions
+      // drains -- keeping listener growth bounded across long sessions
       // even when batches mix synchronous and awaiting_approval flows
       // (#4321 review-3 wenshao Critical).
       const batchState: BatchAbortState = {
@@ -1576,14 +1576,14 @@ export class CoreToolScheduler {
         const canonicalName = canonicalToolName(reqInfo.name);
 
         // Open the tool span as soon as the call is validated. This covers
-        // validating → awaiting_approval → executing in one span (#3731
-        // Phase 2). Every cancel/error path below — and the existing
-        // success path in executeSingleToolCall — must call
+        // validating -> awaiting_approval -> executing in one span (#3731
+        // Phase 2). Every cancel/error path below -- and the existing
+        // success path in executeSingleToolCall -- must call
         // finalizeToolSpan(callId, ...) to avoid leaking spans.
         // `tool.name` is set automatically by startToolSpan from the first
         // arg; only namespaced extras go in attrs. `call_id` (non-namespaced)
         // is dual-emitted for one release as a backwards-compat shim for
-        // pre-Phase-2 dashboards/alerts that grep the old key — drop after
+        // pre-Phase-2 dashboards/alerts that grep the old key -- drop after
         // operators migrate (#4321 review). `tool_name` is dual-emitted on
         // the same migration window (review-2 DeepSeek Suggestion) so
         // pre-Phase-2 dashboards filtering on it don't silently stop
@@ -1610,10 +1610,10 @@ export class CoreToolScheduler {
           }
 
           // =================================================================
-          // L3→L4→L5 Permission Flow
+          // L3->L4->L5 Permission Flow
           // =================================================================
 
-          // ---- L3→L4: Shared permission flow ----
+          // ---- L3->L4: Shared permission flow ----
           const toolParams = invocation.params as Record<string, unknown>;
           const flowResult = await evaluatePermissionFlow(
             this.config,
@@ -1637,7 +1637,7 @@ export class CoreToolScheduler {
             // consecutiveBlock=3 would keep auto-approving the allow-ruled
             // call (correct), but the very next call that needed the
             // classifier would still see shouldFallback==='true' and force
-            // manual approval — confusing UX given the previous allow-rule
+            // manual approval -- confusing UX given the previous allow-rule
             // call just worked silently.
             if (approvalMode === ApprovalMode.AUTO) {
               this.config.setAutoModeDenialState(
@@ -1672,10 +1672,10 @@ export class CoreToolScheduler {
             continue;
           }
 
-          // ── L5: AUTO mode three-layer filter ──────────────────────────
+          // -- L5: AUTO mode three-layer filter --------------------------
           // Fast-paths run BEFORE the fallback check so safe tools (Read,
-          // Grep, LS, in-cwd Edit, …) short-circuit even in a denial-streak
-          // fallback state — otherwise every trivially safe tool would
+          // Grep, LS, in-cwd Edit, ...) short-circuit even in a denial-streak
+          // fallback state -- otherwise every trivially safe tool would
           // force manual approval until the user toggles modes.
           if (shouldRunAutoModeForCall(approvalMode, canonicalName)) {
             const denialState = this.config.getAutoModeDenialState();
@@ -1727,7 +1727,7 @@ export class CoreToolScheduler {
                 // Drop through to the manual-approval flow below. The
                 // pending dialog tells the user what's being asked;
                 // operators see the cause in the debug log (only when
-                // fallback was specifically armed by denialTracking —
+                // fallback was specifically armed by denialTracking --
                 // a pmForcedAsk fallback isn't an audit-worthy event).
                 if (fallback.fallback) {
                   debugLogger.warn(
@@ -1742,7 +1742,7 @@ export class CoreToolScheduler {
             }
           }
 
-          // finalPermission === 'ask' (or 'default' from PM → treat as ask)
+          // finalPermission === 'ask' (or 'default' from PM -> treat as ask)
           // apply ApprovalMode overrides.
           // ask_user_question always needs confirmation so the user can answer;
           // it must bypass both YOLO auto-approve and plan-mode blocking.
@@ -1762,7 +1762,7 @@ export class CoreToolScheduler {
             confirmationDetails =
               await invocation.getConfirmationDetails(signal);
 
-            // ── Centralised rule injection ──────────────────────────────────
+            // -- Centralised rule injection ----------------------------------
             injectPermissionRulesIfMissing(confirmationDetails, pmCtx);
 
             if (
@@ -1931,7 +1931,7 @@ export class CoreToolScheduler {
             // `firePermissionRequestHook` are all `await` points that can
             // resolve normally even after the signal aborted. Without this
             // re-check we'd open `awaiting_approval` + a blocked span on
-            // an already-aborted signal — drainSpansForBatch (deferred via
+            // an already-aborted signal -- drainSpansForBatch (deferred via
             // setTimeout(0)) may have already fired by then, so the new
             // entries would never be drained (#4321 review-3 wenshao
             // Critical).
@@ -1978,7 +1978,7 @@ export class CoreToolScheduler {
               wrappedConfirmationDetails,
             );
 
-            // Open blocked_on_user span as a child of the tool span — covers
+            // Open blocked_on_user span as a child of the tool span -- covers
             // the entire awaiting_approval phase, including any
             // ModifyWithEditor side trip (#3731 Phase 2). Finalized in
             // handleConfirmationResponse / autoApproveCompatiblePendingTools
@@ -2050,7 +2050,7 @@ export class CoreToolScheduler {
       }
       await this.attemptExecutionOfScheduledCalls(signal);
       void this.checkAndNotifyCompletion();
-      // Listener removal happens inside `finalizeToolSpan` →
+      // Listener removal happens inside `finalizeToolSpan` ->
       // `releaseBatchListenerIfDrained` for every callId, so we don't
       // need a duplicate cleanup here. That path also covers the
       // exception case (this method's outer try/catch finalizes spans
@@ -2058,7 +2058,7 @@ export class CoreToolScheduler {
       // "stillLive cleanup not in finally" concern from review-3.
       //
       // Edge case: if every newToolCall was non-validating (all failed
-      // pre-validation — invalid params, tool not registered, etc.),
+      // pre-validation -- invalid params, tool not registered, etc.),
       // batchState.callIds stays empty and no finalizeToolSpan call
       // ever fires for this batch. Drop the listener here so the
       // signal doesn't accumulate dead listeners across many such
@@ -2106,18 +2106,18 @@ export class CoreToolScheduler {
       // modifyWithEditor, _applyInlineModify, status transitions) would
       // otherwise leave A's blocked + tool spans open until the 30-min
       // TTL fires. Finalize both so the trace shows a deterministic
-      // close. finalizeXSpan are idempotent — if the success/cancel
+      // close. finalizeXSpan are idempotent -- if the success/cancel
       // path already closed them, these are no-ops.
       //
       // attemptExecutionOfScheduledCalls is NOT covered by this catch
       // (see below). A sister tool's prelude throw escaping through
       // attemptExecutionOfScheduledCalls would otherwise corrupt A's
-      // span — each executeSingleToolCall handles its own span
+      // span -- each executeSingleToolCall handles its own span
       // lifecycle via its own catch (#4321 review-9 wenshao Critical).
       //
       // Branch on signal.aborted so a throw caused by the abort signal
       // (e.g. ModifyWithEditor child interrupted by Ctrl+C) lands as
-      // 'aborted'/'system' + UNSET status — matching the sister catch
+      // 'aborted'/'system' + UNSET status -- matching the sister catch
       // in `_schedule:1797` and the dashboard intent of separating
       // user/system aborts from real exceptions (#4321 review-2 wenshao).
       const aborted = signal.aborted;
@@ -2193,7 +2193,7 @@ export class CoreToolScheduler {
     // calls return to classifier flow. Without this, a session that hit
     // the denial threshold once would stay in fallback for the rest of
     // the session even after the user explicitly approves the next call.
-    // Cancel / abort do NOT reset — spec §9.1.4 treats rejection as a
+    // Cancel / abort do NOT reset -- spec 9.1.4 treats rejection as a
     // signal that the classifier was correct to block.
     if (
       this.config.getApprovalMode() === ApprovalMode.AUTO &&
@@ -2209,7 +2209,7 @@ export class CoreToolScheduler {
       const cancelMessage =
         payload?.cancelMessage || 'User did not allow tool call';
       this.setStatusInternal(callId, 'cancelled', cancelMessage);
-      // Tool span is cancelled too — finalize it via setToolSpanCancelled
+      // Tool span is cancelled too -- finalize it via setToolSpanCancelled
       // before pulling it out of the map so the status survives end().
       const toolSpan = this.toolSpans.get(callId);
       if (toolSpan) {
@@ -2234,15 +2234,15 @@ export class CoreToolScheduler {
         if (!editorType) {
           // No editor configured: ModifyWithEditor cannot proceed. Log so
           // the silent failure is at least visible in debug telemetry.
-          // Do NOT finalize spans here — the tool stays in awaiting_approval
+          // Do NOT finalize spans here -- the tool stays in awaiting_approval
           // and the user can still recover with Cancel or Proceed; their
           // eventual decision closes the spans correctly. Closing them
           // here would make the user's eventual finalize a no-op (Map
-          // already cleared) and lose the actual decision/source — same
+          // already cleared) and lose the actual decision/source -- same
           // pattern as the autoApprove catch (#4321 review codex P3).
           // The 30-min TTL is the safety net if the user walks away.
           debugLogger.warn(
-            `ModifyWithEditor requested for ${callId} but no editor available — tool stays in awaiting_approval; user can recover via Cancel/Proceed`,
+            `ModifyWithEditor requested for ${callId} but no editor available -- tool stays in awaiting_approval; user can recover via Cancel/Proceed`,
           );
           // Tag the tool span so operators can detect this state in
           // production traces without enabling debug logging
@@ -2322,7 +2322,7 @@ export class CoreToolScheduler {
 
   /**
    * Opens an IDE diff view for edit-type tools when IDE mode is active.
-   * The IDE resolution is handled asynchronously — if the user accepts or
+   * The IDE resolution is handled asynchronously -- if the user accepts or
    * rejects from the IDE, it triggers handleConfirmationResponse.
    *
    * Uses confirmationDetails.filePath / newContent (the same data shown in
@@ -2502,9 +2502,9 @@ export class CoreToolScheduler {
     const scheduledCall = toolCall;
     const { callId, name: toolName } = scheduledCall.request;
 
-    // The tool span is opened in `_schedule` so it covers validating →
-    // awaiting_approval → executing in one span. Reuse it here. If it's
-    // missing (defensive — shouldn't happen on the happy path), create one
+    // The tool span is opened in `_schedule` so it covers validating ->
+    // awaiting_approval -> executing in one span. Reuse it here. If it's
+    // missing (defensive -- shouldn't happen on the happy path), create one
     // so the success path still produces telemetry.
     let toolSpan = this.toolSpans.get(callId);
     if (!toolSpan) {
@@ -2514,8 +2514,8 @@ export class CoreToolScheduler {
       const canonical = canonicalToolName(toolName);
       toolSpan = startToolSpan(canonical, {
         'tool.call_id': callId,
-        call_id: callId, // legacy alias — see _schedule for context
-        tool_name: canonical, // legacy alias — see _schedule for context
+        call_id: callId, // legacy alias -- see _schedule for context
+        tool_name: canonical, // legacy alias -- see _schedule for context
       });
       this.toolSpans.set(callId, toolSpan);
     }
@@ -2526,9 +2526,9 @@ export class CoreToolScheduler {
     } catch (error) {
       // _executeToolCallBody pre-sets span status (OK / FAILURE /
       // CANCELLED) only AFTER its main try/catch is entered. Throws
-      // from the prelude — addToolInputAttributes, getMessageBus,
-      // startToolExecutionSpan, etc. — happen BEFORE the
-      // `scheduled → executing` transition, so the span would end
+      // from the prelude -- addToolInputAttributes, getMessageBus,
+      // startToolExecutionSpan, etc. -- happen BEFORE the
+      // `scheduled -> executing` transition, so the span would end
       // UNSET with no failure_kind AND the tool call would stay in
       // `scheduled` forever (checkAndNotifyCompletion never sees a
       // terminal state). Set failure status + error response here so
@@ -2536,7 +2536,7 @@ export class CoreToolScheduler {
       // telemetry and the scheduler can complete (#4321 review-7
       // silent-failure-hunter HIGH-2; review-8 wenshao Critical
       // dropped the `status === 'executing'` guard the previous
-      // attempt used — `setStatusInternal` already no-ops on
+      // attempt used -- `setStatusInternal` already no-ops on
       // terminal states, so the unconditional call covers both
       // `scheduled` and `executing` prelude-throw paths).
       const errorMessage =
@@ -2581,7 +2581,7 @@ export class CoreToolScheduler {
       }
     }
 
-    // Guard the JSON serialization — addToolInputAttributes early-returns
+    // Guard the JSON serialization -- addToolInputAttributes early-returns
     // when sensitive attributes are off, but the argument is computed
     // before the call.
     if (this.config.getTelemetryIncludeSensitiveSpanAttributes?.()) {
@@ -2688,12 +2688,12 @@ export class CoreToolScheduler {
     // etc.) is bracketed by the span. We don't manually activate the span
     // as OTel context here because the surrounding tool span is already
     // active via runInToolSpanContext, and tool implementations don't
-    // currently emit nested OTel spans of their own — the span boundary
+    // currently emit nested OTel spans of their own -- the span boundary
     // is purely for timing/attribution.
     const execSpan = startToolExecutionSpan();
     // try wraps both invocation.execute() and the await so synchronous
     // throws (e.g. shell setup failure) flow into the same catch as async
-    // rejections — otherwise execSpan leaks unended and failure hooks
+    // rejections -- otherwise execSpan leaks unended and failure hooks
     // are skipped.
     try {
       let promise: Promise<ToolResult>;
@@ -2736,7 +2736,7 @@ export class CoreToolScheduler {
       // A tool that observes signal.aborted and resolves with a normal
       // ToolResult (no .error field) would otherwise close the execution
       // sub-span as success while the parent tool span ends as cancelled.
-      // Mirror the abort signal here — and pass `cancelled: true` so the
+      // Mirror the abort signal here -- and pass `cancelled: true` so the
       // exec sub-span ends UNSET, matching setToolSpanCancelled on the
       // parent (#4212, #4302 review).
       const aborted = signal.aborted;
@@ -2869,7 +2869,7 @@ export class CoreToolScheduler {
         // use different parameter names: `file_path` (read/edit/write),
         // `path` (ls, glob), `filePath` (grep, lsp), and `paths`
         // (ripGrep array form). Conditional rules and skill activation
-        // both key off the same path set, so inspect the union — and
+        // both key off the same path set, so inspect the union -- and
         // gate the inspection on a tool-name allowlist (see
         // FS_PATH_TOOL_NAMES) so MCP / non-FS tools that reuse those
         // parameter names with different semantics never enter the
@@ -2891,7 +2891,7 @@ export class CoreToolScheduler {
           // Collect every reminder block produced by this tool call, then
           // emit them as a single `<system-reminder>` envelope at the end.
           // The previous version emitted one envelope per matching rule
-          // PLUS one for skill activation — a multi-path tool could
+          // PLUS one for skill activation -- a multi-path tool could
           // produce N+1 envelopes, diluting the model's attention. One
           // wrapper / one append also lets us share the breakout-prevention
           // sanitization step (closing-tag scrub) in one place.
@@ -2919,7 +2919,7 @@ export class CoreToolScheduler {
             // Subagents share the parent's SkillManager but may have a
             // restricted toolsList that excludes SkillTool entirely.
             // Telling such a context "skill X is now available via the
-            // Skill tool" is misleading — the subagent can't invoke it
+            // Skill tool" is misleading -- the subagent can't invoke it
             // and would waste a turn trying. Gate the reminder on
             // whether the active tool registry actually exposes
             // SkillTool to the model.
@@ -2976,7 +2976,7 @@ export class CoreToolScheduler {
         };
         this.setStatusInternal(callId, 'success', successResponse);
         safeSetStatus(span, { code: SpanStatusCode.OK });
-        // Mirrors setToolSpanFailure/setToolSpanCancelled — every tool span
+        // Mirrors setToolSpanFailure/setToolSpanCancelled -- every tool span
         // ends with an explicit `success` attribute so backends can filter
         // failures the same way they filter llm_request failures.
         try {
@@ -3237,7 +3237,7 @@ export class CoreToolScheduler {
 
     for (const pendingTool of pendingTools) {
       try {
-        // Re-run L3→L4 to see if the tool can now be auto-approved
+        // Re-run L3->L4 to see if the tool can now be auto-approved
         const toolParams = pendingTool.invocation.params as Record<
           string,
           unknown

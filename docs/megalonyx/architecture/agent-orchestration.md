@@ -1,8 +1,8 @@
-# 🌐 Agent Orchestration: Multi-Agent Patterns
+#  Agent Orchestration: Multi-Agent Patterns
 
 This document describes the advanced orchestration patterns used by the Runtime Stack to handle complex tasks through delegation, competition, and iterative loops.
 
-## 🧩 Orchestration Patterns
+##  Orchestration Patterns
 
 The system employs three primary patterns to move beyond single-agent execution.
 
@@ -45,7 +45,7 @@ A user-facing scheduling system:
 
 ---
 
-## 🛠️ Orchestration Logic Flow
+##  Orchestration Logic Flow
 
 **User Query** $\to$ **Orchestrator** $\to$ **[Decision]**
 - $\to$ *Low Complexity* $\to$ **Direct Execution**

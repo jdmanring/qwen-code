@@ -24,13 +24,13 @@ Rules:
 - No trailing punctuation.
 - No quotes, backticks, or markdown.
 - Match the dominant language of the conversation (English or Chinese). For Chinese, treat as roughly 12-20 characters total; still no trailing punctuation.
-- Be specific about the user's actual goal — name the feature, bug, or subject area. Avoid vague "Code changes", "Help request", "Conversation".
+- Be specific about the user's actual goal -- name the feature, bug, or subject area. Avoid vague "Code changes", "Help request", "Conversation".
 
 Good examples:
 {"title": "Fix login button on mobile"}
 {"title": "Add OAuth authentication flow"}
 {"title": "Debug failing CI pipeline tests"}
-{"title": "重构用户鉴权中间件"}
+{"title": ""}
 
 Bad (too vague): {"title": "Code changes"}
 Bad (too long): {"title": "Investigate and fix the session title generation issue in the chat recording service"}
@@ -56,13 +56,13 @@ const TITLE_SCHEMA = {
 
 const LEADING_MARKERS_RE = /^[\s>*\-#`"'_]+/;
 const TRAILING_MARKERS_RE = /[\s*`"'_]+$/;
-const TRAILING_PUNCT_RE = /[.!?。！？,，;；:：]+$/;
-// Paired CJK brackets (e.g. `【Draft】Fix login`): strip as a whole so a
+const TRAILING_PUNCT_RE = /[.!?,;::]+$/;
+// Paired CJK brackets (e.g. `DraftFix login`): strip as a whole so a
 // lone closing bracket doesn't dangle after a leading-char-class strip.
 const LEADING_PAIRED_BRACKETS_RE =
-  /^\s*[「『【〈《][^」』】〉》]*[」』】〉》]\s*/;
+  /^\s*[][^]*[]\s*/;
 const TRAILING_PAIRED_BRACKETS_RE =
-  /\s*[「『【〈《][^」』】〉》]*[」』】〉》]\s*$/;
+  /\s*[][^]*[]\s*$/;
 
 /**
  * Reason a title generation didn't produce a usable title. Separated from
@@ -80,7 +80,7 @@ const TRAILING_PAIRED_BRACKETS_RE =
  *   means the model is too small or the conversation text is meaningless
  *   (e.g., only tool calls).
  * - `aborted`: AbortSignal fired (user pressed Ctrl-C / new session / switch).
- * - `model_error`: the LLM call threw — rate limit, auth, network, etc.
+ * - `model_error`: the LLM call threw -- rate limit, auth, network, etc.
  */
 export type SessionTitleFailureReason =
   | 'no_fast_model'
@@ -96,7 +96,7 @@ export type SessionTitleOutcome =
 
 /**
  * Generate a short (3-7 word, sentence-case) title for the current session
- * using the configured fast model. Best-effort — never throws.
+ * using the configured fast model. Best-effort -- never throws.
  *
  * Returns a discriminated result so callers can either handle failures
  * generically (`if (!outcome.ok) return null`) or map failure reasons to
@@ -147,7 +147,7 @@ export async function tryGenerateSessionTitle(
         maxOutputTokens: 100,
       },
       abortSignal,
-      // Titles are best-effort cosmetic metadata — one shot only, no long retry loop.
+      // Titles are best-effort cosmetic metadata -- one shot only, no long retry loop.
       maxAttempts: 1,
     });
 
@@ -176,7 +176,7 @@ export async function tryGenerateSessionTitle(
  */
 export function sanitizeTitle(s: string): string {
   // SECURITY: strip terminal control sequences first. The title renders
-  // directly in the picker — a model-returned ANSI/OSC-8 escape would
+  // directly in the picker -- a model-returned ANSI/OSC-8 escape would
   // otherwise execute on every render. See `stripTerminalControlSequences`
   // for the coverage list.
   let t = stripTerminalControlSequences(s).trim();
@@ -191,7 +191,7 @@ export function sanitizeTitle(s: string): string {
   if (!t) return '';
   if (t.length > SESSION_TITLE_MAX_LENGTH) {
     t = t.slice(0, SESSION_TITLE_MAX_LENGTH).trim();
-    // slice() can split a surrogate pair at the boundary — drop any
+    // slice() can split a surrogate pair at the boundary -- drop any
     // orphaned surrogate so the resulting string stays well-formed UTF-16.
     t = t.replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/g, '');
     t = t.replace(/(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '');
@@ -238,7 +238,7 @@ function takeRecentDialog(history: Content[], windowSize: number): Content[] {
 /**
  * Flatten filtered dialog to labeled plain text, then tail-slice to the last
  * N characters. Tail (rather than head) captures what the session has become,
- * not just how it opened — e.g. a session that starts with "help me debug X"
+ * not just how it opened -- e.g. a session that starts with "help me debug X"
  * but ends up refactoring Y should get a title about Y.
  */
 function flattenToTail(history: Content[], maxChars: number): string {

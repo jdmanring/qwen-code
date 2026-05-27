@@ -38,7 +38,7 @@ and content are different.
 
 ## Structure (user-facing README)
 
-Sections in order. Do not reorder. Remove a section only if it genuinely doesn't apply —
+Sections in order. Do not reorder. Remove a section only if it genuinely doesn't apply --
 don't leave it empty.
 
 ```
@@ -49,11 +49,11 @@ don't leave it empty.
    - Tagline (bold, one sentence)
    - Demo GIF or screenshot
 
-2. Short description (1–2 sentences, not centered)
+2. Short description (1-2 sentences, not centered)
 
 3. What it does
-   - 4–6 bullet points, each starting with a bold label
-   - One concrete claim per bullet — no vague superlatives
+   - 4-6 bullet points, each starting with a bold label
+   - One concrete claim per bullet -- no vague superlatives
 
 4. Requirements
    - Numbered or bulleted list
@@ -64,12 +64,12 @@ don't leave it empty.
    - Optional: manual install for users who want to inspect first
 
 6. Quick start
-   - 3–5 shell commands showing the most common usage
+   - 3-5 shell commands showing the most common usage
    - Brief comment on each
 
 7. Configuration
    - Where config lives
-   - The 1–2 things users actually need to change
+   - The 1-2 things users actually need to change
    - Link to full reference docs
 
 8. Model providers
@@ -100,11 +100,11 @@ don't leave it empty.
 
 The header block is centered using `<div align="center">`. It contains, in order:
 
-1. **Logo** — SVG or PNG, max 200px wide. `alt` text = project name.
-2. **H1 heading** — project name only, no tagline
-3. **Badge row** — all badges on one line, no line breaks between them
-4. **Tagline** — bold, one sentence, in `**...**`. No period at the end.
-5. **Demo GIF** — `alt` = "Megalonyx demo", width = 700px
+1. **Logo** -- SVG or PNG, max 200px wide. `alt` text = project name.
+2. **H1 heading** -- project name only, no tagline
+3. **Badge row** -- all badges on one line, no line breaks between them
+4. **Tagline** -- bold, one sentence, in `**...**`. No period at the end.
+5. **Demo GIF** -- `alt` = "Megalonyx demo", width = 700px
 
 Badges to include (in this order):
 - CI status (GitHub Actions)
@@ -126,7 +126,7 @@ description of what goes there. Do not use a broken image link.
 than "features persistent memory." The first describes behavior; the second describes a
 category.
 
-**No superlatives.** "Lightning fast", "incredibly powerful", "seamlessly integrated" — cut
+**No superlatives.** "Lightning fast", "incredibly powerful", "seamlessly integrated" -- cut
 these. Every product claims them. They carry no information.
 
 **No AI hype vocabulary.** Banned words and phrases in user-facing READMEs:
@@ -167,7 +167,7 @@ An AI reading this README should be able to:
 Achieving this requires:
 - Concrete nouns, not category labels ("stores memory in a local Qdrant database" not "provides a memory subsystem")
 - Exact paths and commands, not approximate ones ("~/.config/megalonyx/providers.json" not "your config directory")
-- Explicit scope ("works with OpenAI-compatible APIs" — a specific, testable claim)
+- Explicit scope ("works with OpenAI-compatible APIs" -- a specific, testable claim)
 
 ---
 
@@ -200,7 +200,7 @@ or in a DRAFT NOTES block at the bottom of the file, listing every placeholder w
 it needs. See `docs/templates/readme-public-draft.md` for an example of this pattern.
 
 Do not publish a README with broken image links, placeholder URLs, or `TODO` text visible
-to users. The DRAFT NOTES section is HTML-commented — it is invisible in rendered Markdown.
+to users. The DRAFT NOTES section is HTML-commented -- it is invisible in rendered Markdown.
 
 ---
 

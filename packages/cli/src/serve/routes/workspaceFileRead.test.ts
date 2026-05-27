@@ -348,7 +348,7 @@ describe('GET /list', () => {
 
   it('drops ignored entries by default and includes them with includeIgnored=1', async () => {
     // Build the Ignore instance manually because `loadIgnoreRules`
-    // is invoked at factory construction time — writing a .gitignore
+    // is invoked at factory construction time -- writing a .gitignore
     // file post-construction would be ignored. The test harness
     // resets between specs, so we get a fresh factory here.
     await teardown(h);

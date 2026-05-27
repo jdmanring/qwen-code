@@ -1,10 +1,10 @@
-# 🛠️ Infrastructure Implementation Reference
+#  Infrastructure Implementation Reference
 
 This document provides a deep-dive technical specification of the `packages/infra/` layer. It describes the internal logic and mechanisms used to manage the lifecycle, deployment, and environment isolation of the Megalonyx.
 
 ---
 
-## 🏗️ Core Architecture
+##  Core Architecture
 
 The infrastructure layer acts as the bridge between the **Blueprint** (the version-controlled source) and the **Machine** (the deployed runtime). It is responsible for ensuring that the Machine is a high-fidelity, reproducible projection of the Blueprint.
 

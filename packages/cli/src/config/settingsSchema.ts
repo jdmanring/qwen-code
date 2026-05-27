@@ -84,7 +84,7 @@ export interface SettingDefinition {
    * Primitive shapes a field accepted before it was expanded to its current
    * type. The exported JSON Schema wraps the field in `anyOf` so values from
    * those older shapes don't trip the IDE validator while the runtime
-   * migration is still pending. Has no runtime effect — it's purely a
+   * migration is still pending. Has no runtime effect -- it's purely a
    * compatibility hint for editors.
    *
    * Narrowed to the subset our generator can faithfully emit as a
@@ -94,7 +94,7 @@ export interface SettingDefinition {
    * would silently produce an invalid `settings.schema.json`.
    * `'object'` IS a valid JSON Schema type, but a bare
    * `{ type: 'object' }` legacy entry would accept ANY object value
-   * — most likely not what the field's pre-expansion shape actually
+   * -- most likely not what the field's pre-expansion shape actually
    * permitted. Future legacy shapes that need `enum` / structured-
    * object compatibility should land their own branch in
    * `convertSettingToJsonSchema` (with proper `enum:` / `properties:`
@@ -107,7 +107,7 @@ export interface SettingDefinition {
    * shape derived from `type`/`properties`/etc. The `description` is still
    * carried forward from the SettingDefinition.
    *
-   * Use sparingly — for most settings the generator's normal mapping is
+   * Use sparingly -- for most settings the generator's normal mapping is
    * preferable so the source schema stays the single source of truth. The
    * one valid case so far is settings whose accepted runtime shape is a
    * union (e.g. string | { path } | { small, large }) that the
@@ -378,7 +378,7 @@ const SETTINGS_SCHEMA = {
         label: 'Show Session Recap',
         category: 'General',
         requiresRestart: false,
-        // Off by default — an ambient background LLM call isn't something
+        // Off by default -- an ambient background LLM call isn't something
         // users should be opted into silently, especially when `fastModel`
         // is unset and the call would land on the main coding model.
         // Manual `/recap` works regardless.
@@ -410,9 +410,9 @@ const SETTINGS_SCHEMA = {
         description:
           'Attribution added to git commits and pull requests created through Qwen Code.',
         showInDialog: false,
-        // Pre-V4 settings stored this as a single boolean. The V3→V4
+        // Pre-V4 settings stored this as a single boolean. The V3->V4
         // migration rewrites those on first launch, but the IDE schema
-        // validator runs before that — accept the boolean shape so users
+        // validator runs before that -- accept the boolean shape so users
         // editing settings.json in VS Code don't see a spurious warning
         // until they run qwen once. Config.normalizeGitCoAuthor handles
         // the boolean at runtime.
@@ -670,7 +670,7 @@ const SETTINGS_SCHEMA = {
         requiresRestart: false,
         default: false,
         description:
-          'When true, the built-in `⎇ worktree-<branch> (<slug>)` line in the Footer is hidden. The worktree state is still surfaced to custom statusline scripts via the stdin payload (`worktree.{name, path, branch, original_cwd, original_branch}`). Keep at the default `false` unless your custom statusline renders the worktree itself — otherwise an active worktree silently has no UI affordance.',
+          'When true, the built-in ` worktree-<branch> (<slug>)` line in the Footer is hidden. The worktree state is still surfaced to custom statusline scripts via the stdin payload (`worktree.{name, path, branch, original_cwd, original_branch}`). Keep at the default `false` unless your custom statusline renders the worktree itself -- otherwise an active worktree silently has no UI affordance.',
         showInDialog: false,
       },
       hideWindowTitle: {
@@ -898,18 +898,18 @@ const SETTINGS_SCHEMA = {
         // The `oneOf` here uses three *mutually exclusive* branches rather
         // than one permissive object branch, so VS Code rejects nonsense
         // like `{ path, small, large }` (which the runtime would also
-        // reject — see `normalizeTiers` in `customBanner.ts`).
+        // reject -- see `normalizeTiers` in `customBanner.ts`).
         jsonSchemaOverride: {
           oneOf: [
             { type: 'string' },
-            // Bare `{path}` — no tier keys allowed.
+            // Bare `{path}` -- no tier keys allowed.
             {
               type: 'object',
               properties: { path: { type: 'string' } },
               required: ['path'],
               additionalProperties: false,
             },
-            // Width-aware `{small?, large?}` — `path` not allowed at this
+            // Width-aware `{small?, large?}` -- `path` not allowed at this
             // level; each tier is itself string-or-`{path}`.
             {
               type: 'object',
@@ -1015,7 +1015,7 @@ const SETTINGS_SCHEMA = {
         },
         resourceAttributes: {
           description:
-            'Static resource attributes attached to every span/log/metric the SDK exports (OTLP or file outfile — they share the same Resource). Merged with the OTEL_RESOURCE_ATTRIBUTES env var; settings win on key conflict. Reserved keys (service.version, session.id) are dropped with a warning.',
+            'Static resource attributes attached to every span/log/metric the SDK exports (OTLP or file outfile -- they share the same Resource). Merged with the OTEL_RESOURCE_ATTRIBUTES env var; settings win on key conflict. Reserved keys (service.version, session.id) are dropped with a warning.',
           type: 'object',
           additionalProperties: { type: 'string' },
           default: {},
@@ -1027,7 +1027,7 @@ const SETTINGS_SCHEMA = {
           properties: {
             includeSessionId: {
               description:
-                'Include session.id on every metric data point. WARNING: each CLI session creates a new value, causing unbounded metric time-series fan-out at the backend. Only enable for short-term debugging — spans and logs still carry session.id.',
+                'Include session.id on every metric data point. WARNING: each CLI session creates a new value, causing unbounded metric time-series fan-out at the backend. Only enable for short-term debugging -- spans and logs still carry session.id.',
               type: 'boolean',
               default: false,
             },
@@ -1045,14 +1045,14 @@ const SETTINGS_SCHEMA = {
     requiresRestart: true,
     default: undefined as OutboundCorrelationSettings | undefined,
     description:
-      "SECURITY-RELEVANT. Controls what client-side correlation data qwen-code writes into outbound LLM API requests (DashScope, OpenAI, Anthropic, etc.) — separate from `telemetry.*` which governs data flow into the operator's OWN OTLP collector. All values default to off. Opt in only when the LLM provider also reports into your OTel collector for cross-process trace stitching (e.g. ARMS Tracing + DashScope).",
+      "SECURITY-RELEVANT. Controls what client-side correlation data qwen-code writes into outbound LLM API requests (DashScope, OpenAI, Anthropic, etc.) -- separate from `telemetry.*` which governs data flow into the operator's OWN OTLP collector. All values default to off. Opt in only when the LLM provider also reports into your OTel collector for cross-process trace stitching (e.g. ARMS Tracing + DashScope).",
     showInDialog: false,
     jsonSchemaOverride: {
       type: 'object',
       properties: {
         propagateTraceContext: {
           description:
-            "Requires `telemetry.enabled: true`. Inject W3C `traceparent` header on outbound `fetch` requests (LLM SDK calls, MCP StreamableHTTP, WebFetch, ...). Default: false — trace context stays internal to the operator's OTLP collector and is NOT written onto third-party request streams. Set true only when you want cross-process trace stitching with an OTel-aware LLM provider (e.g. ARMS+DashScope). Client HTTP spans are still emitted in either case; this flag only governs the wire `traceparent` header.",
+            "Requires `telemetry.enabled: true`. Inject W3C `traceparent` header on outbound `fetch` requests (LLM SDK calls, MCP StreamableHTTP, WebFetch, ...). Default: false -- trace context stays internal to the operator's OTLP collector and is NOT written onto third-party request streams. Set true only when you want cross-process trace stitching with an OTel-aware LLM provider (e.g. ARMS+DashScope). Client HTTP spans are still emitted in either case; this flag only governs the wire `traceparent` header.",
           type: 'boolean',
           default: false,
         },
@@ -1682,7 +1682,7 @@ const SETTINGS_SCHEMA = {
           },
         },
       },
-      // Legacy tool permission fields – kept for backward compatibility.
+      // Legacy tool permission fields - kept for backward compatibility.
       // Use permissions.{allow,ask,deny} instead.
       core: {
         type: 'array',
@@ -2312,7 +2312,7 @@ const SETTINGS_SCHEMA = {
         requiresRestart: false,
         default: true,
         description:
-          'Generate a short LLM-based label after each tool batch completes. In compact mode the label replaces the generic `Tool × N` header; in full mode it appears as a dim `● <label>` line below the tool group. Requires a fast model to be configured; runs in parallel with the next API call so latency is hidden. Currently affects interactive CLI rendering only — SDK / non-interactive emission of the `tool_use_summary` message is not yet wired (the message factory is exported for a follow-up PR). Can be overridden with QWEN_CODE_EMIT_TOOL_USE_SUMMARIES=0 or =1.',
+          'Generate a short LLM-based label after each tool batch completes. In compact mode the label replaces the generic `Tool * N` header; in full mode it appears as a dim ` <label>` line below the tool group. Requires a fast model to be configured; runs in parallel with the next API call so latency is hidden. Currently affects interactive CLI rendering only -- SDK / non-interactive emission of the `tool_use_summary` message is not yet wired (the message factory is exported for a follow-up PR). Can be overridden with QWEN_CODE_EMIT_TOOL_USE_SUMMARIES=0 or =1.',
         showInDialog: true,
       },
     },

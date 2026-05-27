@@ -13,18 +13,18 @@ For an introduction, see the
 When you're in Auto Mode and the agent tries to run a tool, Qwen Code
 walks three layers in order:
 
-1. **acceptEdits fast-path** — Edit / Write whose target path is inside
+1. **acceptEdits fast-path** -- Edit / Write whose target path is inside
    the workspace is auto-approved without invoking the classifier.
-2. **Safe-tool allowlist** — Read-only and metadata-only built-in tools
+2. **Safe-tool allowlist** -- Read-only and metadata-only built-in tools
    (Read, Grep, Glob, LS, LSP, TodoWrite, AskUserQuestion, etc.) are
    auto-approved without invoking the classifier.
-3. **LLM classifier** — Everything else (shell commands, web fetches,
+3. **LLM classifier** -- Everything else (shell commands, web fetches,
    sub-agent spawns, edits outside the workspace, MCP tools) is sent to
    a two-stage classifier:
-   - **Stage 1 (fast)** — outputs `{ shouldBlock }` only. Around ~300ms.
+   - **Stage 1 (fast)** -- outputs `{ shouldBlock }` only. Around ~300ms.
      If `shouldBlock` is `false`, the action is allowed and the call
      proceeds.
-   - **Stage 2 (thinking)** — only runs when Stage 1 said block. Uses
+   - **Stage 2 (thinking)** -- only runs when Stage 1 said block. Uses
      chain-of-thought review to reduce Stage 1 false positives. Can
      downgrade Stage 1's block to allow. Outputs the user-visible
      `reason` on block.
@@ -50,10 +50,10 @@ runs:
 Rules like the following would let the agent execute arbitrary code
 without classifier review:
 
-- `Bash` / `Bash(*)` / `Bash()` — auto-allow every shell command
-- `Bash(python:*)`, `Bash(node*)`, `Bash(bash*)` — interpreter wildcards
-- `Agent` / `Agent(coder)` — any allow on the Agent tool
-- `Skill` / `Skill(pdf)` — any allow on the Skill tool
+- `Bash` / `Bash(*)` / `Bash()` -- auto-allow every shell command
+- `Bash(python:*)`, `Bash(node*)`, `Bash(bash*)` -- interpreter wildcards
+- `Agent` / `Agent(coder)` -- any allow on the Agent tool
+- `Skill` / `Skill(pdf)` -- any allow on the Skill tool
 
 When you enter Auto Mode, Qwen Code temporarily removes these rules from
 the active permission set and prints a notice listing them. The rules
@@ -65,7 +65,7 @@ If you genuinely need these broad rules, use YOLO mode instead.
 ## Configuring hints
 
 Auto Mode reads `permissions.autoMode` from your `settings.json`. The
-entries are natural-language descriptions, not rule patterns — they are
+entries are natural-language descriptions, not rule patterns -- they are
 injected additively into the classifier's system prompt alongside the
 built-in defaults.
 
@@ -114,9 +114,9 @@ de-duplicated.
 When the classifier blocks an action, the tool call fails with one of
 the following error texts:
 
-- **`Blocked by auto mode policy: <reason>`** — the classifier judged
+- **`Blocked by auto mode policy: <reason>`** -- the classifier judged
   the action unsafe. The reason comes from Stage 2 of the classifier.
-- **`Auto mode classifier unavailable; action blocked for safety`** —
+- **`Auto mode classifier unavailable; action blocked for safety`** --
   the classifier API was unreachable, timed out, or returned an
   un-parseable response. This is fail-closed behavior: when in doubt,
   block.
@@ -141,7 +141,7 @@ Auto Mode protects you from getting stuck:
   the next tool call also falls back. This avoids waiting on a broken
   classifier.
 
-The session itself stays in Auto Mode — only the single fallback call
+The session itself stays in Auto Mode -- only the single fallback call
 goes through manual approval. The counters reset when you approve the
 fallback call or switch modes.
 
@@ -166,7 +166,7 @@ natural-language. Examples:
 The classifier API didn't respond. Possible causes:
 
 - Network issue between you and the model endpoint.
-- The configured fast model is no longer available — check `/model --fast`.
+- The configured fast model is no longer available -- check `/model --fast`.
 - The transcript is too long and exceeds the fast-model context window.
 
 While diagnosing, switch back to Default Mode: `/approval-mode default`.
@@ -182,7 +182,7 @@ approved fallback the consecutive counter resets.
 Tool inputs are projected through each tool's `toAutoClassifierInput`
 method before they reach the classifier. Long edit content, web fetch
 prompts, and sub-agent prompts are truncated. Tool results (file
-contents, web pages) are never sent to the classifier — only the user's
+contents, web pages) are never sent to the classifier -- only the user's
 text and assistant tool-use calls go through.
 
 If a specific tool is exposing fields you'd rather redact, file an issue
@@ -202,7 +202,7 @@ tightened over time.
 - **MCP tools default to conservative blocking.** Third-party MCP tools
   (`mcp__*`) opt-in to argument forwarding via the
   `toAutoClassifierInput` override. Tools that have not opted in expose
-  only their name to the classifier — most such calls are
+  only their name to the classifier -- most such calls are
   conservatively blocked unless you've written an explicit `allow`
   rule. This is fail-closed by design (credentials and voluminous
   content do not leak into the classifier LLM). If you trust a
@@ -213,7 +213,7 @@ tightened over time.
 
 **Does Auto Mode send my code to a third party?**
 
-Auto Mode reuses your existing model configuration — same endpoint as
+Auto Mode reuses your existing model configuration -- same endpoint as
 the main agent. If you've configured Qwen Code to use a self-hosted
 model, the classifier runs against that endpoint too.
 
@@ -226,13 +226,13 @@ projection exposes:
   fast-path allowlist).
 - `edit` / `write_file`: file_path plus the first 80 characters of
   old/new content. Full content is not forwarded.
-- `run_shell_command`: the full command (it has to — that's what the
+- `run_shell_command`: the full command (it has to -- that's what the
   classifier judges).
 - `web_fetch`: the URL only. The prompt field is not forwarded.
 - `agent`: subagent type plus the full prompt. The prompt is the
   instruction the sub-agent will follow, so the classifier needs it
   in full to detect attacks that would steer the sub-agent toward
-  destructive actions — same reason `run_shell_command` forwards the
+  destructive actions -- same reason `run_shell_command` forwards the
   full command.
 
 Tool results (the actual content returned by tools) are stripped from
@@ -243,7 +243,7 @@ not forwarded unless the MCP tool author explicitly opted in via the
 `toAutoClassifierInput` override. The classifier sees the tool name
 but no arguments, so most MCP calls will be conservatively blocked
 unless the user has written an explicit allow rule. This is fail-
-closed by design — third-party tools should not leak credentials or
+closed by design -- third-party tools should not leak credentials or
 voluminous file content into the classifier LLM without intent.
 
 **Can I disable the first-time information message?**
@@ -253,7 +253,7 @@ It only shows once per user-settings file. After dismissal,
 
 **How is this different from Auto-Edit?**
 
-Auto-Edit auto-approves file edits and nothing else — shell commands
+Auto-Edit auto-approves file edits and nothing else -- shell commands
 still ask. Auto Mode uses a classifier to also auto-approve safe shell
 commands and other tool calls while still blocking risky ones.
 

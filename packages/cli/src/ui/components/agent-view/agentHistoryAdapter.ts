@@ -5,7 +5,7 @@
  */
 
 /**
- * @fileoverview agentHistoryAdapter — converts AgentMessage[] to HistoryItem[].
+ * @fileoverview agentHistoryAdapter -- converts AgentMessage[] to HistoryItem[].
  *
  * This adapter bridges the sub-agent data model (AgentMessage[] from
  * AgentInteractive) to the shared rendering model (HistoryItem[] consumed by
@@ -13,7 +13,7 @@
  * are never coupled to CLI rendering types.
  *
  * ID stability: AgentMessage[] is append-only, so the resulting HistoryItem[]
- * only ever grows. Index-based IDs are therefore stable — Ink's <Static>
+ * only ever grows. Index-based IDs are therefore stable -- Ink's <Static>
  * requires items never shift or be removed, which this guarantees.
  */
 
@@ -50,12 +50,12 @@ export function agentMessagesToHistoryItems(
   while (i < messages.length) {
     const msg = messages[i]!;
 
-    // ── user ──────────────────────────────────────────────────
+    // -- user --------------------------------------------------
     if (msg.role === 'user') {
       items.push({ type: 'user', text: msg.content, id: nextId++ });
       i++;
 
-      // ── assistant ─────────────────────────────────────────────
+      // -- assistant ---------------------------------------------
     } else if (msg.role === 'assistant') {
       if (msg.metadata?.['error']) {
         items.push({ type: 'error', text: msg.content, id: nextId++ });
@@ -66,7 +66,7 @@ export function agentMessagesToHistoryItems(
       }
       i++;
 
-      // ── info / warning / success / error ──────────────────────
+      // -- info / warning / success / error ----------------------
     } else if (msg.role === 'info') {
       const level = msg.metadata?.['level'] as string | undefined;
       const type =
@@ -76,7 +76,7 @@ export function agentMessagesToHistoryItems(
       items.push({ type, text: msg.content, id: nextId++ });
       i++;
 
-      // ── tool_call / tool_result → tool_group ──────────────────
+      // -- tool_call / tool_result -> tool_group ------------------
     } else if (msg.role === 'tool_call' || msg.role === 'tool_result') {
       const groupId = nextId++;
 
@@ -116,7 +116,7 @@ export function agentMessagesToHistoryItems(
             success: undefined,
           });
         } else {
-          // tool_result — attach to existing call entry
+          // tool_result -- attach to existing call entry
           const entry = callMap.get(callId);
           const resultDisplay = m.metadata?.['resultDisplay'] as
             | ToolResultDisplay

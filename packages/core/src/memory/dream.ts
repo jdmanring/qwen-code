@@ -74,14 +74,14 @@ export async function runManagedAutoMemoryDream(
   const agentResult = await runDreamByAgent(projectRoot, config, abortSignal);
   // Cancel-aware ordering:
   //   1. If aborted before this point, return the agent's partial result
-  //      WITHOUT rebuilding the index — index rebuild can be expensive
+  //      WITHOUT rebuilding the index -- index rebuild can be expensive
   //      and re-running a cancelled dream cycle next time will rebuild
   //      against the latest topic files anyway.
   //   2. If still alive, rebuild the index (informational, powers
-  //      recall) — but only when topics actually changed.
+  //      recall) -- but only when topics actually changed.
   // Scheduler-gating metadata (`lastDreamAt`, `lastDreamSessionId`,
   // `lastDreamTouchedTopics`, `lastDreamStatus`) is intentionally NOT
-  // written here — `MemoryManager.runDream` owns the atomic
+  // written here -- `MemoryManager.runDream` owns the atomic
   // status-flip + metadata-write sequence to close the cancel race
   // window where a writeFile finishing concurrently with a cancel
   // could persist gating metadata for a record the manager is about

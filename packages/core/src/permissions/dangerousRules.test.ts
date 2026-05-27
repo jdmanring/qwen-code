@@ -48,7 +48,7 @@ describe('isDangerousBashRule', () => {
     'bun',
     'ruby',
     'perl',
-    // Modern package runners — `npx <pkg>` / `uvx <pkg>` / `pipx <pkg>`
+    // Modern package runners -- `npx <pkg>` / `uvx <pkg>` / `pipx <pkg>`
     // / `dlx <pkg>` / `go run` all fetch + execute arbitrary external
     // code by name. `Bash(npx *)` was specifically called out as a
     // common "always allow" pattern that previously slipped past the
@@ -64,7 +64,7 @@ describe('isDangerousBashRule', () => {
   });
 
   it.each(['npx *', 'uvx *', 'pipx *', 'go run *', 'go install *'])(
-    'flags modern-runner wildcard %s — common attack pattern via fetch-and-execute',
+    'flags modern-runner wildcard %s -- common attack pattern via fetch-and-execute',
     (s) => {
       expect(isDangerousBashRule(bashRule(s))).toBe(true);
     },
@@ -102,7 +102,7 @@ describe('isDangerousBashRule', () => {
 
   it('does NOT flag specific colon-form rules (concrete suffix is a user-allowed concrete command)', () => {
     // Regression: `Bash(python3:run-tests)` and similar are concrete
-    // user-allow rules — same shape as `Bash(npm run test)`. They were
+    // user-allow rules -- same shape as `Bash(npm run test)`. They were
     // previously over-flagged as "interpreter + colon = dangerous",
     // silently stripping intentional user allow lists in AUTO mode.
     expect(isDangerousBashRule(bashRule('python3:run-tests'))).toBe(false);
@@ -115,7 +115,7 @@ describe('isDangerousBashRule', () => {
 
   it('DOES flag empty-suffix and wildcard-suffix colon-form rules', () => {
     // `python:` (empty suffix) and `python:*` are interpreter-with-no-
-    // specifier — every command runs. Still dangerous.
+    // specifier -- every command runs. Still dangerous.
     expect(isDangerousBashRule(bashRule('python:'))).toBe(true);
     expect(isDangerousBashRule(bashRule('python:*'))).toBe(true);
     expect(isDangerousBashRule(bashRule('node:*'))).toBe(true);
@@ -135,7 +135,7 @@ describe('isDangerousBashRule', () => {
     ).toBe(false);
   });
 
-  // ── Regression guards added during PR #4151 review ────────────────────
+  // -- Regression guards added during PR #4151 review --------------------
   describe('extended interpreter coverage', () => {
     it.each([
       'php',

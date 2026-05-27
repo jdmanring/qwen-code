@@ -25,7 +25,7 @@ const sdkRoot = join(__dirname, '..');
 function copyOptionalDir(source, destination, label) {
   if (existsSync(source)) {
     cpSync(source, destination, { recursive: true });
-    console.log(`[sdk bundle] ✓ ${label}/ copied`);
+    console.log(`[sdk bundle]  ${label}/ copied`);
   }
 }
 
@@ -73,7 +73,7 @@ function main() {
     );
   }
   cpSync(cliJsSource, join(sdkCliDistDir, 'cli.js'));
-  console.log('[sdk bundle] ✓ cli.js copied');
+  console.log('[sdk bundle]  cli.js copied');
 
   copyOptionalDir(
     join(cliDistDir, 'chunks'),

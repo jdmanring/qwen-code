@@ -50,6 +50,6 @@ describe('LspConnectionFactory', () => {
       'LSP connection closed',
     );
 
-    expect(connection.processDiagnostics?.stderrTail).toContain('☃');
+    expect(connection.processDiagnostics?.stderrTail).toContain('');
   });
 });

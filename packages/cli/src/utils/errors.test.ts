@@ -776,7 +776,7 @@ describe('errors', () => {
 
   describe('cleanup-before-exit invariant', () => {
     // Regression: previously these handlers called process.exit synchronously,
-    // bypassing the caller's runExitCleanup → flush() chain on SIGINT, max-
+    // bypassing the caller's runExitCleanup -> flush() chain on SIGINT, max-
     // turn, and fatal-error paths. Same family as the EPIPE/process.exit
     // bug fixed for stdout in nonInteractiveCli.
     it('handleCancellationError drains registered cleanups before exit', async () => {
@@ -834,12 +834,12 @@ describe('errors', () => {
     });
 
     it('a second terminating handler does not race the first into double-exit', async () => {
-      // Models the real concurrency: SIGINT → handleCancellationError fires
-      // while a stream rejection lands in the catch → handleError(JSON).
+      // Models the real concurrency: SIGINT -> handleCancellationError fires
+      // while a stream rejection lands in the catch -> handleError(JSON).
       // Without the exit-once latch we'd get duplicate cleanup runs +
       // duplicate process.exit calls + interleaved stderr writes.
       // (Text-mode handleError throws instead of exiting, so it isn't part
-      // of the race — the latch lives on the exit path.)
+      // of the race -- the latch lives on the exit path.)
       (mockConfig.getOutputFormat as ReturnType<typeof vi.fn>).mockReturnValue(
         OutputFormat.JSON,
       );

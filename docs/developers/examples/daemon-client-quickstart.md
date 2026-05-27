@@ -9,10 +9,10 @@ In one terminal:
 ```bash
 cd your-project/
 qwen serve --port 4170
-# → qwen serve listening on http://127.0.0.1:4170 (mode=http-bridge, workspace=/path/to/your-project)
+# -> qwen serve listening on http://127.0.0.1:4170 (mode=http-bridge, workspace=/path/to/your-project)
 ```
 
-Per [#3803](https://github.com/QwenLM/qwen-code/issues/3803) §02 each daemon binds to one workspace at boot (the current `cwd`, or override with `--workspace /path/to/dir`). The daemon's bound path is advertised on `/capabilities.workspaceCwd` so clients can pre-flight check + omit `cwd` from `POST /session`.
+Per [#3803](https://github.com/QwenLM/qwen-code/issues/3803) 02 each daemon binds to one workspace at boot (the current `cwd`, or override with `--workspace /path/to/dir`). The daemon's bound path is advertised on `/capabilities.workspaceCwd` so clients can pre-flight check + omit `cwd` from `POST /session`.
 
 In another:
 
@@ -31,14 +31,14 @@ const client = new DaemonClient({
 });
 
 // 1. Confirm we can reach the daemon, gate UI on its features, and
-//    read back the daemon's bound workspace (#3803 §02).
+//    read back the daemon's bound workspace (#3803 02).
 const caps = await client.capabilities();
 console.log('Daemon features:', caps.features);
 console.log('Daemon workspace:', caps.workspaceCwd); // canonical bound path
 
 // 2. Spawn-or-attach a session. Two equally-valid shapes:
 //    (a) pass `workspaceCwd: caps.workspaceCwd` to be explicit, or
-//    (b) omit `workspaceCwd` entirely — the SDK then sends no `cwd`
+//    (b) omit `workspaceCwd` entirely -- the SDK then sends no `cwd`
 //        field and the daemon route falls back to its bound
 //        workspace. The (b) shape is concise but assumes you trust
 //        `caps.workspaceCwd` to be whatever you intended.
@@ -51,13 +51,13 @@ const session = await client.createOrAttachSession({
 console.log(`session=${session.sessionId} attached=${session.attached}`);
 
 // 3. Subscribe to the event stream. Pass `lastEventId: 0` so the daemon
-//    replays everything from the session's start — without it, there's
+//    replays everything from the session's start -- without it, there's
 //    a TOCTOU window between `subscribeEvents()` returning the iterator
 //    and the underlying SSE connection actually opening (one fetch
 //    round-trip), during which a fast-starting agent can emit events
 //    that go into the per-session ring but won't be streamed to a fresh
 //    no-cursor subscriber. `lastEventId: 0` makes the replay buffer
-//    cover that gap (and any reconnect later — see below).
+//    cover that gap (and any reconnect later -- see below).
 const abort = new AbortController();
 const subscription = (async () => {
   for await (const event of client.subscribeEvents(session.sessionId, {
@@ -153,7 +153,7 @@ The daemon retains the last 4000 events per session in a ring buffer; gaps beyon
 
 ## Voting on permissions
 
-When the agent asks for permission to run a tool, every connected client sees the `permission_request` event. **First responder wins** — once one client votes, the rest get `404` if they try to vote on the same `requestId`.
+When the agent asks for permission to run a tool, every connected client sees the `permission_request` event. **First responder wins** -- once one client votes, the rest get `404` if they try to vote on the same `requestId`.
 
 ```ts
 case 'permission_request': {
@@ -161,7 +161,7 @@ case 'permission_request': {
     requestId: string;
     options: Array<{ optionId: string; name: string; kind: string }>;
   };
-  // Pick whichever option you want — `proceed_once`, `allow`, etc.
+  // Pick whichever option you want -- `proceed_once`, `allow`, etc.
   const choice = req.options.find((o) => o.kind === 'allow_once') ?? req.options[0];
   const accepted = await client.respondToPermission(req.requestId, {
     outcome: { outcome: 'selected', optionId: choice.optionId },
@@ -175,7 +175,7 @@ case 'permission_request': {
 
 ## Shared-session collaboration
 
-Two clients pointed at the **same daemon** end up on the same session. Per #3803 §02 each daemon is bound to ONE workspace at boot, so the daemon launched as `qwen serve --workspace /work/repo` (or `cd /work/repo && qwen serve`) is what both clients connect to:
+Two clients pointed at the **same daemon** end up on the same session. Per #3803 02 each daemon is bound to ONE workspace at boot, so the daemon launched as `qwen serve --workspace /work/repo` (or `cd /work/repo && qwen serve`) is what both clients connect to:
 
 ```ts
 // Daemon was launched as `qwen serve --workspace /work/repo` so
@@ -183,11 +183,11 @@ Two clients pointed at the **same daemon** end up on the same session. Per #3803
 
 // Client A (e.g. an IDE plugin)
 const a = await clientA.createOrAttachSession({ workspaceCwd: '/work/repo' });
-console.log(a.attached); // false — A spawned the agent
+console.log(a.attached); // false -- A spawned the agent
 
 // Client B (e.g. a web UI on the same machine)
 const b = await clientB.createOrAttachSession({ workspaceCwd: '/work/repo' });
-console.log(b.attached); // true — B joined A's session
+console.log(b.attached); // true -- B joined A's session
 console.log(a.sessionId === b.sessionId); // true
 ```
 
@@ -220,7 +220,7 @@ try {
 }
 ```
 
-Multi-workspace deployments run one daemon per workspace on separate ports — there's no intra-daemon routing under §02. An orchestrator (or the user's launcher) picks the right daemon based on the project the client wants to talk to.
+Multi-workspace deployments run one daemon per workspace on separate ports -- there's no intra-daemon routing under 02. An orchestrator (or the user's launcher) picks the right daemon based on the project the client wants to talk to.
 
 ## Authentication
 
@@ -233,7 +233,7 @@ const client = new DaemonClient({
 });
 ```
 
-Wrong / missing tokens return `401` with a uniform body — the SDK throws `DaemonHttpError` on any 4xx/5xx from a route handler.
+Wrong / missing tokens return `401` with a uniform body -- the SDK throws `DaemonHttpError` on any 4xx/5xx from a route handler.
 
 ```ts
 import { DaemonHttpError } from '@qwen-code/sdk';
@@ -258,10 +258,10 @@ await client.cancel(session.sessionId);
 // In the event stream you'll see the prompt resolve with stopReason: "cancelled"
 ```
 
-Cancel only winds down the **active** prompt — anything you'd already POSTed and that's still queued behind it will continue to run. (See protocol reference for the rationale.)
+Cancel only winds down the **active** prompt -- anything you'd already POSTed and that's still queued behind it will continue to run. (See protocol reference for the rationale.)
 
 ## What's next
 
-- [HTTP protocol reference](../qwen-serve-protocol.md) — full route spec with status codes
-- [Daemon mode user guide](../../users/qwen-serve.md) — operator-side docs
+- [HTTP protocol reference](../qwen-serve-protocol.md) -- full route spec with status codes
+- [Daemon mode user guide](../../users/qwen-serve.md) -- operator-side docs
 - Source: `packages/sdk-typescript/src/daemon/`

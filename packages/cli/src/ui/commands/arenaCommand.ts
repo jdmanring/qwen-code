@@ -55,8 +55,8 @@ interface ParsedModel {
  *   /arena start --models authType1:model1,authType2:model2 <task>
  *
  * Model format: [authType:]modelId
- *   - "gpt-4o" → uses default auth type
- *   - "openai:gpt-4o" → uses "openai" auth type
+ *   - "gpt-4o" -> uses default auth type
+ *   - "openai:gpt-4o" -> uses "openai" auth type
  */
 function parseArenaArgs(args: string): {
   models: ParsedModel[];
@@ -192,7 +192,7 @@ function executeArenaCommand(
   // Capture the main session's chat history so arena agents start with
   // conversational context. Strip the leading startup context (env info
   // user message + model ack) because each agent generates its own for
-  // its worktree directory — keeping the parent's would duplicate it.
+  // its worktree directory -- keeping the parent's would duplicate it.
   let chatHistory;
   try {
     const fullHistory = config.getGeminiClient().getHistory();
@@ -228,7 +228,7 @@ function executeArenaCommand(
       .join('\n');
     // SESSION_START fires synchronously before the first await in
     // ArenaManager.start(), so the slash command processor's finally
-    // block already captures this item — no extra recording needed.
+    // block already captures this item -- no extra recording needed.
     addArenaMessage(
       MessageType.INFO,
       t(
@@ -388,7 +388,7 @@ function executeArenaCommand(
         // are not blocked by the stale reference after a startup failure.
         config.setArenaManager(null);
 
-        // Detach listeners on failure — session is done for good.
+        // Detach listeners on failure -- session is done for good.
         for (const detach of detachListeners) {
           detach();
         }
@@ -701,7 +701,7 @@ export const arenaCommand: SlashCommand = {
           };
         }
 
-        // No args → open the select dialog
+        // No args -> open the select dialog
         return {
           type: 'dialog',
           dialog: 'arena_select',

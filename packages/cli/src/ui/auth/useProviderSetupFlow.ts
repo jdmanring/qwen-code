@@ -375,7 +375,7 @@ export function useProviderSetupFlow(
         }
       : undefined;
     const ctxSize = parseInt(contextWindowSize, 10);
-    // TODO: add maxTokens input field — type and buildInstallPlan support it but UI is deferred
+    // TODO: add maxTokens input field -- type and buildInstallPlan support it but UI is deferred
     const hasAdvanced =
       thinkingEnabled || modalityEnabled || (ctxSize > 0 && !isNaN(ctxSize));
     const advancedConfig = hasAdvanced

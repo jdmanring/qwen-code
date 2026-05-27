@@ -1,4 +1,4 @@
-🏛️ 
+ 
 # System Layout & Deployment Architecture
 
 This document defines the structural organization of the Mega Code stack, implementing a **Mirror-Destination Layout** to ensure zero cross-contamination between development artifacts and the production runtime.

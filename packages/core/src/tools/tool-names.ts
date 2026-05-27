@@ -13,7 +13,7 @@
  * also need to be added to `FS_PATH_TOOL_NAMES` in
  * `core/coreToolScheduler.ts` so conditional rules and path-conditional
  * skill activation see the touched paths. Forgetting that registration
- * silently skips the activation pipeline for that tool — there is no
+ * silently skips the activation pipeline for that tool -- there is no
  * compile-time guard. (TODO: replace the manual allowlist with a
  * per-declaration `pathFields?: string[]` annotation on the tool class.)
  */

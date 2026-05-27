@@ -86,7 +86,7 @@ export function SuggestionsDisplay({
 
   return (
     <Box flexDirection="column" width={width}>
-      {scrollOffset > 0 && <Text color={theme.text.primary}>▲</Text>}
+      {scrollOffset > 0 && <Text color={theme.text.primary}></Text>}
 
       {visibleSuggestions.map((suggestion, index) => {
         const originalIndex = startIndex + index;
@@ -145,13 +145,13 @@ export function SuggestionsDisplay({
             )}
             {isActive && isLong && (
               <Box>
-                <Text color={Colors.Gray}>{isExpanded ? ' ← ' : ' → '}</Text>
+                <Text color={Colors.Gray}>{isExpanded ? ' <- ' : ' -> '}</Text>
               </Box>
             )}
           </Box>
         );
       })}
-      {endIndex < suggestions.length && <Text color="gray">▼</Text>}
+      {endIndex < suggestions.length && <Text color="gray"></Text>}
       {suggestions.length > MAX_SUGGESTIONS_TO_SHOW && (
         <Text color="gray">
           ({activeIndex + 1}/{suggestions.length})

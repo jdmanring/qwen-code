@@ -1,6 +1,6 @@
 # Qwen Code Agent Framework
 
-This document describes the Skills and SubAgent system that Qwen Code provides — what it is,
+This document describes the Skills and SubAgent system that Qwen Code provides -- what it is,
 how it works mechanically, and how Megalonyx uses it.
 
 ---
@@ -9,9 +9,9 @@ how it works mechanically, and how Megalonyx uses it.
 
 In qwen-code, "agent" has two meanings:
 
-1. **The main session** — the interactive loop where the model reads context, calls tools, and responds. This is just "the CLI running."
+1. **The main session** -- the interactive loop where the model reads context, calls tools, and responds. This is just "the CLI running."
 
-2. **A SubAgent** — a nested session spawned by the model to handle a specific subtask in isolation. The parent session delegates work to a subagent, waits for the result, and continues.
+2. **A SubAgent** -- a nested session spawned by the model to handle a specific subtask in isolation. The parent session delegates work to a subagent, waits for the result, and continues.
 
 Skills are a layer below both: they are instruction sets that tell the model *how* to do something, not a separate process.
 
@@ -38,7 +38,7 @@ Megalonyx adds 21 skills to `.qwen/skills/`. These cover things like commit, cro
 
 ### How they execute
 
-When the model calls a skill tool, the CLI injects the skill's instruction text into the model's context as a system message and then continues the conversation. The skill does not run as a subprocess — it is purely a prompt augmentation that shapes the model's next action.
+When the model calls a skill tool, the CLI injects the skill's instruction text into the model's context as a system message and then continues the conversation. The skill does not run as a subprocess -- it is purely a prompt augmentation that shapes the model's next action.
 
 File: `packages/core/src/tools/skill.ts`
 
@@ -56,7 +56,7 @@ Subagents cannot spawn further subagents. The `AgentTool` uses `AsyncLocalStorag
 
 ### Configuration
 
-Subagent tool registries are created via `Config.createToolRegistryForSubagent()`. This gives each subagent an isolated set of tools — state from the parent's tool instances does not leak in.
+Subagent tool registries are created via `Config.createToolRegistryForSubagent()`. This gives each subagent an isolated set of tools -- state from the parent's tool instances does not leak in.
 
 File: `packages/core/src/tools/agent/agent.js`
 

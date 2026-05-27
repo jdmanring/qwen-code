@@ -293,7 +293,7 @@ describe('useSlashCommandProcessor', () => {
       let actionResult;
       await act(async () => {
         actionResult = await result.current.handleSlashCommand(
-          '/api/apiFunction/接口的实现',
+          '/api/apiFunction/',
         );
       });
 
@@ -1072,7 +1072,7 @@ describe('useSlashCommandProcessor', () => {
         // Initial CommandService.create() pass: BuiltinCommandLoader is
         // constructed once. Firing the SkillManager listener bumps the
         // reloadTrigger and the loader effect re-runs, constructing the
-        // builtin loader a second time — that is the observable signal
+        // builtin loader a second time -- that is the observable signal
         // that a reload happened.
         await waitFor(() =>
           expect(BuiltinCommandLoader).toHaveBeenCalledTimes(1),
@@ -1402,7 +1402,7 @@ describe('useSlashCommandProcessor', () => {
     // Why these live in the skip set: the fork itself is the side effect
     // (new JSONL file with full parent history), so also writing a
     // `/branch <name>` slash-command record into the parent session would
-    // bleed into the fork's tail as a trailing user input — user-visible
+    // bleed into the fork's tail as a trailing user input -- user-visible
     // noise with no semantic value. Same rationale for /new, /resume,
     // /delete, /clear: session-level commands whose outcome is the new
     // session state, not a conversation turn.

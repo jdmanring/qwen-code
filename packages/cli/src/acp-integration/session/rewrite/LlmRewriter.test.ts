@@ -65,17 +65,17 @@ describe('LlmRewriter', () => {
         target: 'all',
       } as MessageRewriteConfig);
 
-      // First call — no context
+      // First call -- no context
       await rewriter.rewrite(makeTurn(['first message']));
       const firstInput =
         mockGenerateContent.mock.calls[0][0].contents[0].parts[0].text;
-      expect(firstInput).not.toContain('上一轮改写结果');
+      expect(firstInput).not.toContain('');
 
-      // Second call — should include first rewrite output
+      // Second call -- should include first rewrite output
       await rewriter.rewrite(makeTurn(['second message']));
       const secondInput =
         mockGenerateContent.mock.calls[1][0].contents[0].parts[0].text;
-      expect(secondInput).toContain('上一轮改写结果');
+      expect(secondInput).toContain('');
       expect(secondInput).toContain('rewritten output');
     });
 
@@ -91,7 +91,7 @@ describe('LlmRewriter', () => {
 
       const secondInput =
         mockGenerateContent.mock.calls[1][0].contents[0].parts[0].text;
-      expect(secondInput).not.toContain('上一轮改写结果');
+      expect(secondInput).not.toContain('');
     });
 
     it('should include last N rewrites when contextTurns=N', async () => {
@@ -119,7 +119,7 @@ describe('LlmRewriter', () => {
       await rewriter.rewrite(makeTurn(['msg2']));
       await rewriter.rewrite(makeTurn(['msg3']));
 
-      // 4th call — should include rewrite-B and rewrite-C (last 2), not rewrite-A
+      // 4th call -- should include rewrite-B and rewrite-C (last 2), not rewrite-A
       await rewriter.rewrite(makeTurn(['msg4']));
       const input =
         mockGenerateContent.mock.calls[3][0].contents[0].parts[0].text;
@@ -227,7 +227,7 @@ describe('LlmRewriter', () => {
       // Second call should have no context (first rewrite returned null)
       const input =
         mockGenerateContent.mock.calls[1][0].contents[0].parts[0].text;
-      expect(input).not.toContain('上一轮改写结果');
+      expect(input).not.toContain('');
     });
   });
 });

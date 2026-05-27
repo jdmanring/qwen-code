@@ -1,20 +1,20 @@
-# ⚖️ Cognitive Integrity Standard
+#  Cognitive Integrity Standard
 
 This document defines the standard for "Technical Candor" within the Megalonyx. The goal is to maintain absolute honesty about the state of the system while ensuring that technical depth is never sacrificed for the sake of simplicity.
 
 ---
 
-## 🎯 The Core Principle: Technical Candor
+##  The Core Principle: Technical Candor
 
 Technical Candor is the practice of describing a system's state with absolute precision, removing the gap between what a document *claims* and what the code *does*. 
 
-We reject "Posturing"—the use of grandiose language to mask implementation gaps. We replace it with "Grounded Precision."
+We reject "Posturing"--the use of grandiose language to mask implementation gaps. We replace it with "Grounded Precision."
 
 ### 1. The "Implemented" Threshold
 In this project, the word **"Implemented"** has a strict technical definition.
 
-- **❌ NOT Implemented**: A service is written, a prompt is designed, and it works in a single test run or in-memory.
-- **✅ Implemented**: There is a verified, end-to-end execution path from a user's natural language request to a persistent change in the system (e.g., a file written to disk, a record in a database, or a change in a system configuration).
+- ** NOT Implemented**: A service is written, a prompt is designed, and it works in a single test run or in-memory.
+- ** Implemented**: There is a verified, end-to-end execution path from a user's natural language request to a persistent change in the system (e.g., a file written to disk, a record in a database, or a change in a system configuration).
 
 If a feature only works in-memory or requires manual setup not covered by the installer, it must be labeled as a **"Prototype"** or **"Partial Implementation."**
 
@@ -23,9 +23,9 @@ We distinguish between **Technical Precision** (which we want) and **AI Jargon**
 
 | Type | Characteristic | Example | Status |
 | :--- | :--- | :--- | :--- |
-| **Technical Precision** | Uses the correct industry term to describe a specific mechanism. | "Using a vector database for semantic retrieval." | ✅ **Keep** |
-| **AI Jargon** | Uses abstract or grandiose terms to create an impression of intelligence. | "Leveraging high-dimensional cognitive synthesis." | ❌ **Purge** |
-| **Oversimplification** | Removes the technical mechanism to make it "relatable." | "The AI finds things in the memory." | ❌ **Avoid** |
+| **Technical Precision** | Uses the correct industry term to describe a specific mechanism. | "Using a vector database for semantic retrieval." |  **Keep** |
+| **AI Jargon** | Uses abstract or grandiose terms to create an impression of intelligence. | "Leveraging high-dimensional cognitive synthesis." |  **Purge** |
+| **Oversimplification** | Removes the technical mechanism to make it "relatable." | "The AI finds things in the memory." |  **Avoid** |
 
 **The Standard**: Describe the mechanism precisely, but use plain language to explain the purpose.
 
@@ -39,7 +39,7 @@ Every new feature or architectural change must be accompanied by a **Gap Analysi
 
 ---
 
-## 🛠️ Operationalizing Honesty
+##  Operationalizing Honesty
 
 To prevent cognitive debt, agents must apply the following checks during every task:
 
@@ -49,7 +49,7 @@ To prevent cognitive debt, agents must apply the following checks during every t
 
 ---
 
-## 📏 Verification Matrix
+##  Verification Matrix
 
 | Claim | Verification Method | "Implemented" Criteria |
 | :--- | :--- | :--- |

@@ -91,7 +91,7 @@ describe('CronScheduler', () => {
       // Use every-minute cron so jitter is tiny (max ~6s for 1-min period)
       scheduler.create('*/1 * * * *', 'match', true);
 
-      // Tick at 10:30:59 — past any jitter for a 1-min period job
+      // Tick at 10:30:59 -- past any jitter for a 1-min period job
       const date = new Date(2025, 0, 15, 10, 30, 59);
       scheduler.tick(date);
 
@@ -106,7 +106,7 @@ describe('CronScheduler', () => {
       const job = scheduler.create('30 10 * * *', 'no match', true);
       job.jitterMs = 0; // pin jitter so the test is deterministic
 
-      // Tick at 10:31 — should not fire
+      // Tick at 10:31 -- should not fire
       scheduler.tick(new Date(2025, 0, 15, 10, 31, 0));
       expect(fired).toHaveLength(0);
     });
@@ -117,7 +117,7 @@ describe('CronScheduler', () => {
 
       scheduler.create('*/1 * * * *', 'once per minute', true);
 
-      // Both ticks in second 59 — past jitter for a 1-min period job
+      // Both ticks in second 59 -- past jitter for a 1-min period job
       const date1 = new Date(2025, 0, 15, 10, 30, 59);
       const date2 = new Date(2025, 0, 15, 10, 30, 59, 500);
       scheduler.tick(date1);
@@ -144,7 +144,7 @@ describe('CronScheduler', () => {
 
       scheduler.create('*/1 * * * *', 'recurring', true);
 
-      // Tick at second 59 — past any jitter for a 1-min period job
+      // Tick at second 59 -- past any jitter for a 1-min period job
       scheduler.tick(new Date(2025, 0, 15, 10, 30, 59));
       expect(fired).toHaveLength(1);
       expect(scheduler.list()).toHaveLength(1);

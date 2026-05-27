@@ -147,10 +147,10 @@ describe('atomicWriteFile', () => {
 
   it('should respect encoding option', async () => {
     const filePath = path.join(tmpDir, 'test.txt');
-    await atomicWriteFile(filePath, 'café', { encoding: 'utf-8' });
+    await atomicWriteFile(filePath, 'caf', { encoding: 'utf-8' });
 
     const content = await fs.readFile(filePath, 'utf-8');
-    expect(content).toBe('café');
+    expect(content).toBe('caf');
   });
 
   it('should resolve symlinks and write to the real target', async () => {
@@ -213,8 +213,8 @@ describe('atomicWriteFile', () => {
     const linkB = path.join(tmpDir, 'link-b.txt');
 
     await fs.writeFile(realFile, 'original');
-    await fs.symlink(realFile, linkA); // linkA → real
-    await fs.symlink(linkA, linkB); // linkB → linkA → real
+    await fs.symlink(realFile, linkA); // linkA -> real
+    await fs.symlink(linkA, linkB); // linkB -> linkA -> real
 
     await atomicWriteFile(linkB, 'updated via chain');
 
@@ -237,7 +237,7 @@ describe('atomicWriteFile', () => {
     //         tmpDir/linkDir is a symlink to realDir
     // Writing via tmpDir/linkDir/file.txt should resolve correctly to
     // tmpDir/target.txt (NOT tmpDir/target.txt via string-only dirname,
-    // which would happen to be the same here — so we use a more tricky setup)
+    // which would happen to be the same here -- so we use a more tricky setup)
     const realDir = path.join(tmpDir, 'realDir');
     const otherDir = path.join(tmpDir, 'otherDir');
     const targetFile = path.join(otherDir, 'target.txt');
@@ -247,9 +247,9 @@ describe('atomicWriteFile', () => {
     await fs.mkdir(realDir);
     await fs.mkdir(otherDir);
     await fs.writeFile(targetFile, 'original');
-    // file.txt → ../otherDir/target.txt (relative to its parent)
+    // file.txt -> ../otherDir/target.txt (relative to its parent)
     await fs.symlink('../otherDir/target.txt', linkInRealDir);
-    // linkDir → realDir (directory symlink)
+    // linkDir -> realDir (directory symlink)
     await fs.symlink(realDir, linkDir);
 
     // Write via the path that goes through the directory symlink.

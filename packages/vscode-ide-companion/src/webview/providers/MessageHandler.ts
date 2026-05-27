@@ -75,7 +75,7 @@ export class MessageHandler {
   }
 
   /**
-   * Set auth interactive handler — interactive auth flow.
+   * Set auth interactive handler -- interactive auth flow.
    */
   setAuthInteractiveHandler(
     handler: (

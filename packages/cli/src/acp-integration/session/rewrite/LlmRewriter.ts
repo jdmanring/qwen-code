@@ -20,15 +20,15 @@ The agent is a software engineering assistant that reads files, writes code, run
 
 1. **Strictly based on original**: only surface information already in the input. Never invent details, plans, or conclusions the agent didn't state.
 2. **Keep**: goals, decisions, key findings, results, errors that affect the user, status updates.
-3. **Drop**: file paths, tool/skill names, internal reasoning about which tool to call, code snippets, stack traces, "let me…" / "now I'll…" filler phrases.
-4. **Progress turns**: if the agent is just starting a step (reading files, running a command, exploring code), output one short sentence describing what's happening — so the user isn't staring at silence.
+3. **Drop**: file paths, tool/skill names, internal reasoning about which tool to call, code snippets, stack traces, "let me..." / "now I'll..." filler phrases.
+4. **Progress turns**: if the agent is just starting a step (reading files, running a command, exploring code), output one short sentence describing what's happening -- so the user isn't staring at silence.
 5. **Rich content**: if the input already contains well-structured user-facing content (tables, lists, formatted results), do light cleanup only (remove stray paths/tool names) and preserve the structure.
-6. **Pure internal ops**: if the input is entirely internal (fixing a typo in its own code, retrying a failed tool call, creating temp directories) → return empty string.
+6. **Pure internal ops**: if the input is entirely internal (fixing a typo in its own code, retrying a failed tool call, creating temp directories) -> return empty string.
 7. **Preserve data exactly**: never alter numbers, percentages, file sizes, error codes, or quoted output.
 
 ## Context continuity
 
-If "Previous rewrite output" is provided, the user has already seen it. Don't repeat — build on it. If this turn adds nothing new, return empty string.
+If "Previous rewrite output" is provided, the user has already seen it. Don't repeat -- build on it. If this turn adds nothing new, return empty string.
 
 Output only the rewritten text, or empty string if the input has no user-facing value.`;
 
@@ -85,10 +85,10 @@ export class LlmRewriter {
     const inputParts: string[] = [];
 
     if (turnContent.thoughts.length > 0) {
-      inputParts.push('[内部推理]\n' + turnContent.thoughts.join('\n'));
+      inputParts.push('[]\n' + turnContent.thoughts.join('\n'));
     }
     if (turnContent.messages.length > 0) {
-      inputParts.push('[回复文本]\n' + turnContent.messages.join('\n'));
+      inputParts.push('[]\n' + turnContent.messages.join('\n'));
     }
 
     // Prepend previous rewrite outputs as context for coherence
@@ -97,7 +97,7 @@ export class LlmRewriter {
         this.contextTurns === Infinity
           ? this.outputHistory
           : this.outputHistory.slice(-this.contextTurns);
-      inputParts.unshift('[上一轮改写结果]\n' + contextSlice.join('\n---\n'));
+      inputParts.unshift('[]\n' + contextSlice.join('\n---\n'));
     }
 
     const inputText = inputParts.join('\n\n');

@@ -25,7 +25,7 @@ describe('<GeminiSpinner />', () => {
   // Regression: Footer.tsx renders <GeminiSpinner /> inside a <Text> wrapper
   // ('<Text>...<GeminiSpinner /> {msg}</Text>'). Ink forbids <Box> from being
   // nested inside <Text>, so the tmux branch must return a <Text>, not a
-  // <Box>-wrapped one — otherwise the CLI throws on startup inside tmux.
+  // <Box>-wrapped one -- otherwise the CLI throws on startup inside tmux.
   it('renders without throwing when nested inside a <Text> (Footer context)', () => {
     vi.stubEnv('TMUX', '/tmp/tmux-1000/default,12345,0');
 

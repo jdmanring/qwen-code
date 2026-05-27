@@ -102,14 +102,14 @@ function buildModelConfigs(
   const envKey = resolveEnvKey(config, inputs);
   const prefix = resolveModelNamePrefix(config, inputs.baseUrl);
 
-  // Fixed ModelSpec[] (not editable) — use specs directly
+  // Fixed ModelSpec[] (not editable) -- use specs directly
   if (config.models && !config.modelsEditable) {
     return config.models.map((spec) =>
       specToModelConfig(spec, prefix, inputs.baseUrl, envKey),
     );
   }
 
-  // Editable ModelSpec[] — look up per-model metadata for known IDs
+  // Editable ModelSpec[] -- look up per-model metadata for known IDs
   if (config.models && config.modelsEditable) {
     const specMap = new Map(config.models.map((s) => [s.id, s]));
     return inputs.modelIds.map((id) => {
@@ -126,7 +126,7 @@ function buildModelConfigs(
     });
   }
 
-  // No predefined models (custom provider) — use advancedConfig
+  // No predefined models (custom provider) -- use advancedConfig
   const advCfg = inputs.advancedConfig;
 
   function buildCustomGenConfig():
@@ -168,7 +168,7 @@ function buildModelConfigs(
 }
 
 // ---------------------------------------------------------------------------
-// Version tracking — auto-derived for providers with static model lists
+// Version tracking -- auto-derived for providers with static model lists
 // ---------------------------------------------------------------------------
 
 /**
@@ -177,8 +177,8 @@ function buildModelConfigs(
  */
 export function resolveMetadataKey(config: ProviderConfig): string | undefined {
   if (!config.models) return undefined;
-  // setValue uses dotted-path traversal — a provider id containing '.' would
-  // be split into multiple nested objects (`providerMetadata.foo.bar` →
+  // setValue uses dotted-path traversal -- a provider id containing '.' would
+  // be split into multiple nested objects (`providerMetadata.foo.bar` ->
   // `providerMetadata.foo.bar = ...` vs `providerMetadata['foo.bar'] = ...`).
   // Reject early so the bug is loud at registration time rather than
   // silently corrupting the settings tree at install time.
@@ -260,7 +260,7 @@ export function computeModelListVersion(models: ProviderModelConfig[]): string {
  * Default base URLs per protocol, used as placeholder/fallback when the user
  * doesn't supply one for a custom provider. Kept in core so the CLI flow
  * (useProviderSetupFlow) and the VS Code flow (AuthMessageHandler) agree on
- * the same value — if Anthropic ships a new endpoint we only update it here.
+ * the same value -- if Anthropic ships a new endpoint we only update it here.
  */
 const DEFAULT_BASE_URLS: Partial<Record<AuthType, string>> = {
   [AuthType.USE_OPENAI]: 'https://api.openai.com/v1',
@@ -345,7 +345,7 @@ export function providerMatchesCredentials(
   // Resolve envKey first: presets carry a string literal, but the custom
   // provider carries a function that derives the key from (protocol, baseUrl).
   // Treating "non-string" as no-match made custom providers invisible to
-  // findProviderByCredentials → /doctor and system-info diagnostics.
+  // findProviderByCredentials -> /doctor and system-info diagnostics.
   let configEnvKey: string | undefined;
   if (typeof config.envKey === 'string') {
     configEnvKey = config.envKey;
@@ -367,7 +367,7 @@ export function providerMatchesCredentials(
         }
       } catch (err) {
         // A throw here is a programming error in the provider's envKey fn,
-        // not an expected "no match" — surface it so a custom provider
+        // not an expected "no match" -- surface it so a custom provider
         // silently vanishing from /doctor / system-info has a trace. Log
         // only the host (a custom baseUrl can embed credentials like
         // https://user:sk-secret@host) and the error message, not the raw
@@ -400,7 +400,7 @@ export function providerMatchesCredentials(
     return config.baseUrl.some((opt) => opt.url === baseUrl);
   }
   // Custom providers leave baseUrl `undefined` because every user picks
-  // their own — accept any non-empty baseUrl whose derived envKey already
+  // their own -- accept any non-empty baseUrl whose derived envKey already
   // matched above.
   if (config.baseUrl === undefined && configEnvKey !== undefined) {
     return Boolean(baseUrl);

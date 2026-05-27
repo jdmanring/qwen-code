@@ -42,9 +42,9 @@ export interface ToolInvocation<
    * Returns the tool's intrinsic permission for this invocation, based solely
    * on its own parameters (without consulting PermissionManager).
    *
-   * - `'allow'` — inherently safe (e.g., read-only commands, `cat`, `ls`).
-   * - `'ask'`   — may have side effects, needs user or PM confirmation.
-   * - `'deny'`  — security violation (e.g., command substitution in shell).
+   * - `'allow'` -- inherently safe (e.g., read-only commands, `cat`, `ls`).
+   * - `'ask'`   -- may have side effects, needs user or PM confirmation.
+   * - `'deny'`  -- security violation (e.g., command substitution in shell).
    *
    * The coreToolScheduler uses this as the *default* permission which may be
    * overridden by PermissionManager rules at L4.
@@ -243,12 +243,12 @@ export abstract class DeclarativeTool<
    *
    * Returns:
    *   - object: projected params to send to the classifier
-   *   - empty string: signals "no security relevance" — the classifier
+   *   - empty string: signals "no security relevance" -- the classifier
    *     transcript will record only the tool name
    *   - undefined: fall back to raw params (only safe when the tool is
    *     known to have no sensitive params)
    *
-   * Default is the empty-string sentinel — fail-closed: a third-party
+   * Default is the empty-string sentinel -- fail-closed: a third-party
    * MCP tool (or any tool that has not opted in) does not leak its raw
    * parameters (potentially containing API keys, tokens, file contents)
    * into the classifier LLM prompt. Tools that want their args inspected

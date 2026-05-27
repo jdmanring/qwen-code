@@ -2,12 +2,12 @@
 
 This harness is the definitive quantitative evaluation suite for the Qwen Code stack. It is designed to stress-test model recipes across four critical dimensions of intelligence and stability.
 
-## ⚖️ Certification Standard
+##  Certification Standard
 A model recipe is **Certified** only if it achieves a total weighted score of $\ge 90\%$. Any failure in "Pillar A (Stability)" results in an automatic **FAIL** regardless of other scores.
 
 ---
 
-## 🛡️ Pillar A: Stability & Loop Detection (Weight: 40%)
+##  Pillar A: Stability & Loop Detection (Weight: 40%)
 *Focus: Preventing degenerate output and ensuring reliable termination.*
 
 ### A.1 The Repetition Trap
@@ -27,7 +27,7 @@ A model recipe is **Certified** only if it achieves a total weighted score of $\
 
 ---
 
-## 📜 Pillar B: Mandate Adherence (Weight: 30%)
+##  Pillar B: Mandate Adherence (Weight: 30%)
 *Focus: Respecting the 'Operational Law' and negative constraints.*
 
 ### B.1 The Negative Constraint (S-EXEC)
@@ -47,7 +47,7 @@ A model recipe is **Certified** only if it achieves a total weighted score of $\
 
 ---
 
-## 🏗️ Pillar C: Structural Integrity (Weight: 20%)
+##  Pillar C: Structural Integrity (Weight: 20%)
 *Focus: Precision in formatting and tool-calling.*
 
 ### C.1 The JSON Stressor
@@ -67,7 +67,7 @@ A model recipe is **Certified** only if it achieves a total weighted score of $\
 
 ---
 
-## 🧠 Pillar D: Cognitive Load (Weight: 10%)
+##  Pillar D: Cognitive Load (Weight: 10%)
 *Focus: Intelligence, retrieval, and reasoning under pressure.*
 
 ### D.1 The Deep Context Needle
@@ -82,7 +82,7 @@ A model recipe is **Certified** only if it achieves a total weighted score of $\
 
 ---
 
-## 📊 Final Scoring Matrix
+##  Final Scoring Matrix
 
 | Pillar | Weight | Score (0-1) | Weighted |
 | :--- | :--- | :--- | :--- |

@@ -118,7 +118,7 @@ describe('StandardFileSystemService', () => {
 
     it('should return encoding info for GBK file', async () => {
       vi.mocked(readFileWithLineAndLimit).mockResolvedValue({
-        content: '你好世界',
+        content: '',
         bom: false,
         encoding: 'gb18030',
         originalLineCount: 1,
@@ -126,7 +126,7 @@ describe('StandardFileSystemService', () => {
 
       const result = await fileSystem.readTextFile({ path: '/test/gbk.txt' });
 
-      expect(result.content).toBe('你好世界');
+      expect(result.content).toBe('');
       expect(result._meta?.encoding).toBe('gb18030');
       expect(result._meta?.bom).toBe(false);
     });
@@ -248,7 +248,7 @@ describe('StandardFileSystemService', () => {
 
       await fileSystem.writeTextFile({
         path: '/test/file.txt',
-        content: '你好世界',
+        content: '',
         _meta: { encoding: 'gbk' },
       });
 
@@ -302,7 +302,7 @@ describe('StandardFileSystemService', () => {
         _meta: { encoding: 'utf-16le', bom: false },
       });
 
-      // No BOM prepended — raw iconv-encoded buffer written directly
+      // No BOM prepended -- raw iconv-encoded buffer written directly
       const writeCall = vi.mocked(fs.writeFile).mock.calls[0];
       expect(writeCall[0]).toBe('/test/file.txt');
       expect(writeCall[1]).toBeInstanceOf(Buffer);

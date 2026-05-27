@@ -20,7 +20,7 @@ describe('SERVE_ERROR_KINDS', () => {
     // kinds; PR 14 added `'budget_exhausted'` for MCP guardrail
     // refusals (see #4175 PR 14); PR 16 added `'stat_failed'` for
     // non-ENOENT stat failures on workspace memory discovery (see
-    // #4175 PR 16). Future additions append to this list — the
+    // #4175 PR 16). Future additions append to this list -- the
     // order is part of the contract so SDK consumers can pattern-
     // match without per-kind lookups.
     expect(SERVE_ERROR_KINDS).toEqual([
@@ -49,7 +49,7 @@ describe('BridgeTimeoutError', () => {
 });
 
 describe('BridgeChannelClosedError', () => {
-  it('preserves the legacy "agent channel closed …" wording per context', () => {
+  it('preserves the legacy "agent channel closed ..." wording per context', () => {
     const sessionErr = new BridgeChannelClosedError(
       'mid-request (session abc-123)',
     );
@@ -123,7 +123,7 @@ describe('mapDomainErrorToErrorKind', () => {
   it('classifies TrustGateError as auth_env_error (recognized via .name across package boundaries)', () => {
     const err = new TrustGateError('untrusted folder rejects YOLO');
     expect(mapDomainErrorToErrorKind(err)).toBe('auth_env_error');
-    // Synthesize the same class by name alone — verifies the matcher works
+    // Synthesize the same class by name alone -- verifies the matcher works
     // even when a bundled-twice instance breaks `instanceof` symmetry.
     const synthetic = Object.assign(new Error('synthetic'), {
       name: 'TrustGateError',
@@ -151,7 +151,7 @@ describe('mapDomainErrorToErrorKind', () => {
     expect(mapDomainErrorToErrorKind(fileSynthetic)).toBe('missing_file');
 
     // Unknown skill code on a cross-bundle SkillError still degrades
-    // to undefined rather than a misleading category — same behavior
+    // to undefined rather than a misleading category -- same behavior
     // as the genuine `instanceof` path.
     const unknownSynthetic = Object.assign(new Error('foreign-bundled'), {
       name: 'SkillError',

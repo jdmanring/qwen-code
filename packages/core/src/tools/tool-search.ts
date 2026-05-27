@@ -5,7 +5,7 @@
  */
 
 /**
- * ToolSearch — discovery tool for on-demand loading of deferred tool schemas.
+ * ToolSearch -- discovery tool for on-demand loading of deferred tool schemas.
  *
  * Only a curated set of core tools are included in the initial
  * function-declaration list sent to the model; tools marked `shouldDefer=true`
@@ -14,8 +14,8 @@
  * exact name, which loads their full schemas into the next API request.
  *
  * Two query modes:
- *   - `select:Name1,Name2` — exact lookup by tool name
- *   - free-text keywords — fuzzy match with scoring across name, description,
+ *   - `select:Name1,Name2` -- exact lookup by tool name
+ *   - free-text keywords -- fuzzy match with scoring across name, description,
  *     and optional `searchHint`. MCP tools get a slight score boost since
  *     they are always deferred and thus always benefit from surfacing.
  */
@@ -58,14 +58,14 @@ interface ScoredTool {
 
 const toolSearchDescription = `Fetches function declarations for deferred tools and registers them with the active session so subsequent turns can call them.
 
-Deferred tools appear by name in the "Deferred Tools" section of the system prompt. Until fetched, only the name is known — there is no parameter schema, so the tool cannot be invoked. This tool takes a query, matches it against the deferred tool list, and returns the matched tools' function declarations (name + description + parameter schema) inside a <functions> block.
+Deferred tools appear by name in the "Deferred Tools" section of the system prompt. Until fetched, only the name is known -- there is no parameter schema, so the tool cannot be invoked. This tool takes a query, matches it against the deferred tool list, and returns the matched tools' function declarations (name + description + parameter schema) inside a <functions> block.
 
-The returned <functions> block is informational — it shows what the schema looks like. Calling the tool itself happens via the model's normal function-call mechanism on the NEXT turn, after the active session's declaration list has been updated. Tools fetched here remain available for the rest of the session.
+The returned <functions> block is informational -- it shows what the schema looks like. Calling the tool itself happens via the model's normal function-call mechanism on the NEXT turn, after the active session's declaration list has been updated. Tools fetched here remain available for the rest of the session.
 
 Query forms:
-- "select:ToolA,ToolB" — fetch these exact tools by name
-- "keyword phrase" — keyword search, up to max_results best matches
-- "+must-word other" — require "must-word" in the name, rank remaining terms
+- "select:ToolA,ToolB" -- fetch these exact tools by name
+- "keyword phrase" -- keyword search, up to max_results best matches
+- "+must-word other" -- require "must-word" in the name, rank remaining terms
 `;
 
 class ToolSearchInvocation extends BaseToolInvocation<
@@ -102,7 +102,7 @@ class ToolSearchInvocation extends BaseToolInvocation<
 
     // Mode 1: exact lookup via `select:Name1,Name2`. Dedupe so the same tool
     // isn't returned multiple times when the model writes the same name twice.
-    // Cap at maxResults — without a cap, `select:a,b,c,...` would return
+    // Cap at maxResults -- without a cap, `select:a,b,c,...` would return
     // an unbounded number of full schemas (token bloat). When truncation
     // happens, surface the dropped names in the result so the model knows
     // to re-issue another ToolSearch for them instead of silently
@@ -115,7 +115,7 @@ class ToolSearchInvocation extends BaseToolInvocation<
         // The deferred-tools system prompt section renders names as JSON
         // string literals ("cron_list"), so models often paste them back
         // verbatim with surrounding quotes. Strip a single layer of
-        // matching `"…"` or `'…'` so `select:"foo"` and `select:foo`
+        // matching `"..."` or `'...'` so `select:"foo"` and `select:foo`
         // resolve to the same tool. Without this the lookup would search
         // for a tool literally named `"foo"` (with quotes) and miss.
         const stripped = stripMatchingQuotes(raw.trim());
@@ -180,12 +180,12 @@ class ToolSearchInvocation extends BaseToolInvocation<
    * been revealed this session. Already-loaded (core) tools are in the
    * model's tool-declaration list already, so surfacing them here would
    * be noise. Already-revealed deferred tools were loaded via a prior
-   * `select:` or keyword search and ARE in the declaration list too —
+   * `select:` or keyword search and ARE in the declaration list too --
    * re-surfacing them in subsequent searches wastes tokens and risks
    * the model retrying a tool it already has.
    *
-   * `select:<name>` mode is unrestricted — the model may legitimately
-   * want to re-inspect the schema of a loaded tool — and handles its
+   * `select:<name>` mode is unrestricted -- the model may legitimately
+   * want to re-inspect the schema of a loaded tool -- and handles its
    * own lookup via {@link loadAndReturnSchemas}.
    */
   private collectCandidates(): AnyDeclarativeTool[] {
@@ -237,7 +237,7 @@ class ToolSearchInvocation extends BaseToolInvocation<
       // Treat ensureTool throws the same as a null return: log + report
       // missing. Without this, an exception mid-batch would propagate
       // out of the loop with previous tools already revealed but never
-      // setTools()-synced — same orphaned-reveal failure mode the
+      // setTools()-synced -- same orphaned-reveal failure mode the
       // setTools() catch block guards against.
       let tool: AnyDeclarativeTool | undefined;
       try {
@@ -264,7 +264,7 @@ class ToolSearchInvocation extends BaseToolInvocation<
       // Only reveal + count toward the setTools() trigger when the tool
       // is actually deferred. `select:` mode also accepts already-loaded
       // / alwaysLoad tools (the model may use it to re-inspect a schema)
-      // — those don't need reveal (they're already in the declaration
+      // -- those don't need reveal (they're already in the declaration
       // list) and pulling them through setTools() would risk a spurious
       // "GeminiClient not initialised" failure for what is just a
       // schema-inspection call.
@@ -281,7 +281,7 @@ class ToolSearchInvocation extends BaseToolInvocation<
 
     // Re-sync the active chat's tool list ONLY when this call newly
     // revealed deferred tools (otherwise the declaration list is
-    // already correct and setTools() is wasted work — and worse, a
+    // already correct and setTools() is wasted work -- and worse, a
     // null/uninitialised client would surface as a fake error for
     // what is just a schema-inspection request).
     let setToolsError: string | undefined;
@@ -289,7 +289,7 @@ class ToolSearchInvocation extends BaseToolInvocation<
       const geminiClient = this.config.getGeminiClient();
       if (!geminiClient) {
         // Optional chaining (`?.setTools()`) used to silently no-op here,
-        // leaving the registry with reveals the API never received —
+        // leaving the registry with reveals the API never received --
         // exactly the inconsistency `setTools() throws` already guards
         // against. Treat null client identically: rollback + surface an
         // error so the caller can retry once init is complete.
@@ -334,7 +334,7 @@ class ToolSearchInvocation extends BaseToolInvocation<
 
     if (setToolsError) {
       return {
-        llmContent: `Error: tools were located but could not be exposed to the API (setTools failed: ${setToolsError}). Retry the search next turn or call ToolSearch again with select:Name1,Name2 — re-running tool registration usually clears transient init races.`,
+        llmContent: `Error: tools were located but could not be exposed to the API (setTools failed: ${setToolsError}). Retry the search next turn or call ToolSearch again with select:Name1,Name2 -- re-running tool registration usually clears transient init races.`,
         returnDisplay: `setTools failed: ${setToolsError}`,
         error: {
           message: `setTools failed while revealing deferred tools: ${setToolsError}`,
@@ -362,11 +362,11 @@ class ToolSearchInvocation extends BaseToolInvocation<
     }
     if (truncated.length > 0) {
       // Surface the dropped names so the model knows it must re-issue
-      // another ToolSearch for them — without this, the model would
+      // another ToolSearch for them -- without this, the model would
       // assume every requested name was loaded and later receive an
       // "unknown tool" API error.
       const header = llmContent ? '\n\n' : '';
-      llmContent += `${header}Truncated by max_results — request these in a follow-up call: ${truncated.join(', ')}`;
+      llmContent += `${header}Truncated by max_results -- request these in a follow-up call: ${truncated.join(', ')}`;
     }
 
     const displayParts: string[] = [];
@@ -418,8 +418,8 @@ export class ToolSearchTool extends BaseDeclarativeTool<
       },
       true, // isOutputMarkdown
       false, // canUpdateOutput
-      false, // shouldDefer — this tool itself must always be visible
-      true, // alwaysLoad — core discovery tool, never hidden
+      false, // shouldDefer -- this tool itself must always be visible
+      true, // alwaysLoad -- core discovery tool, never hidden
       'tool search discover find schema',
     );
   }
@@ -447,8 +447,8 @@ function clamp(n: number, lo: number, hi: number): number {
 }
 
 /**
- * Strip a single layer of surrounding `"…"` or `'…'` if present.
- * Used to normalize `select:"foo"` → `foo` so models that paste tool
+ * Strip a single layer of surrounding `"..."` or `'...'` if present.
+ * Used to normalize `select:"foo"` -> `foo` so models that paste tool
  * names back as JSON-quoted literals (the form they appear in the
  * deferred-tools section of the system prompt) resolve correctly.
  * Mismatched / unbalanced quotes are returned unchanged.

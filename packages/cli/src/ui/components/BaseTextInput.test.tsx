@@ -66,30 +66,30 @@ describe('BaseTextInput', () => {
     render(<BaseTextInput buffer={buffer} onSubmit={vi.fn()} />);
 
     const handler = captureKeypressHandler();
-    handler(makeKey({ name: 'm', meta: true, sequence: 'µ' }));
+    handler(makeKey({ name: 'm', meta: true, sequence: 'u' }));
 
     expect(buffer.handleInput).not.toHaveBeenCalled();
   });
 
-  it('still passes pasted µ text through to the buffer', () => {
+  it('still passes pasted u text through to the buffer', () => {
     const buffer = createBuffer();
 
     render(<BaseTextInput buffer={buffer} onSubmit={vi.fn()} />);
 
     const handler = captureKeypressHandler();
-    const pastedKey = makeKey({ sequence: 'µ', paste: true });
+    const pastedKey = makeKey({ sequence: 'u', paste: true });
     handler(pastedKey);
 
     expect(buffer.handleInput).toHaveBeenCalledWith(pastedKey);
   });
 
-  it('passes typed µ text through to the buffer', () => {
+  it('passes typed u text through to the buffer', () => {
     const buffer = createBuffer();
 
     render(<BaseTextInput buffer={buffer} onSubmit={vi.fn()} />);
 
     const handler = captureKeypressHandler();
-    const typedKey = makeKey({ name: 'µ', sequence: 'µ' });
+    const typedKey = makeKey({ name: 'u', sequence: 'u' });
     handler(typedKey);
 
     expect(buffer.handleInput).toHaveBeenCalledWith(typedKey);

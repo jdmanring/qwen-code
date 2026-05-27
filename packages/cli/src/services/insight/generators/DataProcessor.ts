@@ -199,7 +199,7 @@ export class DataProcessor {
     try {
       const result = await runSideQuery<Record<string, unknown>>(this.config, {
         purpose: 'insight-session-analysis',
-        // Quality is the entire point — keep main model + reasoning on.
+        // Quality is the entire point -- keep main model + reasoning on.
         model: this.config.getModel(),
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         schema: INSIGHT_SCHEMA,

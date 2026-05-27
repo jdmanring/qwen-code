@@ -133,7 +133,7 @@ export async function subagentGenerator(
       systemInstruction: SYSTEM_PROMPT,
       purpose: 'subagent-generator',
       // Subagent specs are user-facing artifacts that get reused indefinitely.
-      // Pin to the main model and keep reasoning on — quality matters more
+      // Pin to the main model and keep reasoning on -- quality matters more
       // than the cost of a one-shot generation.
       model: config.getModel(),
       config: {

@@ -40,7 +40,7 @@ describe('Weixin media crypto', () => {
     });
 
     it('accepts 32-char hex string encoded in base64', () => {
-      // 32 hex chars → 16 bytes when parsed as hex
+      // 32 hex chars -> 16 bytes when parsed as hex
       const hexStr = 'aabbccdd11223344aabbccdd11223344';
       const b64 = Buffer.from(hexStr, 'ascii').toString('base64');
       const result = parseAesKey(b64);
@@ -117,7 +117,7 @@ describe('encryptAesEcb', () => {
     const key = Buffer.alloc(16, 0x01);
     const ciphertext = encryptAesEcb(Buffer.alloc(0), key);
     // ECB with empty input produces empty output (no padding block needed
-    // when input is exactly 0 bytes — behavior varies by implementation)
+    // when input is exactly 0 bytes -- behavior varies by implementation)
     // At minimum the result should be decryptable
     const decipher = createDecipheriv('aes-128-ecb', key, null);
     const decrypted = Buffer.concat([

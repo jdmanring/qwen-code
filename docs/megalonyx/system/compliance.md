@@ -1,8 +1,8 @@
-# 📜 Compliance & Quality Standards
+#  Compliance & Quality Standards
 
 This document describes the linting, formatting, and compliance systems currently enforced in the Runtime Stack.
 
-## 🎨 Formatting & Linting
+##  Formatting & Linting
 
 The project uses a strict set of tools to ensure code consistency across the monorepo.
 
@@ -24,7 +24,7 @@ All code entering the monorepo must adhere to `docs/meta/engineering-standards.m
 - **Determinism**: No magic strings; all paths must be resolved relative to the workspace root.
 - **Symmetry**: Configuration changes must be mirrored in the documentation.
 
-## ⚓ Anchoring Requirement
+##  Anchoring Requirement
 Every directory containing logic MUST include a `.qwen-context` file. This file provides the "Local Law" for the directory, including:
 - The purpose of the directory.
 - Local constraints.
@@ -33,7 +33,7 @@ Every directory containing logic MUST include a `.qwen-context` file. This file 
 
 ---
 
-## 🛠️ Compliance Workflow
+##  Compliance Workflow
 1. **Local Check**: Developer runs `ruff check` or `eslint`.
 2. **Pre-Commit**: (Optional) Git hooks prevent commits that fail linting.
 3. **CI Verification**: The build pipeline runs all linting tools; failure blocks the merge.

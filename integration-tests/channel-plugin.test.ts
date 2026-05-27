@@ -5,24 +5,24 @@
  */
 
 /**
- * Channel Plugin Integration Test — Real E2E with WebSocket
+ * Channel Plugin Integration Test -- Real E2E with WebSocket
  *
  * Tests the actual MockPluginChannel (from @qwen-code/channel-plugin-example) connected
  * to an in-process mock server via WebSocket. The full message flow is:
  *
  *   server.sendMessage("What is 2+2?")
- *     → WebSocket push to MockPluginChannel
- *       → ChannelBase.handleInbound(envelope)
- *         → SenderGate (open policy)
- *         → SessionRouter (creates/reuses session)
- *         → AcpBridge.prompt(sessionId, text)
- *           → qwen-code --acp (REAL model request)
- *       → MockPluginChannel.sendMessage(chatId, response)
- *         → WebSocket response to mock server
- *     → server resolves promise with agent text
+ *     -> WebSocket push to MockPluginChannel
+ *       -> ChannelBase.handleInbound(envelope)
+ *         -> SenderGate (open policy)
+ *         -> SessionRouter (creates/reuses session)
+ *         -> AcpBridge.prompt(sessionId, text)
+ *           -> qwen-code --acp (REAL model request)
+ *       -> MockPluginChannel.sendMessage(chatId, response)
+ *         -> WebSocket response to mock server
+ *     -> server resolves promise with agent text
  *
  * This exercises the real WebSocket protocol, real message serialization,
- * real ChannelPlugin interface, and real model backend — all in one test process.
+ * real ChannelPlugin interface, and real model backend -- all in one test process.
  */
 
 import { describe, it, expect, afterAll } from 'vitest';
@@ -117,7 +117,7 @@ describe('Channel Plugin (Mock WebSocket E2E)', () => {
     async () => {
       await setup();
 
-      // This goes: server → WS → MockPluginChannel → ChannelBase → AcpBridge → agent → back
+      // This goes: server -> WS -> MockPluginChannel -> ChannelBase -> AcpBridge -> agent -> back
       const response = await server.sendMessage(
         'What is 2+2? Reply with ONLY the number, nothing else.',
       );

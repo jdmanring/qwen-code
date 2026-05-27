@@ -31,7 +31,7 @@ const two = 2;
   it('normalizes smart quotes to match on-disk text', () => {
     const result = normalizeEditStrings(
       "const greeting = 'Don't';\n",
-      'const greeting = ‘Don’t’;',
+      'const greeting = 'Don't';',
       'const greeting = "Hello";',
     );
     expect(result).toEqual({

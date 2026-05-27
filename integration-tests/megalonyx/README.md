@@ -1,4 +1,4 @@
-# Integration Tests — Phase 5b
+# Integration Tests -- Phase 5b
 
 These tasks are run manually inside a live `qwencode` session to verify agent behavior.
 They are designed so that a lazy or hallucinating model visibly fails.
@@ -8,16 +8,16 @@ They are designed so that a lazy or hallucinating model visibly fails.
 Start `qwencode` in this project directory, then give the agent each task prompt below.
 Record observed behavior in PLAN.md Phase 5b test matrix.
 
-## Test 1 — Read and explain (smoke test)
+## Test 1 -- Read and explain (smoke test)
 
 **Prompt:** "Read scripts/test.sh and explain what the MCP server tests actually do under the hood."
 
-**Pass:** Correctly describes the JSON-RPC initialize handshake — detail only found by reading the file.
+**Pass:** Correctly describes the JSON-RPC initialize handshake -- detail only found by reading the file.
 **Fail:** Produces a plausible-sounding explanation without reading the file.
 
 ---
 
-## Test 2 — Fix a deliberate bug
+## Test 2 -- Fix a deliberate bug
 
 **File:** `tests/scratch.py`
 
@@ -30,7 +30,7 @@ Verify manually: `python3 tests/scratch.py` should print "All assertions passed.
 
 ---
 
-## Test 3 — Ripgrep MCP
+## Test 3 -- Ripgrep MCP
 
 **Prompt:** "Use the ripgrep tool to find every place in this project that references port 8000. Tell me what each one does."
 
@@ -39,7 +39,7 @@ Verify manually: `python3 tests/scratch.py` should print "All assertions passed.
 
 ---
 
-## Test 4 — Create and verify a script
+## Test 4 -- Create and verify a script
 
 **Prompt:** "Write scripts/status.sh that shows whether vLLM is running and what model is loaded. Run it and show me the actual output."
 
@@ -48,7 +48,7 @@ Verify manually: `python3 tests/scratch.py` should print "All assertions passed.
 
 ---
 
-## Test 5 — Git commit via MCP
+## Test 5 -- Git commit via MCP
 
 **Prompt:** "Make any small improvement to the project and commit it using the git MCP server."
 
@@ -57,7 +57,7 @@ Verify manually: `python3 tests/scratch.py` should print "All assertions passed.
 
 ---
 
-## Test 6 — Cross-model comparison
+## Test 6 -- Cross-model comparison
 
 Run Test 2 above on each backend using `/model` to switch. Record results in PLAN.md.
 

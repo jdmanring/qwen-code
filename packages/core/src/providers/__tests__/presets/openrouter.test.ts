@@ -26,7 +26,7 @@ describe('openRouterProvider', () => {
 
   it('refuses ownership over a different envKey on the same host (user-added entry)', () => {
     // A user wired their own gateway through openrouter.ai with a custom env
-    // var — re-install must not silently delete their model entry.
+    // var -- re-install must not silently delete their model entry.
     expect(
       openRouterProvider.ownsModel?.({
         id: 'user-added',

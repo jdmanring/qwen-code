@@ -59,7 +59,7 @@ describe('selectManagedAutoMemoryForgetCandidates', () => {
       expect.objectContaining({
         purpose: 'auto-memory-forget-selection',
         // /forget acts on the result without confirmation, so the selection
-        // must run on the main model — never silently fall through to the
+        // must run on the main model -- never silently fall through to the
         // runSideQuery fast-model default.
         model: 'main-model',
       }),

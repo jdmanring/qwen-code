@@ -66,7 +66,7 @@ Do NOT place Gemini/Gemma models under OpenAI.
 | VERIFIED WORKING MODEL INVENTORY                                             |
 
 
-⚡ GROQ
+ GROQ
 -------
 Base URL:
 https://api.groq.com/openai/v1
@@ -89,7 +89,7 @@ Notes:
 
 +------------------------------------------------------------------------------+
 
-🌐 OPENROUTER
+ OPENROUTER
 -------------
 Base URL:
 https://openrouter.ai/api/v1
@@ -112,7 +112,7 @@ Notes:
 
 +------------------------------------------------------------------------------+
 
-🟢 NVIDIA NIM
+ NVIDIA NIM
 -------------
 Base URL:
 https://integrate.api.nvidia.com/v1
@@ -136,7 +136,7 @@ Notes:
 
 +------------------------------------------------------------------------------+
 
-🐱 LONGCAT
+ LONGCAT
 ----------
 Base URL:
 https://api.longcat.chat/openai/v1
@@ -185,7 +185,7 @@ Notes:
 
 +------------------------------------------------------------------------------+
 
-🌬 MISTRAL AI
+ MISTRAL AI
 -------------
 Base URL:
 https://api.mistral.ai/v1
@@ -216,7 +216,7 @@ Notes:
 
 +------------------------------------------------------------------------------+
 
-🧠 CEREBRAS
+ CEREBRAS
 -----------
 Base URL:
 https://api.cerebras.ai/v1
@@ -238,7 +238,7 @@ Notes:
 
 +------------------------------------------------------------------------------+
 
-💎 GEMINI / GOOGLE
+ GEMINI / GOOGLE
 ------------------
 Compatible Section:
 gemini
@@ -281,7 +281,7 @@ Notes:
 
 +------------------------------------------------------------------------------+
 
-🌈 POLLINATIONS
+ POLLINATIONS
 ---------------
 Base URL:
 https://text.pollinations.ai/openai
@@ -298,7 +298,7 @@ Notes:
 
 +------------------------------------------------------------------------------+
 
-🐙 GITHUB MODELS
+ GITHUB MODELS
 ----------------
 Base URL:
 https://models.inference.ai.azure.com

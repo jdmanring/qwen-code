@@ -466,16 +466,16 @@ describe('memoryImportProcessor', () => {
     });
 
     it('should still import valid paths while ignoring non-existent paths', async () => {
-      const content = '使用 @./valid.md 文件和 @中文路径 注解';
+      const content = ' @./valid.md  @ ';
       const basePath = testPath('test', 'path');
       const importedContent = 'Valid imported content';
 
-      // Mock: valid.md exists, 中文路径 doesn't exist
+      // Mock: valid.md exists,  doesn't exist
       mockedFs.access
         .mockResolvedValueOnce(undefined) // ./valid.md exists
         .mockRejectedValueOnce(
           Object.assign(new Error('ENOENT'), { code: 'ENOENT' }),
-        ); // 中文路径 doesn't exist
+        ); //  doesn't exist
       mockedFs.readFile.mockResolvedValue(importedContent);
 
       const result = await processImports(content, basePath);
@@ -484,14 +484,14 @@ describe('memoryImportProcessor', () => {
       expect(result.content).toContain(importedContent);
       expect(result.content).toContain('<!-- Imported from: ./valid.md -->');
       // The non-existent path should remain as-is
-      expect(result.content).toContain('@中文路径');
+      expect(result.content).toContain('@');
     });
 
     it('should import Chinese file names if they exist', async () => {
-      const content = '导入 @./中文文档.md 文件';
+      const content = ' @./.md ';
       const projectRoot = testPath('test', 'project');
       const basePath = testPath(projectRoot, 'src');
-      const importedContent = '这是中文文档的内容';
+      const importedContent = '';
 
       mockedFs.access.mockResolvedValue(undefined);
       mockedFs.readFile.mockResolvedValue(importedContent);
@@ -505,7 +505,7 @@ describe('memoryImportProcessor', () => {
 
       // Should successfully import the Chinese-named file
       expect(result.content).toContain(importedContent);
-      expect(result.content).toContain('<!-- Imported from: ./中文文档.md -->');
+      expect(result.content).toContain('<!-- Imported from: ./.md -->');
     });
 
     it('should allow imports from parent and subdirectories within project root', async () => {

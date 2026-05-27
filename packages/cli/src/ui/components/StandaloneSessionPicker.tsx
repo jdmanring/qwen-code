@@ -22,7 +22,7 @@ import { writeStdoutLine } from '../../utils/stdioHelpers.js';
 /**
  * `--resume` runs this picker BEFORE `loadCliConfig`, so no real Config /
  * LoadedSettings exist yet. But the preview render tree (HistoryItemDisplay
- * → ToolGroupMessage → ToolMessage) calls `useConfig()` / `useSettings()`,
+ * -> ToolGroupMessage -> ToolMessage) calls `useConfig()` / `useSettings()`,
  * which throw without a Provider mounted.
  *
  * These stubs satisfy the Context consumers. Every downstream access of

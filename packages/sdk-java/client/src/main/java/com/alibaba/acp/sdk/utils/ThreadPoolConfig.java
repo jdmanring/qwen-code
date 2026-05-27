@@ -34,7 +34,7 @@ public class ThreadPoolConfig {
                     return t;
                 }
             },
-            new ThreadPoolExecutor.CallerRunsPolicy()  // 拒绝策略
+            new ThreadPoolExecutor.CallerRunsPolicy()  // 
     );
 
     private static Supplier<ThreadPoolExecutor> executorSupplier;

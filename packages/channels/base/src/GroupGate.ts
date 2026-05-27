@@ -20,9 +20,9 @@ export class GroupGate {
   /**
    * Full group check: policy + allowlist + mention gating.
    * Evaluation order:
-   *   1. groupPolicy (disabled → drop)
-   *   2. group allowlist (allowlist mode, no match → drop)
-   *   3. mention gating (requireMention + not mentioned → drop silently)
+   *   1. groupPolicy (disabled -> drop)
+   *   2. group allowlist (allowlist mode, no match -> drop)
+   *   3. mention gating (requireMention + not mentioned -> drop silently)
    *
    * Mention gating runs before sender gate so that unmentioned messages
    * in groups don't trigger pairing flows.
@@ -37,7 +37,7 @@ export class GroupGate {
     }
 
     if (this.policy === 'allowlist') {
-      // In allowlist mode, "*" is only a default config — not a wildcard allow.
+      // In allowlist mode, "*" is only a default config -- not a wildcard allow.
       // The group must be explicitly listed by ID.
       if (!this.groups[envelope.chatId]) {
         return { allowed: false, reason: 'not_allowlisted' };

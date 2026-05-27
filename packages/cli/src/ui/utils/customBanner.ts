@@ -72,7 +72,7 @@ export function resolveCustomBanner(settings: LoadedSettings): ResolvedBanner {
   const subtitle = sanitizeSubtitle(ui?.customBannerSubtitle);
 
   // Tiers are resolved per-scope so each `{path}` resolves against the file
-  // it was declared in — not the merged view, which would hide which scope
+  // it was declared in -- not the merged view, which would hide which scope
   // contributed the inner `small` / `large` keys after deep-merge.
   const scoped = collectScopedTiers(settings);
 
@@ -132,7 +132,7 @@ function collectScopedTiers(settings: LoadedSettings): {
     // don't need it, so a scope with no associated file path (e.g.
     // `systemDefaults`, future SDK-injected scopes) can still contribute
     // string art. When a `{path}` lands in a path-less scope we soft-fail
-    // that tier specifically and log a `[BANNER]` warn — dropping the
+    // that tier specifically and log a `[BANNER]` warn -- dropping the
     // entire scope was unnecessary coupling.
     const dir = file.path ? path.dirname(file.path) : '';
     const considerTier = (
@@ -271,7 +271,7 @@ function readArtFile(absolutePath: string): string | undefined {
   let fd: number | undefined;
   try {
     // Step 1: refuse non-regular files BEFORE opening. On POSIX, opening a
-    // FIFO / named pipe read-only blocks until a writer connects — which
+    // FIFO / named pipe read-only blocks until a writer connects -- which
     // means a misconfigured `customAsciiArt: { "path": "/tmp/some-fifo" }`
     // would hang CLI startup forever. `O_NOFOLLOW` does not help here; it
     // refuses symlinks at the final path component, not FIFOs / sockets /
@@ -340,7 +340,7 @@ function readArtFile(absolutePath: string): string | undefined {
  * Banner-specific sanitizer. Re-uses the OSC / CSI / SS2 / SS3 patterns
  * exported from `stripTerminalControlSequences` (in
  * `@qwen-code/qwen-code-core`) so the regexes are authored once, but
- * preserves `\n` and `\t` — multi-line / tab-aligned ASCII art needs
+ * preserves `\n` and `\t` -- multi-line / tab-aligned ASCII art needs
  * those, while the shared core helper strips them. The fallback range
  * here matches the core helper's C0/C1/DEL strip but carves out
  * `\t` (0x09) and `\n` (0x0a) so they survive into the rendered art.
@@ -354,7 +354,7 @@ function sanitizeArt(input: string): string {
     .replace(TERMINAL_CSI_REGEX, ' ')
     .replace(TERMINAL_SHIFT_DCS_REGEX, ' ');
   // Remaining C0 controls + DEL + C1 controls (0x80-0x9f, e.g. single-byte
-  // CSI 0x9b) → space. Keep \n (0x0a) and \t (0x09) so multi-line ASCII art
+  // CSI 0x9b) -> space. Keep \n (0x0a) and \t (0x09) so multi-line ASCII art
   // and tab-aligned art survive.
   // eslint-disable-next-line no-control-regex
   s = s.replace(/[\x00-\x08\x0b-\x1f\x7f-\x9f]/g, ' ');

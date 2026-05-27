@@ -52,7 +52,7 @@ function execGit(args: string[], cwd: string): Promise<GitResult> {
           return;
         }
         // child_process callback error has TWO different code fields:
-        // - `.code` is a string for spawn failures (ENOENT, EACCES, …)
+        // - `.code` is a string for spawn failures (ENOENT, EACCES, ...)
         //   or a number for subprocess exit codes (git status returning
         //   128 etc.). Node's typings collapse them into `code?: number`
         //   on ExecFileException but the runtime value is whichever the
@@ -90,7 +90,7 @@ function execGit(args: string[], cwd: string): Promise<GitResult> {
  * worktree creation) on mount so the user has full context before choosing
  * keep / remove / cancel.
  *
- * The dialog does NOT auto-remove on a clean worktree (unlike claude-code) —
+ * The dialog does NOT auto-remove on a clean worktree (unlike claude-code) --
  * the user explicitly requested a confirmation prompt in every case so they
  * stay aware of which worktree is active.
  */
@@ -131,7 +131,7 @@ export function WorktreeExitDialog({
 
       // Surface either subprocess error to the dialog. Both subprocess
       // exit codes (e.g. 128 "not a git repository") and spawn-level
-      // errnos (e.g. ENOENT when git binary is missing) are shown — the
+      // errnos (e.g. ENOENT when git binary is missing) are shown -- the
       // user needs to know dirty-state could not be measured before
       // choosing Remove on what may actually be a corrupted worktree.
       const probeFailure =
@@ -174,7 +174,7 @@ export function WorktreeExitDialog({
         padding={1}
         marginLeft={1}
       >
-        <Text>Checking worktree status…</Text>
+        <Text>Checking worktree status...</Text>
       </Box>
     );
   }
@@ -205,14 +205,14 @@ export function WorktreeExitDialog({
     >
       <Box flexDirection="column" marginBottom={1}>
         <Text color={Colors.AccentBlue} bold>
-          {`⎇ Active worktree: "${slug}" (${branch})`}
+          {` Active worktree: "${slug}" (${branch})`}
         </Text>
       </Box>
 
       {probeError && (
         <Box flexDirection="column" marginBottom={1} paddingLeft={2}>
           <Text color={Colors.AccentRed}>
-            {`⚠ Could not measure worktree state (${probeError}).`}
+            {` Could not measure worktree state (${probeError}).`}
           </Text>
           <Text color={Colors.Gray}>
             Dirty-state counts below may be unreliable.
@@ -224,12 +224,12 @@ export function WorktreeExitDialog({
         <Box flexDirection="column" marginBottom={1} paddingLeft={2}>
           {newCommitCount > 0 && (
             <Text color={Colors.Gray}>
-              {`• ${newCommitCount} new commit(s) on ${branch}`}
+              {` ${newCommitCount} new commit(s) on ${branch}`}
             </Text>
           )}
           {changedFilesCount > 0 && (
             <Text color={Colors.Gray}>
-              {`• ${changedFilesCount} uncommitted file(s)`}
+              {` ${changedFilesCount} uncommitted file(s)`}
             </Text>
           )}
           <Text color={Colors.Gray}>

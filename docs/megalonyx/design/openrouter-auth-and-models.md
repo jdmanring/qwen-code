@@ -29,7 +29,7 @@ provider abstraction.
 
 The user-facing flows are:
 
-- `/auth` → OpenRouter for the interactive TUI flow.
+- `/auth` -> OpenRouter for the interactive TUI flow.
 - Environment variables for automation or direct API-key setup:
   `OPENROUTER_API_KEY` plus `OPENAI_BASE_URL=https://openrouter.ai/api/v1`.
 - `~/.qwen/settings.json` for scripted setup that needs explicit model provider

@@ -43,7 +43,7 @@ function isPrefixOfAnyTag(
   // If the remaining text is longer than the longest tag it cannot be a
   // prefix of any tag, so we can bail early without slicing.
   if (remainingLen > MAX_TAG_LENGTH) return false;
-  // Slice is bounded to MAX_TAG_LENGTH (≤ 11 chars) → O(1).
+  // Slice is bounded to MAX_TAG_LENGTH (<= 11 chars) -> O(1).
   return tags.some((tag) =>
     tag.startsWith(lower.slice(offset, offset + remainingLen)),
   );

@@ -7,7 +7,7 @@ def verify_machine_config() -> None:
     Verifies that the operational Machine directory contains all required
     configuration files.
     """
-    print("🔍 Verifying Machine Configuration...")
+    print(" Verifying Machine Configuration...")
 
     required_files = {
         "settings": os.path.expanduser("~/.qwen/settings.json"),
@@ -18,17 +18,17 @@ def verify_machine_config() -> None:
     missing = []
     for name, path in required_files.items():
         if not os.path.exists(path):
-            print(f"❌ MISSING: {name} at {path}")
+            print(f" MISSING: {name} at {path}")
             missing.append(path)
         else:
-            print(f"✅ FOUND: {name}")
+            print(f" FOUND: {name}")
 
     if missing:
         print("\\nERROR: Machine configuration is incomplete.")
         print("Please run 'install.sh' to deploy default configurations.")
         sys.exit(1)
 
-    print("\\n✅ Machine configuration is valid.")
+    print("\\n Machine configuration is valid.")
 
 
 if __name__ == "__main__":

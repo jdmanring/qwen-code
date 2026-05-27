@@ -274,7 +274,7 @@ export function getDemoHtml(_port: number): string {
       if (!res.ok) {
         logError(res.status, JSON.stringify(data));
         if (res.status === 401) {
-          highlightTokenInput('API returned 401 — enter your bearer token below');
+          highlightTokenInput('API returned 401 -- enter your bearer token below');
         }
         return { ok: false, status: res.status, data };
       }
@@ -353,7 +353,7 @@ export function getDemoHtml(_port: number): string {
           statusText.textContent = 'SSE failed (' + res.status + ')';
           enablePrompt(false);
           if (res.status === 401) {
-            highlightTokenInput('SSE returned 401 — enter your bearer token and recreate the session');
+            highlightTokenInput('SSE returned 401 -- enter your bearer token and recreate the session');
           }
           return;
         }

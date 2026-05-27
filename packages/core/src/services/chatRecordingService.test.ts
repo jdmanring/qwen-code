@@ -82,7 +82,7 @@ describe('ChatRecordingService', () => {
 
     chatRecordingService = new ChatRecordingService(mockConfig);
 
-    // Mock jsonl-utils. writeLine is async — mockResolvedValue returns
+    // Mock jsonl-utils. writeLine is async -- mockResolvedValue returns
     // a settled Promise so the writeChain in ChatRecordingService advances
     // when flushed.
     vi.mocked(jsonl.writeLine).mockResolvedValue(undefined);
@@ -550,7 +550,7 @@ describe('ChatRecordingService', () => {
   describe('flush', () => {
     it('resolves immediately on a service with no enqueued writes', async () => {
       // The writeChain starts as Promise.resolve(), so flush() on a fresh
-      // service should settle in a single microtask — important because
+      // service should settle in a single microtask -- important because
       // Config.shutdown awaits flush on every exit path, even for sessions
       // that never recorded anything.
       await expect(chatRecordingService.flush()).resolves.toBeUndefined();
@@ -598,7 +598,7 @@ describe('ChatRecordingService', () => {
       chatRecordingService.recordUserMessage([{ text: 'second' }]);
       await chatRecordingService.flush();
 
-      // ≥ rather than === leaves room for a future flush()-side retry.
+      // >= rather than === leaves room for a future flush()-side retry.
       expect(mkdirSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
     });
 
@@ -656,7 +656,7 @@ describe('ChatRecordingService', () => {
     });
 
     // After rewindRecording, the previous attribution snapshot lives on
-    // the abandoned branch, so the dedup key has to clear — otherwise
+    // the abandoned branch, so the dedup key has to clear -- otherwise
     // the post-rewind identical snapshot would be silently skipped and
     // /resume on the rewound session would lose all attribution state.
     it('should re-write an identical snapshot after rewindRecording', async () => {
@@ -666,7 +666,7 @@ describe('ChatRecordingService', () => {
       const beforeRewind = vi.mocked(jsonl.writeLine).mock.calls.length;
 
       chatRecordingService.rewindRecording(0, { truncatedCount: 0 });
-      // Same snapshot bytes — without the rewind reset this would dedup.
+      // Same snapshot bytes -- without the rewind reset this would dedup.
       chatRecordingService.recordAttributionSnapshot(baseSnapshot);
       await chatRecordingService.flush();
       // 1 rewind record + 1 fresh snapshot = 2 more writes after rewind.
@@ -697,7 +697,7 @@ describe('ChatRecordingService', () => {
     // appendRecord is fire-and-forget for non-snapshot callers
     // (recordUserMessage / recordAssistantTurn / recordAtCommand /
     // ...). When jsonl.writeLine rejects, the rejection MUST be
-    // swallowed inside the service — otherwise it surfaces as an
+    // swallowed inside the service -- otherwise it surfaces as an
     // unhandled-promise-rejection in production (and as a flaky
     // failure under vitest's --reporter=default).
     it('should swallow async writeLine rejection for fire-and-forget callers', async () => {

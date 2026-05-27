@@ -55,7 +55,7 @@ export interface ConvertGeminiRequestToAnthropicOptions {
   /**
    * On assistant turns containing `tool_use` but lacking any thinking block,
    * prepend a synthetic empty thinking block. Required by DeepSeek's
-   * anthropic-compatible API when thinking mode is enabled — without this,
+   * anthropic-compatible API when thinking mode is enabled -- without this,
    * follow-up requests fail with HTTP 400 ("The content[].thinking in the
    * thinking mode must be passed back to the API.").
    *
@@ -82,7 +82,7 @@ export interface ConvertGeminiRequestToAnthropicOptions {
    * Per-call override for `enableCacheControl`. Falls back to the value
    * captured at construction. The generator passes the live
    * `contentGeneratorConfig.enableCacheControl` here so a hot
-   * `Config.setModel()` flip is reflected on the next request — otherwise
+   * `Config.setModel()` flip is reflected on the next request -- otherwise
    * the converter's body-side `cache_control` and the generator's
    * per-request `prompt-caching-scope-2026-01-05` beta header (which reads
    * the live config directly) can disagree.
@@ -95,7 +95,7 @@ export interface ConvertGeminiRequestToAnthropicOptions {
    * shape `{ type: 'ephemeral' }`. Must be a strict subset of
    * `enableCacheControl` (no scope without a cache_control entry to
    * attach it to) and should mirror the generator's
-   * `prompt-caching-scope-2026-01-05` beta-header gate — both ship
+   * `prompt-caching-scope-2026-01-05` beta-header gate -- both ship
    * together or neither, so anthropic-compatible backends without
    * cross-session caching support don't see an unrecognized scope field.
    */
@@ -146,7 +146,7 @@ export class AnthropicContentConverter {
 
     // Add cache_control to enable prompt caching (if enabled). Prefer the
     // per-call override when the caller (typically the generator) passes
-    // one — that path latches the live config value alongside the
+    // one -- that path latches the live config value alongside the
     // per-request beta-header decision so the two stay in sync after
     // `Config.setModel()` mutates `enableCacheControl` mid-session.
     // `useGlobalCacheScope` is independent of (and a strict subset of)
@@ -223,7 +223,7 @@ export class AnthropicContentConverter {
 
     // Add cache_control to the last tool for prompt caching (if enabled).
     // When `useGlobalCacheScope` is set, attach `scope: 'global'` so
-    // identical tool prefixes are cached across sessions — tools tend to
+    // identical tool prefixes are cached across sessions -- tools tend to
     // be the largest, slowest-changing prefix (often 5K+ tokens), so
     // cross-session reuse is where most of the hit-rate improvement under
     // `prompt-caching-scope-2026-01-05` shows up. Non-Anthropic baseURLs
@@ -234,8 +234,8 @@ export class AnthropicContentConverter {
     // `enableCacheControl` (the only field `Config.handleModelChange()`
     // mutates in place without recreating the generator) doesn't leave
     // the tool body and the beta header out of sync. `baseUrl` isn't
-    // hot-mutated — non-qwen-oauth providers recreate the generator on
-    // refresh — but the same per-call plumbing covers it for free.
+    // hot-mutated -- non-qwen-oauth providers recreate the generator on
+    // refresh -- but the same per-call plumbing covers it for free.
     const enableCacheControl =
       options.enableCacheControl ?? this.enableCacheControl;
     const useGlobalCacheScope = options.useGlobalCacheScope ?? false;
@@ -674,7 +674,7 @@ export class AnthropicContentConverter {
   /**
    * Remove thinking and redacted_thinking blocks from assistant messages.
    * Used by DeepSeek when thinking mode is off but session history still
-   * has `thought: true` parts — keeps the request body in sync with the
+   * has `thought: true` parts -- keeps the request body in sync with the
    * absent top-level `thinking` config.
    *
    * If stripping would leave an assistant message with no content blocks
@@ -750,7 +750,7 @@ export class AnthropicContentConverter {
    * empty thinking block when one is missing.
    *
    * Live verification against api.deepseek.com/anthropic confirmed the
-   * trigger is specific to tool_use turns — plain-text assistant turns
+   * trigger is specific to tool_use turns -- plain-text assistant turns
    * without thinking are accepted unchanged. We mirror that boundary here
    * to avoid bloating replay history with synthetic blocks for turns the
    * API already accepts.
@@ -782,7 +782,7 @@ export class AnthropicContentConverter {
 
       // DeepSeek currently accepts an empty `signature` for synthetic
       // thinking blocks. The `signature` field is an opaque token in the
-      // Anthropic spec, so this is a workaround — if DeepSeek tightens
+      // Anthropic spec, so this is a workaround -- if DeepSeek tightens
       // validation in the future, we may need to switch to
       // `redacted_thinking` or another approach.
       const emptyThinking = {
@@ -798,7 +798,7 @@ export class AnthropicContentConverter {
    * Add cache_control to the last user message's content.
    * This enables prompt caching for the conversation context.
    *
-   * Deliberately emits the per-session `{ type: 'ephemeral' }` shape only —
+   * Deliberately emits the per-session `{ type: 'ephemeral' }` shape only --
    * no `scope: 'global'`. The last user message changes every turn (it's
    * the live prompt and any tool_result blocks from the immediately prior
    * round), so cross-session reuse here has effectively zero hit rate and

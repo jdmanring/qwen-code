@@ -16,7 +16,7 @@ import type { DaemonAuthProviderId, DaemonDeviceFlowState } from './types.js';
  *
  * **Why 30 s, and which daemon constant it relates to.** The relevant
  * daemon-side constant is `DEVICE_FLOW_SWEEP_INTERVAL_MS` (the
- * interval at which the registry's sweeper RUNS — currently 30 s),
+ * interval at which the registry's sweeper RUNS -- currently 30 s),
  * NOT `DEVICE_FLOW_TERMINAL_GRACE_MS` (the 5-minute window during
  * which terminal entries remain GET-able before eviction). One sweep
  * cycle past `expiresAt` is enough to flip the entry to a synthetic
@@ -25,7 +25,7 @@ import type { DaemonAuthProviderId, DaemonDeviceFlowState } from './types.js';
  * client-side just delays the inevitable. PR #4255 fold-in 6 review
  * thread #3.
  *
- * **Not** to be confused with `TERMINAL_GRACE_MS` — terminal entries
+ * **Not** to be confused with `TERMINAL_GRACE_MS` -- terminal entries
  * remain queryable for 5 minutes after they go terminal, but that's
  * a reconnect-affordance for SDK clients that want to *re-read* a
  * settled state, not a window `awaitCompletion` needs to wait
@@ -48,7 +48,7 @@ export const DEVICE_FLOW_EXPIRY_GRACE_MS = 30_000;
  * reaches a terminal status (`authorized`, `expired`, `error`,
  * `cancelled`). The same `auth_device_flow_*` SSE events are emitted
  * by the daemon for clients that ARE already subscribed to a session
- * stream — those provide a real-time hint, but `awaitCompletion`
+ * stream -- those provide a real-time hint, but `awaitCompletion`
  * itself does not require an SSE subscription and works against any
  * client that can hit the GET endpoint.
  *
@@ -156,7 +156,7 @@ async function awaitCompletion(
 ): Promise<DaemonDeviceFlowState> {
   // Workspace-scoped events fan out through whatever session buses
   // happen to be live, but `awaitCompletion` is workspace-level (no
-  // session id) — so attaching to a single SSE stream isn't a stable
+  // session id) -- so attaching to a single SSE stream isn't a stable
   // contract here. GET polling against the daemon's authoritative
   // device-flow state is the universal path; `auth_device_flow_*`
   // events remain a real-time hint for clients that ARE already
@@ -170,7 +170,7 @@ async function awaitCompletion(
  * state instead of letting `DaemonHttpError(404)` escape. PR #4255
  * fold-in 7 review thread #4: extracted from the inline catch in
  * `pollUntilTerminal` so the timeout-ceiling final read uses the same
- * logic — without this, the ceiling read would reject with a raw
+ * logic -- without this, the ceiling read would reject with a raw
  * `DaemonHttpError` if the daemon evicted the entry exactly at the
  * boundary, breaking `awaitCompletion`'s "always returns a settled
  * `DaemonDeviceFlowState`" contract.
@@ -216,8 +216,8 @@ async function getDeviceFlowOrSynthetic404(
  * Validate an `AwaitCompletionOptions` numeric field. PR #4255
  * fold-in 7 review thread #5: `NaN` / `Infinity` from a misbehaving
  * caller would otherwise produce a `ceiling` of `NaN` (so `now >=
- * ceiling` is always `false` — the loop runs forever) or a
- * `setTimeout(NaN)` (Node clamps to a 1 ms delay — tight polling
+ * ceiling` is always `false` -- the loop runs forever) or a
+ * `setTimeout(NaN)` (Node clamps to a 1 ms delay -- tight polling
  * loop). Reject non-finite-positive values; when the caller's intent
  * was sloppy ("a long timeout") they fall back to the documented
  * default rather than getting a pathological loop.
@@ -230,7 +230,7 @@ function sanitizePositiveMs(
   if (!Number.isFinite(raw)) return undefined;
   // PR #4255 fold-in 9 review thread #6: `timeoutMs: 0` is the
   // documented "settle immediately, return current daemon view"
-  // contract — must be honored, not collapsed to falsy. Opt-in via
+  // contract -- must be honored, not collapsed to falsy. Opt-in via
   // `allowZero` so `pollOverrideMs: 0` still falls back to the
   // default (a 0 ms poll interval is a tight loop, not a useful
   // contract).
@@ -263,7 +263,7 @@ async function pollUntilTerminal(
   const sanitizedPollOverrideMs = sanitizePositiveMs(opts.pollOverrideMs);
   // PR #4255 fold-in 9 review thread #6: use `!== undefined` (not
   // truthy check) so `timeoutMs: 0` produces a `ceiling = Date.now()`
-  // — which the loop's `now >= ceiling` guard will satisfy on the
+  // -- which the loop's `now >= ceiling` guard will satisfy on the
   // very first iteration, returning the daemon's current snapshot
   // immediately. The earlier `?` form treated 0 as falsy and
   // silently fell back to the default.

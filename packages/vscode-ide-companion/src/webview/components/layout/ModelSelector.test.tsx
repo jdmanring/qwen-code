@@ -90,7 +90,7 @@ const otherProviderModel: ModelInfo = {
   description: 'OpenAI flagship',
 };
 
-describe('ModelSelector — discontinued state (Issue #3745)', () => {
+describe('ModelSelector -- discontinued state (Issue #3745)', () => {
   it('renders the (Discontinued) badge for non-runtime Qwen OAuth models', () => {
     const { container } = renderModelSelector({
       models: [discontinuedModel],
@@ -107,7 +107,7 @@ describe('ModelSelector — discontinued state (Issue #3745)', () => {
       models: [discontinuedModel],
     });
     expect(container.textContent).toContain(
-      'Discontinued — switch to Coding Plan or API Key',
+      'Discontinued -- switch to Coding Plan or API Key',
     );
     expect(container.textContent).not.toContain(
       'Original description should be replaced',

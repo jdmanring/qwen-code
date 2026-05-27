@@ -1,15 +1,15 @@
-# 🔄 Project Workflow & Tracking Standards
+#  Project Workflow & Tracking Standards
 
 This document defines the mandatory tracking and planning hierarchy for the Megalonyx project. To ensure transparency, permanence, and engineering rigor, all work must be tracked across three tiers.
 
 ## 1. The Tracking Hierarchy
 
-### Tier 1: Macro (Strategic) — `ROADMAP.md`
+### Tier 1: Macro (Strategic) -- `ROADMAP.md`
 - **Purpose:** High-level vision, strategic milestones, and overall system stability status.
 - **Usage:** Updated when a major feature is completed or when a system-wide stability or architectural shift occurs.
 - **Constraint:** No task-level items. Only strategic targets.
 
-### Tier 2: Meso (Official Record) — `TASKS.md`
+### Tier 2: Meso (Official Record) -- `TASKS.md`
 - **Purpose:** The official project work board. All bugs, architectural decisions, and feature tasks must be recorded here.
 - **Usage:** 
     - Every new bug or feature starts as an entry in `TASKS.md`.
@@ -17,7 +17,7 @@ This document defines the mandatory tracking and planning hierarchy for the Mega
     - Status updates (Pending $\to$ In Progress $\to$ Completed) are committed to this file.
 - **Constraint:** This is the "Source of Truth" for what is being worked on.
 
-### Tier 3: Micro (Execution) — `todo_write` (Agent Session)
+### Tier 3: Micro (Execution) -- `todo_write` (Agent Session)
 - **Purpose:** Turn-by-turn execution steps for the current active session.
 - **Usage:** Used by the Orchestrator to break down a `TASKS.md` item into atomic, verifiable steps.
 - **Constraint:** Ephemeral. Once the `TASKS.md` item is marked completed, the micro-todos are considered resolved.

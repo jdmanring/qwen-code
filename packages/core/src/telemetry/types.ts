@@ -196,8 +196,8 @@ export class ToolCallEvent implements BaseTelemetryEvent {
     // function_args duplicates that data into telemetry surfaces (OTLP
     // exports, QwenLogger, ui-telemetry stream, the chat-recording UI
     // event mirror) where it can leak off-device. Replace with a shared
-    // placeholder constant so consumers still see the call happened —
-    // duration, success, decision metrics are preserved — but the
+    // placeholder constant so consumers still see the call happened --
+    // duration, success, decision metrics are preserved -- but the
     // payload itself doesn't ride along. The same constant is used by
     // `redactStructuredOutputArgsForRecording` in `core/geminiChat.ts`
     // for the on-disk JSONL surface so neither side can silently drift.
@@ -975,7 +975,7 @@ export type TelemetryEvent =
   | ArenaAgentCompletedEvent
   | ArenaSessionEndedEvent;
 
-// ─── Arena Telemetry Events ────────────────────────────────────
+// --- Arena Telemetry Events ------------------------------------
 
 export interface ArenaSessionStartedEvent extends BaseTelemetryEvent {
   'event.name': 'arena_session_started';

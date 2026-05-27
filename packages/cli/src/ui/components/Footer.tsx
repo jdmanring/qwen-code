@@ -66,7 +66,7 @@ export const Footer: React.FC = () => {
   // input) so the live area's height is constant in the default case, avoiding
   // the residual-blank-line artifact left behind when a separate block unmounts.
   // When a custom status line is active, the row shrinks by 1 on transition to
-  // ready — a one-time, small regression preferred over hiding init progress.
+  // ready -- a one-time, small regression preferred over hiding init progress.
   //
   // `configInitMessage` is placed ahead of `showAutoAcceptIndicator` so users
   // launched with YOLO / auto-accept-edits still see the ~1s startup progress;
@@ -100,7 +100,7 @@ export const Footer: React.FC = () => {
   if (sandboxInfo) {
     rightItems.push({
       key: 'sandbox',
-      node: <Text color={theme.status.success}>🔒 {sandboxInfo}</Text>,
+      node: <Text color={theme.status.success}> {sandboxInfo}</Text>,
     });
   }
   if (debugMode) {
@@ -110,7 +110,7 @@ export const Footer: React.FC = () => {
     });
   }
   // Dream tasks now surface via the BackgroundTasksPill (e.g. "1 dream")
-  // alongside the other background-task kinds. The previous `✦ dreaming`
+  // alongside the other background-task kinds. The previous ` dreaming`
   // right-column indicator was removed to avoid two simultaneous signals
   // for the same underlying state.
   if (promptTokenCount > 0 && contextWindowSize) {
@@ -145,7 +145,7 @@ export const Footer: React.FC = () => {
       paddingX={2}
       gap={isNarrow ? 0 : 1}
     >
-      {/* Left column — status line on top, hints/mode on bottom */}
+      {/* Left column -- status line on top, hints/mode on bottom */}
       <Box flexDirection="column" flexShrink={isNarrow ? 0 : 1}>
         {statusLineLines.length > 0 &&
           !uiState.ctrlCPressedOnce &&
@@ -162,7 +162,7 @@ export const Footer: React.FC = () => {
           ))}
         {/* Built-in worktree indicator. Shown by default whenever a
             worktree is active so the user always has a UI affordance,
-            even when a custom statusline is configured — their script
+            even when a custom statusline is configured -- their script
             may not render `payload.worktree` (written before Phase C,
             ignored by choice, or only rendering some fields), and
             silently hiding the indicator could let the user operate
@@ -176,7 +176,7 @@ export const Footer: React.FC = () => {
           !uiState.ctrlCPressedOnce &&
           !uiState.ctrlDPressedOnce && (
             <Text dimColor wrap="truncate">
-              {`⎇ ${uiState.activeWorktree.branch} (${uiState.activeWorktree.slug})`}
+              {` ${uiState.activeWorktree.branch} (${uiState.activeWorktree.slug})`}
             </Text>
           )}
         <Box flexDirection="row" flexShrink={1}>
@@ -186,7 +186,7 @@ export const Footer: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Right Section — never compressed, aligns to top so multi-line
+      {/* Right Section -- never compressed, aligns to top so multi-line
           status lines on the left don't push the indicators to the center. */}
       <Box flexShrink={0} gap={1} alignItems="flex-start">
         {rightItems.map(({ key, node }, index) => (

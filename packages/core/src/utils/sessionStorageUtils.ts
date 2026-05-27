@@ -18,7 +18,7 @@ export const LITE_READ_BUF_SIZE = 64 * 1024;
 
 /**
  * Flags used when opening session files for metadata reads. `O_NOFOLLOW`
- * refuses to follow symlinks — defense in depth so a symlink planted in
+ * refuses to follow symlinks -- defense in depth so a symlink planted in
  * `~/.qwen/tmp/<hash>/chats/` (by another local user or an extension with
  * filesystem access) can't redirect a metadata read to an unrelated file.
  * Falls back to plain read-only when the flag isn't available (e.g. Windows
@@ -53,7 +53,7 @@ function readLatestTailIfGrown(
 }
 
 // ---------------------------------------------------------------------------
-// JSON string field extraction — no full parse, works on truncated lines
+// JSON string field extraction -- no full parse, works on truncated lines
 // ---------------------------------------------------------------------------
 
 /**
@@ -103,12 +103,12 @@ export function extractJsonStringField(
  * Like extractJsonStringField but finds the LAST well-formed occurrence of
  * `primaryKey` and returns every `otherKeys` value extracted from THAT SAME
  * line. Two separate `extractLastJsonStringField` calls can land on different
- * records when an older line contains only one of the fields — this function
+ * records when an older line contains only one of the fields -- this function
  * guarantees the returned fields all come from the same record.
  *
  * Validation: a primary-key match counts only when its string value has a
  * proper closing quote. A crash-truncated trailing record (`"customTitle":"x`
- * with no closing `"`) is ignored — otherwise it could "win" the latest-match
+ * with no closing `"`) is ignored -- otherwise it could "win" the latest-match
  * race and cause the function to extract secondaries from a partial line
  * where they don't appear.
  *
@@ -148,7 +148,7 @@ export function extractLastJsonStringFields(
       }
 
       // Validate the value: walk to a non-escaped closing quote. A truncated
-      // trailing write (no closing quote before EOF) is rejected — this is
+      // trailing write (no closing quote before EOF) is rejected -- this is
       // the guard that keeps crash-recovery safe.
       const valueStart = idx + pattern.length;
       let i = valueStart;
@@ -242,7 +242,7 @@ export function extractLastJsonStringField(
 }
 
 // ---------------------------------------------------------------------------
-// File I/O — tail-first scan with head-window fallback
+// File I/O -- tail-first scan with head-window fallback
 // ---------------------------------------------------------------------------
 
 /**
@@ -263,10 +263,10 @@ export function extractLastJsonStringField(
  *
  * If neither window contains the field, returns `undefined`. Callers
  * that need a stronger guarantee must arrange for the writer to
- * maintain the head-or-tail invariant — by design we never trade
+ * maintain the head-or-tail invariant -- by design we never trade
  * picker latency for completeness here.
  *
- * Normal worst-case I/O: 2 × LITE_READ_BUF_SIZE = 128KB per file.
+ * Normal worst-case I/O: 2 * LITE_READ_BUF_SIZE = 128KB per file.
  * If a concurrent writer grows the file between the initial stat and a
  * tail miss, we do one extra latest-tail read to catch a fresh EOF anchor
  * while preserving a fixed retry bound.
@@ -278,9 +278,9 @@ export function extractLastJsonStringField(
  *   {@link LITE_READ_BUF_SIZE} bytes; only the leading `length` bytes
  *   are touched and decoded each call, so old data past the read region
  *   is never observed (we never read past the bytes we just wrote).
- *   The same buffer backs both the tail and head reads — they happen
+ *   The same buffer backs both the tail and head reads -- they happen
  *   sequentially, so reuse is safe. When omitted, the function
- *   allocates per-call — preserves the simple call site for one-off
+ *   allocates per-call -- preserves the simple call site for one-off
  *   reads (rename, single-session lookup) while letting `listSessions`
  *   skip the per-file alloc.
  */
@@ -298,7 +298,7 @@ export function readLastJsonStringFieldSync(
 
     fd = fs.openSync(filePath, getReadOpenFlags());
 
-    // Phase 1: tail window — fast path. This is where every well-behaved
+    // Phase 1: tail window -- fast path. This is where every well-behaved
     // session keeps its current title (ChatRecordingService re-anchors
     // it within the tail window).
     const tailLength = Math.min(fileSize, LITE_READ_BUF_SIZE);
@@ -332,7 +332,7 @@ export function readLastJsonStringFieldSync(
     // to do.
     if (tailOffset === 0) return undefined;
 
-    // Phase 2: head window — fallback for legacy sessions and the
+    // Phase 2: head window -- fallback for legacy sessions and the
     // edge case where the title got written near offset 0 and the
     // re-anchor invariant hasn't kicked in yet (e.g. a session
     // recorded by a build that predates the re-anchor logic).
@@ -375,7 +375,7 @@ export function readLastJsonStringFieldSync(
  *
  * The primary key determines the "winning" line (latest occurrence on a line
  * that also contains `lineContains`). Every other requested field is pulled
- * from that same line — never from an earlier or later record — so callers
+ * from that same line -- never from an earlier or later record -- so callers
  * get a consistent record snapshot. Useful when a record pairs a payload
  * field with its metadata (e.g. `customTitle` + `titleSource`).
  *
@@ -434,13 +434,13 @@ export function readLastJsonStringFieldsSync(
 
     if (tailOffset === 0) return emptyResult;
 
-    // Phase 2: head window — fallback for legacy sessions written
+    // Phase 2: head window -- fallback for legacy sessions written
     // before the title-anchor invariant existed.
     const headLength = Math.min(fileSize, LITE_READ_BUF_SIZE);
     const headBytes = fs.readSync(fd, buffer, 0, headLength, 0);
     if (headBytes > 0) {
       const rawHead = buffer.toString('utf-8', 0, headBytes);
-      // Truncate to whole lines — see the single-field variant for why.
+      // Truncate to whole lines -- see the single-field variant for why.
       const headText =
         headBytes < fileSize
           ? rawHead.slice(0, rawHead.lastIndexOf('\n') + 1)

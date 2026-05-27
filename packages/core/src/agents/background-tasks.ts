@@ -5,7 +5,7 @@
  */
 
 /**
- * @fileoverview BackgroundTaskRegistry — tracks background (async) sub-agents
+ * @fileoverview BackgroundTaskRegistry -- tracks background (async) sub-agents
  * and, with `isBackgrounded: false`, the currently-running synchronous
  * sub-agents whose UI is routed through the same pill+dialog while the
  * parent turn waits on them. Both share the registry (and the dialog
@@ -69,7 +69,7 @@ export const MAX_CONCURRENT_BACKGROUND_AGENTS =
  * `BackgroundShellRegistry.MAX_RETAINED_TERMINAL_SHELLS`.
  *
  * Entries that are still `running`, `paused`, or `cancelled` but
- * not yet notified are NEVER evicted — pruning a not-yet-notified
+ * not yet notified are NEVER evicted -- pruning a not-yet-notified
  * cancelled entry would break the SDK contract that every
  * `register` pairs with exactly one terminal `task-notification`.
  */
@@ -90,7 +90,7 @@ const CANCEL_GRACE_MS = 5000;
  * dialog (user-facing) so the two surfaces never drift.
  *
  * When `includePrefix` is true (default), returns `subagentType: desc`;
- * when false, returns the bare truncated description — used where the
+ * when false, returns the bare truncated description -- used where the
  * subagent type is already rendered separately (e.g. the dialog header).
  */
 export function buildBackgroundEntryLabel(
@@ -115,7 +115,7 @@ export function buildBackgroundEntryLabel(
 }
 
 // Subagent-produced strings (description, result, error) can contain `<`,
-// `>`, or literal `</task-notification>` — without escaping, a subagent
+// `>`, or literal `</task-notification>` -- without escaping, a subagent
 // summarizing HTML or another agent's notification could close the
 // envelope early and forge sibling tags (e.g. a faked <status>) that the
 // parent model would treat as trusted metadata. Use the shared helper.
@@ -134,7 +134,7 @@ export interface AgentCompletionStats {
 }
 
 /**
- * A compact record of a recent tool invocation — drives the Progress
+ * A compact record of a recent tool invocation -- drives the Progress
  * section of the detail dialog. The Agent tool maintains a rolling
  * buffer of these on each background entry by subscribing to the
  * subagent's event emitter.
@@ -142,14 +142,14 @@ export interface AgentCompletionStats {
 export interface BackgroundActivity {
   /** Tool name (e.g. `Bash`, `Read`). */
   name: string;
-  /** Short one-line description — the tool's own render-friendly summary. */
+  /** Short one-line description -- the tool's own render-friendly summary. */
   description: string;
   /** Emission timestamp (ms). */
   at: number;
 }
 
 /**
- * Agent kind of `TaskState`. Tracks one running subagent — either a
+ * Agent kind of `TaskState`. Tracks one running subagent -- either a
  * synchronous foreground run (`isBackgrounded: false`, awaited by the
  * parent's tool-call) or an async background run (`isBackgrounded: true`,
  * persists across turns and emits a terminal `<task-notification>`).
@@ -172,7 +172,7 @@ export interface AgentTask extends TaskBase {
    * False if the parent's tool-call is synchronously awaiting it; the
    * result is delivered through the normal tool-result channel and no
    * XML envelope fires. Replaces the older `flavor: 'foreground' |
-   * 'background'` discriminator — same binary fact, named after the
+   * 'background'` discriminator -- same binary fact, named after the
    * question every read site asks.
    */
   isBackgrounded: boolean;
@@ -275,7 +275,7 @@ interface BackgroundTaskCancelOptions {
  */
 export type BackgroundStatusChangeCallback = (entry?: AgentTask) => void;
 
-/** Fires on `appendActivity` — scoped to detail-view consumers. */
+/** Fires on `appendActivity` -- scoped to detail-view consumers. */
 export type BackgroundActivityChangeCallback = (entry: AgentTask) => void;
 
 type MessageWaiter = () => void;
@@ -360,7 +360,7 @@ export class BackgroundTaskRegistry {
 
   // Transition a still-running entry to 'completed' and emit the terminal
   // notification. No-op if the entry is already terminal *and* has been
-  // notified — protects against duplicate emission when cancel aborts the
+  // notified -- protects against duplicate emission when cancel aborts the
   // signal and the natural handler also races to completion.
   complete(
     agentId: string,
@@ -369,7 +369,7 @@ export class BackgroundTaskRegistry {
   ): void {
     const entry = this.agents.get(agentId);
     if (!entry) return;
-    // Allow running → completed (normal path) and cancelled → completed
+    // Allow running -> completed (normal path) and cancelled -> completed
     // (cancel raced the natural handler: the reasoning loop finished with
     // a real result before the abort landed, and we prefer to surface that
     // real result over the bare cancel).
@@ -390,7 +390,7 @@ export class BackgroundTaskRegistry {
    * Remove a foreground entry from the registry without emitting any
    * terminal notification. Called by the foreground tool-call's `finally`
    * path, which has already delivered the result through the tool-result
-   * channel — the registry entry has served its UI-surfacing purpose.
+   * channel -- the registry entry has served its UI-surfacing purpose.
    * Background entries must go through complete/fail/finalizeCancelled
    * instead, so this throws if asked to remove one.
    */
@@ -410,7 +410,7 @@ export class BackgroundTaskRegistry {
     // foreground agent to linger as `status='running'` in the footer
     // pill / dialog: the callback's `getAll()` still saw it, and no
     // second status-change fired after the deletion. Diverges from
-    // complete/fail/cancel/finalize ordering on purpose — those
+    // complete/fail/cancel/finalize ordering on purpose -- those
     // keep the entry around (terminal state) so callbacks can inspect
     // it on re-read; unregister removes it outright.
     this.agents.delete(agentId);
@@ -418,7 +418,7 @@ export class BackgroundTaskRegistry {
     debugLogger.info(`Unregistered foreground agent: ${agentId}`);
   }
 
-  // See complete() for the cancelled → terminal path rationale.
+  // See complete() for the cancelled -> terminal path rationale.
   fail(agentId: string, error: string, stats?: AgentCompletionStats): void {
     const entry = this.agents.get(agentId);
     if (!entry) return;
@@ -440,7 +440,7 @@ export class BackgroundTaskRegistry {
   // completion path (bgBody) fires complete()/fail()/finalizeCancelled()
   // with the real partial/final result, which carries far more information
   // than a bare "cancelled" message. A deferred fallback handles the rare
-  // case where a tool ignores AbortSignal and bgBody never settles — the
+  // case where a tool ignores AbortSignal and bgBody never settles -- the
   // timeout lands on finalizeCancellationIfPending(), which is a no-op
   // once the natural handler has already emitted.
   //
@@ -448,7 +448,7 @@ export class BackgroundTaskRegistry {
   // through this method: status flips to 'cancelled' and the meta sidecar
   // is patched, but the Map entry is *not* removed. Removal is the caller's
   // responsibility via `unregisterForeground()` in the tool-call's finally
-  // path — without that follow-up, the foreground entry leaks. Callers
+  // path -- without that follow-up, the foreground entry leaks. Callers
   // outside `agent.ts` that invoke `cancel()` on a foreground entry must
   // pair it with `unregisterForeground()`.
   cancel(agentId: string, options: BackgroundTaskCancelOptions = {}): void {
@@ -541,7 +541,7 @@ export class BackgroundTaskRegistry {
 
   /**
    * Append a recent tool activity to a running entry's rolling buffer.
-   * No-op if the entry is not running — late events after a cancellation
+   * No-op if the entry is not running -- late events after a cancellation
    * shouldn't leak into the Progress section.
    */
   appendActivity(agentId: string, activity: BackgroundActivity): void {
@@ -590,7 +590,7 @@ export class BackgroundTaskRegistry {
     for (const entry of this.agents.values()) {
       // Foreground entries block the parent tool-call synchronously, so the
       // headless event loop is already pinned by the `await` on the caller's
-      // promise — counting them here would be redundant and would also keep
+      // promise -- counting them here would be redundant and would also keep
       // the loop alive for entries that don't even emit a notification.
       if (!entry.isBackgrounded) continue;
       if (entry.status === 'running') return true;
@@ -757,7 +757,7 @@ export class BackgroundTaskRegistry {
 
   private emitNotification(entry: AgentTask): void {
     // Mark notified *before* invoking the callback so that a re-entrant
-    // terminal call inside the callback chain (cancel → complete race)
+    // terminal call inside the callback chain (cancel -> complete race)
     // sees the flag and short-circuits, rather than firing twice.
     if (entry.notified) return;
     entry.notified = true;
@@ -861,7 +861,7 @@ export class BackgroundTaskRegistry {
    * `cancel({ notify: false })` shortcut and `abortAll`'s loop body)
    * may briefly carry a few extra entries until the next transition
    * triggers another prune. Both of those paths are reset / shutdown
-   * adjacent — the registry is about to be cleared via `reset()`
+   * adjacent -- the registry is about to be cleared via `reset()`
    * anyway, so the extra retention does not leak across sessions.
    */
   private pruneTerminalEntries(): void {

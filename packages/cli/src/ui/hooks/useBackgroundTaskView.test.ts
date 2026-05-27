@@ -11,7 +11,7 @@ import { useBackgroundTaskView, entryId } from './useBackgroundTaskView.js';
 
 interface FakeRegistry {
   setStatusChangeCallback: ReturnType<typeof vi.fn>;
-  /** Test helper — invokes the currently-set callback. */
+  /** Test helper -- invokes the currently-set callback. */
   fire: () => void;
 }
 
@@ -31,7 +31,7 @@ interface FakeMemoryManager {
   /** Captured opts from the most recent subscribe() call (the hook
    * passes `{ taskType: 'dream' }` to skip per-extract notifies). */
   lastSubscribeOpts: { taskType?: 'extract' | 'dream' } | undefined;
-  /** Test helper — invokes the currently-subscribed listener. */
+  /** Test helper -- invokes the currently-subscribed listener. */
   fire: () => void;
 }
 
@@ -216,8 +216,8 @@ describe('useBackgroundTaskView', () => {
     });
     const { result } = renderHook(() => useBackgroundTaskView(config));
     expect(result.current.entries).toHaveLength(3);
-    // Sort order is by startTime descending — newest first: monitor
-    // (200) → agent (100) → shell (50). The dialog opens with the
+    // Sort order is by startTime descending -- newest first: monitor
+    // (200) -> agent (100) -> shell (50). The dialog opens with the
     // cursor on row 0, so the most recently launched task is the one
     // immediately selected.
     expect(result.current.entries.map(entryId)).toEqual(['m1', 'a1', 's1']);
@@ -254,17 +254,17 @@ describe('useBackgroundTaskView', () => {
     // scroll past stale completed rows to find it.
     const { config } = makeConfig({
       agents: () => [
-        // Old running agent — must NOT be pushed below newer terminals.
+        // Old running agent -- must NOT be pushed below newer terminals.
         agent('a-running-old', 100),
-        // Recently-completed agent — newer startTime than the running
+        // Recently-completed agent -- newer startTime than the running
         // one, but should still sort below it because it's terminal.
         agent('a-done-fresh', 500, { status: 'completed', endTime: 600 }),
-        // Paused agent — same bucket as running (user can resume /
+        // Paused agent -- same bucket as running (user can resume /
         // abandon), ranks by startTime DESC inside the bucket.
         agent('a-paused', 300, { status: 'paused' }),
       ],
       shells: () => [
-        // Failed shell launched in between the two active agents —
+        // Failed shell launched in between the two active agents --
         // belongs in the terminal bucket regardless of startTime.
         shell('s-failed', 400, { status: 'failed', endTime: 450 }),
       ],
@@ -287,12 +287,12 @@ describe('useBackgroundTaskView', () => {
     // ago, even if the latter has a higher startTime.
     const { config } = makeConfig({
       agents: () => [
-        // Started early, just finished — most recent terminal event.
+        // Started early, just finished -- most recent terminal event.
         agent('a-just-finished', 100, {
           status: 'completed',
           endTime: 1_000,
         }),
-        // Started later, finished early — older terminal event.
+        // Started later, finished early -- older terminal event.
         agent('a-quick-and-old', 500, {
           status: 'completed',
           endTime: 600,
@@ -368,7 +368,7 @@ describe('useBackgroundTaskView', () => {
     });
     const { unmount } = renderHook(() => useBackgroundTaskView(config));
     unmount();
-    // Each setStatusChangeCallback should have been called twice — once
+    // Each setStatusChangeCallback should have been called twice -- once
     // with the refresh function on mount, once with `undefined` on
     // cleanup. Failing this check would mean stale subscribers can fire
     // into an unmounted component (warning + state-update on unmounted
@@ -398,9 +398,9 @@ describe('useBackgroundTaskView', () => {
       shells: () => [],
       monitors: () => [],
       // Three dream records covering: a pre-fire pending record (must
-      // not surface — would flood the dialog with one row per
+      // not surface -- would flood the dialog with one row per
       // UserQuery), a running fire (must surface), and a skipped
-      // gate-miss (must not surface — same flood concern).
+      // gate-miss (must not surface -- same flood concern).
       dreams: () => [
         dream('d-pending', 100, { status: 'pending' }),
         dream('d-running', 200),
@@ -475,7 +475,7 @@ describe('useBackgroundTaskView', () => {
 
   it('subscribes to MemoryManager with a dream taskType filter so extract notifies are skipped at the source', () => {
     // The taskType filter on MemoryManager.subscribe() is the
-    // primary perf guard — it prevents the per-UserQuery extract
+    // primary perf guard -- it prevents the per-UserQuery extract
     // notify from waking the bg-tasks UI listener at all (avoids the
     // O(n) dream-snapshot fetch + signature compare that would
     // otherwise run on every extract transition). Pin the filter so
@@ -495,7 +495,7 @@ describe('useBackgroundTaskView', () => {
     // MemoryManager.subscribe() fires for ALL task transitions, including
     // extract task records that have no dialog surface. Without the
     // dream-signature dedup, every extract notify would trigger a full
-    // re-merge + a fresh array reference into setEntries — re-rendering
+    // re-merge + a fresh array reference into setEntries -- re-rendering
     // the dialog and pill on entries that are byte-identical to the
     // previous snapshot. This test pins the dedup by firing the memory
     // listener while the dream snapshot stays unchanged and asserting
@@ -542,7 +542,7 @@ describe('useBackgroundTaskView', () => {
     expect(result.current.entries.map(entryId)).toEqual(['d-1']);
 
     // A subsequent terminal state update must propagate the new status
-    // (running → completed) and survive the filter (only pending /
+    // (running -> completed) and survive the filter (only pending /
     // skipped get dropped).
     dreams.splice(0, dreams.length, dream('d-1', 100, { status: 'completed' }));
     act(() => memoryMgr.fire());

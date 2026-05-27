@@ -9,7 +9,7 @@
 
 `/rename` (#3093) lets a user label a session so they can find it again in
 the picker later, but until they run it the picker shows the first user
-prompt — often truncated mid-sentence, or describing a framing question
+prompt -- often truncated mid-sentence, or describing a framing question
 rather than what the session actually became about. Manual renaming is
 optional friction most users never do.
 
@@ -28,11 +28,11 @@ The goal is to make session names _useful by default_:
 
 | Trigger    | Conditions                                                                                                                                                          | Implementation                                                 |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| **Auto**   | After `recordAssistantTurn` fires. Skipped if an existing title is set, another attempt is in-flight, cap reached, non-interactive, env disabled, or no fast model. | `ChatRecordingService.maybeTriggerAutoTitle` — fire-and-forget |
+| **Auto**   | After `recordAssistantTurn` fires. Skipped if an existing title is set, another attempt is in-flight, cap reached, non-interactive, env disabled, or no fast model. | `ChatRecordingService.maybeTriggerAutoTitle` -- fire-and-forget |
 | **Manual** | User runs `/rename --auto`                                                                                                                                          | `renameCommand.ts` via `tryGenerateSessionTitle`               |
 
-Both paths funnel into a single function — `tryGenerateSessionTitle(config,
-signal)` — to guarantee identical prompt, schema, model selection, and
+Both paths funnel into a single function -- `tryGenerateSessionTitle(config,
+signal)` -- to guarantee identical prompt, schema, model selection, and
 sanitization. The auto trigger is a best-effort background call; the
 manual `/rename --auto` is a blocking user action that surfaces a
 reason-specific error on failure.
@@ -40,54 +40,54 @@ reason-specific error on failure.
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                        packages/core/src/services/                      │
-│                                                                         │
-│  ┌──────────────────────────┐                                           │
-│  │ chatRecordingService.ts  │                                           │
-│  │                          │                                           │
-│  │  recordAssistantTurn()   │                                           │
-│  │     │                    │                                           │
-│  │     ↓                    │                                           │
-│  │  maybeTriggerAutoTitle() │── 6 guards ──→ IIFE(autoTitleController)  │
-│  │     │                    │                       │                   │
-│  │     └── resume hydrate   │                       ↓                   │
-│  │         via              │          tryGenerateSessionTitle          │
-│  │         getSessionTitle- │          (sessionTitle.ts)                │
-│  │         Info             │                       │                   │
-│  │                          │                       ↓                   │
-│  └──────────────────────────┘          BaseLlmClient.generateJson       │
-│                                        (fastModel + JSON schema)        │
-│                                                       │                 │
-│  ┌──────────────────────────┐                         ↓                 │
-│  │ sessionService.ts        │         sanitizeTitle + sanity checks     │
-│  │                          │                         │                 │
-│  │  getSessionTitleInfo()   │◀── cross-process        ↓                 │
-│  │      uses                │    re-read             recordCustomTitle  │
-│  │  readLastJsonString-     │    before write        (…, 'auto')        │
-│  │  FieldsSync              │                                           │
-│  │  (sessionStorageUtils)   │                                           │
-│  └──────────────────────────┘                                           │
-│                                                                         │
-│                          ┌─────────────────────┐                        │
-│                          │ utils/terminalSafe  │                        │
-│                          │ stripTerminalCtrl-  │                        │
-│                          │ Sequences           │                        │
-│                          └─────────────────────┘                        │
-└─────────────────────────────────────────────────────────────────────────┘
++---------------------------------------------------------------------------+--
+|                        packages/core/src/services/                      |
+|                                                                         |
+|  +----------------------------+--                                           |
+|  | chatRecordingService.ts  |                                           |
+|  |                          |                                           |
+|  |  recordAssistantTurn()   |                                           |
+|  |     |                    |                                           |
+|  |                         |                                           |
+|  |  maybeTriggerAutoTitle() |-- 6 guards ---> IIFE(autoTitleController)  |
+|  |     |                    |                       |                   |
+|  |     \_-- resume hydrate   |                                          |
+|  |         via              |          tryGenerateSessionTitle          |
+|  |         getSessionTitle- |          (sessionTitle.ts)                |
+|  |         Info             |                       |                   |
+|  |                          |                                          |
+|  \_-----------------------------          BaseLlmClient.generateJson       |
+|                                        (fastModel + JSON schema)        |
+|                                                       |                 |
+|  +----------------------------+--                                          |
+|  | sessionService.ts        |         sanitizeTitle + sanity checks     |
+|  |                          |                         |                 |
+|  |  getSessionTitleInfo()   |-- cross-process                         |
+|  |      uses                |    re-read             recordCustomTitle  |
+|  |  readLastJsonString-     |    before write        (..., 'auto')        |
+|  |  FieldsSync              |                                           |
+|  |  (sessionStorageUtils)   |                                           |
+|  \_-----------------------------                                           |
+|                                                                         |
+|                          +-----------------------+--                        |
+|                          | utils/terminalSafe  |                        |
+|                          | stripTerminalCtrl-  |                        |
+|                          | Sequences           |                        |
+|                          \_------------------------                        |
+\_----------------------------------------------------------------------------
 
-┌─────────────────────────────────────────────────────────────────────────┐
-│                     packages/cli/src/ui/                                │
-│                                                                         │
-│  commands/renameCommand.ts     ─── /rename <name>          → manual      │
-│                                ─── /rename                 → kebab       │
-│                                ─── /rename --auto          → auto       │
-│                                ─── /rename -- --literal    → manual     │
-│                                ─── /rename --unknown-flag  → error      │
-│                                                                         │
-│  components/SessionPicker.tsx  ── dims rows where                       │
-│                                   session.titleSource === 'auto'        │
-└─────────────────────────────────────────────────────────────────────────┘
++---------------------------------------------------------------------------+--
+|                     packages/cli/src/ui/                                |
+|                                                                         |
+|  commands/renameCommand.ts     --- /rename <name>          -> manual      |
+|                                --- /rename                 -> kebab       |
+|                                --- /rename --auto          -> auto       |
+|                                --- /rename -- --literal    -> manual     |
+|                                --- /rename --unknown-flag  -> error      |
+|                                                                         |
+|  components/SessionPicker.tsx  -- dims rows where                       |
+|                                   session.titleSource === 'auto'        |
+\_----------------------------------------------------------------------------
 ```
 
 ### Files
@@ -115,7 +115,7 @@ Bullets below correspond 1:1 with `TITLE_SYSTEM_PROMPT`:
 - No trailing punctuation, no markdown, no quotes.
 - Match the dominant language of the conversation; for Chinese, budget
   roughly 12-20 characters.
-- Be specific about the user's actual goal — name the feature, bug, or
+- Be specific about the user's actual goal -- name the feature, bug, or
   subject area. Avoid vague catch-alls like "Code changes" or "Help
   request".
 - Four good examples (three English + one Chinese) and four bad examples
@@ -143,35 +143,35 @@ const TITLE_SCHEMA = {
 
 Why function calling rather than free text + tag extraction:
 
-1. Cross-provider reliability — OpenAI-compatible endpoints, Gemini, and
+1. Cross-provider reliability -- OpenAI-compatible endpoints, Gemini, and
    Qwen's native tool-calling all implement function calling; tag parsing
    would rely on every model respecting a text convention.
-2. No reasoning-preamble leakage — the function call arguments come back
+2. No reasoning-preamble leakage -- the function call arguments come back
    structured, so a "thinking" paragraph before the answer can't bleed
    into the title.
-3. Simpler post-processing — a single `typeof result.title === 'string'`
+3. Simpler post-processing -- a single `typeof result.title === 'string'`
    check plus `sanitizeTitle` covers every realistic model drift.
 
 The model may still return something the schema allows but the UX
 rejects (empty string, whitespace-only, 500 chars, markdown fencing,
-control chars). `sanitizeTitle` handles all of these and returns `''` →
+control chars). `sanitizeTitle` handles all of these and returns `''` ->
 service returns `{ok: false, reason: 'empty_result'}`.
 
 ### Call Parameters
 
 | Parameter         | Value                          | Reason                                                                                          |
 | ----------------- | ------------------------------ | ----------------------------------------------------------------------------------------------- |
-| `model`           | `getFastModel()` — no fallback | Auto-titling on main-model tokens is too expensive to be silent.                                |
+| `model`           | `getFastModel()` -- no fallback | Auto-titling on main-model tokens is too expensive to be silent.                                |
 | `schema`          | `TITLE_SCHEMA`                 | Forces `{title: string}`; filters shape drift at the transport layer.                           |
 | `maxOutputTokens` | `100`                          | More than enough for 7 words plus schema overhead.                                              |
-| `temperature`     | `0.2`                          | Mostly deterministic — session titles benefit from stability across regeneration.               |
+| `temperature`     | `0.2`                          | Mostly deterministic -- session titles benefit from stability across regeneration.               |
 | `maxAttempts`     | `1`                            | Titles are best-effort cosmetic metadata; retries would queue behind user-visible main traffic. |
 
 Contrast with session-recap, which falls back to the main model. Title
 generation is triggered automatically and often; silently spending
 main-model tokens without a user opt-in is a real bill surprise. Manual
 `/rename --auto` explicitly fails with `no_fast_model` rather than
-fallback — forcing the user to make the fast-model choice consciously.
+fallback -- forcing the user to make the fast-model choice consciously.
 
 ## History Filtering
 
@@ -196,7 +196,7 @@ framing; titling by the tail captures what the session became.
 
 `.slice(-1000)` on a UTF-16 code-unit boundary can orphan a high or low
 surrogate if a CJK supplementary char or emoji gets cut. Some providers
-respond to the resulting invalid UTF-16 with a 400 — which, without
+respond to the resulting invalid UTF-16 with a 400 -- which, without
 handling, would burn an attempt for no reason. `flattenToTail` drops a
 leading orphaned low surrogate; `sanitizeTitle` scrubs any orphaned
 surrogate after the max-length trim on the output path too.
@@ -221,7 +221,7 @@ surrogate after the max-length trim on the output path too.
 
 The field is optional, and absent-in-legacy records are treated as
 `undefined`. `SessionPicker` dims rows only on a strict `=== 'auto'`
-match — a pre-change user `/rename` title is never silently reclassified
+match -- a pre-change user `/rename` title is never silently reclassified
 as a model guess.
 
 ### Resume hydration
@@ -230,7 +230,7 @@ On resume, `ChatRecordingService` constructor calls
 `sessionService.getSessionTitleInfo(sessionId)` to read **both** the
 title and its source. Without hydrating the source, `finalize()`'s
 re-append (which runs on every session lifecycle event) would rewrite
-auto as manual on every resume cycle — silently stripping the dim
+auto as manual on every resume cycle -- silently stripping the dim
 affordance.
 
 ### Atomic pair read
@@ -260,17 +260,17 @@ metadata read to an unrelated file.
 
 ### Trigger guard order
 
-`maybeTriggerAutoTitle` checks six conditions in this exact order — each
+`maybeTriggerAutoTitle` checks six conditions in this exact order -- each
 short-circuits the rest so the cheap ones run first:
 
-1. `currentCustomTitle` set → skip. Never overwrite manual / prior auto.
-2. `autoTitleController !== undefined` → skip. One attempt at a time.
-3. `autoTitleAttempts >= 3` → skip. Cap bounds total waste.
-4. `!config.isInteractive()` → skip. Headless `qwen -p` / CI never spends
+1. `currentCustomTitle` set -> skip. Never overwrite manual / prior auto.
+2. `autoTitleController !== undefined` -> skip. One attempt at a time.
+3. `autoTitleAttempts >= 3` -> skip. Cap bounds total waste.
+4. `!config.isInteractive()` -> skip. Headless `qwen -p` / CI never spends
    fast-model tokens on a one-shot session.
-5. `autoTitleDisabledByEnv()` → skip. `QWEN_DISABLE_AUTO_TITLE=1`
+5. `autoTitleDisabledByEnv()` -> skip. `QWEN_DISABLE_AUTO_TITLE=1`
    explicit opt-out.
-6. `!config.getFastModel()` → skip. No fast-model → no-op.
+6. `!config.getFastModel()` -> skip. No fast-model -> no-op.
 
 ### Why the cap is 3, not 1
 
@@ -318,10 +318,10 @@ AND the cross-process re-read both run; manual wins at both layers.
 
 | Setting / env var           | Default | Effect                                                                                              |
 | --------------------------- | ------- | --------------------------------------------------------------------------------------------------- |
-| `fastModel`                 | unset   | Required for auto-titling. Unset → no-op (no main-model fallback).                                  |
+| `fastModel`                 | unset   | Required for auto-titling. Unset -> no-op (no main-model fallback).                                  |
 | `QWEN_DISABLE_AUTO_TITLE=1` | unset   | Opt out of the auto trigger without unsetting `fastModel`. `/rename --auto` still works on request. |
 
-No `settings.json` toggle — the env var is the only user-visible
+No `settings.json` toggle -- the env var is the only user-visible
 off-switch. Rationale: the feature is cosmetic and cheap; a settings
 toggle would add a UI surface for something that can live as a one-time
 env export for the few users who want to disable it.
@@ -338,7 +338,7 @@ actionable error so the user can set one if they want to.
 ## Observability
 
 `createDebugLogger('SESSION_TITLE')` emits `debugLogger.warn` from the
-generator's catch block. Failures are fully transparent to the user —
+generator's catch block. Failures are fully transparent to the user --
 auto-title is an auxiliary feature and never throws into the UI.
 
 Developers can grep for the `[SESSION_TITLE]` tag in the debug log
@@ -356,13 +356,13 @@ hostile text.
 | Concern                                     | Guard                                                                                                                         |
 | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | ANSI / OSC-8 / CSI injection                | `stripTerminalControlSequences` before both JSONL write and picker render.                                                    |
-| Clickable-link smuggle via OSC-8            | Same — OSC sequences stripped as whole units, not just the ESC byte.                                                          |
+| Clickable-link smuggle via OSC-8            | Same -- OSC sequences stripped as whole units, not just the ESC byte.                                                          |
 | Invalid UTF-16 surrogates                   | Scrubbed in `flattenToTail` (LLM input) and `sanitizeTitle` (LLM output after max-length trim).                               |
-| Subtype-line spoof via user message content | `lineContains: '"subtype":"custom_title"'` — user text that happens to contain the literal phrase can't shadow a real record. |
+| Subtype-line spoof via user message content | `lineContains: '"subtype":"custom_title"'` -- user text that happens to contain the literal phrase can't shadow a real record. |
 | Symlink redirect on session reads           | `O_NOFOLLOW` (no-op on Windows where the constant is missing).                                                                |
 | Truncated trailing JSONL record             | `extractLastJsonStringFields` requires a closing quote before a record wins the latest-match race.                            |
 | Pathological file size freezing the picker  | `MAX_FULL_SCAN_BYTES = 64 MB` cap on Phase-2 full-file scan.                                                                  |
-| Paired CJK bracket decorators (`【Draft】`) | Stripped as a unit so a lone closing bracket doesn't dangle.                                                                  |
+| Paired CJK bracket decorators (`Draft`) | Stripped as a unit so a lone closing bracket doesn't dangle.                                                                  |
 
 ## Out of Scope
 

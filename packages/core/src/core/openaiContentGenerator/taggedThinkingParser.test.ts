@@ -11,7 +11,7 @@ import {
 } from './taggedThinkingParser.js';
 
 describe('TaggedThinkingParser', () => {
-  // ── Basic parsing ─────────────────────────────────────
+  // -- Basic parsing -------------------------------------
 
   it('should leave plain text unchanged', () => {
     const parser = new TaggedThinkingParser();
@@ -48,7 +48,7 @@ describe('TaggedThinkingParser', () => {
     ]);
   });
 
-  // ── Case insensitivity ────────────────────────────────
+  // -- Case insensitivity --------------------------------
 
   it('should handle uppercase <THINK> tags', () => {
     const parser = new TaggedThinkingParser();
@@ -74,7 +74,7 @@ describe('TaggedThinkingParser', () => {
     ]);
   });
 
-  // ── Empty tag content ─────────────────────────────────
+  // -- Empty tag content ---------------------------------
 
   it('should handle empty <think></think> tags', () => {
     const parser = new TaggedThinkingParser();
@@ -93,7 +93,7 @@ describe('TaggedThinkingParser', () => {
     ]);
   });
 
-  // ── Close tags in text mode (no preceding open tag) ───
+  // -- Close tags in text mode (no preceding open tag) ---
 
   it('should treat </think> as normal text in text mode (no opening tag)', () => {
     const parser = new TaggedThinkingParser();
@@ -109,7 +109,7 @@ describe('TaggedThinkingParser', () => {
     ]);
   });
 
-  // ── Pure partial-tag-prefix chunk (streaming core) ────
+  // -- Pure partial-tag-prefix chunk (streaming core) ----
 
   it('should buffer partial tag prefix across chunks', () => {
     const parser = new TaggedThinkingParser();
@@ -140,17 +140,17 @@ describe('TaggedThinkingParser', () => {
   it('should handle close tag partial prefix (< + /th...) in thought mode', () => {
     const parser = new TaggedThinkingParser();
 
-    // Enter thought mode; "</th" is a partial prefix of </think> → buffered
+    // Enter thought mode; "</th" is a partial prefix of </think> -> buffered
     expect(parser.parse('<think>content </th')).toEqual([
       { text: 'content ', thought: true },
     ]);
 
-    // On final, buffered "</th" + new "ink> visible" → completes </think>
-    // → exits thought mode. " visible" is normal text.
+    // On final, buffered "</th" + new "ink> visible" -> completes </think>
+    // -> exits thought mode. " visible" is normal text.
     expect(parser.parse('ink> visible', true)).toEqual([{ text: ' visible' }]);
   });
 
-  // ── Multi-chunk tag splitting ─────────────────────────
+  // -- Multi-chunk tag splitting -------------------------
 
   it('should handle tag split across 3+ chunks', () => {
     const parser = new TaggedThinkingParser();
@@ -171,11 +171,11 @@ describe('TaggedThinkingParser', () => {
     expect(parser.parse('think>visible', true)).toEqual([{ text: 'visible' }]);
   });
 
-  // ── final flag: flush unclosed tags ───────────────────
+  // -- final flag: flush unclosed tags -------------------
 
   it('should flush unclosed thinking content as thought on final', () => {
     const parser = new TaggedThinkingParser();
-    // "<think>stuff" without closing tag → on final, thought is flushed
+    // "<think>stuff" without closing tag -> on final, thought is flushed
     expect(parser.parse('answer <think>reasoning', true)).toEqual([
       { text: 'answer ' },
       { text: 'reasoning', thought: true },
@@ -194,7 +194,7 @@ describe('TaggedThinkingParser', () => {
     ]);
   });
 
-  // ── Multiple alternating tag blocks ───────────────────
+  // -- Multiple alternating tag blocks -------------------
 
   it('should handle multiple alternating think blocks without final', () => {
     const parser = new TaggedThinkingParser();
@@ -210,7 +210,7 @@ describe('TaggedThinkingParser', () => {
     ]);
   });
 
-  // ── Static convenience method ─────────────────────────
+  // -- Static convenience method -------------------------
 
   it('parseTaggedThinkingText should work as a one-shot parser', () => {
     expect(parseTaggedThinkingText('<think>x</think>y')).toEqual([
@@ -231,7 +231,7 @@ describe('TaggedThinkingParser', () => {
     ]);
   });
 
-  // ── Cross-matching tags (binary mode toggle) ──────────
+  // -- Cross-matching tags (binary mode toggle) ----------
 
   it('should handle cross-matching: <think> content </thinking>', () => {
     const parser = new TaggedThinkingParser();
@@ -251,7 +251,7 @@ describe('TaggedThinkingParser', () => {
     ]);
   });
 
-  // ── Unclosed thought flush on stream end ────────────────
+  // -- Unclosed thought flush on stream end ----------------
 
   it('should flush unclosed thought as thought part on final (stream truncated after <think>)', () => {
     const parser = new TaggedThinkingParser();
@@ -266,7 +266,7 @@ describe('TaggedThinkingParser', () => {
   it('should flush unclosed thought as text when stream ends with visible prefix', () => {
     const parser = new TaggedThinkingParser();
     // <think> opens thought mode, </think> closes it, then another <think> opens
-    // but stream ends before closing → final flush as thought
+    // but stream ends before closing -> final flush as thought
     expect(
       parser.parse('<think>done</think>visible <think>unclosed', true),
     ).toEqual([

@@ -88,7 +88,7 @@ A successful UDS bridge is verified when:
 
 ---
 
-## ⚠️ Lessons Learned: The "Broken Pipe" Pitfall
+##  Lessons Learned: The "Broken Pipe" Pitfall
 
 During the implementation of the Memory MCP, we discovered a critical failure mode in the Bridge's I/O implementation.
 

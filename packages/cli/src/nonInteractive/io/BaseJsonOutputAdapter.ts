@@ -1194,7 +1194,7 @@ export abstract class BaseJsonOutputAdapter {
         error: { message: errorMessage },
       };
     } else {
-      // Track presence by property existence — `runNonInteractive` may
+      // Track presence by property existence -- `runNonInteractive` may
       // legitimately pass `structuredResult: undefined` (e.g. the model
       // called structured_output with no args under an empty schema).
       // A `!== undefined` sentinel would silently fall back to the

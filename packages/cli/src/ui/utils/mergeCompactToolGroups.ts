@@ -36,7 +36,7 @@ function isAgentWithPendingConfirmation(
  * These conditions match ToolGroupMessage.tsx:105-112 showCompact logic.
  * Exported so MainContent can determine which callIds get their label
  * "absorbed" by the compact tool_group header vs which need the standalone
- * `● <label>` line rendered (force-expanded groups never go through the
+ * ` <label>` line rendered (force-expanded groups never go through the
  * compact path, so their label would otherwise be invisible).
  */
 export function isForceExpandGroup(
@@ -70,7 +70,7 @@ export function isForceExpandGroup(
     return true;
   }
 
-  // Terminal subagent tool calls must show — the inline
+  // Terminal subagent tool calls must show -- the inline
   // `SubagentScrollbackSummary` is the persistent record of the
   // run's outcome (LiveAgentPanel evicts terminal rows after its
   // visibility window). If the group merged into a compact batch,
@@ -115,7 +115,7 @@ export function isForceExpandGroup(
 /**
  * Check if an item is hidden in compact mode (so it shouldn't break tool_group adjacency).
  * This mirrors HistoryItemDisplay.tsx which hides:
- *  - `gemini_thought` / `gemini_thought_content` (thinking — hidden when compactMode is true),
+ *  - `gemini_thought` / `gemini_thought_content` (thinking -- hidden when compactMode is true),
  *  - `tool_use_summary` (consumed upstream to decorate the adjacent tool_group's label;
  *    never rendered standalone so it must not break adjacency between two batches).
  */
@@ -141,7 +141,7 @@ function isHiddenInCompactMode(item: HistoryItem): boolean {
  * adjacent `tool_use_summary` items are not absorbed). Distinguishing
  * force-expand from regular groups requires `embeddedShellFocused` and
  * `activePtyId`, which are not cheaply available at the keypress handler
- * call site — we accept the false-positive in exchange for keeping this
+ * call site -- we accept the false-positive in exchange for keeping this
  * predicate self-contained and O(N).
  */
 export function compactToggleHasVisualEffect(
@@ -177,7 +177,7 @@ export function compactToggleHasVisualEffect(
  *   merged result so MainContent's refreshStatic heuristic fires and the
  *   tool_group re-renders with its label. Summaries for force-expanded groups
  *   pass through unchanged so HistoryItemDisplay can render them as standalone
- *   `● <label>` lines (the compact path doesn't consume their label).
+ *   ` <label>` lines (the compact path doesn't consume their label).
  * @returns New array with merged tool_groups (does not mutate input)
  */
 export function mergeCompactToolGroups(
@@ -198,15 +198,15 @@ export function mergeCompactToolGroups(
     // standalone summary in the merged result would either double-display the
     // label (if HistoryItemDisplay rendered both) or, more importantly, would
     // bump mergedHistory.length lock-step with history.length and prevent
-    // refreshStatic from firing — Ink's <Static> would never repaint the
+    // refreshStatic from firing -- Ink's <Static> would never repaint the
     // committed tool_group with the new label.
     //
-    // Summaries with at least one non-absorbed preceding callId — e.g., when
+    // Summaries with at least one non-absorbed preceding callId -- e.g., when
     // the corresponding tool_group is force-expanded (errors / confirming /
     // user-initiated / focused shell) and renders through the full
-    // ToolGroupMessage path that does not consume `compactLabel` — must
+    // ToolGroupMessage path that does not consume `compactLabel` -- must
     // survive in the merged result so HistoryItemDisplay can render them as
-    // standalone `● <label>` lines.
+    // standalone ` <label>` lines.
     if (item.type === 'tool_use_summary') {
       const allAbsorbed =
         item.precedingToolUseIds.length > 0 &&
@@ -255,7 +255,7 @@ export function mergeCompactToolGroups(
         continue;
       }
 
-      // Visible non-mergeable item — streak broken
+      // Visible non-mergeable item -- streak broken
       break;
     }
 

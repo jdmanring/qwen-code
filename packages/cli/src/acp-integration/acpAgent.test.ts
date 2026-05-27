@@ -1221,7 +1221,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
   it('extMethod preflight returns 6 cells even when a Config getter throws synchronously', async () => {
     // Regression guard: `getSkillManager()` is invoked by `buildSkillsPreflightCell`.
     // Before the fix it ran OUTSIDE the try block, so a sync throw escaped
-    // out of `buildAcpPreflightCells` → the whole envelope 500'd. The
+    // out of `buildAcpPreflightCells` -> the whole envelope 500'd. The
     // wrapped variant should produce a `skills` error cell instead and
     // keep the other five cells intact.
     mockConfig = {
@@ -2016,7 +2016,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
   });
 
   it('per-session newSession is safe when Config lacks getFailedMcpServerNames (defensive typeof check)', async () => {
-    // Tests pass stubbed Configs without `getFailedMcpServerNames` — the
+    // Tests pass stubbed Configs without `getFailedMcpServerNames` -- the
     // round-7 fix uses `typeof config.getFailedMcpServerNames ===
     // 'function'` so it must not throw, and must not write to stderr.
     await setupSessionMocks('session-stubbed-config');
@@ -2150,11 +2150,11 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
 
     await agent.newSession({ cwd: '/tmp', mcpServers: [] });
 
-    // Strict ordering invariant — codex review fix #2.
+    // Strict ordering invariant -- codex review fix #2.
     expect(callOrder).toEqual(['setMcpBudgetEventCallback', 'initialize']);
     expect(typeof capturedCallback).toBe('function');
 
-    // Fire a synthetic budget_warning through the captured callback —
+    // Fire a synthetic budget_warning through the captured callback --
     // the wired extNotification must receive the same shape with
     // `sessionId` inserted and `v: 1` envelope.
     const warningEvent = {
@@ -2177,7 +2177,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
       },
     );
 
-    // Fire a refused_batch through the same callback — same routing,
+    // Fire a refused_batch through the same callback -- same routing,
     // discriminated union shape preserved verbatim.
     const refusedEvent = {
       kind: 'refused_batch' as const,
@@ -2212,7 +2212,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
     // in newSessionConfig keeps the absence silent.
     const innerConfig = await setupSessionMocks('session-no-cb-setter');
     // `setupSessionMocks`/`makeInnerConfig` returns a Config without
-    // `setMcpBudgetEventCallback` defined — that's the defensive case.
+    // `setMcpBudgetEventCallback` defined -- that's the defensive case.
 
     const agentPromise = runAcpAgent(
       mockConfig,
@@ -2231,7 +2231,7 @@ describe('QwenAgent MCP SSE/HTTP support', () => {
 
     await agent.newSession({ cwd: '/tmp', mcpServers: [] });
 
-    // No setter on Config → no wiring → no extNotification fires.
+    // No setter on Config -> no wiring -> no extNotification fires.
     expect(
       (innerConfig as unknown as Record<string, unknown>)[
         'setMcpBudgetEventCallback'
@@ -2393,7 +2393,7 @@ describe('QwenAgent extMethod renameSession routing', () => {
       'New Title',
       'manual',
     );
-    // Awaited so the rename is durable before the response returns —
+    // Awaited so the rename is durable before the response returns --
     // a follow-up listSessions can't race the queued write.
     expect(recording.flush).toHaveBeenCalledOnce();
     // The disk-only fallback must NOT fire when a live session exists,
@@ -2454,7 +2454,7 @@ describe('QwenAgent extMethod renameSession routing', () => {
     });
 
     // Even on failure we still flush so the writeChain settles before
-    // responding — keeps subsequent reads consistent and surfaces any
+    // responding -- keeps subsequent reads consistent and surfaces any
     // queued earlier failure to the caller.
     expect(recording.flush).toHaveBeenCalledOnce();
     expect(result).toEqual({ success: false });
@@ -2465,7 +2465,7 @@ describe('QwenAgent extMethod renameSession routing', () => {
 });
 
 // Tests for QwenAgent.loadSession() and QwenAgent.unstable_resumeSession()
-// — locks the session-existence guard, the resourceNotFound error contract,
+// -- locks the session-existence guard, the resourceNotFound error contract,
 // and the resume-vs-load semantic difference (load replays UI history,
 // resume does not).
 describe('QwenAgent loadSession / unstable_resumeSession', () => {
@@ -2747,7 +2747,7 @@ describe('QwenAgent loadSession / unstable_resumeSession', () => {
       configOptions: expect.anything(),
     });
     // resume semantic: model context is restored internally via
-    // geminiClient.initialize(), but UI replay is NOT triggered —
+    // geminiClient.initialize(), but UI replay is NOT triggered --
     // the SSE stream stays clean for clients that already have the
     // history rendered.
     expect(lastSessionMock?.replayHistory).not.toHaveBeenCalled();

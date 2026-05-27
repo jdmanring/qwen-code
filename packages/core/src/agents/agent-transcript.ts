@@ -10,11 +10,11 @@
  * Each background subagent produces two sibling files under
  * `<projectDir>/subagents/<sessionId>/`:
  *
- *   agent-<id>.jsonl       — canonical, ChatRecord-shaped event log;
+ *   agent-<id>.jsonl       -- canonical, ChatRecord-shaped event log;
  *                            the model reads this via read_file to check
  *                            in-flight progress and <output-file> in the
  *                            notification XML points here
- *   agent-<id>.meta.json   — sidecar with agentType, description, parent
+ *   agent-<id>.meta.json   -- sidecar with agentType, description, parent
  *                            session/agent IDs, createdAt
  */
 
@@ -119,7 +119,7 @@ export interface AgentMeta {
 }
 
 /**
- * Best-effort — a failed sidecar write must not break the agent launch path.
+ * Best-effort -- a failed sidecar write must not break the agent launch path.
  */
 export function writeAgentMeta(metaPath: string, meta: AgentMeta): void {
   try {
@@ -187,13 +187,13 @@ export function readLastTranscriptRecordUuidSync(
 }
 
 export interface AttachJsonlOptions {
-  /** Subagent identifier — populated on every record. */
+  /** Subagent identifier -- populated on every record. */
   agentId: string;
   /** Display name (subagent type), e.g. "explore". */
   agentName?: string;
   /** UI hint. */
   agentColor?: string;
-  /** Parent user-session UUID — recorded as `sessionId` on every record. */
+  /** Parent user-session UUID -- recorded as `sessionId` on every record. */
   sessionId: string;
   /** cwd at launch time, for resume context. */
   cwd: string;
@@ -202,7 +202,7 @@ export interface AttachJsonlOptions {
   /** Optional git branch at launch time. */
   gitBranch?: string;
   /**
-   * Launching prompt — recorded as the first `user`-role record so the
+   * Launching prompt -- recorded as the first `user`-role record so the
    * transcript is self-describing. Empty/omitted seeds nothing.
    */
   initialUserPrompt?: string;

@@ -33,7 +33,7 @@ const loggingSpanRecords = vi.hoisted(
     statuses: Array<{ code: number; message?: string }>;
     ended: boolean;
     /**
-     * Metadata passed to endLLMRequestSpan — captured so tests can assert
+     * Metadata passed to endLLMRequestSpan -- captured so tests can assert
      * that token counts, durationMs, success, error are forwarded correctly.
      */
     endMetadata?: {
@@ -700,7 +700,7 @@ describe('LoggingContentGenerator', () => {
 
   it('leaves ttftMs undefined when stream yields no user-visible chunks (Phase 4a)', async () => {
     // Stream emits only usage-metadata chunks (no text/functionCall/etc).
-    // ttftMs must stay undefined — TTFT is only meaningful when content arrives.
+    // ttftMs must stay undefined -- TTFT is only meaningful when content arrives.
     const streamFn = vi.fn().mockResolvedValue(
       (async function* () {
         yield createResponse('r1', 'test-model', [], {
@@ -1251,7 +1251,7 @@ describe('LoggingContentGenerator', () => {
     // The 5-min idle timeout would otherwise leave a contradictory pair of
     // signals during incident response: the span says "timed out / error"
     // while the api_response log says "success". We capture the idle-timeout
-    // callback through a setTimeout spy and invoke it manually — fake timers
+    // callback through a setTimeout spy and invoke it manually -- fake timers
     // interact poorly with async-generator iteration.
     const STREAM_IDLE_TIMEOUT_MS = 5 * 60_000;
     let idleCallback: (() => void) | undefined;
@@ -1283,14 +1283,14 @@ describe('LoggingContentGenerator', () => {
         vi.fn().mockResolvedValue(
           (async function* () {
             yield response1;
-            // Pause until the test releases us — meanwhile the idle timer
+            // Pause until the test releases us -- meanwhile the idle timer
             // fires and ends the span as failed.
             await gate;
           })(),
         ),
       );
       // Enable OpenAI logging so we can verify the post-loop OpenAI
-      // interaction log is also gated by spanEndedByTimeout — without this,
+      // interaction log is also gated by spanEndedByTimeout -- without this,
       // safelyLogOpenAIInteraction short-circuits unconditionally and the
       // skip behavior would go untested.
       const generator = new LoggingContentGenerator(wrapped, createConfig(), {
@@ -1316,7 +1316,7 @@ describe('LoggingContentGenerator', () => {
       expect(first.done).toBe(false);
       expect(idleCallback).toBeDefined();
 
-      // Fire the idle timeout — span should end as timed-out.
+      // Fire the idle timeout -- span should end as timed-out.
       idleCallback?.();
 
       const spanRecord = getStreamSpanRecord();
@@ -1332,7 +1332,7 @@ describe('LoggingContentGenerator', () => {
       expect(done.done).toBe(true);
 
       // Despite the stream completing cleanly afterwards, no success-flavored
-      // api_response or OpenAI-interaction log should have been emitted —
+      // api_response or OpenAI-interaction log should have been emitted --
       // the span's timeout state is the canonical signal.
       expect(logApiResponse).not.toHaveBeenCalled();
       expect(openaiLoggerInstance.logInteraction).not.toHaveBeenCalled();
@@ -1345,7 +1345,7 @@ describe('LoggingContentGenerator', () => {
     // Same gating as the success path: when the 5-min idle timeout already
     // closed the LLM span as failed, a downstream throw must not emit an
     // api_error log either, otherwise telemetry shows "span timed-out + log
-    // api_error" — the contradictory pair the timeout fix targets.
+    // api_error" -- the contradictory pair the timeout fix targets.
     const STREAM_IDLE_TIMEOUT_MS = 5 * 60_000;
     let idleCallback: (() => void) | undefined;
     const realSetTimeout = global.setTimeout;
@@ -1403,7 +1403,7 @@ describe('LoggingContentGenerator', () => {
       expect(first.done).toBe(false);
       expect(idleCallback).toBeDefined();
 
-      // Fire idle timeout — span is now closed as timed-out.
+      // Fire idle timeout -- span is now closed as timed-out.
       idleCallback?.();
 
       // Now release the stream and let it throw.
@@ -1414,7 +1414,7 @@ describe('LoggingContentGenerator', () => {
       expect(spanRecord.endMetadata?.error).toBe(
         'Stream span timed out (idle)',
       );
-      // Neither error-flavored telemetry path should fire — the span's
+      // Neither error-flavored telemetry path should fire -- the span's
       // timeout state is the canonical signal.
       expect(logApiError).not.toHaveBeenCalled();
       expect(openaiLoggerInstance.logInteraction).not.toHaveBeenCalled();

@@ -31,13 +31,13 @@ describe('ArenaSelectDialog', () => {
 
     stdin.write('p');
     await waitFor(() => {
-      expect(lastFrame()).toContain('Quick Preview · model-1');
+      expect(lastFrame()).toContain('Quick Preview  model-1');
     });
     expect(lastFrame()).toContain('Updated the auth implementation inline.');
 
     stdin.write('d');
     await waitFor(() => {
-      expect(lastFrame()).toContain('Detailed Diff · model-1');
+      expect(lastFrame()).toContain('Detailed Diff  model-1');
     });
     expect(lastFrame()).toContain('diff --git a/src/auth.ts b/src/auth.ts');
   });

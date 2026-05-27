@@ -1,5 +1,5 @@
 /**
- * Scenario Runner v3 — TypeScript Configuration-Driven Terminal Screenshots
+ * Scenario Runner v3 -- TypeScript Configuration-Driven Terminal Screenshots
  *
  * Configuration has only two core concepts: type (input) and capture (screenshot).
  * All intelligent waiting is handled automatically by the Runner.
@@ -14,9 +14,9 @@ import { dirname, resolve, isAbsolute, join } from 'node:path';
 import { execSync } from 'node:child_process';
 import { writeFileSync, unlinkSync, rmSync, existsSync } from 'node:fs';
 
-// ─────────────────────────────────────────────
-// Schema — Minimal
-// ─────────────────────────────────────────────
+// ---------------------------------------------
+// Schema -- Minimal
+// ---------------------------------------------
 
 export interface FlowStep {
   /** Input text (auto-press Enter, auto-wait for output to stabilize, auto-screenshot before/after) */
@@ -40,7 +40,7 @@ export interface FlowStep {
    * response is serialized behind a main streaming task). In such cases, the
    * idle detector triggers too early and the async response is missed.
    *
-   * Use `sleep` to bridge that gap — it inserts a fixed delay before the step
+   * Use `sleep` to bridge that gap -- it inserts a fixed delay before the step
    * runs, giving async operations time to complete. Optional; omitting it (or
    * setting it to 0) has no effect on existing scenarios.
    *
@@ -86,9 +86,9 @@ export interface ScenarioConfig {
   gif?: boolean;
 }
 
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 // Runner
-// ─────────────────────────────────────────────
+// ---------------------------------------------
 
 export interface RunResult {
   name: string;
@@ -144,9 +144,9 @@ export async function runScenario(
     rmSync(outputDir, { recursive: true });
   }
 
-  console.log(`\n${'═'.repeat(60)}`);
-  console.log(`▶ ${config.name}`);
-  console.log('═'.repeat(60));
+  console.log(`\n${''.repeat(60)}`);
+  console.log(` ${config.name}`);
+  console.log(''.repeat(60));
 
   const terminal = await TerminalCapture.create({
     cols: t.cols ?? 100,
@@ -160,17 +160,17 @@ export async function runScenario(
   });
 
   try {
-    // ── Spawn ──
+    // -- Spawn --
     const [command, ...args] = config.spawn;
     console.log(`  spawn: ${config.spawn.join(' ')}`);
     await terminal.spawn(command, args);
 
-    // ── Auto-wait for CLI readiness ──
-    console.log('  ⏳ waiting for ready...');
+    // -- Auto-wait for CLI readiness --
+    console.log('   waiting for ready...');
     await terminal.idle(1500, 30000);
-    console.log('  ✅ ready');
+    console.log('   ready');
 
-    // ── Execute flow ──
+    // -- Execute flow --
     let seq = 0; // Global screenshot sequence number
 
     for (let i = 0; i < config.flow.length; i++) {
@@ -178,7 +178,7 @@ export async function runScenario(
       const label = `[${i + 1}/${config.flow.length}]`;
 
       if (step.sleep && step.sleep > 0) {
-        console.log(`  ${label} 💤 sleep: ${step.sleep}ms`);
+        console.log(`  ${label}  sleep: ${step.sleep}ms`);
         await sleep(step.sleep);
       }
 
@@ -204,23 +204,23 @@ export async function runScenario(
           await sleep(100);
         }
 
-        // ── 01: Text input complete ──
+        // -- 01: Text input complete --
         seq++;
         const inputName = step.capture
           ? step.capture.replace(/\.png$/, '-01.png')
           : `${pad(seq)}-01.png`;
-        console.log(`  ${label} 📸 input:  ${inputName}`);
+        console.log(`  ${label}  input:  ${inputName}`);
         screenshots.push(await terminal.capture(inputName));
 
         if (autoEnter) {
-          // ── Auto-press Enter → Wait for stabilization → 02 screenshot ──
+          // -- Auto-press Enter -> Wait for stabilization -> 02 screenshot --
           await terminal.type('\n');
 
           // Streaming capture: capture multiple screenshots during execution
           if (step.streaming) {
             const { delayMs = 0, intervalMs, count } = step.streaming;
             console.log(
-              `         🎬 streaming capture: ${count} shots @ ${intervalMs}ms intervals${delayMs ? ` (delay ${delayMs}ms)` : ''}`,
+              `          streaming capture: ${count} shots @ ${intervalMs}ms intervals${delayMs ? ` (delay ${delayMs}ms)` : ''}`,
             );
 
             // Wait before starting captures (skip initial waiting phase)
@@ -240,7 +240,7 @@ export async function runScenario(
                 stableCount++;
                 if (stableCount >= 3) {
                   console.log(
-                    `         ⏹️  streaming stopped early: output stable for ${stableCount} intervals`,
+                    `           streaming stopped early: output stable for ${stableCount} intervals`,
                   );
                   break;
                 }
@@ -251,7 +251,7 @@ export async function runScenario(
               shotNum++;
               const shotName = `${pad(seq)}-streaming-${pad(shotNum)}.png`;
               console.log(
-                `         📸 streaming [${shotNum}/${count}]: ${shotName}`,
+                `          streaming [${shotNum}/${count}]: ${shotName}`,
               );
               const shot = await terminal.capture(shotName);
               streamingShots.push(shot);
@@ -259,20 +259,20 @@ export async function runScenario(
             }
 
             // Wait for completion after streaming captures
-            console.log(`         ⏳ waiting for output to settle...`);
+            console.log(`          waiting for output to settle...`);
             await terminal.idle(2000, 60000);
-            console.log(`         ✅ settled`);
+            console.log(`          settled`);
 
             const resultName = step.capture ?? `${pad(seq)}-02.png`;
-            console.log(`  ${label} 📸 result: ${resultName}`);
+            console.log(`  ${label}  result: ${resultName}`);
             screenshots.push(await terminal.capture(resultName));
           } else {
-            console.log(`         ⏳ waiting for output to settle...`);
+            console.log(`          waiting for output to settle...`);
             await terminal.idle(2000, 60000);
-            console.log(`         ✅ settled`);
+            console.log(`          settled`);
 
             const resultName = step.capture ?? `${pad(seq)}-02.png`;
-            console.log(`  ${label} 📸 result: ${resultName}`);
+            console.log(`  ${label}  result: ${resultName}`);
             screenshots.push(await terminal.capture(resultName));
           }
 
@@ -280,13 +280,13 @@ export async function runScenario(
           const isLastType = !config.flow.slice(i + 1).some((s) => s.type);
           if (isLastType || step.captureFull) {
             const fullName = step.captureFull ?? 'full-flow.png';
-            console.log(`  ${label} 📸 full:   ${fullName}`);
+            console.log(`  ${label}  full:   ${fullName}`);
             screenshots.push(await terminal.captureFull(fullName));
           }
         }
         // When not autoEnter, only captured before state, subsequent key steps take over interaction
       } else if (step.key) {
-        // ── key: Send special key presses (arrow keys, Tab, Enter, etc.) ──
+        // -- key: Send special key presses (arrow keys, Tab, Enter, etc.) --
         const keys = Array.isArray(step.key) ? step.key : [step.key];
         console.log(`  ${label} key: ${keys.join(', ')}`);
 
@@ -301,11 +301,11 @@ export async function runScenario(
         if (step.capture || step.captureFull) {
           seq++;
           if (step.capture) {
-            console.log(`  ${label} 📸 capture: ${step.capture}`);
+            console.log(`  ${label}  capture: ${step.capture}`);
             screenshots.push(await terminal.capture(step.capture));
           }
           if (step.captureFull) {
-            console.log(`  ${label} 📸 captureFull: ${step.captureFull}`);
+            console.log(`  ${label}  captureFull: ${step.captureFull}`);
             screenshots.push(await terminal.captureFull(step.captureFull));
           }
         }
@@ -313,30 +313,30 @@ export async function runScenario(
         // After key sequence ends (next step is not key), auto-add result + full screenshots
         const nextStep = config.flow[i + 1];
         if (!nextStep?.key) {
-          console.log(`         ⏳ waiting for output to settle...`);
+          console.log(`          waiting for output to settle...`);
           await terminal.idle(2000, 60000);
-          console.log(`         ✅ settled`);
+          console.log(`          settled`);
 
           const resultName = `${pad(seq)}-02.png`;
-          console.log(`  ${label} 📸 result: ${resultName}`);
+          console.log(`  ${label}  result: ${resultName}`);
           screenshots.push(await terminal.capture(resultName));
 
           // If this is the last interaction step, add full-length image
           const isLastType = !config.flow.slice(i + 1).some((s) => s.type);
           if (isLastType) {
-            console.log(`  ${label} 📸 full:   full-flow.png`);
+            console.log(`  ${label}  full:   full-flow.png`);
             screenshots.push(await terminal.captureFull('full-flow.png'));
           }
         }
       } else {
-        // ── Standalone screenshot step (no type/key) ──
+        // -- Standalone screenshot step (no type/key) --
         seq++;
         if (step.capture) {
-          console.log(`  ${label} 📸 capture: ${step.capture}`);
+          console.log(`  ${label}  capture: ${step.capture}`);
           screenshots.push(await terminal.capture(step.capture));
         }
         if (step.captureFull) {
-          console.log(`  ${label} 📸 captureFull: ${step.captureFull}`);
+          console.log(`  ${label}  captureFull: ${step.captureFull}`);
           screenshots.push(await terminal.captureFull(step.captureFull));
         }
       }
@@ -350,14 +350,14 @@ export async function runScenario(
       if (gifFrames.length > 0) {
         const gifPath = generateGif(gifFrames, outputDir);
         if (gifPath) {
-          console.log(`  🎞️  GIF: ${gifPath}`);
+          console.log(`    GIF: ${gifPath}`);
         }
       }
     }
 
     const duration = Date.now() - startTime;
     console.log(
-      `\n  ✅ ${config.name} — ${screenshots.length} screenshots, ${(duration / 1000).toFixed(1)}s`,
+      `\n   ${config.name} -- ${screenshots.length} screenshots, ${(duration / 1000).toFixed(1)}s`,
     );
     return {
       name: config.name,
@@ -368,7 +368,7 @@ export async function runScenario(
   } catch (err) {
     const duration = Date.now() - startTime;
     const msg = err instanceof Error ? err.message : String(err);
-    console.error(`\n  ❌ ${config.name} — ${msg}`);
+    console.error(`\n   ${config.name} -- ${msg}`);
     return {
       name: config.name,
       screenshots,
@@ -385,12 +385,12 @@ function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-/** Pad sequence number with zero: 1 → "01" */
+/** Pad sequence number with zero: 1 -> "01" */
 function pad(n: number): string {
   return String(n).padStart(2, '0');
 }
 
-/** Key name → PTY escape sequence */
+/** Key name -> PTY escape sequence */
 const KEY_MAP: Record<string, string> = {
   ArrowUp: '\x1b[A',
   ArrowDown: '\x1b[B',
@@ -440,7 +440,7 @@ function generateGif(frames: string[], outputDir: string): string | null {
     );
     return gifPath;
   } catch {
-    console.log('         ⚠️  GIF generation requires ffmpeg');
+    console.log('           GIF generation requires ffmpeg');
     return null;
   } finally {
     try {

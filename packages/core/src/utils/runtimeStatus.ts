@@ -182,7 +182,7 @@ export async function readRuntimeStatus(
 /**
  * Remove the runtime status file at `filePath`, if present.
  *
- * Intentionally **not** called on `/quit` — when the qwen-code process
+ * Intentionally **not** called on `/quit` -- when the qwen-code process
  * exits, an external observer's PID-liveness check already detects the
  * missing process, so a stale record is harmless. This helper exists
  * for the narrow case where the **same PID continues running** but

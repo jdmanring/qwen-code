@@ -57,7 +57,7 @@ export const DiffStatsDisplay: React.FC<DiffStatsDisplayProps> = ({
         <Box>
           <Text color={theme.text.secondary}>
             {'  '}
-            {t('…and {{hidden}} more (showing first {{shown}})', {
+            {t('...and {{hidden}} more (showing first {{shown}})', {
               hidden: String(hiddenCount),
               shown: String(rows.length),
             })}

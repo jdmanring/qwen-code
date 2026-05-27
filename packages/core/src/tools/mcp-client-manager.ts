@@ -54,7 +54,7 @@ const DEFAULT_HEALTH_CONFIG: MCPHealthMonitorConfig = {
  * drop below `MCP_BUDGET_REARM_FRACTION` first.
  *
  * Picked 0.75 to mirror PR 10's `slow_client_warning`
- * (`eventBus.ts:WARN_THRESHOLD_RATIO`) — same rationale: "warning"
+ * (`eventBus.ts:WARN_THRESHOLD_RATIO`) -- same rationale: "warning"
  * fires before "error" with enough headroom for the operator to act.
  */
 export const MCP_BUDGET_WARN_FRACTION = 0.75 as const;
@@ -62,7 +62,7 @@ export const MCP_BUDGET_WARN_FRACTION = 0.75 as const;
 /**
  * Lower threshold for the hysteresis state machine (PR 14b). After a
  * warning fires, the ratio must drop below this fraction before the
- * state machine re-arms — so a server that flaps just above 0.75
+ * state machine re-arms -- so a server that flaps just above 0.75
  * doesn't produce a flood of identical warnings. Mirrors PR 10's
  * `eventBus.ts:WARN_RESET_RATIO` (0.375 = half of the warn fraction).
  */
@@ -71,14 +71,14 @@ export const MCP_BUDGET_REARM_FRACTION = 0.375 as const;
 /**
  * Budget enforcement mode for MCP client guardrails (issue #4175 PR 14).
  *
- * `off` — no accounting-driven enforcement (default when no budget is
+ * `off` -- no accounting-driven enforcement (default when no budget is
  *   configured). `getMcpClientAccounting()` still works as pure
  *   observability; slot reservation is a no-op.
- * `warn` — measure-only. Reserved slots track the configured set even
+ * `warn` -- measure-only. Reserved slots track the configured set even
  *   beyond the budget so operators see `liveCount > budget` in the
  *   snapshot. No connect is refused. Snapshot consumers render a
  *   warning cell when `liveCount >= 0.75 * budget`.
- * `enforce` — hard cap. Connects beyond the budget are refused, the
+ * `enforce` -- hard cap. Connects beyond the budget are refused, the
  *   per-server cell shows `errorKind: 'budget_exhausted'`, and the
  *   server name lands in `refusedServerNames`. Refusal is deterministic
  *   by `Object.entries(servers)` declaration order.
@@ -88,7 +88,7 @@ export type McpBudgetMode = 'enforce' | 'warn' | 'off';
 export interface McpBudgetConfig {
   /**
    * Cap on live MCP clients **per ACP session** (PR 14 v1; R4 review
-   * scope correction — see `acpAgent.newSessionConfig` constructs a
+   * scope correction -- see `acpAgent.newSessionConfig` constructs a
    * fresh `Config`/`McpClientManager` per session, so each session
    * enforces its own copy of the cap independently). Wave 5 PR 23
    * shared MCP pool will graduate this to per-workspace.
@@ -101,7 +101,7 @@ export interface McpBudgetConfig {
    * PR 14b: optional callback invoked by the manager when a budget
    * threshold is crossed (`'budget_warning'`) or one or more servers
    * are refused during a discovery pass (`'refused_batch'`). The
-   * manager stays decoupled from ACP wire types — the callback is
+   * manager stays decoupled from ACP wire types -- the callback is
    * provided by `acpAgent.newSessionConfig` and translates each event
    * into a `connection.extNotification(...)` call carrying the
    * sessionId. Absent in `off` mode (state machine is dormant).
@@ -173,7 +173,7 @@ export interface McpClientAccounting {
   total: number;
   /** Live client count split by transport family. */
   byTransport: Record<McpTransportKind, number>;
-  /** stdio + websocket — the only transports that spawn an OS process. */
+  /** stdio + websocket -- the only transports that spawn an OS process. */
   subprocessCount: number;
   /** Server names currently holding a budget slot (in or over the cap). */
   reservedSlots: string[];
@@ -195,7 +195,7 @@ export class BudgetExhaustedError extends Error {
    * Number of slots currently reserved (== `reservedSlots.size` at the
    * time of the refusal). PR 14 fix (review #4247 wenshao S6): renamed
    * from `liveCount` because `reservedSlots` tracks reserved server
-   * NAMES, not `MCPServerStatus.CONNECTED` clients — a reserved-but-
+   * NAMES, not `MCPServerStatus.CONNECTED` clients -- a reserved-but-
    * disconnected server still consumes a slot, and that's the
    * accurate quantity blocking this new server from getting in.
    * `getMcpClientAccounting().total` would have been the genuine
@@ -217,8 +217,8 @@ export class BudgetExhaustedError extends Error {
 
 /**
  * Map an `MCPServerConfig` to its transport family. Aligned with the
- * detection order in `mcp-client.ts:createTransport` (sdk → httpUrl
- * → url → command) with ONE forward-looking exception: `tcp` is
+ * detection order in `mcp-client.ts:createTransport` (sdk -> httpUrl
+ * -> url -> command) with ONE forward-looking exception: `tcp` is
  * mapped here to `websocket` matching the field's declared intent on
  * `MCPServerConfig`, but `createTransport` does NOT yet construct a
  * websocket transport. A config carrying both `tcp` and `command`
@@ -228,12 +228,12 @@ export class BudgetExhaustedError extends Error {
  * accurate-by-vacancy today (no real websocket subprocesses exist
  * yet) and will need revisiting if a websocket transport ships.
  * Tracked: PR 14b / future core decision (see PR #4247 thread for
- * Copilot finding #8 + wenshao P2 line 147 — defer pending direction
+ * Copilot finding #8 + wenshao P2 line 147 -- defer pending direction
  * on (a) implement WS in createTransport vs (b) drop `tcp` from
  * `MCPServerConfig` + both mappers).
  *
  * `sdk` is checked first because `SDK_MCP_SERVER_FIELDS` may coexist
- * with a placeholder `command` — without the sdk-first order, an
+ * with a placeholder `command` -- without the sdk-first order, an
  * in-process SDK server would mis-report as `stdio`.
  */
 export function mcpTransportOf(config: MCPServerConfig): McpTransportKind {
@@ -249,12 +249,12 @@ export function mcpTransportOf(config: MCPServerConfig): McpTransportKind {
  * Resolve budget config from env vars when the constructor caller
  * doesn't pass one. Daemon-mode (`qwen serve`) sets these when
  * spawning the `qwen --acp` child; standalone `qwen` invocations
- * leave them unset and get `{ budgetMode: 'off' }` — the historical
+ * leave them unset and get `{ budgetMode: 'off' }` -- the historical
  * behavior, no enforcement.
  *
- * `QWEN_SERVE_MCP_CLIENT_BUDGET` — positive integer; non-numeric /
+ * `QWEN_SERVE_MCP_CLIENT_BUDGET` -- positive integer; non-numeric /
  *   zero / negative / NaN are silently ignored (treated as unset).
- * `QWEN_SERVE_MCP_BUDGET_MODE` — `enforce|warn|off`. Defaults to
+ * `QWEN_SERVE_MCP_BUDGET_MODE` -- `enforce|warn|off`. Defaults to
  *   `warn` when a budget is set, `off` otherwise.
  */
 function readBudgetFromEnv(): McpBudgetConfig {
@@ -270,8 +270,8 @@ function readBudgetFromEnv(): McpBudgetConfig {
       // like `QWEN_SERVE_MCP_CLIENT_BUDGET=abc` previously fell
       // through silently to "no budget" with zero indication. The
       // CLI parent (`commands/serve.ts` + `runQwenServe.ts`)
-      // validates and throws, but the ACP child process — where
-      // this function runs — has no such validation. Surface a
+      // validates and throws, but the ACP child process -- where
+      // this function runs -- has no such validation. Surface a
       // boot breadcrumb so operators see the misconfiguration in
       // journald / docker logs.
       process.stderr.write(
@@ -299,17 +299,17 @@ function readBudgetFromEnv(): McpBudgetConfig {
     budgetMode = clientBudget === undefined ? 'off' : 'warn';
   }
   // PR 14 fix (review #4247 wenshao S4 + R8 #2): mode-without-budget
-  // downgrade. Originally only `enforce` got downgraded — but `warn`
+  // downgrade. Originally only `enforce` got downgraded -- but `warn`
   // mode without a budget threshold is equally meaningless: nothing
   // actionable can ever fire (no `liveCount >= 0.75 * budget`
   // comparison can be true when budget is undefined). Downgrading
   // BOTH to `off` removes the comment-vs-code mismatch in
   // `emitBudgetTelemetry` (which previously claimed
-  // `mode !== 'off' ⇒ clientBudget defined` — true for enforce,
+  // `mode !== 'off'  clientBudget defined` -- true for enforce,
   // false for warn until this fix).
   //
   // R9 #7: emit a stderr breadcrumb when the downgrade fires.
-  // Pre-fix the downgrade was silent — operator sets
+  // Pre-fix the downgrade was silent -- operator sets
   // `QWEN_SERVE_MCP_BUDGET_MODE=enforce` in a Docker Compose / k8s
   // env without the matching budget, daemon boots happy, snapshot
   // shows `budgetMode: 'off'`, and enforcement is silently
@@ -365,7 +365,7 @@ export class McpClientManager {
    * slot was freshly reserved (not `'already_held'`) by an
    * in-flight `discoverMcpToolsForServerInternal` call. Read by
    * `runWithDiscoveryTimeout`'s timeout handler to decide whether
-   * to release the slot on hard timeout — fresh reservations
+   * to release the slot on hard timeout -- fresh reservations
    * release (server never connected, slot shouldn't permanently
    * block other servers); `'already_held'` reconnects keep their
    * slot (operator's previously-healthy server shouldn't be
@@ -373,7 +373,7 @@ export class McpClientManager {
    *
    * Lifetime: `add` after `tryReserveSlot` returns `'reserved'`
    * with the `.has` guard, `delete` in success / catch / finally
-   * cleanup. Idempotent — multiple deletes are no-ops.
+   * cleanup. Idempotent -- multiple deletes are no-ops.
    */
   private readonly freshReservations = new Set<string>();
   /**
@@ -393,7 +393,7 @@ export class McpClientManager {
    * Lifetime mirrors `lastRefusedServerNames`: reset at the start of
    * each `discoverAllMcpTools*` pass + on `stop()` + on
    * `dropRefusalEntry` (operator removed/disconnected the server).
-   * NOT cleared on `emitRefusedBatchIfAny` — the snapshot-visible
+   * NOT cleared on `emitRefusedBatchIfAny` -- the snapshot-visible
    * refusal state survives between passes per the PR 14 contract,
    * so a snapshot taken between passes still reports the last
    * refusal set with correct transport metadata. The push-event
@@ -430,14 +430,14 @@ export class McpClientManager {
    * `finally`. While > 0, `emitRefusedBatchIfAny` short-circuits so
    * per-server refusals queue up; the bulk pass's own end-of-pass
    * call (which runs AFTER `bulkPassDepth--`) drains the queue once
-   * as a coalesced batch — preserving the documented "one batch per
+   * as a coalesced batch -- preserving the documented "one batch per
    * pass" contract regardless of which inner code path enqueued the
    * refusals (`discoverMcpToolsForServerInternal` from incremental,
    * inline `refuseAndLog` from legacy bulk).
    *
    * Counter rather than boolean to defend against re-entry (a future
-   * code path that nests bulk passes — e.g. a discovery hook that
-   * itself triggers reload — wouldn't accidentally clear the flag
+   * code path that nests bulk passes -- e.g. a discovery hook that
+   * itself triggers reload -- wouldn't accidentally clear the flag
    * mid-outer-pass).
    */
   private bulkPassDepth = 0;
@@ -450,10 +450,10 @@ export class McpClientManager {
    * that translates events into `connection.extNotification`.
    *
    * The setter exists because the production construction path
-   * (`ToolRegistry` constructor → `loadCliConfig`) doesn't expose a
+   * (`ToolRegistry` constructor -> `loadCliConfig`) doesn't expose a
    * hook to thread the callback through. acpAgent registers the
    * callback after `loadCliConfig` returns but BEFORE
-   * `config.initialize()` fires the first discovery — so no events
+   * `config.initialize()` fires the first discovery -- so no events
    * are missed.
    */
   private onBudgetEvent?: (event: McpBudgetEvent) => void;
@@ -476,7 +476,7 @@ export class McpClientManager {
     // Tests inject `budgetConfig` directly; production reads env vars
     // set by `qwen serve --mcp-client-budget=N --mcp-budget-mode=X`
     // when spawning the ACP child. Standalone `qwen` invocations
-    // leave both unset and get `mode: 'off'` — the pre-PR-14 default.
+    // leave both unset and get `mode: 'off'` -- the pre-PR-14 default.
     const resolved = budgetConfig ?? readBudgetFromEnv();
     let resolvedMode = resolved.budgetMode;
     // PR 14 fix (review #4247 wenshao R8 #5 + R10 line 357): mirror
@@ -489,7 +489,7 @@ export class McpClientManager {
     //
     // R10 line 357: emit the same stderr breadcrumb the env-var
     // path uses. Pre-R10 the env-var path logged on downgrade but
-    // this constructor path was silent — same operator-visibility
+    // this constructor path was silent -- same operator-visibility
     // failure mode (operator only sees `budgetMode: 'off'` after
     // the fact via the snapshot). Now both paths surface the
     // misconfiguration at boot, so a future caller that bypasses
@@ -510,7 +510,7 @@ export class McpClientManager {
     this.budgetMode = resolvedMode;
     // PR 14b: capture the optional event callback only when enforcement
     // is actually live. In `off` mode the state machine never runs, so
-    // a stray callback would never fire — stash `undefined` to make
+    // a stray callback would never fire -- stash `undefined` to make
     // that invariant visible at the field level.
     this.onBudgetEvent =
       resolvedMode === 'off' ? undefined : resolved.onBudgetEvent;
@@ -522,9 +522,9 @@ export class McpClientManager {
    * interleave a second connect past the cap at any `await` boundary.
    *
    * Returns:
-   *   `reserved`     — slot newly held (or `off`-mode no-op)
-   *   `already_held` — slot was already reserved (reconnect / dup)
-   *   `refused`      — `enforce` mode and the cap is full
+   *   `reserved`     -- slot newly held (or `off`-mode no-op)
+   *   `already_held` -- slot was already reserved (reconnect / dup)
+   *   `refused`      -- `enforce` mode and the cap is full
    */
   private tryReserveSlot(
     serverName: string,
@@ -539,7 +539,7 @@ export class McpClientManager {
     ) {
       return 'refused';
     }
-    // `warn` mode (and `enforce` under cap) — track in the configured set.
+    // `warn` mode (and `enforce` under cap) -- track in the configured set.
     this.reservedSlots.add(serverName);
     // PR 14b fix #4 (codex review round 1): drive the hysteresis state
     // machine on every upward slot mutation so a 75% crossing during
@@ -569,7 +569,7 @@ export class McpClientManager {
 
   /**
    * Snapshot the manager's MCP accounting for the daemon's read-only
-   * `GET /workspace/mcp` route. Cheap to call — iterates `this.clients`
+   * `GET /workspace/mcp` route. Cheap to call -- iterates `this.clients`
    * once and constructs a fresh struct each time so callers can mutate
    * the returned arrays without affecting internal state.
    *
@@ -621,7 +621,7 @@ export class McpClientManager {
    * `config.initialize()` so the callback is wired before the first
    * discovery pass fires.
    *
-   * No-op in `off` mode — the state machine never runs, so a callback
+   * No-op in `off` mode -- the state machine never runs, so a callback
    * here would never fire. Tests can pass a callback at construction
    * via `budgetConfig.onBudgetEvent` instead, which avoids this
    * setter path.
@@ -720,10 +720,10 @@ export class McpClientManager {
    * telemetry was duplicated verbatim in `discoverAllMcpTools` and
    * `discoverAllMcpToolsIncremental`. Centralized here so future
    * field additions to `mcp_budget_decision` happen in one place.
-   * `off` mode is a no-op — operators who never set a budget don't
+   * `off` mode is a no-op -- operators who never set a budget don't
    * pollute the startup-event sink.
    *
-   * Invariant (post R8 #2): `mode !== 'off'` ⇒ `clientBudget` was
+   * Invariant (post R8 #2): `mode !== 'off'`  `clientBudget` was
    * resolved. Both `readBudgetFromEnv` AND the constructor downgrade
    * `enforce`/`warn`-without-budget to `off` so neither call site can
    * leave a budgetless mode reaching this telemetry path.
@@ -751,7 +751,7 @@ export class McpClientManager {
    *     `warnArmed` stays at its initial `true`, never read or
    *     mutated. The constructor's `onBudgetEvent` capture is
    *     `undefined` in `off` mode, so an accidental call wouldn't
-   *     fire anyway — defense in depth.
+   *     fire anyway -- defense in depth.
    *   - Trigger is `reservedSlots.size / clientBudget`, NOT
    *     `liveCount / clientBudget`. Reservations include in-flight
    *     connects and survive transient `disconnectServer` calls,
@@ -766,7 +766,7 @@ export class McpClientManager {
     const ratio = this.reservedSlots.size / this.clientBudget;
     if (this.warnArmed && ratio >= MCP_BUDGET_WARN_FRACTION) {
       this.warnArmed = false;
-      // PR 14b fix #1 (codex round 3): visibility for oncall —
+      // PR 14b fix #1 (codex round 3): visibility for oncall --
       // pre-fix `evaluateBudgetState` had ZERO log output, so
       // operators couldn't distinguish "events emitted but
       // dropped downstream" from "events never emitted." Mirrors
@@ -789,7 +789,7 @@ export class McpClientManager {
       this.warnArmed = true;
       // PR 14b fix #1 (codex round 3): re-arm transitions are silent
       // by design (no SDK event), but operators dashboarding budget
-      // pressure benefit from knowing the manager has re-armed —
+      // pressure benefit from knowing the manager has re-armed --
       // the next 75% crossing will fire a fresh warning.
       debugLogger.info(
         `MCP budget warning re-armed (ratio=${ratio.toFixed(2)}, ` +
@@ -809,14 +809,14 @@ export class McpClientManager {
    * the call short-circuits without firing or clearing.
    *
    * What gets cleared on a successful emit:
-   * - `pendingRefusalNames` — drained, so a follow-up
+   * - `pendingRefusalNames` -- drained, so a follow-up
    *   `emitRefusedBatchIfAny` in the same pass is a no-op.
    *
    * What does NOT get cleared on emit (codex round 3 doc fix):
-   * - `lastRefusedServerNames` — snapshot-visible, must survive
+   * - `lastRefusedServerNames` -- snapshot-visible, must survive
    *   between passes so `GET /workspace/mcp` reports the last
    *   refusal set even after the push event fired.
-   * - `lastRefusedTransports` — sidecar of the names list, same
+   * - `lastRefusedTransports` -- sidecar of the names list, same
    *   lifetime: reset at start of each pass / `stop()` /
    *   `dropRefusalEntry`, NOT on emit.
    *
@@ -829,7 +829,7 @@ export class McpClientManager {
     // a bulk pass is active. The bulk pass's terminal emit (after
     // `bulkPassDepth--` in its `finally`) will drain the queue once.
     // This preserves the documented "one batch per `discoverAllMcpTools*`
-    // pass" contract — pre-fix, every per-server refusal inside an
+    // pass" contract -- pre-fix, every per-server refusal inside an
     // incremental pass produced its own length-1 batch, breaking the
     // contract for the most common refusal scenario.
     if (this.bulkPassDepth > 0) return;
@@ -848,7 +848,7 @@ export class McpClientManager {
       // on, not by reverse-engineering missing telemetry.
       debugLogger.warn(
         `MCP guardrail: dropped ${this.pendingRefusalNames.size} ` +
-          `pending refusal(s) — invariant violation ` +
+          `pending refusal(s) -- invariant violation ` +
           `(budget=${this.clientBudget}, mode=${this.budgetMode}). ` +
           `This branch should be unreachable; investigate the ` +
           `refuseAndLog call sites.`,
@@ -866,15 +866,15 @@ export class McpClientManager {
     );
     if (namesInOrder.length === 0) {
       // The pending set is non-empty but none of the names appear in
-      // `lastRefusedServerNames` — shouldn't happen given `refuseAndLog`
+      // `lastRefusedServerNames` -- shouldn't happen given `refuseAndLog`
       // adds to both. Drain defensively to avoid a stuck queue.
       //
       // PR 14b fix (codex round 6): same rationale as the
-      // budget/mode invariant branch above — surface unreachable
+      // budget/mode invariant branch above -- surface unreachable
       // states so future regressions are diagnosable.
       debugLogger.warn(
         `MCP guardrail: dropped ${this.pendingRefusalNames.size} ` +
-          `pending refusal(s) — names absent from ` +
+          `pending refusal(s) -- names absent from ` +
           `lastRefusedServerNames (the two writers in refuseAndLog ` +
           `are paired; reaching this branch indicates a sync gap).`,
       );
@@ -900,13 +900,13 @@ export class McpClientManager {
   /**
    * PR 14b fix (codex round 3): single boundary for `onBudgetEvent`
    * invocation. The manager's state machine and refused-batch
-   * coalescer both call this — the production ACP adapter wraps its
+   * coalescer both call this -- the production ACP adapter wraps its
    * extNotification in `void ... .catch()` so async failures don't
    * leak, but the callback ITSELF could throw synchronously (a future
    * test fixture, a buggy adapter, an unexpected serialization
    * crash). Without this guard, the throw would propagate into MCP
    * discovery / `readResource` / `disconnectServer` paths and abort
-   * unrelated work — budget push events are best-effort telemetry,
+   * unrelated work -- budget push events are best-effort telemetry,
    * NEVER critical-path.
    *
    * Logs at `debug` level so production daemons stay quiet on the
@@ -954,7 +954,7 @@ export class McpClientManager {
       this.discoveryState = MCPDiscoveryState.IN_PROGRESS;
       // Reset per-pass refusal log so a snapshot taken after this pass
       // reflects THIS pass's refusals, not a stale one. Reservations
-      // (this.reservedSlots) persist across passes — they're keyed by
+      // (this.reservedSlots) persist across passes -- they're keyed by
       // server name, which is the operator's intent unit.
       this.lastRefusedServerNames = [];
       // PR 14b: keep the transport sidecar aligned with the names list,
@@ -1014,20 +1014,20 @@ export class McpClientManager {
             //
             // Slot bookkeeping in this bulk path is partially redundant
             // with `await this.stop()` at the top of
-            // `discoverAllMcpTools` (line ~320) — the next bulk run
+            // `discoverAllMcpTools` (line ~320) -- the next bulk run
             // wipes `reservedSlots` regardless. But the SAME catch
             // ALSO needs to handle the transport (see below): the
             // client object held by `clients.delete(name)` only had
             // its tracking reference removed, not its underlying
             // transport closed. Leaving the orphan transport alive
             // would leak the stdio child / WebSocket / HTTP socket
-            // for the rest of the process — `stop()` can't clean it
+            // for the rest of the process -- `stop()` can't clean it
             // because we just removed it from the map.
             //
             // The per-server reconnect path
             // (`discoverMcpToolsForServerInternal`) keeps the slot
             // when `weReservedSlot === false` so health-monitor retry
-            // doesn't have to compete for capacity — different
+            // doesn't have to compete for capacity -- different
             // lifecycle, different contract. Bulk path always releases
             // because every server is "fresh" here (preceded by
             // stop()).
@@ -1065,10 +1065,10 @@ export class McpClientManager {
       // emit so `emitRefusedBatchIfAny` actually fires (its early-
       // return guard reads `bulkPassDepth`). The warning event fires
       // inline from `tryReserveSlot` / `releaseSlotName` whenever a
-      // slot mutation crosses the 75% threshold — codex review fix
-      // #4 — so no terminal `evaluateBudgetState` is needed here.
+      // slot mutation crosses the 75% threshold -- codex review fix
+      // #4 -- so no terminal `evaluateBudgetState` is needed here.
       // Refused batch is the only deferred emit (coalesced over the
-      // whole pass — fix #3 makes this a strict invariant).
+      // whole pass -- fix #3 makes this a strict invariant).
       this.bulkPassDepth--;
       this.emitRefusedBatchIfAny();
     }
@@ -1142,7 +1142,7 @@ export class McpClientManager {
     // could be brought online later under `enforce` mode and exceed the
     // cap. True reconnect against a held slot returns `'already_held'`
     // and falls through unchanged; only a fresh attempt against a server
-    // without a reservation can be refused. Best-effort semantics — log
+    // without a reservation can be refused. Best-effort semantics -- log
     // the refusal and return without creating an `McpClient`; the caller
     // observes the absence via `getStatus()` like any other discovery
     // failure.
@@ -1159,7 +1159,7 @@ export class McpClientManager {
     }
     // PR 14 fix (review #4247 wenshao R3-R4): track whether THIS call
     // freshly reserved the slot. Used in the connect-failure catch
-    // below — only the fresh-reserve case releases the slot; a true
+    // below -- only the fresh-reserve case releases the slot; a true
     // reconnect (`'already_held'`) keeps its existing reservation so
     // health-monitor retry doesn't have to compete for capacity.
     //
@@ -1167,7 +1167,7 @@ export class McpClientManager {
     // reservation from an `off`-mode no-op: in `off` mode
     // `tryReserveSlot` returns `'reserved'` WITHOUT adding to the
     // set (no enforcement), so we don't want to fire cleanup for
-    // a slot we never actually took — that would unnecessarily
+    // a slot we never actually took -- that would unnecessarily
     // remove the failed client entry and break the
     // health-monitor-driven retry loop (regression test:
     // "should restore health checks after failed server
@@ -1177,8 +1177,8 @@ export class McpClientManager {
     // PR 14 fix (review #4247 wenshao R8 #4): mark this name in
     // `freshReservations` so the `runWithDiscoveryTimeout` timeout
     // handler can distinguish fresh-reservation timeouts (release
-    // the slot — never connected, shouldn't block others) from
-    // `'already_held'` reconnect timeouts (keep the slot — operator's
+    // the slot -- never connected, shouldn't block others) from
+    // `'already_held'` reconnect timeouts (keep the slot -- operator's
     // previously-healthy server shouldn't be demoted by a transient
     // timeout). Cleared in success / catch / finally below so the
     // marker only spans the current discoverMcpToolsForServerInternal
@@ -1239,7 +1239,7 @@ export class McpClientManager {
       // PR 14b fix #4: hysteresis is driven inline by
       // `tryReserveSlot` (upward) and `releaseSlotName` (downward).
       // The standalone `evaluateBudgetState` that used to live here
-      // is now redundant — the reservation that opened this branch
+      // is now redundant -- the reservation that opened this branch
       // already fired the warning if it crossed 75%.
     } catch (error) {
       // PR 14 fix (review #4247 wenshao R3 line 546): two-mode
@@ -1254,20 +1254,20 @@ export class McpClientManager {
       //     `discoverAllMcpToolsIncremental` pass will re-reserve
       //     if capacity is available.
       //   - `weReservedSlot === false` (reconnect against an
-      //     `'already_held'` slot — e.g. health-monitor retry,
+      //     `'already_held'` slot -- e.g. health-monitor retry,
       //     `/mcp reconnect` against a stable-but-momentarily-flaky
       //     server): KEEP the slot. The original successful connect
       //     established operator intent + capacity reservation; a
       //     transient reconnect hiccup shouldn't lose that.
       //
-      // Round 3 documented "always keep" — corrected here per
+      // Round 3 documented "always keep" -- corrected here per
       // wenshao R3 P3 line 390 + R4 line 546/639: align with
       // `discoverAllMcpTools` (bulk) catch and `readResource`
       // (lazy spawn) catch. All three paths now use the same
       // weReserved-driven cleanup.
       if (weReservedSlot) {
         // PR 14 fix (review #4247 wenshao R7 line 634): transport
-        // leak — when `connect()` succeeded (transport established)
+        // leak -- when `connect()` succeeded (transport established)
         // but `discover()` later threw, deleting the client without
         // calling `disconnect()` left the stdio child process /
         // socket alive until Node exits. Best-effort disconnect
@@ -1292,7 +1292,7 @@ export class McpClientManager {
     } finally {
       this.startHealthCheck(serverName);
       this.eventEmitter?.emit('mcp-client-update', this.clients);
-      // R8 #4: clear the fresh-reservation marker — this in-flight
+      // R8 #4: clear the fresh-reservation marker -- this in-flight
       // call has settled (success, catch, OR a timeout that already
       // ran its handler). Idempotent on the timeout-already-deleted
       // case.
@@ -1332,7 +1332,7 @@ export class McpClientManager {
     this.reservedSlots.clear();
     this.freshReservations.clear();
     this.lastRefusedServerNames = [];
-    // PR 14b: post-`stop` the manager is fresh — clear refusal
+    // PR 14b: post-`stop` the manager is fresh -- clear refusal
     // transport sidecar, drain the unsent-refusal queue, and re-arm
     // the warning state machine so the next discovery pass that
     // crosses 75% fires anew.
@@ -1368,7 +1368,7 @@ export class McpClientManager {
     // PR 14: explicit operator-driven disconnect releases the budget
     // slot AND drops the entry from the per-pass refusal log. Outside
     // the `if (client)` guard because a budget-refused server has NO
-    // `McpClient` instance — but operator intent ("stop tracking this
+    // `McpClient` instance -- but operator intent ("stop tracking this
     // server") still demands the records be cleared so a subsequent
     // snapshot doesn't keep tagging it as `budget_exhausted`. The
     // internal reconnect path (`discoverMcpToolsForServerInternal`)
@@ -1547,7 +1547,7 @@ export class McpClientManager {
     );
 
     // PR 14b fix #3 (codex review round 1): suppress per-server
-    // length-1 batches inside this incremental pass — the
+    // length-1 batches inside this incremental pass -- the
     // `discoverMcpToolsForServerInternal` calls below would otherwise
     // emit one batch per refused server, breaking the documented
     // "one batch per pass" contract. The terminal
@@ -1574,7 +1574,7 @@ export class McpClientManager {
 
       // Tracks the first successful server discover so we can emit the
       // `mcp_first_tool_registered` event exactly once. "First successful
-      // discover" rather than a tool-count delta — simpler and aligns with the
+      // discover" rather than a tool-count delta -- simpler and aligns with the
       // user-perceived metric ("first MCP server is ready").
       let firstToolEventFired = false;
 
@@ -1587,10 +1587,10 @@ export class McpClientManager {
       // reservation pass so freed slots are visible to `tryReserveSlot`.
       // Scenario: budget=2, currently `{a, b}` reserved, new config
       // `{a, c}`. Pre-fix order refused `c` because `b`'s slot was only
-      // freed after the new-server loop. Now `b` is removed first →
-      // reservedSlots={a} → `c` reservation succeeds. Disabled-mid-session
+      // freed after the new-server loop. Now `b` is removed first ->
+      // reservedSlots={a} -> `c` reservation succeeds. Disabled-mid-session
       // removals stay inline (below) because they also release slots
-      // via `removeServer`'s `reservedSlots.delete` — same call, just
+      // via `removeServer`'s `reservedSlots.delete` -- same call, just
       // reached from a different branch.
       for (const name of currentServerNames) {
         if (!newServerNames.has(name)) {
@@ -1609,8 +1609,8 @@ export class McpClientManager {
         if (cliConfig.isMcpServerDisabled(name)) {
           debugLogger.debug(`Skipping disabled MCP server: ${name}`);
           // If the server was previously enabled and got connected, we now
-          // need to tear it down — otherwise its client, registered tools
-          // and health checks linger after an enabled→disabled mid-session
+          // need to tear it down -- otherwise its client, registered tools
+          // and health checks linger after an enabled->disabled mid-session
           // transition (e.g. via `/mcp disable <name>`). `removeServer`
           // disconnects, drops the client entry, removes tools from the
           // registry, stops the health check, and removes the global
@@ -1627,7 +1627,7 @@ export class McpClientManager {
           // `discoverMcpToolsForServerInternal` ALSO does `tryReserveSlot`
           // (added in R1 fix #1). With BOTH sites reserving, the
           // reservation lifecycle didn't align with the timeout
-          // cleanup site — `runWithDiscoveryTimeout`'s timeout handler
+          // cleanup site -- `runWithDiscoveryTimeout`'s timeout handler
           // could release the slot mid-flight while the inner
           // `connect()` later resolves successfully, leaving a
           // CONNECTED client with NO reservation. Next pass admits
@@ -1635,10 +1635,10 @@ export class McpClientManager {
           // and `enforce` mode silently exceeds the cap.
           //
           // Fix: delete the pre-reservation. `discoverMcpToolsForServerInternal`
-          // owns the reservation lifecycle end-to-end (reserve →
-          // try-catch around connect → release on weReservedSlot
-          // failure path → cleared by timeout handler if it fires).
-          // Refusal still happens — just inside the inner call. The
+          // owns the reservation lifecycle end-to-end (reserve ->
+          // try-catch around connect -> release on weReservedSlot
+          // failure path -> cleared by timeout handler if it fires).
+          // Refusal still happens -- just inside the inner call. The
           // operator-visible behavior is identical; only the race is
           // closed.
           serversToUpdate.push(name);
@@ -1655,7 +1655,7 @@ export class McpClientManager {
       // Update only the servers that need it. Each per-server discover is
       // wrapped in a discovery-only timeout (stdio default 30s, remote 5s,
       // per-server override via `discoveryTimeoutMs`). Tool-call timeout is
-      // intentionally left alone — a long-running tool invocation is not a
+      // intentionally left alone -- a long-running tool invocation is not a
       // startup pathology.
       const discoveryPromises = serversToUpdate.map(async (name) => {
         const serverConfig = servers[name];
@@ -1664,7 +1664,7 @@ export class McpClientManager {
             this.discoverMcpToolsForServer(name, cliConfig),
           );
           // `discoverMcpToolsForServerInternal` swallows connect/discover
-          // errors (best-effort discovery semantics — see its catch block),
+          // errors (best-effort discovery semantics -- see its catch block),
           // so the try here resolves even for failed servers. Only the
           // timeout path reaches the catch below. Consult the actual
           // server status to decide which outcome to record, otherwise
@@ -1725,7 +1725,7 @@ export class McpClientManager {
       // PR 14b fix #3: drop the bulk marker BEFORE the terminal
       // emit so `emitRefusedBatchIfAny` actually fires the coalesced
       // batch. Warning fires inline from `tryReserveSlot` /
-      // `releaseSlotName` (fix #4) — no terminal
+      // `releaseSlotName` (fix #4) -- no terminal
       // `evaluateBudgetState` here.
       this.bulkPassDepth--;
       this.emitRefusedBatchIfAny();
@@ -1755,7 +1755,7 @@ export class McpClientManager {
       const timer = setTimeout(async () => {
         timedOut = true;
         // CRITICAL: rejecting `runWithDiscoveryTimeout` does NOT cancel
-        // the underlying `discoverMcpToolsForServer` — it keeps trying
+        // the underlying `discoverMcpToolsForServer` -- it keeps trying
         // to `connect()` / `discover()`, and if the slow server
         // eventually responds, `discover()` registers its tools into
         // the live `toolRegistry` and re-emits `mcp-client-update`.
@@ -1771,7 +1771,7 @@ export class McpClientManager {
         // `toolRegistry.registerTool(tool)` synchronously by the time
         // the close lands. The earlier fix's comment described the
         // pre-fix state as a "remote-exploitable silent-tool-registration
-        // vector" — `await` plus `removeMcpToolsByServer` closes it.
+        // vector" -- `await` plus `removeMcpToolsByServer` closes it.
         const client = this.clients.get(serverName);
         if (client) {
           try {
@@ -1790,7 +1790,7 @@ export class McpClientManager {
         // resurrecting this server: without removing the client entry,
         // `performHealthCheck` would observe `status !== CONNECTED` for
         // ~maxConsecutiveFailures intervals and then call
-        // `reconnectServer()` → `discoverMcpToolsForServer()` directly,
+        // `reconnectServer()` -> `discoverMcpToolsForServer()` directly,
         // bypassing `runWithDiscoveryTimeout` entirely. The intentionally
         // timed-out server would silently come back. Removing the client
         // entry + stopping any pending health-check timer closes that
@@ -1803,7 +1803,7 @@ export class McpClientManager {
         // discoverMcpToolsForServerInternal call freshly reserved
         // it. `freshReservations.has(serverName)` distinguishes:
         //
-        //   - Fresh reservation (never connected): release — a server
+        //   - Fresh reservation (never connected): release -- a server
         //     that never connected shouldn't permanently consume a
         //     slot under enforce mode.
         //   - `'already_held'` reconnect (server was previously
@@ -1818,7 +1818,7 @@ export class McpClientManager {
           this.releaseSlotName(serverName);
           this.freshReservations.delete(serverName);
         }
-        // And drop any stale refusal entry — operator intent shifts
+        // And drop any stale refusal entry -- operator intent shifts
         // when a slot becomes free again, and snapshot consumers
         // shouldn't keep tagging a now-slotless server as
         // `disabledReason: 'budget'`.
@@ -1832,7 +1832,7 @@ export class McpClientManager {
       fn().then(
         (value) => {
           clearTimeout(timer);
-          // Suppress success after timeout — the timeout already
+          // Suppress success after timeout -- the timeout already
           // rejected the outer promise; resolving it again is a no-op
           // but the success path would also re-emit
           // `mcp_server_ready:ready` and `mcp_first_tool_registered`
@@ -1852,7 +1852,7 @@ export class McpClientManager {
   /**
    * Minimum / maximum discovery timeouts. `0` or a negative value as a
    * per-server override would cause every discover to fire its timeout on
-   * the next tick — combined with the lack of disconnect on timeout this
+   * the next tick -- combined with the lack of disconnect on timeout this
    * was a remote-exploitable silent-tool-registration vector (a
    * MITM/attacker-controlled MCP server could land its tools after the
    * timeout fired). `Infinity` / very large values would hang
@@ -1875,7 +1875,7 @@ export class McpClientManager {
     // Remote transports (HTTP/SSE/WebSocket) carry network risk and get
     // a shorter default; stdio servers we trust the user already runs
     // locally. `tcp` is the WebSocket transport field on
-    // `MCPServerConfig` — without it, websocket servers fall through to
+    // `MCPServerConfig` -- without it, websocket servers fall through to
     // the stdio default and a hung WS handshake holds back the
     // non-interactive `waitForMcpReady()` for 30s instead of 5s.
     const isRemote = !!(
@@ -1905,7 +1905,7 @@ export class McpClientManager {
     }
 
     // PR 14: server gone from config (or disabled mid-session) releases
-    // the budget slot too — operator intent is "this server should not
+    // the budget slot too -- operator intent is "this server should not
     // be running", so it must not block a different server from taking
     // its place on the next discovery pass.
     this.releaseSlotName(serverName);
@@ -1920,7 +1920,7 @@ export class McpClientManager {
     this.toolRegistry.removeMcpToolsByServer(serverName);
 
     // The server has been removed from configuration, so drop it from the
-    // global status registry too — the health pill should no longer count it.
+    // global status registry too -- the health pill should no longer count it.
     removeMCPServerStatus(serverName);
 
     this.eventEmitter?.emit('mcp-client-update', this.clients);
@@ -1935,7 +1935,7 @@ export class McpClientManager {
     // PR 14 fix (review #4247 wenshao C3): track whether THIS call
     // reserved the slot + created the client, so the zombie-leak
     // cleanup on `connect()` failure (below) only fires for
-    // newly-created lazy spawns — never for a reuse of an already-
+    // newly-created lazy spawns -- never for a reuse of an already-
     // CONNECTED client (`client !== undefined` branch).
     let weReservedSlot = false;
     // PR 14 fix (review #4247 wenshao R9 #6 line 1521): hoist the
@@ -1943,16 +1943,16 @@ export class McpClientManager {
     // (below) can pass it to `discoveryTimeoutFor` regardless of
     // whether we're on the lazy-spawn or already-existing-client
     // path. Existing clients get the same per-server discovery
-    // timeout as fresh ones — uniform behavior across spawn paths.
+    // timeout as fresh ones -- uniform behavior across spawn paths.
     const servers = populateMcpServerCommand(
       this.cliConfig.getMcpServers() || {},
       this.cliConfig.getMcpServerCommand(),
     );
     const serverConfig = servers[serverName];
     if (!client) {
-      // PR 14 invariant (wenshao R2 P3 line 501): the lookup→
-      // disabled-check→budget-reserve→client-create sequence below
-      // runs synchronously — no `await` until `client.connect()`.
+      // PR 14 invariant (wenshao R2 P3 line 501): the lookup->
+      // disabled-check->budget-reserve->client-create sequence below
+      // runs synchronously -- no `await` until `client.connect()`.
       // `cliConfig.getMcpServers()` returns the current Map snapshot,
       // and `cliConfig` is mutated only between discovery passes (via
       // settings reload) or via `removeServer` (which releases its
@@ -1990,7 +1990,7 @@ export class McpClientManager {
         // R7 #7 helper: refuseAndLog records the entry + emits the
         // operator-visible stderr breadcrumb. Calling it BEFORE the
         // throw so operators get the same stderr trail as bulk
-        // discovery refusals — the throw alone doesn't surface to
+        // discovery refusals -- the throw alone doesn't surface to
         // stderr (caller decides what to do with the typed error).
         this.refuseAndLog(serverName, serverConfig);
         // PR 14b: lazy-spawn refusal emits a length-1 batch BEFORE
@@ -2004,7 +2004,7 @@ export class McpClientManager {
           this.reservedSlots.size,
         );
       }
-      // R7 #4: align with `discoverMcpToolsForServerInternal` —
+      // R7 #4: align with `discoverMcpToolsForServerInternal` --
       // `tryReserveSlot` returns `'reserved'` in `off` mode WITHOUT
       // adding to the set. The `.has` guard ensures we only treat it
       // as a real reservation when the slot was actually taken.
@@ -2016,14 +2016,14 @@ export class McpClientManager {
       // `lastRefusedServerNames` so the snapshot reports it. If a
       // later `readResource` call successfully reserves a slot for
       // that server (e.g., another server was disconnected and
-      // freed capacity), the refusal entry becomes stale — the
+      // freed capacity), the refusal entry becomes stale -- the
       // snapshot would keep tagging the now-connected server as
       // `disabledReason: 'budget'`. Drop the stale entry here so
       // the next snapshot reflects the late-reservation success.
       if (weReservedSlot) {
         this.dropRefusalEntry(serverName);
         // PR 14b fix #4 (codex review round 1): no inline evaluate
-        // needed — `tryReserveSlot` already fired the warning if
+        // needed -- `tryReserveSlot` already fired the warning if
         // the upward crossing happened during reservation.
       }
 
@@ -2074,7 +2074,7 @@ export class McpClientManager {
         // `await client.disconnect()` to abort the orphan
         // `client.connect()` that's still pending in the
         // background. This relies on `McpClient.disconnect()`
-        // cancelling an in-flight connect — closing the underlying
+        // cancelling an in-flight connect -- closing the underlying
         // transport (stdio child SIGTERM, WebSocket close frame,
         // HTTP socket teardown) so the pending connect promise
         // settles. If `disconnect()` on a never-completed connect
@@ -2083,7 +2083,7 @@ export class McpClientManager {
         // This same contract is relied on by
         // `runWithDiscoveryTimeout`'s timeout handler (bulk +
         // incremental paths), so all three spawn paths share the
-        // assumption — verified by the bulk path having shipped
+        // assumption -- verified by the bulk path having shipped
         // production-stable for several releases. Worth a unit
         // test in a follow-up that exercises the
         // disconnect-cancels-pending-connect invariant against
@@ -2109,7 +2109,7 @@ export class McpClientManager {
         // PR 14 fix (review #4247 wenshao R9 #8 line 1514): start
         // the health monitor on a successful lazy spawn. Pre-fix
         // a lazy-spawned server that later disconnected (crash,
-        // network) had no automatic reconnect path — the client
+        // network) had no automatic reconnect path -- the client
         // sat DISCONNECTED in `this.clients` until the next
         // readResource or incremental pass. Mirror the
         // `discoverMcpToolsForServerInternal` finally-block
@@ -2124,7 +2124,7 @@ export class McpClientManager {
         // in `this.clients` (which `getMcpClientAccounting`
         // correctly excludes from `total`, but the slot still
         // blocks other servers). Only release if THIS call did
-        // the reservation — a reuse path with an already-tracked
+        // the reservation -- a reuse path with an already-tracked
         // client must not collateral-damage another caller's
         // slot.
         //
@@ -2132,7 +2132,7 @@ export class McpClientManager {
         // (spawned the stdio child / opened the socket) before
         // throwing on a later handshake step. Best-effort
         // `await client.disconnect()` closes that transport
-        // before dropping the reference — mirrors the R7 #3 +
+        // before dropping the reference -- mirrors the R7 #3 +
         // R8 #1 fixes in the discovery-side catch blocks.
         if (weReservedSlot) {
           try {

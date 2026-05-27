@@ -55,7 +55,7 @@ class SystemWatchdog:
     def trigger_reflection(self) -> str:
         """Generates a reflection prompt to break the stagnation."""
         return (
-            "⚠️ SYSTEM WATCHDOG ALERT: Stagnation detected. "
+            " SYSTEM WATCHDOG ALERT: Stagnation detected. "
             "The current approach is not yielding progress. "
             "STOP and perform a meta-analysis: Why is the current strategy failing? "
             "Propose a fundamentally different approach to break the loop."

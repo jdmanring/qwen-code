@@ -21,7 +21,7 @@ import * as versionUtils from './version.js';
 
 // `getNpmVersion` / `getGitVersion` use `execFile` callback-style. Mock
 // the named export via `vi.hoisted` so the spy reference is the same one
-// the module imports — the synchronous factory return ensures the mock is
+// the module imports -- the synchronous factory return ensures the mock is
 // applied before `systemInfo.ts` evaluates its imports.
 const { mockedExecFile } = vi.hoisted(() => ({
   mockedExecFile: vi.fn(),

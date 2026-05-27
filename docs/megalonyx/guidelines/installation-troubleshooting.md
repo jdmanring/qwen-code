@@ -1,4 +1,4 @@
-# 🛠️ Installation Troubleshooting
+#  Installation Troubleshooting
 
 This document provides solutions to common issues encountered during the deployment of the Mega Code stack.
 

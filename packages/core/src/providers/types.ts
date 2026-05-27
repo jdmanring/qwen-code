@@ -11,7 +11,7 @@ import type { ModelConfig, ModelProvidersConfig } from '../models/types.js';
 export type ProviderModelConfig = ModelConfig;
 
 // ---------------------------------------------------------------------------
-// Provider Config — declarative provider definition
+// Provider Config -- declarative provider definition
 // ---------------------------------------------------------------------------
 
 export type ProviderId = string;
@@ -41,9 +41,9 @@ export interface ProviderConfig {
   protocol: AuthType;
 
   /**
-   * - `string`            → fixed, skip UI step
-   * - `BaseUrlOption[]`   → show option selector
-   * - `undefined`         → user types freely (custom provider)
+   * - `string`            -> fixed, skip UI step
+   * - `BaseUrlOption[]`   -> show option selector
+   * - `undefined`         -> user types freely (custom provider)
    */
   baseUrl?: string | BaseUrlOption[];
 
@@ -51,15 +51,15 @@ export interface ProviderConfig {
   envKey: string | ((protocol: AuthType, baseUrl: string) => string);
 
   /**
-   * - `ModelSpec[]`  → model definitions with optional per-model metadata
-   * - `undefined`    → user must type all model IDs (custom provider)
+   * - `ModelSpec[]`  -> model definitions with optional per-model metadata
+   * - `undefined`    -> user must type all model IDs (custom provider)
    */
   models?: ModelSpec[];
 
   /**
    * Whether the user can add/remove models in the setup UI.
-   * - `true`  → show model editing step; known IDs inherit their ModelSpec metadata
-   * - `false` → skip model step; use models as-is
+   * - `true`  -> show model editing step; known IDs inherit their ModelSpec metadata
+   * - `false` -> skip model step; use models as-is
    * Defaults to `false` when `models` is set, ignored when `models` is `undefined`.
    */
   modelsEditable?: boolean;
@@ -86,14 +86,14 @@ export interface ProviderConfig {
   documentationUrl?: string | ((baseUrl: string) => string);
 
   /**
-   * Custom ownership check — identifies models belonging to this provider.
+   * Custom ownership check -- identifies models belonging to this provider.
    * Auto-derived from `envKey` (string) + `modelNamePrefix` (string) when omitted.
    * Only needed for providers with function-typed envKey/prefix or non-standard logic.
    */
   ownsModel?: (model: ProviderModelConfig) => boolean;
 
   /**
-   * UI grouping hint — used by AuthDialog to organize providers into sections.
+   * UI grouping hint -- used by AuthDialog to organize providers into sections.
    * Providers with the same `uiGroup` appear together under a shared heading.
    */
   uiGroup?: string;
@@ -106,7 +106,7 @@ export interface ProviderConfig {
 }
 
 // ---------------------------------------------------------------------------
-// Provider Setup Inputs — collected from user during setup wizard
+// Provider Setup Inputs -- collected from user during setup wizard
 // ---------------------------------------------------------------------------
 
 export interface ProviderSetupInputs {
@@ -126,7 +126,7 @@ export interface ProviderSetupInputs {
 }
 
 // ---------------------------------------------------------------------------
-// Provider Install Plan — output of buildInstallPlan
+// Provider Install Plan -- output of buildInstallPlan
 // ---------------------------------------------------------------------------
 
 export interface ProviderModelProvidersPatch {
@@ -162,7 +162,7 @@ export interface ProviderInstallPlan {
 }
 
 // ---------------------------------------------------------------------------
-// Provider Settings Adapter — abstraction for settings read/write
+// Provider Settings Adapter -- abstraction for settings read/write
 // ---------------------------------------------------------------------------
 
 export interface ProviderSettingsAdapter {
@@ -172,7 +172,7 @@ export interface ProviderSettingsAdapter {
    * Set a value by dotted key path.
    *
    * IMPORTANT: implementations MAY flush to disk on every call (the CLI's
-   * LoadedSettings-backed adapter does — each setValue triggers a
+   * LoadedSettings-backed adapter does -- each setValue triggers a
    * saveSettings). Callers must therefore NOT assume the on-disk file is
    * untouched until `persist()`; if the process crashes mid-sequence, disk
    * can hold a partial write. `backup()`/`restore()` are the rollback path

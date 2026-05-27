@@ -44,7 +44,7 @@ export function createLoadedSettingsAdapter(
       // LoadedSettings.setValue, which goes through setNestedPropertySafe and
       // doesn't enforce this itself. Inline literal === comparisons (rather
       // than Set.has) are what CodeQL's prototype-pollution sanitiser
-      // recognises — keep this list in sync with the matching guard in
+      // recognises -- keep this list in sync with the matching guard in
       // `packages/vscode-ide-companion/src/services/settingsWriter.ts`.
       for (const part of key.split('.')) {
         if (

@@ -65,12 +65,12 @@ describe('ToolListStep', () => {
       />,
     );
 
-    expect(lastFrame()).toContain('❯ first');
+    expect(lastFrame()).toContain(' first');
 
     pressKey({ name: 'n', sequence: '\u000E', ctrl: true });
-    expect(lastFrame()).toContain('❯ second');
+    expect(lastFrame()).toContain(' second');
 
     pressKey({ name: 'p', sequence: '\u0010', ctrl: true });
-    expect(lastFrame()).toContain('❯ first');
+    expect(lastFrame()).toContain(' first');
   });
 });

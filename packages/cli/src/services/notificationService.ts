@@ -10,10 +10,10 @@
  * When `terminalBell` setting is enabled, auto-detects the terminal and
  * sends notifications through the best available channel:
  *
- *   iTerm.app → OSC 9 (native notification)
- *   kitty     → OSC 99 (desktop notification protocol)
- *   ghostty   → OSC 777 (notify)
- *   others    → terminal bell fallback
+ *   iTerm.app -> OSC 9 (native notification)
+ *   kitty     -> OSC 99 (desktop notification protocol)
+ *   ghostty   -> OSC 777 (notify)
+ *   others    -> terminal bell fallback
  *
  * When disabled, no notification is sent.
  */

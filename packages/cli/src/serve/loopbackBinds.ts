@@ -12,7 +12,7 @@
  *
  * IPv6 loopback is included so users who prefer `::1`/`[::1]` don't have to
  * configure a token. We compare against the raw hostname string the operator
- * typed, not the resolved interface — both must be loopback for the bind to
+ * typed, not the resolved interface -- both must be loopback for the bind to
  * be auth-free.
  */
 export const LOOPBACK_BINDS: ReadonlySet<string> = new Set([

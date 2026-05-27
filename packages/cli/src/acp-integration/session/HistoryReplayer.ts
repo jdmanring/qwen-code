@@ -248,7 +248,7 @@ export class HistoryReplayer {
   /**
    * Replays a slash_command system record by re-emitting its output as an
    * agent message chunk. This allows Zed to reconstruct the correct turn
-   * structure (user → agent) on session resume without polluting model context.
+   * structure (user -> agent) on session resume without polluting model context.
    */
   private async replaySlashCommandResult(record: ChatRecord): Promise<void> {
     const payload = record.systemPayload as

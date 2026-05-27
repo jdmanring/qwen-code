@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# test.sh — verify the qwen-code-stack is fully operational
+# test.sh -- verify the qwen-code-stack is fully operational
 # Usage: bash scripts/test.sh
 # Exit code: 0 = all tests passed, 1 = one or more failures
 
@@ -16,10 +16,10 @@ BLUE='\033[0;34m'; BOLD='\033[1m'; NC='\033[0m'
 
 PASS=0; FAIL=0; SKIP=0
 
-pass()    { echo -e "  ${GREEN}✓${NC} $1"; PASS=$((PASS + 1)); }
-fail()    { echo -e "  ${RED}✗${NC} $1"; FAIL=$((FAIL + 1)); }
-skip()    { echo -e "  ${YELLOW}–${NC} $1"; SKIP=$((SKIP + 1)); }
-section() { echo -e "\n${BOLD}${BLUE}── $1 ──${NC}"; }
+pass()    { echo -e "  ${GREEN}${NC} $1"; PASS=$((PASS + 1)); }
+fail()    { echo -e "  ${RED}${NC} $1"; FAIL=$((FAIL + 1)); }
+skip()    { echo -e "  ${YELLOW}-${NC} $1"; SKIP=$((SKIP + 1)); }
+section() { echo -e "\n${BOLD}${BLUE}-- $1 --${NC}"; }
 
 get_env_key() {
     python3 -c "
@@ -55,49 +55,49 @@ sys.exit(0 if 'result' in d else 1)
 " 2>/dev/null; then
         pass "$name MCP server responds"
     else
-        fail "$name MCP server — no valid response (crash, timeout, or bad JSON)"
+        fail "$name MCP server -- no valid response (crash, timeout, or bad JSON)"
     fi
 }
 
-# ── 1. Dependencies ───────────────────────────────────────────────────────────
+# -- 1. Dependencies -----------------------------------------------------------
 section "1. Dependencies"
 
 for cmd in node npm python3 uvx rg aria2c git curl; do
     if path=$(which "$cmd" 2>/dev/null); then
-        pass "$cmd — $path"
+        pass "$cmd -- $path"
     else
-        fail "$cmd — not found in PATH"
+        fail "$cmd -- not found in PATH"
     fi
 done
 
 if qwen_path=$(which qwen 2>/dev/null); then
     qwen_ver=$(qwen --version 2>&1 | head -1)
-    pass "qwen — $qwen_path ($qwen_ver)"
+    pass "qwen -- $qwen_path ($qwen_ver)"
 else
-    fail "qwen — not found (check npm user prefix is in PATH: ~/.local/share/npm/bin)"
+    fail "qwen -- not found (check npm user prefix is in PATH: ~/.local/share/npm/bin)"
 fi
 
-# ── 2. Configuration ──────────────────────────────────────────────────────────
+# -- 2. Configuration ----------------------------------------------------------
 section "2. Configuration"
 
 if [[ -f "$SETTINGS" ]]; then
     pass "~/.qwen/settings.json exists"
 else
-    fail "~/.qwen/settings.json not found — copy settings.example.json and fill in API keys"
+    fail "~/.qwen/settings.json not found -- copy settings.example.json and fill in API keys"
 fi
 
 if python3 -c "import json; json.load(open('$SETTINGS'))" 2>/dev/null; then
     pass "settings.json is valid JSON"
 else
-    fail "settings.json is invalid JSON — run: python3 -m json.tool ~/.qwen/settings.json"
+    fail "settings.json is invalid JSON -- run: python3 -m json.tool ~/.qwen/settings.json"
 fi
 
 for key in GEMINI_API_KEY GROQ_API_KEY OPENROUTER_API_KEY NVIDIA_API_KEY; do
     val=$(get_env_key "$key")
     if [[ -z "$val" || "$val" == *"YOUR_"* ]]; then
-        fail "$key — not set in settings.json"
+        fail "$key -- not set in settings.json"
     else
-        pass "$key — set"
+        pass "$key -- set"
     fi
 done
 
@@ -106,14 +106,14 @@ GLOBAL_QWEN="$HOME/.qwen/QWEN.md"
 if [[ ! -f "$PROJ_QWEN" ]]; then
     fail "QWEN.md missing from project directory"
 elif [[ ! -f "$GLOBAL_QWEN" ]]; then
-    fail "~/.qwen/QWEN.md missing — run: yes | cp -f $PROJ_QWEN $GLOBAL_QWEN"
+    fail "~/.qwen/QWEN.md missing -- run: yes | cp -f $PROJ_QWEN $GLOBAL_QWEN"
 elif diff -q "$PROJ_QWEN" "$GLOBAL_QWEN" &>/dev/null; then
     pass "QWEN.md in sync (project <=> ~/.qwen/)"
 else
-    fail "QWEN.md out of sync — run: yes | cp -f $PROJ_QWEN $GLOBAL_QWEN"
+    fail "QWEN.md out of sync -- run: yes | cp -f $PROJ_QWEN $GLOBAL_QWEN"
 fi
 
-# ── 3. Local model (vLLM) ─────────────────────────────────────────────────────
+# -- 3. Local model (vLLM) -----------------------------------------------------
 section "3. Local model (vLLM)"
 
 if curl -sf http://localhost:8000/health &>/dev/null; then
@@ -126,25 +126,25 @@ if curl -sf http://localhost:8000/health &>/dev/null; then
         fail "vLLM running but /v1/models returned no models"
     fi
 else
-    skip "vLLM not running — start with 'qwenstart' or 'qwencode --local' then re-run"
+    skip "vLLM not running -- start with 'qwenstart' or 'qwencode --local' then re-run"
 fi
 
-# ── 4. External APIs ──────────────────────────────────────────────────────────
+# -- 4. External APIs ----------------------------------------------------------
 section "4. External APIs"
 
 check_api() {
     local name="$1" key="$2" url="$3"
     if [[ -z "$key" || "$key" == *"YOUR_"* ]]; then
-        skip "$name — key not set"
+        skip "$name -- key not set"
         return
     fi
     local http_code
     http_code=$(curl -sf -o /dev/null -w "%{http_code}" \
         -H "Authorization: Bearer $key" "$url" 2>/dev/null)
     if [[ "$http_code" == "200" ]]; then
-        pass "$name — HTTP 200"
+        pass "$name -- HTTP 200"
     else
-        fail "$name — HTTP ${http_code:-000} (check API key and quota)"
+        fail "$name -- HTTP ${http_code:-000} (check API key and quota)"
     fi
 }
 
@@ -158,18 +158,18 @@ check_api "OpenRouter"                  "$OR_KEY"   "https://openrouter.ai/api/v
 check_api "NVIDIA NIM (Llama 3.1 70B)" "$NV_KEY"   "https://integrate.api.nvidia.com/v1/models"
 
 if [[ -z "$GEM_KEY" || "$GEM_KEY" == *"YOUR_"* ]]; then
-    skip "Gemini — key not set"
+    skip "Gemini -- key not set"
 else
     http_code=$(curl -sf -o /dev/null -w "%{http_code}" \
         "https://generativelanguage.googleapis.com/v1beta/models?key=$GEM_KEY" 2>/dev/null)
     if [[ "$http_code" == "200" ]]; then
-        pass "Gemini 2.0 Flash — HTTP 200"
+        pass "Gemini 2.0 Flash -- HTTP 200"
     else
-        fail "Gemini 2.0 Flash — HTTP ${http_code:-000} (check API key)"
+        fail "Gemini 2.0 Flash -- HTTP ${http_code:-000} (check API key)"
     fi
 fi
 
-# ── 5. MCP servers ────────────────────────────────────────────────────────────
+# -- 5. MCP servers ------------------------------------------------------------
 section "5. MCP servers"
 
 GH_TOKEN=$(get_mcp_env "github" "GITHUB_PERSONAL_ACCESS_TOKEN")
@@ -177,7 +177,7 @@ if [[ -n "$GH_TOKEN" && "$GH_TOKEN" != *"YOUR_"* ]]; then
     GITHUB_PERSONAL_ACCESS_TOKEN="$GH_TOKEN" \
         test_mcp "github" npx -y @modelcontextprotocol/server-github
 else
-    skip "github MCP — GITHUB_PERSONAL_ACCESS_TOKEN not set in settings.json"
+    skip "github MCP -- GITHUB_PERSONAL_ACCESS_TOKEN not set in settings.json"
 fi
 
 TAVILY_KEY=$(get_mcp_env "tavily-search" "TAVILY_API_KEY")
@@ -185,7 +185,7 @@ if [[ -n "$TAVILY_KEY" && "$TAVILY_KEY" != *"YOUR_"* ]]; then
     TAVILY_API_KEY="$TAVILY_KEY" \
         test_mcp "tavily-search" npx -y tavily-mcp
 else
-    skip "tavily-search MCP — TAVILY_API_KEY not set in settings.json"
+    skip "tavily-search MCP -- TAVILY_API_KEY not set in settings.json"
 fi
 
 test_mcp "code-index" uvx code-index-mcp
@@ -194,16 +194,16 @@ QDRANT_URL=$(get_mcp_env "mega-db" "QDRANT_URL")
 if [[ -n "$QDRANT_URL" ]]; then
     test_mcp "mega-db" python3 -m qdrant_mcp.server --qdrant-url "$QDRANT_URL" --embedding-provider sentence-transformers --embedding-model all-MiniLM-L6-v2
 else
-    skip "mega-db MCP — QDRANT_URL not set in settings.json"
+    skip "mega-db MCP -- QDRANT_URL not set in settings.json"
 fi
 
 
-# ── Summary ───────────────────────────────────────────────────────────────────
+# -- Summary -------------------------------------------------------------------
 echo -e "\n${BOLD}Results:${NC}  ${GREEN}${PASS} passed${NC}  ${RED}${FAIL} failed${NC}  ${YELLOW}${SKIP} skipped${NC}"
 echo ""
 
 if [[ $FAIL -gt 0 ]]; then
-    echo -e "${RED}${BOLD}Stack has failures — resolve before running 'qwencode'${NC}"
+    echo -e "${RED}${BOLD}Stack has failures -- resolve before running 'qwencode'${NC}"
     exit 1
 else
     echo -e "${GREEN}${BOLD}Stack is healthy${NC}"

@@ -1,4 +1,4 @@
-# 🧠 Memory Intelligence: From Tools to Cognition
+#  Memory Intelligence: From Tools to Cognition
 
 This document explains the cognitive bridge between the technical infrastructure of the Mega Code memory system (MCP/Qdrant) and the actual behavior of the AI agent.
 

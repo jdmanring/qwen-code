@@ -317,7 +317,7 @@ describe('ShellTool', () => {
 
       const result = await invocation.execute(mockAbortSignal);
 
-      // Spawn happens with the unwrapped command — no '&', no pgrep envelope.
+      // Spawn happens with the unwrapped command -- no '&', no pgrep envelope.
       // Streaming mode is on so dev-server / watcher output flushes to the
       // output file as it arrives instead of buffering until exit.
       expect(mockShellExecutionService).toHaveBeenCalledWith(
@@ -413,7 +413,7 @@ describe('ShellTool', () => {
       const entry = (registry.register as Mock).mock.calls[0][0];
 
       // ShellExecutionService reports a clean non-zero exit (no error object,
-      // no signal) — historically this got bucketed as `completed`, which
+      // no signal) -- historically this got bucketed as `completed`, which
       // misreported a failed `npm test` / `false` as a success.
       resolveExecutionPromise({
         rawOutput: Buffer.from(''),
@@ -569,7 +569,7 @@ describe('ShellTool', () => {
       const passedSignal = mockShellExecutionService.mock.calls[0][3];
       expect(passedSignal).not.toBe(turnAc.signal);
       turnAc.abort();
-      // The signal handed to ShellExecutionService stays un-aborted —
+      // The signal handed to ShellExecutionService stays un-aborted --
       // the turn's abort doesn't propagate into the background shell.
       expect(passedSignal.aborted).toBe(false);
     });
@@ -891,7 +891,7 @@ describe('ShellTool', () => {
         // Regression: in one throttle window, the leading-edge chunk fires
         // immediately, and any subsequent chunks (regardless of count) are
         // collapsed into ONE trailing flush carrying the latest text. The
-        // timer must not be repeatedly rescheduled per chunk — that would
+        // timer must not be repeatedly rescheduled per chunk -- that would
         // be wasteful and (depending on the math) could push the flush
         // beyond the original window.
         const invocation = shellTool.build({
@@ -967,7 +967,7 @@ describe('ShellTool', () => {
         await promise;
 
         // Advancing time past the original window must not produce a
-        // late updateOutput call — the timer was cancelled on settle.
+        // late updateOutput call -- the timer was cancelled on settle.
         await vi.advanceTimersByTimeAsync(OUTPUT_UPDATE_INTERVAL_MS * 2);
         expect(updateOutputMock).toHaveBeenCalledOnce();
       });
@@ -979,7 +979,7 @@ describe('ShellTool', () => {
         // so even if a stale timer were somehow still scheduled when a
         // leading-edge update fires, no duplicate updateOutput call can
         // escape. This test asserts the end-to-end invariant: suppress
-        // → trailing flush → leading-edge → suppress → trailing flush
+        // -> trailing flush -> leading-edge -> suppress -> trailing flush
         // produces exactly the expected sequence with no duplicates.
         const invocation = shellTool.build({
           command: 'multi-window-cmd',
@@ -1021,7 +1021,7 @@ describe('ShellTool', () => {
         expect(updateOutputMock).toHaveBeenCalledTimes(4);
         expect(updateOutputMock).toHaveBeenLastCalledWith('d');
 
-        // Drain a long quiet period — no spurious late updates from
+        // Drain a long quiet period -- no spurious late updates from
         // any zombie timers.
         await vi.advanceTimersByTimeAsync(OUTPUT_UPDATE_INTERVAL_MS * 5);
         expect(updateOutputMock).toHaveBeenCalledTimes(4);
@@ -1089,7 +1089,7 @@ describe('ShellTool', () => {
         // updateOutput call after the caller has already seen the error.
         // (No chunks can arrive before execute() resolves, so the timer
         // is never actually scheduled in this path. The contract we
-        // verify here is that the abort listener is torn down — which we
+        // verify here is that the abort listener is torn down -- which we
         // observe indirectly via "no late update on subsequent abort".)
         const ac = new AbortController();
         mockShellExecutionService.mockImplementationOnce(() => {
@@ -1171,7 +1171,7 @@ describe('ShellTool', () => {
     });
 
     describe('long-running foreground hint', () => {
-      // Auto-bg advisory. Threshold = effectiveTimeout / 2 — for the
+      // Auto-bg advisory. Threshold = effectiveTimeout / 2 -- for the
       // default 120s timeout that's 60_000ms, which the tests below
       // assume. Tests use vi fake timers to drive the wall-clock past
       // the threshold without actually sleeping. Hint must fire on
@@ -1180,7 +1180,7 @@ describe('ShellTool', () => {
       // messaging is enough), and never fire on the background path
       // (returns before the threshold by construction).
       //
-      // Faking BOTH `Date` and `performance` here — shell.ts uses
+      // Faking BOTH `Date` and `performance` here -- shell.ts uses
       // `performance.now()` (monotonic, NTP-resilient) for the
       // long-run elapsed measurement, so without faking performance
       // the elapsed would always read as "near zero" under
@@ -1195,7 +1195,7 @@ describe('ShellTool', () => {
         vi.useRealTimers();
       });
 
-      it('appends the long-run hint when a foreground command runs ≥ 60s', async () => {
+      it('appends the long-run hint when a foreground command runs >= 60s', async () => {
         const invocation = shellTool.build({
           command: 'pytest -q',
           is_background: false,
@@ -1212,16 +1212,16 @@ describe('ShellTool', () => {
         expect(result.llmContent).toContain('/tasks');
       });
 
-      it('appends the hint when a successful foreground command with empty output runs ≥ 60s', async () => {
-        // Empty-output success: write-only commands (e.g. `tar czf …`,
-        // `cp -r large-dir/`, `dd if=…`) frequently produce no stdout
+      it('appends the hint when a successful foreground command with empty output runs >= 60s', async () => {
+        // Empty-output success: write-only commands (e.g. `tar czf ...`,
+        // `cp -r large-dir/`, `dd if=...`) frequently produce no stdout
         // and exit 0. The non-debug `returnDisplayMessage` build leaves
         // the message as `''` in this branch (output empty, exitCode 0,
         // no abort/signal/error), so the hint append is the only thing
         // that ever populates the user-facing TUI line. Pin both that
         // the hint reaches the LLM AND that it surfaces in the user's
         // returnDisplay even when the command produced nothing else to
-        // show — the user is the one who waited 60s, they should see
+        // show -- the user is the one who waited 60s, they should see
         // the same advisory the agent does.
         const invocation = shellTool.build({
           command: 'write-to-disk.sh',
@@ -1254,7 +1254,7 @@ describe('ShellTool', () => {
         // Non-zero exit (without spawn error) is the common "command
         // ran but failed" shape. `ShellExecutionResult.error` is
         // reserved for spawn/setup failures (see the doc on the field
-        // in shellExecutionService.ts) — exit-code-N completions leave
+        // in shellExecutionService.ts) -- exit-code-N completions leave
         // `error: null` and `exitCode: N`. The agent still got blocked
         // for >60s on something that errored; "next time background
         // it" is exactly the right advice for either failure shape.
@@ -1301,10 +1301,10 @@ describe('ShellTool', () => {
         // cancel branch (`combinedSignal.aborted && signal.aborted`).
         // The TIMEOUT branch (`combinedSignal.aborted && !signal.aborted`)
         // needs an `AbortSignal.any` mock that returns an already-aborted
-        // combined signal — same pattern as `should handle timeout vs
+        // combined signal -- same pattern as `should handle timeout vs
         // user cancellation correctly` further down. Pinning the timeout
         // branch separately so a future regression that flips the
-        // suppression check (e.g. `!result.aborted` → `!combinedSignal.aborted`)
+        // suppression check (e.g. `!result.aborted` -> `!combinedSignal.aborted`)
         // would fail loudly on this case.
         const userAbort = new AbortController();
         const mockTimeoutSignal = {
@@ -1356,7 +1356,7 @@ describe('ShellTool', () => {
         // we passed was triggered, so SIGTERM from container shutdown,
         // k8s eviction, OOM killer, or a sibling reaping the process group
         // falls through to the non-aborted branch. The advisory shouldn't
-        // fire there either — the process didn't run to its conclusion,
+        // fire there either -- the process didn't run to its conclusion,
         // so "next time, background it" doesn't apply.
         const invocation = shellTool.build({
           command: 'tail -f /tmp/never.log',
@@ -1380,10 +1380,10 @@ describe('ShellTool', () => {
         expect(result.llmContent).not.toContain('foreground command ran for');
       });
 
-      it('off-by-one: omits the hint at threshold − 1ms', async () => {
+      it('off-by-one: omits the hint at threshold  1ms', async () => {
         // Pin the boundary so a regression that flips `>=` to `>` would
         // fail loudly. Pairs with the existing 60_000ms-exactly test
-        // (which fires) — these two together pin the boundary tightly.
+        // (which fires) -- these two together pin the boundary tightly.
         const invocation = shellTool.build({
           command: 'echo hi',
           is_background: false,
@@ -1404,7 +1404,7 @@ describe('ShellTool', () => {
         // outside the truncation marker.
         //
         // Mock `truncateToolOutput` directly rather than driving real
-        // truncation — the real path needs `fs.writeFile` to actually
+        // truncation -- the real path needs `fs.writeFile` to actually
         // succeed (the catch fallback returns no `outputFile`, so the
         // shell.ts replacement branch never fires). Mocking here pins
         // ordering, which is all this test cares about.
@@ -1431,12 +1431,12 @@ describe('ShellTool', () => {
           // Hint present.
           expect(content).toContain('foreground command ran for 60s');
           // Truncation envelope present (proves the truncation branch
-          // actually ran in shell.ts — `outputFile` was set so the
+          // actually ran in shell.ts -- `outputFile` was set so the
           // replacement happened).
           expect(content).toContain(
             'Tool output was too large and has been truncated.',
           );
-          // Hint comes AFTER the truncation marker — pins the
+          // Hint comes AFTER the truncation marker -- pins the
           // post-truncation insertion order so a regression that
           // moves the append back inside the non-aborted llmContent
           // builder (where it'd get wrapped by the truncation
@@ -1447,7 +1447,7 @@ describe('ShellTool', () => {
           const hintIdx = content.indexOf('foreground command ran for');
           expect(hintIdx).toBeGreaterThan(truncIdx);
         } finally {
-          // Restore even if assertions throw — otherwise the
+          // Restore even if assertions throw -- otherwise the
           // truncateToolOutput spy leaks into subsequent tests.
           spy.mockRestore();
         }
@@ -1456,7 +1456,7 @@ describe('ShellTool', () => {
       it('threshold scales with the user-supplied timeout (not the default)', async () => {
         // User explicitly sets timeout: 600_000 (10 min) because they
         // expect a long command. Threshold is half that, so a 100s
-        // run should NOT trigger the advisory — the user already told
+        // run should NOT trigger the advisory -- the user already told
         // us this command is allowed to run long. Pins the per-
         // invocation coupling so a regression that goes back to the
         // fixed `LONG_RUNNING_FOREGROUND_THRESHOLD_MS` constant
@@ -1477,7 +1477,7 @@ describe('ShellTool', () => {
         // Pair with the negative test above. If `longRunThresholdFor`
         // regressed to a fixed 60s, the negative test would still pass
         // (no hint at 100s under default threshold either) but THIS
-        // one would also fire incorrectly at 100s — pinning both ends
+        // one would also fire incorrectly at 100s -- pinning both ends
         // catches the failure mode.
         const invocation = shellTool.build({
           command: 'pytest --slow',
@@ -1492,10 +1492,10 @@ describe('ShellTool', () => {
       });
 
       it('hint appears in non-debug returnDisplay (user TUI)', async () => {
-        // The hint is useful to the user too — they're the one waiting
+        // The hint is useful to the user too -- they're the one waiting
         // for long commands. Pin that the non-debug TUI gets the hint
         // appended (terse form: result.output + hint, separated by
-        // blank line). Default `getDebugMode → false`.
+        // blank line). Default `getDebugMode -> false`.
         const invocation = shellTool.build({
           command: 'pytest -q',
           is_background: false,
@@ -1517,7 +1517,7 @@ describe('ShellTool', () => {
         // Same hint visibility but through the debug-mode mirror code
         // path. Both branches now use append-style re-sync (preserving
         // any prior content like the truncation marker), so the
-        // assertion is the same — but exercising both flips guards
+        // assertion is the same -- but exercising both flips guards
         // the branch from regressing independently.
         const debugMock = mockConfig as unknown as { getDebugMode: Mock };
         debugMock.getDebugMode.mockReturnValue(true);
@@ -1546,7 +1546,7 @@ describe('ShellTool', () => {
         // (1000ms) keeps the threshold sensible. This test pins it: a
         // 500ms run with `timeout: 1` finishes BELOW the floor and must
         // NOT trigger the hint. (The result is mocked with `aborted: false`
-        // since we're isolating the threshold logic from the abort path —
+        // since we're isolating the threshold logic from the abort path --
         // a regression that strips the `Math.max(...)` guard would fire
         // the hint here while the real-world abort path stays intact.)
         const invocation = shellTool.build({
@@ -1571,7 +1571,7 @@ describe('ShellTool', () => {
         //
         // Note on realism: `ShellExecutionResult.error` is reserved for
         // spawn / setup failures (per the field's doc comment in
-        // shellExecutionService.ts) — non-zero exits leave it null.
+        // shellExecutionService.ts) -- non-zero exits leave it null.
         // Real spawn failures (ENOENT, permission denied) typically
         // resolve in <1s, so the long-elapsed + spawn-error combination
         // tested here is rare in practice. The test still pins the
@@ -1613,12 +1613,12 @@ describe('ShellTool', () => {
 
       it('never appends the long-run hint on background commands', async () => {
         // Background path returns immediately with `Background shell
-        // started.` and a different result shape — by construction the
+        // started.` and a different result shape -- by construction the
         // hint logic only lives in `executeForeground`, so this can't
         // fail today. Defensive pin: a future refactor that hoists the
         // long-run advisory into a shared post-execute path would
         // accidentally tag every background launch with a "ran for 0s,
-        // consider is_background: true" suggestion (nonsense — it's
+        // consider is_background: true" suggestion (nonsense -- it's
         // already backgrounded). This test fails loudly on that
         // regression.
         const invocation = shellTool.build({
@@ -1628,7 +1628,7 @@ describe('ShellTool', () => {
         const result = await invocation.execute(mockAbortSignal);
         expect(result.llmContent).toContain('Background shell started');
         expect(result.llmContent).not.toContain('foreground command ran for');
-        // The hint text contains the literal `is_background: true` —
+        // The hint text contains the literal `is_background: true` --
         // the background path's own llmContent doesn't, so this guards
         // against the hint leaking in via a shared code path.
         expect(result.llmContent).not.toContain('is_background: true');
@@ -2012,7 +2012,7 @@ describe('ShellTool', () => {
       });
 
       // `cd subdir && git commit` (relative cd that doesn't escape
-      // upward) is a very common workflow — entering a subdirectory
+      // upward) is a very common workflow -- entering a subdirectory
       // before committing. The cd target stays inside the same repo,
       // so attribution should still apply. The earlier blanket
       // "any cd shifts cwd" gate broke this; the heuristic now only
@@ -2048,8 +2048,8 @@ describe('ShellTool', () => {
         );
       });
 
-      // `cd ..` could escape the repo root — conservative shift.
-      // Embedded `..` traversal — `cd foo/../../escape` — could
+      // `cd ..` could escape the repo root -- conservative shift.
+      // Embedded `..` traversal -- `cd foo/../../escape` -- could
       // escape the repo just as much as a leading `..`, so the
       // heuristic must reject it. Without this the trailer would
       // be appended to a commit landing in a different repo.
@@ -2170,7 +2170,7 @@ describe('ShellTool', () => {
           'env GIT_DIR=/tmp/other/.git git commit -m "msg"',
         ],
         // GNU coreutils 8.30+'s `env -C DIR` / `--chdir` relocates
-        // the working directory before exec — same repo-shifting
+        // the working directory before exec -- same repo-shifting
         // contract as `cd /elsewhere && git commit`.
         ['env -C', 'env -C /tmp/other git commit -m "msg"'],
         ['env --chdir', 'env --chdir /tmp/other git commit -m "msg"'],
@@ -2206,7 +2206,7 @@ describe('ShellTool', () => {
       );
 
       // GIT_AUTHOR_DATE / GIT_COMMITTER_DATE / etc. tweak commit
-      // metadata but don't relocate the repo — attribution still
+      // metadata but don't relocate the repo -- attribution still
       // applies as normal.
       it('should still add co-author with benign GIT_COMMITTER_DATE assignment', async () => {
         const command =
@@ -2259,7 +2259,7 @@ describe('ShellTool', () => {
       });
 
       // `cd $HOME && git commit` would land in whatever repo `$HOME`
-      // points to — typically NOT our cwd. With the default
+      // points to -- typically NOT our cwd. With the default
       // `shell-quote` parse, `$HOME` collapses to `''` and the
       // `target.includes('$')` repo-shift check silently fails. The
       // env-preserving parse keeps `$NAME` literal in tokens so this
@@ -2299,7 +2299,7 @@ describe('ShellTool', () => {
       );
 
       // A cd that comes AFTER an in-cwd commit doesn't invalidate the
-      // commit's attribution — the commit already landed in our repo.
+      // commit's attribution -- the commit already landed in our repo.
       it('should add co-author when cd comes AFTER git commit', async () => {
         const command = 'git commit -m "Test" && cd /tmp/test';
         const invocation = shellTool.build({ command, is_background: false });
@@ -2330,7 +2330,7 @@ describe('ShellTool', () => {
         );
       });
 
-      // `git -C <path> commit` runs in <path>, not our cwd — same risk
+      // `git -C <path> commit` runs in <path>, not our cwd -- same risk
       // as the cd case, so the rewrite should be skipped. Also covers
       // the attached-value form `-C/path` (single token from
       // shell-quote) and the long-flag attached forms
@@ -2379,8 +2379,8 @@ describe('ShellTool', () => {
       });
 
       // `git -C .` (or `-C ./` or `-C .` attached as `-C.`) is a
-      // semantic no-op — the cwd doesn't actually change. The
-      // previous "any -C → cwd-shifted" rule silently skipped
+      // semantic no-op -- the cwd doesn't actually change. The
+      // previous "any -C -> cwd-shifted" rule silently skipped
       // attribution for what's basically `git commit` with an
       // explicit cwd marker. Treat dot-form as in-cwd.
       it.each([
@@ -2572,7 +2572,7 @@ describe('ShellTool', () => {
         );
       });
 
-      // Common real-world prefixes — env-var assignment and `sudo` — must
+      // Common real-world prefixes -- env-var assignment and `sudo` -- must
       // still be detected so attribution doesn't silently skip the trailer.
       it('should add co-author when git commit is prefixed with env vars', async () => {
         const command = 'GIT_COMMITTER_DATE=now git commit -m "Test"';
@@ -2637,7 +2637,7 @@ describe('ShellTool', () => {
         );
       });
 
-      // git's `-m` can be passed multiple times — `git interpret-trailers`
+      // git's `-m` can be passed multiple times -- `git interpret-trailers`
       // only recognises trailers that sit at the end of the *last* `-m`
       // value, so the rewrite must target the last match.
       it('should add Co-authored-by trailer to the LAST -m when multiple are present', async () => {
@@ -2693,7 +2693,7 @@ describe('ShellTool', () => {
         await promise;
 
         const observed = mockShellExecutionService.mock.calls[0][0];
-        // The original message body must be preserved end-to-end —
+        // The original message body must be preserved end-to-end --
         // no trailer spliced before its closing quote.
         expect(observed).toContain(
           "-m \"docs mention -m 'flag' for completeness",
@@ -2740,7 +2740,7 @@ describe('ShellTool', () => {
 
       // The tool description recommends `git commit -m "$(cat <<'EOF'
       // ... EOF)"` for multi-line messages. The body contains nested
-      // `"` from interior shell tokens — the regex would match only
+      // `"` from interior shell tokens -- the regex would match only
       // up to the first interior quote and splice the trailer
       // mid-substitution, breaking the command. Bail explicitly.
       it('should NOT rewrite -m bodies that contain $(...) command substitution', async () => {
@@ -2894,7 +2894,7 @@ describe('ShellTool', () => {
 
       // Bash's apostrophe-via-`'\''` form (close-escape-reopen) is a
       // single logical body. The trailer must land at the FINAL
-      // closing `'` — not in the middle of the escape — so the regex
+      // closing `'` -- not in the middle of the escape -- so the regex
       // body group has to recognise the escape sequence as a whole.
       // Mirrors the bodySinglePattern in addAttributionToPR.
       it("should append trailer after the final ' in -m 'don'\\''t' apostrophe-escape", async () => {
@@ -3131,7 +3131,7 @@ describe('ShellTool', () => {
 
       // `-b` is gh's documented short alias for `--body`. Without
       // explicit handling the rewrite would silently miss it.
-      // `curl -b "session=abc" && gh pr create --body "summary"` —
+      // `curl -b "session=abc" && gh pr create --body "summary"` --
       // without segment scoping the body regex would match curl's
       // `-b` cookie flag (since it's the same `-b "..."` shape) and
       // inject attribution into the cookie value, breaking curl.
@@ -3462,7 +3462,7 @@ describe('ShellTool', () => {
         expect(observedCmd).toContain('\\"');
         expect(observedCmd).toContain('\\`');
         // And the original `--body` quote must still close properly
-        // (`s` flag — body contains newlines from the attribution).
+        // (`s` flag -- body contains newlines from the attribution).
         expect(observedCmd).toMatch(/--body\s+".+"/s);
       });
 
@@ -3530,11 +3530,11 @@ describe('ShellTool', () => {
       });
     });
 
-    describe('foreground → background promote (#3831 PR-2)', () => {
+    describe('foreground -> background promote (#3831 PR-2)', () => {
       it("exposes a promote AbortController whose signal is wired into ShellExecutionService.execute's combined signal", async () => {
         // Pin the operational guarantee: aborting the controller exposed
         // via `setPromoteAbortControllerCallback` must actually reach
-        // `ShellExecutionService` — the bare "controller is an
+        // `ShellExecutionService` -- the bare "controller is an
         // AbortController instance" assertion would still pass if
         // `shell.ts` exposed the controller but forgot to include
         // `promoteAbortController.signal` in `AbortSignal.any(...)`,
@@ -3546,7 +3546,7 @@ describe('ShellTool', () => {
         });
         // Cast to the concrete invocation type to access the extra
         // ShellTool-specific execute() params (setPidCallback +
-        // setPromoteAbortControllerCallback) — the base ToolInvocation
+        // setPromoteAbortControllerCallback) -- the base ToolInvocation
         // type only has the 3-param signature shared across all tools.
         const promise = (invocation as ShellToolInvocation).execute(
           mockAbortSignal,
@@ -3586,7 +3586,7 @@ describe('ShellTool', () => {
           output: 'partial output before promote',
           exitCode: null,
           signal: null,
-          aborted: false, // ← per #3831 design question 7
+          aborted: false, // <- per #3831 design question 7
           promoted: true,
           pid: 99999,
         });
@@ -3627,7 +3627,7 @@ describe('ShellTool', () => {
         expect(result.returnDisplay).toContain(
           `Promoted to background: ${entry.shellId}`,
         );
-        // No `error` on the result — promote is a success-shaped outcome
+        // No `error` on the result -- promote is a success-shaped outcome
         // per #3831 design question 7 / @tanzhenxin's PR-1 review.
         expect(result.error).toBeUndefined();
       });
@@ -3635,7 +3635,7 @@ describe('ShellTool', () => {
       it('aborting entry.abortController kills the child via SIGTERM/SIGKILL and marks the registry entry cancelled', async () => {
         // Pin the core operational guarantee for promoted shells:
         // `task_stop bg_xxx` (which goes through
-        // `registry.requestCancel` → `entry.abortController.abort()`)
+        // `registry.requestCancel` -> `entry.abortController.abort()`)
         // must actually stop the child + transition the entry to
         // `'cancelled'`. The bare "fresh controller" check below
         // doesn't exercise the full kill path.
@@ -3675,7 +3675,7 @@ describe('ShellTool', () => {
           await vi.advanceTimersByTimeAsync(250);
           expect(processKillSpy).toHaveBeenCalledWith(-55555, 'SIGKILL');
           // Registry entry transitions to 'cancelled' synchronously
-          // after SIGKILL — so /tasks reflects user intent without
+          // after SIGKILL -- so /tasks reflects user intent without
           // waiting for the (non-existent) settle path.
           expect(registry.cancel).toHaveBeenCalledWith(
             entry.shellId,
@@ -3720,7 +3720,7 @@ describe('ShellTool', () => {
         expect(entry.abortController.signal.aborted).toBe(false);
       });
 
-      it('survives a snapshot write failure — registry entry still registered', async () => {
+      it('survives a snapshot write failure -- registry entry still registered', async () => {
         const writeFileSyncSpy = vi.mocked(fs.writeFileSync);
         writeFileSyncSpy.mockImplementation(() => {
           throw new Error('ENOSPC: no space left on device');
@@ -3753,7 +3753,7 @@ describe('ShellTool', () => {
         // `this.params.command`, which diverges from what actually ran
         // for `git commit -m` invocations that
         // `addCoAuthorToGitCommit()` rewrote into a multi-line form
-        // with `-m "Co-Authored-By: …"`. Pin: registered entry MUST
+        // with `-m "Co-Authored-By: ..."`. Pin: registered entry MUST
         // mirror the post-rewrite command so /tasks shows what the OS
         // actually executed.
         const writeFileSyncSpy = vi.mocked(fs.writeFileSync);
@@ -3776,7 +3776,7 @@ describe('ShellTool', () => {
         const result = await promise;
 
         // The actual command passed to ShellExecutionService.execute is
-        // the post-rewrite form — capture it from the service mock.
+        // the post-rewrite form -- capture it from the service mock.
         const commandPassedToService = mockShellExecutionService.mock
           .calls[0][0] as string;
         expect(commandPassedToService).not.toBe(rawCommand); // sanity: rewrite happened
@@ -3791,11 +3791,11 @@ describe('ShellTool', () => {
         expect(result.llmContent).toContain(commandPassedToService);
       });
 
-      it('rethrows + kills child when mkdirSync(outputDir) throws — no orphan zombie', async () => {
+      it('rethrows + kills child when mkdirSync(outputDir) throws -- no orphan zombie', async () => {
         // @tanzhenxin's review on #3894: mkdirSync ran before any
         // try/catch, so an unwritable output dir (read-only mount,
         // sandbox perms, ENOSPC on metadata) rejected the handler
-        // BEFORE the registry's kill listener was wired — the still-
+        // BEFORE the registry's kill listener was wired -- the still-
         // running child became an orphan with no kill path until the
         // OS reaped it on session end. Pin the regression: mkdir-throw
         // is re-raised AND the child gets SIGTERM right away.
@@ -3822,7 +3822,7 @@ describe('ShellTool', () => {
           });
 
           await expect(promise).rejects.toThrow('EROFS');
-          // SIGTERM is sync after the throw — no fake timers needed.
+          // SIGTERM is sync after the throw -- no fake timers needed.
           expect(processKillSpy).toHaveBeenCalledWith(-22222, 'SIGTERM');
         } finally {
           mkdirSyncSpy.mockReturnValue(undefined);
@@ -3856,7 +3856,7 @@ describe('ShellTool', () => {
           | AbortController
           | undefined;
         expect(promoteAc).toBeInstanceOf(AbortController);
-        // Fire promote AFTER the child supposedly terminated — the
+        // Fire promote AFTER the child supposedly terminated -- the
         // service refuses with `aborted: true, promoted: false`.
         promoteAc!.abort({ kind: 'background', shellId: 'bg_late' });
         resolveShellExecution({
@@ -3869,7 +3869,7 @@ describe('ShellTool', () => {
         });
         const result = await promise;
 
-        // Must NOT say "timed out" — the child finished naturally.
+        // Must NOT say "timed out" -- the child finished naturally.
         expect(String(result.llmContent)).not.toContain('timed out');
         // Should explain the benign race so the agent doesn't retry as
         // a cancellation/timeout.
@@ -3880,7 +3880,7 @@ describe('ShellTool', () => {
         expect(String(result.llmContent)).toContain('oops too late');
       });
 
-      it('rethrows + kills child when registry.register throws — no orphan zombie', async () => {
+      it('rethrows + kills child when registry.register throws -- no orphan zombie', async () => {
         // #3894 review: today `BackgroundShellRegistry.register` is
         // internally safe (Map.set + emit) but if a future
         // implementation throws, the promoted child is already
@@ -3916,7 +3916,7 @@ describe('ShellTool', () => {
           // Re-thrown to caller (scheduler will surface as tool error).
           await expect(promise).rejects.toThrow('boom: registry borked');
 
-          // The catch path fired entryAc.abort() → cancelChild → SIGTERM.
+          // The catch path fired entryAc.abort() -> cancelChild -> SIGTERM.
           await Promise.resolve();
           expect(processKillSpy).toHaveBeenCalledWith(-44444, 'SIGTERM');
           // SIGKILL fires after the 200ms timer; advance + assert.
@@ -3929,7 +3929,7 @@ describe('ShellTool', () => {
       });
     });
 
-    describe('foreground → background promote PR-2.5 (post-promote stream + natural-exit settle)', () => {
+    describe('foreground -> background promote PR-2.5 (post-promote stream + natural-exit settle)', () => {
       it('post-promote bytes APPEND to bg_xxx.output via write stream (do NOT overwrite snapshot)', async () => {
         // Pin the PR-2.5 stream-redirect contract: snapshot lands
         // first, post-promote chunks flow through `stream.write` in
@@ -4084,7 +4084,7 @@ describe('ShellTool', () => {
         ).postPromote.onSettle;
         const entry = (registry.register as Mock).mock.calls[0][0];
 
-        // Non-zero exitCode → fail with "Exited with code N".
+        // Non-zero exitCode -> fail with "Exited with code N".
         onSettle({ exitCode: 137, signal: null, endTime: 1 });
         expect(registry.fail).toHaveBeenCalledWith(
           entry.shellId,
@@ -4092,7 +4092,7 @@ describe('ShellTool', () => {
           1,
         );
 
-        // signal-killed (no exitCode) → fail with "Terminated by signal N".
+        // signal-killed (no exitCode) -> fail with "Terminated by signal N".
         onSettle({ exitCode: null, signal: 15, endTime: 2 });
         expect(registry.fail).toHaveBeenCalledWith(
           entry.shellId,
@@ -4100,7 +4100,7 @@ describe('ShellTool', () => {
           2,
         );
 
-        // Spawn-side error → fail with err.message.
+        // Spawn-side error -> fail with err.message.
         onSettle({
           exitCode: null,
           signal: null,
@@ -4110,7 +4110,7 @@ describe('ShellTool', () => {
         expect(registry.fail).toHaveBeenCalledWith(entry.shellId, 'ENOENT', 3);
       });
 
-      it('queued-settle race: onSettle fires BEFORE handlePromotedForeground completes — entry settles + llmContent reflects final status', async () => {
+      it('queued-settle race: onSettle fires BEFORE handlePromotedForeground completes -- entry settles + llmContent reflects final status', async () => {
         // Pin the queued-settle path: a very fast command can exit
         // between the service-side promote-resolve and the
         // shell.ts-side handlePromotedForeground completing the
@@ -4119,7 +4119,7 @@ describe('ShellTool', () => {
         // `promoteArtifacts.settleQueued`; handlePromotedForeground
         // drains it synchronously after wiring. Without that drain
         // the entry would stay 'running' forever (no further onSettle
-        // ever fires — the service only emits once per promote).
+        // ever fires -- the service only emits once per promote).
         const writeStreamMock = {
           write: vi.fn(),
           end: vi.fn(),
@@ -4134,7 +4134,7 @@ describe('ShellTool', () => {
         const registry = mockConfig.getBackgroundShellRegistry();
 
         // Custom one-shot service impl that captures postPromote and
-        // FIRES onSettle BEFORE resolving the promise — simulates the
+        // FIRES onSettle BEFORE resolving the promise -- simulates the
         // fast-exit race window.
         let capturedPostPromote:
           | {
@@ -4153,7 +4153,7 @@ describe('ShellTool', () => {
             };
             capturedPostPromote = opts?.postPromote;
             // Fire onSettle SYNCHRONOUSLY before resolving (the race
-            // we're testing — settle lands while handlePromotedForeground
+            // we're testing -- settle lands while handlePromotedForeground
             // hasn't run yet).
             capturedPostPromote?.onSettle?.({
               exitCode: 0,
@@ -4278,7 +4278,7 @@ describe('ShellTool', () => {
         // wires onSettleWired (queued-settle path), the drain happens
         // synchronously but the actual registry transition is
         // microtask-deferred. The old code built `llmContent` before
-        // the flag flipped → "Status: running" + `task_stop`
+        // the flag flipped -> "Status: running" + `task_stop`
         // instructions leaked into the model copy even though the
         // child was already gone.
         //
@@ -4362,7 +4362,7 @@ describe('ShellTool', () => {
         expect(result.llmContent).toContain('already exited');
         expect(result.llmContent).not.toContain('task_stop({');
 
-        // Fire 'finish' now — registry transition runs post-flush.
+        // Fire 'finish' now -- registry transition runs post-flush.
         capturedFinishHandler!();
         expect(registry.complete).toHaveBeenCalledWith(
           entry.shellId,
@@ -4371,14 +4371,14 @@ describe('ShellTool', () => {
         );
       });
 
-      it('wave-2 (C1): stream open async error transitions registry — does not hang waiting on `finish`', async () => {
+      it('wave-2 (C1): stream open async error transitions registry -- does not hang waiting on `finish`', async () => {
         // Regression for C1: `fs.createWriteStream` reports common
         // open failures (ENOENT / EACCES / ENOSPC) via an async
         // 'error' event, NOT by throwing. Before the fix, the
         // 'error' listener only logged; `promoteArtifacts.stream`
         // kept pointing at the already-broken stream, and
         // `onSettleWired` attached a `.once('finish', ...)` listener
-        // that would never fire → registry stuck on `running` forever.
+        // that would never fire -> registry stuck on `running` forever.
         // Fix: the error listener latches `streamClosed`, nulls the
         // shared `stream` slot, and `onSettleWired`'s existing
         // `if (!stream)` branch transitions the registry immediately.
@@ -4393,7 +4393,7 @@ describe('ShellTool', () => {
             // Production code attaches finish/error AFTER stream is
             // pulled into a local var; in the failure path it
             // shouldn't reach here at all because `stream` is null.
-            // Capture but do nothing — the test verifies the registry
+            // Capture but do nothing -- the test verifies the registry
             // transition runs WITHOUT firing this handler.
             void event;
             void handler;
@@ -4427,7 +4427,7 @@ describe('ShellTool', () => {
           Object.assign(new Error('disk full'), { code: 'ENOSPC' }),
         );
 
-        // Now drive onSettle — the wired handler sees
+        // Now drive onSettle -- the wired handler sees
         // `promoteArtifacts.stream === null` and transitions
         // immediately (no finish wait), so the entry doesn't stay
         // running.
@@ -4538,7 +4538,7 @@ describe('ShellTool', () => {
 
           onSettle({ exitCode: 0, signal: null, endTime: 1700000222222 });
 
-          // stream.once('finish') was NOT fired — registry should
+          // stream.once('finish') was NOT fired -- registry should
           // NOT have transitioned yet.
           expect(registry.complete).not.toHaveBeenCalled();
 
@@ -4562,7 +4562,7 @@ describe('ShellTool', () => {
         // calling `stream.end()`. Any `onData` chunk that arrived
         // between the null assignment and the `'finish'` event saw
         // `stream === null && streamClosed === false` and pushed
-        // into `promoteArtifacts.buffer` — which has no further
+        // into `promoteArtifacts.buffer` -- which has no further
         // drain path (the foreground finalizer has already
         // returned). Result: chunks stranded forever, no
         // observability. Fix drains the buffer to the stream BEFORE
@@ -4619,7 +4619,7 @@ describe('ShellTool', () => {
           command: 'sleep 1',
           is_background: false,
         });
-        // Fire a pre-settle data chunk BEFORE awaiting — it lands
+        // Fire a pre-settle data chunk BEFORE awaiting -- it lands
         // in the pre-finalizer service-side window. Then await the
         // execute (handlePromotedForeground completes, drains the
         // buffer into stream, wires onSettleWired).
@@ -4629,7 +4629,7 @@ describe('ShellTool', () => {
         // captured postPromote.
         await new Promise((resolve) => setImmediate(resolve));
         // First chunk: arrives BEFORE handlePromotedForeground opens
-        // the stream → buffered in `promoteArtifacts.buffer`. After
+        // the stream -> buffered in `promoteArtifacts.buffer`. After
         // handlePromotedForeground drains, this gets written.
         capturedPostPromote?.onData?.({ type: 'data', chunk: 'pre1' });
         await promise;
@@ -4653,14 +4653,14 @@ describe('ShellTool', () => {
           endTime: 1700001111111,
         });
 
-        // POST-SETTLE chunks (kernel buffer race) — must DROP, not
+        // POST-SETTLE chunks (kernel buffer race) -- must DROP, not
         // accumulate in the buffer. Before the wave-3 fix this would
         // push into `promoteArtifacts.buffer` and leak.
         capturedPostPromote?.onData?.({ type: 'data', chunk: 'post1' });
         capturedPostPromote?.onData?.({ type: 'data', chunk: 'post2' });
 
         // Stream.write should NOT have been called for post-settle
-        // chunks (stream is null + streamClosed latched → onData's
+        // chunks (stream is null + streamClosed latched -> onData's
         // third branch drops).
         const writeCalls = writeStreamMock.write.mock.calls.map(
           (c: unknown[]) => c[0],
@@ -4676,7 +4676,7 @@ describe('ShellTool', () => {
         // `promoteArtifacts.buffer` cannot be salvaged. The fix
         // empties the buffer (so any later code paths can't see
         // stale chunks) and logs the count for oncall observability
-        // (the log itself is verified by `debugLogger` integration —
+        // (the log itself is verified by `debugLogger` integration --
         // not asserted here because debugLogger has no global
         // session in test setup, so the log is a side-effect-only
         // observability tool). Behaviorally the test verifies that
@@ -4688,7 +4688,7 @@ describe('ShellTool', () => {
             code: 'ENOENT',
           });
         });
-        // Spy on writeFileSync (the snapshot fallback) — passthrough
+        // Spy on writeFileSync (the snapshot fallback) -- passthrough
         // implementation since the default mock would be no-op.
         const writeFileSyncSpy = vi
           .mocked(fs.writeFileSync)
@@ -4712,7 +4712,7 @@ describe('ShellTool', () => {
               postPromote?: typeof capturedPostPromote;
             };
             capturedPostPromote = opts?.postPromote;
-            // Fire 3 pre-finalizer chunks → all queue in buffer.
+            // Fire 3 pre-finalizer chunks -> all queue in buffer.
             capturedPostPromote?.onData?.({ type: 'data', chunk: 'a' });
             capturedPostPromote?.onData?.({ type: 'data', chunk: 'b' });
             capturedPostPromote?.onData?.({ type: 'data', chunk: 'c' });
@@ -4746,7 +4746,7 @@ describe('ShellTool', () => {
           'snap',
         );
 
-        // Post-settle chunks must not surface anywhere either —
+        // Post-settle chunks must not surface anywhere either --
         // streamClosed was set by the catch path so subsequent
         // onData chunks drop. Drive a settle, then a late chunk;
         // verify the registry still transitions normally and the
@@ -4773,7 +4773,7 @@ describe('ShellTool', () => {
         // path used to write raw chunks. After Ctrl+B, the file would
         // be plain text up to the snapshot then raw `\x1b[31m` /
         // cursor-move / clear-screen sequences for the post-promote
-        // tail — unreadable for an agent that just `Read`s the file.
+        // tail -- unreadable for an agent that just `Read`s the file.
         // Fix applies stripAnsi() in onData before writing/buffering.
         const writeStreamMock = {
           write: vi.fn(),
@@ -4827,7 +4827,7 @@ describe('ShellTool', () => {
         });
         await invocation.execute(mockAbortSignal);
 
-        // Drive a post-promote chunk with embedded ANSI escapes —
+        // Drive a post-promote chunk with embedded ANSI escapes --
         // common shapes: color, cursor move, clear-screen.
         const ansiChunk =
           '\x1b[31mFAILED\x1b[0m: 3 tests\n\x1b[2K\x1b[1Aprogress: 50%';

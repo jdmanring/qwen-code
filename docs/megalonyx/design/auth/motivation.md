@@ -36,16 +36,16 @@ The new structure separates provider definitions, install logic, and UI state:
 
 ```text
 packages/cli/src/auth/
-├── allProviders.ts
-├── providerConfig.ts
-├── types.ts
-├── install/
-│   └── applyProviderInstallPlan.ts
-└── providers/
-    ├── alibaba/
-    ├── custom/
-    ├── oauth/
-    └── thirdParty/
+|---- allProviders.ts
+|---- providerConfig.ts
+|---- types.ts
+|---- install/
+|   \_-- applyProviderInstallPlan.ts
+\_-- providers/
+    |---- alibaba/
+    |---- custom/
+    |---- oauth/
+    \_-- thirdParty/
 ```
 
 `ProviderConfig` is the declarative contract for built-in providers. It contains

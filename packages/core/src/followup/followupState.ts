@@ -80,7 +80,7 @@ export interface FollowupControllerActions {
   dismiss: () => void;
   /** Hard-clear all state and timers */
   clear: () => void;
-  /** Clean up timers — call on unmount */
+  /** Clean up timers -- call on unmount */
   cleanup: () => void;
 }
 

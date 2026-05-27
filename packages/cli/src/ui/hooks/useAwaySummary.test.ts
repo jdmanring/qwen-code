@@ -74,7 +74,7 @@ describe('useAwaySummary', () => {
     // Advance past the threshold while still blurred.
     vi.advanceTimersByTime(7000);
 
-    // Focus comes back — should kick off the LLM call.
+    // Focus comes back -- should kick off the LLM call.
     rerender({ isFocused: true });
 
     // Drain the resolved promise + microtasks.
@@ -106,7 +106,7 @@ describe('useAwaySummary', () => {
     const historyWithRecentRecap: HistoryItem[] = [
       ...THREE_USER_HISTORY,
       { id: 999, type: 'away_recap', text: 'previous recap' },
-      // Fewer than 2 user messages since the recap → gated.
+      // Fewer than 2 user messages since the recap -> gated.
       userMsg('only one new turn'),
     ];
 
@@ -127,7 +127,7 @@ describe('useAwaySummary', () => {
     vi.advanceTimersByTime(7000);
     rerender({ isFocused: true });
 
-    // Give any pending microtasks a chance to flush — they shouldn't.
+    // Give any pending microtasks a chance to flush -- they shouldn't.
     await Promise.resolve();
     await Promise.resolve();
 

@@ -51,13 +51,13 @@ function getFileLock(filePath: string): Mutex {
  * separator left two records glued together as `}{`). Walks the line with a
  * brace-depth counter that respects string boundaries and `\` escapes, then
  * tries `JSON.parse` on each balanced top-level fragment. Fragments that
- * still fail to parse are skipped silently — the caller decides whether to
+ * still fail to parse are skipped silently -- the caller decides whether to
  * warn.
  *
  * **Limitation**: only top-level `{...}` records are recovered. A glued line
  * whose records are top-level arrays (`[...][...]`) will not split. All
  * existing JSONL writers in this codebase produce object records, so this
- * matches the actual corruption shape — extend if that ever changes.
+ * matches the actual corruption shape -- extend if that ever changes.
  *
  * Exported for unit tests; not part of the module's stable surface.
  */
@@ -96,7 +96,7 @@ export function _recoverObjectsFromLine<T = unknown>(line: string): T[] {
         }
         start = -1;
       } else if (depth < 0) {
-        // Unbalanced close brace — reset and keep scanning for the next
+        // Unbalanced close brace -- reset and keep scanning for the next
         // well-formed object rather than giving up on the whole line.
         depth = 0;
         start = -1;

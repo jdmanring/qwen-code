@@ -1,8 +1,8 @@
-# 🔌 The Tool Protocol: Atomic Execution
+#  The Tool Protocol: Atomic Execution
 
 This document describes the tool system, the interface between the LLM's reasoning and the underlying operating system and filesystem.
 
-## 🛠️ Tool Definition & Registry
+##  Tool Definition & Registry
 
 The Runtime Stack uses a centralized dispatch model for tool execution.
 
@@ -16,7 +16,7 @@ Tools are Python functions that follow a consistent signature:
 
 ---
 
-## 🔄 The Execution Protocol
+##  The Execution Protocol
 
 Every tool call follows a strict security and verification pipeline:
 
@@ -31,7 +31,7 @@ Every tool call follows a strict security and verification pipeline:
 
 ---
 
-## 🌐 MCP (Model Context Protocol) Integration
+##  MCP (Model Context Protocol) Integration
 
 To extend capabilities beyond the hardcoded Python tools, the Runtime Stack implements the **Model Context Protocol (MCP)**.
 
@@ -48,7 +48,7 @@ When an MCP server is connected:
 
 ---
 
-## 💾 Runtime Context & Caching
+##  Runtime Context & Caching
 
 To optimize token usage and performance, the system employs a `RuntimeContext`:
 - **Result Caching**: The results of expensive tools (e.g., `grep_search` on a large codebase) are cached.

@@ -470,7 +470,7 @@ function convertToHistoryItems(
  * @param sessionData The resumed session data from SessionService
  * @param config The config object for accessing tool registry. Pass `null`
  *   to render in "preview" mode (no tool metadata lookup, thoughts shown
- *   verbatim) — used by the standalone resume picker that runs before
+ *   verbatim) -- used by the standalone resume picker that runs before
  *   `loadCliConfig`.
  * @param baseTimestamp Base timestamp for generating unique IDs
  * @returns Array of HistoryItem with proper IDs

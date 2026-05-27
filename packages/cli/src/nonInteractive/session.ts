@@ -152,10 +152,10 @@ class Session {
       profileCheckpoint('config_initialize_end');
       // Stream-json sessions feed prompts straight to the model after init.
       // Under progressive MCP availability `initialize()` returns before
-      // MCP servers settle, so we must explicitly await discovery here —
+      // MCP servers settle, so we must explicitly await discovery here --
       // otherwise the first prompt would see only built-in tools.
       await this.config.waitForMcpReady();
-      // Surface MCP failures on stderr — same rationale as gemini.tsx's
+      // Surface MCP failures on stderr -- same rationale as gemini.tsx's
       // non-interactive branch: per-server errors are caught inside
       // `discoverAllMcpToolsIncremental` and never reach a TTY otherwise,
       // so a script using stream-json with broken MCP config would

@@ -184,7 +184,7 @@ describe('settingsWriter', () => {
 
     it('throws on malformed settings file instead of silently overwriting it', async () => {
       fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
-      // Note the broken bracket — neither comments nor trailing commas fix it.
+      // Note the broken bracket -- neither comments nor trailing commas fix it.
       fs.writeFileSync(settingsPath, '{ "broken": [1, 2', 'utf-8');
       const plan: ProviderInstallPlan = {
         providerId: 'test',
@@ -223,7 +223,7 @@ describe('settingsWriter', () => {
     it('treats \\uXXXX as a 6-char escape (no parser differential / key injection)', async () => {
       // If the JSONC string scanner stepped past the backslash with j+=2 for
       // every escape, `"` would leave `0022` in the buffer and the next
-      // `"` would close the string early — letting an attacker inject extra
+      // `"` would close the string early -- letting an attacker inject extra
       // top-level keys (e.g. env.NODE_OPTIONS) into settings.json.
       // The corrected scanner consumes \uXXXX as 6 chars, so the value stays
       // a single string with a literal `"` in the middle.
@@ -249,7 +249,7 @@ describe('settingsWriter', () => {
       expect(after.env.K).toBe('v');
     });
 
-    it('writes atomically — no .tmp residue on success', async () => {
+    it('writes atomically -- no .tmp residue on success', async () => {
       const plan: ProviderInstallPlan = {
         providerId: 'test',
         authType: AuthType.USE_OPENAI,
@@ -311,13 +311,13 @@ describe('settingsWriter', () => {
     });
 
     it('is a no-op when no settings file exists', () => {
-      // No settings file written — clear must not throw.
+      // No settings file written -- clear must not throw.
       expect(() => clearPersistedAuth()).not.toThrow();
     });
   });
 
   describe('snapshotSettingsForRollback / restoreSettingsSnapshot', () => {
-    it('round-trips: snapshot → mutate → restore brings the old state back', () => {
+    it('round-trips: snapshot -> mutate -> restore brings the old state back', () => {
       fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
       const original = {
         env: { OPENAI_API_KEY: 'sk-good' },
@@ -358,7 +358,7 @@ describe('settingsWriter', () => {
     });
 
     it('snapshot returns {} (not null) when no settings file exists', () => {
-      // ENOENT → readSettings returns {}, so we get a valid empty snapshot
+      // ENOENT -> readSettings returns {}, so we get a valid empty snapshot
       // that restore can write (creating the file).
       const snapshot = snapshotSettingsForRollback();
       expect(snapshot).toEqual({});

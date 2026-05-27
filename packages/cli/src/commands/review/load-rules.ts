@@ -13,9 +13,9 @@
 //
 //   1. `.qwen/review-rules.md`
 //   2. `.github/copilot-instructions.md` (preferred)
-//      OR `copilot-instructions.md` (fallback — only one is loaded)
-//   3. `AGENTS.md` — only the `## Code Review` section
-//   4. `QWEN.md`   — only the `## Code Review` section
+//      OR `copilot-instructions.md` (fallback -- only one is loaded)
+//   3. `AGENTS.md` -- only the `## Code Review` section
+//   4. `QWEN.md`   -- only the `## Code Review` section
 //
 // Missing files are skipped silently. If no rules are found, the script
 // writes an empty file (or omits the file when `--out` is not given) and
@@ -89,7 +89,7 @@ function loadCombined(baseRef: string): {
     }
   }
 
-  // 3. AGENTS.md — extract Code Review section only.
+  // 3. AGENTS.md -- extract Code Review section only.
   const agentsMd = showFile(baseRef, 'AGENTS.md');
   if (agentsMd) {
     const section = extractCodeReviewSection(agentsMd);
@@ -99,7 +99,7 @@ function loadCombined(baseRef: string): {
     }
   }
 
-  // 4. QWEN.md — extract Code Review section only.
+  // 4. QWEN.md -- extract Code Review section only.
   const qwenMd = showFile(baseRef, 'QWEN.md');
   if (qwenMd) {
     const section = extractCodeReviewSection(qwenMd);
@@ -128,7 +128,7 @@ async function runLoadRules(args: LoadRulesArgs): Promise<void> {
     );
   } else {
     writeStdoutLine(
-      `Loaded ${loaded.length} rule source(s) from ${baseRef} → ${out}: ${loaded.join(', ')}`,
+      `Loaded ${loaded.length} rule source(s) from ${baseRef} -> ${out}: ${loaded.join(', ')}`,
     );
   }
 }
@@ -143,13 +143,13 @@ export const loadRulesCommand: CommandModule = {
         type: 'string',
         demandOption: true,
         describe:
-          'Base ref to read rules from — typically the PR base branch (e.g. "origin/main"). Loading from the base branch (not the PR branch) prevents a malicious PR from injecting bypass rules.',
+          'Base ref to read rules from -- typically the PR base branch (e.g. "origin/main"). Loading from the base branch (not the PR branch) prevents a malicious PR from injecting bypass rules.',
       })
       .option('out', {
         type: 'string',
         demandOption: true,
         describe:
-          'Output Markdown path (will be overwritten — empty if no rules found)',
+          'Output Markdown path (will be overwritten -- empty if no rules found)',
       }),
   handler: async (argv) => {
     await runLoadRules(argv as unknown as LoadRulesArgs);

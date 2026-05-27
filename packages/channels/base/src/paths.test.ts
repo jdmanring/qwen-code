@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { getGlobalQwenDir, resolvePath } from './paths.js';
 
-describe('channels/base paths – getGlobalQwenDir', () => {
+describe('channels/base paths - getGlobalQwenDir', () => {
   const originalEnv = process.env['QWEN_HOME'];
 
   afterEach(() => {
@@ -46,7 +46,7 @@ describe('channels/base paths – getGlobalQwenDir', () => {
   });
 });
 
-describe('channels/base paths – resolvePath', () => {
+describe('channels/base paths - resolvePath', () => {
   it('returns absolute paths unchanged', () => {
     const abs = path.resolve('/tmp/x');
     expect(resolvePath(abs)).toBe(abs);

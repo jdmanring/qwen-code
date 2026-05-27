@@ -5,7 +5,7 @@
  */
 
 /**
- * @fileoverview AgentViewContext — React context for in-process agent view switching.
+ * @fileoverview AgentViewContext -- React context for in-process agent view switching.
  *
  * Tracks which view is active (main or an agent tab) and the set of registered
  * AgentInteractive instances. Consumed by AgentTabBar, AgentChatView, and
@@ -29,7 +29,7 @@ import {
 } from '@qwen-code/qwen-code-core';
 import { useArenaInProcess } from '../hooks/useArenaInProcess.js';
 
-// ─── Types ──────────────────────────────────────────────────
+// --- Types --------------------------------------------------
 
 export interface RegisteredAgent {
   interactiveAgent: AgentInteractive;
@@ -75,12 +75,12 @@ export interface AgentViewActions {
   setAgentApprovalMode(agentId: string, mode: ApprovalMode): void;
 }
 
-// ─── Context ────────────────────────────────────────────────
+// --- Context ------------------------------------------------
 
 const AgentViewStateContext = createContext<AgentViewState | null>(null);
 const AgentViewActionsContext = createContext<AgentViewActions | null>(null);
 
-// ─── Defaults (used when no provider is mounted) ────────────
+// --- Defaults (used when no provider is mounted) ------------
 
 const DEFAULT_STATE: AgentViewState = {
   activeView: 'main',
@@ -107,19 +107,19 @@ const DEFAULT_ACTIONS: AgentViewActions = {
   setAgentApprovalMode: noop,
 };
 
-// ─── Hook: useAgentViewState ────────────────────────────────
+// --- Hook: useAgentViewState --------------------------------
 
 export function useAgentViewState(): AgentViewState {
   return useContext(AgentViewStateContext) ?? DEFAULT_STATE;
 }
 
-// ─── Hook: useAgentViewActions ──────────────────────────────
+// --- Hook: useAgentViewActions ------------------------------
 
 export function useAgentViewActions(): AgentViewActions {
   return useContext(AgentViewActionsContext) ?? DEFAULT_ACTIONS;
 }
 
-// ─── Provider ───────────────────────────────────────────────
+// --- Provider -----------------------------------------------
 
 interface AgentViewProviderProps {
   config?: Config;
@@ -141,7 +141,7 @@ export function AgentViewProvider({
     Map<string, ApprovalMode>
   >(() => new Map());
 
-  // ── Navigation ──
+  // -- Navigation --
 
   const switchToMain = useCallback(() => {
     setActiveView('main');
@@ -171,7 +171,7 @@ export function AgentViewProvider({
     setActiveView(ids[prevIndex]!);
   }, [agents, activeView]);
 
-  // ── Registration ──
+  // -- Registration --
 
   const registerAgent = useCallback(
     (
@@ -242,7 +242,7 @@ export function AgentViewProvider({
     [agents],
   );
 
-  // ── Memoized values ──
+  // -- Memoized values --
 
   const state: AgentViewState = useMemo(
     () => ({
@@ -292,7 +292,7 @@ export function AgentViewProvider({
     ],
   );
 
-  // ── Arena in-process bridge ──
+  // -- Arena in-process bridge --
   // Bridge arena manager events to agent registration. The hook is kept
   // in its own file for separation of concerns; it's called here so the
   // provider is the single owner of agent tab lifecycle.

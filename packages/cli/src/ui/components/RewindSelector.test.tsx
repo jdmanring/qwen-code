@@ -70,12 +70,12 @@ describe('RewindSelector', () => {
       />,
     );
 
-    expect(lastFrame()).toContain('› #2 second prompt');
+    expect(lastFrame()).toContain(' #2 second prompt');
 
     pressKey({ name: 'p', sequence: '\u0010', ctrl: true });
-    expect(lastFrame()).toContain('› #1 first prompt');
+    expect(lastFrame()).toContain(' #1 first prompt');
 
     pressKey({ name: 'n', sequence: '\u000E', ctrl: true });
-    expect(lastFrame()).toContain('› #2 second prompt');
+    expect(lastFrame()).toContain(' #2 second prompt');
   });
 });

@@ -83,11 +83,11 @@ describe('ArenaSessionCard', () => {
     expect(output).toContain('Refactored with JWT strategy pattern.');
     expect(output).toContain('Token Efficiency:');
     expect(output).toContain('45,000 tokens');
-    expect(output).toContain('45,000 tokens · runtime 12.0s');
-    expect(output).not.toContain('45,000 tokens · runtime 12.0s · 12 tools');
+    expect(output).toContain('45,000 tokens  runtime 12.0s');
+    expect(output).not.toContain('45,000 tokens  runtime 12.0s  12 tools');
     expect(output).not.toContain('Quick Preview:');
     expect(output).not.toContain('[View Detailed Diff]');
-    expect(output).not.toContain('[Select Winner →]');
+    expect(output).not.toContain('[Select Winner ->]');
   });
 
   it('hides empty per-agent unique file groups', () => {

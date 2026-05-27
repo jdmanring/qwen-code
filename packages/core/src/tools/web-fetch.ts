@@ -153,11 +153,11 @@ ${textContent}
 
       const result = await runSideQuery(this.config, {
         purpose: 'web-fetch',
-        // Pin to the main model — fast model loses too much fidelity on
+        // Pin to the main model -- fast model loses too much fidelity on
         // long, rich source material.
         model: this.config.getModel(),
         // Best-effort: the outer catch already converts processing failures
-        // into a tool error; retrying 7× just delays that fallback.
+        // into a tool error; retrying 7* just delays that fallback.
         maxAttempts: 1,
         contents: [{ role: 'user', parts: [{ text: fallbackPrompt }] }],
         systemInstruction:
@@ -293,7 +293,7 @@ export class WebFetchTool extends BaseDeclarativeTool<
       },
       true, // isOutputMarkdown
       false, // canUpdateOutput
-      true, // shouldDefer — web fetching is infrequent
+      true, // shouldDefer -- web fetching is infrequent
       false, // alwaysLoad
       'web fetch url http download content',
     );
@@ -326,7 +326,7 @@ export class WebFetchTool extends BaseDeclarativeTool<
   override toAutoClassifierInput(
     params: WebFetchToolParams,
   ): Record<string, unknown> {
-    // Do not forward the prompt — it may contain sensitive context.
+    // Do not forward the prompt -- it may contain sensitive context.
     return { url: params.url };
   }
 }

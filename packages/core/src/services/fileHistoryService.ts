@@ -72,7 +72,7 @@ export interface TurnFileDiff {
    *  remain a best-effort line-count delta. */
   oversized: boolean;
   /** True when either endpoint's content contains NUL bytes (the standard
-   *  binary sniff). Hunks are empty in that case — rendering them as text
+   *  binary sniff). Hunks are empty in that case -- rendering them as text
    *  would corrupt the terminal or freeze the renderer. */
   isBinary: boolean;
 }
@@ -91,7 +91,7 @@ export interface TurnDiff {
      *  filter for unchanged), so a turn editing 600 files with cap 500
      *  reports `filesOmitted = 100` regardless of how many of the
      *  processed 500 turn out to have no actual change. Some of the
-     *  100 may also have had no change — we can't know without paying
+     *  100 may also have had no change -- we can't know without paying
      *  the read the cap was specifically meant to avoid. Treat it as
      *  "up to N more files were not surfaced". */
     filesOmitted: number;
@@ -101,7 +101,7 @@ export interface TurnDiff {
 const MAX_SNAPSHOTS = 100;
 const FILE_HISTORY_DIR = 'file-history';
 /** Per-turn read-fanout cap. Each candidate file may read up to two backups,
- *  so 500 files ≈ 1000 concurrent opens — safely under the typical 4096 fd
+ *  so 500 files  1000 concurrent opens -- safely under the typical 4096 fd
  *  ceiling and well below `ulimit -n` defaults on Linux/macOS. */
 const MAX_TURN_DIFF_FILES = 500;
 /** How many bytes to scan for NUL when sniffing binary content. Matches
@@ -249,7 +249,7 @@ async function checkOriginFileChanged(
 
   // Treat any failure to stat the backup (including ENOENT) as "changed" so
   // callers attempt the restore: applySnapshot will surface the missing
-  // backup via restoreBackup → filesFailed, and makeSnapshot will create a
+  // backup via restoreBackup -> filesFailed, and makeSnapshot will create a
   // fresh backup. The previous ENOENT branch silently reported "unchanged"
   // when both the working file and the backup had been deleted, which let
   // rewind report success even though the snapshot expected the file to
@@ -337,7 +337,7 @@ interface EndpointReadUnreadable {
  *  safely. Caller treats the row as oversized without ever holding the bytes. */
 interface EndpointReadOversized {
   kind: 'oversized';
-  /** True when the path exists (only meaningful for the worktree branch — a
+  /** True when the path exists (only meaningful for the worktree branch -- a
    *  backup record with a real `backupFileName` always implies the file existed
    *  at snapshot time). */
   exists: boolean;
@@ -356,17 +356,17 @@ type EndpointRead =
  * read (permission flip, EBUSY, decoding failure, etc.). `getTurnDiff`
  * skips rows for which either endpoint is unreadable, so the dialog
  * never fabricates phantom hunks against an empty string we never
- * actually had. ENOENT is treated as a genuine absence — for the live
+ * actually had. ENOENT is treated as a genuine absence -- for the live
  * worktree that means the file was deleted; for a backup with a real
  * `backupFileName` it means the snapshot is corrupt and is reported
  * as unreadable.
  *
  * Returns `{ kind: 'oversized' }` when the on-disk file is larger than
- * `MAX_DIFF_SIZE_BYTES`. We `stat()` first and bail before allocating —
+ * `MAX_DIFF_SIZE_BYTES`. We `stat()` first and bail before allocating --
  * otherwise a 2 GB `write_file` blob would be slurped into the Node heap
  * just for the downstream `Buffer.byteLength` check to reject it, OOM-ing
  * the dialog before the cap can fire. The dialog renders these rows as
- * "(oversized — diff omitted)" without ever holding the bytes.
+ * "(oversized -- diff omitted)" without ever holding the bytes.
  */
 async function readEndpointContent(
   backup: FileHistoryBackup | undefined,
@@ -392,7 +392,7 @@ async function readEndpointContent(
  * past `MAX_DIFF_SIZE_BYTES` and slip the OOM guard.
  *
  * Operating on the same inode also means the size we check matches the
- * bytes we read — Node's `readFile(fd)` reads the underlying file from
+ * bytes we read -- Node's `readFile(fd)` reads the underlying file from
  * offset 0 regardless of how the path entry shifts in the meantime.
  */
 async function readPathWithSizeGuard(
@@ -404,8 +404,8 @@ async function readPathWithSizeGuard(
     fh = await open(path, 'r');
   } catch (e: unknown) {
     if (isENOENT(e)) {
-      // Worktree: genuine deletion → absence. Backup: snapshot recorded a
-      // file we can no longer find → unreadable (lying about an empty
+      // Worktree: genuine deletion -> absence. Backup: snapshot recorded a
+      // file we can no longer find -> unreadable (lying about an empty
       // before-state would synthesize a fake every-line-added hunk).
       if (kind === 'worktree') {
         return { kind: 'ok', content: '', exists: false };
@@ -434,7 +434,7 @@ async function readPathWithSizeGuard(
 
 /**
  * Binary sniff. Scans both the head and the tail of the string so a long
- * text prefix can't bury a binary payload past the head window — git's
+ * text prefix can't bury a binary payload past the head window -- git's
  * heuristic only looks at the head, which is sufficient when invoked on
  * file open but not when an attacker / faulty generator can craft mixed
  * inputs. Content past MAX_DIFF_SIZE_BYTES is already short-circuited as
@@ -554,7 +554,7 @@ export class FileHistoryService {
       return;
     }
 
-    // Re-check after async backup — concurrent calls write the same
+    // Re-check after async backup -- concurrent calls write the same
     // deterministic path, so the second overwrites the first harmlessly.
     // Allow overwriting a `failed` entry so the heal path actually
     // records the fresh backup (otherwise we'd leave the failed marker
@@ -610,7 +610,7 @@ export class FileHistoryService {
               ))
             ) {
               // The previous snapshot has a confirmed (non-failed) backup of
-              // an unchanged file — reuse it. We must NOT reach this branch
+              // an unchanged file -- reuse it. We must NOT reach this branch
               // when `latestBackup.failed` is set: copying that entry forward
               // would carry the `failed` flag into every subsequent snapshot
               // for as long as the file stays unchanged, permanently
@@ -631,7 +631,7 @@ export class FileHistoryService {
               `FileHistory: Failed to backup file ${trackingPath}: ${error}`,
             );
             // Record the failure rather than letting the inheritance loop
-            // silently copy the previous snapshot's backup — that would
+            // silently copy the previous snapshot's backup -- that would
             // make a rewind to this snapshot restore the file to its
             // pre-failure content as if it were the captured state of
             // this turn.
@@ -794,7 +794,7 @@ export class FileHistoryService {
     // Candidates are restricted to files that target's snapshot actually
     // tracked. A file that first shows up in the *next* snapshot's backups
     // (because trackEdit added it during turn N+1) didn't change during
-    // turn N — including it would either fast-path to no-op or, worse,
+    // turn N -- including it would either fast-path to no-op or, worse,
     // produce a phantom "new file" hunk attributed to the wrong turn.
     // `trackEdit` mutates `mostRecent` in place, so by the time we read
     // target.trackedFileBackups it already contains every file touched
@@ -810,10 +810,10 @@ export class FileHistoryService {
     );
 
     // Cap concurrent file reads. Each candidate reads up to two backups,
-    // so a 250-file turn would issue ~500 simultaneous opens — enough to
+    // so a 250-file turn would issue ~500 simultaneous opens -- enough to
     // hit ulimit -n on common CI configurations. The cap is bounded by
     // the same constant the git path uses (MAX_FILES_FOR_DETAILS = 500
-    // files total), with two reads each → 1000 open()s worst case, still
+    // files total), with two reads each -> 1000 open()s worst case, still
     // comfortably below the typical 4096 fd ceiling.
     const filesOmitted = Math.max(
       0,
@@ -923,7 +923,7 @@ export class FileHistoryService {
       this.sessionId,
     );
     // A non-null backup name that fails to read means we cannot produce a
-    // trustworthy "before" content — fabricating an empty string would
+    // trustworthy "before" content -- fabricating an empty string would
     // present every line as a fresh addition. Skip the row instead, but
     // log so a missing/permission-flipped backup leaves a trace.
     if (beforeRead.kind === 'unreadable') {
@@ -943,7 +943,7 @@ export class FileHistoryService {
       return null;
     }
 
-    // Pre-read size guard tripped — either endpoint sits above the cap.
+    // Pre-read size guard tripped -- either endpoint sits above the cap.
     // Bail before any content work so a 2 GB blob never lands in the heap;
     // we cannot compute precise +N/-M stats without reading, but the row
     // still shows up with the oversized badge and is treated correctly by
@@ -974,7 +974,7 @@ export class FileHistoryService {
     }
 
     // Binary sniff: scanning either endpoint catches changes against a
-    // text→binary or binary→text flip. Feeding NUL-laced strings into
+    // text->binary or binary->text flip. Feeding NUL-laced strings into
     // `structuredPatch` and then through `DiffRenderer` can produce
     // garbage output or hang the terminal, so surface them as a binary
     // row with no hunks (mirrors the git path's binary handling).
@@ -995,7 +995,7 @@ export class FileHistoryService {
     // Cap the patch input to keep dialog memory bounded: a single 50MB
     // generated file should not allocate hundreds of MB of hunk strings
     // when `/diff` opens. Report the file with stats but no hunks; the
-    // dialog renders an "(oversized — diff omitted)" tag for these.
+    // dialog renders an "(oversized -- diff omitted)" tag for these.
     const oversized =
       Buffer.byteLength(beforeContent, 'utf8') > MAX_DIFF_SIZE_BYTES ||
       Buffer.byteLength(afterContent, 'utf8') > MAX_DIFF_SIZE_BYTES;

@@ -341,7 +341,7 @@ describe('Telemetry SDK', () => {
     expect(OTLPMetricExporterHttp).toHaveBeenCalledWith({
       url: 'http://metrics-host/token/api/otlp/metrics',
     });
-    // Logs falls back to LogToSpanProcessor (bridges logs → spans)
+    // Logs falls back to LogToSpanProcessor (bridges logs -> spans)
     expect(OTLPLogExporterHttp).not.toHaveBeenCalled();
     expect(LogToSpanProcessor).toHaveBeenCalledWith(expect.anything(), {
       includeSensitiveSpanAttributes: false,
@@ -659,10 +659,10 @@ describe('Telemetry SDK', () => {
         | undefined;
       expect(propagator).toBeDefined();
       expect(typeof propagator!.inject).toBe('function');
-      // Sanity: fields() returns empty array → instrumentation knows there
+      // Sanity: fields() returns empty array -> instrumentation knows there
       // are no headers to clear / no propagator state.
       expect(propagator!.fields()).toEqual([]);
-      // inject is a no-op — does not throw, does not mutate the carrier.
+      // inject is a no-op -- does not throw, does not mutate the carrier.
       const carrier: Record<string, string> = { existing: 'h' };
       expect(() =>
         propagator!.inject({} as never, carrier, {} as never),
@@ -676,7 +676,7 @@ describe('Telemetry SDK', () => {
         'getOutboundCorrelationPropagateTraceContext',
       ).mockReturnValue(true);
       initializeTelemetry(mockConfig);
-      // textMapPropagator is omitted from NodeSDK options → SDK installs
+      // textMapPropagator is omitted from NodeSDK options -> SDK installs
       // its default `CompositePropagator` (W3CTraceContextPropagator +
       // W3CBaggagePropagator). Test asserts the absence at the constructor
       // boundary because the default composite is constructed inside
@@ -745,7 +745,7 @@ describe('Telemetry SDK', () => {
       const config = vi.mocked(UndiciInstrumentation).mock.calls[0]![0]! as {
         ignoreRequestHook: (req: { origin: string; path: string }) => boolean;
       };
-      // No OTLP endpoint → nothing to ignore. Returning false means every
+      // No OTLP endpoint -> nothing to ignore. Returning false means every
       // request gets a client span (the desired behavior in outfile mode).
       expect(
         config.ignoreRequestHook({
@@ -828,7 +828,7 @@ describe('Telemetry SDK', () => {
     });
 
     it('ignoreRequestHook normalizes endpoint config quoted in settings.json', () => {
-      // Defense against settings.json `"otlpEndpoint": "\"http://...\""` —
+      // Defense against settings.json `"otlpEndpoint": "\"http://...\""` --
       // quoted strings would otherwise miss the prefix match and reintroduce
       // the feedback loop. Per PR review feedback.
       vi.spyOn(mockConfig, 'getTelemetryOtlpProtocol').mockReturnValue('http');
@@ -933,7 +933,7 @@ describe('Telemetry SDK', () => {
     it('normalizeOtlpPrefix rejects unparseable URLs entirely (no dangerous "http" fallback)', () => {
       // Critical fix: previously the catch fallback would let a typo like
       // `"http"` produce the prefix `"http"`, which startsWith-matches every
-      // outbound HTTP request → silently disabled all instrumentation. The
+      // outbound HTTP request -> silently disabled all instrumentation. The
       // fix returns undefined for unparseable URLs and warns via diag.
       const warnSpy = vi.spyOn(diag, 'warn').mockImplementation(() => {});
       vi.spyOn(mockConfig, 'getTelemetryOtlpProtocol').mockReturnValue('http');
@@ -953,9 +953,9 @@ describe('Telemetry SDK', () => {
       const config = vi.mocked(UndiciInstrumentation).mock.calls[0]![0]! as {
         ignoreRequestHook: (req: { origin: string; path: string }) => boolean;
       };
-      // Unparseable endpoint produced NO prefix → hook is a no-op. Outbound
+      // Unparseable endpoint produced NO prefix -> hook is a no-op. Outbound
       // LLM requests are NOT erroneously masked (this is the danger we
-      // prevent — the previous "http" fallback would mask everything).
+      // prevent -- the previous "http" fallback would mask everything).
       expect(
         config.ignoreRequestHook({
           origin: 'https://api.openai.com',
@@ -971,7 +971,7 @@ describe('Telemetry SDK', () => {
     it('HttpInstrumentation also receives ignoreOutgoingRequestHook for OTLP exporter', () => {
       // The OTLP HTTP exporter uses node:http (patched by HttpInstrumentation,
       // NOT undici). Without this guard, every OTLP upload batch creates a
-      // parasitic client span → feedback loop. PR #4390 review feedback.
+      // parasitic client span -> feedback loop. PR #4390 review feedback.
       vi.spyOn(mockConfig, 'getTelemetryOtlpProtocol').mockReturnValue('http');
       vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue(
         'http://collector.example.com:4318',
@@ -987,7 +987,7 @@ describe('Telemetry SDK', () => {
           path: string;
         }) => boolean;
       };
-      // OTLP upload to configured collector → skipped.
+      // OTLP upload to configured collector -> skipped.
       expect(
         httpInstrumentationConfig.ignoreOutgoingRequestHook({
           protocol: 'http:',
@@ -997,7 +997,7 @@ describe('Telemetry SDK', () => {
           path: '/v1/traces',
         }),
       ).toBe(true);
-      // Unrelated LLM endpoint → traced.
+      // Unrelated LLM endpoint -> traced.
       expect(
         httpInstrumentationConfig.ignoreOutgoingRequestHook({
           protocol: 'https:',
@@ -1011,8 +1011,8 @@ describe('Telemetry SDK', () => {
     it('matches default-port requests against a portless prefix (URL.origin parity)', () => {
       // Regression: `URL.origin` strips `:80` from `http://collector` to give
       // `http://collector`. The hook's manual `${proto}://${host}${portPart}`
-      // reconstruction kept `:80`, so prefix and request origin diverged →
-      // guard bypassed → feedback loop. PR #4390 review feedback (wenshao).
+      // reconstruction kept `:80`, so prefix and request origin diverged ->
+      // guard bypassed -> feedback loop. PR #4390 review feedback (wenshao).
       vi.spyOn(mockConfig, 'getTelemetryOtlpProtocol').mockReturnValue('http');
       vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue(
         'http://collector.example.com',
@@ -1028,7 +1028,7 @@ describe('Telemetry SDK', () => {
           path: string;
         }) => boolean;
       };
-      // Default port HTTP request to portless prefix → must match.
+      // Default port HTTP request to portless prefix -> must match.
       expect(
         httpInstrumentationConfig.ignoreOutgoingRequestHook({
           protocol: 'http:',
@@ -1042,8 +1042,8 @@ describe('Telemetry SDK', () => {
     it('fails open when req.protocol is missing (no silent HTTPS guard bypass)', () => {
       // Regression: previous `|| 'http'` fallback silently mis-bucketed HTTPS
       // requests as HTTP when `req.protocol` was unset, so HTTPS OTLP
-      // endpoints never matched their prefix → guard bypassed. Now: missing
-      // proto → return false → request gets instrumented (worst case is a
+      // endpoints never matched their prefix -> guard bypassed. Now: missing
+      // proto -> return false -> request gets instrumented (worst case is a
       // parasitic span, observable; the previous default produced an
       // unbounded feedback loop). PR #4390 review feedback (wenshao).
       vi.spyOn(mockConfig, 'getTelemetryOtlpProtocol').mockReturnValue('http');
@@ -1075,7 +1075,7 @@ describe('Telemetry SDK', () => {
       // Defensive: when `req.hostname` is absent and `req.host` already
       // includes `:port` (e.g. `"collector:4318"`), naively appending
       // `:${req.port}` produced `"http://collector:4318:4318"`, which
-      // `URL` rejects → silent guard bypass. Currently unreachable in
+      // `URL` rejects -> silent guard bypass. Currently unreachable in
       // practice (`@opentelemetry/otlp-exporter-base` always sets
       // `hostname`) but the fallback path must be correct. PR #4390
       // review feedback (wenshao).
@@ -1110,7 +1110,7 @@ describe('Telemetry SDK', () => {
       // asymmetric leading/trailing quotes. Previously normalizeOtlpPrefix
       // only stripped symmetric quotes, so settings.json typos like
       // `"value'` would let the exporter connect (parseOtlpEndpoint accepts)
-      // while the guard returned undefined (normalizeOtlpPrefix rejected) →
+      // while the guard returned undefined (normalizeOtlpPrefix rejected) ->
       // parasitic-span loop. PR #4390 review feedback (wenshao).
       vi.spyOn(mockConfig, 'getTelemetryOtlpProtocol').mockReturnValue('http');
       vi.spyOn(mockConfig, 'getTelemetryOtlpEndpoint').mockReturnValue(
@@ -1129,7 +1129,7 @@ describe('Telemetry SDK', () => {
       const config = vi.mocked(UndiciInstrumentation).mock.calls[0]![0]! as {
         ignoreRequestHook: (req: { origin: string; path: string }) => boolean;
       };
-      // Asymmetric-quoted endpoint normalized → guard matches OTLP traffic.
+      // Asymmetric-quoted endpoint normalized -> guard matches OTLP traffic.
       expect(
         config.ignoreRequestHook({
           origin: 'http://collector.example.com:4318',
@@ -1181,7 +1181,7 @@ describe('refreshSessionContext', () => {
   });
 
   it('should be a no-op when telemetry is not initialized', () => {
-    // Do NOT call initializeTelemetry — telemetryInitialized remains false
+    // Do NOT call initializeTelemetry -- telemetryInitialized remains false
     refreshSessionContext('some-session');
 
     expect(createSessionRootContext).not.toHaveBeenCalled();

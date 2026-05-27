@@ -40,7 +40,7 @@ export function markdownToPlainText(text: string): string {
     .trim();
 }
 
-// ── Image path validation ─────────────────────────────────────────
+// -- Image path validation -----------------------------------------
 
 const ALLOWED_EXTS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp']);
 const MAX_IMAGE_SIZE = 20 * 1024 * 1024; // 20 MB
@@ -67,7 +67,7 @@ function isInsideAllowedDir(realPath: string, allowedDir: string): boolean {
   );
 }
 
-/** Image magic bytes → MIME type mapping. */
+/** Image magic bytes -> MIME type mapping. */
 export function detectImageMime(data: Buffer): string {
   if (
     data[0] === 0x89 &&
@@ -138,7 +138,7 @@ export function validateImagePath(
 
   // Build the allowlist: /tmp/ (and macOS real /private/tmp/), os.tmpdir(),
   // plus workspace directories passed by the caller. Use realpathSync to
-  // resolve symlinks (e.g. /tmp → /private/tmp on macOS).
+  // resolve symlinks (e.g. /tmp -> /private/tmp on macOS).
   const ALLOWED_DIRS = [
     '/tmp/',
     realpathSync('/tmp/') + '/',
@@ -152,7 +152,7 @@ export function validateImagePath(
   }
 
   // Verify magic bytes match the extension (read only first 16 bytes to
-  // avoid TOCTOU double-read — sendImage reads the full file later).
+  // avoid TOCTOU double-read -- sendImage reads the full file later).
   let fd: number | undefined;
   try {
     fd = openSync(real, 'r');

@@ -183,7 +183,7 @@ describe('findCompressSplitPoint', () => {
         parts: [{ functionCall: { name: 'write1', args: {} } }],
       },
     ];
-    // 2 complete (m+fc, u+fr) pairs precede the trailing fc → retain both
+    // 2 complete (m+fc, u+fr) pairs precede the trailing fc -> retain both
     // pairs + trailing fc = last 5 entries; compress index 0 (the task).
     // Pre-refactor this returned 0 (NOOP); now it compresses-most.
     expect(findCompressSplitPoint(history, 0.7)).toBe(history.length - 5);
@@ -230,7 +230,7 @@ describe('findCompressSplitPoint', () => {
         parts: [{ functionCall: { name: 'write1', args: {} } }],
       },
     ];
-    // 2 complete pairs before the trailing fc → retain both + trailing = 5
+    // 2 complete pairs before the trailing fc -> retain both + trailing = 5
     // entries kept. Pre-refactor returned lastSplitPoint=2 (compress less).
     expect(findCompressSplitPoint(history, 0.7)).toBe(history.length - 5);
   });
@@ -267,7 +267,7 @@ describe('findCompressSplitPoint', () => {
       },
     ];
     // The entry before the trailing fc is a fresh user (msg4), not a u+fr,
-    // so the pair walk stops with 0 pairs found → retain only the trailing
+    // so the pair walk stops with 0 pairs found -> retain only the trailing
     // fc, compress everything else. Pre-refactor returned lastSplitPoint=7.
     expect(findCompressSplitPoint(history, 0.99)).toBe(history.length - 1);
   });
@@ -297,7 +297,7 @@ describe('findCompressSplitPoint', () => {
   });
 });
 
-describe('findCompressSplitPoint — in-flight fallback', () => {
+describe('findCompressSplitPoint -- in-flight fallback', () => {
   const userTask = (text: string): Content => ({
     role: 'user',
     parts: [{ text }],
@@ -334,7 +334,7 @@ describe('findCompressSplitPoint — in-flight fallback', () => {
       userFr('d'),
       modelFc('trailing'),
     ];
-    // Default retainCount = 2 → keep last 5 (2 pairs + trailing).
+    // Default retainCount = 2 -> keep last 5 (2 pairs + trailing).
     expect(findCompressSplitPoint(history, 0.7)).toBe(history.length - 5);
   });
 
@@ -347,7 +347,7 @@ describe('findCompressSplitPoint — in-flight fallback', () => {
       userFr('a'),
       modelFc('trailing'),
     ];
-    // Only 1 complete pair → keep last 3 (1 pair + trailing).
+    // Only 1 complete pair -> keep last 3 (1 pair + trailing).
     expect(findCompressSplitPoint(history, 0.7)).toBe(history.length - 3);
   });
 
@@ -358,7 +358,7 @@ describe('findCompressSplitPoint — in-flight fallback', () => {
       userTask('task'),
       modelFc('trailing'),
     ];
-    // No complete pairs → keep only the trailing fc.
+    // No complete pairs -> keep only the trailing fc.
     expect(findCompressSplitPoint(history, 0.7)).toBe(history.length - 1);
   });
 
@@ -375,7 +375,7 @@ describe('findCompressSplitPoint — in-flight fallback', () => {
       userFr('c'),
       modelFc('trailing'),
     ];
-    // Override retainCount to 1 → keep last 3 (1 pair + trailing).
+    // Override retainCount to 1 -> keep last 3 (1 pair + trailing).
     expect(findCompressSplitPoint(history, 0.7, 1)).toBe(history.length - 3);
   });
 });
@@ -437,7 +437,7 @@ describe('ChatCompressionService', () => {
       { role: 'user', parts: [{ text: 'hi' }] },
     ]);
     // Seed a non-zero originalTokenCount so we can assert the breaker-NOOP
-    // path forwards it (rather than zeroing the field — see R4-1). Telemetry
+    // path forwards it (rather than zeroing the field -- see R4-1). Telemetry
     // consumers rely on this to distinguish "breaker tripped at N tokens"
     // from "empty session".
     vi.mocked(uiTelemetryService.getLastPromptTokenCount).mockReturnValue(
@@ -459,7 +459,7 @@ describe('ChatCompressionService', () => {
 
   it('falls through when consecutiveFailures is below the breaker threshold', async () => {
     // Below MAX_CONSECUTIVE_FAILURES, the cheap-gate must NOT NOOP on the
-    // failure counter alone — it should fall through. Use force=true to
+    // failure counter alone -- it should fall through. Use force=true to
     // bypass the token-threshold check too, then prove we reached the
     // post-cheap-gate path by observing chat.getHistory(true) being called.
     vi.mocked(mockChat.getHistory).mockReturnValue([
@@ -478,7 +478,7 @@ describe('ChatCompressionService', () => {
     });
     // Reaching the curated-history clone is the proof we got past the
     // cheap-gate. The service calls chat.getHistory(true) once it falls
-    // through — if the breaker had tripped, it would have returned the
+    // through -- if the breaker had tripped, it would have returned the
     // cheap-gate NOOP without ever touching the history clone.
     expect(mockChat.getHistory).toHaveBeenCalledWith(true);
   });
@@ -557,7 +557,7 @@ describe('ChatCompressionService', () => {
     vi.mocked(mockConfig.getChatCompression).mockReturnValue({
       contextPercentageThreshold: 0,
     } as unknown as ReturnType<typeof mockConfig.getChatCompression>);
-    // 128K window → auto ≈ 95K; originalTokenCount 100K crosses.
+    // 128K window -> auto  95K; originalTokenCount 100K crosses.
     vi.mocked(mockConfig.getContentGeneratorConfig).mockReturnValue({
       model: 'gemini-pro',
       contextWindowSize: 128_000,
@@ -567,7 +567,7 @@ describe('ChatCompressionService', () => {
       text: 'Summary',
       usage: {
         // Realistic compression usage so the inflation guard doesn't fire:
-        //   newTokens = max(0, 100000 - (99000 - 1000) + 1500) = 3500 → COMPRESSED
+        //   newTokens = max(0, 100000 - (99000 - 1000) + 1500) = 3500 -> COMPRESSED
         promptTokenCount: 99_000,
         candidatesTokenCount: 1500,
         totalTokenCount: 100_500,
@@ -1772,7 +1772,7 @@ describe('ChatCompressionService', () => {
             },
           ],
         },
-        // orphaned funcCall — agent was interrupted before getting a response
+        // orphaned funcCall -- agent was interrupted before getting a response
         {
           role: 'model',
           parts: [{ functionCall: { name: 'editFile', args: {} } }],
@@ -1806,11 +1806,11 @@ describe('ChatCompressionService', () => {
         originalTokenCount: uiTelemetryService.getLastPromptTokenCount(),
       });
 
-      // Should compress successfully — orphaned funcCall is stripped first, then
+      // Should compress successfully -- orphaned funcCall is stripped first, then
       // normal compression runs on the remaining history, historyToKeep is empty
       expect(result.info.compressionStatus).toBe(CompressionStatus.COMPRESSED);
       expect(result.newHistory).not.toBeNull();
-      // Reconstructed history: [User(summary), Model("Got it...")] — valid structure
+      // Reconstructed history: [User(summary), Model("Got it...")] -- valid structure
       expect(result.newHistory).toHaveLength(2);
       expect(result.newHistory![0].role).toBe('user');
       expect(result.newHistory![1].role).toBe('model');
@@ -1822,7 +1822,7 @@ describe('ChatCompressionService', () => {
 
     // Shared fixture for the two trailing-in-flight-funcCall scenarios below:
     // both auto-compress (force=false) and hard-rescue (force=true,
-    // trigger='auto') see the same history snapshot — a tool loop where the
+    // trigger='auto') see the same history snapshot -- a tool loop where the
     // last message is a model funcCall whose matching funcResponse is about
     // to arrive in the pending userContent (not in history yet). The only
     // thing that differs between the two tests is the `compress(...)` call
@@ -1846,7 +1846,7 @@ describe('ChatCompressionService', () => {
           ],
         },
         // Trailing funcCall: matching funcResponse is in the pending
-        // userContent, not in history yet — active, not orphaned.
+        // userContent, not in history yet -- active, not orphaned.
         {
           role: 'model',
           parts: [{ functionCall: { name: 'readFile', args: {} } }],
@@ -1910,12 +1910,12 @@ describe('ChatCompressionService', () => {
     it('preserves trailing model+funcCall under hard-rescue (force=true + trigger=auto)', async () => {
       // Hard-rescue fires from inside sendMessageStream() BEFORE the pending
       // userContent (a funcResponse) is pushed onto history. At that moment
-      // the trailing model+funcCall is ACTIVE, not orphaned — its matching
+      // the trailing model+funcCall is ACTIVE, not orphaned -- its matching
       // funcResponse is sitting in the pending message about to be appended.
       //
       // Pre-fix, the service's orphan-strip predicate gated on `force` alone,
       // which meant hard-rescue (force=true, trigger='auto') was conflated
-      // with manual /compress and stripped the active funcCall — corrupting
+      // with manual /compress and stripped the active funcCall -- corrupting
       // tool-call/response pairing on the next API send. Fix: gate the strip
       // on `trigger === 'manual'` so only the explicit user-initiated
       // /compress path performs the orphan cleanup.
@@ -1986,7 +1986,7 @@ describe('ChatCompressionService', () => {
         return h;
       };
 
-      // Five complete tool rounds + 1 trailing fc → 5 pairs in keep; absorbs
+      // Five complete tool rounds + 1 trailing fc -> 5 pairs in keep; absorbs
       // 3 older pairs and retains the 2 most recent (plus the trailing fc).
       vi.mocked(mockChat.getHistory).mockReturnValue(buildHistory(5));
       vi.mocked(uiTelemetryService.getLastPromptTokenCount).mockReturnValue(
@@ -2160,7 +2160,7 @@ describe('ChatCompressionService.compress sideQuery config', () => {
 
   it('returns FAILED_OUTPUT_TRUNCATED when the summary output hits the COMPACT_MAX_OUTPUT_TOKENS cap (likely truncated)', async () => {
     // Mock the side-query to return a non-empty summary that exactly hits the
-    // 20K cap — the guard should drop the result and surface it as a failure
+    // 20K cap -- the guard should drop the result and surface it as a failure
     // with a status distinct from EMPTY_SUMMARY so telemetry can separate
     // prompt-quality failures (empty) from capacity failures (truncated).
     // (R1.1 made the breaker tick; R5.2 split the status.)
@@ -2168,7 +2168,7 @@ describe('ChatCompressionService.compress sideQuery config', () => {
       text: '<state_snapshot>truncated...',
       usage: {
         promptTokenCount: 50_000,
-        candidatesTokenCount: 20_000, // ← exactly at COMPACT_MAX_OUTPUT_TOKENS
+        candidatesTokenCount: 20_000, // <- exactly at COMPACT_MAX_OUTPUT_TOKENS
         totalTokenCount: 70_000,
       },
     } as never);
@@ -2316,7 +2316,7 @@ describe('ChatCompressionService.compress cheap-gate uses estimated tokens', () 
 });
 
 describe('computeThresholds', () => {
-  it('32K window — proportional fallback for all tiers, hard degrades to auto', () => {
+  it('32K window -- proportional fallback for all tiers, hard degrades to auto', () => {
     const t = computeThresholds(32_000);
     expect(t.warn).toBe(19_200); // 0.6 * 32K
     expect(t.auto).toBe(22_400); // 0.7 * 32K
@@ -2324,7 +2324,7 @@ describe('computeThresholds', () => {
     expect(t.effectiveWindow).toBe(12_000);
   });
 
-  it('128K window — mixed (warn=pct, auto/hard=abs)', () => {
+  it('128K window -- mixed (warn=pct, auto/hard=abs)', () => {
     const t = computeThresholds(128_000);
     expect(t.warn).toBe(76_800); // 0.6 * 128K (pct wins: 76.8K vs auto-20K=75K)
     expect(t.auto).toBe(95_000); // abs: effectiveWindow-13K = 108-13 = 95K (abs wins: 95K vs 0.7*128K=89.6K)
@@ -2332,14 +2332,14 @@ describe('computeThresholds', () => {
     expect(t.effectiveWindow).toBe(108_000);
   });
 
-  it('200K window — absolute takes over all tiers', () => {
+  it('200K window -- absolute takes over all tiers', () => {
     const t = computeThresholds(200_000);
     expect(t.warn).toBe(147_000); // abs: auto-20K (abs wins: 147K vs 0.6*200K=120K)
     expect(t.auto).toBe(167_000); // abs: effectiveWindow-13K = 180-13 = 167K
     expect(t.hard).toBe(177_000); // abs: effectiveWindow-3K = 180-3 = 177K
   });
 
-  it('1M window — fully absolute', () => {
+  it('1M window -- fully absolute', () => {
     const t = computeThresholds(1_000_000);
     expect(t.warn).toBe(947_000);
     expect(t.auto).toBe(967_000);
@@ -2354,7 +2354,7 @@ describe('computeThresholds', () => {
     expect(t.auto).toBeLessThanOrEqual(t.hard);
     // window < SUMMARY_RESERVE: effectiveWindow is clamped to 0, not negative.
     // auto/warn/hard remain positive because each is `Math.max(proportional, absolute)`
-    // and the proportional branch dominates whenever the absolute branch goes ≤ 0.
+    // and the proportional branch dominates whenever the absolute branch goes <= 0.
     expect(t.effectiveWindow).toBe(0);
   });
 

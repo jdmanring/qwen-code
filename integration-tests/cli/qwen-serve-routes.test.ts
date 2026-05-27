@@ -5,7 +5,7 @@
  */
 
 /**
- * `qwen serve` daemon — HTTP route + middleware integration tests.
+ * `qwen serve` daemon -- HTTP route + middleware integration tests.
  *
  * These exercise the daemon end-to-end without needing a working model
  * credential: they spawn a real `node packages/cli/dist/index.js serve`
@@ -61,7 +61,7 @@ beforeAll(async () => {
       TOKEN,
       '--hostname',
       '127.0.0.1',
-      // Per #3803 §02 (1 daemon = 1 workspace), pin the bound
+      // Per #3803 02 (1 daemon = 1 workspace), pin the bound
       // workspace so test assertions that POST `workspaceCwd:
       // REPO_ROOT` succeed regardless of where the test runner
       // happens to be cwd'd. Without this the daemon would inherit
@@ -75,7 +75,7 @@ beforeAll(async () => {
   // Read stdout until we see the listening line + parse the port.
   port = await new Promise<number>((resolve, reject) => {
     let buf = '';
-    // Capture the timeout handle so we can clear it on success — an
+    // Capture the timeout handle so we can clear it on success -- an
     // un-cleared 10s timer outlives the spawn promise and keeps the
     // vitest event loop alive past the test, manifesting as
     // intermittent `Test timed out` retries on slow CI.
@@ -108,45 +108,45 @@ afterAll(async () => {
   await new Promise((r) => daemon.once('exit', r));
 }, 15_000);
 
-describe('qwen serve — bearer auth (timing-safe compare)', () => {
+describe('qwen serve -- bearer auth (timing-safe compare)', () => {
   // Probe `/capabilities` for the rejection cases instead of `/health`
-  // — `/health` is intentionally registered before the bearer middleware
+  // -- `/health` is intentionally registered before the bearer middleware
   // so liveness probes work without credentials. `/capabilities` is the
   // cheapest route still gated by the bearer chain.
-  it('right token → 200', async () => {
+  it('right token -> 200', async () => {
     const res = await fetch(`${base}/capabilities`, {
       headers: { Authorization: `Bearer ${TOKEN}` },
     });
     expect(res.status).toBe(200);
   });
 
-  it('wrong same-length token → 401', async () => {
+  it('wrong same-length token -> 401', async () => {
     const res = await fetch(`${base}/capabilities`, {
       headers: { Authorization: `Bearer ${'X'.repeat(TOKEN.length)}` },
     });
     expect(res.status).toBe(401);
   });
 
-  it('wrong shorter token → 401', async () => {
+  it('wrong shorter token -> 401', async () => {
     const res = await fetch(`${base}/capabilities`, {
       headers: { Authorization: 'Bearer x' },
     });
     expect(res.status).toBe(401);
   });
 
-  it('missing Authorization header → 401', async () => {
+  it('missing Authorization header -> 401', async () => {
     const res = await fetch(`${base}/capabilities`);
     expect(res.status).toBe(401);
   });
 
-  it('Basic scheme (not Bearer) → 401', async () => {
+  it('Basic scheme (not Bearer) -> 401', async () => {
     const res = await fetch(`${base}/capabilities`, {
       headers: { Authorization: `Basic ${TOKEN}` },
     });
     expect(res.status).toBe(401);
   });
 
-  it('/health exempt: missing Authorization header → 200', async () => {
+  it('/health exempt: missing Authorization header -> 200', async () => {
     // Locks the auth-bypass exemption documented in
     // docs/developers/qwen-serve-protocol.md so a future middleware
     // ordering change can't silently break liveness probes.
@@ -156,8 +156,8 @@ describe('qwen serve — bearer auth (timing-safe compare)', () => {
   });
 });
 
-describe('qwen serve — CORS browser-origin denial', () => {
-  it('GET with Origin header → 403 + JSON', async () => {
+describe('qwen serve -- CORS browser-origin denial', () => {
+  it('GET with Origin header -> 403 + JSON', async () => {
     const res = await fetch(`${base}/health`, {
       headers: {
         Authorization: `Bearer ${TOKEN}`,
@@ -171,7 +171,7 @@ describe('qwen serve — CORS browser-origin denial', () => {
     });
   });
 
-  it('GET without Origin header → 200', async () => {
+  it('GET without Origin header -> 200', async () => {
     const res = await fetch(`${base}/health`, {
       headers: { Authorization: `Bearer ${TOKEN}` },
     });
@@ -179,7 +179,7 @@ describe('qwen serve — CORS browser-origin denial', () => {
   });
 });
 
-describe('qwen serve — capabilities envelope', () => {
+describe('qwen serve -- capabilities envelope', () => {
   it('advertises all baseline capabilities', async () => {
     const caps = await client.capabilities();
     expect(caps.v).toBe(1);
@@ -230,7 +230,7 @@ describe('qwen serve — capabilities envelope', () => {
   });
 });
 
-describe('qwen serve — POST /session validation + concurrent coalescing', () => {
+describe('qwen serve -- POST /session validation + concurrent coalescing', () => {
   it('rejects relative cwd', async () => {
     const res = await fetch(`${base}/session`, {
       method: 'POST',
@@ -263,7 +263,7 @@ describe('qwen serve — POST /session validation + concurrent coalescing', () =
     // the caller into a 500 with no way to recover. The
     // `model_switch_failed` SSE event is the visible failure signal.
     //
-    // Use REPO_ROOT (the daemon's bound workspace) — under #3803 §02
+    // Use REPO_ROOT (the daemon's bound workspace) -- under #3803 02
     // any other cwd would return 400 workspace_mismatch before the
     // session is even spawned.
     const cwd = REPO_ROOT;
@@ -279,11 +279,11 @@ describe('qwen serve — POST /session validation + concurrent coalescing', () =
     expect(typeof session.attached).toBe('boolean');
     const sessions = await client.listWorkspaceSessions(cwd);
     expect(sessions.some((s) => s.sessionId === session.sessionId)).toBe(true);
-    // No teardown — Stage 1 has no DELETE /session route, and the
+    // No teardown -- Stage 1 has no DELETE /session route, and the
     // session persists in `byId` until daemon shutdown.
   });
 
-  it('rejects cross-workspace cwd with 400 workspace_mismatch (#3803 §02)', async () => {
+  it('rejects cross-workspace cwd with 400 workspace_mismatch (#3803 02)', async () => {
     // The daemon is bound to REPO_ROOT (via `--workspace` in beforeAll).
     // A POST /session with `cwd: '/tmp'` (or any other absolute path
     // that doesn't canonicalize to REPO_ROOT) must reject with 400
@@ -314,10 +314,10 @@ describe('qwen serve — POST /session validation + concurrent coalescing', () =
     expect(body.requestedWorkspace).toBe(realpathSync.native('/tmp'));
   });
 
-  it('omits cwd → falls back to bound workspace (#3803 §02)', async () => {
+  it('omits cwd -> falls back to bound workspace (#3803 02)', async () => {
     // The route accepts an empty body and falls back to the daemon's
     // bound workspace. Asserting this end-to-end through a real
-    // daemon process verifies the runQwenServe → createServeApp →
+    // daemon process verifies the runQwenServe -> createServeApp ->
     // bridge plumbing for the fallback path.
     const res = await fetch(`${base}/session`, {
       method: 'POST',
@@ -335,13 +335,13 @@ describe('qwen serve — POST /session validation + concurrent coalescing', () =
     expect(session.workspaceCwd).toBe(REPO_ROOT);
   });
 
-  it('GET /capabilities surfaces workspaceCwd (#3803 §02)', async () => {
+  it('GET /capabilities surfaces workspaceCwd (#3803 02)', async () => {
     const caps = await client.capabilities();
     expect(caps.workspaceCwd).toBe(REPO_ROOT);
   });
 });
 
-describe('qwen serve — POST /permission/:requestId validation', () => {
+describe('qwen serve -- POST /permission/:requestId validation', () => {
   it('400 on empty optionId', async () => {
     const res = await fetch(`${base}/permission/req-1`, {
       method: 'POST',
@@ -383,7 +383,7 @@ describe('qwen serve — POST /permission/:requestId validation', () => {
   });
 });
 
-describe('qwen serve — SSE Content-Type guard (SDK side)', () => {
+describe('qwen serve -- SSE Content-Type guard (SDK side)', () => {
   it('throws DaemonHttpError when upstream returns 200 + JSON', async () => {
     const ghostFetch = async () =>
       new Response(JSON.stringify({ ok: true }), {
@@ -406,7 +406,7 @@ describe('qwen serve — SSE Content-Type guard (SDK side)', () => {
   });
 });
 
-describe('qwen serve — Last-Event-ID strict parsing', () => {
+describe('qwen serve -- Last-Event-ID strict parsing', () => {
   it('malformed Last-Event-ID accepted but ignored', async () => {
     // Spawn a session so /events has somewhere to attach.
     const session = await client.createOrAttachSession({
@@ -425,7 +425,7 @@ describe('qwen serve — Last-Event-ID strict parsing', () => {
   });
 });
 
-describe('qwen serve — cancel + list', () => {
+describe('qwen serve -- cancel + list', () => {
   it('cancel called twice does not throw', async () => {
     const session = await client.createOrAttachSession({
       workspaceCwd: REPO_ROOT,
@@ -449,7 +449,7 @@ describe('qwen serve — cancel + list', () => {
   });
 });
 
-describe('qwen serve — DELETE /session/:id', () => {
+describe('qwen serve -- DELETE /session/:id', () => {
   it('204 on explicit close', async () => {
     const session = await client.createOrAttachSession({
       workspaceCwd: REPO_ROOT,
@@ -474,7 +474,7 @@ describe('qwen serve — DELETE /session/:id', () => {
   });
 });
 
-describe('qwen serve — PATCH /session/:id/metadata', () => {
+describe('qwen serve -- PATCH /session/:id/metadata', () => {
   it('updates displayName', async () => {
     const session = await client.createOrAttachSession({
       workspaceCwd: REPO_ROOT,

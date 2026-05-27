@@ -115,7 +115,7 @@ class FakeProvider implements DeviceFlowProvider {
   interval: number | undefined = undefined;
   /** Test hook: when `true`, `start()` returns a Promise that NEVER
    *  resolves and ignores the supplied `signal`. Models a misbehaving
-   *  / future provider whose underlying I/O isn't abortable —
+   *  / future provider whose underlying I/O isn't abortable --
    *  registry's authoritative timeout (Promise.race) is the only
    *  thing that can rescue the await. PR #4255 fold-in 7 #1. */
   startHangs = false;
@@ -126,7 +126,7 @@ class FakeProvider implements DeviceFlowProvider {
   pollThrowsWith: Error | undefined;
   /** Test hook: when `true`, `poll()` returns a Promise that NEVER
    *  resolves and ignores the supplied `signal`. Models a misbehaving
-   *  provider whose underlying I/O isn't abortable — registry's
+   *  provider whose underlying I/O isn't abortable -- registry's
    *  authoritative `Promise.race` against `DEVICE_FLOW_POLL_TIMEOUT_MS`
    *  is the only thing that can rescue the await. PR #4255 follow-up
    *  review thread (deepseek-v4-pro). */
@@ -149,7 +149,7 @@ class FakeProvider implements DeviceFlowProvider {
     this.startCount += 1;
     if (this.startError) throw this.startError;
     if (this.startHangs) {
-      // Never resolves and intentionally ignores `signal` — models a
+      // Never resolves and intentionally ignores `signal` -- models a
       // non-cooperative provider. Registry's Promise.race timeout is
       // what must rescue this `await`.
       await new Promise<never>(() => {});
@@ -239,7 +239,7 @@ function buildRegistry(provider: FakeProvider) {
 
 describe('BrandedSecret', () => {
   // The earlier `new String(value)` shape leaked through `+`, template
-  // literals, and `valueOf` — coercion via `Symbol.toPrimitive` followed
+  // literals, and `valueOf` -- coercion via `Symbol.toPrimitive` followed
   // the wrapper's `valueOf` which returned the primitive. The fix uses a
   // frozen plain object + WeakMap; ALL four coercion paths
   // (`String()`, `JSON.stringify`, `+`, template literal) must redact.
@@ -272,7 +272,7 @@ describe('BrandedSecret', () => {
     expect(interpolated).toBe('code=[redacted] mode=foo');
   });
 
-  it('`+secret` (numeric coercion) yields NaN — does not expose primitive', () => {
+  it('`+secret` (numeric coercion) yields NaN -- does not expose primitive', () => {
     const secret = brandSecret('NUMERIC-COERCION-LEAK');
     expect(Number.isNaN(+secret)).toBe(true);
   });
@@ -297,7 +297,7 @@ describe('BrandedSecret', () => {
   });
 });
 
-describe('DeviceFlowRegistry — start / public view', () => {
+describe('DeviceFlowRegistry -- start / public view', () => {
   let provider: FakeProvider;
   let registry: DeviceFlowRegistry;
   let events: ReturnType<typeof buildRegistry>['events'];
@@ -327,7 +327,7 @@ describe('DeviceFlowRegistry — start / public view', () => {
     expect(JSON.stringify(view)).not.toContain('pkce-1');
     expect(events).toHaveLength(1);
     expect(events[0].emission.type).toBe('started');
-    // Started emission MUST NOT include userCode/verificationUri (PR 21 §3).
+    // Started emission MUST NOT include userCode/verificationUri (PR 21 3).
     expect(JSON.stringify(events[0].emission.data)).not.toContain('USER-1');
     expect(JSON.stringify(events[0].emission.data)).not.toContain(
       'idp.example/verify',
@@ -385,11 +385,11 @@ describe('DeviceFlowRegistry — start / public view', () => {
     ).toBe(false);
   });
 
-  it('concurrent start() for the same providerId coalesces — provider.start fires once', async () => {
+  it('concurrent start() for the same providerId coalesces -- provider.start fires once', async () => {
     // Without the in-flight Promise map, both concurrent callers would
     // pass the "no existing pending entry" check, both would call
     // provider.start (two IdP round-trips), and the second's byProvider
-    // write would clobber the first — leaking an orphan poll timer.
+    // write would clobber the first -- leaking an orphan poll timer.
     const [first, second, third] = await Promise.all([
       registry.start({ providerId: 'qwen-oauth' }),
       registry.start({ providerId: 'qwen-oauth' }),
@@ -498,7 +498,7 @@ describe('DeviceFlowRegistry — start / public view', () => {
   });
 });
 
-describe('DeviceFlowRegistry — polling state machine', () => {
+describe('DeviceFlowRegistry -- polling state machine', () => {
   let provider: FakeProvider;
   let env: ReturnType<typeof buildRegistry>['env'];
   let registry: DeviceFlowRegistry;
@@ -595,7 +595,7 @@ describe('DeviceFlowRegistry — polling state machine', () => {
       // Note: an upstream `expired_token` error puts the entry into
       // `status: 'error'` with `errorKind: 'expired_token'`. The
       // `'expired'` status is reserved for the time-based path
-      // (now >= expiresAt) — see PR 21 §2 status machine.
+      // (now >= expiresAt) -- see PR 21 2 status machine.
       { kind: 'error', errorKind: 'expired_token' },
     ];
     const { view: started } = await registry.start({
@@ -608,7 +608,7 @@ describe('DeviceFlowRegistry — polling state machine', () => {
     expect(registry.get(started.deviceFlowId)?.status).toBe('error');
     expect(registry.get(started.deviceFlowId)?.errorKind).toBe('expired_token');
 
-    // Advance to just before grace expires — entry still readable.
+    // Advance to just before grace expires -- entry still readable.
     env.clock.tick(DEVICE_FLOW_TERMINAL_GRACE_MS - 1);
     runSweepers(env);
     expect(registry.get(started.deviceFlowId)?.status).toBe('error');
@@ -620,7 +620,7 @@ describe('DeviceFlowRegistry — polling state machine', () => {
   });
 
   it('does NOT import child_process or browser-launch helpers anywhere in the device-flow source path', () => {
-    // Static-source check (PR 21 §8 #1 — runtime-locality contract).
+    // Static-source check (PR 21 8 #1 -- runtime-locality contract).
     //
     // ESM module-namespace immutability prevents a runtime spawn-spy
     // (`Cannot redefine property: spawn`), so we assert structurally:
@@ -657,7 +657,7 @@ describe('DeviceFlowRegistry — polling state machine', () => {
   });
 });
 
-describe('DeviceFlowRegistry — authoritative timeouts (fold-in 7)', () => {
+describe('DeviceFlowRegistry -- authoritative timeouts (fold-in 7)', () => {
   it('start() rejects when a non-abortable provider.start() hangs past START_TIMEOUT_MS (#1)', async () => {
     const provider = new FakeProvider();
     provider.startHangs = true;
@@ -701,7 +701,7 @@ describe('DeviceFlowRegistry — authoritative timeouts (fold-in 7)', () => {
       // Let runPollTick reach the await.
       await flushAsync();
       expect(provider.pollCount).toBe(1);
-      // Race timer hasn't fired yet — entry is still pending.
+      // Race timer hasn't fired yet -- entry is still pending.
       expect(registry.get(view.deviceFlowId)?.status).toBe('pending');
       // Advance clock past POLL_TIMEOUT_MS; race timer fires, aborts
       // the entry signal, and rejects the wrapper promise.
@@ -724,7 +724,7 @@ describe('DeviceFlowRegistry — authoritative timeouts (fold-in 7)', () => {
         // hint must distinguish a registry-side timeout from a
         // provider throw. At 3 AM, on-call reading "provider.poll()
         // threw" would grep the provider source for a non-existent
-        // throw site — when the actual issue is a hung IdP.
+        // throw site -- when the actual issue is a hung IdP.
         expect(failed.emission.data.hint).toContain('timed out after');
         expect(failed.emission.data.hint).toContain('check IdP connectivity');
         // Negative assertion: the misleading provider-throw hint
@@ -735,7 +735,7 @@ describe('DeviceFlowRegistry — authoritative timeouts (fold-in 7)', () => {
       }
       // Audit captures the timeout for the operator. Critically, the
       // audit hint MUST NOT route through the `provider.poll() threw
-      // (raw)` template — that's reserved for actual provider throws
+      // (raw)` template -- that's reserved for actual provider throws
       // and would mis-direct triage. On the timeout path the hint
       // field is omitted entirely (rawProviderError stays undefined).
       const auditFailure = auditLines.find(
@@ -762,7 +762,7 @@ describe('DeviceFlowRegistry — authoritative timeouts (fold-in 7)', () => {
     // PR #4291 follow-up review (qwen-latest, #5): symmetric with
     // `lost_success_after_timeout` on the persist path. A flaky IdP
     // that responds 1s past the 30s ceiling should leave an audit
-    // breadcrumb saying "IdP IS responsive, just slow" — without
+    // breadcrumb saying "IdP IS responsive, just slow" -- without
     // this, the daemon and the operator get the same observability
     // as a fully unresponsive IdP. The fix attaches a passive
     // observer to the original `provider.poll()` promise.
@@ -791,7 +791,7 @@ describe('DeviceFlowRegistry — authoritative timeouts (fold-in 7)', () => {
       // Outer wrapper rejected; entry transitioned to error/upstream_error.
       const snapshot = registry.get(view.deviceFlowId);
       expect(snapshot?.status).toBe('error');
-      // No `lost_late_poll_after_timeout` line YET — the original
+      // No `lost_late_poll_after_timeout` line YET -- the original
       // promise hasn't resolved.
       expect(
         auditLines.some((line) =>
@@ -833,7 +833,7 @@ describe('DeviceFlowRegistry — authoritative timeouts (fold-in 7)', () => {
     // AbortError; the provider's catch then resolves to
     // `{kind: 'error', errorKind: 'upstream_error'}`. This success
     // handler fires with `latePollResult.kind === 'error'`. Earlier
-    // shape would have audited "IdP is responsive but slow" — but the
+    // shape would have audited "IdP is responsive but slow" -- but the
     // IdP could be totally down; the "response" is just the provider's
     // abort cooperation. Pin the corrected attribution.
     const provider = new FakeProvider();
@@ -938,7 +938,7 @@ describe('DeviceFlowRegistry — authoritative timeouts (fold-in 7)', () => {
 
   it("does NOT double-audit when late rejection is the registry's own DeviceFlowPollTimeoutError (qwen-latest review N2 guard)", async () => {
     // PR #4291 follow-up review (qwen-latest, N2): the late-rejection
-    // observer must filter out our own timer rejection — otherwise a
+    // observer must filter out our own timer rejection -- otherwise a
     // single timeout would produce two audit lines (one from the
     // wrapper catch, one from the late-rejection observer). The
     // guard is `if (lateErr instanceof DeviceFlowPollTimeoutError)
@@ -997,7 +997,7 @@ describe('DeviceFlowRegistry — authoritative timeouts (fold-in 7)', () => {
     const { registry, env, events } = built;
     try {
       const { view } = await registry.start({ providerId: 'qwen-oauth' });
-      // Drive the first poll → success → enters persist race.
+      // Drive the first poll -> success -> enters persist race.
       env.clock.tick(DEVICE_FLOW_DEFAULT_INTERVAL_MS + 1);
       env.scheduler.flushDue(env.clock.now);
       await flushAsync();
@@ -1074,7 +1074,7 @@ describe('DeviceFlowRegistry — authoritative timeouts (fold-in 7)', () => {
           ? failedEvent.emission.data.hint
           : undefined;
       // fold-in 9 strengthens fold-in 8: SSE hint is now a STATIC
-      // bounded message — even the truncated prefix could carry
+      // bounded message -- even the truncated prefix could carry
       // secret material if the provider templated it into
       // err.message. Static keeps SSE broadcasters fully isolated
       // from raw provider text.
@@ -1099,7 +1099,7 @@ describe('DeviceFlowRegistry — authoritative timeouts (fold-in 7)', () => {
   });
 });
 
-describe('DeviceFlowRegistry — abort propagation to provider.poll', () => {
+describe('DeviceFlowRegistry -- abort propagation to provider.poll', () => {
   it('cancel() aborts the signal observed by the in-flight provider.poll', async () => {
     const provider = new FakeProvider();
     const built = buildRegistry(provider);
@@ -1118,7 +1118,7 @@ describe('DeviceFlowRegistry — abort propagation to provider.poll', () => {
       expect(provider.lastPollSignal).toBeDefined();
       expect(provider.lastPollSignal!.aborted).toBe(false);
 
-      // Cancel the flow — registry should abort the entry's
+      // Cancel the flow -- registry should abort the entry's
       // cancelController, which is the SAME signal the provider's
       // `poll` saw. A real Qwen provider passes this to `fetch`, so
       // an in-flight HTTP socket gets torn down immediately.
@@ -1144,16 +1144,16 @@ describe('DeviceFlowRegistry — abort propagation to provider.poll', () => {
   });
 });
 
-describe('DeviceFlowRegistry — persist failure paths (fold-in 10 #1)', () => {
+describe('DeviceFlowRegistry -- persist failure paths (fold-in 10 #1)', () => {
   // Round-8 thread Cvho9 (Critical): persist failure branches are the
-  // most consequential code paths in the success arm — `persist_failed`
+  // most consequential code paths in the success arm -- `persist_failed`
   // was specifically introduced for disk-write failures (EACCES,
   // EROFS, ENOSPC) and the cancel-during-persist + past-expiresAt
   // branches were added by fold-in 5/9 to handle race conditions.
   // Every prior test used a persist that always succeeded; this
   // block exercises the three terminal mappings.
 
-  it('persist throws → entry transitions to error/persist_failed + failed event emitted', async () => {
+  it('persist throws -> entry transitions to error/persist_failed + failed event emitted', async () => {
     const provider = new FakeProvider();
     const persistError = new Error('EACCES: permission denied');
     provider.pollScript = [
@@ -1197,7 +1197,7 @@ describe('DeviceFlowRegistry — persist failure paths (fold-in 10 #1)', () => {
     }
   });
 
-  it('persist throws after cancel() → entry transitions to cancelled (not authorized; not persist_failed)', async () => {
+  it('persist throws after cancel() -> entry transitions to cancelled (not authorized; not persist_failed)', async () => {
     const provider = new FakeProvider();
     // Persist takes a controllable promise so the test can fire cancel
     // mid-await and then resolve persist (with rejection) afterward.
@@ -1217,7 +1217,7 @@ describe('DeviceFlowRegistry — persist failure paths (fold-in 10 #1)', () => {
     const { registry, env, events } = built;
     try {
       const { view } = await registry.start({ providerId: 'qwen-oauth' });
-      // First poll tick: enters success → persist starts.
+      // First poll tick: enters success -> persist starts.
       env.clock.tick(DEVICE_FLOW_DEFAULT_INTERVAL_MS + 1);
       env.scheduler.flushDue(env.clock.now);
       await flushAsync();
@@ -1227,7 +1227,7 @@ describe('DeviceFlowRegistry — persist failure paths (fold-in 10 #1)', () => {
       expect(cancelResult).toEqual({ alreadyTerminal: false });
       // Persist now fails (signal-aborted by cancel). Resolve with
       // an abort-shaped error. The registry's persistError branch
-      // routes through `cancelDuringPersist` → `cancelled`.
+      // routes through `cancelDuringPersist` -> `cancelled`.
       rejectPersist(new Error('aborted: cancel during persist'));
       await flushAsync();
       const snapshot = registry.get(view.deviceFlowId);
@@ -1292,7 +1292,7 @@ describe('DeviceFlowRegistry — persist failure paths (fold-in 10 #1)', () => {
       // MUST NOT overwrite the first-writer's attribution.
       const second = registry.cancel(view.deviceFlowId, 'sdk-B');
       expect(second).toEqual({ alreadyTerminal: false });
-      // Persist now fails — the registry emits `cancelled` with
+      // Persist now fails -- the registry emits `cancelled` with
       // `originatorClientId = entry.cancellerClientId` (sdk-A).
       rejectPersist(new Error('aborted: cancel during persist'));
       await flushAsync();
@@ -1345,7 +1345,7 @@ describe('DeviceFlowRegistry — persist failure paths (fold-in 10 #1)', () => {
       // undefined; cancellerRecorded is now true.
       const first = registry.cancel(view.deviceFlowId);
       expect(first).toEqual({ alreadyTerminal: false });
-      // Second canceller IS identified — but the first-writer-wins
+      // Second canceller IS identified -- but the first-writer-wins
       // gate must reject the overwrite.
       const second = registry.cancel(view.deviceFlowId, 'sdk-B');
       expect(second).toEqual({ alreadyTerminal: false });
@@ -1359,7 +1359,7 @@ describe('DeviceFlowRegistry — persist failure paths (fold-in 10 #1)', () => {
           e.emission.data.deviceFlowId === view.deviceFlowId,
       );
       expect(cancelledEvent).toBeDefined();
-      // The deferred SSE event must NOT carry sdk-B as originator —
+      // The deferred SSE event must NOT carry sdk-B as originator --
       // the anonymous first writer wins, so `entry.cancellerClientId`
       // stays undefined, and the runPollTick deferred-cancel branch
       // falls back to `entry.initiatorClientId` (which is also
@@ -1390,7 +1390,7 @@ describe('DeviceFlowRegistry — persist failure paths (fold-in 10 #1)', () => {
     provider.pollScript = [
       {
         kind: 'success',
-        // Persist intentionally ignores signal — models a
+        // Persist intentionally ignores signal -- models a
         // non-conforming provider. Resolves only when the test
         // fires it.
         persist: () => latePersist,
@@ -1400,7 +1400,7 @@ describe('DeviceFlowRegistry — persist failure paths (fold-in 10 #1)', () => {
     const { registry, env, auditLines } = built;
     try {
       await registry.start({ providerId: 'qwen-oauth' });
-      // Drive first poll → success → enter persist race.
+      // Drive first poll -> success -> enter persist race.
       env.clock.tick(DEVICE_FLOW_DEFAULT_INTERVAL_MS + 1);
       env.scheduler.flushDue(env.clock.now);
       await flushAsync();
@@ -1427,7 +1427,7 @@ describe('DeviceFlowRegistry — persist failure paths (fold-in 10 #1)', () => {
     }
   });
 
-  it('persist throws past expiresAt → persist_failed (NOT expired_token; fold-in 9 #13)', async () => {
+  it('persist throws past expiresAt -> persist_failed (NOT expired_token; fold-in 9 #13)', async () => {
     // Round-8 #13: previously the registry classified this branch as
     // `expired_token`, routing operator remediation to "tell user to
     // retry" (RFC 8628 expiry) when the actual root cause is disk
@@ -1452,13 +1452,13 @@ describe('DeviceFlowRegistry — persist failure paths (fold-in 10 #1)', () => {
     const { registry, env, events, auditLines } = built;
     try {
       const { view } = await registry.start({ providerId: 'qwen-oauth' });
-      // Drive first poll → success → persist begins.
+      // Drive first poll -> success -> persist begins.
       env.clock.tick(DEVICE_FLOW_DEFAULT_INTERVAL_MS + 1);
       env.scheduler.flushDue(env.clock.now);
       await flushAsync();
       // Advance past `expiresAt` (60s) WHILE persist is still pending.
       env.clock.tick(120_000);
-      // Now resolve persist with rejection — non-cancel disk error.
+      // Now resolve persist with rejection -- non-cancel disk error.
       rejectPersist(new Error('ENOSPC: no space left'));
       await flushAsync();
       const snapshot = registry.get(view.deviceFlowId);
@@ -1490,7 +1490,7 @@ describe('DeviceFlowRegistry — persist failure paths (fold-in 10 #1)', () => {
   });
 });
 
-describe('DeviceFlowRegistry — cancel', () => {
+describe('DeviceFlowRegistry -- cancel', () => {
   it('cancels a pending flow, emits cancelled, idempotent on terminal', async () => {
     const provider = new FakeProvider();
     const built = buildRegistry(provider);
@@ -1527,7 +1527,7 @@ describe('DeviceFlowRegistry — cancel', () => {
   });
 });
 
-describe('DeviceFlowRegistry — dispose', () => {
+describe('DeviceFlowRegistry -- dispose', () => {
   it('clears all pending poll handles and the sweeper interval', async () => {
     const provider = new FakeProvider();
     const built = buildRegistry(provider);
@@ -1553,7 +1553,7 @@ function runSweepers(env: {
 
 async function flushAsync(): Promise<void> {
   // Five microtask flushes cover the longest synchronous chain inside
-  // `runPollTick`: `await provider.poll` → `await result.persist` →
+  // `runPollTick`: `await provider.poll` -> `await result.persist` ->
   // a few intermediate state-transition + publish microtasks. Five is
   // enough headroom while still finishing in <1ms wall-clock.
   for (let i = 0; i < 5; i += 1) await Promise.resolve();

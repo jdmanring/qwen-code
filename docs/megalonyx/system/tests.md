@@ -1,8 +1,8 @@
-# 🧪 Testing Framework: Verification and Validation
+#  Testing Framework: Verification and Validation
 
 This document describes the current testing infrastructure of the Runtime Stack.
 
-## 🏗️ The Testing Pyramid
+##  The Testing Pyramid
 
 The project employs a multi-tiered testing strategy to ensure stability across the stack.
 
@@ -33,13 +33,13 @@ High-fidelity tests that run against live providers to verify the "real-world" b
 
 ---
 
-## 🛠️ Running Tests
+##  Running Tests
 
 Tests are executed using the following commands:
 - `npm test`: Runs all tests.
 - `npm test -- <pattern>`: Runs tests matching the pattern.
 
-## 📈 Verification Standards
+##  Verification Standards
 A feature is considered "Verified" only when:
 1. Its unit tests pass.
 2. Its integration tests pass in the `terminal-capture` environment.

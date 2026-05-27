@@ -77,7 +77,7 @@ describe('parseSseStream', () => {
 
   it('still parses a frame whose FIRST line is a comment / retry (BRgq-)', async () => {
     // Per SSE spec, comment + retry are line-level, not frame-level.
-    // An intermediary that prepends `: keep-alive` or `retry: …` to
+    // An intermediary that prepends `: keep-alive` or `retry: ...` to
     // every frame must NOT cause the embedded event to be dropped.
     const stream = bodyFromString(
       ': intermediary keep-alive\nid: 1\nevent: x\ndata: {"id":1,"v":1,"type":"x","data":"ok"}\n\n' +
@@ -117,24 +117,24 @@ describe('parseSseStream', () => {
       'data: {"id":"1","v":1,"type":"x","data":"ok"}\n\n' + // string id
         'data: {"id":1.5,"v":1,"type":"x","data":"ok"}\n\n' + // float id
         'data: {"id":9007199254740993,"v":1,"type":"x","data":"ok"}\n\n' + // > MAX_SAFE_INTEGER
-        'data: {"id":-1,"v":1,"type":"x","data":"ok"}\n\n' + // negative — BX8Y1 rejects (id < 1)
-        'data: {"id":0,"v":1,"type":"x","data":"ok"}\n\n' + // zero — BX8Y1 rejects (id < 1)
-        'data: {"v":1,"type":"x","data":"ok"}\n\n' + // no id — passes
+        'data: {"id":-1,"v":1,"type":"x","data":"ok"}\n\n' + // negative -- BX8Y1 rejects (id < 1)
+        'data: {"id":0,"v":1,"type":"x","data":"ok"}\n\n' + // zero -- BX8Y1 rejects (id < 1)
+        'data: {"v":1,"type":"x","data":"ok"}\n\n' + // no id -- passes
         'data: {"id":42,"v":1,"type":"x","data":"ok"}\n\n', // ok
     );
     const events = await collect(parseSseStream(stream));
-    // BX8Y1: id must be a safe integer ≥ 1 (the daemon's
+    // BX8Y1: id must be a safe integer >= 1 (the daemon's
     // Last-Event-ID parser only accepts non-negative decimals and
     // EventBus emits monotonic ids starting at 1; negative / zero
     // would diverge from the daemon's resume math).
     expect(events.map((e) => e.id)).toEqual([undefined, 42]);
   });
 
-  it('skips non-DaemonEvent JSON (null/primitive/array/shape-mismatch) — BQ9ze+BREsR guards', async () => {
+  it('skips non-DaemonEvent JSON (null/primitive/array/shape-mismatch) -- BQ9ze+BREsR guards', async () => {
     // `JSON.parse('null')` / `JSON.parse('[...]')` / objects missing
     // `v === 1` / `type: string` parse cleanly but aren't
     // `DaemonEvent`-shaped. The generator's static type is
-    // `AsyncGenerator<DaemonEvent>` — yielding non-event values
+    // `AsyncGenerator<DaemonEvent>` -- yielding non-event values
     // would violate the runtime contract. The daemon never emits
     // any of these; defense-in-depth against misbehaving proxies.
     const stream = bodyFromString(
@@ -216,7 +216,7 @@ describe('parseSseStream', () => {
             'id: 1\nevent: x\ndata: {"id":1,"v":1,"type":"x","data":1}\n\n',
           ),
         );
-        // Hold the stream open — we expect the consumer to cancel before
+        // Hold the stream open -- we expect the consumer to cancel before
         // we send another frame.
       },
       cancel() {
@@ -228,7 +228,7 @@ describe('parseSseStream', () => {
       break;
     }
     // The for-await break invokes the iterator's `return()`, which runs
-    // the parser's finally block and calls `reader.cancel()` — that
+    // the parser's finally block and calls `reader.cancel()` -- that
     // propagates to the underlying ReadableStream's `cancel()`.
     expect(cancelled).toBe(true);
   });
@@ -237,7 +237,7 @@ describe('parseSseStream', () => {
     // Some fetch impls (undici on abort) settle the in-flight
     // `reader.read()` with a rejection AFTER `reader.cancel()`
     // fires. `parseSseStream`'s public contract is "abort cancels
-    // cleanly" — that rejection must NOT bubble to the consumer's
+    // cleanly" -- that rejection must NOT bubble to the consumer's
     // `for await`.
     const controller = new AbortController();
     const body = new ReadableStream<Uint8Array>({
@@ -296,13 +296,13 @@ describe('parseSseStream', () => {
   });
 
   it('flushes the TextDecoder on stream close so the last UTF-8 char is preserved', async () => {
-    // "中" is 3 bytes in UTF-8 (0xE4 0xB8 0xAD). Split the byte stream
+    // "" is 3 bytes in UTF-8 (0xE4 0xB8 0xAD). Split the byte stream
     // mid-character to simulate a chunk boundary that lands inside the
     // multi-byte sequence; without `decoder.decode()` flush at end-of-
     // stream the trailing byte would be dropped and the JSON parse would
     // fail.
     const fullFrame =
-      'id: 1\nevent: x\ndata: {"id":1,"v":1,"type":"x","data":"中"}';
+      'id: 1\nevent: x\ndata: {"id":1,"v":1,"type":"x","data":""}';
     const bytes = new TextEncoder().encode(fullFrame);
     const splitAt = bytes.length - 1; // chop off the last byte
     const stream = new ReadableStream<Uint8Array>({
@@ -314,6 +314,6 @@ describe('parseSseStream', () => {
     });
     const events = await collect(parseSseStream(stream));
     expect(events).toHaveLength(1);
-    expect(events[0]?.data as string).toBe('中');
+    expect(events[0]?.data as string).toBe('');
   });
 });

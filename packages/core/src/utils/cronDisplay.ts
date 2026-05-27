@@ -8,7 +8,7 @@ export function humanReadableCron(cronExpr: string): string {
 
   const [min, hour, dom, mon, dow] = parts;
 
-  // */N * * * * → Every N minutes
+  // */N * * * * -> Every N minutes
   if (
     min!.startsWith('*/') &&
     hour === '*' &&
@@ -22,7 +22,7 @@ export function humanReadableCron(cronExpr: string): string {
     }
   }
 
-  // 0 */N * * * → Every N hours (or single minute with */N hours)
+  // 0 */N * * * -> Every N hours (or single minute with */N hours)
   if (
     /^\d+$/.test(min!) &&
     hour!.startsWith('*/') &&
@@ -36,7 +36,7 @@ export function humanReadableCron(cronExpr: string): string {
     }
   }
 
-  // M H */N * * → Every N days
+  // M H */N * * -> Every N days
   if (
     /^\d+$/.test(min!) &&
     /^\d+$/.test(hour!) &&

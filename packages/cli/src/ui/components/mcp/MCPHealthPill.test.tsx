@@ -31,7 +31,7 @@ describe('MCPHealthPill / getPillLabel', () => {
     );
   });
 
-  it('returns empty when servers are only connecting (transient — not surfaced in v1)', () => {
+  it('returns empty when servers are only connecting (transient -- not surfaced in v1)', () => {
     expect(getPillLabel(snapshot({ totalCount: 1, connectingCount: 1 }))).toBe(
       '',
     );

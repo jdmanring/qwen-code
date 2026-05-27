@@ -10,7 +10,7 @@
 // Coverage:
 //   - TypeScript / JavaScript: tsc (typecheck), eslint (linter)
 //   - Python: ruff (linter)
-//   - Rust: cargo clippy (typecheck — clippy includes compile checks)
+//   - Rust: cargo clippy (typecheck -- clippy includes compile checks)
 //   - Go: go vet (typecheck), golangci-lint (linter)
 //
 // The `ToolDef` registry pattern lets future passes plug in additional
@@ -32,7 +32,7 @@
 // Findings tagged `[typecheck]` map to Critical (compile/type errors are
 // ground-truth bugs); linter `error` maps to Critical, linter `warning`
 // to Nice to have. The LLM Step 5 deduplicates and merges these into the
-// review output verbatim — they skip Step 5 verification.
+// review output verbatim -- they skip Step 5 verification.
 
 import type { CommandModule } from 'yargs';
 import {
@@ -200,7 +200,7 @@ function parseTscOutput(
   set: Set<string>,
 ): Finding[] {
   // tsc's pretty output (default) uses ANSI; we ask for plain output by
-  // running through `npx tsc` (no --pretty=false needed — non-TTY pipes
+  // running through `npx tsc` (no --pretty=false needed -- non-TTY pipes
   // already disable pretty by default). Each error line looks like:
   //   src/foo.ts(10,5): error TS2304: Cannot find name 'foo'.
   const findings: Finding[] = [];
@@ -301,7 +301,7 @@ function parseEslintJson(
     parsed = JSON.parse(stdout) as EslintFileResult[];
   } catch {
     // eslint may emit warnings before its JSON payload (e.g. via
-    // configuration warnings). If parsing fails, drop findings — the
+    // configuration warnings). If parsing fails, drop findings -- the
     // exit code on the run record still tells the LLM something went
     // wrong.
     return [];
@@ -415,7 +415,7 @@ function parseRuffJson(
 }
 
 // --------------------------------------------------------------------------
-// Tool: cargo clippy (Rust — typecheck + lint, includes compile)
+// Tool: cargo clippy (Rust -- typecheck + lint, includes compile)
 // --------------------------------------------------------------------------
 
 interface CargoSpan {
@@ -496,7 +496,7 @@ function parseCargoClippyNdjson(
 }
 
 // --------------------------------------------------------------------------
-// Tool: go vet (Go — typecheck + static analysis)
+// Tool: go vet (Go -- typecheck + static analysis)
 // --------------------------------------------------------------------------
 
 const goVetTool: ToolDef = {
@@ -552,7 +552,7 @@ function parseGoVetOutput(
 }
 
 // --------------------------------------------------------------------------
-// Tool: golangci-lint (Go — multi-linter aggregator)
+// Tool: golangci-lint (Go -- multi-linter aggregator)
 // --------------------------------------------------------------------------
 
 interface GolangciIssue {

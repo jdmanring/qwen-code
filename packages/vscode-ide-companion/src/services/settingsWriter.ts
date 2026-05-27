@@ -34,13 +34,13 @@ import {
 // ---------------------------------------------------------------------------
 
 /**
- * Mode for ~/.qwen/settings.json — owner-only read/write. The unified install
+ * Mode for ~/.qwen/settings.json -- owner-only read/write. The unified install
  * plan now persists API keys into `env.*` inside this file, so on multi-user
  * systems the default 0644 (process umask) would expose those secrets to any
  * local user. Keep this in sync with `loadedSettingsAdapter`'s expectations.
  */
 const SETTINGS_FILE_MODE = 0o600;
-/** Directory mode for ~/.qwen — owner-only. */
+/** Directory mode for ~/.qwen -- owner-only. */
 const SETTINGS_DIR_MODE = 0o700;
 
 // ---------------------------------------------------------------------------
@@ -48,7 +48,7 @@ const SETTINGS_DIR_MODE = 0o700;
 // ---------------------------------------------------------------------------
 
 /**
- * Model providers as key-value map: modelId → baseUrl.
+ * Model providers as key-value map: modelId -> baseUrl.
  * This is the format VSCode Settings UI can render as an editable table.
  */
 export type VSCodeModelProviders = Record<string, string>;
@@ -68,7 +68,7 @@ export interface QwenSettingsForVSCode {
 
 /**
  * Length of a JSON escape sequence starting with `\\`. Handles the six-char
- * `\\uXXXX` form — otherwise a value like `"sk-abc\\u0022,..."` would let the
+ * `\\uXXXX` form -- otherwise a value like `"sk-abc\\u0022,..."` would let the
  * embedded `\\u0022` close the string early and the rest of the buffer would
  * parse as additional keys, enabling settings.json key injection.
  */
@@ -85,7 +85,7 @@ function stripJsonComments(text: string): string {
   let result = '';
   let i = 0;
   while (i < text.length) {
-    // String literal — copy verbatim (handles escaped quotes)
+    // String literal -- copy verbatim (handles escaped quotes)
     if (text[i] === '"') {
       let j = i + 1;
       while (j < text.length) {
@@ -101,11 +101,11 @@ function stripJsonComments(text: string): string {
       result += text.slice(i, j);
       i = j;
     } else if (text[i] === '/' && text[i + 1] === '/') {
-      // Single-line comment — skip until newline
+      // Single-line comment -- skip until newline
       const nl = text.indexOf('\n', i);
       i = nl === -1 ? text.length : nl;
     } else if (text[i] === '/' && text[i + 1] === '*') {
-      // Multi-line comment — skip until */
+      // Multi-line comment -- skip until */
       const end = text.indexOf('*/', i + 2);
       i = end === -1 ? text.length : end + 2;
     } else {
@@ -117,10 +117,10 @@ function stripJsonComments(text: string): string {
 }
 
 /**
- * Strip trailing commas inside arrays/objects (`,]` / `,}`) — VSCode's own
+ * Strip trailing commas inside arrays/objects (`,]` / `,}`) -- VSCode's own
  * settings.json allows them and they crash strict JSON.parse. Uses a
  * character-by-character scanner so that the `,]` substring inside a string
- * literal (e.g. `"MY_VAR": ",]"`) is preserved unchanged — a regex would
+ * literal (e.g. `"MY_VAR": ",]"`) is preserved unchanged -- a regex would
  * silently rewrite it and corrupt the value.
  */
 function stripTrailingCommas(text: string): string {
@@ -187,7 +187,7 @@ function readSettings(): Record<string, unknown> {
   } catch (err) {
     // Surface an actionable message rather than the raw SyntaxError. The
     // caller's catch will see this; refusing to overwrite a malformed file
-    // is the whole point — better than silently destroying user state by
+    // is the whole point -- better than silently destroying user state by
     // treating it as `{}`.
     console.error(
       `[settingsWriter] Failed to parse ${settingsPath}; refusing to overwrite a malformed file.`,
@@ -228,7 +228,7 @@ function writeSettings(settings: Record<string, unknown>): void {
   } catch (renameErr) {
     // renameSync can fail on Windows when a watcher / antivirus holds the
     // target (EPERM/EBUSY). The temp file otherwise lingers in ~/.qwen
-    // containing API keys — clean it up so secrets don't accumulate on
+    // containing API keys -- clean it up so secrets don't accumulate on
     // disk across repeated failed writes.
     try {
       fs.unlinkSync(tmpPath);
@@ -243,7 +243,7 @@ function writeSettings(settings: Record<string, unknown>): void {
   try {
     fs.chmodSync(settingsPath, SETTINGS_FILE_MODE);
   } catch {
-    // Best effort — surface nothing to the user if the FS rejects chmod
+    // Best effort -- surface nothing to the user if the FS rejects chmod
     // (e.g. Windows, mounted FS without POSIX permissions).
   }
 }
@@ -286,7 +286,7 @@ function findOpenaiModels(
 }
 
 // ---------------------------------------------------------------------------
-// Write: VSCode Settings → ~/.qwen/settings.json
+// Write: VSCode Settings -> ~/.qwen/settings.json
 // ---------------------------------------------------------------------------
 
 /**
@@ -294,7 +294,7 @@ function findOpenaiModels(
  * Auto-injects model providers from the regional template,
  * preserving any existing non-Coding-Plan entries.
  *
- * @returns The injected models as a VSCode key-value map (modelId → baseUrl)
+ * @returns The injected models as a VSCode key-value map (modelId -> baseUrl)
  */
 export function writeCodingPlanConfig(
   region: 'china' | 'global',
@@ -313,7 +313,7 @@ export function writeCodingPlanConfig(
   const env = ensureNestedObject(settings, 'env');
   env[CODING_PLAN_ENV_KEY] = apiKey;
 
-  // Model providers — merge Coding Plan templates with existing non-CP entries
+  // Model providers -- merge Coding Plan templates with existing non-CP entries
   const providers = ensureNestedObject(settings, 'modelProviders');
   const existing = findOpenaiModels(
     settings.modelProviders as Record<string, unknown>,
@@ -327,7 +327,7 @@ export function writeCodingPlanConfig(
   }));
   providers[AuthType.USE_OPENAI] = [...planModels, ...nonCodingPlan];
 
-  // Coding Plan metadata — write to the providerMetadata namespace that
+  // Coding Plan metadata -- write to the providerMetadata namespace that
   // the CLI now reads from. Remove legacy top-level key if present.
   const providerMetadata = ensureNestedObject(settings, 'providerMetadata');
   providerMetadata['coding-plan'] = {
@@ -355,7 +355,7 @@ export function writeCodingPlanConfig(
  * Used when provider = "api-key" and user edits the modelProviders map.
  *
  * @param params.apiKey - The API key
- * @param params.modelProviders - Map of modelId → baseUrl
+ * @param params.modelProviders - Map of modelId -> baseUrl
  * @param params.activeModel - Currently selected model ID
  */
 export function writeModelProvidersConfig(params: {
@@ -412,7 +412,7 @@ export function writeModelProvidersConfig(params: {
 }
 
 // ---------------------------------------------------------------------------
-// Unified install plan — bridges core's ProviderInstallPlan to file I/O
+// Unified install plan -- bridges core's ProviderInstallPlan to file I/O
 // ---------------------------------------------------------------------------
 
 /**
@@ -444,7 +444,7 @@ function createFileSettingsAdapter(): ProviderSettingsAdapter {
         // arbitrary string keys (env vars, providerState namespaces) so the
         // input is untrusted enough to warrant the guard. Literal === checks
         // (not Set.has) are what CodeQL's prototype-pollution sanitiser
-        // recognises — keep them at the only step that actually writes to
+        // recognises -- keep them at the only step that actually writes to
         // `current`.
         if (
           part === '__proto__' ||
@@ -466,7 +466,7 @@ function createFileSettingsAdapter(): ProviderSettingsAdapter {
           current[part] = {};
         } else if (Array.isArray(existing) || typeof existing !== 'object') {
           // Refuse to silently overwrite a scalar (or treat an array as an
-          // object) at an intermediate segment — would either destroy user
+          // object) at an intermediate segment -- would either destroy user
           // data (e.g. {"env": "legacy-string"} losing the string when
           // env.NEW_KEY is written) or set string keys on an array.
           throw new Error(
@@ -498,7 +498,7 @@ function createFileSettingsAdapter(): ProviderSettingsAdapter {
       // callers never observe a clean snapshot while the file on disk lies.
       //
       // Note: the CLI adapter (loadedSettingsAdapter) takes a different
-      // trade-off — restoreSettingsFromBackup() returns a boolean, so it
+      // trade-off -- restoreSettingsFromBackup() returns a boolean, so it
       // logs on failure and *unconditionally* restores in-memory state.
       // VS Code can be stricter because its writeSettings is the only path
       // and a throw here is recoverable; the CLI lacks that escape hatch.
@@ -518,7 +518,7 @@ function createFileSettingsAdapter(): ProviderSettingsAdapter {
  * This is the primary entry point for the VSCode interactive auth flow.
  *
  * `applyProviderInstallPlan` is async, so a returned (or thrown) Promise must
- * be awaited — otherwise an `EACCES` from `persist()` or the prototype-pollution
+ * be awaited -- otherwise an `EACCES` from `persist()` or the prototype-pollution
  * guard in `setValue()` would be swallowed and the caller would carry on
  * reconnecting the agent as if the settings write had succeeded.
  */
@@ -533,7 +533,7 @@ export async function applyProviderInstallPlanToFile(
  * Capture a deep-cloned snapshot of the current on-disk settings for rollback,
  * or `null` if the file is missing/unreadable.
  *
- * Unlike `readSettings`, this never throws — callers use it to checkpoint
+ * Unlike `readSettings`, this never throws -- callers use it to checkpoint
  * before `applyProviderInstallPlanToFile` so that a *later* step the install
  * plan can't see (e.g. the agent reconnect rejecting a bad API key) can be
  * undone via {@link restoreSettingsSnapshot}. `applyProviderInstallPlan`'s own
@@ -548,7 +548,7 @@ export function snapshotSettingsForRollback(): Record<string, unknown> | null {
     // Leave a breadcrumb: returning null disables credential rollback, so if
     // settings are transiently unreadable (AV lock, disk hiccup) the oncall
     // engineer can tie repeated cross-restart auth failures back to here.
-    // Log only the error's class name (not its message) — consistent with the
+    // Log only the error's class name (not its message) -- consistent with the
     // providerMatchesCredentials guard, so the security stance holds even
     // though this catch is filesystem errors rather than user-defined fns.
     console.warn(
@@ -571,13 +571,13 @@ export function restoreSettingsSnapshot(
 }
 
 // ---------------------------------------------------------------------------
-// Read: ~/.qwen/settings.json → VSCode Settings
+// Read: ~/.qwen/settings.json -> VSCode Settings
 // ---------------------------------------------------------------------------
 
 /**
  * Read ~/.qwen/settings.json and extract values for VSCode Settings UI.
  * Returns null if no valid configuration found, or if the file is
- * malformed — the panel falls back to the empty/default state instead of
+ * malformed -- the panel falls back to the empty/default state instead of
  * crashing the extension on activation. `readSettings` itself now throws
  * on parse failure (so we never silently overwrite a corrupt file in the
  * write paths), so this caller has to catch.
@@ -623,7 +623,7 @@ export function readQwenSettingsForVSCode(): QwenSettingsForVSCode | null {
     };
   }
 
-  // Non-Coding-Plan — find API key from model providers
+  // Non-Coding-Plan -- find API key from model providers
   const firstEnvKey = (openaiModels[0]?.envKey as string) || 'OPENAI_API_KEY';
   const apiKey = env[firstEnvKey] || '';
 
@@ -674,7 +674,7 @@ export function clearPersistedAuth(): void {
         }
       }
       // Custom-provider env keys are derived dynamically by
-      // generateCustomEnvKey — match the prefix instead of enumerating.
+      // generateCustomEnvKey -- match the prefix instead of enumerating.
       for (const key of Object.keys(env)) {
         if (key.startsWith(CUSTOM_API_KEY_ENV_PREFIX)) {
           delete env[key];
@@ -689,7 +689,7 @@ export function clearPersistedAuth(): void {
     const pm = settings.providerMetadata as Record<string, unknown> | undefined;
     if (pm) {
       // Every preset with a static models[] writes providerMetadata.<id>.version
-      // via resolveProviderState — wipe them all on clear so stale entries
+      // via resolveProviderState -- wipe them all on clear so stale entries
       // don't cause phantom "update available" notifications for a provider
       // the user just signed out of. resolveMetadataKey throws when a future
       // provider has '.' in its id; wrap per-iteration so one bad entry

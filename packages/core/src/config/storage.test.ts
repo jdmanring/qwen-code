@@ -46,14 +46,14 @@ function mockRealpath(
   });
 }
 
-describe('Storage – getGlobalSettingsPath', () => {
+describe('Storage - getGlobalSettingsPath', () => {
   it('returns path to ~/.qwen/settings.json', () => {
     const expected = path.join(os.homedir(), '.qwen', 'settings.json');
     expect(Storage.getGlobalSettingsPath()).toBe(expected);
   });
 });
 
-describe('Storage – additional helpers', () => {
+describe('Storage - additional helpers', () => {
   const projectRoot = '/tmp/project';
   const storage = new Storage(projectRoot);
 
@@ -78,7 +78,7 @@ describe('Storage – additional helpers', () => {
   });
 });
 
-describe('Storage – getRuntimeBaseDir / setRuntimeBaseDir', () => {
+describe('Storage - getRuntimeBaseDir / setRuntimeBaseDir', () => {
   const originalEnv = process.env['QWEN_RUNTIME_DIR'];
 
   beforeEach(() => {
@@ -194,7 +194,7 @@ describe('Storage – getRuntimeBaseDir / setRuntimeBaseDir', () => {
   });
 });
 
-describe('Storage – getPlansDir', () => {
+describe('Storage - getPlansDir', () => {
   const projectRoot = path.resolve('workspace', 'project');
 
   beforeEach(() => {
@@ -339,7 +339,7 @@ describe('Storage – getPlansDir', () => {
   });
 });
 
-describe('Storage – runtime path methods use getRuntimeBaseDir', () => {
+describe('Storage - runtime path methods use getRuntimeBaseDir', () => {
   const originalEnv = process.env['QWEN_RUNTIME_DIR'];
 
   beforeEach(() => {
@@ -427,7 +427,7 @@ describe('Storage – runtime path methods use getRuntimeBaseDir', () => {
   });
 });
 
-describe('Storage – config paths remain at ~/.qwen regardless of runtime dir', () => {
+describe('Storage - config paths remain at ~/.qwen regardless of runtime dir', () => {
   const originalEnv = process.env['QWEN_RUNTIME_DIR'];
   const globalQwenDir = Storage.getGlobalQwenDir();
 
@@ -500,7 +500,7 @@ describe('Storage – config paths remain at ~/.qwen regardless of runtime dir',
   });
 });
 
-describe('Storage – QWEN_HOME env var', () => {
+describe('Storage - QWEN_HOME env var', () => {
   const originalEnv = process.env['QWEN_HOME'];
 
   afterEach(() => {
@@ -597,7 +597,7 @@ describe('Storage – QWEN_HOME env var', () => {
   });
 });
 
-describe('Storage – runtime base dir async context isolation', () => {
+describe('Storage - runtime base dir async context isolation', () => {
   const originalEnv = process.env['QWEN_RUNTIME_DIR'];
 
   beforeEach(() => {

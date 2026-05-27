@@ -1,4 +1,4 @@
-🏛️ 
+ 
 # System Settings Configuration
 
 This document mirrors `config/meta/system_settings.json`.

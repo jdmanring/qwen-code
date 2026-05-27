@@ -155,7 +155,7 @@ describe('SkillActivationRegistry', () => {
     // entirely. With the try/catch, the bad pattern is dropped with
     // a debug log and the remaining patterns still compile.
     //
-    // Use an oversized pattern (~70 KB) — picomatch's default limit
+    // Use an oversized pattern (~70 KB) -- picomatch's default limit
     // is 65,536 chars and it throws above that.
     const bigPattern = 'a'.repeat(70_000);
     const reg = new SkillActivationRegistry(
@@ -217,7 +217,7 @@ describe('resolveProjectRelativePath', () => {
   it('returns null for Windows cross-drive paths (different drive letter)', () => {
     // Direct exercise of the new `path.isAbsolute(rawRelativePath)`
     // branch. `path.win32.relative('C:\\project', 'D:\\other\\file.ts')`
-    // returns an absolute string like `D:\\other\\file.ts` — without the
+    // returns an absolute string like `D:\\other\\file.ts` -- without the
     // isAbsolute guard, the helper would normalize the backslashes and
     // return `D:/other/file.ts`, which would false-match a broad glob
     // such as `**/*.ts`. Must return null instead.
@@ -241,11 +241,11 @@ describe('resolveProjectRelativePath', () => {
   });
 });
 
-describe('extractToolFilePaths → SkillActivationRegistry integration', () => {
+describe('extractToolFilePaths -> SkillActivationRegistry integration', () => {
   // Regression: feed the real candidate output for a `glob` call into
   // the registry and assert end-to-end activation. The earlier per-field
   // extraction (path + pattern as separate candidates) silently failed
-  // to activate skills keyed on the joined effective selector — there
+  // to activate skills keyed on the joined effective selector -- there
   // was no test exercising the path that mattered.
   it('activates a skill keyed on src/**/*.ts from glob({ path: "src", pattern: "**/*.ts" })', async () => {
     const { extractToolFilePaths } = await import(

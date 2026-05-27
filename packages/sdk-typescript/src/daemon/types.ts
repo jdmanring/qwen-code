@@ -8,9 +8,9 @@
  * Wire types for the `qwen serve` daemon HTTP API.
  *
  * These mirror the shapes emitted by `packages/cli/src/serve` but are
- * defined SDK-side to avoid an SDK→CLI dependency. The shapes are stable
+ * defined SDK-side to avoid an SDK->CLI dependency. The shapes are stable
  * once the capabilities envelope's `v` advances; bumping `v` is what
- * signals breaking wire changes (per design §04).
+ * signals breaking wire changes (per design 04).
  */
 
 export type DaemonMode = 'http-bridge' | 'native';
@@ -31,32 +31,32 @@ export interface DaemonCapabilities {
   mode: DaemonMode;
   /**
    * Feature tags the client should gate UI off (e.g. `permission_vote`,
-   * `session_events`). Never gate UI off `mode` — see §10.
+   * `session_events`). Never gate UI off `mode` -- see 10.
    */
   features: string[];
   modelServices: string[];
   /**
    * Absolute canonical workspace path this daemon is bound to
-   * (per #3803 §02: 1 daemon = 1 workspace). Clients use this to
+   * (per #3803 02: 1 daemon = 1 workspace). Clients use this to
    * (a) detect mismatch before posting `/session` (vs. waiting for
    * a 400 `workspace_mismatch` response), and (b) omit `cwd` on
-   * `POST /session` — the route falls back to this path when the
+   * `POST /session` -- the route falls back to this path when the
    * body has no `cwd` field. Multi-workspace deployments expose
    * multiple daemons on different ports, each advertising its own
    * `workspaceCwd`.
    *
    * Optional at the type level because the field is an additive
-   * extension to v=1 envelopes (added by #3803 §02). Daemons
-   * predating §02 still announce `v: 1` but omit this field; the
+   * extension to v=1 envelopes (added by #3803 02). Daemons
+   * predating 02 still announce `v: 1` but omit this field; the
    * protocol's "bump v only on incompatible frame changes" stance
    * (see `qwen-serve-protocol.md`) makes additive optionality the
-   * correct shape. All post-§02 daemons populate it.
+   * correct shape. All post-02 daemons populate it.
    *
    * **SDK consumers**: if you need the value as a non-undefined
    * `string` (e.g. to call `.startsWith()` or pass into a function
    * typed `string`), use the `requireWorkspaceCwd` helper from this
-   * module — it throws `DaemonCapabilityMissingError` with an
-   * actionable "this daemon predates §02" message instead of
+   * module -- it throws `DaemonCapabilityMissingError` with an
+   * actionable "this daemon predates 02" message instead of
    * letting the call site hit a cryptic
    * "Cannot read properties of undefined".
    */
@@ -73,7 +73,7 @@ export class DaemonCapabilityMissingError extends Error {
   readonly capability: string;
   constructor(capability: string, hint: string) {
     super(
-      `DaemonCapabilities.${capability} is missing — ${hint}. The daemon ` +
+      `DaemonCapabilities.${capability} is missing -- ${hint}. The daemon ` +
         `you are connected to likely predates the feature that added ` +
         `this field; upgrade the daemon or fall back to a different ` +
         `code path that doesn't require it.`,
@@ -85,12 +85,12 @@ export class DaemonCapabilityMissingError extends Error {
 
 /**
  * Assert that `caps.workspaceCwd` is populated (i.e. the daemon was
- * built post-§02) and return it as a non-undefined `string`. Throws
+ * built post-02) and return it as a non-undefined `string`. Throws
  * `DaemonCapabilityMissingError` otherwise so the call site gets an
  * actionable error rather than a downstream
  * `Cannot read properties of undefined`.
  *
- * Use this when you need the value as a guaranteed `string` —
+ * Use this when you need the value as a guaranteed `string` --
  * e.g. to render in UI, log, compare with `.startsWith()`, or pass
  * into a function typed `string`. If your code is fine with the
  * value being absent (e.g. you fall back to `POST /session` without
@@ -102,8 +102,8 @@ export function requireWorkspaceCwd(caps: DaemonCapabilities): string {
     throw new DaemonCapabilityMissingError(
       'workspaceCwd',
       caps.workspaceCwd === ''
-        ? 'daemon returned an empty workspaceCwd (post-§02 daemon with a bug)'
-        : 'daemon predates #3803 §02 (1 daemon = 1 workspace); upgrade it',
+        ? 'daemon returned an empty workspaceCwd (post-02 daemon with a bug)'
+        : 'daemon predates #3803 02 (1 daemon = 1 workspace); upgrade it',
     );
   }
   return caps.workspaceCwd;
@@ -129,9 +129,9 @@ export interface DaemonSession {
  *
  * Fields mirror the ACP `LoadSessionResponse` / `ResumeSessionResponse`
  * shapes (see `@agentclientprotocol/sdk`):
- * - `models`: the agent's `SessionModelState` — current model id +
+ * - `models`: the agent's `SessionModelState` -- current model id +
  *   available models the session can switch to.
- * - `modes`: the agent's `SessionModeState` — current mode id +
+ * - `modes`: the agent's `SessionModeState` -- current mode id +
  *   available approval / interaction modes.
  * - `configOptions`: array of `SessionConfigOption` describing
  *   per-session toggles the client can flip via
@@ -233,8 +233,8 @@ export interface DaemonWorkspaceMcpServerStatus extends DaemonStatusCell {
   extensionName?: string;
   /**
    * Why this server is not live, when known (issue #4175 PR 14).
-   * `'config'`  — operator-disabled via `disabledMcpServers`.
-   * `'budget'`  — refused by the workspace MCP client budget
+   * `'config'`  -- operator-disabled via `disabledMcpServers`.
+   * `'budget'`  -- refused by the workspace MCP client budget
    *               (snapshot also surfaces `errorKind:
    *               'budget_exhausted'`).
    * Absent on pre-PR-14 daemons.
@@ -250,12 +250,12 @@ export type DaemonMcpBudgetMode = 'enforce' | 'warn' | 'off';
  * entry with `scope: 'session'` (per-session enforcement; see the
  * `scope` field doc for why). Wave 5 PR 23 shared pool will add
  * `scope: 'workspace'`. Consumers MUST tolerate unrecognized scope
- * values — drop, don't fail.
+ * values -- drop, don't fail.
  */
 export interface DaemonMcpBudgetStatusCell extends DaemonStatusCell {
   kind: 'mcp_budget';
   /**
-   * **PR 14 v1 emits `'session'`** — the budget caps live MCP
+   * **PR 14 v1 emits `'session'`** -- the budget caps live MCP
    * clients per ACP session, not per-workspace. Each session has its
    * own `McpClientManager` (created via `acpAgent.newSessionConfig`).
    * Wave 5 PR 23 (shared MCP pool) will introduce a workspace-scoped
@@ -263,7 +263,7 @@ export interface DaemonMcpBudgetStatusCell extends DaemonStatusCell {
    *
    * The `string & {}` widening keeps IDE autocomplete + literal
    * narrowing for known scopes while allowing unknown scopes through
-   * — the protocol contract is "consumers MUST tolerate additional
+   * -- the protocol contract is "consumers MUST tolerate additional
    * scope values, drop don't fail." See `qwen-serve-protocol.md`.
    */
   scope: 'session' | 'workspace' | (string & {});
@@ -350,7 +350,7 @@ export interface DaemonWorkspaceProvidersStatus {
 /**
  * Issue #4175 PR 16: workspace memory snapshot returned from
  * `GET /workspace/memory`. Mirrors the `kind / status / error?` cell
- * pattern used by mcp/skills/providers — adapters can render any of
+ * pattern used by mcp/skills/providers -- adapters can render any of
  * the four with the same component.
  */
 export type DaemonContextFileScope = 'workspace' | 'global';
@@ -389,7 +389,7 @@ export interface DaemonWriteMemoryResult {
   filePath: string;
   /**
    * Bytes actually written by THIS request. `0` when the daemon
-   * short-circuited the write (`changed: false`) — e.g. whitespace-
+   * short-circuited the write (`changed: false`) -- e.g. whitespace-
    * only append. NOT the on-disk file size; callers needing that
    * should issue a `GET /workspace/memory` for the file's current
    * `bytes`.
@@ -399,12 +399,12 @@ export interface DaemonWriteMemoryResult {
   /**
    * `true` when the daemon actually mutated the file on disk. `false`
    * for whitespace-only `append` requests that short-circuited
-   * upstream — the route accepted the request as well-formed (200
+   * upstream -- the route accepted the request as well-formed (200
    * OK) but the helper detected the trimmed content was empty and
    * skipped the write to avoid an mtime bump + a misleading
    * `memory_changed` event. SDK consumers can branch on this to
    * suppress redundant cache invalidation. Optional at the type
-   * level for forward-compat with daemons that predate the field —
+   * level for forward-compat with daemons that predate the field --
    * those return undefined and callers should treat that as
    * `changed: true` (the legacy contract).
    */
@@ -501,7 +501,7 @@ export interface DaemonWorkspaceFileEditResult {
  * Issue #4175 PR 16: subagent CRUD types. `agentType` on the wire is
  * the `name` field from the agent's frontmatter (case-insensitive);
  * `level` distinguishes project-/user-/builtin-/extension-level
- * registrations. Built-in / extension agents are read-only — POST and
+ * registrations. Built-in / extension agents are read-only -- POST and
  * DELETE return 403 `agent_readonly`.
  */
 /**
@@ -512,14 +512,14 @@ export interface DaemonWorkspaceFileEditResult {
  * per-`agentType` detail route.
  *
  * `extension` and `session` are present on the union for forward-
- * compat but the daemon does NOT return them today — the daemon-
+ * compat but the daemon does NOT return them today -- the daemon-
  * scoped `SubagentManager` is constructed against a stub `Config`
  * whose `getActiveExtensions()` returns `[]` (extension plumbing has
  * no entry point through the workspace daemon yet) and session-level
  * subagents live in a runtime-only cache no CRUD route reads. SDK
  * consumers writing exhaustive switches over `DaemonAgentLevel`
  * should therefore include arms for both values but treat them as
- * unreachable on today's route surface — having them on the type
+ * unreachable on today's route surface -- having them on the type
  * avoids a breaking SDK change when a future PR exposes either
  * source.
  */
@@ -562,8 +562,8 @@ export interface DaemonWorkspaceAgentsStatus {
 
 /**
  * Body of `POST /workspace/agents`. The daemon translates `scope` into
- * the corresponding `SubagentLevel` (`workspace`→`project`,
- * `global`→`user`).
+ * the corresponding `SubagentLevel` (`workspace`->`project`,
+ * `global`->`user`).
  */
 export interface DaemonCreateAgentRequest {
   name: string;
@@ -581,7 +581,7 @@ export interface DaemonCreateAgentRequest {
 
 /**
  * Body of `POST /workspace/agents/:agentType`. `name` / `level` /
- * `filePath` / `isBuiltin` are intentionally omitted — agent type
+ * `filePath` / `isBuiltin` are intentionally omitted -- agent type
  * comes from the URL, level is determined by the existing record, and
  * the other two are server-managed.
  */
@@ -606,7 +606,7 @@ export interface DaemonAgentMutationResult {
    * already matched the existing record). The update route emits
    * the field on every response (introduced alongside the no-op
    * short-circuit in PR 16); create responses currently omit it
-   * because every successful create is a write — typed consumers
+   * because every successful create is a write -- typed consumers
    * should treat `undefined` as `true` (the legacy contract). This
    * mirrors `DaemonWriteMemoryResult.changed`. Optional at the type
    * level for forward-compat with daemons that predate the field.
@@ -696,7 +696,7 @@ export interface SetModelResult {
 /**
  * #4175 Wave 4 PR 17. Closed enumeration of session approval modes the
  * daemon exposes via `POST /session/:id/approval-mode`. Mirrors core's
- * `ApprovalMode` enum — the drift detector test in
+ * `ApprovalMode` enum -- the drift detector test in
  * `packages/cli/src/acp-integration/approvalMode.test.ts` walks the
  * core enum and fails CI if any value is missing here.
  *
@@ -716,7 +716,7 @@ export type DaemonApprovalMode = (typeof DAEMON_APPROVAL_MODES)[number];
  * Result body of `POST /session/:id/approval-mode`. `previous` and
  * `mode` are typed as `string` (rather than `DaemonApprovalMode`) so
  * older SDK builds against a hypothetical future fifth mode literal
- * still parse — branch on the values you handle and treat the rest as
+ * still parse -- branch on the values you handle and treat the rest as
  * opaque. `persisted: true` indicates the change was also written to
  * `tools.approvalMode` in workspace settings (set via the route's
  * optional `persist: true` body flag).
@@ -733,7 +733,7 @@ export interface DaemonApprovalModeResult {
  * enable`. The `enabled` flag echoes the requested state; daemon
  * always succeeds when the bridge has a `persistDisabledTools` hook
  * (production wires it). Already-registered tools in active sessions
- * are not retroactively unregistered — see `tool_toggled` event docs.
+ * are not retroactively unregistered -- see `tool_toggled` event docs.
  */
 export interface DaemonToolToggleResult {
   toolName: string;
@@ -752,7 +752,7 @@ export interface DaemonToolToggleResult {
  *   change). Honors the "init only if absent" intent without
  *   requiring `force: true` (#4282 fold-in 1, wenshao H4).
  *
- * Note: `path` is the absolute path on the daemon host filesystem —
+ * Note: `path` is the absolute path on the daemon host filesystem --
  * not the client's. Per the runtime-locality contract, file ops
  * resolve in the daemon environment.
  */
@@ -766,7 +766,7 @@ export interface DaemonInitWorkspaceResult {
  * restart`. Discriminated by `restarted`: `true` carries the wall-
  * clock duration of the disconnect+reconnect+rediscover sequence;
  * `false` is a soft skip with the reason. Both shapes return HTTP
- * 200 — only hard errors (server not configured, no live ACP child)
+ * 200 -- only hard errors (server not configured, no live ACP child)
  * surface as non-2xx.
  *
  * Soft skip reasons:
@@ -797,7 +797,7 @@ export type DaemonMcpRestartResult =
  * server-side `Date.now()` epoch (ms) the daemon stored for this
  * session. `clientId` is echoed back only when the caller supplied a
  * trusted one through `X-Qwen-Client-Id`. Older daemons (pre-PR 9) do
- * not expose this route — clients should pre-flight
+ * not expose this route -- clients should pre-flight
  * `caps.features.client_heartbeat` before sending.
  */
 export interface HeartbeatResult {
@@ -806,7 +806,7 @@ export interface HeartbeatResult {
   lastSeenAt: number;
 }
 
-/** Issue #4175 PR 21 — auth device-flow wire types. */
+/** Issue #4175 PR 21 -- auth device-flow wire types. */
 
 export type DaemonAuthProviderId = 'qwen-oauth' | (string & {});
 
@@ -817,7 +817,7 @@ export type DaemonAuthProviderId = 'qwen-oauth' | (string & {});
 // (event payloads + REST wire shapes). TypeScript handles the
 // circular type-only import cleanly because there is no runtime
 // dependency direction. Local `type X = ...` aliases (rather than a
-// re-export) make the symbols usable INSIDE this module too — required
+// re-export) make the symbols usable INSIDE this module too -- required
 // by `DaemonDeviceFlowState` / `DaemonAuthProviderStatus` below.
 import type {
   DaemonAuthDeviceFlowStatus,
@@ -900,7 +900,7 @@ export interface DaemonEvent {
   v: 1;
   /** Frame discriminator: `session_update`, `permission_request`, etc. */
   type: string;
-  /** Frame payload — opaque JSON. */
+  /** Frame payload -- opaque JSON. */
   data: unknown;
   originatorClientId?: string;
 }
@@ -913,7 +913,7 @@ export interface PromptTextContent {
 /**
  * The set of content blocks the daemon's prompt route accepts. The full ACP
  * `ContentBlock` union is wider; SDK clients can pass any of those shapes
- * through — the route forwards the array verbatim.
+ * through -- the route forwards the array verbatim.
  */
 export type PromptContentBlock = PromptTextContent | Record<string, unknown>;
 

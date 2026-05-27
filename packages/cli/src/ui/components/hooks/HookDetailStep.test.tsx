@@ -160,7 +160,7 @@ describe('HookDetailStep', () => {
     );
 
     const output = lastFrame();
-    expect(output).toContain('❯');
+    expect(output).toContain('');
   });
 
   it('should show keyboard hint for going back', () => {

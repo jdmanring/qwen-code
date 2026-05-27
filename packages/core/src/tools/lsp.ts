@@ -787,7 +787,7 @@ class LspToolInvocation extends BaseToolInvocation<LspToolParams, ToolResult> {
 
     const lines = actions.slice(0, limit).map((action, index) => {
       const kind = action.kind ? ` [${action.kind}]` : '';
-      const preferred = action.isPreferred ? ' ★' : '';
+      const preferred = action.isPreferred ? ' ' : '';
       const hasEdit = action.edit ? ' (has edit)' : '';
       const hasCommand = action.command ? ' (has command)' : '';
       const serverSuffix = action.serverName ? ` [${action.serverName}]` : '';
@@ -1148,7 +1148,7 @@ export class LspTool extends BaseDeclarativeTool<LspToolParams, ToolResult> {
       },
       false, // isOutputMarkdown
       false, // canUpdateOutput
-      true, // shouldDefer — loaded on demand via ToolSearch
+      true, // shouldDefer -- loaded on demand via ToolSearch
       false, // alwaysLoad
       'lsp language server definition references hover symbol diagnostics code actions',
     );
@@ -1159,7 +1159,7 @@ export class LspTool extends BaseDeclarativeTool<LspToolParams, ToolResult> {
   ): string | null {
     const operation = params.operation;
 
-    // Normalize shell-escaped paths (e.g. "my\ file.txt" → "my file.txt")
+    // Normalize shell-escaped paths (e.g. "my\ file.txt" -> "my file.txt")
     if (params.filePath) {
       params.filePath = unescapePath(params.filePath.trim());
     }

@@ -5,7 +5,7 @@
  */
 
 /**
- * `PermissionMediator` — type-only interface contract for daemon
+ * `PermissionMediator` -- type-only interface contract for daemon
  * permission flow. **No implementation lives here.** Permission voting
  * still runs inside `BridgeClient.requestPermission` /
  * `respondToPermission` in `packages/cli/src/serve/httpAcpBridge.ts`,
@@ -14,18 +14,18 @@
  *
  * The four policies are ordered from cheapest to strongest:
  *
- * - `first-responder` — first valid `POST /permission/:requestId`
+ * - `first-responder` -- first valid `POST /permission/:requestId`
  *   wins; later voters get `permission_already_resolved`. Today's
  *   default; preserves the live-collaboration UX.
- * - `designated` — only the `originatorClientId` that started the
+ * - `designated` -- only the `originatorClientId` that started the
  *   prompt may answer; other clients see `permission_forbidden`.
  *   Use case: per-tenant SaaS where a UI surface must own its own
  *   approvals.
- * - `consensus` — N-of-M quorum across pair-token-authenticated
+ * - `consensus` -- N-of-M quorum across pair-token-authenticated
  *   clients before resolving; intermediate `permission_partial_vote`
  *   events let UIs render progress. Use case: enterprise change
  *   review where two operators must agree.
- * - `local-only` — refuses any HTTP voter; the prompt blocks until
+ * - `local-only` -- refuses any HTTP voter; the prompt blocks until
  *   a loopback client (the local TUI super-client) resolves it.
  *   Use case: workstations where remote control should never grant
  *   privilege escalation.
@@ -49,7 +49,7 @@ export interface PermissionRequestRecord {
   /** ACP `RequestPermission` request id, unique per session. */
   readonly requestId: string;
   /** Session that the request belongs to. Permission scope is
-   * always per-session — workspace-scoped permission is out of
+   * always per-session -- workspace-scoped permission is out of
    * scope for v1. */
   readonly sessionId: string;
   /**
@@ -79,7 +79,7 @@ export interface PermissionVote {
   readonly requestId: string;
   readonly sessionId: string;
   /**
-   * Daemon-stamped (PR 7 / #4231) — never client self-declared.
+   * Daemon-stamped (PR 7 / #4231) -- never client self-declared.
    * `local-only` rejects votes whose remote address is not
    * loopback regardless of `clientId`.
    */
@@ -152,7 +152,7 @@ export interface PermissionMediator {
   vote(vote: PermissionVote): PermissionVoteOutcome;
 
   /**
-   * Drop any pending state for the session — called when the
+   * Drop any pending state for the session -- called when the
    * session is closed or evicted. Pending requests resolve as
    * `{ kind: 'cancelled', reason: 'session_closed' }`.
    */

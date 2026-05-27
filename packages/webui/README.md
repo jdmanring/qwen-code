@@ -328,18 +328,18 @@ npm run typecheck
 
 ```
 packages/webui/
-├── src/
-│   ├── components/
-│   │   ├── icons/          # Icon components
-│   │   ├── layout/         # Layout components
-│   │   ├── messages/       # Message components
-│   │   └── ui/             # UI primitives
-│   ├── context/            # Platform context
-│   ├── hooks/              # Custom hooks
-│   └── types/              # Type definitions
-├── .storybook/             # Storybook config
-├── tailwind.preset.cjs     # Shared Tailwind preset
-└── vite.config.ts          # Build configuration
+|---- src/
+|   |---- components/
+|   |   |---- icons/          # Icon components
+|   |   |---- layout/         # Layout components
+|   |   |---- messages/       # Message components
+|   |   \_-- ui/             # UI primitives
+|   |---- context/            # Platform context
+|   |---- hooks/              # Custom hooks
+|   \_-- types/              # Type definitions
+|---- .storybook/             # Storybook config
+|---- tailwind.preset.cjs     # Shared Tailwind preset
+\_-- vite.config.ts          # Build configuration
 ```
 
 ## License

@@ -238,7 +238,7 @@ describe('languageCommand', () => {
 
       const result = await languageCommand.action(mockContext, '');
 
-      // Verify it shows "Auto (detect from system) → Chinese"
+      // Verify it shows "Auto (detect from system) -> Chinese"
       expect(result).toEqual({
         type: 'message',
         messageType: 'info',
@@ -503,7 +503,7 @@ describe('languageCommand', () => {
       ).config = {
         getModel: vi.fn().mockReturnValue('test-model'),
         refreshHierarchicalMemory,
-        // No getGeminiClient — refreshSystemInstruction must not be reached.
+        // No getGeminiClient -- refreshSystemInstruction must not be reached.
       };
 
       const result = await languageCommand.action(mockContext, 'output Korean');

@@ -170,8 +170,8 @@ export class McpClient {
    * error is re-thrown. Without this, a server that connects successfully
    * but then crashes (or returns no tools, or whose `tools/list` call
    * rejects) would remain `CONNECTED` in the global status registry, and
-   * `Config.getFailedMcpServerNames()` — which filters by
-   * `status !== CONNECTED` — would silently omit it from the
+   * `Config.getFailedMcpServerNames()` -- which filters by
+   * `status !== CONNECTED` -- would silently omit it from the
    * non-interactive failure banner. The caller (manager) still catches
    * and logs; we just need the status registry to reflect reality.
    */
@@ -201,7 +201,7 @@ export class McpClient {
    * Disconnects from the MCP server.
    *
    * The intentional DISCONNECTED status update must reach the global
-   * registry — `getFailedMcpServerNames()` filters on `status !== CONNECTED`
+   * registry -- `getFailedMcpServerNames()` filters on `status !== CONNECTED`
    * and the Footer's MCP health pill subscribes to the registry. Going
    * through `updateStatus()` would have it swallowed by the
    * `isDisconnecting` guard whose only purpose is to suppress LATE writes
@@ -708,7 +708,7 @@ export async function discoverTools(
         }
       }
     } catch {
-      // If listTools fails, proceed without annotations — non-critical
+      // If listTools fails, proceed without annotations -- non-critical
       debugLogger.error(
         `Failed to fetch tool annotations from MCP server '${mcpServerName}'`,
       );
@@ -1466,7 +1466,7 @@ export async function createTransport(
       );
     }
 
-    // Normalize process.env PATH first (merge PATH+Path → single PATH on
+    // Normalize process.env PATH first (merge PATH+Path -> single PATH on
     // Windows), then apply server-specific overrides on top so that a server
     // config providing its own PATH fully replaces the parent value instead of
     // being merged with a stale case-variant.

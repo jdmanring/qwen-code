@@ -220,7 +220,7 @@ export interface ArenaCallbacks {
 }
 
 /**
- * File format for per-agent status (child → main process).
+ * File format for per-agent status (child -> main process).
  * Written atomically by ArenaAgentClient to
  * `<arenaSessionDir>/agents/<safeAgentId>.json`.
  */
@@ -260,7 +260,7 @@ export interface ArenaConfigFile {
 }
 
 /**
- * Control signal format for control.json (main → child process).
+ * Control signal format for control.json (main -> child process).
  * Written by ArenaManager, consumed (read + deleted) by ArenaAgentClient.
  */
 export interface ArenaControlSignal {

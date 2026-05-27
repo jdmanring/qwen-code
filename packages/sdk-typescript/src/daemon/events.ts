@@ -23,7 +23,7 @@ const DAEMON_KNOWN_EVENT_TYPE_VALUES = [
   'client_evicted',
   'slow_client_warning',
   'stream_error',
-  // PR 14b — MCP guardrail push events. See `mcp_guardrail_events`
+  // PR 14b -- MCP guardrail push events. See `mcp_guardrail_events`
   // capability tag. Both fire on the per-session SSE bus; consumers
   // should pre-flight `caps.features.includes('mcp_guardrail_events')`
   // before relying on these for non-snapshot UX (the `GET /workspace/mcp`
@@ -31,12 +31,12 @@ const DAEMON_KNOWN_EVENT_TYPE_VALUES = [
   'mcp_budget_warning',
   'mcp_child_refused_batch',
   // Issue #4175 PR 16: workspace-level mutation signals fanned out
-  // through every active session's bus. Non-terminal — informational
+  // through every active session's bus. Non-terminal -- informational
   // for adapters that want to render "memory just changed" / "agent X
   // updated" toasts. Read-after-write remains the correctness contract.
   'memory_changed',
   'agent_changed',
-  // Issue #4175 PR 21 — workspace-scoped auth device-flow events.
+  // Issue #4175 PR 21 -- workspace-scoped auth device-flow events.
   // These are NOT session-keyed; the session reducer no-ops on them
   // and `reduceDaemonAuthEvent` projects them into a workspace-level
   // state shape (one entry per provider).
@@ -45,7 +45,7 @@ const DAEMON_KNOWN_EVENT_TYPE_VALUES = [
   'auth_device_flow_authorized',
   'auth_device_flow_failed',
   'auth_device_flow_cancelled',
-  // #4175 Wave 4 PR 17 — mutation control events.
+  // #4175 Wave 4 PR 17 -- mutation control events.
   'approval_mode_changed',
   'tool_toggled',
   'workspace_initialized',
@@ -160,7 +160,7 @@ export interface DaemonStreamErrorData {
 /**
  * PR 14b: payload for the `mcp_budget_warning` SSE frame. Fired on the
  * upward 75% crossing of `reservedSlots.size / clientBudget`. Re-arms
- * only after the ratio drops below 37.5% — so a budget that flaps just
+ * only after the ratio drops below 37.5% -- so a budget that flaps just
  * above the threshold doesn't produce a flood of identical warnings.
  *
  * `liveCount` (CONNECTED clients) and `reservedCount` (configured set,
@@ -237,7 +237,7 @@ export interface DaemonAgentChangedData {
   [key: string]: unknown;
 }
 
-/** Issue #4175 PR 21 — auth device-flow event payloads. */
+/** Issue #4175 PR 21 -- auth device-flow event payloads. */
 
 /** Provider id. Open string union for forward-compatible providers; `qwen-oauth`
  *  is the only value v1 currently emits. */
@@ -254,7 +254,7 @@ export type DaemonAuthDeviceFlowStatus =
  * Known errorKind values surfaced on `auth_device_flow_failed`. The
  * trailing `(string & {})` keeps this as an OPEN union so a daemon
  * adding a new errorKind doesn't get its event silently dropped by an
- * older SDK's type guard — consumers branching exhaustively on the
+ * older SDK's type guard -- consumers branching exhaustively on the
  * known literals get the same narrowing as before, while unknown
  * future kinds fall through to a `string` fallback rather than failing
  * `isAuthDeviceFlowFailedData` and being filtered out by
@@ -271,7 +271,7 @@ export type DaemonAuthDeviceFlowErrorKind =
   | 'persist_failed'
   /** SDK-synthesized when the daemon's GET returns 404 inside
    *  `DaemonAuthFlow.awaitCompletion`. Surfaced from `getDeviceFlowOrSynthetic404`
-   *  rather than the daemon — three reachable causes: (a) the flow expired
+   *  rather than the daemon -- three reachable causes: (a) the flow expired
    *  past the 5-min terminal grace window and the sweeper reaped it, (b) the
    *  daemon was restarted and lost the in-memory registry, (c) the
    *  `deviceFlowId` was wrong / spoofed. PR #4255 follow-up review thread
@@ -326,7 +326,7 @@ export interface DaemonAuthDeviceFlowCancelledData {
  *
  * `previous` and `next` are typed as `string` here rather than the
  * `DaemonApprovalMode` union so SDK consumers built against an older
- * daemon don't crash on a future fifth mode literal — the daemon-side
+ * daemon don't crash on a future fifth mode literal -- the daemon-side
  * enum is the source of truth and SDK reducers should branch on the
  * known values they care about.
  */
@@ -343,7 +343,7 @@ export interface DaemonApprovalModeChangedData {
  * #4175 Wave 4 PR 17. Workspace-scoped: fan-outs to every active
  * session SSE bus when `POST /workspace/tools/:name/enable` mutates
  * the workspace `tools.disabled` settings list. The event is emitted
- * regardless of whether the tool is currently registered — it
+ * regardless of whether the tool is currently registered -- it
  * communicates intent, not registry state. Live sessions retain
  * already-registered tools; the toggle takes effect on the next ACP
  * child spawn or `ToolRegistry.refresh()`.
@@ -597,7 +597,7 @@ export interface DaemonSessionViewState {
   lastUnmatchedPermissionResolutionId?: string;
   /**
    * Count of `slow_client_warning` frames this stream has observed.
-   * Non-terminal — warnings precede eviction but don't themselves
+   * Non-terminal -- warnings precede eviction but don't themselves
    * close the stream. Adapters tap this counter to surface "your
    * stream is lagging" UI before `client_evicted` arrives.
    */
@@ -605,7 +605,7 @@ export interface DaemonSessionViewState {
   lastSlowClientWarning?: DaemonSlowClientWarningData;
   /**
    * PR 14b: count of `mcp_budget_warning` frames this stream has
-   * observed. Non-terminal — warning fires on the upward 75% crossing
+   * observed. Non-terminal -- warning fires on the upward 75% crossing
    * and re-arms below 37.5%, so a flapping budget produces at most
    * one warning per crossing episode. Adapters tap this counter to
    * surface MCP-pressure UI; the snapshot at `GET /workspace/mcp`
@@ -624,7 +624,7 @@ export interface DaemonSessionViewState {
   lastMcpChildRefusedBatch?: DaemonMcpChildRefusedBatchData;
   /**
    * Issue #4175 PR 16: most recent workspace mutation observed on this
-   * stream (memory or agent change). Non-terminal — adapters render a
+   * stream (memory or agent change). Non-terminal -- adapters render a
    * "memory just changed" / "agent X updated" toast and re-fetch the
    * relevant workspace status route. Captures only the latest event;
    * older events are not retained because the route's read-after-write
@@ -641,7 +641,7 @@ export interface DaemonSessionViewState {
   approvalModeChangedCount: number;
   lastApprovalModeChange?: DaemonApprovalModeChangedData;
   /**
-   * #4175 Wave 4 PR 17. Workspace-scoped fan-out — every session bus
+   * #4175 Wave 4 PR 17. Workspace-scoped fan-out -- every session bus
    * receives `tool_toggled` events so cross-session UIs can update
    * "this tool is disabled in the workspace" badges in real time.
    * Non-terminal.
@@ -649,7 +649,7 @@ export interface DaemonSessionViewState {
   toolToggleCount: number;
   lastToolToggle?: DaemonToolToggledData;
   /**
-   * #4175 Wave 4 PR 17. Workspace-scoped — every session bus receives
+   * #4175 Wave 4 PR 17. Workspace-scoped -- every session bus receives
    * `workspace_initialized` events. `lastWorkspaceInit` records the
    * most recent envelope so adapters can render a "QWEN.md was just
    * scaffolded by another client" notice without polling.
@@ -993,7 +993,7 @@ export function reduceDaemonSessionEvent(
     case 'memory_changed':
       // Non-terminal: adapters render a "memory just changed" hint and
       // re-fetch `GET /workspace/memory` to get the canonical state. We
-      // don't append to a list — the latest event is enough since the
+      // don't append to a list -- the latest event is enough since the
       // route's read-after-write contract is the source of truth.
       return {
         ...base,
@@ -1001,7 +1001,7 @@ export function reduceDaemonSessionEvent(
         lastWorkspaceMutationType: 'memory_changed',
       };
     case 'agent_changed':
-      // Same shape as `memory_changed` — non-terminal hint that
+      // Same shape as `memory_changed` -- non-terminal hint that
       // triggers a `GET /workspace/agents` re-fetch.
       return {
         ...base,
@@ -1023,7 +1023,7 @@ export function reduceDaemonSessionEvent(
     // snapshot. Without this, consumers reading
     // `lastApprovalModeChange` / `lastToolToggle` / `lastWorkspaceInit`
     // / `lastMcpRestart{,Refused}` cannot tell whether the mutation
-    // originated from themselves — even though the raw event carried
+    // originated from themselves -- even though the raw event carried
     // that information at the envelope level. `mergeOriginator`
     // preserves any pre-existing `data.originatorClientId` (which the
     // daemon does NOT currently populate, but the field exists on the
@@ -1036,7 +1036,7 @@ export function reduceDaemonSessionEvent(
         lastApprovalModeChange: mergeOriginator(event.data, event),
       };
     case 'tool_toggled':
-      // Workspace-scoped — same `tool_toggled` envelope is fan-out to
+      // Workspace-scoped -- same `tool_toggled` envelope is fan-out to
       // every session, so adapters can render "this tool was disabled
       // by another client" without polling.
       return {
@@ -1045,7 +1045,7 @@ export function reduceDaemonSessionEvent(
         lastToolToggle: mergeOriginator(event.data, event),
       };
     case 'workspace_initialized':
-      // Workspace-scoped fan-out. Non-terminal — just records that a
+      // Workspace-scoped fan-out. Non-terminal -- just records that a
       // QWEN.md scaffold was performed.
       return {
         ...base,
@@ -1080,7 +1080,7 @@ export function reduceDaemonSessionEvents(
   return state;
 }
 
-/** Issue #4175 PR 21 — workspace-scoped auth device-flow state. One entry
+/** Issue #4175 PR 21 -- workspace-scoped auth device-flow state. One entry
  *  per provider; the registry's per-provider singleton constraint is
  *  reflected here so adapters can render `state.flows[providerId]` without
  *  worrying about concurrent flows for the same provider. */
@@ -1096,8 +1096,8 @@ export interface DaemonDeviceFlowReducerState {
    *  doesn't let a stale frame overwrite a newer one. `undefined` if
    *  the underlying envelope omitted `id` (synthetic / SDK-internal
    *  frames). PR #4255 round-9 #6: changed from `number` (defaulting
-   *  to 0) to `number | undefined` — the daemon-side EventBus assigns
-   *  ids ≥ 1, so `0` is a sentinel that has no meaning in real
+   *  to 0) to `number | undefined` -- the daemon-side EventBus assigns
+   *  ids >= 1, so `0` is a sentinel that has no meaning in real
    *  traffic, but the monotonic gate (`rawEventId <= lastSeenEventId`)
    *  would reject any future synthetic frame using `id: 0`. The gate
    *  already short-circuits on `existing.lastSeenEventId !== undefined`,
@@ -1218,8 +1218,8 @@ export function reduceDaemonAuthEvent(
     }
     case 'auth_device_flow_failed': {
       // The daemon's status machine reserves 'expired' for the time-based
-      // path (now >= expiresAt). Upstream RFC 8628 errors — including
-      // `expired_token` — go to 'error' with `errorKind` carrying the
+      // path (now >= expiresAt). Upstream RFC 8628 errors -- including
+      // `expired_token` -- go to 'error' with `errorKind` carrying the
       // distinction. Earlier drafts collapsed `errorKind: 'expired_token'`
       // to status 'expired', which gave SDK consumers a different
       // status than the daemon's GET endpoint reported. Code-reviewer
@@ -1283,7 +1283,7 @@ function updateMatchingFlow(
       // mixing) could otherwise let a stale frame overwrite a
       // newer terminal state. Synthetic frames without an
       // envelope `id` (rawEventId === undefined) bypass the
-      // gate — they originate inside the SDK reducer machinery
+      // gate -- they originate inside the SDK reducer machinery
       // (e.g. fallback paths) and aren't subject to replay
       // ordering.
       if (
@@ -1427,7 +1427,7 @@ function isSlowClientWarningData(
   value: unknown,
 ): value is DaemonSlowClientWarningData {
   // Mirror the sibling predicates' finite-number guard
-  // (`isOptionalNumber` → `isFiniteNumber`): `typeof NaN === 'number'`
+  // (`isOptionalNumber` -> `isFiniteNumber`): `typeof NaN === 'number'`
   // and `typeof Infinity === 'number'` both pass a bare `typeof`
   // check but would be schema garbage for a queue-size measurement.
   return (
@@ -1452,7 +1452,7 @@ function isMcpBudgetWarningData(
   // (`packages/core/src/tools/mcp-client-manager.ts`) and documented
   // in `qwen-serve-protocol.md`. Pinning the literal in the SDK
   // would mean a daemon-side change to e.g. 0.80 silently routes
-  // every warning through `unrecognizedKnownEventCount` — a
+  // every warning through `unrecognizedKnownEventCount` -- a
   // cross-package coordination hazard with no operator-visible
   // failure mode. The `DaemonMcpBudgetWarningData.thresholdRatio`
   // type still narrows to `0.75` for current daemons; future
@@ -1498,7 +1498,7 @@ function isMcpChildRefusedBatchData(
     isFiniteNumber(value['budget']) &&
     isFiniteNumber(value['liveCount']) &&
     isFiniteNumber(value['reservedCount']) &&
-    // `mode` is a literal `'enforce'` — `warn` mode never refuses, so
+    // `mode` is a literal `'enforce'` -- `warn` mode never refuses, so
     // `'warn'`-tagged refusal payloads are protocol garbage. Reject
     // them so the reducer sees the raw event under the
     // `unrecognizedKnownEventCount` branch instead of silently
@@ -1585,7 +1585,7 @@ function isAuthDeviceFlowErrorKind(
 ): value is DaemonAuthDeviceFlowErrorKind {
   // Forward-compat: accept ANY non-empty string. The earlier closed
   // allowlist would silently drop a daemon-emitted `failed` event with
-  // a future errorKind (e.g. `rate_limited`) — `asKnownDaemonEvent`
+  // a future errorKind (e.g. `rate_limited`) -- `asKnownDaemonEvent`
   // would treat it as malformed and `reduceDaemonAuthEvent` never
   // transitions the flow's status, leaving SDK consumers stuck on
   // `pending` (PR #4255 review C2). The known literals still narrow

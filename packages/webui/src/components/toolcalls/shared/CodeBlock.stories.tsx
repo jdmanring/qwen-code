@@ -46,7 +46,7 @@ export const CommandOutput: Story = {
 > vite build
 
 vite v5.4.21 building for production...
-✓ 131 modules transformed.
-✓ built in 2.34s`,
+ 131 modules transformed.
+ built in 2.34s`,
   },
 };

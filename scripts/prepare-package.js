@@ -192,7 +192,7 @@ fs.writeFileSync(
   JSON.stringify(distPackageJson, null, 2) + '\n',
 );
 
-console.log('\n✅ Package prepared for publishing at dist/');
+console.log('\n Package prepared for publishing at dist/');
 console.log('\nPackage structure:');
 // Use Node.js to list directory contents (cross-platform)
 const distFiles = fs.readdirSync(distDir);

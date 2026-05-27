@@ -15,7 +15,7 @@ Agent Skills package expertise into discoverable capabilities. Each Skill consis
 
 ### How Skills are invoked
 
-Skills are **model-invoked** — the model autonomously decides when to use them based on your request and the Skill's description. This is different from slash commands, which are **user-invoked** (you explicitly type `/command`).
+Skills are **model-invoked** -- the model autonomously decides when to use them based on your request and the Skill's description. This is different from slash commands, which are **user-invoked** (you explicitly type `/command`).
 
 If you want to invoke a Skill explicitly, use the `/skills` slash command:
 
@@ -90,9 +90,9 @@ Show concrete examples of using this Skill.
 
 Qwen Code currently validates that:
 
-- `name` is a non-empty string matching `/^[\p{L}\p{N}_:.-]+$/u` — Unicode letters and digits (CJK / Cyrillic / accented Latin all OK), plus `_`, `:`, `.`, `-`. Whitespace, slashes, brackets and other structurally unsafe characters are rejected at parse time.
+- `name` is a non-empty string matching `/^[\p{L}\p{N}_:.-]+$/u` -- Unicode letters and digits (CJK / Cyrillic / accented Latin all OK), plus `_`, `:`, `.`, `-`. Whitespace, slashes, brackets and other structurally unsafe characters are rejected at parse time.
 - `description` is a non-empty string
-- `priority` is optional. When present, it must be a finite number. Higher values sort earlier in the `/skills` listing only — slash-command completion (typing `/`) and the `/help` custom commands view stay alphabetical, so a high-priority Skill never reorders built-in commands. Omitted or invalid values are treated as unset, which behaves like `0`.
+- `priority` is optional. When present, it must be a finite number. Higher values sort earlier in the `/skills` listing only -- slash-command completion (typing `/`) and the `/help` custom commands view stay alphabetical, so a high-priority Skill never reorders built-in commands. Omitted or invalid values are treated as unset, which behaves like `0`.
 
 Recommended conventions:
 
@@ -118,8 +118,8 @@ Notes:
 
 - Globs are matched relative to the project root with [picomatch](https://github.com/micromatch/picomatch); files outside the project root never trigger activation.
 - A path-gated Skill **stays activated for the rest of the session** once a matching file is touched. A new session, or a `refreshCache` triggered by editing any Skill file, resets activations.
-- `paths:` only gates **model** discovery, and only at the SkillTool listing level. You can always invoke a path-gated Skill yourself via `/<skill-name>` or the `/skills` picker — that user path runs the Skill body regardless of activation state. The model side, however, stays gated until a matching file is touched: a slash invocation does **not** unlock model-side activation, so if you want the model to chain off your invocation (call `Skill { skill: ... }` itself), also access a file matching the skill's `paths:` first.
-- Combining `paths:` with `disable-model-invocation: true` is allowed but the gate has no effect — the Skill is hidden from the model regardless, so path activation never advertises it.
+- `paths:` only gates **model** discovery, and only at the SkillTool listing level. You can always invoke a path-gated Skill yourself via `/<skill-name>` or the `/skills` picker -- that user path runs the Skill body regardless of activation state. The model side, however, stays gated until a matching file is touched: a slash invocation does **not** unlock model-side activation, so if you want the model to chain off your invocation (call `Skill { skill: ... }` itself), also access a file matching the skill's `paths:` first.
+- Combining `paths:` with `disable-model-invocation: true` is allowed but the gate has no effect -- the Skill is hidden from the model regardless, so path activation never advertises it.
 
 ## Add supporting files
 
@@ -127,13 +127,13 @@ Create additional files alongside `SKILL.md`:
 
 ```text
 my-skill/
-├── SKILL.md (required)
-├── reference.md (optional documentation)
-├── examples.md (optional examples)
-├── scripts/
-│   └── helper.py (optional utility)
-└── templates/
-    └── template.txt (optional template)
+|---- SKILL.md (required)
+|---- reference.md (optional documentation)
+|---- examples.md (optional examples)
+|---- scripts/
+|   \_-- helper.py (optional utility)
+\_-- templates/
+    \_-- template.txt (optional template)
 ```
 
 Reference these files from `SKILL.md`:
@@ -170,7 +170,7 @@ To view available Skills, ask Qwen Code directly:
 What Skills are available?
 ```
 
-> **Heads up — model vs. user view.** Asking the model only surfaces Skills the model can currently see. If a Skill uses `paths:` (see "Optional: gate a Skill on file paths" above), it stays out of that listing until a matching file has been touched. The full set is always visible to you via the `/skills` slash command and on disk.
+> **Heads up -- model vs. user view.** Asking the model only surfaces Skills the model can currently see. If a Skill uses `paths:` (see "Optional: gate a Skill on file paths" above), it stays out of that listing until a matching file has been touched. The full set is always visible to you via the `/skills` slash command and on disk.
 
 Or browse the full list with the slash command (always shows every Skill, including path-gated ones that have not activated yet):
 
@@ -201,7 +201,7 @@ Example: if your description mentions "PDF files":
 Can you help me extract text from this PDF?
 ```
 
-The model autonomously decides to use your Skill if it matches the request — you don't need to explicitly invoke it.
+The model autonomously decides to use your Skill if it matches the request -- you don't need to explicitly invoke it.
 
 ## Debug a Skill
 

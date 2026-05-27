@@ -1,4 +1,4 @@
-# 🖥️ Interaction Plane: From CLI to Orchestration Dashboard
+#  Interaction Plane: From CLI to Orchestration Dashboard
 
 ## 1. Conceptual Shift: Chat vs. Orchestration
 

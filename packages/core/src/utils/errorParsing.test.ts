@@ -62,9 +62,9 @@ describe('parseAndFormatApiError', () => {
 
   it('should omit status when the API error has no status field', () => {
     const errorMessage =
-      '{"error":{"code":1302,"message":"您的账户已达到速率限制，请您控制请求频率"}}';
+      '{"error":{"code":1302,"message":""}}';
     expect(parseAndFormatApiError(errorMessage)).toBe(
-      '[API Error: 您的账户已达到速率限制，请您控制请求频率]',
+      '[API Error: ]',
     );
   });
 
@@ -116,7 +116,7 @@ describe('parseAndFormatApiError', () => {
     expect(parseAndFormatApiError(error)).toBe(expected);
   });
 
-  // Idempotency — added after a customer report where a 4xx in non-interactive
+  // Idempotency -- added after a customer report where a 4xx in non-interactive
   // mode produced "[API Error: [API Error: ...]]". The non-interactive runner
   // formats once, prints, then throws an Error whose .message is the formatted
   // string; the top-level handleError used to call this function again on

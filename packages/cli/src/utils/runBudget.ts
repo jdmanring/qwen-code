@@ -9,13 +9,13 @@
  * sessions. See issue QwenLM/qwen-code#4103.
  *
  * Two budgets are enforced today:
- *  - `--max-wall-time` / `model.maxWallTimeSeconds` — clock-time guardrail
+ *  - `--max-wall-time` / `model.maxWallTimeSeconds` -- clock-time guardrail
  *    for long-running unattended runs.
- *  - `--max-tool-calls` / `model.maxToolCalls` — bounds the cumulative
+ *  - `--max-tool-calls` / `model.maxToolCalls` -- bounds the cumulative
  *    number of tool executions (success or failure).
  *
  * `tickToolCall()` is invoked **before** each `executeToolCall` so that a
- * budget of N caps the run at exactly N executions — the (N+1)th tick
+ * budget of N caps the run at exactly N executions -- the (N+1)th tick
  * aborts before the work is performed. The wall-clock timer is started via
  * `start()` and torn down by `stop()`. When any limit is exceeded the
  * enforcer aborts the run via the shared `AbortController` and records the
@@ -69,7 +69,7 @@ const MIN_WALL_TIME_SECONDS = 1;
  *
  * Accepted forms (all must resolve to a duration in
  * `[MIN_WALL_TIME_SECONDS, MAX_WALL_TIME_SECONDS]`):
- *   - plain number (interpreted as seconds): `"90"` → 90
+ *   - plain number (interpreted as seconds): `"90"` -> 90
  *   - suffixed: `"30s"`, `"5m"`, `"1h"`, `"1.5h"`, `"3600s"`
  *   - `ms` suffix is syntactically accepted but rejected at the floor
  *     unless the value resolves to `>= 1s` (e.g. `"1000ms"` is legal,
@@ -79,7 +79,7 @@ const MIN_WALL_TIME_SECONDS = 1;
  * Returns the duration in **seconds** for parity with `maxWallTimeSeconds`
  * in settings.json.
  *
- * Throws on garbage input, on negative values (regex-rejected — no sign
+ * Throws on garbage input, on negative values (regex-rejected -- no sign
  * allowed), on zero, on sub-second values below `MIN_WALL_TIME_SECONDS`,
  * and on values above `MAX_WALL_TIME_SECONDS`. A typo in a CI budget flag
  * should fail loud at startup, not silently disable (or instant-fire) the
@@ -91,7 +91,7 @@ export function parseDurationSeconds(input: string): number {
     throw new Error('Invalid duration: empty string');
   }
   // The regex disallows a leading sign, so negatives short-circuit on
-  // structural mismatch — no explicit `< 0` check needed.
+  // structural mismatch -- no explicit `< 0` check needed.
   const match = /^(\d+(?:\.\d+)?)\s*(ms|s|m|h)?$/.exec(trimmed);
   if (!match) {
     throw new Error(
@@ -125,11 +125,11 @@ export function parseDurationSeconds(input: string): number {
   }
   if (seconds < MIN_WALL_TIME_SECONDS) {
     // Only suggest a "did you mean" rewrite when the user actually
-    // used the `ms` suffix — for bare sub-second inputs like `0.5` or
+    // used the `ms` suffix -- for bare sub-second inputs like `0.5` or
     // `0.5s`, the rewrite would be a no-op ("did you mean 0.5s?") and
     // just confuses the error.
     const hint = /ms\b/i.test(trimmed)
-      ? ` (probably a typo — did you mean ${input.replace(/ms\b/i, 's')}?)`
+      ? ` (probably a typo -- did you mean ${input.replace(/ms\b/i, 's')}?)`
       : '';
     throw new Error(
       `Invalid duration "${input}": below the ${MIN_WALL_TIME_SECONDS}s minimum${hint}. Sub-second wall-clock budgets fire before any model round-trip can complete.`,
@@ -137,7 +137,7 @@ export function parseDurationSeconds(input: string): number {
   }
   if (seconds > MAX_WALL_TIME_SECONDS) {
     throw new Error(
-      `Invalid duration "${input}": exceeds the maximum supported wall-clock budget (${MAX_WALL_TIME_SECONDS}s ≈ 24 days). Use a smaller value.`,
+      `Invalid duration "${input}": exceeds the maximum supported wall-clock budget (${MAX_WALL_TIME_SECONDS}s  24 days). Use a smaller value.`,
     );
   }
   return seconds;
@@ -175,7 +175,7 @@ export function validateMaxWallTimeSetting(value: number): number {
   }
   if (value > MAX_WALL_TIME_SECONDS) {
     throw new Error(
-      `model.maxWallTimeSeconds ${value} exceeds the maximum supported wall-clock budget (${MAX_WALL_TIME_SECONDS}s ≈ 24 days).`,
+      `model.maxWallTimeSeconds ${value} exceeds the maximum supported wall-clock budget (${MAX_WALL_TIME_SECONDS}s  24 days).`,
     );
   }
   return value;
@@ -196,7 +196,7 @@ const MAX_TOOL_CALLS = 1_000_000;
  * limit", so any non-`-1` negative would silently disable the budget. Reject
  * up front to keep the fail-loud philosophy symmetric across all budgets.
  *
- * `0` IS legal here — it means "no tool calls allowed; first tick aborts"
+ * `0` IS legal here -- it means "no tool calls allowed; first tick aborts"
  * (asymmetric with wall-time where 0 is fatal). Documented in the schema.
  */
 export function validateMaxToolCalls(value: number): number {
@@ -216,7 +216,7 @@ export function validateMaxToolCalls(value: number): number {
   }
   if (value > MAX_TOOL_CALLS) {
     throw new Error(
-      `maxToolCalls ${value} exceeds the supported ceiling (${MAX_TOOL_CALLS}). Likely a typo — use a smaller value or -1 for unlimited.`,
+      `maxToolCalls ${value} exceeds the supported ceiling (${MAX_TOOL_CALLS}). Likely a typo -- use a smaller value or -1 for unlimited.`,
     );
   }
   return value;
@@ -251,7 +251,7 @@ export class RunBudgetEnforcer {
         message: `Run aborted: wall-clock budget of ${this.maxWallTimeSeconds}s exceeded (--max-wall-time).`,
       });
     }, this.maxWallTimeSeconds * SECOND);
-    // Don't keep the event loop alive solely for the timeout — once the
+    // Don't keep the event loop alive solely for the timeout -- once the
     // main loop exits naturally we want the process to exit too.
     (this.wallTimer as NodeJS.Timeout).unref?.();
   }
@@ -288,13 +288,13 @@ export class RunBudgetEnforcer {
   }
 
   private markExceeded(record: BudgetExceeded): void {
-    // First fence wins — once one budget has been recorded, subsequent
+    // First fence wins -- once one budget has been recorded, subsequent
     // overruns (e.g. an in-flight tool finishing after wall-time fired)
     // don't clobber the original reason.
     if (this.exceeded !== null) return;
     // If the abort already happened from a different source (SIGINT, an
     // external `options.abortController` shared with a parent), don't
-    // claim it as a budget event — otherwise the caller would emit exit
+    // claim it as a budget event -- otherwise the caller would emit exit
     // code 55 ("budget exceeded") when the real cause was user
     // cancellation (130).
     if (this.abortController.signal.aborted) return;

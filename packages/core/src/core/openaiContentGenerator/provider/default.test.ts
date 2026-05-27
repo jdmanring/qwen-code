@@ -327,7 +327,7 @@ describe('DefaultOpenAICompatibleProvider', () => {
 
     it('should pass samplingParams.max_tokens through verbatim, bypassing the model cap', () => {
       // When samplingParams is the source of truth, even max_tokens values that
-      // exceed the known model output limit pass through unchanged —
+      // exceed the known model output limit pass through unchanged --
       // no automatic capping.
       const cfg = {
         ...mockContentGeneratorConfig,
@@ -336,7 +336,7 @@ describe('DefaultOpenAICompatibleProvider', () => {
       const p = new DefaultOpenAICompatibleProvider(cfg, mockCliConfig);
 
       const request: OpenAI.Chat.ChatCompletionCreateParams = {
-        model: 'gpt-4', // known model, 16K output limit — would normally cap.
+        model: 'gpt-4', // known model, 16K output limit -- would normally cap.
         messages: [{ role: 'user', content: 'Hello' }],
         max_tokens: 100000,
       };

@@ -18,13 +18,13 @@
  *   - `registerGoalHook` wires a Function hook into the session's hook system
  *     under the `Stop` event with a wildcard matcher (so it matches any Stop).
  *   - When the hook callback runs and the judge says "not met", the response
- *     shape is `{decision:'block', reason:<controlled prompt>}` — which
+ *     shape is `{decision:'block', reason:<controlled prompt>}` -- which
  *     `client.ts`'s `isBlockingDecision() || shouldStopExecution()` interprets
  *     as a continuation request. The judge's free-form diagnostic stays in
  *     active-goal state and must not become the next model instruction.
  *   - When the judge says "met" on a later iteration, the hook returns
  *     `{continue:true}`, clears the store, and notifies the terminal observer
- *     with stats (iterations, durationMs) — exactly what the UI needs.
+ *     with stats (iterations, durationMs) -- exactly what the UI needs.
  *   - The hook is removed from the session manager once the goal is achieved
  *     so a subsequent Stop event would not re-trigger the judge.
  */
@@ -86,7 +86,7 @@ describe('/goal Stop hook integration', () => {
   });
   afterEach(() => __resetActiveGoalStoreForTests());
 
-  it('drives a not-met → met loop and emits an achieved terminal event', async () => {
+  it('drives a not-met -> met loop and emits an achieved terminal event', async () => {
     const { config, hookSystem } = makeConfigWithRealHookSystem();
 
     // Sanity: fast-path check sees the session Stop hook AFTER we register it.
@@ -109,7 +109,7 @@ describe('/goal Stop hook integration', () => {
       .getHooksForEvent(SESSION, HookEventName.Stop)[0];
     expect(sessionHook).toBeDefined();
     expect(sessionHook.matcher).toBe('*');
-    // Function hook config — sanity check
+    // Function hook config -- sanity check
     if (sessionHook.config.type !== 'function') {
       throw new Error(
         `expected function hook, got ${String(sessionHook.config.type)}`,
@@ -118,7 +118,7 @@ describe('/goal Stop hook integration', () => {
     const callback = sessionHook.config.callback;
     expect(typeof callback).toBe('function');
 
-    // Iteration 1: judge says NOT met → continuation expected.
+    // Iteration 1: judge says NOT met -> continuation expected.
     judgeMock.mockResolvedValueOnce({
       ok: false,
       reason: 'still missing letters e, s, t',
@@ -151,7 +151,7 @@ describe('/goal Stop hook integration', () => {
     // No terminal event yet.
     expect(events).toEqual([]);
 
-    // Iteration 2: judge says NOT met again → continuation again.
+    // Iteration 2: judge says NOT met again -> continuation again.
     judgeMock.mockResolvedValueOnce({
       ok: false,
       reason: 'still missing letters s, t',
@@ -161,7 +161,7 @@ describe('/goal Stop hook integration', () => {
     expect(getActiveGoal(SESSION)?.iterations).toBe(2);
     expect(events).toEqual([]);
 
-    // Iteration 3: judge says MET → continue:true and observer fires.
+    // Iteration 3: judge says MET -> continue:true and observer fires.
     judgeMock.mockResolvedValueOnce({
       ok: true,
       reason: 'transcript contains "test"',
@@ -176,7 +176,7 @@ describe('/goal Stop hook integration', () => {
     expect(events[0]).toMatchObject({
       kind: 'achieved',
       condition: goal.condition,
-      iterations: 2, // not yet 3 — that update only happens for not-met cases
+      iterations: 2, // not yet 3 -- that update only happens for not-met cases
       lastReason: 'transcript contains "test"',
     });
     expect(events[0].durationMs).toBeGreaterThanOrEqual(0);
@@ -190,7 +190,7 @@ describe('/goal Stop hook integration', () => {
       condition: 'goal A',
       tokensAtStart: 0,
     });
-    // First hook's callback — captured before replacement.
+    // First hook's callback -- captured before replacement.
     const firstHook = hookSystem
       .getSessionHooksManager()
       .getHooksForEvent(SESSION, HookEventName.Stop)[0];
@@ -207,8 +207,8 @@ describe('/goal Stop hook integration', () => {
     });
     expect(getActiveGoal(SESSION)?.condition).toBe('goal B');
 
-    // The OLD callback runs against the new active goal → it must short-circuit
-    // (condition mismatch → continue:true, judge untouched).
+    // The OLD callback runs against the new active goal -> it must short-circuit
+    // (condition mismatch -> continue:true, judge untouched).
     const out = await oldCallback(makeStopInput('anything'), undefined);
     expect(out).toEqual({ continue: true });
     expect(judgeMock).not.toHaveBeenCalled();

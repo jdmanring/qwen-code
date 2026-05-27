@@ -139,12 +139,12 @@ describe('<Footer />', () => {
   describe('status line rendering', () => {
     it('renders multi-line status line output', () => {
       useStatusLineMock.mockReturnValue({
-        lines: ['model-name (main) ctx:34%', '████░░░░ 34% context'],
+        lines: ['model-name (main) ctx:34%', ' 34% context'],
       });
       const { lastFrame } = renderWithWidth(120, createMockUIState());
       const frame = lastFrame()!;
       expect(frame).toContain('model-name (main) ctx:34%');
-      expect(frame).toContain('████░░░░ 34% context');
+      expect(frame).toContain(' 34% context');
     });
 
     it('suppresses hint when status line is active', () => {

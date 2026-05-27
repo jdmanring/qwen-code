@@ -49,10 +49,10 @@ time.sleep(5)
         # Check if bridge is still alive
         try:
             os.kill(int(bridge_pid_str), 0)
-            print("❌ FAILURE: Bridge is still alive after parent death!")
+            print(" FAILURE: Bridge is still alive after parent death!")
             return False
         except ProcessLookupError:
-            print("✅ SUCCESS: Bridge terminated after parent death.")
+            print(" SUCCESS: Bridge terminated after parent death.")
             return True
     except (RuntimeError, ValueError, TypeError, AttributeError, OSError) as e:
         print(f"Error during PDEATHSIG test: {e}")
@@ -68,7 +68,7 @@ async def test_daemon_crash():
         session = await mgr._get_session("memory", socket_path=socket_path)
         print("Connected to daemon.")
     except (TimeoutError, RuntimeError, ValueError, TypeError, AttributeError, OSError) as e:
-        print(f"❌ FAILURE: Could not connect to daemon: {e}")
+        print(f" FAILURE: Could not connect to daemon: {e}")
         return False
 
     print("Killing Memory Daemon...")
@@ -76,10 +76,10 @@ async def test_daemon_crash():
 
     try:
         await session.call_tool("search", {"query": "test"})
-        print("❌ FAILURE: Tool call succeeded after daemon crash!")
+        print(" FAILURE: Tool call succeeded after daemon crash!")
         return False
     except (TimeoutError, RuntimeError, ValueError, TypeError, AttributeError, OSError) as e:
-        print(f"✅ SUCCESS: Caught expected error after crash: {e}")
+        print(f" SUCCESS: Caught expected error after crash: {e}")
         return True
     finally:
         await mgr.close_all()
@@ -104,10 +104,10 @@ async def test_rapid_cycle():
             if i % 10 == 0:
                 print(f"Cycle {i}/50... OK")
         except (TimeoutError, RuntimeError, ValueError, TypeError, AttributeError, OSError) as e:
-            print(f"❌ FAILURE at cycle {i}: {e}")
+            print(f" FAILURE at cycle {i}: {e}")
             return False
 
-    print("✅ SUCCESS: 50 cycles completed without leaks.")
+    print(" SUCCESS: 50 cycles completed without leaks.")
     return True
 
 
@@ -121,7 +121,7 @@ async def main():
     print("CHAOS TEST RESULTS")
     print("=" * 30)
     for name, res in results:
-        status = "✅ PASS" if res else "❌ FAIL"
+        status = " PASS" if res else " FAIL"
         print(f"{name:20}: {status}")
     print("=" * 30)
 

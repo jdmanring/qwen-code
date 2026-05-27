@@ -135,7 +135,7 @@ function createMemoryScopedAgentConfig(
     },
     async isToolEnabled(toolName: string): Promise<boolean> {
       // Registry-level check: is this tool type allowed at all?
-      // Scoped tools (SHELL/EDIT/WRITE_FILE) are enabled — per-invocation
+      // Scoped tools (SHELL/EDIT/WRITE_FILE) are enabled -- per-invocation
       // restrictions are enforced in evaluate().
       if (isScopedTool(toolName)) {
         return true;
@@ -153,16 +153,16 @@ function createMemoryScopedAgentConfig(
   return scopedConfig;
 }
 
-const DREAM_AGENT_SYSTEM_PROMPT = `You are performing a managed memory dream — a reflective pass over durable memory files.
+const DREAM_AGENT_SYSTEM_PROMPT = `You are performing a managed memory dream -- a reflective pass over durable memory files.
 
 Synthesize what you've learned recently into durable, well-organized memories so that future sessions can orient quickly.
 
 Rules:
-- Merge semantically duplicate entries — if the same fact appears in multiple files, consolidate into one file and delete the rest.
+- Merge semantically duplicate entries -- if the same fact appears in multiple files, consolidate into one file and delete the rest.
 - Preserve all durable information; do not delete content that is still accurate.
 - Fix contradicted or stale facts only when the evidence is clear from the existing memory content or recent transcript signal.
 - Update the MEMORY.md index to accurately reflect surviving files.
-- Keep the MEMORY.md index concise: one line per file in the format \`- [Title](relative/path.md) — one-line hook\`.
+- Keep the MEMORY.md index concise: one line per file in the format \`- [Title](relative/path.md) -- one-line hook\`.
 - If nothing needs consolidation, do nothing and say so.`;
 
 export function getTranscriptDir(projectRoot: string): string {
@@ -182,27 +182,27 @@ export function buildConsolidationTaskPrompt(
 
   return [
     `Memory directory: \`${memoryRoot}\``,
-    'This directory already exists — write to it directly with the write_file tool (do not run mkdir or check for its existence).',
-    `Session transcripts: \`${transcriptDir}\` (large JSONL files — grep narrowly, don't read whole files)`,
+    'This directory already exists -- write to it directly with the write_file tool (do not run mkdir or check for its existence).',
+    `Session transcripts: \`${transcriptDir}\` (large JSONL files -- grep narrowly, don't read whole files)`,
     '',
-    '## Phase 1 — Orient',
+    '## Phase 1 -- Orient',
     '',
     '- List the memory directory to see what files exist',
     `- Read \`${memoryRoot}/${AUTO_MEMORY_INDEX_FILENAME}\` to understand the current index`,
     '- Skim topic subdirectories (`user/`, `project/`, `feedback/`, `reference/`)',
     '- If `logs/` or `sessions/` subdirectories exist, review recent entries there',
     '',
-    '## Phase 2 — Gather recent signal',
+    '## Phase 2 -- Gather recent signal',
     '',
     'Look for new information worth persisting. Sources in rough priority order:',
     '',
-    '1. Existing memories that drifted — facts that contradict something you now know from current memory files',
-    '2. Transcript search — if you need specific context, grep session transcripts for narrow terms:',
+    '1. Existing memories that drifted -- facts that contradict something you now know from current memory files',
+    '2. Transcript search -- if you need specific context, grep session transcripts for narrow terms:',
     `   \`grep -rn "<narrow term>" ${quotedTranscriptDir} --include="*.jsonl" | tail -50\``,
     '',
     "Don't exhaustively read transcripts. Look only for things you already suspect matter.",
     '',
-    '## Phase 3 — Consolidate',
+    '## Phase 3 -- Consolidate',
     '',
     'For each topic directory:',
     '- Identify duplicate or near-duplicate `.md` files (same fact expressed differently)',
@@ -210,10 +210,10 @@ export function buildConsolidationTaskPrompt(
     '- Fix stale or contradicted facts when clear from the existing content',
     '- Convert relative dates (for example: "yesterday", "last week") to absolute dates when preserving them',
     '',
-    '## Phase 4 — Prune and index',
+    '## Phase 4 -- Prune and index',
     '',
     `Update \`${memoryRoot}/${AUTO_MEMORY_INDEX_FILENAME}\` to reflect surviving files.`,
-    'Each entry: `- [Title](relative/path.md) — one-line hook`',
+    'Each entry: `- [Title](relative/path.md) -- one-line hook`',
     'Keep the index under roughly 200 lines and ~25KB.',
     'Remove pointers to deleted, stale, wrong, or superseded files. Add pointers to any newly created files.',
     'If an index line is too verbose, shorten it and move the detail back into the memory file itself.',
@@ -256,7 +256,7 @@ export async function planManagedAutoMemoryDreamByAgent(
   }
 
   if (result.status === 'cancelled') {
-    // runForkedAgent maps AgentTerminateMode.CANCELLED → status 'cancelled'
+    // runForkedAgent maps AgentTerminateMode.CANCELLED -> status 'cancelled'
     // (resolves rather than rejects). Throw here so callers up the stack
     // unwind via their catch paths instead of silently treating an
     // aborted dream as a normal completion (which would overwrite the

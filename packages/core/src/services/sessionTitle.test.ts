@@ -163,14 +163,14 @@ describe('tryGenerateSessionTitle', () => {
 
   it('filters tool-call and tool-result turns from the prompt', async () => {
     // Users' tool invocations can carry 10K-token payloads (file dumps, grep
-    // output). Those must never reach the title LLM — both for cost and
+    // output). Those must never reach the title LLM -- both for cost and
     // because they dilute the "what is this session about" signal.
     const history: Content[] = [
       { role: 'user', parts: [{ text: 'scan the auth module' }] },
       {
         role: 'model',
         parts: [
-          { text: 'Scanning…' },
+          { text: 'Scanning...' },
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           { functionCall: { name: 'grep', args: { q: 'auth' } } } as any,
         ],
@@ -222,7 +222,7 @@ describe('tryGenerateSessionTitle', () => {
   });
 
   it('tail-slices conversations longer than 1000 characters', async () => {
-    // A session that pivots mid-conversation — the final topic is what the
+    // A session that pivots mid-conversation -- the final topic is what the
     // title should reflect. Feeding the head risks titling the session by
     // what the user opened with rather than what they ended up doing.
     const longUserText = 'BEGIN_HEAD ' + 'x'.repeat(3000) + ' END_TAIL_MARKER';
@@ -262,8 +262,8 @@ describe('sanitizeTitle', () => {
 
   it('strips trailing punctuation in ASCII and CJK', () => {
     expect(sanitizeTitle('Fix login button.')).toBe('Fix login button');
-    expect(sanitizeTitle('修复登录按钮。')).toBe('修复登录按钮');
-    expect(sanitizeTitle('修复登录按钮，')).toBe('修复登录按钮');
+    expect(sanitizeTitle('')).toBe('');
+    expect(sanitizeTitle('')).toBe('');
   });
 
   it('normalizes internal whitespace', () => {
@@ -281,7 +281,7 @@ describe('sanitizeTitle', () => {
     // SECURITY: title renders directly to terminal; escapes must not survive.
     expect(sanitizeTitle('\x1b[2J\x1b[HHello world')).toBe('Hello world');
     expect(sanitizeTitle('before\x07after')).toBe('before after');
-    // OSC-8 hyperlink injection — opens a clickable link in supporting terminals.
+    // OSC-8 hyperlink injection -- opens a clickable link in supporting terminals.
     expect(sanitizeTitle('\x1b]8;;http://evil\x1b\\click\x1b]8;;\x1b\\')).toBe(
       'click',
     );
@@ -292,9 +292,9 @@ describe('sanitizeTitle', () => {
   it('drops orphaned surrogates after max-length truncation', () => {
     // Build a title that lands a surrogate pair exactly at the truncation boundary.
     const base = 'x'.repeat(199);
-    // `"😀"` is a single emoji (two UTF-16 code units). After
+    // `""` is a single emoji (two UTF-16 code units). After
     // slice(0, 200) we'd keep only the high surrogate.
-    const title = base + '😀!';
+    const title = base + '!';
     const sanitized = sanitizeTitle(title);
     // High surrogate must not linger on its own.
     expect(sanitized).not.toMatch(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/);

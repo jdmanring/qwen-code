@@ -1,4 +1,4 @@
-# 🛠️ Magic Strings & Constants Manifest
+#  Magic Strings & Constants Manifest
 
 This document serves as the Single Source of Truth (SSOT) for all hardcoded identifiers, state flags, and hidden constants within the Qwen Code Core logic.
 

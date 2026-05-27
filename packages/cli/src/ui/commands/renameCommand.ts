@@ -28,7 +28,7 @@ function titleFailureMessage(reason: SessionTitleFailureReason): string {
       );
     case 'empty_history':
       return t(
-        'No conversation to title yet — send at least one message first.',
+        'No conversation to title yet -- send at least one message first.',
       );
     case 'empty_result':
       return t(
@@ -41,7 +41,7 @@ function titleFailureMessage(reason: SessionTitleFailureReason): string {
         'The fast model could not generate a title (rate limit, auth, network error, or unexpected response format). Check debug log or try again.',
       );
     case 'no_client':
-      return t('Session is still initializing — try again in a moment.');
+      return t('Session is still initializing -- try again in a moment.');
     default:
       return t('Could not generate a title.');
   }
@@ -49,7 +49,7 @@ function titleFailureMessage(reason: SessionTitleFailureReason): string {
 
 /**
  * Parse `--auto` out of the args. Kept simple rather than bringing in an
- * argv parser — we only have one flag.
+ * argv parser -- we only have one flag.
  *
  * Rules:
  * - `--auto` (case-insensitive) sets auto=true.
@@ -100,7 +100,7 @@ export const renameCommand: SlashCommand = {
   },
   argumentHint: '[--auto] [<name>]',
   completion: async (_context, partialArg) => {
-    // Only `--auto` is a structured option — the rest is a free-text
+    // Only `--auto` is a structured option -- the rest is a free-text
     // title and shouldn't be auto-completed (we don't want the picker to
     // try to "guess" what name the user wants). Match /model's empty-arg
     // contract too: return null so the completion menu stays closed

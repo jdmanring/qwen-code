@@ -5,7 +5,7 @@
  */
 
 /**
- * Shared permission flow (L3→L4) for tool execution.
+ * Shared permission flow (L3->L4) for tool execution.
  *
  * Used by both `CoreToolScheduler` (CLI mode) and `Session` (ACP mode)
  * to ensure consistent permission evaluation.
@@ -30,7 +30,7 @@ import type { ToolCallConfirmationDetails } from '../tools/tools.js';
 export type PermissionFlowPermission = 'allow' | 'deny' | 'ask' | 'default';
 
 export interface PermissionFlowResult {
-  /** The final permission after L3→L4 (allow | deny | ask | default) */
+  /** The final permission after L3->L4 (allow | deny | ask | default) */
   finalPermission: PermissionFlowPermission;
   /** Whether PM forced 'ask' (hides "Always Allow" buttons) */
   pmForcedAsk: boolean;
@@ -41,7 +41,7 @@ export interface PermissionFlowResult {
 }
 
 /**
- * Execute the L3→L4 permission flow.
+ * Execute the L3->L4 permission flow.
  *
  * @param config - The CLI config
  * @param invocation - The tool invocation
@@ -59,10 +59,10 @@ export async function evaluatePermissionFlow(
   toolName: string,
   toolParams: Record<string, unknown>,
 ): Promise<PermissionFlowResult> {
-  // ── L3: Tool's default permission ───────────────────────────────────
+  // -- L3: Tool's default permission -----------------------------------
   const defaultPermission: string = await invocation.getDefaultPermission();
 
-  // ── L4: PermissionManager override ──────────────────────────────────
+  // -- L4: PermissionManager override ----------------------------------
   const pm = config.getPermissionManager?.();
   const pmCtx = buildPermissionCheckContext(
     toolName,

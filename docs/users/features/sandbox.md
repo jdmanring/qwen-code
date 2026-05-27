@@ -182,7 +182,7 @@ export SANDBOX_SET_UID_GID=false  # Disable UID/GID mapping
 
 - Operation requires access outside sandbox.
 - On macOS Seatbelt: try a more permissive `SEATBELT_PROFILE`.
-- On Docker/Podman: verify the workspace is mounted and your command doesn’t require access outside the project directory.
+- On Docker/Podman: verify the workspace is mounted and your command doesn't require access outside the project directory.
 
 **Missing commands**
 

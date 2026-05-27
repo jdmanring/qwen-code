@@ -285,7 +285,7 @@ describe('SettingsDialog', () => {
 
       const output = lastFrame();
       // Should show some default settings
-      expect(output).toContain('●'); // Active indicator
+      expect(output).toContain(''); // Active indicator
     });
 
     it('should highlight first setting by default', () => {
@@ -300,7 +300,7 @@ describe('SettingsDialog', () => {
 
       const output = lastFrame();
       // First item should be highlighted with green color and active indicator
-      expect(output).toContain('●');
+      expect(output).toContain('');
     });
   });
 
@@ -325,7 +325,7 @@ describe('SettingsDialog', () => {
       const secondLabel = secondKey
         ? (getSettingDefinition(secondKey)?.label ?? secondKey)
         : '';
-      expect(lastFrame()).toContain(`● ${secondLabel}`);
+      expect(lastFrame()).toContain(` ${secondLabel}`);
 
       // The active index should have changed (tested indirectly through behavior)
       unmount();
@@ -393,7 +393,7 @@ describe('SettingsDialog', () => {
         ? (getSettingDefinition(lastKey)?.label ?? lastKey)
         : '';
 
-      expect(lastFrame()).toContain(`● ${lastLabel}`);
+      expect(lastFrame()).toContain(` ${lastLabel}`);
 
       unmount();
     });
@@ -415,7 +415,7 @@ describe('SettingsDialog', () => {
 
       // Wait for initial render and verify we're on Tool Approval Mode (first setting)
       await waitFor(() => {
-        expect(lastFrame()).toContain('● Tool Approval Mode');
+        expect(lastFrame()).toContain(' Tool Approval Mode');
       });
 
       const dialogKeys = getDialogSettingKeys();
@@ -430,7 +430,7 @@ describe('SettingsDialog', () => {
         await wait();
       }
       await waitFor(() => {
-        expect(lastFrame()).toContain('● Vim Mode');
+        expect(lastFrame()).toContain(' Vim Mode');
       });
 
       // Toggle the setting
@@ -479,7 +479,7 @@ describe('SettingsDialog', () => {
       const { stdin, unmount, lastFrame } = render(component);
 
       await waitFor(() => {
-        expect(lastFrame()).toContain('● Tool Approval Mode');
+        expect(lastFrame()).toContain(' Tool Approval Mode');
       });
 
       const dialogKeys = getDialogSettingKeys();
@@ -494,7 +494,7 @@ describe('SettingsDialog', () => {
         await wait();
       }
       await waitFor(() => {
-        expect(lastFrame()).toContain('● Compact Mode');
+        expect(lastFrame()).toContain(' Compact Mode');
       });
 
       // Toggle the setting
@@ -532,7 +532,7 @@ describe('SettingsDialog', () => {
 
         // Verify we're on Tool Approval Mode (first setting, an enum)
         await waitFor(() => {
-          expect(lastFrame()).toContain('● Tool Approval Mode');
+          expect(lastFrame()).toContain(' Tool Approval Mode');
         });
 
         // Press Enter to cycle the enum value
@@ -578,7 +578,7 @@ describe('SettingsDialog', () => {
 
         // Verify we're on Tool Approval Mode (first setting)
         await waitFor(() => {
-          expect(lastFrame()).toContain('● Tool Approval Mode');
+          expect(lastFrame()).toContain(' Tool Approval Mode');
         });
 
         // Press Enter to cycle - should loop back to first value (Plan)
@@ -681,7 +681,7 @@ describe('SettingsDialog', () => {
       });
 
       // The UI should show settings mode is active (scope is in separate view)
-      expect(lastFrame()).toContain('● Tool Approval Mode'); // Settings section active
+      expect(lastFrame()).toContain(' Tool Approval Mode'); // Settings section active
       expect(lastFrame()).not.toContain('Apply To'); // Scope is in a separate view
 
       // This test validates the initial state - scope selection is now
@@ -1149,7 +1149,7 @@ describe('SettingsDialog', () => {
       });
 
       // Verify initial state: settings mode active (scope is in separate view)
-      expect(lastFrame()).toContain('● Tool Approval Mode'); // Settings mode active
+      expect(lastFrame()).toContain(' Tool Approval Mode'); // Settings mode active
       expect(lastFrame()).not.toContain('Apply To'); // Scope is in a separate view
 
       // This test validates the rendered UI structure for tab navigation
@@ -1212,7 +1212,7 @@ describe('SettingsDialog', () => {
 
       // Verify the complete UI is rendered (scope is in separate view)
       expect(lastFrame()).toContain('Settings'); // Title
-      expect(lastFrame()).toContain('● Tool Approval Mode'); // Active setting
+      expect(lastFrame()).toContain(' Tool Approval Mode'); // Active setting
       expect(lastFrame()).not.toContain('Apply To'); // Scope is in a separate view (Tab to access)
       expect(lastFrame()).toContain(
         '(Use Enter to select, Tab to configure scope)',

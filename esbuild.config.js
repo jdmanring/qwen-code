@@ -113,7 +113,7 @@ esbuild
     },
     define: {
       'process.env.CLI_VERSION': JSON.stringify(pkg.version),
-      // react-reconciler ≥0.33 (ink 7) gates its dev build behind NODE_ENV
+      // react-reconciler >=0.33 (ink 7) gates its dev build behind NODE_ENV
       // and calls performance.measure() on every render, leaking
       // PerformanceMeasure objects into the global measureEntryBuffer.
       // Setting production here tree-shakes the entire dev build (~15k lines).
@@ -138,7 +138,7 @@ esbuild
       // not a free reference). For sibling-asset lookups in modules that may
       // be hoisted into a shared chunk, prefer
       // `resolveBundleDir(import.meta.url)` from
-      // `packages/core/src/utils/bundlePaths.ts` — it both produces a
+      // `packages/core/src/utils/bundlePaths.ts` -- it both produces a
       // per-file path and strips the chunk segment when the module ends up
       // under `dist/chunks/`.
       __dirname: '__qwen_dirname',

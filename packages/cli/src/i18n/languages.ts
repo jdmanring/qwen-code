@@ -23,7 +23,7 @@ export interface LanguageDefinition {
   id: string;
   /** The full English name of the language (e.g., 'English', 'Chinese'). */
   fullName: string;
-  /** The native name of the language (e.g., 'English', '中文'). */
+  /** The native name of the language (e.g., 'English', ''). */
   nativeName?: string;
   /**
    * Whether tooling should require this locale to keep exact key parity with
@@ -43,21 +43,21 @@ export const SUPPORTED_LANGUAGES: readonly LanguageDefinition[] = [
     code: 'zh-TW',
     id: 'zh-TW',
     fullName: 'Traditional Chinese',
-    nativeName: '繁體中文',
+    nativeName: '',
     strictParity: true,
   },
   {
     code: 'zh',
     id: 'zh-CN',
     fullName: 'Chinese',
-    nativeName: '中文',
+    nativeName: '',
     strictParity: true,
   },
   {
     code: 'ru',
     id: 'ru-RU',
     fullName: 'Russian',
-    nativeName: 'Русский',
+    nativeName: '',
   },
   {
     code: 'de',
@@ -69,25 +69,25 @@ export const SUPPORTED_LANGUAGES: readonly LanguageDefinition[] = [
     code: 'ja',
     id: 'ja-JP',
     fullName: 'Japanese',
-    nativeName: '日本語',
+    nativeName: '',
   },
   {
     code: 'pt',
     id: 'pt-BR',
     fullName: 'Portuguese',
-    nativeName: 'Português',
+    nativeName: 'Portugus',
   },
   {
     code: 'fr',
     id: 'fr-FR',
     fullName: 'French',
-    nativeName: 'Français',
+    nativeName: 'Franais',
   },
   {
     code: 'ca',
     id: 'ca-ES',
     fullName: 'Catalan',
-    nativeName: 'Català',
+    nativeName: 'Catal',
   },
 ];
 

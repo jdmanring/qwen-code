@@ -69,7 +69,7 @@ describe('lowlightLoader', () => {
     expect(a).toBe(instance);
     expect(b).toBe(instance);
     expect(c).toBe(instance);
-    // The factory is only called once across the three concurrent callers —
+    // The factory is only called once across the three concurrent callers --
     // proves the in-flight `lowlightLoad` promise is reused.
     expect(createLowlight).toHaveBeenCalledTimes(1);
   });
@@ -79,7 +79,7 @@ describe('lowlightLoader', () => {
     const brokenInstance = {
       registered: vi.fn(() => true),
       highlight: vi.fn(() => ({ type: 'root', children: [] })),
-      // highlightAuto missing — shape check must fail
+      // highlightAuto missing -- shape check must fail
     };
     vi.doMock('lowlight', () => ({
       createLowlight: vi.fn(() => brokenInstance),

@@ -103,7 +103,7 @@ describe('extensionToOutputString', () => {
       false,
     );
 
-    // Should contain either ✓ or ✗ (with ANSI color codes)
+    // Should contain either  or  (with ANSI color codes)
     expect(result).toMatch(/test-extension/);
     expect(result).toContain('(1.0.0)');
   });

@@ -1,5 +1,5 @@
-🏛️ 
-# 🛠️ User Guide: Creating Elite Agents
+ 
+#  User Guide: Creating Elite Agents
 
 This guide explains how to design and deploy specialized agents using the Mega Code **Elite Agent Blueprint**. By following this process, you ensure your agents are not just "prompts," but cognitive modules integrated with the project's semantic memory and skill library.
 

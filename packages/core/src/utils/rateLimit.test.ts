@@ -13,7 +13,7 @@ import {
 import type { StructuredError } from '../core/turn.js';
 import type { HttpError } from './retry.js';
 
-describe('isRateLimitError — detection paths', () => {
+describe('isRateLimitError -- detection paths', () => {
   it('should detect rate-limit from ApiError.error.code in JSON message', () => {
     const info = isRateLimitError(
       new Error(
@@ -32,7 +32,7 @@ describe('isRateLimitError — detection paths', () => {
 
   it('should detect GLM 1302 code from ApiError', () => {
     const info = isRateLimitError({
-      error: { code: 1302, message: '您的账户已达到速率限制' },
+      error: { code: 1302, message: '' },
     });
     expect(info).toBe(true);
   });
@@ -85,10 +85,10 @@ describe('isRateLimitError — detection paths', () => {
   });
 });
 
-describe('isRateLimitError — return shape', () => {
+describe('isRateLimitError -- return shape', () => {
   it('should detect GLM rate limit JSON string', () => {
     const info = isRateLimitError(
-      '{"error":{"code":"1302","message":"您的账户已达到速率限制，请您控制请求频率"}}',
+      '{"error":{"code":"1302","message":""}}',
     );
     expect(info).toBe(true);
   });
@@ -108,7 +108,7 @@ describe('isRateLimitError — return shape', () => {
     // Some middleware wraps errors into plain Error instances with the
     // provider error serialised into .message AND augments .status. The
     // JSON-in-message parse must not short-circuit with null when the
-    // embedded code is non-numeric — the .status on the Error should win.
+    // embedded code is non-numeric -- the .status on the Error should win.
     const error: HttpError = new Error(
       '{"error":{"code":"Throttling.AllocationQuota","message":"Allocated quota exceeded"}}',
     );

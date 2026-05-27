@@ -1,6 +1,6 @@
 # Channels Design
 
-> External messaging integrations for Qwen Code — interact with an agent from Telegram, WeChat, and more.
+> External messaging integrations for Qwen Code -- interact with an agent from Telegram, WeChat, and more.
 >
 > User documentation: [Channels Overview](../../users/features/channels/overview.md).
 
@@ -11,36 +11,36 @@ A **channel** connects an external messaging platform to a Qwen Code agent. Conf
 ## Architecture
 
 ```
-┌──────────┐                        ┌─────────────────────────────────────┐
-│ Telegram │    Platform API        │        Channel Service              │
-│ User A   │◄──────────────────────►│                                     │
-├──────────┤  (WebSocket/polling)   │  ┌───────────┐    ┌──────────────┐  │
-│ WeChat   │◄──────────────────────►│  │ Platform   │    │  ACP Bridge  │  │
-│ User B   │                        │  │ Adapter    │    │  (shared)    │  │
-└──────────┘                        │  │            │    │              │  │
-                                    │  │ - connect  │    │  - spawns    │  │
-                                    │  │ - receive  │    │    qwen-code │  │
-                                    │  │ - send     │    │  - manages   │  │
-                                    │  │            │    │    sessions  │  │
-                                    │  └─────┬──────┘    └──────┬───────┘  │
-                                    │        │                  │          │
-                                    │        ▼                  ▼          │
-                                    │  ┌─────────────────────────────────┐ │
-                                    │  │  SenderGate · GroupGate         │ │
-                                    │  │  SessionRouter · ChannelBase    │ │
-                                    │  └─────────────────────────────────┘ │
-                                    └─────────────────────────────────────┘
-                                                     │
-                                                     │ stdio (ACP ndjson)
-                                                     ▼
-                                    ┌─────────────────────────────────────┐
-                                    │        qwen-code --acp              │
-                                    │   Session A (user alice, id: "abc") │
-                                    │   Session B (user bob,   id: "def") │
-                                    └─────────────────────────────────────┘
++------------+--                        +---------------------------------------+--
+| Telegram |    Platform API        |        Channel Service              |
+| User A   |----------------------|                                     |
+|------------  (WebSocket/polling)   |  +-------------+--    +----------------+--  |
+| WeChat   |----------------------|  | Platform   |    |  ACP Bridge  |  |
+| User B   |                        |  | Adapter    |    |  (shared)    |  |
+\_-------------                        |  |            |    |              |  |
+                                    |  | - connect  |    |  - spawns    |  |
+                                    |  | - receive  |    |    qwen-code |  |
+                                    |  | - send     |    |  - manages   |  |
+                                    |  |            |    |    sessions  |  |
+                                    |  \_--------------    \_----------------  |
+                                    |        |                  |          |
+                                    |                                    |
+                                    |  +-----------------------------------+-- |
+                                    |  |  SenderGate  GroupGate         | |
+                                    |  |  SessionRouter  ChannelBase    | |
+                                    |  \_------------------------------------ |
+                                    \_----------------------------------------
+                                                     |
+                                                     | stdio (ACP ndjson)
+                                                     
+                                    +---------------------------------------+--
+                                    |        qwen-code --acp              |
+                                    |   Session A (user alice, id: "abc") |
+                                    |   Session B (user bob,   id: "def") |
+                                    \_----------------------------------------
 ```
 
-**Platform Adapter** — connects to external API, translates messages to/from Envelopes. **ACP Bridge** — spawns `qwen-code --acp`, manages sessions, emits `textChunk`/`toolCall`/`disconnected` events. **Session Router** — maps senders to ACP sessions via namespaced keys (`<channel>:<sender>`). **Sender Gate** / **Group Gate** — access control (allowlist / pairing / open) and mention gating. **Channel Base** — abstract base with Template Method pattern: plugins override `connect`, `sendMessage`, `disconnect`. **Channel Registry** — `Map<string, ChannelPlugin>` with collision detection.
+**Platform Adapter** -- connects to external API, translates messages to/from Envelopes. **ACP Bridge** -- spawns `qwen-code --acp`, manages sessions, emits `textChunk`/`toolCall`/`disconnected` events. **Session Router** -- maps senders to ACP sessions via namespaced keys (`<channel>:<sender>`). **Sender Gate** / **Group Gate** -- access control (allowlist / pairing / open) and mention gating. **Channel Base** -- abstract base with Template Method pattern: plugins override `connect`, `sendMessage`, `disconnect`. **Channel Registry** -- `Map<string, ChannelPlugin>` with collision detection.
 
 ### Envelope
 
@@ -55,8 +55,8 @@ Plugin responsibilities: `senderId` must be stable/unique; `chatId` must disting
 ### Message Flow
 
 ```
-Inbound:  User message → Adapter → GroupGate → SenderGate → Slash commands → SessionRouter → AcpBridge → Agent
-Outbound: Agent response → AcpBridge → SessionRouter → Adapter → User
+Inbound:  User message -> Adapter -> GroupGate -> SenderGate -> Slash commands -> SessionRouter -> AcpBridge -> Agent
+Outbound: Agent response -> AcpBridge -> SessionRouter -> Adapter -> User
 ```
 
 Slash commands (`/clear`, `/help`, `/status`) are handled in ChannelBase before reaching the agent.
@@ -67,13 +67,13 @@ One `qwen-code --acp` process with multiple ACP sessions. Scope per channel: **`
 
 ### Error Handling
 
-- **Connection failures** — logged; service continues if at least one channel connects
-- **Bridge crashes** — exponential backoff (max 3 retries), `setBridge()` on all channels, session restore
-- **Session serialization** — per-session promise chains prevent concurrent prompt collisions
+- **Connection failures** -- logged; service continues if at least one channel connects
+- **Bridge crashes** -- exponential backoff (max 3 retries), `setBridge()` on all channels, session restore
+- **Session serialization** -- per-session promise chains prevent concurrent prompt collisions
 
 ## Plugin System
 
-The architecture is extensible — new adapters (including third-party) can be added without modifying core. Built-in channels use the same plugin interface (dogfooding).
+The architecture is extensible -- new adapters (including third-party) can be added without modifying core. Built-in channels use the same plugin interface (dogfooding).
 
 ### Plugin Contract
 
@@ -85,7 +85,7 @@ A `ChannelPlugin` declares `channelType`, `displayName`, `requiredConfigFields`,
 | `sendMessage(chatId, text)` | Format and deliver agent response                 |
 | `disconnect()`              | Clean up on shutdown                              |
 
-On inbound messages, plugins build an `Envelope` and call `this.handleInbound(envelope)` — the base class handles the rest: access control, group gating, pairing, session routing, prompt serialization, slash commands, instructions injection, reply context, and crash recovery.
+On inbound messages, plugins build an `Envelope` and call `this.handleInbound(envelope)` -- the base class handles the rest: access control, group gating, pairing, session routing, prompt serialization, slash commands, instructions injection, reply context, and crash recovery.
 
 ### Extension Points
 
@@ -111,7 +111,7 @@ External plugins are **extensions** managed by `ExtensionManager`, declared in `
 }
 ```
 
-Loading sequence at `qwen channel start`: load settings → register built-ins → scan extensions → dynamic import + validate → register (reject collisions) → validate config → `createChannel()` → `connect()`.
+Loading sequence at `qwen channel start`: load settings -> register built-ins -> scan extensions -> dynamic import + validate -> register (reject collisions) -> validate config -> `createChannel()` -> `connect()`.
 
 Plugins run in-process (no sandbox), same trust model as npm dependencies.
 
@@ -159,46 +159,46 @@ qwen extensions remove <name>                 # uninstall
 
 ```
 packages/channels/
-├── base/                    # @qwen-code/channel-base
-│   └── src/
-│       ├── AcpBridge.ts     # ACP process lifecycle, session management
-│       ├── SessionRouter.ts # sender ↔ session mapping, persistence
-│       ├── SenderGate.ts    # allowlist / pairing / open
-│       ├── GroupGate.ts     # group chat policy + mention gating
-│       ├── PairingStore.ts  # pairing code generation + approval
-│       ├── ChannelBase.ts   # abstract base: routing, slash commands
-│       └── types.ts         # Envelope, ChannelConfig, etc.
-├── telegram/                # @qwen-code/channel-telegram
-├── weixin/                  # @qwen-code/channel-weixin
-└── dingtalk/                # @qwen-code/channel-dingtalk
+|---- base/                    # @qwen-code/channel-base
+|   \_-- src/
+|       |---- AcpBridge.ts     # ACP process lifecycle, session management
+|       |---- SessionRouter.ts # sender <-> session mapping, persistence
+|       |---- SenderGate.ts    # allowlist / pairing / open
+|       |---- GroupGate.ts     # group chat policy + mention gating
+|       |---- PairingStore.ts  # pairing code generation + approval
+|       |---- ChannelBase.ts   # abstract base: routing, slash commands
+|       \_-- types.ts         # Envelope, ChannelConfig, etc.
+|---- telegram/                # @qwen-code/channel-telegram
+|---- weixin/                  # @qwen-code/channel-weixin
+\_-- dingtalk/                # @qwen-code/channel-dingtalk
 ```
 
 ## Future Work
 
 ### Safety & Group Chat
 
-- **Per-group tool restrictions** — `tools`/`toolsBySender` deny/allow lists per group
-- **Group context history** — ring buffer of recent skipped messages, prepended on @mention
-- **Regex mention patterns** — fallback `mentionPatterns` for unreliable @mention metadata
-- **Per-group instructions** — `instructions` field on `GroupConfig` for per-group personas
-- **`/activation` command** — runtime toggle for `requireMention`, persisted to disk
+- **Per-group tool restrictions** -- `tools`/`toolsBySender` deny/allow lists per group
+- **Group context history** -- ring buffer of recent skipped messages, prepended on @mention
+- **Regex mention patterns** -- fallback `mentionPatterns` for unreliable @mention metadata
+- **Per-group instructions** -- `instructions` field on `GroupConfig` for per-group personas
+- **`/activation` command** -- runtime toggle for `requireMention`, persisted to disk
 
 ### Operational Tooling
 
-- **`qwen channel doctor`** — config validation, env vars, bot tokens, network checks
-- **`qwen channel status --probe`** — real connectivity checks per channel
+- **`qwen channel doctor`** -- config validation, env vars, bot tokens, network checks
+- **`qwen channel status --probe`** -- real connectivity checks per channel
 
 ### Platform Expansion
 
-- **Discord** — Bot API + Gateway, servers/channels/DMs/threads
-- **Slack** — Bolt SDK, Socket Mode, workspaces/channels/DMs/threads
+- **Discord** -- Bot API + Gateway, servers/channels/DMs/threads
+- **Slack** -- Bolt SDK, Socket Mode, workspaces/channels/DMs/threads
 
 ### Multi-Agent
 
-- **Multi-agent routing** — multiple agents with bindings per channel/group/user
-- **Broadcast groups** — multiple agents respond to the same message
+- **Multi-agent routing** -- multiple agents with bindings per channel/group/user
+- **Broadcast groups** -- multiple agents respond to the same message
 
 ### Plugin Ecosystem
 
-- **Community plugin template** — `create-qwen-channel` scaffolding tool
-- **Plugin registry/discovery** — `qwen extensions search`, version compatibility
+- **Community plugin template** -- `create-qwen-channel` scaffolding tool
+- **Plugin registry/discovery** -- `qwen extensions search`, version compatibility

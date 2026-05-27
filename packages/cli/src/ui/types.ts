@@ -251,7 +251,7 @@ export type HistoryItemToolGroup = HistoryItemBase & {
 /**
  * Short LLM-generated label summarizing a preceding tool batch. Emitted after
  * the batch completes and consumed by compact-mode rendering to replace the
- * generic "Tool × N" line with something like "Searched in auth/". Also
+ * generic "Tool * N" line with something like "Searched in auth/". Also
  * surfaces to SDK clients as a `tool_use_summary` stream message.
  */
 export type HistoryItemToolUseSummary = HistoryItemBase & {

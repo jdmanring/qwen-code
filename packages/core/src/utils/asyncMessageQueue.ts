@@ -8,7 +8,7 @@
  * @fileoverview Generic non-blocking message queue.
  *
  * Simple FIFO queue for producer/consumer patterns. Dequeue is
- * non-blocking — returns null when empty. The consumer decides
+ * non-blocking -- returns null when empty. The consumer decides
  * when and how to process items.
  */
 

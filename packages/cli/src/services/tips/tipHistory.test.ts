@@ -115,8 +115,8 @@ describe('TipHistory', () => {
         tmpPath(),
       );
       history.recordShown('tip-new', 0);
-      // tip-old: cross-session only → 999
-      // tip-new: session-shown → 1_000_000
+      // tip-old: cross-session only -> 999
+      // tip-new: session-shown -> 1_000_000
       expect(history.getLastShown('tip-old')).toBeLessThan(
         history.getLastShown('tip-new'),
       );

@@ -73,7 +73,7 @@ class JsonRpcConnection {
     try {
       await this.sendRequest('shutdown', {});
     } catch (_error) {
-      // Ignore shutdown errors – the server may already be gone.
+      // Ignore shutdown errors - the server may already be gone.
     } finally {
       this.end();
     }
@@ -258,7 +258,7 @@ interface SocketConnectionOptions {
 
 export class LspConnectionFactory {
   /**
-   * 创建基于 stdio 的 LSP 连接
+   *  stdio  LSP 
    */
   static async createStdioConnection(
     command: string,
@@ -342,7 +342,7 @@ export class LspConnectionFactory {
   }
 
   /**
-   * 创建基于 TCP 的 LSP 连接
+   *  TCP  LSP 
    */
   static async createTcpConnection(
     host: string,
@@ -356,7 +356,7 @@ export class LspConnectionFactory {
   }
 
   /**
-   * 创建基于 socket 的 LSP 连接（支持 TCP 或 unix socket）
+   *  socket  LSP  TCP  unix socket
    */
   static async createSocketConnection(
     options: SocketConnectionOptions,
@@ -413,7 +413,7 @@ export class LspConnectionFactory {
   }
 
   /**
-   * 关闭 LSP 连接
+   *  LSP 
    */
   static async closeConnection(lspConnection: LspConnection): Promise<void> {
     if (lspConnection.connection) {

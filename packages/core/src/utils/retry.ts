@@ -13,8 +13,8 @@ import { getErrorStatus } from './errors.js';
 const debugLogger = createDebugLogger('RETRY');
 
 // Persistent retry mode constants
-const PERSISTENT_MAX_BACKOFF_MS = 5 * 60 * 1000; // 5 minutes — single retry backoff cap
-const PERSISTENT_CAP_MS = 6 * 60 * 60 * 1000; // 6 hours — absolute single wait cap
+const PERSISTENT_MAX_BACKOFF_MS = 5 * 60 * 1000; // 5 minutes -- single retry backoff cap
+const PERSISTENT_CAP_MS = 6 * 60 * 60 * 1000; // 6 hours -- absolute single wait cap
 const HEARTBEAT_INTERVAL_MS = 30_000; // 30 seconds
 
 export interface HttpError extends Error {
@@ -65,7 +65,7 @@ function defaultShouldRetry(error: Error | unknown): boolean {
 
 /**
  * Determines if an error is a transient capacity error eligible for persistent retry.
- * Only 429 (Rate Limit) and 529 (Overloaded) qualify — HTTP 500 is excluded
+ * Only 429 (Rate Limit) and 529 (Overloaded) qualify -- HTTP 500 is excluded
  * because it may indicate a permanent server bug.
  */
 export function isTransientCapacityError(error: unknown): boolean {
@@ -75,7 +75,7 @@ export function isTransientCapacityError(error: unknown): boolean {
 
 /**
  * Detects whether persistent retry mode is explicitly enabled.
- * Requires the user to opt in via QWEN_CODE_UNATTENDED_RETRY — we intentionally
+ * Requires the user to opt in via QWEN_CODE_UNATTENDED_RETRY -- we intentionally
  * do NOT auto-activate on CI=true, because silently turning a fast-fail CI job
  * into an infinite-wait job would be surprising and dangerous.
  */
@@ -209,7 +209,7 @@ export async function retryWithBackoff<T>(
       }
 
       // Determine if this error qualifies for persistent retry.
-      // Persistent mode still respects shouldRetryOnError — callers can force
+      // Persistent mode still respects shouldRetryOnError -- callers can force
       // fast-fail even for transient errors if they explicitly return false.
       const isTransient = isTransientCapacityError(error);
       const callerAllowsRetry = shouldRetryOnError(error as Error);
@@ -233,18 +233,18 @@ export async function retryWithBackoff<T>(
           errorStatus === 429 ? getRetryAfterDelayMs(error) : 0;
 
         if (retryAfterMs > 0) {
-          // Retry-After is a server-specified wait — respect it, only cap at
+          // Retry-After is a server-specified wait -- respect it, only cap at
           // the absolute limit (capMs/6h), NOT at maxBackoff (5min).
           delayMs = Math.min(retryAfterMs, capMs);
         } else {
-          // Exponential backoff — cap at maxBackoff (5min) then absolute cap
+          // Exponential backoff -- cap at maxBackoff (5min) then absolute cap
           delayMs = Math.min(
             initialDelayMs * Math.pow(2, persistentAttempt - 1),
             maxBackoff,
           );
           delayMs = Math.min(delayMs, capMs);
 
-          // Add jitter (±25%), then re-apply caps so delay never exceeds limits
+          // Add jitter (25%), then re-apply caps so delay never exceeds limits
           delayMs += delayMs * 0.25 * (Math.random() * 2 - 1);
           delayMs = Math.min(Math.max(0, delayMs), maxBackoff, capMs);
         }
@@ -256,7 +256,7 @@ export async function retryWithBackoff<T>(
           error,
         );
 
-        // Heartbeat sleep — chunked to keep CI alive
+        // Heartbeat sleep -- chunked to keep CI alive
         await sleepWithHeartbeat(delayMs, {
           attempt: reportedAttempt,
           error,

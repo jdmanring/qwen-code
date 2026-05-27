@@ -195,7 +195,7 @@ describe('AgentInteractive', () => {
     context = new ContextState();
   });
 
-  // ─── Lifecycle ──────────────────────────────────────────────
+  // --- Lifecycle ----------------------------------------------
 
   it('should initialize and complete cleanly without initialTask', async () => {
     const { core } = createMockCore();
@@ -203,8 +203,8 @@ describe('AgentInteractive', () => {
     const agent = new AgentInteractive(config, core);
 
     await agent.start(context);
-    // No initialTask → agent is waiting on queue, status is still initializing.
-    // Shutdown drains queue, loop exits normally → completed.
+    // No initialTask -> agent is waiting on queue, status is still initializing.
+    // Shutdown drains queue, loop exits normally -> completed.
     await agent.shutdown();
     expect(agent.getStatus()).toBe('completed');
   });
@@ -256,7 +256,7 @@ describe('AgentInteractive', () => {
     expect(agent.getError()).toBe('Failed to create chat session');
   });
 
-  // ─── Error Recovery ────────────────────────────────────────
+  // --- Error Recovery ----------------------------------------
 
   it('should survive round errors and recover', async () => {
     const { core } = createMockCore();
@@ -307,7 +307,7 @@ describe('AgentInteractive', () => {
     await agent.shutdown();
   });
 
-  // ─── Cancellation ──────────────────────────────────────────
+  // --- Cancellation ------------------------------------------
 
   it('should cancel current round without killing the agent', async () => {
     const { core } = createMockCore();
@@ -369,7 +369,7 @@ describe('AgentInteractive', () => {
     expect(agent.getStatus()).toBe('cancelled');
   });
 
-  // ─── Accessors ─────────────────────────────────────────────
+  // --- Accessors ---------------------------------------------
 
   it('should provide stats via getStats()', async () => {
     const { core } = createMockCore();
@@ -389,7 +389,7 @@ describe('AgentInteractive', () => {
     expect(agent.getCore()).toBe(core);
   });
 
-  // ─── Message Recording ─────────────────────────────────────
+  // --- Message Recording -------------------------------------
 
   it('should record assistant text from ROUND_TEXT events', async () => {
     const { core, emitter } = createMockCore();
@@ -635,7 +635,7 @@ describe('AgentInteractive', () => {
     await agent.shutdown();
   });
 
-  // ─── Chat History ────────────────────────────────────────────
+  // --- Chat History --------------------------------------------
 
   it('should pass chatHistory as extraHistory to createChat', async () => {
     const { core } = createMockCore();
@@ -702,7 +702,7 @@ describe('AgentInteractive', () => {
     await agent.shutdown();
   });
 
-  // ─── Events ────────────────────────────────────────────────
+  // --- Events ------------------------------------------------
 
   it('should emit status_change events', async () => {
     const { core, emitter } = createMockCore();

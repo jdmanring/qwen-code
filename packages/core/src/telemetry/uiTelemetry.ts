@@ -48,7 +48,7 @@ export interface ToolCallStats {
 /**
  * Per-model counters without the nested source breakdown. Used both as the
  * aggregate `ModelMetrics` shape (via extension) and as the value type of the
- * `bySource` map — keeping the type non-recursive.
+ * `bySource` map -- keeping the type non-recursive.
  */
 export interface ModelMetricsCore {
   api: {

@@ -7,7 +7,7 @@
 This skill is triggered by:
 - **TUI Verification**: Requests to "test like a real user," "test slash command interactions," or "verify TUI rendering."
 - **Narrative Reporting**: Requests for "readable logs," "TUI test reports," or "step-by-step snapshots."
-- **Specific Phrases**: "用 tmux 做真实测试", "保存 tmux 日志", "生成可复查的 TUI 测试报告".
+- **Specific Phrases**: " tmux ", " tmux ", " TUI ".
 - **Complex Flows**: Testing authentication, onboarding, or interactive error recovery where final state alone is insufficient.
 
 ## 3. Operational Workflow

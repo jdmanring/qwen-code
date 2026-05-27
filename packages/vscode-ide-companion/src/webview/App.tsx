@@ -127,7 +127,7 @@ interface MessageListProps {
   canEditMessages: boolean;
   /**
    * After each render, this ref is updated with an array that maps
-   * DOM child position → allMessages index, only for items that
+   * DOM child position -> allMessages index, only for items that
    * actually render a DOM element (skipping nulls).
    */
   childIndexMap: React.MutableRefObject<number[]>;
@@ -145,7 +145,7 @@ const MessageList = React.memo<MessageListProps>(
     const userTurnCounter: UserTurnCounter = { next: 0 };
     const lastUserTurnIndex = getLastUserTurnIndex(allMessages);
 
-    // Build child→allMessages index mapping: for each item that renders
+    // Build child->allMessages index mapping: for each item that renders
     // a non-null element, record its allMessages index. This array's
     // position corresponds to the DOM child position in the container.
     const mapping: number[] = [];
@@ -237,7 +237,7 @@ const MessageList = React.memo<MessageListProps>(
         default:
           child = null;
       }
-      // No wrapper div — message components render directly as children
+      // No wrapper div -- message components render directly as children
       // of the scroll container, preserving the original CSS layout.
       if (child == null) {
         return null;
@@ -340,7 +340,7 @@ export const App: React.FC = () => {
   const [showModelSelector, setShowModelSelector] = useState(false);
   const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  // Maps DOM child position → allMessages index. Built during render by
+  // Maps DOM child position -> allMessages index. Built during render by
   // MessageList, only includes items that actually produce DOM elements.
   const childIndexMapRef = useRef<number[]>([]);
   // Scroll container for message list; used to keep the view anchored to the latest content
@@ -392,8 +392,8 @@ export const App: React.FC = () => {
           return [
             {
               id: 'loading-files',
-              label: 'Searching files…',
-              description: 'Type to filter, or wait a moment…',
+              label: 'Searching files...',
+              description: 'Type to filter, or wait a moment...',
               type: 'info' as const,
             },
           ];
@@ -665,11 +665,11 @@ export const App: React.FC = () => {
 
     if (messageHandling.isStreaming || messageHandling.isWaitingForResponse) {
       // End streaming state and add an 'Interrupted' line.
-      // IMPORTANT: Do NOT clear isWaitingForResponse here — let the
+      // IMPORTANT: Do NOT clear isWaitingForResponse here -- let the
       // extension's streamEnd message clear it after the cancel is
       // properly processed on the backend.  This keeps the submit
       // guard active and prevents any cached input from being
-      // auto-submitted during the cancel → confirmed window.
+      // auto-submitted during the cancel -> confirmed window.
       if (messageHandling.isStreaming) {
         try {
           messageHandling.endStreaming?.();
@@ -903,7 +903,7 @@ export const App: React.FC = () => {
         return;
       }
 
-      // Ignore info items (placeholders like "Searching files…")
+      // Ignore info items (placeholders like "Searching files...")
       if (item.type === 'info') {
         closeCompletion();
         return;
@@ -1011,10 +1011,10 @@ export const App: React.FC = () => {
             closeCompletion();
             return;
           }
-          // Command accepts input — fall through to fill the input box.
+          // Command accepts input -- fall through to fill the input box.
         }
 
-        // Handle secondary skill selection — send `/skills <name>` with
+        // Handle secondary skill selection -- send `/skills <name>` with
         // optional trailing user text
         if (itemId.startsWith(SKILL_ITEM_ID_PREFIX) && !fillOnly) {
           clearTriggerText();
@@ -1045,7 +1045,7 @@ export const App: React.FC = () => {
         return;
       }
 
-      // Current text and cursor — strip U+200B height placeholder so it
+      // Current text and cursor -- strip U+200B height placeholder so it
       // does not contaminate the inserted completion text.
       const rawText = inputElement.textContent || '';
       const text = stripZeroWidthSpaces(rawText);

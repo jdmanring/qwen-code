@@ -12,9 +12,9 @@ export default {
   // Help / UI Components
   // ============================================================================
   // Attachment hints
-  '↑ to manage attachments': '↑ to manage attachments',
-  '← → select, Delete to remove, ↓ to exit':
-    '← → select, Delete to remove, ↓ to exit',
+  ' to manage attachments': ' to manage attachments',
+  '<- -> select, Delete to remove,  to exit':
+    '<- -> select, Delete to remove,  to exit',
   'Attachments: ': 'Attachments: ',
   'Basics:': 'Basics:',
   'Add context': 'Add context',
@@ -121,8 +121,8 @@ export default {
     'Invalid approval mode "{{arg}}". Valid modes: {{modes}}',
   'Approval mode set to "{{mode}}"': 'Approval mode set to "{{mode}}"',
   'View or change the language setting': 'View or change the language setting',
-  'List background tasks (text dump — interactive dialog opens via the footer pill)':
-    'List background tasks (text dump — interactive dialog opens via the footer pill)',
+  'List background tasks (text dump -- interactive dialog opens via the footer pill)':
+    'List background tasks (text dump -- interactive dialog opens via the footer pill)',
   'Delete a previous session': 'Delete a previous session',
   'Run installation and environment diagnostics':
     'Run installation and environment diagnostics',
@@ -167,12 +167,12 @@ export default {
   'Cannot restore files: this turn was created before file checkpointing was enabled.':
     'Cannot restore files: this turn was created before file checkpointing was enabled.',
   'No files needed to be restored.': 'No files needed to be restored.',
-  '↑↓ to navigate · Enter to select · Esc to go back':
-    '↑↓ to navigate · Enter to select · Esc to go back',
-  '↑↓ to navigate · Enter to select · Esc to cancel':
-    '↑↓ to navigate · Enter to select · Esc to cancel',
-  'Enter/Y to confirm · Esc/N to go back':
-    'Enter/Y to confirm · Esc/N to go back',
+  ' to navigate  Enter to select  Esc to go back':
+    ' to navigate  Enter to select  Esc to go back',
+  ' to navigate  Enter to select  Esc to cancel':
+    ' to navigate  Enter to select  Esc to cancel',
+  'Enter/Y to confirm  Esc/N to go back':
+    'Enter/Y to confirm  Esc/N to go back',
   'change the theme': 'change the theme',
   'Select Theme': 'Select Theme',
   Preview: 'Preview',
@@ -202,16 +202,16 @@ export default {
   'Failed to compute git diff stats': 'Failed to compute git diff stats',
   'No diff available. Either this is not a git repository, HEAD is missing, or a merge/rebase/cherry-pick/revert is in progress.':
     'No diff available. Either this is not a git repository, HEAD is missing, or a merge/rebase/cherry-pick/revert is in progress.',
-  'Clean working tree — no changes against HEAD.':
-    'Clean working tree — no changes against HEAD.',
+  'Clean working tree -- no changes against HEAD.':
+    'Clean working tree -- no changes against HEAD.',
   '{{count}} file changed, +{{added}} / -{{removed}}':
     '{{count}} file changed, +{{added}} / -{{removed}}',
   '{{count}} files changed, +{{added}} / -{{removed}}':
     '{{count}} files changed, +{{added}} / -{{removed}}',
   '{{count}} file changed': '{{count}} file changed',
   '{{count}} files changed': '{{count}} files changed',
-  '…and {{hidden}} more (showing first {{shown}})':
-    '…and {{hidden}} more (showing first {{shown}})',
+  '...and {{hidden}} more (showing first {{shown}})':
+    '...and {{hidden}} more (showing first {{shown}})',
   '(binary)': '(binary)',
   '(binary, new)': '(binary, new)',
   '(new)': '(new)',
@@ -240,12 +240,12 @@ export default {
   'Delete {{name}}': 'Delete {{name}}',
   'Unknown Step': 'Unknown Step',
   'Esc to close': 'Esc to close',
-  'Enter to select, ↑↓ to navigate, Esc to close':
-    'Enter to select, ↑↓ to navigate, Esc to close',
+  'Enter to select,  to navigate, Esc to close':
+    'Enter to select,  to navigate, Esc to close',
   'Esc to go back': 'Esc to go back',
   'Enter to confirm, Esc to cancel': 'Enter to confirm, Esc to cancel',
-  'Enter to select, ↑↓ to navigate, Esc to go back':
-    'Enter to select, ↑↓ to navigate, Esc to go back',
+  'Enter to select,  to navigate, Esc to go back':
+    'Enter to select,  to navigate, Esc to go back',
   'Enter to submit, Esc to go back': 'Enter to submit, Esc to go back',
   'Invalid step: {{step}}': 'Invalid step: {{step}}',
   'No subagents found.': 'No subagents found.',
@@ -271,7 +271,7 @@ export default {
   'Open in editor': 'Open in editor',
   'Edit tools': 'Edit tools',
   'Edit color': 'Edit color',
-  '❌ Error:': '❌ Error:',
+  ' Error:': ' Error:',
   'Are you sure you want to delete agent "{{name}}"?':
     'Are you sure you want to delete agent "{{name}}"?',
   // ============================================================================
@@ -279,12 +279,12 @@ export default {
   // ============================================================================
   'Project Level (.qwen/agents/)': 'Project Level (.qwen/agents/)',
   'User Level (~/.qwen/agents/)': 'User Level (~/.qwen/agents/)',
-  '✅ Subagent Created Successfully!': '✅ Subagent Created Successfully!',
+  ' Subagent Created Successfully!': ' Subagent Created Successfully!',
   'Subagent "{{name}}" has been saved to {{level}} level.':
     'Subagent "{{name}}" has been saved to {{level}} level.',
   'Name: ': 'Name: ',
   'Location: ': 'Location: ',
-  '❌ Error saving subagent:': '❌ Error saving subagent:',
+  ' Error saving subagent:': ' Error saving subagent:',
   'Warnings:': 'Warnings:',
   'Name "{{name}}" already exists at {{level}} level - will overwrite existing subagent':
     'Name "{{name}}" already exists at {{level}} level - will overwrite existing subagent',
@@ -338,7 +338,7 @@ export default {
     'Press Enter to continue, {{navigation}}Esc to {{action}}',
   cancel: 'cancel',
   'go back': 'go back',
-  '↑↓ to navigate, ': '↑↓ to navigate, ',
+  ' to navigate, ': ' to navigate, ',
   'Enter a clear, unique name for this subagent.':
     'Enter a clear, unique name for this subagent.',
   'e.g., Code Reviewer': 'e.g., Code Reviewer',
@@ -573,8 +573,8 @@ export default {
     'The scope to disable the extenison in.',
   'Extension "{{name}}" successfully disabled for scope "{{scope}}".':
     'Extension "{{name}}" successfully disabled for scope "{{scope}}".',
-  'Extension "{{name}}" successfully updated: {{oldVersion}} → {{newVersion}}.':
-    'Extension "{{name}}" successfully updated: {{oldVersion}} → {{newVersion}}.',
+  'Extension "{{name}}" successfully updated: {{oldVersion}} -> {{newVersion}}.':
+    'Extension "{{name}}" successfully updated: {{oldVersion}} -> {{newVersion}}.',
   'Unable to install extension "{{name}}" due to missing install metadata':
     'Unable to install extension "{{name}}" due to missing install metadata',
   'Extension "{{name}}" is already up to date.':
@@ -633,8 +633,8 @@ export default {
     'Select a plugin to install from marketplace "{{name}}":',
   'Plugin selection cancelled.': 'Plugin selection cancelled.',
   'Select a plugin from "{{name}}"': 'Select a plugin from "{{name}}"',
-  'Use ↑↓ or j/k to navigate, Enter to select, Escape to cancel':
-    'Use ↑↓ or j/k to navigate, Enter to select, Escape to cancel',
+  'Use  or j/k to navigate, Enter to select, Escape to cancel':
+    'Use  or j/k to navigate, Enter to select, Escape to cancel',
   '{{count}} more above': '{{count}} more above',
   '{{count}} more below': '{{count}} more below',
   'manage IDE integration': 'manage IDE integration',
@@ -696,14 +696,14 @@ export default {
   '{{count}} hooks configured': '{{count}} hooks configured',
   'This menu is read-only. To add or modify hooks, edit settings.json directly or ask Qwen Code.':
     'This menu is read-only. To add or modify hooks, edit settings.json directly or ask Qwen Code.',
-  'Enter to select · Esc to cancel': 'Enter to select · Esc to cancel',
+  'Enter to select  Esc to cancel': 'Enter to select  Esc to cancel',
   // Hooks - Detail Step
   'Exit codes:': 'Exit codes:',
   'Configured hooks:': 'Configured hooks:',
   'No hooks configured for this event.': 'No hooks configured for this event.',
   'To add hooks, edit settings.json directly or ask Qwen.':
     'To add hooks, edit settings.json directly or ask Qwen.',
-  'Enter to select · Esc to go back': 'Enter to select · Esc to go back',
+  'Enter to select  Esc to go back': 'Enter to select  Esc to go back',
   // Hooks - Config Detail Step
   'Hook details': 'Hook details',
   'Event:': 'Event:',
@@ -865,9 +865,9 @@ export default {
   'Set LLM output language': 'Set LLM output language',
   'Usage: /language ui [{{options}}]': 'Usage: /language ui [{{options}}]',
   'Usage: /language output <language>': 'Usage: /language output <language>',
-  'Example: /language output 中文': 'Example: /language output 中文',
+  'Example: /language output ': 'Example: /language output ',
   'Example: /language output English': 'Example: /language output English',
-  'Example: /language output 日本語': 'Example: /language output 日本語',
+  'Example: /language output ': 'Example: /language output ',
   'UI language changed to {{lang}}': 'UI language changed to {{lang}}',
   'LLM output language set to {{lang}}': 'LLM output language set to {{lang}}',
   'Please restart the application for the changes to take effect.':
@@ -899,8 +899,8 @@ export default {
   'Workspace Settings': 'Workspace Settings',
   'Open auto-memory folder': 'Open auto-memory folder',
   'Auto-memory: {{status}}': 'Auto-memory: {{status}}',
-  'Auto-dream: {{status}} · {{lastDream}} · /dream to run':
-    'Auto-dream: {{status}} · {{lastDream}} · /dream to run',
+  'Auto-dream: {{status}}  {{lastDream}}  /dream to run':
+    'Auto-dream: {{status}}  {{lastDream}}  /dream to run',
   never: 'never',
   on: 'on',
   off: 'off',
@@ -933,12 +933,12 @@ export default {
   'Loading...': 'Loading...',
   'Unknown step': 'Unknown step',
   'Esc to back': 'Esc to back',
-  '↑↓ to navigate · Enter to select · Esc to close':
-    '↑↓ to navigate · Enter to select · Esc to close',
-  '↑↓ to navigate · Enter to select · Esc to back':
-    '↑↓ to navigate · Enter to select · Esc to back',
-  '↑↓ to navigate · Enter to confirm · Esc to back':
-    '↑↓ to navigate · Enter to confirm · Esc to back',
+  ' to navigate  Enter to select  Esc to close':
+    ' to navigate  Enter to select  Esc to close',
+  ' to navigate  Enter to select  Esc to back':
+    ' to navigate  Enter to select  Esc to back',
+  ' to navigate  Enter to confirm  Esc to back':
+    ' to navigate  Enter to confirm  Esc to back',
   'User Settings (global)': 'User Settings (global)',
   'Workspace Settings (project-specific)':
     'Workspace Settings (project-specific)',
@@ -984,8 +984,8 @@ export default {
     'Press c to copy the authorization URL to your clipboard.',
   'Copy request sent to your terminal. If paste is empty, copy the URL above manually.':
     'Copy request sent to your terminal. If paste is empty, copy the URL above manually.',
-  'Cannot write to terminal — copy the URL above manually.':
-    'Cannot write to terminal — copy the URL above manually.',
+  'Cannot write to terminal -- copy the URL above manually.':
+    'Cannot write to terminal -- copy the URL above manually.',
   // MCP Tool List
   'No tools available for this server.': 'No tools available for this server.',
   destructive: 'destructive',
@@ -1153,23 +1153,23 @@ export default {
     'Choose how to proceed with your session:',
   'Start new chat session': 'Start new chat session',
   'Continue previous conversation': 'Continue previous conversation',
-  '👋 Welcome back! (Last updated: {{timeAgo}})':
-    '👋 Welcome back! (Last updated: {{timeAgo}})',
-  '🎯 Overall Goal:': '🎯 Overall Goal:',
+  ' Welcome back! (Last updated: {{timeAgo}})':
+    ' Welcome back! (Last updated: {{timeAgo}})',
+  ' Overall Goal:': ' Overall Goal:',
   'Connect a Provider': 'Connect a Provider',
   'You must connect a provider to proceed. Press Ctrl+C again to exit.':
     'You must connect a provider to proceed. Press Ctrl+C again to exit.',
   'Terms of Services and Privacy Notice':
     'Terms of Services and Privacy Notice',
   'Qwen OAuth': 'Qwen OAuth',
-  'Discontinued — switch to Coding Plan or API Key':
-    'Discontinued — switch to Coding Plan or API Key',
+  'Discontinued -- switch to Coding Plan or API Key':
+    'Discontinued -- switch to Coding Plan or API Key',
   'Qwen OAuth free tier was discontinued on 2026-04-15. Please select Coding Plan or API Key instead.':
     'Qwen OAuth free tier was discontinued on 2026-04-15. Please select Coding Plan or API Key instead.',
   'Qwen OAuth free tier was discontinued on 2026-04-15. Please select a model from another provider or run /auth to switch.':
     'Qwen OAuth free tier was discontinued on 2026-04-15. Please select a model from another provider or run /auth to switch.',
-  '\n⚠ Qwen OAuth free tier was discontinued on 2026-04-15. Please select another option.\n':
-    '\n⚠ Qwen OAuth free tier was discontinued on 2026-04-15. Please select another option.\n',
+  '\n Qwen OAuth free tier was discontinued on 2026-04-15. Please select another option.\n':
+    '\n Qwen OAuth free tier was discontinued on 2026-04-15. Please select another option.\n',
   'Paid \u00B7 Up to 6,000 requests/5 hrs \u00B7 All Alibaba Cloud Coding Plan Models':
     'Paid \u00B7 Up to 6,000 requests/5 hrs \u00B7 All Alibaba Cloud Coding Plan Models',
   'For teams \u00B7 Paid \u00B7 Up to 6,000 requests/5 hrs \u00B7 All Alibaba Cloud Coding Plan Models':
@@ -1273,35 +1273,35 @@ export default {
   'Checked in at .qwen/settings.json': 'Checked in at .qwen/settings.json',
   'User settings': 'User settings',
   'Saved in at ~/.qwen/settings.json': 'Saved in at ~/.qwen/settings.json',
-  'Add a new rule…': 'Add a new rule…',
+  'Add a new rule...': 'Add a new rule...',
   'Add {{type}} permission rule': 'Add {{type}} permission rule',
   'Permission rules are a tool name, optionally followed by a specifier in parentheses.':
     'Permission rules are a tool name, optionally followed by a specifier in parentheses.',
   'e.g.,': 'e.g.,',
   or: 'or',
-  'Enter permission rule…': 'Enter permission rule…',
-  'Enter to submit · Esc to cancel': 'Enter to submit · Esc to cancel',
+  'Enter permission rule...': 'Enter permission rule...',
+  'Enter to submit  Esc to cancel': 'Enter to submit  Esc to cancel',
   'Where should this rule be saved?': 'Where should this rule be saved?',
-  'Enter to confirm · Esc to cancel': 'Enter to confirm · Esc to cancel',
+  'Enter to confirm  Esc to cancel': 'Enter to confirm  Esc to cancel',
   'Delete {{type}} rule?': 'Delete {{type}} rule?',
   'Are you sure you want to delete this permission rule?':
     'Are you sure you want to delete this permission rule?',
   'Permissions:': 'Permissions:',
-  '(←/→ or tab to cycle)': '(←/→ or tab to cycle)',
-  'Press ↑↓ to navigate · Enter to select · Type to search · Esc to cancel':
-    'Press ↑↓ to navigate · Enter to select · Type to search · Esc to cancel',
-  'Search…': 'Search…',
+  '(<-/-> or tab to cycle)': '(<-/-> or tab to cycle)',
+  'Press  to navigate  Enter to select  Type to search  Esc to cancel':
+    'Press  to navigate  Enter to select  Type to search  Esc to cancel',
+  'Search...': 'Search...',
   // Workspace directory management
-  'Add directory…': 'Add directory…',
+  'Add directory...': 'Add directory...',
   'Add directory to workspace': 'Add directory to workspace',
   'Qwen Code can read files in the workspace, and make edits when auto-accept edits is on.':
     'Qwen Code can read files in the workspace, and make edits when auto-accept edits is on.',
   'Qwen Code will be able to read files in this directory and make edits when auto-accept edits is on.':
     'Qwen Code will be able to read files in this directory and make edits when auto-accept edits is on.',
   'Enter the path to the directory:': 'Enter the path to the directory:',
-  'Enter directory path…': 'Enter directory path…',
-  'Tab to complete · Enter to add · Esc to cancel':
-    'Tab to complete · Enter to add · Esc to cancel',
+  'Enter directory path...': 'Enter directory path...',
+  'Tab to complete  Enter to add  Esc to cancel':
+    'Tab to complete  Enter to add  Esc to cancel',
   'Remove directory?': 'Remove directory?',
   'Are you sure you want to remove this directory from the workspace?':
     'Are you sure you want to remove this directory from the workspace?',
@@ -1331,14 +1331,14 @@ export default {
   'Press Ctrl+C again to exit.': 'Press Ctrl+C again to exit.',
   'Press Ctrl+D again to exit.': 'Press Ctrl+D again to exit.',
   'Press Esc again to clear.': 'Press Esc again to clear.',
-  'Press ↑ to edit queued messages': 'Press ↑ to edit queued messages',
+  'Press  to edit queued messages': 'Press  to edit queued messages',
 
   // ============================================================================
   // MCP Status
   // ============================================================================
   'No MCP servers configured.': 'No MCP servers configured.',
-  '⏳ MCP servers are starting up ({{count}} initializing)...':
-    '⏳ MCP servers are starting up ({{count}} initializing)...',
+  ' MCP servers are starting up ({{count}} initializing)...':
+    ' MCP servers are starting up ({{count}} initializing)...',
   'Note: First startup may take longer. Tool availability will update automatically.':
     'Note: First startup may take longer. Tool availability will update automatically.',
   'Configured MCP servers:': 'Configured MCP servers:',
@@ -1361,7 +1361,7 @@ export default {
   'Parameters:': 'Parameters:',
   'Prompts:': 'Prompts:',
   Blocked: 'Blocked',
-  '💡 Tips:': '💡 Tips:',
+  ' Tips:': ' Tips:',
   Use: 'Use',
   'to show server and tool descriptions':
     'to show server and tool descriptions',
@@ -1397,8 +1397,8 @@ export default {
     'You can switch permission mode quickly with Tab or /approval-mode.',
   'Try /insight to generate personalized insights from your chat history.':
     'Try /insight to generate personalized insights from your chat history.',
-  'Press Ctrl+O to toggle compact mode — hide tool output and thinking for a cleaner view.':
-    'Press Ctrl+O to toggle compact mode — hide tool output and thinking for a cleaner view.',
+  'Press Ctrl+O to toggle compact mode -- hide tool output and thinking for a cleaner view.':
+    'Press Ctrl+O to toggle compact mode -- hide tool output and thinking for a cleaner view.',
   'Add a QWEN.md file to give Qwen Code persistent project context.':
     'Add a QWEN.md file to give Qwen Code persistent project context.',
   'Use /btw to ask a quick side question without disrupting the conversation.':
@@ -1458,9 +1458,9 @@ export default {
   'Avg Duration': 'Avg Duration',
   'User Decision Summary': 'User Decision Summary',
   'Total Reviewed Suggestions:': 'Total Reviewed Suggestions:',
-  ' » Accepted:': ' » Accepted:',
-  ' » Rejected:': ' » Rejected:',
-  ' » Modified:': ' » Modified:',
+  '  Accepted:': '  Accepted:',
+  '  Rejected:': '  Rejected:',
+  '  Modified:': '  Modified:',
   ' Overall Agreement Rate:': ' Overall Agreement Rate:',
   'No tool calls have been made in this session.':
     'No tool calls have been made in this session.',
@@ -1709,8 +1709,8 @@ export default {
     'Opening extensions page in your browser: {{url}}',
   'Failed to open browser. Check out the extensions gallery at {{url}}':
     'Failed to open browser. Check out the extensions gallery at {{url}}',
-  'Retrying in {{seconds}} seconds… (attempt {{attempt}}/{{maxRetries}})':
-    'Retrying in {{seconds}} seconds… (attempt {{attempt}}/{{maxRetries}})',
+  'Retrying in {{seconds}} seconds... (attempt {{attempt}}/{{maxRetries}})':
+    'Retrying in {{seconds}} seconds... (attempt {{attempt}}/{{maxRetries}})',
   'Press Ctrl+Y to retry': 'Press Ctrl+Y to retry',
   'No failed request to retry.': 'No failed request to retry.',
   'to retry last request': 'to retry last request',
@@ -1804,10 +1804,10 @@ export default {
   'Your answers:': 'Your answers:',
   '(not answered)': '(not answered)',
   'Ready to submit your answers?': 'Ready to submit your answers?',
-  '↑/↓: Navigate | ←/→: Switch tabs | Enter: Select':
-    '↑/↓: Navigate | ←/→: Switch tabs | Enter: Select',
-  '↑/↓: Navigate | Enter: Select | Esc: Cancel':
-    '↑/↓: Navigate | Enter: Select | Esc: Cancel',
+  '/: Navigate | <-/->: Switch tabs | Enter: Select':
+    '/: Navigate | <-/->: Switch tabs | Enter: Select',
+  '/: Navigate | Enter: Select | Esc: Cancel':
+    '/: Navigate | Enter: Select | Esc: Cancel',
   'Authenticate using Qwen OAuth': 'Authenticate using Qwen OAuth',
   'Authenticate using Alibaba Cloud Coding Plan':
     'Authenticate using Alibaba Cloud Coding Plan',
@@ -1829,16 +1829,16 @@ export default {
     'Successfully authenticated with Alibaba Cloud Coding Plan.',
   'Failed to authenticate with Coding Plan: {{error}}':
     'Failed to authenticate with Coding Plan: {{error}}',
-  '中国 (China)': '中国 (China)',
-  '阿里云百炼 (aliyun.com)': '阿里云百炼 (aliyun.com)',
+  ' (China)': ' (China)',
+  ' (aliyun.com)': ' (aliyun.com)',
   Global: 'Global',
   'Alibaba Cloud (alibabacloud.com)': 'Alibaba Cloud (alibabacloud.com)',
   'Select region for Coding Plan:': 'Select region for Coding Plan:',
   'Enter your Coding Plan API key: ': 'Enter your Coding Plan API key: ',
   'Select authentication method:': 'Select authentication method:',
   '\n=== Authentication Status ===\n': '\n=== Authentication Status ===\n',
-  '⚠️  No authentication method configured.\n':
-    '⚠️  No authentication method configured.\n',
+  '  No authentication method configured.\n':
+    '  No authentication method configured.\n',
   'Run one of the following commands to get started:\n':
     'Run one of the following commands to get started:\n',
   '  qwen auth qwen-oauth     - Authenticate with Qwen OAuth (discontinued)':
@@ -1846,43 +1846,43 @@ export default {
   'Or simply run:': 'Or simply run:',
   '  qwen auth                - Interactive authentication setup\n':
     '  qwen auth                - Interactive authentication setup\n',
-  '✓ Authentication Method: Qwen OAuth': '✓ Authentication Method: Qwen OAuth',
+  ' Authentication Method: Qwen OAuth': ' Authentication Method: Qwen OAuth',
   '  Type: Free tier (discontinued 2026-04-15)':
     '  Type: Free tier (discontinued 2026-04-15)',
   '  Limit: No longer available': '  Limit: No longer available',
   'Qwen OAuth free tier was discontinued on 2026-04-15. Run /auth to switch to Coding Plan, OpenRouter, Fireworks AI, or another provider.':
     'Qwen OAuth free tier was discontinued on 2026-04-15. Run /auth to switch to Coding Plan, OpenRouter, Fireworks AI, or another provider.',
-  '✓ Authentication Method: Alibaba Cloud Coding Plan':
-    '✓ Authentication Method: Alibaba Cloud Coding Plan',
-  '中国 (China) - 阿里云百炼': '中国 (China) - 阿里云百炼',
+  ' Authentication Method: Alibaba Cloud Coding Plan':
+    ' Authentication Method: Alibaba Cloud Coding Plan',
+  ' (China) - ': ' (China) - ',
   'Global - Alibaba Cloud': 'Global - Alibaba Cloud',
   '  Region: {{region}}': '  Region: {{region}}',
   '  Current Model: {{model}}': '  Current Model: {{model}}',
   '  Config Version: {{version}}': '  Config Version: {{version}}',
   '  Status: API key configured\n': '  Status: API key configured\n',
-  '⚠️  Authentication Method: Alibaba Cloud Coding Plan (Incomplete)':
-    '⚠️  Authentication Method: Alibaba Cloud Coding Plan (Incomplete)',
+  '  Authentication Method: Alibaba Cloud Coding Plan (Incomplete)':
+    '  Authentication Method: Alibaba Cloud Coding Plan (Incomplete)',
   '  Issue: API key not found in environment or settings\n':
     '  Issue: API key not found in environment or settings\n',
   '  Run `qwen auth coding-plan` to re-configure.\n':
     '  Run `qwen auth coding-plan` to re-configure.\n',
-  '✓ Authentication Method: {{type}}': '✓ Authentication Method: {{type}}',
+  ' Authentication Method: {{type}}': ' Authentication Method: {{type}}',
   '  Status: Configured\n': '  Status: Configured\n',
   'Failed to check authentication status: {{error}}':
     'Failed to check authentication status: {{error}}',
   'Select an option:': 'Select an option:',
   'Raw mode not available. Please run in an interactive terminal.':
     'Raw mode not available. Please run in an interactive terminal.',
-  '(Use ↑ ↓ arrows to navigate, Enter to select, Ctrl+C to exit)\n':
-    '(Use ↑ ↓ arrows to navigate, Enter to select, Ctrl+C to exit)\n',
+  '(Use   arrows to navigate, Enter to select, Ctrl+C to exit)\n':
+    '(Use   arrows to navigate, Enter to select, Ctrl+C to exit)\n',
   'Hide tool output and thinking for a cleaner view (toggle with Ctrl+O).':
     'Hide tool output and thinking for a cleaner view (toggle with Ctrl+O).',
   'Press Ctrl+O to show full tool output':
     'Press Ctrl+O to show full tool output',
   'Switch to plan mode or exit plan mode':
     'Switch to plan mode or exit plan mode',
-  'Set a goal — keep working until the condition is met':
-    'Set a goal — keep working until the condition is met',
+  'Set a goal -- keep working until the condition is met':
+    'Set a goal -- keep working until the condition is met',
   'Exited plan mode. Previous approval mode restored.':
     'Exited plan mode. Previous approval mode restored.',
   'Enabled plan mode. The agent will analyze and plan without executing tools.':

@@ -2,8 +2,8 @@
  * DingTalk markdown normalization.
  *
  * DingTalk's markdown renderer is a limited subset with quirks:
- * - Tables don't render — convert to pipe-separated plain text
- * - Max message length ~3800 chars — split into chunks
+ * - Tables don't render -- convert to pipe-separated plain text
+ * - Max message length ~3800 chars -- split into chunks
  * - Code fences must be closed/reopened across chunk boundaries
  */
 
@@ -123,7 +123,7 @@ export function extractTitle(text: string): string {
   return cleaned || 'Reply';
 }
 
-/** Full normalization pipeline: tables → chunks. */
+/** Full normalization pipeline: tables -> chunks. */
 export function normalizeDingTalkMarkdown(text: string): string[] {
   const converted = convertTables(text);
   return splitChunks(converted);

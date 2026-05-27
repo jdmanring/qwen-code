@@ -451,14 +451,14 @@ describe('setUpdateHandler', () => {
       isIdleRef,
     );
 
-    // First event while busy — deferred
+    // First event while busy -- deferred
     updateEventEmitter.emit('update-info', { message: 'Deferred msg' });
     expect(addItem).not.toHaveBeenCalled();
 
     // Transition to idle
     isIdleRef.current = true;
 
-    // Next event while idle — delivered immediately
+    // Next event while idle -- delivered immediately
     updateEventEmitter.emit('update-info', { message: 'Immediate msg' });
     expect(addItem).toHaveBeenCalledTimes(1);
     expect(addItem).toHaveBeenCalledWith(

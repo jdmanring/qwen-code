@@ -583,7 +583,7 @@ describe('useStatusLine', () => {
       mockUIState.currentModel = 'new-model';
       rerender();
 
-      // Advance debounce timer — triggers second exec
+      // Advance debounce timer -- triggers second exec
       await act(async () => {
         vi.advanceTimersByTime(300);
       });
@@ -591,13 +591,13 @@ describe('useStatusLine', () => {
       // Capture second (current) callback
       const secondCallback = execCallback;
 
-      // Resolve the stale first callback — should be ignored
+      // Resolve the stale first callback -- should be ignored
       await act(async () => {
         firstCallback(null, 'stale output\n', '');
       });
       expect(result.current.lines).toEqual([]);
 
-      // Resolve the fresh second callback — should be accepted
+      // Resolve the fresh second callback -- should be accepted
       await act(async () => {
         secondCallback(null, 'fresh output\n', '');
       });
@@ -702,7 +702,7 @@ describe('useStatusLine', () => {
       // Unmount before debounce fires
       unmount();
 
-      // Advance past debounce — should not cause additional exec
+      // Advance past debounce -- should not cause additional exec
       const callsBefore = vi.mocked(child_process.exec).mock.calls.length;
       await act(async () => {
         vi.advanceTimersByTime(300);
@@ -841,7 +841,7 @@ describe('useStatusLine', () => {
       const { rerender } = renderHook(() => useStatusLine());
       expect(child_process.exec).toHaveBeenCalledTimes(1);
 
-      // Disable vim — effectiveVim changes from 'NORMAL' to undefined
+      // Disable vim -- effectiveVim changes from 'NORMAL' to undefined
       mockVimMode.vimEnabled = false;
       rerender();
 
@@ -891,8 +891,8 @@ describe('useStatusLine', () => {
   // --- Spawn failure handling (issue #3264) ---
   //
   // On macOS with Node 22, exec() can throw synchronously with EBADF when
-  // stdio pipe setup fails. The throw must not escape doUpdate() — or the
-  // setTimeout callback — or the whole CLI crashes.
+  // stdio pipe setup fails. The throw must not escape doUpdate() -- or the
+  // setTimeout callback -- or the whole CLI crashes.
 
   describe('spawn failure handling', () => {
     it('does not crash when exec throws synchronously (EBADF)', () => {
@@ -926,7 +926,7 @@ describe('useStatusLine', () => {
       expect(result.current.lines).toEqual([]);
       expect(child_process.exec).toHaveBeenCalledTimes(1);
 
-      // Trigger a re-execution via state change — should use the default mock.
+      // Trigger a re-execution via state change -- should use the default mock.
       mockUIState.currentModel = 'new-model';
       rerender();
       await act(async () => {
@@ -964,7 +964,7 @@ describe('useStatusLine', () => {
         execCallback(null, 'same output\n', '');
       });
 
-      // Reference preserved → React can skip the Footer re-render.
+      // Reference preserved -> React can skip the Footer re-render.
       expect(result.current.lines).toBe(firstRef);
     });
 
@@ -1009,7 +1009,7 @@ describe('useStatusLine', () => {
         execCallback(null, 'tick 1\n', '');
       });
 
-      // First interval tick after 2s — previous exec has completed, so
+      // First interval tick after 2s -- previous exec has completed, so
       // the tick is free to spawn a new one.
       await act(async () => {
         vi.advanceTimersByTime(2000);
@@ -1034,7 +1034,7 @@ describe('useStatusLine', () => {
       await act(async () => {
         vi.advanceTimersByTime(60_000);
       });
-      // Still only the mount exec — no periodic refresh
+      // Still only the mount exec -- no periodic refresh
       expect(child_process.exec).toHaveBeenCalledTimes(1);
     });
 
@@ -1077,7 +1077,7 @@ describe('useStatusLine', () => {
       const { rerender } = renderHook(() => useStatusLine());
       expect(child_process.exec).toHaveBeenCalledTimes(1);
 
-      // Remove the config — the interval should be torn down.
+      // Remove the config -- the interval should be torn down.
       setStatusLineConfig(undefined);
       rerender();
 
@@ -1103,13 +1103,13 @@ describe('useStatusLine', () => {
         execCallback(null, 'tick\n', '');
       });
 
-      // 2s passes — not yet a tick on the 5s schedule.
+      // 2s passes -- not yet a tick on the 5s schedule.
       await act(async () => {
         vi.advanceTimersByTime(2000);
       });
       expect(child_process.exec).toHaveBeenCalledTimes(1);
 
-      // Swap to a 1s interval — the old 5s timer must be cleared, not kept.
+      // Swap to a 1s interval -- the old 5s timer must be cleared, not kept.
       setStatusLineConfig({
         type: 'command',
         command: 'echo tick',
@@ -1117,7 +1117,7 @@ describe('useStatusLine', () => {
       });
       rerender();
 
-      // 1s later — fires on the new schedule.
+      // 1s later -- fires on the new schedule.
       await act(async () => {
         vi.advanceTimersByTime(1000);
       });
@@ -1157,7 +1157,7 @@ describe('useStatusLine', () => {
       });
       const { result } = renderHook(() => useStatusLine());
 
-      // Mount exec: child is spawned, callback NOT yet resolved — child is
+      // Mount exec: child is spawned, callback NOT yet resolved -- child is
       // still "running" from the hook's perspective.
       expect(child_process.exec).toHaveBeenCalledTimes(1);
       const pendingCallback = execCallback;
@@ -1175,7 +1175,7 @@ describe('useStatusLine', () => {
       });
       expect(child_process.exec).toHaveBeenCalledTimes(1);
 
-      // First exec finally completes — activeChildRef clears. Without the
+      // First exec finally completes -- activeChildRef clears. Without the
       // guard, generationRef would have bumped 3 times above and the next
       // line would be ignored as stale, leaving `lines` permanently empty.
       await act(async () => {

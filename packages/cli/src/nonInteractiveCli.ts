@@ -54,7 +54,7 @@ const debugLogger = createDebugLogger('NON_INTERACTIVE_CLI');
  * their terminal `task_notification` after `abortAll()` on the
  * structured-output success path. Tasks are marked cancelled
  * synchronously by `abortAll`, but the natural task handler emits the
- * notification on a later microtask — without a brief holdback the
+ * notification on a later microtask -- without a brief holdback the
  * structured-output run would silently drop those events. Capped so a
  * slow agent can't block exit indefinitely.
  */
@@ -65,7 +65,7 @@ const STRUCTURED_SHUTDOWN_HOLDBACK_MS = 500;
  * suppressed because a sibling `structured_output` call took precedence
  * as the terminal output for the same turn.
  *
- * Two variants — the success-path body drops the trailing "Re-issue this
+ * Two variants -- the success-path body drops the trailing "Re-issue this
  * call in a separate turn if needed." sentence because the session
  * terminates immediately after synthesis (no model or SDK consumer can
  * act on the advice). The retry-path body keeps it: when the structured
@@ -94,7 +94,7 @@ import {
 
 // Human-readable labels for the detectors that can fire mid-stream.
 // Surfaced to stderr in TEXT mode so a headless run that halts on a loop
-// doesn't exit with empty stdout and no explanation — see PR #3236 review.
+// doesn't exit with empty stdout and no explanation -- see PR #3236 review.
 const LOOP_TYPE_LABELS: Record<LoopType, string> = {
   [LoopType.CONSECUTIVE_IDENTICAL_TOOL_CALLS]:
     'the model repeated the same tool call with identical arguments',
@@ -248,7 +248,7 @@ export async function runNonInteractive(
       const exceeded = budgetEnforcer.getExceeded();
       if (exceeded) {
         await handleBudgetExceededError(config, exceeded);
-        // Explicit unreachable — `handleBudgetExceededError` is `never`
+        // Explicit unreachable -- `handleBudgetExceededError` is `never`
         // in production (it calls `process.exit`). If a test stubs
         // `process.exit` or a future refactor makes the handler
         // resumable, this throw carries the original budget message
@@ -303,10 +303,10 @@ export async function runNonInteractive(
       flushQueuedNotificationsToSdk(sdkOnlyMonitorQueue);
     };
 
-    // EPIPE: don't process.exit here — that bypasses the caller's
-    // runExitCleanup → flush() and drops queued JSONL writes. Destroy
+    // EPIPE: don't process.exit here -- that bypasses the caller's
+    // runExitCleanup -> flush() and drops queued JSONL writes. Destroy
     // stdout instead and let the natural return drive cleanup. (Aborting
-    // is also wrong: the abort path runs handleCancellationError → exit
+    // is also wrong: the abort path runs handleCancellationError -> exit
     // 130 and re-introduces the same bypass.)
     let pipeBroken = false;
     const stdoutErrorHandler = (err: NodeJS.ErrnoException) => {
@@ -541,9 +541,9 @@ export async function runNonInteractive(
       // Shared terminal block for the structured-output success
       // contract. Both the main-turn loop and the drain-turn post-loop
       // previously reproduced this block verbatim
-      // (`registry.abortAll()` → bounded holdback for in-flight
-      // background-task `task_notification` events → flush localQueue →
-      // finalize one-shot monitors → `adapter.emitResult` → return 0).
+      // (`registry.abortAll()` -> bounded holdback for in-flight
+      // background-task `task_notification` events -> flush localQueue ->
+      // finalize one-shot monitors -> `adapter.emitResult` -> return 0).
       // `finalizeOneShotMonitors` is idempotent (the
       // `oneShotMonitorsFinalized` guard makes the second call a
       // no-op), so unconditional invocation is safe even when the drain
@@ -594,15 +594,15 @@ export async function runNonInteractive(
        * synthesised `tool_result` events for every suppressed sibling
        * `tool_use`. The two blocks differed only by variable name
        * prefixes (`requestsToExecute` vs `itemRequestsToExecute`, etc.)
-       * and which scope's `modelOverride` to update — passed in as
+       * and which scope's `modelOverride` to update -- passed in as
        * `setModelOverride` so the caller controls binding.
        *
        * The helper mutates the closure-captured `structuredSubmission`
        * directly (it's session-scoped on purpose: whichever turn
        * captures it terminates the run). The caller is responsible for
        * acting on a non-undefined `structuredSubmission` after the
-       * helper returns (main-turn → emitStructuredSuccess(); drain-turn
-       * → return so the post-drain code emits success).
+       * helper returns (main-turn -> emitStructuredSuccess(); drain-turn
+       * -> return so the post-drain code emits success).
        */
       const processToolCallBatch = async (
         batchRequests: ToolCallRequestInfo[],
@@ -663,16 +663,16 @@ export async function runNonInteractive(
           // contract tool, not real work, and counting it would abort
           // an otherwise-valid completion at the budget edge (budget=3,
           // model used 3 tools then emits structured_output as call #4
-          // → exit 55 instead of success). Guarding on
+          // -> exit 55 instead of success). Guarding on
           // `getJsonSchema()` keeps the exemption tied to the feature
-          // that owns the tool name — an MCP server that registers an
+          // that owns the tool name -- an MCP server that registers an
           // unrelated tool literally named `structured_output` would
           // otherwise inherit a free pass.
           //
           // Caveat: failed structured_output calls (Ajv validation
           // failure) also skip the tick, so a model stuck in a
           // validation-retry loop is not bounded by --max-tool-calls.
-          // Documented in docs/users/features/headless.md → "Scope".
+          // Documented in docs/users/features/headless.md -> "Scope".
           // Combine with --max-session-turns or --max-wall-time.
           const isStructuredOutputExempt =
             requestInfo.name === ToolNames.STRUCTURED_OUTPUT &&
@@ -746,7 +746,7 @@ export async function runNonInteractive(
 
         // Synthesise tool_result events + retry parts for every
         // tool_use block from the prior assistant message that we did
-        // NOT actually execute — non-structured siblings that were
+        // NOT actually execute -- non-structured siblings that were
         // suppressed up front, plus any structured_output calls left
         // unexecuted after an earlier one in the batch already
         // succeeded. Runs for both the success and retry paths so the
@@ -852,7 +852,7 @@ export async function runNonInteractive(
             // We have already formatted and written the message; mark the
             // throw so the top-level handleError doesn't reformat (which
             // would yield "[API Error: [API Error: ...]]") or print it a
-            // second time. Exit code stays 1 — same as before.
+            // second time. Exit code stays 1 -- same as before.
             throw new AlreadyReportedError(errorText);
           }
         }
@@ -869,7 +869,7 @@ export async function runNonInteractive(
           // session-scoped `structuredSubmission`, and synthesises
           // tool_result events for every suppressed sibling. The
           // `modelOverride` setter is the only call-site-specific
-          // binding — the main turn updates the session-scoped
+          // binding -- the main turn updates the session-scoped
           // `modelOverride` so the next turn's sendMessageStream sees
           // it; the drain turn updates a per-item `itemModelOverride`
           // scoped to that drain item.
@@ -885,13 +885,13 @@ export async function runNonInteractive(
             // agents, holds back briefly for their terminal
             // task_notification events to land, then emits the
             // structured success envelope. Same helper as the drain-turn
-            // post-loop branch — see emitStructuredSuccess above.
+            // post-loop branch -- see emitStructuredSuccess above.
             return emitStructuredSuccess();
           }
           currentMessages = [{ role: 'user', parts: toolResponseParts }];
         } else {
           // Drain-turns count toward getMaxSessionTurns() for symmetry with the main
-          // loop — otherwise a looping cron or a model that keeps replying to
+          // loop -- otherwise a looping cron or a model that keeps replying to
           // notifications could exceed the cap silently in headless runs.
           const drainOneItem = async () => {
             if (localQueue.length === 0) return;
@@ -949,7 +949,7 @@ export async function runNonInteractive(
                   // outer holdback loop, which did the flushing before
                   // exiting; routing through `routeAbort` skips that
                   // path, so we re-do it inline to preserve the
-                  // task_started↔task_notification pairing invariant.
+                  // task_started<->task_notification pairing invariant.
                   adapter.finalizeAssistantMessage();
                   flushQueuedNotificationsToSdk(localQueue);
                   finalizeOneShotMonitors();
@@ -971,7 +971,7 @@ export async function runNonInteractive(
                     config.getContentGeneratorConfig()?.authType,
                   );
                   process.stderr.write(`${errorText}\n`);
-                  // See the matching note in the first stream loop above —
+                  // See the matching note in the first stream loop above --
                   // we mark the throw so handleError doesn't reformat or
                   // reprint downstream.
                   throw new AlreadyReportedError(errorText);
@@ -1020,7 +1020,7 @@ export async function runNonInteractive(
             const p = (async () => {
               while (localQueue.length > 0) {
                 // Stop draining once a queued item's structured_output
-                // call captured the terminal contract — no point running
+                // call captured the terminal contract -- no point running
                 // more queued prompts that can't influence the result.
                 if (structuredSubmission !== undefined) return;
                 await drainOneItem();
@@ -1033,14 +1033,14 @@ export async function runNonInteractive(
             return p;
           };
 
-          // Start cron scheduler — fires enqueue onto the shared queue.
+          // Start cron scheduler -- fires enqueue onto the shared queue.
           const scheduler = !config.isCronEnabled()
             ? null
             : config.getCronScheduler();
 
           if (scheduler && scheduler.size > 0) {
             await new Promise<void>((resolve, reject) => {
-              // Resolve on SIGINT/SIGTERM too — recurring cron jobs never
+              // Resolve on SIGINT/SIGTERM too -- recurring cron jobs never
               // drop scheduler.size to 0 on their own, so without this the
               // hold-back loop below is unreachable after an abort.
               const onAbort = () => {
@@ -1076,7 +1076,7 @@ export async function runNonInteractive(
               // Propagate drain failures. Without this, a rejected
               // drainLocalQueue() (e.g. a text-mode API error surfacing
               // out of drainOneItem) would be swallowed by `void` and
-              // checkCronDone would never fire — hanging the run.
+              // checkCronDone would never fire -- hanging the run.
               const onDrainError = (err: unknown) => {
                 abortController.signal.removeEventListener('abort', onAbort);
                 scheduler.stop();
@@ -1100,7 +1100,7 @@ export async function runNonInteractive(
 
           // Wait for running background agents to complete before emitting the final
           // result. On SIGINT/SIGTERM, abort them and route through
-          // handleCancellationError — otherwise the success emitResult below would
+          // handleCancellationError -- otherwise the success emitResult below would
           // silently convert a cancellation into a completion.
           while (true) {
             if (abortController.signal.aborted) {
@@ -1118,7 +1118,7 @@ export async function runNonInteractive(
             captureMonitorTurnsInLocalQueue = false;
             await drainLocalQueue();
             // A drain-turn structured_output captured the terminal
-            // contract — bail out of the holdback loop early and let the
+            // contract -- bail out of the holdback loop early and let the
             // post-loop code emit the success result.
             if (structuredSubmission !== undefined) break;
             // Wait for every background task's terminal notification, not
@@ -1150,7 +1150,7 @@ export async function runNonInteractive(
               : undefined;
 
           // A drain-turn structured_output captured the terminal contract
-          // — emit the structured success envelope rather than falling
+          // -- emit the structured success envelope rather than falling
           // through to the "Model produced plain text..." failure path.
           // Same helper as the main-turn path; recomputes its own
           // metrics snapshot after the holdback so any task notifications
@@ -1161,7 +1161,7 @@ export async function runNonInteractive(
 
           // --json-schema contract: the model MUST terminate via the
           // structured_output tool. Reaching this branch means it emitted
-          // plain text instead — surface as an error rather than silently
+          // plain text instead -- surface as an error rather than silently
           // returning whatever free-form summary the adapter collected.
           // Returning a non-zero exit code (rather than throwing) avoids
           // the outer catch re-emitting the result a second time.
@@ -1206,7 +1206,7 @@ export async function runNonInteractive(
     } catch (error) {
       // Ensure message_start / message_stop (and content_block events) are
       // properly paired even when an error aborts the turn mid-stream.
-      // The call is safe when no message was started (throws → caught) or
+      // The call is safe when no message was started (throws -> caught) or
       // when already finalized (idempotent guard inside the adapter).
       try {
         adapter.finalizeAssistantMessage();
@@ -1220,7 +1220,7 @@ export async function runNonInteractive(
       // If a run-level budget tripped during an awaited stream / tool
       // call, the underlying fetch's AbortError lands here before our
       // explicit `routeAbort` sites can fire. Capture the reason so we
-      // can (a) include the friendly "Run aborted: …" message in the
+      // can (a) include the friendly "Run aborted: ..." message in the
       // adapter's terminal result envelope (STREAM_JSON consumers
       // depend on that envelope to close the stream cleanly) and (b)
       // exit with the budget handler's exit code 55 instead of the
@@ -1244,7 +1244,7 @@ export async function runNonInteractive(
       // In TEXT mode the adapter's emitResult writes errorMessage straight
       // to stderr, which would duplicate the line the stream-error handler
       // has already printed. AlreadyReportedError marks the case where the
-      // user-facing line is already on the wire — skip the adapter call
+      // user-facing line is already on the wire -- skip the adapter call
       // entirely in that case so we don't emit a phantom blank line.
       // JSON / STREAM_JSON modes still emit normally; the adapter is the
       // primary output channel there, not a duplicate of stderr.
@@ -1258,7 +1258,7 @@ export async function runNonInteractive(
         // consumer closes early (`qwen -p ... | head -n 1` is the common
         // case). Letting that throw bubble out skips `handleBudgetExceededError`
         // / `handleError` below, dropping the documented exit code 55
-        // contract — precisely when stdout is in trouble. Best-effort emit
+        // contract -- precisely when stdout is in trouble. Best-effort emit
         // and continue to the exit handler.
         try {
           adapter.emitResult({
@@ -1286,7 +1286,7 @@ export async function runNonInteractive(
       await handleError(error, config);
     } finally {
       // Cancel the wall-clock timer so it doesn't fire after a successful
-      // run completes — important for callers (e.g. the `qwen serve`
+      // run completes -- important for callers (e.g. the `qwen serve`
       // daemon, SDK) that reuse a single process across many runs.
       budgetEnforcer.stop();
 

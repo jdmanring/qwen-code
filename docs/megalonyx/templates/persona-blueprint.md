@@ -21,5 +21,5 @@ Explicit negative constraints ("NEVER" rules) to prevent critical failures (e.g.
 
 ---
 
-## 🔗 Symmetry Link
+##  Symmetry Link
 Mirrored from: `config/templates/persona-blueprint.md`

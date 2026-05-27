@@ -349,7 +349,7 @@ export function stripShellWrapper(command: string): string {
     rest = token.rest;
   }
 
-  // Check for a known shell wrapper (bash, sh, zsh, cmd.exe — with or
+  // Check for a known shell wrapper (bash, sh, zsh, cmd.exe -- with or
   // without absolute path like /bin/bash or /usr/bin/zsh).
   const wrapperToken = takeLeadingToken(rest);
   if (!wrapperToken || !isKnownMonitorWrapperToken(wrapperToken.token)) {
@@ -370,7 +370,7 @@ export function stripShellWrapper(command: string): string {
       return innerCommand || trimmed;
     }
 
-    // Non-wrapper-option token — not a wrapper.
+    // Non-wrapper-option token -- not a wrapper.
     const normalized = getNormalizedShellToken(token.token);
     if (!isShellWrapperFlagToken(normalized)) {
       return trimmed;
@@ -1282,7 +1282,7 @@ export async function checkCommandPermissions(
 
       if (decision === 'allow') continue;
 
-      // 'ask' → always requires confirmation
+      // 'ask' -> always requires confirmation
       if (decision === 'ask') {
         disallowedCommands.push(cmd);
         continue;
@@ -1293,7 +1293,7 @@ export async function checkCommandPermissions(
         // Default Deny mode: unrecognised commands require confirmation
         disallowedCommands.push(cmd);
       }
-      // Default Allow mode: not matched by any rule → allowed
+      // Default Allow mode: not matched by any rule -> allowed
     }
 
     if (disallowedCommands.length > 0) {
@@ -1308,7 +1308,7 @@ export async function checkCommandPermissions(
     return { allAllowed: true, disallowedCommands: [] };
   }
 
-  // ── Legacy fallback (no PermissionManager) ──────────────────────────────
+  // -- Legacy fallback (no PermissionManager) ------------------------------
   // Used by SDK consumers that have not yet migrated to the permissions system,
   // or in unit tests that mock only getCoreTools/getPermissionsDeny.
 

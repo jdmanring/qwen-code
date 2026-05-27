@@ -41,7 +41,7 @@ vi.mock('undici', () => {
       this.options = options;
       this.uri = (options as { uri?: string }).uri || '';
       // Simulate failure for specifically invalid proxy URLs
-      // Note: Real ProxyAgent accepts credential URLs — only syntactically invalid URIs fail
+      // Note: Real ProxyAgent accepts credential URLs -- only syntactically invalid URIs fail
       if (this.uri === 'http://invalid-proxy') {
         throw new Error('Invalid proxy URL: http://user:secret@proxy.local');
       }
@@ -140,7 +140,7 @@ describe('buildRuntimeFetchOptions (node runtime)', () => {
   });
 
   it('does not inject a fetch override when no proxy is set', () => {
-    // No-proxy path must stay on the runtime's built-in fetch — see the
+    // No-proxy path must stay on the runtime's built-in fetch -- see the
     // comment in buildFetchOptionsWithDispatcher() in runtimeFetchOptions.ts
     // about avoiding version-mismatch issues on code paths
     // that don't need a custom dispatcher.
@@ -372,7 +372,7 @@ describe('redactProxyCredentials', () => {
 
   it('does not double-redact when both patterns are present', () => {
     const msg =
-      'http://user:pass@proxy.local — cause: connect ECONNREFUSED user:pass@proxy.local:8080';
+      'http://user:pass@proxy.local -- cause: connect ECONNREFUSED user:pass@proxy.local:8080';
     const result = redactProxyCredentials(msg);
     expect(result).not.toContain('user');
     expect(result).not.toContain('pass');

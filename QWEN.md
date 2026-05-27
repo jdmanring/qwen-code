@@ -1,4 +1,4 @@
-# ⚙️ OPERATIONAL STANDARDS: MEGA CODE ORCHESTRATOR
+#  OPERATIONAL STANDARDS: MEGA CODE ORCHESTRATOR
 
 ## [M-ID] Identity
 Orchestrator: Integrated Analysis (CPU). Sub-Agents: Atomic Execution (Workers).
@@ -22,8 +22,8 @@ Orchestrator: Integrated Analysis (CPU). Sub-Agents: Atomic Execution (Workers).
 - [A-ALGO]: Skill => Planner => Executor => Verifier. SKILL.md => (Objective, Algorithm, Constraints, Output Contract).
 - [A-SYNC]: Behavioral Rule => Sync Rules => Structural Mirroring.
 - [A-INGEST]: (External Repo => Sync Ingestion Protocol => Integrated Asset).
-- [A-COMMIT]: All commits must use Conventional Commit format: `type(scope): subject` — imperative, lowercase, no period. Types: `feat`, `fix`, `docs`, `chore`, `test`, `refactor`, `perf`. Scope is the affected package or path segment (e.g. `pipeline`, `memory`, `ci`). Examples: `feat(pipeline): add typescript gate`, `fix(memory): remove duplicate search functions`.
-- [A-GH]: After every push, verify CI with `gh run list --repo jdmanring/megalonyx-monorepo --limit 3`. If a run is failing, inspect it with `gh run view <id> --repo jdmanring/megalonyx-monorepo --log-failed`. Use `gh issue create --repo jdmanring/megalonyx-monorepo` to track bugs found during work. Use `gh pr create --repo jdmanring/megalonyx-monorepo` for `develop`→`main` releases.
+- [A-COMMIT]: All commits must use Conventional Commit format: `type(scope): subject` -- imperative, lowercase, no period. Types: `feat`, `fix`, `docs`, `chore`, `test`, `refactor`, `perf`. Scope is the affected package or path segment (e.g. `pipeline`, `memory`, `ci`). Examples: `feat(pipeline): add typescript gate`, `fix(memory): remove duplicate search functions`.
+- [A-GH]: After every push, verify CI with `gh run list --repo jdmanring/megalonyx-monorepo --limit 3`. If a run is failing, inspect it with `gh run view <id> --repo jdmanring/megalonyx-monorepo --log-failed`. Use `gh issue create --repo jdmanring/megalonyx-monorepo` to track bugs found during work. Use `gh pr create --repo jdmanring/megalonyx-monorepo` for `develop`->`main` releases.
 - [A-DONE]: A task is NOT done until: (1) code is committed, (2) `gh run list` shows CI green or no applicable workflow, (3) TASKS.md row is moved to Done and committed. Claiming "complete" before CI passes is a honesty violation (see [C-REALITY]).
 
 ## [CSF-RULE] Config-Doc Sync Framework
@@ -51,12 +51,13 @@ Orchestrator: Integrated Analysis (CPU). Sub-Agents: Atomic Execution (Workers).
 - [P-ANCHOR]: (Directory Entry => Scan for `README.md` => Integrate into Context).
 - [P-LOCAL-RULE]: Local `README.md` mandates => Precedence over Global Rules within Scope.
 
-## [M-STANDARDS] Naming and Code Standards
+- [M-STANDARDS] Naming and Code Standards
 Full standard: `docs/meta/engineering-standards.md`
+- ASCII-Only: All source code and documentation must use ASCII characters only. No emojis, LaTeX symbols, or Unicode logic symbols. This ensures token efficiency and cross-model cognitive uniformity.
 - Names must be immediately descriptive. An AI reading a name should predict the contents without opening the file.
 - Good: `upstream_ingest_pipeline.py`, `gate_failure_tests.py`. Bad: `orchestrator.py`, `chaos_tests.py`.
 - No AI jargon, project metaphors, or dramatic labels in file names, function names, or identifiers.
-- No bare `print()` in production code — use `sys.stderr.write()` or `SystemLogger`.
+- No bare `print()` in production code -- use `sys.stderr.write()` or `SystemLogger`.
 - Branch naming: `feat/<slug>`, `fix/<slug>`, `docs/<slug>` off `develop`. Fork contribution branches: `contribute/<phase-slug>` pushed to `upstream` remote only.
 - GitHub Issues: open one with `gh issue create` whenever a bug is discovered mid-session. Link the issue number in the TASKS.md description and in the commit message (`fix(scope): correct X (closes #N)`).
 

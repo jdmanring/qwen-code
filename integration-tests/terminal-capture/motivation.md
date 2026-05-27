@@ -1,4 +1,4 @@
-# terminal-capture — Motivation and Positioning
+# terminal-capture -- Motivation and Positioning
 
 ## 1. Overview of Existing Testing System
 
@@ -8,7 +8,7 @@
 | Integration Tests      | Vitest + TestRig / SDKTestHelper          | CLI E2E, SDK multi-turn, MCP, auth      | Mature, supports none/docker/podman sandboxes             |
 | Terminal UI Snapshots  | `toMatchSnapshot()` + ink-testing-library | Ink component render output (ANSI)      | Exists, covers Footer, InputPrompt, MarkdownDisplay, etc. |
 | Web UI Regression      | Chromatic + Storybook                     | `packages/webui` components             | Exists, but only covers Web UI                            |
-| **Terminal UI Visual** | **terminal-capture**                      | CLI terminal real rendering screenshots | ✅ Implemented                                            |
+| **Terminal UI Visual** | **terminal-capture**                      | CLI terminal real rendering screenshots |  Implemented                                            |
 
 ## 2. Problems Solved by terminal-capture
 
@@ -26,11 +26,11 @@ These can only be seen by **actually rendering to a terminal emulator**.
 
 ```
 node-pty (pseudo-terminal)
-  ↓ raw ANSI byte stream
+   raw ANSI byte stream
 xterm.js (running inside Playwright headless Chromium)
-  ↓ perfect rendering: colors, bold, cursor, scrolling
+   perfect rendering: colors, bold, cursor, scrolling
 Playwright element screenshot
-  ↓ pixel-perfect screenshots (optional macOS window decorations)
+   pixel-perfect screenshots (optional macOS window decorations)
 ```
 
 ### Core Features
@@ -107,21 +107,21 @@ scenarios/screenshots/
 ## 4. Position in Testing System
 
 ```
-┌─────────────────────────────────────┐
-│       Existing Testing System        │
-├─────────────────────────────────────┤
-│  Unit Tests (Vitest)                 │  ← Function/Component level
-│  Text Snapshots (ink-testing-lib)    │  ← ANSI string comparison
-│  Integration Tests (TestRig/SDK)     │  ← E2E functionality
-│  Web UI Regression (Chromatic)       │  ← Only covers webui
-├─────────────────────────────────────┤
-│  terminal-capture                    │  ← Terminal UI visual layer
-│  (xterm.js + Playwright)             │     Fills the gap
-└─────────────────────────────────────┘
++---------------------------------------+--
+|       Existing Testing System        |
+|---------------------------------------
+|  Unit Tests (Vitest)                 |  <- Function/Component level
+|  Text Snapshots (ink-testing-lib)    |  <- ANSI string comparison
+|  Integration Tests (TestRig/SDK)     |  <- E2E functionality
+|  Web UI Regression (Chromatic)       |  <- Only covers webui
+|---------------------------------------
+|  terminal-capture                    |  <- Terminal UI visual layer
+|  (xterm.js + Playwright)             |     Fills the gap
+\_----------------------------------------
 ```
 
 ## 5. Future Directions
 
-1. **Visual Regression** — Integrate Playwright `toHaveScreenshot()` for pixel-level baseline comparison, CI auto-detects terminal UI changes
-2. **PR Workflow Integration** — Drive Agent via Cursor Skill to auto-checkout branch → build → screenshot → attach to review comment
-3. **Complement to Chromatic** — Chromatic covers Web UI, terminal-capture covers CLI terminal UI
+1. **Visual Regression** -- Integrate Playwright `toHaveScreenshot()` for pixel-level baseline comparison, CI auto-detects terminal UI changes
+2. **PR Workflow Integration** -- Drive Agent via Cursor Skill to auto-checkout branch -> build -> screenshot -> attach to review comment
+3. **Complement to Chromatic** -- Chromatic covers Web UI, terminal-capture covers CLI terminal UI

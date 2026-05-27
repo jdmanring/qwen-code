@@ -173,7 +173,7 @@ describe('writeWorkspaceContextFile', () => {
       const written = await fs.readFile(filePath, 'utf8');
       expect(written).toBe('preserved\n');
       // `bytesWritten: 0` because the no-op short-circuit wrote zero
-      // bytes — NOT the existing file size. Earlier revisions returned
+      // bytes -- NOT the existing file size. Earlier revisions returned
       // `stat.size` here, which conflated two semantics and let
       // clients accumulating `sum(bytesWritten)` count the existing
       // file every whitespace POST.
@@ -190,7 +190,7 @@ describe('writeWorkspaceContextFile', () => {
     // Spawn 10 parallel appends with unique content. Without the
     // per-file mutex, the read-compose-write race in
     // `composeAppendedContent` lets later writes overwrite earlier
-    // ones — at least one entry would be missing from the final file.
+    // ones -- at least one entry would be missing from the final file.
     const PARALLEL = 10;
     const writes = Array.from({ length: PARALLEL }, (_, i) =>
       writeWorkspaceContextFile({
@@ -209,7 +209,7 @@ describe('writeWorkspaceContextFile', () => {
     }
     // All N writes report changed; none short-circuited.
     expect(results.every((r) => r.changed)).toBe(true);
-    // Exactly one section header — the lock keeps the
+    // Exactly one section header -- the lock keeps the
     // "is-section-present" check consistent across the group, so we
     // never insert duplicate headers.
     const headerCount = written.split(MEMORY_SECTION_HEADER).length - 1;
@@ -347,7 +347,7 @@ describe('writeWorkspaceContextFile', () => {
 
   it('does not create the parent directory on a no-op append', async () => {
     // Whitespace-only append targeting a non-existent nested path
-    // must NOT call fs.mkdir — the no-op detection short-circuits
+    // must NOT call fs.mkdir -- the no-op detection short-circuits
     // BEFORE acquiring the lock or touching the filesystem. Without
     // this, an empty POST would still bump the parent directory's
     // mtime even though the helper reports `changed: false`.
@@ -382,7 +382,7 @@ describe('writeWorkspaceContextFile', () => {
       );
       const written = await fs.readFile(result.filePath, 'utf8');
       expect(written).toContain('- entry');
-      // The legacy QWEN.md must NOT have been written — the prior
+      // The legacy QWEN.md must NOT have been written -- the prior
       // hard-coded behavior would have created it here.
       await expect(
         fs.access(path.join(workspace, DEFAULT_CONTEXT_FILENAME)),

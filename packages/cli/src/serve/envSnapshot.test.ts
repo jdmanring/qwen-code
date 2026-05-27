@@ -158,7 +158,7 @@ describe('buildEnvStatusFromProcess', () => {
     // variant; with `??` it preserves the empty string.
     //
     // Tested via `readProxyVar` directly (not `buildEnvStatusFromProcess`)
-    // because Windows' `process.env` is case-INSENSITIVE — setting
+    // because Windows' `process.env` is case-INSENSITIVE -- setting
     // `HTTPS_PROXY=""` then `https_proxy=...` ends up writing the same
     // key twice, so we couldn't distinguish `||` from `??` through the
     // process-env path on Windows. Passing a plain JS object here keeps
@@ -169,7 +169,7 @@ describe('buildEnvStatusFromProcess', () => {
     );
     expect(explicitlyDisabled).toBe('');
 
-    // Sanity check — when the uppercase variant is absent (not just empty),
+    // Sanity check -- when the uppercase variant is absent (not just empty),
     // the lowercase fallback IS taken.
     const lowercaseFallback = readProxyVar(
       { https_proxy: 'http://proxy.parent:3128' },
@@ -188,7 +188,7 @@ describe('buildEnvStatusFromProcess', () => {
     expect(cell!.value).toBe('localhost,127.0.0.1,internal.local');
   });
 
-  it('emits env_var cells presence-only — never includes a value field', () => {
+  it('emits env_var cells presence-only -- never includes a value field', () => {
     process.env['OPENAI_API_KEY'] = 'sk-do-not-leak-1234567890';
     process.env['ANTHROPIC_BASE_URL'] = 'https://api.anthropic.com';
     const status = buildEnvStatusFromProcess('/ws', false);

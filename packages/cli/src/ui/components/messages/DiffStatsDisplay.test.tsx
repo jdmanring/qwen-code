@@ -49,7 +49,7 @@ describe('DiffStatsDisplay', () => {
     expect(visible).toContain('-3');
     const aRow = visible.split('\n').find((l) => l.endsWith('src/a.ts'))!;
     const bRow = visible.split('\n').find((l) => l.endsWith('src/b.ts'))!;
-    // Columns align — "src/a.ts" and "src/b.ts" start at the same offset.
+    // Columns align -- "src/a.ts" and "src/b.ts" start at the same offset.
     expect(aRow.indexOf('src/a.ts')).toBe(bRow.indexOf('src/b.ts'));
   });
 
@@ -153,7 +153,7 @@ describe('DiffStatsDisplay', () => {
     expect(rowLine).not.toMatch(/\+\d/);
   });
 
-  it('renders the "…and N more" note when hiddenCount > 0', () => {
+  it('renders the "...and N more" note when hiddenCount > 0', () => {
     const model: DiffRenderModel = {
       filesCount: 60,
       linesAdded: 100,
