@@ -44,9 +44,6 @@ Read at session start. Commit every status change.
 | ID | Subject | Description | Blocked By |
 | :--- | :--- | :--- | :--- |
 | #55 | Vite 6->8 + @vitejs/plugin-react 4->6 | Bump `vite` in `pnpm-workspace.yaml` overrides to 8.x. Bump `@vitejs/plugin-react` to 6.0.2 in root `package.json`. Run: `pnpm install` -> `pnpm build` -> `pnpm exec vitest run` -> `pnpm check`. Then create fork branch `contribute/phase-55-vite-8`. | -- |
-| #72 | Scheduled upstream watch workflow | Create `.github/workflows/upstream-watch.yml`. Cron: `'0 6 * * *'` (daily 06:00 UTC). Steps: checkout monorepo, install Python (uv), run `python3 tooling/sync-upstreams/fork_sync_pipeline.py --status`. If new commits detected, run `fork_sync_pipeline.py --sync --auto` (add `--auto` flag to skip interactive prompt in non-TTY). Then run `upstream_ingest_pipeline.py`. On failure, open a GitHub issue via `gh issue create` with the error output. This fully automates the QwenLM->fork->integration path. | -- |
-| #73 | LKG rollback script | Create `tooling/sync-upstreams/rollback_to_lkg.py`. Args: optional `--tag LKG-YYYYMMDD-HHMM` (defaults to most recent LKG tag). Steps: find tag via `git tag -l 'LKG-*' --sort=-version:refname | head -1`, confirm with user, `git checkout integration`, `git reset --hard <tag>`, `git push --force-with-lease origin integration`. Add rollback instructions to `docs/meta/pipeline-runbook.md`. | -- |
-| #74 | Automate integration->develop promotion | After successful LKG tag in `PromotionEngine.promote()`, automatically fast-forward merge `integration` into `develop` if CI is green, or create a PR if not. Simplest version: after tagging, run `git checkout develop && git merge --ff-only integration && git push origin develop && git checkout integration`. Add `--no-auto-promote` flag to skip for manual control. | -- |
 | CP-REF-01 | REFACTOR: Split `task_decomposer.py:decompose` | Decompose `decompose` function (256 lines) into smaller helper functions; ensure all functions $\le 50$ lines. | -- |
 | CP-REF-02 | REFACTOR: Split `tool_executor.py:call_model` | Decompose `call_model` function (97 lines) into smaller helper functions; ensure all functions $\le 50$ lines. | -- |
 | CP-REF-03 | REFACTOR: Split `control_plane.py:process_intent` | Decompose `process_intent` function (85 lines) into smaller helper functions; ensure all functions $\le 50$ lines. | -- |
@@ -76,6 +73,9 @@ Read at session start. Commit every status change.
 
 | ID | Subject | Commit |
 | :--- | :--- | :--- |
+| #74 | Automate integration->develop promotion | -- |
+| #73 | LKG rollback script | -- |
+| #72 | Scheduled upstream watch workflow | -- |
 | #71 | TypeScript CI on develop + integration branches | f4ba15568b557f114bcfe978b63f6216bf9b5bbf |
 | #70 | TypeScript gate in ingest pipeline | eb7205015be14981e7d6ea9d1c0bdd266383f6c2 |
 | #83 | INFRA: Optimize `QWEN.md` for Fast-Activation | -- |
