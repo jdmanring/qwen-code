@@ -14,7 +14,7 @@
 ## Operational Protocols
 - **STRUCTURE**: `[Clone]` $\to$ `[Glob Map]` $\to$ `[Codegraph Init]`
 - **MIRRORING**: `[Config Discovery]` $\to$ `[Mirror Creation]` $\to$ `[Mirroring-Check Pass]`
-- **ANCHORS**: `[Zone Identification]` $\to$ `[Local Rules Definition]` $\to$ `[Deploy .qwen-context]`
+- **ANCHORS**: `[Zone Identification]` $\to$ `[Local Rules Definition]` $\to$ `[Deploy .mega-context]`
 - **DISTILLATION**: `[Pattern Analysis]` $\to$ `[Rule Synthesis]` $\to$ `[Cloud Memory Ingest]`
 - **VERIFICATION**: `[Zero-Shot Simulation]` $\to$ `[Failure Analysis]` $\to$ `[Correction]`
 

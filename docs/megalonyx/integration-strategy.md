@@ -114,6 +114,6 @@ imports are editable, and `uv sync --all-packages` replaces the entire venv setu
 installer and then `install-megalonyx-stack.sh` in sequence. We do not extend the upstream
 installer directly, which would create a merge conflict on every sync.
 
-**README.md per directory over custom context files**: Earlier design used `.qwen-context` files
+**README.md per directory over custom context files**: Earlier design used `.mega-context` files
 (our own invention). Replaced with `README.md` per directory -- the same standard used by
 Kubernetes, VS Code, etc. GitHub renders it when browsing; AI agents disambiguate by full path.

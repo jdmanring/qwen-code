@@ -17,7 +17,7 @@ This protocol defines the mandatory procedure for transforming raw source reposi
 
 ### Phase 2: Structural Mapping
 **Objective**: Establish "Local Rules" and mirror intelligence.
-- **Rule [P2-A]**: `(Index Complete $\to$ Identify Config/Docs Zones $\to$ Deploy .qwen-context Anchors)` $\to$ One anchor per structural zone.
+- **Rule [P2-A]**: `(Index Complete $\to$ Identify Config/Docs Zones $\to$ Deploy .mega-context Anchors)` $\to$ One anchor per structural zone.
 - **Rule [P2-B]**: `(Anchor Deployed $\to$ Mirror Critical Configs to /docs/ingested/ $\to$ Apply Mirroring Template)` $\to$ Template: `Identity` $\to$ `Mandates` $\to$ `Trigger Logic` $\to$ `Mirror Link`.
 - **Verification**: Execution of `../../scripts/symmetry-check.py` must return `Exit 0`.
 

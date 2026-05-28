@@ -13,7 +13,7 @@ The **Source Repository** refers to the authoritative code repository (the proje
 The **Runtime Environment** refers to the deployed, runtime instance of the stack (typically located in `~/.local/share/megalonyx/`). It contains the active binaries, stateful databases (Qdrant), and environment-specific configurations.
 
 ### Config-Doc Sync Framework (CSF)
-The **CSF** is the design standard that ensures a 1:1 mapping between system configuration (`config/`) and technical documentation (`docs/`). It uses **Contextual Anchors** (`.qwen-context`) to provide directory-level operational rules, reducing context window saturation.
+The **CSF** is the design standard that ensures a 1:1 mapping between system configuration (`config/`) and technical documentation (`docs/`). It uses **Contextual Anchors** (`.mega-context`) to provide directory-level operational rules, reducing context window saturation.
 
 ---
 

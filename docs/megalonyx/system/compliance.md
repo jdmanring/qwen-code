@@ -25,7 +25,7 @@ All code entering the monorepo must adhere to `docs/meta/engineering-standards.m
 - **Symmetry**: Configuration changes must be mirrored in the documentation.
 
 ##  Anchoring Requirement
-Every directory containing logic MUST include a `.qwen-context` file. This file provides the "Local Law" for the directory, including:
+Every directory containing logic MUST include a `.mega-context` file. This file provides the "Local Law" for the directory, including:
 - The purpose of the directory.
 - Local constraints.
 - Dependencies on other modules.

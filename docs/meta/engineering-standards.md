@@ -50,7 +50,7 @@ The use of "status adjectives" or "branding labels" to describe technical compon
 
 ## 3. Structure Requirements
 
-- **Context files**: Every directory containing logic must have a `.qwen-context` file explaining its purpose and dependencies.
+- **Context files**: Every directory containing logic must have a `.mega-context` file explaining its purpose and dependencies.
 - **Symmetry**: Any change to a configuration file in `config/` must be mirrored by a corresponding update in `docs/`.
 
 ## 4. Migration Filter

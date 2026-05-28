@@ -1,16 +1,16 @@
-#  Contextual Anchors: The `.qwen-context` Standard
+#  Contextual Anchors: The `.mega-context` Standard
 
 ## 1. Purpose and Scope
 
-The `.qwen-context` file is a **Local Operational Law** used to establish directory-specific constraints, mandates, and reasoning patterns. It allows the `qwen_code_stack` to implement **Granular Cognitive Control**, overriding or augmenting global axioms with highly specific, local intelligence.
+The `.mega-context` file is a **Local Operational Law** used to establish directory-specific constraints, mandates, and reasoning patterns. It allows the `qwen_code_stack` to implement **Granular Cognitive Control**, overriding or augmenting global axioms with highly specific, local intelligence.
 
-**Scope**: A `.qwen-context` file applies to its own directory and all subdirectories within that tree.
+**Scope**: A `.mega-context` file applies to its own directory and all subdirectories within that tree.
 
 ---
 
 ## 2. Format Specification
 
-To maximize the **Signal-to-Noise Ratio (SNR)** and minimize token fragmentation, the `.qwen-context` standard uses **YAML** with **Standardized ASCII Logic**.
+To maximize the **Signal-to-Noise Ratio (SNR)** and minimize token fragmentation, the `.mega-context` standard uses **YAML** with **Standardized ASCII Logic**.
 
 ### 2.1 Schema Definition
 
@@ -76,10 +76,10 @@ Used to enforce specific implementation patterns or mathematical/logical approac
 
 ## 4. Mandatory Agent Protocol
 
-**[S-MANDATE]: (Directory Entry => Scan for `.qwen-context` => Integrate into Context)**
+**[S-MANDATE]: (Directory Entry => Scan for `.mega-context` => Integrate into Context)**
 
 Upon entering any directory, an agent **MUST**:
-1.  Check for the existence of a `.qwen-context` file.
+1.  Check for the existence of a `.mega-context` file.
 2.  If present, parse the file and integrate the `[M-LAWS]` into its active reasoning context.
 3.  Treat these local laws as **Project Standard Mandates** that take precedence over general guidelines within the scope of that directory.
 

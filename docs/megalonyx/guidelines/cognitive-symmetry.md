@@ -17,11 +17,11 @@ The core goal of CSF is **Structural Determinism**: the principle that any piece
 ###  Pillar I: Contextual Anchors `[S-ANCHOR]`
 Contextual Anchors prevent "context drift" and hallucination by providing immutable points of reference.
 
-*   **The `.qwen-context` Standard**: Every modular component must contain a `.qwen-context` file (or section) defining its local axioms--the "ground truths" that never change for that specific module.
+*   **The `.mega-context` Standard**: Every modular component must contain a `.mega-context` file (or section) defining its local axioms--the "ground truths" that never change for that specific module.
 *   **Axiom Hierarchy**:
     1.  **Global Axioms** (`QWEN.md`): The supreme operational law.
     2.  **Domain Axioms** (`docs/guidelines/`): The rules for specific categories of work.
-    3.  **Local Axioms** (`.qwen-context`): The constraints for a specific file or package.
+    3.  **Local Axioms** (`.mega-context`): The constraints for a specific file or package.
 *   **Agent Usage**: Agents MUST resolve conflicts by ascending the hierarchy. If a local axiom contradicts a global axiom, the global axiom prevails.
 
 ###  Pillar II: Symmetric Mirroring `[S-MIRROR]`
@@ -70,7 +70,7 @@ The rollout of CSF occurs in three phased waves:
 
 1.  **Wave 1: Structural Alignment (Symmetry)**
     - Audit `config/` and `docs/` to ensure 1:1 mirroring.
-    - Implement `.qwen-context` anchors in core packages.
+    - Implement `.mega-context` anchors in core packages.
 2.  **Wave 2: Contractual Hardening (Schemas)**
     - Convert Markdown output contracts to JSON Schemas.
     - Integrate `Verifier` agents into the standard workflow.
