@@ -47,11 +47,9 @@ Read at session start. Commit every status change.
 | CP-REF-01 | REFACTOR: Split `task_decomposer.py:decompose` | Decompose `decompose` function (256 lines) into smaller helper functions; ensure all functions $\le 50$ lines. | -- |
 | CP-REF-02 | REFACTOR: Split `tool_executor.py:call_model` | Decompose `call_model` function (97 lines) into smaller helper functions; ensure all functions $\le 50$ lines. | -- |
 | CP-REF-03 | REFACTOR: Split `control_plane.py:process_intent` | Decompose `process_intent` function (85 lines) into smaller helper functions; ensure all functions $\le 50$ lines. | -- |
-| CP-REF-04 | REFACTOR: Split `intent_classifier.py:classify` | Decompose `classify` function (65 lines) into smaller helper functions; ensure all functions $\le 50$ lines. | -- |
 | CP-REF-05 | REFACTOR: Flatten `command_manager.py` | Refactor deeply nested logic in `command_manager.py` to reduce max nesting depth to $\le 3$ using guard clauses. | -- |
 | CP-REF-06 | REFACTOR: Flatten `execution_profile_selector.py` | Refactor deeply nested logic in `execution_profile_selector.py` to reduce max nesting depth to $\le 3$ using guard clauses. | -- |
 | CP-REF-07 | REFACTOR: Flatten `handlers.py` | Refactor deeply nested logic in `handlers.py` to reduce max nesting depth to $\le 3$ using guard clauses. | -- |
-| CP-REF-08 | REFACTOR: Flatten `policy_engine.py` | Refactor deeply nested logic in `policy_engine.py` to reduce max nesting depth to $\le 3$ using guard clauses. | -- |
 | TEST-THR-01 | TEST: Establish baseline coverage report | Generate and document a comprehensive coverage report for the current state of the monorepo. | -- |
 | TEST-THR-02 | TEST: Set mandatory coverage minimum | Configure test runner to require a minimum coverage threshold (e.g., 80%) for all new/modified modules. | TEST-THR-01 |
 | TEST-THR-03 | TEST: Implement property-based testing | Add property-based tests (e.g., using Hypothesis) for the `policy_engine.py` to validate logical invariants. | -- |
@@ -73,6 +71,8 @@ Read at session start. Commit every status change.
 
 | ID | Subject | Commit |
 | :--- | :--- | :--- |
+| CP-REF-08 | REFACTOR: Flatten `policy_engine.py` | -- |
+| CP-REF-04 | REFACTOR: Split `intent_classifier.py:classify` | -- |
 | #74 | Automate integration->develop promotion | -- |
 | #73 | LKG rollback script | -- |
 | #72 | Scheduled upstream watch workflow | -- |
