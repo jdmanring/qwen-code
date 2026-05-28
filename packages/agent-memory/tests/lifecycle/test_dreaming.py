@@ -1,14 +1,14 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from agent_memory.memory_daemon import MemoryCore
+from agent_memory.memory_daemon import MemoryDaemon
 
 
 def test_dreaming_deduplication() -> None:
     """
     Verify that the Dreaming pipeline removes redundant memories based on content.
     """
-    core = MemoryCore()
+    core = MemoryDaemon()
 
     # Mock the Qdrant client
     mock_client = MagicMock()
@@ -39,7 +39,7 @@ def test_dreaming_deduplication() -> None:
 
 def test_dreaming_empty_collection() -> None:
     """Verify that dreaming handles empty collections gracefully."""
-    core = MemoryCore()
+    core = MemoryDaemon()
     mock_client = MagicMock()
     mock_client.scroll.return_value = ([], None)
 

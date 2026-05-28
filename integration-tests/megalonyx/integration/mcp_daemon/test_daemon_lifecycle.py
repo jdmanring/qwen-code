@@ -28,8 +28,8 @@ def test_daemon_lifecycle() -> None:
         runner_code = (
             "import os, sys; "
             "print(f'Subprocess sys.path: {sys.path}', file=sys.stderr); "
-            "from agent_memory.memory_daemon import MemoryCore, run_socket_server; "
-            "core = MemoryCore(); "
+            "from agent_memory.memory_daemon import MemoryDaemon, run_socket_server; "
+            "core = MemoryDaemon(); "
             "run_socket_server(core, sys.argv[1])"
         )
 

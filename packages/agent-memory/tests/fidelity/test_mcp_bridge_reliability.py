@@ -19,8 +19,8 @@ import sys
 import time
 
 # mega-memory starts the MCP server; no separate bridge script needed
-COMMAND = "mega-memory"
-ARGS: list[str] = []
+COMMAND = "uv"
+ARGS = ["run", "python", "-m", "agent_memory.memory_daemon"]
 
 INIT_REQUEST = {
     "jsonrpc": "2.0",
@@ -180,7 +180,7 @@ async def main():
     print("MCP BRIDGE RELIABILITY SUITE")
     print("=" * 50)
 
-    subprocess.run(["mega-memory", "start"], check=True)
+    subprocess.run([COMMAND] + ARGS + ["start"], check=True)
 
     results = []
     results.append(("CWD Independence", await test_cwd_independence()))

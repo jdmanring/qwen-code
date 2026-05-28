@@ -1,13 +1,13 @@
 # MCP Daemon Lifecycle
 
 ## Overview
-The Memory Daemon is the persistent core of the Qwen Code stack. It manages the lifecycle of the `MemoryCore` and the MCP transport layer, ensuring that semantic memory is available and consistent across all AI sessions.
+The Memory Daemon is the persistent core of the Qwen Code stack. It manages the lifecycle of the `MemoryDaemon` and the MCP transport layer, ensuring that semantic memory is available and consistent across all AI sessions.
 
 ## Boot Sequence
 The daemon follows a strict startup sequence to ensure that dependencies are ready before the transport layer begins accepting connections.
 
 ### 1. Core Initialization
-The `MemoryCore` is instantiated, setting up:
+The `MemoryDaemon` is instantiated, setting up:
 - **MemoryAuthority**: The logic for tier classification and storage rules.
 - **Internal Queue**: A thread-safe queue for asynchronous ingestion.
 - **Dream Interval**: Configuration for the periodic memory consolidation process.
@@ -39,4 +39,4 @@ if os.path.exists(socket_path):
 This ensures that the daemon always starts with a fresh socket, regardless of how the previous session ended (e.g., crash, power failure).
 
 ## Process Termination
-The daemon is designed to be managed by a process manager or a simple shell script. It handles `KeyboardInterrupt` and `SIGTERM` gracefully, ensuring that the `MemoryCore` can flush any pending ingestion tasks to the database before exiting.
+The daemon is designed to be managed by a process manager or a simple shell script. It handles `KeyboardInterrupt` and `SIGTERM` gracefully, ensuring that the `MemoryDaemon` can flush any pending ingestion tasks to the database before exiting.

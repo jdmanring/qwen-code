@@ -7,11 +7,11 @@ from pathlib import Path
 sys.path.insert(0, str(PROJECT_ROOT / "packages/memory"))
 
 try:
-    from memory_daemon import MemoryCore
+    from memory_daemon import MemoryDaemon
     from memory_transport import run_socket_server
 
-    print("Starting MemoryCore...")
-    core = MemoryCore()
+    print("Starting MemoryDaemon...")
+    core = MemoryDaemon()
     print("Calling core.start()...")
     core.start()
     print("Calling run_socket_server()...")

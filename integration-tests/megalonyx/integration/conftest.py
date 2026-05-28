@@ -68,7 +68,7 @@ async def memory_server(setup_sandbox):
     Returns the MCP command needed to connect to it.
     """
     # In a real integration test, we would launch the daemon as a subprocess.
-    # For these tests, we can instantiate the MemoryCore directly if it's
+    # For these tests, we can instantiate the MemoryDaemon directly if it's
     # compatible, or use the subprocess approach for maximum fidelity.
 
     # Using subprocess for maximum fidelity (Mirroring the Lab's approach)

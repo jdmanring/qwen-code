@@ -19,7 +19,7 @@ The Bridge is a lean CLI wrapper that acts as a translator.
 The Daemon is the authoritative source of truth for the stack's memory.
 - **Input**: It listens on a UDS socket (`~/.local/share/megalonyx/sockets/megalonyx_memory.sock`).
 - **Output**: It processes MCP requests and returns responses via the same socket.
-- **Role**: It manages the `MemoryCore` logic, handles Qdrant connectivity, and maintains state across different AI sessions.
+- **Role**: It manages the `MemoryDaemon` logic, handles Qdrant connectivity, and maintains state across different AI sessions.
 
 ### Data Flow Diagram
 `MCP Client` $\xrightarrow{\text{stdio}}$ `Memory Bridge` $\xrightarrow{\text{UDS Socket}}$ `Memory Daemon` $\xrightarrow{\text{Logic}}$ `Vector DB`
@@ -27,7 +27,7 @@ The Daemon is the authoritative source of truth for the stack's memory.
 ## Why This Approach?
 
 ### Persistence vs. Ephemerality
-In a standard MCP `stdio` setup, the server dies when the client closes. By moving the logic to a UDS Daemon, the `MemoryCore` can perform background tasks (like the "Memory Refinement" pipeline for memory consolidation) independently of whether a user is currently chatting with the AI.
+In a standard MCP `stdio` setup, the server dies when the client closes. By moving the logic to a UDS Daemon, the `MemoryDaemon` can perform background tasks (like the "Memory Refinement" pipeline for memory consolidation) independently of whether a user is currently chatting with the AI.
 
 ### Multi-Tenancy
 A single UDS Daemon can handle multiple concurrent connections. This allows different agents (e.g., a `Researcher` and a `Developer`) to access and update the same semantic memory in real-time without conflicting process locks.

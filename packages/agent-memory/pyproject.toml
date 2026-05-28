@@ -9,7 +9,11 @@ dependencies = [
     "mcp",
     "requests",
     "agent-infra",
+    "pytest-asyncio",
 ]
 
 [tool.uv.sources]
 agent-infra = { workspace = true }
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

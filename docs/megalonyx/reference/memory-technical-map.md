@@ -67,7 +67,7 @@ The memory system is a **Dual-Tier RAG (Retrieval Augmented Generation)** implem
 ### `memory_transport.py` (The Interface)
 **Responsibility**: Implements the MCP stdio protocol.
 - **Key Logic**:
-    - **Tool Mapping**: Maps MCP `tools/call` requests to `MemoryCore` methods (`ingest`, `recall`, `reflect`).
+    - **Tool Mapping**: Maps MCP `tools/call` requests to `MemoryDaemon` methods (`ingest`, `recall`, `reflect`).
     - **JSON-RPC**: Handles the request/response cycle for the MCP handshake.
 - **Dependencies**: `json`, `sys`.
 
