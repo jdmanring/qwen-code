@@ -13,12 +13,12 @@ class E2EBase:
     Handles environment isolation and common setup.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.test_dir = tempfile.mkdtemp(prefix="megalonyx-e2e-")
         self.settings_path = os.path.join(self.test_dir, "settings.json")
         self.setup_environment()
 
-    def setup_environment(self):
+    def setup_environment(self) -> None:
         # Default mock settings
         settings = {
             "fastModel": "gemini-2.5-flash-lite",
@@ -35,14 +35,14 @@ class E2EBase:
         with open(self.settings_path, "w") as f:
             json.dump(settings, f)
 
-    def create_file(self, relative_path: str, content: str):
+    def create_file(self, relative_path: str, content: str) -> str:
         full_path = os.path.join(self.test_dir, relative_path)
         os.makedirs(os.path.dirname(full_path), exist_ok=True)
         with open(full_path, "w") as f:
             f.write(content)
         return full_path
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         shutil.rmtree(self.test_dir)
 
     def get_control_plane(self) -> ControlPlane:

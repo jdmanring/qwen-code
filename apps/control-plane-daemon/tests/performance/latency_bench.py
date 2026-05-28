@@ -15,12 +15,12 @@ class LatencyBench:
     Measures the time for Intent Classification -> Decomposition -> First Job Execution.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.test_dir = tempfile.mkdtemp(prefix="megalonyx-bench-")
         self.settings_path = os.path.join(self.test_dir, "settings.json")
         self.setup_environment()
 
-    def setup_environment(self):
+    def setup_environment(self) -> None:
         settings = {
             "fastModel": "gemini-2.5-flash-lite",
             "modelProviders": {
@@ -30,7 +30,7 @@ class LatencyBench:
         with open(self.settings_path, "w") as f:
             json.dump(settings, f)
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         shutil.rmtree(self.test_dir)
 
     async def measure_turn_latency(

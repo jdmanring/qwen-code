@@ -12,14 +12,14 @@ from control_plane_daemon.control_plane import ControlPlane
 
 
 class ResilienceTestBase:
-    def __init__(self):
+    def __init__(self) -> None:
         self.test_dir = tempfile.mkdtemp(prefix="megalonyx-resilience-")
         self.settings_path = os.path.join(self.test_dir, "settings.json")
         self.socket_path = os.path.join(self.test_dir, "daemon.sock")
         self.pid_file = os.path.join(self.test_dir, "daemon.pid")
         self.setup_environment()
 
-    def setup_environment(self):
+    def setup_environment(self) -> None:
         settings = {
             "fastModel": "gemini-2.5-flash-lite",
             "modelProviders": {
@@ -29,7 +29,7 @@ class ResilienceTestBase:
         with open(self.settings_path, "w") as f:
             json.dump(settings, f)
 
-    def start_dummy_daemon(self):
+    def start_dummy_daemon(self) -> subprocess.Popen:
         daemon_script = f"""
 import asyncio
 import os
@@ -57,7 +57,7 @@ if __name__ == "__main__":
         proc = subprocess.Popen(["python3", script_path])
         return proc
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         shutil.rmtree(self.test_dir)
 
 

@@ -11,13 +11,13 @@ from control_plane_daemon.control_plane import ControlPlane
 
 
 class ProcessAdversarialBase:
-    def __init__(self):
+    def __init__(self) -> None:
         self.test_dir = tempfile.mkdtemp(prefix="megalonyx-proc-")
         self.settings_path = os.path.join(self.test_dir, "settings.json")
         self.socket_path = os.path.join(self.test_dir, "test_daemon.sock")
         self.setup_environment()
 
-    def setup_environment(self):
+    def setup_environment(self) -> None:
         settings = {
             "fastModel": "gemini-2.5-flash-lite",
             "modelProviders": {
@@ -29,7 +29,7 @@ class ProcessAdversarialBase:
 
             json.dump(settings, f)
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         shutil.rmtree(self.test_dir)
 
     def get_control_plane(self) -> ControlPlane:

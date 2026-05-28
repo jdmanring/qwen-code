@@ -7,6 +7,7 @@ Run: python3 tooling/sync-upstreams/fork_sync_pipeline_tests.py
 """
 
 import sys
+from collections.abc import Callable
 
 from fork_sync_pipeline import (
     PROTECTED_FILES,
@@ -21,7 +22,7 @@ PASS = "\033[0;32m[PASS]\033[0m"
 FAIL = "\033[0;31m[FAIL]\033[0m"
 
 
-def run_test(name, fn):
+def run_test(name: str, fn: Callable) -> bool:
     try:
         fn()
         print(f"{PASS} {name}")
@@ -34,7 +35,7 @@ def run_test(name, fn):
 # -- Advisory gate tests -------------------------------------------------------
 
 
-def test_ci_gate_flags_workflow_change():
+def test_ci_gate_flags_workflow_change() -> None:
     """GATE-CIFILES flags changes to .github/workflows/ files."""
     changed = [".github/workflows/ci.yml", "packages/cli/src/index.ts"]
     result = gate_ci_files(changed)
@@ -42,7 +43,7 @@ def test_ci_gate_flags_workflow_change():
     assert ".github/workflows/ci.yml" in result.lines
 
 
-def test_ci_gate_passes_non_ci_files():
+def test_ci_gate_passes_non_ci_files() -> None:
     """GATE-CIFILES passes when no CI workflow files are changed."""
     changed = ["packages/core/src/utils.ts", "README.md"]
     result = gate_ci_files(changed)
@@ -50,7 +51,7 @@ def test_ci_gate_passes_non_ci_files():
     assert result.lines == []
 
 
-def test_protected_gate_flags_pyproject():
+def test_protected_gate_flags_pyproject() -> None:
     """GATE-PROTECTED flags changes to any file in PROTECTED_FILES."""
     changed = ["packages/sdk-python/pyproject.toml", "packages/cli/src/index.ts"]
     result = gate_protected_files(changed)
@@ -58,7 +59,7 @@ def test_protected_gate_flags_pyproject():
     assert "packages/sdk-python/pyproject.toml" in result.lines
 
 
-def test_manifests_gate_flags_package_json():
+def test_manifests_gate_flags_package_json() -> None:
     """GATE-MANIFESTS flags changes to package.json files."""
     changed = ["packages/core/package.json", "packages/cli/src/runner.ts"]
     result = gate_manifests(changed)
@@ -66,7 +67,7 @@ def test_manifests_gate_flags_package_json():
     assert "packages/core/package.json" in result.lines
 
 
-def test_new_files_gate_flags_additions():
+def test_new_files_gate_flags_additions() -> None:
     """GATE-NEWFILES flags a list of newly added files."""
     added = ["packages/core/src/newFeature.ts", "docs/new-guide.md"]
     result = gate_new_files(added)
@@ -74,7 +75,7 @@ def test_new_files_gate_flags_additions():
     assert len(result.lines) == 2
 
 
-def test_new_files_gate_passes_empty_list():
+def test_new_files_gate_passes_empty_list() -> None:
     """GATE-NEWFILES passes when no files were added."""
     result = gate_new_files([])
     assert result.passed, "Should pass with no new files"
@@ -83,7 +84,7 @@ def test_new_files_gate_passes_empty_list():
 # -- Isolation gate tests ------------------------------------------------------
 
 
-def test_isolation_blocks_megalonyx_reference():
+def test_isolation_blocks_megalonyx_reference() -> None:
     """GATE-MEGALONYX hard-blocks a diff that contains 'megalonyx'."""
     diff = (
         "diff --git a/packages/cli/src/config.ts b/packages/cli/src/config.ts\n"
@@ -96,7 +97,7 @@ def test_isolation_blocks_megalonyx_reference():
     assert len(gate.lines) >= 1
 
 
-def test_isolation_blocks_pnpm_workspace_reference():
+def test_isolation_blocks_pnpm_workspace_reference() -> None:
     """GATE-PNPM hard-blocks a diff containing 'pnpm-workspace'."""
     diff = (
         "diff --git a/package.json b/package.json\n"
@@ -108,7 +109,7 @@ def test_isolation_blocks_pnpm_workspace_reference():
     assert not gate.passed, "GATE-PNPM should fail on 'pnpm-workspace' in diff"
 
 
-def test_isolation_blocks_protected_file_in_changed_list():
+def test_isolation_blocks_protected_file_in_changed_list() -> None:
     """GATE-CIFILES (outbound) hard-blocks when a PROTECTED_FILE is in changed_files."""
     diff = ""
     changed = [PROTECTED_FILES[0], "packages/core/src/utils.ts"]
@@ -118,7 +119,7 @@ def test_isolation_blocks_protected_file_in_changed_list():
     assert PROTECTED_FILES[0] in gate.lines
 
 
-def test_isolation_passes_clean_diff():
+def test_isolation_passes_clean_diff() -> None:
     """All isolation gates pass for a diff with no Megalonyx references."""
     diff = (
         "diff --git a/packages/cli/src/runner.ts b/packages/cli/src/runner.ts\n"
@@ -152,7 +153,7 @@ TESTS = [
 ]
 
 
-def main():
+def main() -> None:
     print()
     print("Fork Sync Pipeline -- Gate Tests")
     print("-" * 55)

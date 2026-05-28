@@ -21,7 +21,7 @@ class ResilienceStressTester:
     to verify the resilience of the S-CORRECT recovery loop.
     """
 
-    def __init__(self, socket_path: str, settings_path: str, daemon_pid_file: str = None):
+    def __init__(self, socket_path: str, settings_path: str, daemon_pid_file: str = None) -> None:
         self.socket_path = socket_path
         self.settings_path = settings_path
         self.daemon_pid_file = daemon_pid_file
@@ -43,7 +43,7 @@ class ResilienceStressTester:
             ),
         ]
 
-    def _kill_daemon(self):
+    def _kill_daemon(self) -> None:
         """Simulates a hard crash by sending SIGKILL to the daemon process."""
         if self.daemon_pid_file and os.path.exists(self.daemon_pid_file):
             with open(self.daemon_pid_file) as f:
@@ -66,7 +66,7 @@ class ResilienceStressTester:
             except subprocess.CalledProcessError:
                 self.logger.error("ResilienceStressTester: Could not find daemon process to kill")
 
-    def _drop_socket(self):
+    def _drop_socket(self) -> None:
         """Simulates transport failure by deleting the socket file."""
         if os.path.exists(self.socket_path):
             os.remove(self.socket_path)
@@ -74,7 +74,7 @@ class ResilienceStressTester:
         else:
             self.logger.error("ResilienceStressTester: Socket already missing")
 
-    def _corrupt_config(self):
+    def _corrupt_config(self) -> None:
         """Simulates state failure by corrupting the settings.json file."""
         try:
             with open(self.settings_path) as f:
@@ -91,7 +91,7 @@ class ResilienceStressTester:
         except (OSError, ValueError, KeyError) as e:
             self.logger.error(f"ResilienceStressTester: Failed to corrupt config: {e}")
 
-    def _deny_permissions(self):
+    def _deny_permissions(self) -> None:
         """Simulates permission errors by changing file modes."""
         try:
             os.chmod(self.settings_path, 0o000)
@@ -101,7 +101,7 @@ class ResilienceStressTester:
         except OSError as e:
             self.logger.error(f"ResilienceStressTester: Failed to deny permissions: {e}")
 
-    def restore_environment(self):
+    def restore_environment(self) -> None:
         """Restores the environment to a known good state."""
         self.logger.info("ResilienceStressTester: Restoring environment...")
         # Restore permissions
@@ -111,7 +111,7 @@ class ResilienceStressTester:
         # Note: Socket restoration and Daemon restart are handled by the
         # ControlPlane's own recovery or the test harness.
 
-    def inject_random_fault(self):
+    def inject_random_fault(self) -> str:
         """Selects and executes a random fault from the library."""
         fault = random.choice(self.faults)
         self.logger.info(

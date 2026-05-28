@@ -20,15 +20,15 @@ class Colors:
     NC = "\033[0m"
 
 
-def log_info(msg: str):
+def log_info(msg: str) -> None:
     print(f"{Colors.BLUE}[INFO]{Colors.NC} {msg}")
 
 
-def log_success(msg: str):
+def log_success(msg: str) -> None:
     print(f"{Colors.GREEN}[PASS]{Colors.NC} {msg}")
 
 
-def log_error(msg: str):
+def log_error(msg: str) -> None:
     print(f"{Colors.RED}[FAIL]{Colors.NC} {msg}")
 
 
@@ -37,10 +37,10 @@ def git(cmd: list, cwd: Path, check: bool = True) -> subprocess.CompletedProcess
 
 
 class GateFailureTests:
-    def __init__(self):
+    def __init__(self) -> None:
         self.root = REPO_ROOT
 
-    def test_merge_conflict(self):
+    def test_merge_conflict(self) -> bool:
         """
         Verify the pipeline aborts and leaves integration untouched when a
         merge conflict occurs.
@@ -105,7 +105,7 @@ class GateFailureTests:
 
         return success
 
-    def test_symmetry_violation(self):
+    def test_symmetry_violation(self) -> bool:
         """
         Verify the symmetry gate blocks a config file without a matching doc.
 
@@ -135,7 +135,7 @@ class GateFailureTests:
         finally:
             config_file.unlink(missing_ok=True)
 
-    def test_boot_failure(self):
+    def test_boot_failure(self) -> bool:
         """
         Verify the boot gate blocks when uv.lock is missing.
 
@@ -171,7 +171,7 @@ class GateFailureTests:
 
         return success
 
-    def test_typescript_failure(self):
+    def test_typescript_failure(self) -> bool:
         """
         Verify the TypeScript gate blocks when there is a type error.
 
@@ -201,7 +201,7 @@ class GateFailureTests:
         finally:
             ts_file.unlink(missing_ok=True)
 
-    def run_all(self):
+    def run_all(self) -> bool:
         results = []
         results.append(("Merge Conflict", self.test_merge_conflict()))
         results.append(("Symmetry Violation", self.test_symmetry_violation()))

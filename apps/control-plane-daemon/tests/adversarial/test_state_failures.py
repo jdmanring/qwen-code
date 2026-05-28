@@ -9,12 +9,12 @@ from control_plane_daemon.control_plane import ControlPlane
 
 
 class AdversarialBase:
-    def __init__(self):
+    def __init__(self) -> None:
         self.test_dir = tempfile.mkdtemp(prefix="megalonyx-adv-")
         self.settings_path = os.path.join(self.test_dir, "settings.json")
         self.setup_environment()
 
-    def setup_environment(self):
+    def setup_environment(self) -> None:
         settings = {
             "fastModel": "gemini-2.5-flash-lite",
             "modelProviders": {
@@ -26,7 +26,7 @@ class AdversarialBase:
 
             json.dump(settings, f)
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         shutil.rmtree(self.test_dir)
 
     def get_control_plane(self) -> ControlPlane:
