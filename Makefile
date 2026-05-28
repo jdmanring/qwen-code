@@ -6,13 +6,13 @@ help:
 	@echo "Makefile for qwen-code"
 	@echo ""
 	@echo "Usage:"
-	@echo "  make install          - Install npm dependencies"
+	@echo "  make install          - Install pnpm dependencies"
 	@echo "  make build            - Build the main project"
 	@echo "  make build-all        - Build the main project and sandbox"
 	@echo "  make test             - Run the test suite"
 	@echo "  make lint             - Lint the code"
 	@echo "  make format           - Format the code"
-	@echo "  make preflight        - Run formatting, linting, and tests"
+	@echo "  make preflight        - Run the preflight verification"
 	@echo "  make clean            - Remove generated files"
 	@echo "  make start            - Start the Qwen Code CLI"
 	@echo "  make debug            - Start the Qwen Code CLI in debug mode"
@@ -21,35 +21,35 @@ help:
 	@echo "  make create-alias     - Create a 'qwen' alias for your shell"
 
 install:
-	npm install
+	pnpm install
 
 build:
-	npm run build
+	pnpm run build
 
 
 build-all:
-	npm run build:all
+	pnpm run build:all
 
 test:
-	npm run test
+	pnpm run test
 
 lint:
-	npm run lint
+	pnpm run lint
 
 format:
-	npm run format
+	pnpm run format
 
 preflight:
-	npm run preflight
+	pnpm run preflight
 
 clean:
-	npm run clean
+	pnpm run clean
 
 start:
-	npm run start
+	pnpm run start
 
 debug:
-	npm run debug
+	pnpm run debug
 
 
 run-npx:
