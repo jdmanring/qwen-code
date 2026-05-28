@@ -1,3 +1,9 @@
+---
+name: code-review
+description: Invokes an expert reviewer persona to analyze Pull Requests (PRs).
+category: qc
+---
+
 # Code Review Command
 
 ## Command Identity
@@ -7,17 +13,17 @@ The `code-review` command invokes an expert reviewer persona to analyze Pull Req
 
 The system follows these steps:
 
-1.  **PR Identification**: 
+1.  **PR Identification**:
     - If a PR number is provided in the arguments, it is used directly.
     - Otherwise, the system executes `gh pr list` to identify open PRs for the user to choose from.
-2.  **Data Acquisition**: 
+2.  **Data Acquisition**:
     - Fetches PR metadata using `gh pr view <number>`.
     - Retrieves the full code diff using `gh pr diff <number>`.
-3.  **Technical Analysis**: 
+3.  **Technical Analysis**:
     - Analyzes the diff against project standards.
     - Evaluates the logic for potential edge cases, performance bottlenecks, or security vulnerabilities.
     - Checks if the changes are sufficiently covered by tests.
-4.  **Review Generation**: 
+4.  **Review Generation**:
     - Synthesizes the findings into a structured report.
 
 ## Input/Output

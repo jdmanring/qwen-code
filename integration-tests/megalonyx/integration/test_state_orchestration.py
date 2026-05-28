@@ -24,13 +24,8 @@ def state_manager() -> Generator[StateManager, None, None]:
 
 
 @pytest.fixture
-def orchestrator(state_manager: StateManager) -> 'SkillOrchestrator':
-    # This fixture is currently broken because SkillOrchestrator was removed.
-    pytest.skip("SkillOrchestrator removed in refactor")
-    # Use the same state manager as the fixture to ensure consistency
-    orch = SkillOrchestrator()
-    orch.state_manager = state_manager
-    return orch
+def orchestrator(state_manager: StateManager) -> None:
+    pass
 
 
 def test_state_persistence(state_manager: StateManager) -> None:
@@ -45,14 +40,14 @@ def test_state_persistence(state_manager: StateManager) -> None:
 
 
 def test_phase_boost(
-    state_manager: StateManager, orchestrator: 'SkillOrchestrator'
+    state_manager: StateManager,
 ) -> None:
     """Verify that the active_phase correctly boosts relevant agents."""
     pytest.skip("SkillOrchestrator removed in refactor")
     # Set phase to VERIFICATION
     state_manager.set("active_phase", "VERIFICATION")
     # Inject the test state manager into the orchestrator
-    orchestrator.state_manager = state_manager
+    # orchestrator.state_manager = state_manager
 
     # Prompt is neutral, but phase is VERIFICATION
     # Reviewer and QA Lead should be top priority
@@ -66,7 +61,7 @@ def test_phase_boost(
 
 
 def test_confidence_escalation(
-    state_manager: StateManager, orchestrator: 'SkillOrchestrator'
+    state_manager: StateManager,
 ) -> None:
     """Verify that low confidence in a report triggers the Reviewer."""
     pytest.skip("SkillOrchestrator removed in refactor")
@@ -87,7 +82,7 @@ def test_confidence_escalation(
 
 
 def test_handoff_routing(
-    state_manager: StateManager, orchestrator: 'SkillOrchestrator'
+    state_manager: StateManager,
 ) -> None:
     """Verify that 'NEXT STEP' suggestions correctly route to the suggested agent."""
     pytest.skip("SkillOrchestrator removed in refactor")
@@ -115,7 +110,7 @@ def test_iteration_tracking(state_manager: StateManager) -> None:
 
 
 def test_state_aware_scoring_priority(
-    state_manager: StateManager, orchestrator: 'SkillOrchestrator'
+    state_manager: StateManager,
 ) -> None:
     """Verify that Phase Match > Keyword Match in the scoring hierarchy."""
     pytest.skip("SkillOrchestrator removed in refactor")
@@ -136,7 +131,7 @@ def test_state_aware_scoring_priority(
 
 
 def test_loop_guard_escalation(
-    state_manager: StateManager, orchestrator: 'SkillOrchestrator'
+    state_manager: StateManager,
 ) -> None:
     """Verify that exceeding MAX_ITERATIONS triggers the OPTIMIZATION phase."""
     pytest.skip("SkillOrchestrator removed in refactor")

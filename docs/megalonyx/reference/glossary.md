@@ -53,6 +53,6 @@ The **OPS** is the project's standard for lossless file optimization. It mandate
 | Term | Component | Responsibility |
 | :--- | :--- | :--- |
 | **Control Plane** | `ControlPlane` | Intent $\to$ Decomposition $\to$ Job Set |
-| **Routing Plane** | `OmniRoute` | Context $\to$ Skill Selection $\to$ Job Contract |
-| **Execution Plane** | `SkillBridge` | Job Contract $\to$ Tool Execution $\to$ Result |
+| **Routing Plane** | `ModelRouter` | Context $\to$ Skill Selection $\to$ Job Contract |
+| **Execution Plane** | `Job Executor` | Job Contract $\to$ Tool Execution $\to$ Result |
 | **Interaction Plane**| `CLI / IDE` | User Input $\to$ Control Plane $\to$ UI Render |
