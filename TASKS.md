@@ -44,8 +44,6 @@ Read at session start. Commit every status change.
 | ID | Subject | Description | Blocked By |
 | :--- | :--- | :--- | :--- |
 | #55 | Vite 6->8 + @vitejs/plugin-react 4->6 | Bump `vite` in `pnpm-workspace.yaml` overrides to 8.x. Bump `@vitejs/plugin-react` to 6.0.2 in root `package.json`. Run: `pnpm install` -> `pnpm build` -> `pnpm exec vitest run` -> `pnpm check`. Then create fork branch `contribute/phase-55-vite-8`. | -- |
-| #70 | TypeScript gate in ingest pipeline | Add a 4th gate to `GateKeeper` in `tooling/sync-upstreams/upstream_ingest_pipeline.py`. After the symmetry gate (gate 3/3), add gate 4/4: run `pnpm install --frozen-lockfile && pnpm build && pnpm run test-all` via `subprocess.run` from `REPO_ROOT`. If it fails, abort and clean the staging branch. Name it `_gate_typescript`. Update the docstring in `UpstreamIngestPipeline` to show 4 gates. Also add a test in `gate_failure_tests.py`. | -- |
-| #71 | TypeScript CI on develop + integration branches | Edit `.github/workflows/ci.yml`. Under `on.push.branches` and `on.pull_request.branches`, add `'develop'` and `'integration'` alongside `'main'` and `'release/**'`. This closes the gap where TS failures on develop are invisible to CI. Verify by checking the workflow triggers after commit. | -- |
 | #72 | Scheduled upstream watch workflow | Create `.github/workflows/upstream-watch.yml`. Cron: `'0 6 * * *'` (daily 06:00 UTC). Steps: checkout monorepo, install Python (uv), run `python3 tooling/sync-upstreams/fork_sync_pipeline.py --status`. If new commits detected, run `fork_sync_pipeline.py --sync --auto` (add `--auto` flag to skip interactive prompt in non-TTY). Then run `upstream_ingest_pipeline.py`. On failure, open a GitHub issue via `gh issue create` with the error output. This fully automates the QwenLM->fork->integration path. | -- |
 | #73 | LKG rollback script | Create `tooling/sync-upstreams/rollback_to_lkg.py`. Args: optional `--tag LKG-YYYYMMDD-HHMM` (defaults to most recent LKG tag). Steps: find tag via `git tag -l 'LKG-*' --sort=-version:refname | head -1`, confirm with user, `git checkout integration`, `git reset --hard <tag>`, `git push --force-with-lease origin integration`. Add rollback instructions to `docs/meta/pipeline-runbook.md`. | -- |
 | #74 | Automate integration->develop promotion | After successful LKG tag in `PromotionEngine.promote()`, automatically fast-forward merge `integration` into `develop` if CI is green, or create a PR if not. Simplest version: after tagging, run `git checkout develop && git merge --ff-only integration && git push origin develop && git checkout integration`. Add `--no-auto-promote` flag to skip for manual control. | -- |
@@ -78,6 +76,8 @@ Read at session start. Commit every status change.
 
 | ID | Subject | Commit |
 | :--- | :--- | :--- |
+| #71 | TypeScript CI on develop + integration branches | f4ba15568b557f114bcfe978b63f6216bf9b5bbf |
+| #70 | TypeScript gate in ingest pipeline | eb7205015be14981e7d6ea9d1c0bdd266383f6c2 |
 | #83 | INFRA: Optimize `QWEN.md` for Fast-Activation | -- |
 | #82 | INFRA: Expand Operational Linter | -- |
 | #81 | INFRA: Implement `.mega-context` anchors | -- |
