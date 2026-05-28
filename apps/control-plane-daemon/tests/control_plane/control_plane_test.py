@@ -10,12 +10,16 @@ import pytest
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../config/system")))
 
-from contracts import MutationContract
-from intent_classifier import IntentClassifier
-from job_state_manager import JobStateManager
-from policy_engine import PolicyEngine
-from task_decomposer import TaskDecomposer
-from verification_engine import BaseContract, VerificationEngine, VerificationResult
+from control_plane_daemon.intent_classifier import IntentClassifier
+from control_plane_daemon.job_state_manager import JobStateManager
+from control_plane_daemon.policy_engine import PolicyEngine
+from control_plane_daemon.task_decomposer import TaskDecomposer
+from control_plane_daemon.verification_contracts import MutationContract
+from control_plane_daemon.verification_engine import (
+    BaseContract,
+    VerificationEngine,
+    VerificationResult,
+)
 
 # --- Mocks and Helpers ---
 

@@ -91,7 +91,7 @@ RESPONSE_SCHEMA = {
 }
 
 
-class AgentGenerator:
+class AgentGeneratorService:
     def __init__(self, settings: dict[str, Any]) -> None:
         self.settings = settings
         self.model_id: str = cast(str, settings.get("model", {}).get("name", "gpt-4o"))
