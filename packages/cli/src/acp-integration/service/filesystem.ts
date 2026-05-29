@@ -6,7 +6,7 @@
 
 import type {
   AgentSideConnection,
-  FileSystemCapability,
+  FileSystemCapabilities,
   ReadTextFileRequest,
   WriteTextFileRequest,
   WriteTextFileResponse,
@@ -43,7 +43,7 @@ export class AcpFileSystemService implements FileSystemService {
   constructor(
     private readonly connection: AgentSideConnection,
     private readonly sessionId: string,
-    private readonly capabilities: FileSystemCapability,
+    private readonly capabilities: FileSystemCapabilities,
     private readonly fallback: FileSystemService,
   ) {}
 
@@ -59,7 +59,7 @@ export class AcpFileSystemService implements FileSystemService {
       response = await this.connection.readTextFile({
         ...params,
         sessionId: this.sessionId,
-      });
+      }) as ReadTextFileResponse;
     } catch (error) {
       const errorCode = getErrorCode(error);
 

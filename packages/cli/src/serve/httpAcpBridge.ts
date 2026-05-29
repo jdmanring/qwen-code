@@ -2324,7 +2324,7 @@ export function createHttpAcpBridge(opts: BridgeOptions): HttpAcpBridge {
         } else {
           state = await Promise.race([
             withTimeout(
-              ci.connection.unstable_resumeSession({
+              ci.connection.unstable_forkSession({
                 sessionId: req.sessionId,
                 cwd: workspaceKey,
                 mcpServers: [],
