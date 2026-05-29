@@ -16,7 +16,7 @@ import * as nodeFs from 'node:fs';
 import { access, lstat, open, readFile, stat } from 'node:fs/promises';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
-import type { Hunk } from 'diff';
+import type { StructuredPatchHunk as Hunk } from 'diff';
 import { findGitRoot } from './gitUtils.js';
 
 /** Re-export so consumers don't need to depend on `diff` directly. */
