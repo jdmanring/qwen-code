@@ -20,7 +20,7 @@
   "dependencies": {
     "@qwen-code/channel-base": "file:../base",
     "grammy": "^1.41.1",
-    "https-proxy-agent": "^7.0.6",
+    "https-proxy-agent": "^9.0.0",
     "telegram-markdown-formatter": "^0.1.2"
   },
   "devDependencies": {
