@@ -40,8 +40,13 @@
     "sandboxImageUri": "ghcr.io/qwenlm/qwen-code:0.18.0"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@agentclientprotocol/sdk": "^0.14.1",
     "@google/genai": "2.6.0",
+=======
+    "@agentclientprotocol/sdk": "^0.22.1",
+    "@google/genai": "1.30.0",
+>>>>>>> 90a656fe9 (chore(deps): @agentclientprotocol/sdk 0.14 → 0.22; fix API renames)
     "@iarna/toml": "^2.2.5",
     "@modelcontextprotocol/sdk": "^1.25.2",
     "@qwen-code/acp-bridge": "file:../acp-bridge",
