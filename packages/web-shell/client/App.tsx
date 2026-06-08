@@ -2,17 +2,15 @@ import {
   createContext,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
-  type ReactNode,
 } from 'react';
 import {
   DAEMON_APPROVAL_MODES,
   useActions,
   useConnection,
+  useMessages,
   useDaemonFollowupSuggestion,
   useSettings,
   useSessionNotices,
@@ -20,15 +18,8 @@ import {
   useTranscriptBlocks,
   useTranscriptStore,
   useWorkspaceActions,
-  useWorkspaceEventSignals,
-  type DaemonSessionNotice,
   type DaemonStreamingState,
 } from '@qwen-code/webui/daemon-react-sdk';
-import { isDaemonTurnError } from '@qwen-code/sdk/daemon';
-import type {
-  DaemonTranscriptBlock,
-  DaemonSessionTaskStatus,
-} from '@qwen-code/sdk/daemon';
 import { extractPendingPermission } from './adapters/transcriptAdapter';
 import { MessageList, type MessageListHandle } from './components/MessageList';
 import { extractVoiceModels, type VoiceModelOption } from './voice/voiceModels';
@@ -38,37 +29,38 @@ import {
 } from './components/ChatEditor';
 import type { EditorHandle } from './hooks/useComposerCore';
 import type { PromptImage } from './adapters/promptTypes';
-import { StatusBar, type StatusBarHandle } from './components/StatusBar';
+import { StatusBar } from './components/StatusBar';
+import { ShortcutsPanel } from './components/ShortcutsPanel';
 import { StreamingStatus } from './components/StreamingStatus';
-import {
-  ToastHost,
-  type ToastTone,
-  type WebShellToast,
-} from './components/ToastHost';
 import { TodoPanel } from './components/panels/TodoPanel';
+import { ActiveAgentsPanel } from './components/panels/ActiveAgentsPanel';
 import { WelcomeHeader } from './components/WelcomeHeader';
-import { ApprovalModeDialog } from './components/dialogs/ApprovalModeDialog';
+import {
+  APPROVAL_MODE_ACTIVE_EVENT,
+  ApprovalModeMessage,
+} from './components/messages/ApprovalModeMessage';
 import { ResumeDialog } from './components/dialogs/ResumeDialog';
-import { DialogShell } from './components/dialogs/DialogShell';
 import {
-  ModelDialog,
-  type ModelDialogMode,
-} from './components/dialogs/ModelDialog';
-import {
+  AGENTS_ACTIVE_EVENT,
   AgentsMessage,
   type AgentsInitialMode,
 } from './components/messages/AgentsMessage';
-import { MemoryMessage } from './components/messages/MemoryMessage';
-import { AuthMessage } from './components/messages/AuthMessage';
+import {
+  MEMORY_ACTIVE_EVENT,
+  MemoryMessage,
+} from './components/messages/MemoryMessage';
+import {
+  MODEL_ACTIVE_EVENT,
+  ModelMessage,
+  type ModelInlineMode,
+} from './components/messages/ModelMessage';
 import { ToolsDialog } from './components/dialogs/ToolsDialog';
-import { ExtensionsDialog } from './components/dialogs/ExtensionsDialog';
-import { SettingsMessage } from './components/messages/SettingsMessage';
-import { resolveShellOutputMaxLines } from './components/messages/ToolGroup';
-import { isAskUserQuestionToolName } from './components/messages/toolFormatting';
-import { ToolApproval } from './components/messages/ToolApproval';
-import { AskUserQuestion } from './components/messages/AskUserQuestion';
+import { SettingsDialog } from './components/dialogs/SettingsDialog';
 import { HelpDialog } from './components/dialogs/HelpDialog';
-import { ThemeDialog } from './components/dialogs/ThemeDialog';
+import {
+  ThemeDialog,
+  type WebShellTheme,
+} from './components/dialogs/ThemeDialog';
 import { DeleteSessionDialog } from './components/dialogs/DeleteSessionDialog';
 import { ReleaseSessionDialog } from './components/dialogs/ReleaseSessionDialog';
 import { RewindDialog } from './components/dialogs/RewindDialog';
@@ -76,13 +68,11 @@ import { WebShellSidebar } from './components/sidebar/WebShellSidebar';
 import { getLocalCommands } from './constants/localCommands';
 import { mergeCommands } from './hooks/daemonSessionMappers';
 import { useAnimationFrameValue } from './hooks/useAnimationFrameValue';
-import { useBackgroundTasks } from './hooks/useBackgroundTasks';
-import { useMessages } from './hooks/useMessages';
+import { usePanelActive } from './hooks/usePanelActive';
 import { useShallowMemo, useStableArray } from './hooks/useShallowMemo';
 import {
   I18nProvider,
   getTranslator,
-  languageSettingToWebShellLanguage,
   languageLabel,
   normalizeLanguage,
   type WebShellLanguage,
@@ -114,13 +104,11 @@ import {
   serializeStatusMessage,
   type StatusInfo,
 } from './components/messages/StatusMessage';
-import type { SerializedMcpStatusMessage } from './components/messages/McpStatusMessage';
-import { McpDialog } from './components/dialogs/McpDialog';
 import {
-  GOAL_STATUS_ACTIVE_EVENT,
-  parseGoalStatusMessage,
-  serializeGoalStatusMessage,
-} from './components/messages/GoalStatusMessage';
+  MCP_STATUS_ACTIVE_EVENT,
+  parseMcpStatusMessage,
+  serializeMcpStatusMessage,
+} from './components/messages/McpStatusMessage';
 import { BtwMessage } from './components/messages/BtwMessage';
 import {
   createAndAttachSessionForPrompt,
@@ -143,16 +131,7 @@ import {
 } from './utils/todos';
 import { ThemeProvider } from './themeContext';
 import {
-  WebShellThemeId,
-  THEME_SETTING_KEY,
-  LANGUAGE_SETTING_KEY,
-  themeSettingToWebShellTheme,
-  type WebShellTheme,
-} from './themeContext';
-import {
   WebShellCustomizationProvider,
-  type WebShellComposerApi,
-  type WebShellComposerInput,
   type WebShellMarkdownCustomization,
   type ToolHeaderExtraRenderer,
   type WelcomeHeaderRenderer,
@@ -170,46 +149,17 @@ import styles from './App.module.css';
 
 export const CompactModeContext = createContext(false);
 
-/**
- * Per-snapshot status diffs (keyed by tool callId or plan message id), so a
- * history row can render what changed in that snapshot without re-deriving it
- * from the whole transcript. Empty by default so a row rendered outside the
- * provider still falls back gracefully.
- */
-export const TodoTimelineContext = createContext<Map<string, TodoSnapshotDiff>>(
-  new Map(),
-);
+const MODES_CYCLE = DAEMON_APPROVAL_MODES;
+const MAX_DISPLAYED_QUEUED_PROMPTS = 3;
+const MAX_QUEUED_PROMPT_PREVIEW_CHARS = 240;
+const COMPACT_MODE_STORAGE_KEY = 'web-shell:compact-mode';
 
-/**
- * Per-todo timing and resource detail keyed by todoStateKey, consumed by the
- * expanded todo list so a finished task can reveal when it ran and what it
- * spent. Empty by default so a row rendered outside the provider (or in tests)
- * simply shows no expander.
- */
-export const TodoDetailContext = createContext<Map<string, TodoDetail>>(
-  new Map(),
-);
-
-/**
- * Provides both todo contexts in one wrapper so the message list stays at a
- * single nesting level (one provider in the tree, not two).
- */
-function TodoContextsProvider({
-  timeline,
-  details,
-  children,
-}: {
-  timeline: Map<string, TodoSnapshotDiff>;
-  details: Map<string, TodoDetail>;
-  children: ReactNode;
-}) {
-  return (
-    <TodoTimelineContext.Provider value={timeline}>
-      <TodoDetailContext.Provider value={details}>
-        {children}
-      </TodoDetailContext.Provider>
-    </TodoTimelineContext.Provider>
-  );
+function loadCompactMode(): boolean {
+  try {
+    return window.localStorage.getItem(COMPACT_MODE_STORAGE_KEY) === 'true';
+  } catch {
+    return false;
+  }
 }
 
 const MODES_CYCLE = DAEMON_APPROVAL_MODES;
@@ -321,7 +271,7 @@ export interface WebShellProps {
   theme?: WebShellTheme;
   /** Called when `/theme` changes the web-shell theme. */
   onThemeChange?: (theme: WebShellTheme) => void;
-  /** UI language for the web-shell. Defaults to `?language=` or browser language. */
+  /** UI language for the Web terminal. Defaults to `?language=` or browser language. */
   language?: 'en' | 'zh-CN' | 'zh' | 'zh-cn';
   /** Called when `/language ui` changes the web-shell UI language. */
   onLanguageChange?: (language: WebShellLanguage) => void;
@@ -339,12 +289,6 @@ export interface WebShellProps {
   onConnectionChange?: (status: string) => void;
   /** Called when prompt status changes (idle/waiting/responding). */
   onStreamingStateChange?: (state: DaemonStreamingState) => void;
-  /**
-   * Called whenever transcript blocks change. Receives the full blocks array
-   * from useTranscriptBlocks(). Fires on every streaming delta during active
-   * generation, so consumers should debounce or throttle expensive work.
-   */
-  onTranscriptChange?: (blocks: readonly DaemonTranscriptBlock[]) => void;
   /** Called when a critical error occurs (auth failure, session gone, etc). */
   onError?: (error: Error) => void;
   /** Called when `/bug` is invoked. Receives system info. If omitted, web-shell opens the report URL itself. */
@@ -523,15 +467,12 @@ function formatError(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
-function isAbortError(error: unknown): boolean {
-  return (
-    (error instanceof DOMException && error.name === 'AbortError') ||
-    (error instanceof Error && error.name === 'AbortError')
-  );
-}
-
 interface AlreadyDispatchedError extends Error {
   _alreadyDispatched: true;
+}
+
+function markAlreadyDispatched(error: Error): AlreadyDispatchedError {
+  return Object.assign(error, { _alreadyDispatched: true as const });
 }
 
 function isAlreadyDispatched(error: unknown): error is AlreadyDispatchedError {
@@ -540,26 +481,6 @@ function isAlreadyDispatched(error: unknown): error is AlreadyDispatchedError {
     error !== null &&
     (error as AlreadyDispatchedError)._alreadyDispatched === true
   );
-}
-
-function logSessionNoticesHook(notices: readonly DaemonSessionNotice[]): void {
-  if (notices.length > 0) {
-    console.info('[web-shell] useSessionNotices()', { notices });
-  }
-}
-
-function shouldToastNotice(notice: DaemonSessionNotice): boolean {
-  return (
-    notice.category === 'validation' ||
-    notice.category === 'user_action' ||
-    notice.category === 'system'
-  );
-}
-
-function toastToneFromNotice(notice: DaemonSessionNotice): ToastTone {
-  if (notice.severity === 'warning') return 'warning';
-  if (notice.severity === 'info') return 'info';
-  return 'error';
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -603,17 +524,6 @@ function isEditToolPermission(request: PermissionRequest): boolean {
   return request.toolKind === 'edit';
 }
 
-function isAskUserPermission(request: PermissionRequest | null): boolean {
-  if (
-    !request?.rawInput?.questions ||
-    !Array.isArray(request.rawInput.questions)
-  ) {
-    return false;
-  }
-  if (!request.toolName) return true;
-  return isAskUserQuestionToolName(request.toolName);
-}
-
 function parseRenameArgument(
   raw: string,
 ):
@@ -631,78 +541,74 @@ function parseRenameArgument(
   return { type: 'manual', displayName: trimmed };
 }
 
-function isBackgroundShellToolCall(tool: ACPToolCall): boolean {
-  if (tool.args?.is_background !== true) return false;
+function isAgentTool(tool: ACPToolCall): boolean {
   const name = tool.toolName.toLowerCase();
   return (
-    name === 'shell' ||
-    name === 'bash' ||
-    name === 'run_shell_command' ||
-    name === 'exec'
+    name === 'agent' || name === 'task' || Boolean(tool.args?.subagent_type)
   );
 }
 
-function getBackgroundTaskActivityKey(messages: readonly Message[]): string {
-  const parts: string[] = [];
+function isActiveTool(tool: ACPToolCall): boolean {
+  return tool.status === 'pending' || tool.status === 'in_progress';
+}
+
+interface FloatingPanels {
+  todos: TodoItem[];
+  agents: ACPToolCall[];
+}
+
+function getFloatingPanels(messages: readonly Message[]): FloatingPanels {
+  let todos: TodoItem[] | undefined;
+  const agents: ACPToolCall[] = [];
+
   for (const message of messages) {
+    if (message.role === 'plan') {
+      if (hasActiveTodos(message.todos)) {
+        todos = message.todos;
+      } else {
+        todos = [];
+      }
+      continue;
+    }
     if (message.role !== 'tool_group') continue;
+
     for (const tool of message.tools) {
-      if (
-        isBackgroundSubAgentToolCall(tool) ||
-        isBackgroundShellToolCall(tool)
-      ) {
-        parts.push(`${tool.callId}:${tool.status}`);
+      const nextTodos = extractTodosFromToolCall(tool);
+      if (nextTodos) {
+        todos = hasActiveTodos(nextTodos) ? nextTodos : [];
+      }
+      if (isAgentTool(tool) && isActiveTool(tool)) {
+        agents.push(tool);
       }
     }
   }
-  return parts.join('|');
+
+  return { todos: todos ?? [], agents };
 }
 
-function mapToWebShellTaskInfo(
-  task: DaemonSessionTaskStatus,
-): WebShellTaskInfo {
-  const base = {
-    id: task.id,
-    label: task.label,
-    description: task.description,
-    runtimeMs: task.runtimeMs,
-    startTime: task.startTime,
-    endTime: task.endTime,
-    error: task.error,
-  };
-
-  switch (task.kind) {
-    case 'agent':
-      return {
-        ...base,
-        kind: 'agent',
-        status: task.status,
-        subagentType: task.subagentType,
-        isBackgrounded: task.isBackgrounded,
-        prompt: task.prompt,
-      };
-    case 'shell':
-      return {
-        ...base,
-        kind: 'shell',
-        status: task.status,
-        command: task.command,
-        cwd: task.cwd,
-        pid: task.pid,
-        exitCode: task.exitCode,
-      };
-    case 'monitor':
-      return {
-        ...base,
-        kind: 'monitor',
-        status: task.status,
-        command: task.command,
-        pid: task.pid,
-        exitCode: task.exitCode,
-      };
-    default:
-      return task satisfies never;
-  }
+function getAgentPanelVersion(agent: ACPToolCall): string {
+  const raw = agent.rawOutput;
+  const taskExec =
+    raw && typeof raw === 'object' && !Array.isArray(raw)
+      ? (raw as Record<string, unknown>)
+      : undefined;
+  const summary = taskExec?.executionSummary;
+  const summaryRecord =
+    summary && typeof summary === 'object' && !Array.isArray(summary)
+      ? (summary as Record<string, unknown>)
+      : undefined;
+  return [
+    agent.subTools?.length ?? 0,
+    agent.subContent?.length ?? 0,
+    agent.title ?? '',
+    agent.args?.description ?? '',
+    agent.args?.prompt ?? '',
+    taskExec?.tokenCount ?? '',
+    summaryRecord?.totalTokens ?? '',
+    summaryRecord?.totalToolCalls ?? '',
+    summaryRecord?.failedToolCalls ?? '',
+    taskExec?.terminateReason ?? '',
+  ].join(':');
 }
 
 function translateCopyMessage(
@@ -732,7 +638,7 @@ function translateCopyMessage(
 
 export function App({
   onSessionIdChange,
-  theme: providedTheme,
+  theme: providedTheme = 'dark',
   onThemeChange,
   language: providedLanguage,
   onLanguageChange,
@@ -767,8 +673,6 @@ export function App({
   composerInput,
   composerInputVersion,
 }: WebShellProps = {}) {
-  const [chatWidthMode, setChatWidthMode] =
-    useState<ChatWidthMode>(readChatWidthMode);
   const [selectedLanguage, setSelectedLanguage] = useState<WebShellLanguage>(
     () =>
       providedLanguage === undefined
@@ -877,39 +781,13 @@ export function App({
       loadingPhrases,
     ],
   );
-  const CustomFooter = renderFooter;
   const store = useTranscriptStore();
   const blocks = useTranscriptBlocks();
   const connection = useConnection();
   const sessionActions = useActions();
-  const { notices, dismissNotice } = useSessionNotices();
   const workspaceActions = useWorkspaceActions();
-  const onToastRef = useRef(onToast);
-  onToastRef.current = onToast;
-  const toastIdRef = useRef(0);
-  const [toasts, setToasts] = useState<WebShellToast[]>([]);
-  const dismissToast = useCallback((id: string) => {
-    setToasts((current) => current.filter((toast) => toast.id !== id));
-  }, []);
-  const pushToast = useCallback((tone: ToastTone, message: string) => {
-    if (onToastRef.current) {
-      onToastRef.current(tone, message);
-      return;
-    }
-    const toast: WebShellToast = {
-      id: `web-shell-toast-${Date.now()}-${++toastIdRef.current}`,
-      tone,
-      message,
-    };
-    setToasts((current) => {
-      const withoutDuplicate = current.filter(
-        (item) => item.tone !== tone || item.message !== message,
-      );
-      return [...withoutDuplicate, toast].slice(-MAX_TOASTS);
-    });
-  }, []);
 
-  const messages = useMessages(t);
+  const messages = useMessages();
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
   const [recapMessage, setRecapMessage] = useState<LocalAnchoredMessage | null>(
@@ -946,6 +824,18 @@ export function App({
     }
     return filterModelSwitchMessages(result);
   }, [messages, recapMessage]);
+  const hasMcpPanelMessage = useMemo(
+    () => hasMcpStatusPanel(displayMessages),
+    [displayMessages],
+  );
+  useEffect(() => {
+    if (hasMcpPanelMessage) return;
+    window.dispatchEvent(
+      new CustomEvent(MCP_STATUS_ACTIVE_EVENT, {
+        detail: { active: false },
+      }),
+    );
+  }, [hasMcpPanelMessage]);
   const messageBlocks = useAnimationFrameValue(blocks);
   const rawPendingApproval = useMemo(
     () => extractPendingPermission(messageBlocks),
@@ -972,43 +862,8 @@ export function App({
     () => getFloatingTodos(messages),
     [messages],
   );
-  // Keep the timeline Map referentially stable across streaming ticks that
-  // don't touch any todo snapshot. The Map is a context value, so a fresh
-  // reference would re-render every todo/plan row regardless of memoization;
-  // only rebuild when the todo snapshots themselves change.
-  const todoTimelineRef = useRef<{
-    signature: string;
-    timeline: Map<string, TodoSnapshotDiff>;
-  } | null>(null);
-  const todoTimeline = useMemo(() => {
-    const signature = todoTimelineSignature(messages);
-    const cached = todoTimelineRef.current;
-    if (cached && cached.signature === signature) return cached.timeline;
-    const timeline = computeTodoTimeline(messages);
-    todoTimelineRef.current = { signature, timeline };
-    return timeline;
-  }, [messages]);
-  // Per-todo detail (start/end + token/API/tool spend) is derived entirely from
-  // the transcript: the agent stamps a cumulative-usage snapshot on each todo
-  // update and the web-shell diffs consecutive snapshots, so this works live and
-  // on resume with no polling. Kept referentially stable like the timeline
-  // above (rebuilt only when a relevant snapshot, timestamp, stat, or tool span
-  // changes) so an unrelated streaming tick doesn't re-render every expanded
-  // todo row that consumes TodoDetailContext.
-  const todoDetailRef = useRef<{
-    signature: string;
-    details: Map<string, TodoDetail>;
-  } | null>(null);
-  const todoDetails = useMemo(() => {
-    const signature = todoDetailSignature(messages);
-    const cached = todoDetailRef.current;
-    if (cached && cached.signature === signature) return cached.details;
-    const details = computeTodoDetails(messages);
-    todoDetailRef.current = { signature, details };
-    return details;
-  }, [messages]);
   const floatingTodos = useStableArray(
-    floatingTodosState.todos,
+    rawFloatingPanels.todos,
     (t) => `${t.id}:${t.status}:${t.content}`,
   );
   const floatingTodosAllCompleted = floatingTodosState.allCompleted;
@@ -1089,33 +944,6 @@ export function App({
   });
   const streamingState = useStreamingState();
   const streamingStateRef = useRef<DaemonStreamingState>(streamingState);
-  const localStreamingStartedAtRef = useRef(Date.now());
-  const previousStreamingStateRef =
-    useRef<DaemonStreamingState>(streamingState);
-  if (
-    previousStreamingStateRef.current === 'idle' &&
-    streamingState !== 'idle'
-  ) {
-    localStreamingStartedAtRef.current = Date.now();
-  }
-  previousStreamingStateRef.current = streamingState;
-  const activeTurnStartedAt = useMemo(() => {
-    if (streamingState === 'idle') return undefined;
-    for (let i = displayMessages.length - 1; i >= 0; i--) {
-      const message = displayMessages[i];
-      if (message?.role === 'user') {
-        return message.timestamp ?? localStreamingStartedAtRef.current;
-      }
-    }
-    return localStreamingStartedAtRef.current;
-  }, [displayMessages, streamingState]);
-  const lastSubmittedPromptRef = useRef<string>('');
-  const lastSubmittedImagesRef = useRef<PromptImage[] | undefined>(undefined);
-  const retryableTurnErrorIdRef = useRef<string | null>(null);
-  const retriedTurnErrorIdRef = useRef<string | null>(null);
-  const [showRetryHint, setShowRetryHint] = useState(false);
-  const showRetryHintRef = useRef(showRetryHint);
-  showRetryHintRef.current = showRetryHint;
   const connected = connection.status === 'connected';
   const [loadedSkills, setLoadedSkills] = useState<SkillInfo[]>([]);
   useEffect(() => {
@@ -1132,95 +960,23 @@ export function App({
       .catch(() => {});
   }, [connected, workspaceActions]);
 
-  const [modelDialogMode, setModelDialogMode] =
-    useState<ModelDialogMode | null>(null);
-  const [voiceModels, setVoiceModels] = useState<VoiceModelOption[]>([]);
-  const [showApprovalModeDialog, setShowApprovalModeDialog] = useState(false);
+  const [modelInlineMode, setModelInlineMode] =
+    useState<ModelInlineMode | null>(null);
+  const [approvalModeInlineOpen, setApprovalModeInlineOpen] = useState(false);
   const [showResumeDialog, setShowResumeDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showReleaseDialog, setShowReleaseDialog] = useState(false);
-  const [showRewindDialog, setShowRewindDialog] = useState(false);
   const [showHelpDialog, setShowHelpDialog] = useState(false);
   const [showThemeDialog, setShowThemeDialog] = useState(false);
   const [showToolsDialog, setShowToolsDialog] = useState(false);
-  const [showExtensionsDialog, setShowExtensionsDialog] = useState(false);
-  const [mcpDialogMessage, setMcpDialogMessage] =
-    useState<SerializedMcpStatusMessage | null>(null);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
-  const [showMemoryDialog, setShowMemoryDialog] = useState(false);
-  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [memoryInlineOpen, setMemoryInlineOpen] = useState(false);
   const [memoryRefreshSignal, setMemoryRefreshSignal] = useState(0);
   const [memoryAddSignal, setMemoryAddSignal] = useState(0);
-
-  // Refresh commands when extensions change (install/uninstall/update).
-  const workspaceEventSignals = useWorkspaceEventSignals();
-  const extensionsVersionRef = useRef(
-    workspaceEventSignals?.extensionsVersion ?? 0,
-  );
-  useEffect(() => {
-    const current = workspaceEventSignals?.extensionsVersion ?? 0;
-    if (current !== extensionsVersionRef.current) {
-      extensionsVersionRef.current = current;
-      const change = workspaceEventSignals?.lastExtensionChange;
-      if (change?.status === 'failed') {
-        store.dispatch([
-          {
-            type: 'error',
-            text: t('extensions.action.failed', {
-              name: change.name ?? '',
-              source: change.source ?? '',
-              error: change.error ?? t('error.unknown'),
-            }),
-          },
-        ]);
-        return;
-      }
-      if (change?.status === 'installed') {
-        const name = change.name ?? change.source ?? t('extensions.label');
-        store.dispatch([
-          {
-            type: 'status',
-            text: change.version
-              ? t('extensions.install.installedWithVersion', {
-                  name,
-                  version: change.version,
-                })
-              : t('extensions.install.installed', { name }),
-          },
-        ]);
-      } else if (change?.status) {
-        const name = change.name ?? change.source ?? t('extensions.label');
-        const key =
-          change.status === 'updated' && change.version
-            ? 'extensions.manage.updatedWithVersion'
-            : `extensions.manage.${change.status}`;
-        store.dispatch([
-          {
-            type: 'status',
-            text: t(key, { name, version: change.version ?? '' }),
-          },
-        ]);
-      }
-      sessionActions.refreshCommands().catch(() => {
-        store.dispatch([
-          {
-            type: 'error',
-            text: t('extensions.commands.refreshFailed'),
-          },
-        ]);
-      });
-    }
-  }, [
-    workspaceEventSignals?.extensionsVersion,
-    workspaceEventSignals?.lastExtensionChange,
-    sessionActions,
-    store,
-    t,
-  ]);
   const [memoryAddScope, setMemoryAddScope] = useState<'workspace' | 'global'>(
     'workspace',
   );
-  const [agentsDialogMode, setAgentsDialogMode] =
+  const [agentsInlineMode, setAgentsInlineMode] =
     useState<AgentsInitialMode | null>(null);
   const [escapeHintVisible, setEscapeHintVisible] = useState(false);
   // Whether the first Esc has armed a stream cancellation; the composer's send
@@ -1343,37 +1099,27 @@ export function App({
     showResumeDialog ||
     showDeleteDialog ||
     showReleaseDialog ||
-    showRewindDialog ||
     showHelpDialog ||
     showThemeDialog ||
     showToolsDialog ||
-    showExtensionsDialog ||
-    modelDialogMode !== null ||
-    showApprovalModeDialog ||
-    tasksDialogMessage !== null ||
-    mcpDialogMessage !== null ||
-    agentsDialogMode !== null ||
-    showSettingsDialog ||
-    showMemoryDialog ||
-    showAuthDialog;
-  const interactionBlocked = dialogOpen;
+    showSettingsDialog;
+  const bottomHidden =
+    dialogOpen ||
+    approvalModePanelActive ||
+    mcpPanelActive ||
+    agentsPanelActive ||
+    memoryPanelActive ||
+    modelPanelActive;
 
   const reportError = useCallback(
     (error: unknown, fallback: string) => {
-      if (isAbortError(error)) return;
-      if (isDaemonTurnError(error)) {
-        console.debug('[web-shell] turn error rendered in transcript', error);
-        return;
-      }
       if (isAlreadyDispatched(error)) {
-        console.debug('[web-shell] error already handled by notice', error);
+        console.warn('[web-shell] error already dispatched', error);
         return;
       }
-      const message = formatError(error, fallback);
-      console.error('[web-shell]', message, error);
-      pushToast('error', message);
+      store.dispatch([{ type: 'error', text: formatError(error, fallback) }]);
     },
-    [pushToast],
+    [store],
   );
   const notifySuccess = useCallback(
     (message: string) => pushToast('success', message),
@@ -1402,20 +1148,6 @@ export function App({
     t,
   });
 
-  useEffect(() => {
-    logSessionNoticesHook(notices);
-    for (const notice of notices) {
-      if (shouldToastNotice(notice)) {
-        pushToast(toastToneFromNotice(notice), notice.message);
-      } else if (notice.category === 'lifecycle') {
-        console.debug('[web-shell] daemon notice', notice);
-      } else {
-        console.warn('[web-shell] daemon notice', notice);
-      }
-      dismissNotice(notice.id);
-    }
-  }, [dismissNotice, notices, pushToast]);
-
   const onBugReportRef = useRef(onBugReport);
   onBugReportRef.current = onBugReport;
 
@@ -1425,7 +1157,6 @@ export function App({
     btwAbortControllerRef.current = null;
     setRecapMessage(null);
     setBtwMessage(null);
-    setTasksDialogMessage(null);
     lastRecapBlockCountRef.current = 0;
   }, [connection.sessionId]);
 
@@ -1483,7 +1214,12 @@ export function App({
     (rawQuestion: string) => {
       const question = rawQuestion.trim();
       if (!question) {
-        pushToast('error', t('btw.empty'));
+        store.dispatch([
+          {
+            type: 'error',
+            text: t('btw.empty'),
+          },
+        ]);
         return;
       }
       if (!requireActiveSessionForLocalCommand()) return;
@@ -1520,10 +1256,13 @@ export function App({
             if (currentSessionIdRef.current !== sessionId) return;
             if (btwAbortControllerRef.current !== abortController) return;
             btwAbortControllerRef.current = null;
-            setBtwMessage(null);
-            if (!isAbortError(error) && !isAlreadyDispatched(error)) {
-              console.warn('[web-shell] unhandled btw failure', error);
-            }
+            setBtwMessage({
+              id: messageId,
+              role: 'btw',
+              question,
+              answer: formatError(error, t('btw.failed')),
+              isPending: false,
+            });
           },
         );
     },
@@ -1544,7 +1283,7 @@ export function App({
 
   useEffect(() => {
     const onBtwShortcut = (e: KeyboardEvent) => {
-      if (interactionBlocked || pendingApproval) return;
+      if (bottomHidden || pendingApproval) return;
       const message = btwMessage;
       if (!message || message.role !== 'btw') return;
 
@@ -1565,7 +1304,8 @@ export function App({
       if (message.isPending) {
         if (!isPlainEscape && !isCtrlCancel) return;
       } else {
-        const editorHasText = editorRef.current?.hasInput() ?? false;
+        const editorHasText =
+          (editorRef.current?.getText().trim().length ?? 0) > 0;
         const isPlainDismiss =
           !e.ctrlKey &&
           !e.metaKey &&
@@ -1583,7 +1323,7 @@ export function App({
 
     window.addEventListener('keydown', onBtwShortcut, true);
     return () => window.removeEventListener('keydown', onBtwShortcut, true);
-  }, [interactionBlocked, btwMessage, dismissBtwMessage, pendingApproval]);
+  }, [bottomHidden, btwMessage, dismissBtwMessage, pendingApproval]);
 
   // Echo a local command into the transcript, or suppress it while a turn is
   // streaming so the injected user row can't split the active turn (see
@@ -1615,71 +1355,11 @@ export function App({
     [onThemeChange],
   );
 
-  const handleLanguageChange = useCallback(
-    (nextLanguage: WebShellLanguage) => {
-      setSelectedLanguage(nextLanguage);
-      onLanguageChange?.(nextLanguage);
-    },
-    [onLanguageChange],
-  );
-
-  const handleToggleShortcuts = useCallback(() => {
-    setShowHelpDialog(true);
-  }, []);
-
-  const workspaceSettingsState = useSettings({
-    autoLoad: true,
-  });
-  const {
-    settings: workspaceSettings,
-    setValue: setWorkspaceSetting,
-    reload: reloadWorkspaceSettings,
-  } = workspaceSettingsState;
-  const themeSetting = workspaceSettings.find(
-    (setting) => setting.key === THEME_SETTING_KEY,
-  );
-  const hideTipsSetting = workspaceSettings.find(
-    (setting) => setting.key === HIDE_TIPS_SETTING_KEY,
-  );
-  const languageSetting = workspaceSettings.find(
-    (setting) => setting.key === LANGUAGE_SETTING_KEY,
-  );
-  const currentVoiceModel = (() => {
-    const value = workspaceSettings.find(
-      (setting) => setting.key === 'voiceModel',
-    )?.values.effective;
-    return typeof value === 'string' && value.trim() ? value.trim() : undefined;
-  })();
-  const shellOutputMaxLines = resolveShellOutputMaxLines(workspaceSettings);
-  const [compactMode, setCompactMode] = useState(false);
-  const compactModeRef = useRef(compactMode);
-  compactModeRef.current = compactMode;
-
-  useEffect(() => {
-    if (providedTheme) {
-      setSelectedTheme(providedTheme);
-      return;
-    }
-    const settingTheme = themeSettingToWebShellTheme(
-      themeSetting?.values.effective,
-    );
-    if (settingTheme) {
-      setSelectedTheme(settingTheme);
-    }
-  }, [providedTheme, themeSetting?.values.effective]);
-
   useEffect(() => {
     if (providedLanguage !== undefined) {
       setSelectedLanguage(normalizeLanguage(providedLanguage));
-      return;
     }
-    const settingLanguage = languageSettingToWebShellLanguage(
-      languageSetting?.values.effective,
-    );
-    if (settingLanguage) {
-      setSelectedLanguage(settingLanguage);
-    }
-  }, [providedLanguage, languageSetting?.values.effective]);
+  }, [providedLanguage]);
 
   const handleSettingsLanguageChange = useCallback(
     (nextLanguage: WebShellLanguage) => {
@@ -1724,16 +1404,10 @@ export function App({
   }, [store, t]);
 
   const handleToggleCompact = useCallback(() => {
-    const previous = compactModeRef.current;
     const next = !compactModeRef.current;
     setCompactMode(next);
-    setWorkspaceSetting('workspace', COMPACT_MODE_SETTING_KEY, next).catch(
-      (error: unknown) => {
-        setCompactMode(previous);
-        reportError(error, t('compact.saveFailed'));
-      },
-    );
-  }, [reportError, setWorkspaceSetting, t]);
+    saveCompactMode(next);
+  }, []);
 
   const handleSetMode = useCallback(
     (modeId: string) => {
@@ -1753,6 +1427,14 @@ export function App({
         .then((result) => {
           const effectiveMode = result.mode || modeId;
           setCurrentMode(effectiveMode);
+          if (effectiveMode === 'auto') {
+            // TODO: CLI also shows stripped dangerous allow rules via
+            // PermissionManager.getStrippedDangerousRules(). The daemon
+            // API (DaemonApprovalModeResult) doesn't expose this info yet.
+            // Once the daemon returns strippedRules in the response, display
+            // them here like CLI's emitAutoModeEntryNotices does.
+            store.dispatch([{ type: 'status', text: t('mode.auto.notice') }]);
+          }
           const approval = pendingApprovalRef.current;
           if (!approval) return;
           const shouldAutoApprove =
@@ -1790,26 +1472,6 @@ export function App({
   }, [streamingState]);
 
   useEffect(() => {
-    let retryableTurnErrorId: string | null = null;
-    for (let i = blocks.length - 1; i >= 0; i--) {
-      const block = blocks[i];
-      if (block?.kind === 'user') break;
-      if (block?.kind === 'error' && block.source === 'turn_error') {
-        retryableTurnErrorId = block.id;
-        break;
-      }
-      if (block?.kind !== 'debug') break;
-    }
-    const canRetry =
-      connected &&
-      retryableTurnErrorId !== null &&
-      retryableTurnErrorId !== retriedTurnErrorIdRef.current &&
-      lastSubmittedPromptRef.current.length > 0;
-    retryableTurnErrorIdRef.current = canRetry ? retryableTurnErrorId : null;
-    setShowRetryHint(canRetry);
-  }, [blocks, connected]);
-
-  useEffect(() => {
     onStreamingStateChange?.(streamingState);
   }, [streamingState, onStreamingStateChange]);
 
@@ -1818,23 +1480,22 @@ export function App({
   }, [connection.status, onConnectionChange]);
 
   useEffect(() => {
-    onTranscriptChange?.(blocks);
-  }, [blocks, onTranscriptChange]);
-
-  useEffect(() => {
     if (connection.error) {
-      const error = new Error(connection.error);
-      onError?.(error);
+      onError?.(new Error(connection.error));
     }
   }, [connection.error, onError]);
 
   useEffect(() => {
-    setCurrentModel(connection.currentModel ?? '');
-  }, [connection.currentModel, connection.sessionId]);
+    if (connection.currentModel) {
+      setCurrentModel(connection.currentModel);
+    }
+  }, [connection.currentModel]);
 
   useEffect(() => {
-    setCurrentMode(connection.currentMode ?? 'default');
-  }, [connection.currentMode, connection.sessionId]);
+    if (connection.currentMode) {
+      setCurrentMode(connection.currentMode);
+    }
+  }, [connection.currentMode]);
 
   useEffect(() => {
     if (connection.sessionId) {
@@ -1844,45 +1505,6 @@ export function App({
     lastNotifiedSessionIdRef.current = connection.sessionId;
     onSessionIdChange?.(connection.sessionId);
   }, [connection.sessionId, onSessionIdChange]);
-
-  useEffect(() => {
-    const nextGoal = getLatestActiveGoalFromBlocks(blocks);
-    setActiveGoal((current) => {
-      if (!nextGoal) return current ? null : current;
-      if (
-        current?.condition === nextGoal.condition &&
-        current.setAt === nextGoal.setAt
-      ) {
-        return current;
-      }
-      return nextGoal;
-    });
-  }, [blocks]);
-
-  useEffect(() => {
-    const onGoalStatusActive = (event: Event) => {
-      const detail = (
-        event as CustomEvent<{
-          active?: boolean;
-          condition?: string;
-          setAt?: number;
-        }>
-      ).detail;
-      if (!detail?.active) {
-        setActiveGoal(null);
-        return;
-      }
-      if (!detail.condition) return;
-      setActiveGoal({
-        condition: detail.condition,
-        setAt: detail.setAt ?? Date.now(),
-      });
-    };
-
-    window.addEventListener(GOAL_STATUS_ACTIVE_EVENT, onGoalStatusActive);
-    return () =>
-      window.removeEventListener(GOAL_STATUS_ACTIVE_EVENT, onGoalStatusActive);
-  }, []);
 
   // Auto-recap: fire when the user returns after being away ≥ 3 minutes
   const hiddenAtRef = useRef<number | null>(null);
@@ -1921,7 +1543,7 @@ export function App({
           }
         },
         (error: unknown) => {
-          console.error('[auto-recap] failed:', error);
+          console.warn('[auto-recap] failed:', error);
         },
       );
     }
@@ -2238,8 +1860,15 @@ export function App({
             setShowHelpDialog(true);
             return true;
           }
-          if (cmd === 'tasks') {
-            openTasksPanel();
+          if (
+            handleTasksSlashCommand({
+              cmd,
+              promptBlocked,
+              getTasks: sessionActions.getTasks,
+              dispatch: store.dispatch,
+              reportError,
+            })
+          ) {
             return true;
           }
           if (cmd === 'goal') {
@@ -2258,7 +1887,12 @@ export function App({
             } else if (!themeArg) {
               setShowThemeDialog(true);
             } else {
-              pushToast('error', t('error.unsupportedTheme'));
+              store.dispatch([
+                {
+                  type: 'error',
+                  text: t('error.unsupportedTheme'),
+                },
+              ]);
             }
             return true;
           }
@@ -2305,11 +1939,14 @@ export function App({
                 normalizedArg,
               );
               if (!valid) {
-                pushToast('error', t('language.invalid'));
+                store.dispatch([
+                  { type: 'error', text: t('language.invalid') },
+                ]);
                 return true;
               }
               const nextLanguage = normalizeLanguage(languageArg);
-              handleLanguageChange(nextLanguage);
+              setSelectedLanguage(nextLanguage);
+              onLanguageChange?.(nextLanguage);
               if (!promptBlocked) {
                 const clearComposerOnPromptStart =
                   !connectionRef.current.sessionId;
@@ -2395,7 +2032,8 @@ export function App({
           if (cmd === 'model') {
             const modelArg = text.slice(match[0].length).trim();
             if (modelArg === '--fast') {
-              setModelDialogMode('fast');
+              store.appendLocalUserMessage(text);
+              setModelInlineMode('fast');
               return true;
             }
             if (modelArg.startsWith('--fast ')) {
@@ -2444,7 +2082,8 @@ export function App({
                   reportError(error, t('model.switch'));
                 });
             } else {
-              setModelDialogMode('main');
+              store.appendLocalUserMessage(text);
+              setModelInlineMode('main');
             }
             return true;
           }
@@ -2488,12 +2127,14 @@ export function App({
             if (modeArg) {
               handleSetMode(modeArg);
             } else {
-              setShowApprovalModeDialog(true);
+              store.appendLocalUserMessage(text);
+              setApprovalModeInlineOpen(true);
             }
             return true;
           }
           if (cmd === 'mcp') {
             const mcpArg = text.slice(match[0].length).trim().toLowerCase();
+            store.appendLocalUserMessage(text);
             workspaceActions
               .loadMcpStatus()
               .then(async (status) => {
@@ -2583,7 +2224,6 @@ export function App({
                       },
                     ]);
                   }
-                  resumeChatBottomFollow('smooth');
                 })
                 .catch((error: unknown) => {
                   reportError(error, 'Failed to load skills');
@@ -2614,7 +2254,6 @@ export function App({
                       },
                     ]);
                   }
-                  resumeChatBottomFollow('smooth');
                 })
                 .catch((error: unknown) => {
                   reportError(error, 'Failed to load tools');
@@ -2633,15 +2272,28 @@ export function App({
               contextArg === 'detail' ||
               contextArg === '-d'
             ) {
-              showContextUsage(
-                text,
-                contextArg === 'detail' || contextArg === '-d',
-              );
+              store.appendLocalUserMessage(text);
+              sessionActions
+                .getContextUsage({
+                  detail: contextArg === 'detail' || contextArg === '-d',
+                })
+                .then((result) => {
+                  store.dispatch([
+                    {
+                      type: 'status',
+                      text: serializeContextUsageMessage(result),
+                    },
+                  ]);
+                })
+                .catch((error: unknown) => {
+                  reportError(error, 'Failed to load context usage');
+                });
               return true;
             }
           }
           if (cmd === 'memory') {
             const memoryArg = text.slice(match[0].length).trim().toLowerCase();
+            store.appendLocalUserMessage(text);
             if (memoryArg === 'refresh') {
               setMemoryRefreshSignal((signal) => signal + 1);
             } else if (memoryArg === 'add' || memoryArg.startsWith('add ')) {
@@ -2653,11 +2305,12 @@ export function App({
               );
               setMemoryAddSignal((signal) => signal + 1);
             }
-            setShowMemoryDialog(true);
+            setMemoryInlineOpen(true);
             return true;
           }
           if (cmd === 'agents') {
             const subCommand = text.slice(match[0].length).trim().toLowerCase();
+            store.appendLocalUserMessage(text);
             let agentsMode: AgentsInitialMode = 'menu';
             if (subCommand === 'create') {
               agentsMode = 'create';
@@ -2788,11 +2441,15 @@ export function App({
             return true;
           }
           if (cmd === 'clear') {
-            createNewSession();
+            sessionActions.newSession().catch((error: unknown) => {
+              reportError(error, 'Failed to create a new session');
+            });
             return true;
           }
           if (cmd === 'new' || cmd === 'reset') {
-            createNewSession();
+            sessionActions.newSession().catch((error: unknown) => {
+              reportError(error, 'Failed to create a new session');
+            });
             return true;
           }
           if (cmd === 'rename') {
@@ -2807,7 +2464,12 @@ export function App({
             }
             const displayName = renameArg.displayName;
             if (!displayName) {
-              pushToast('error', t('rename.empty'));
+              store.dispatch([
+                {
+                  type: 'error',
+                  text: t('rename.empty'),
+                },
+              ]);
               return true;
             }
             if (!requireActiveSessionForLocalCommand()) return false;
@@ -2822,7 +2484,15 @@ export function App({
                 ]);
               })
               .catch((error: unknown) => {
-                reportError(error, 'Failed to rename session');
+                store.dispatch([
+                  {
+                    type: 'error',
+                    text:
+                      error instanceof Error
+                        ? error.message
+                        : 'Failed to rename session',
+                  },
+                ]);
               });
             return true;
           }
@@ -2863,7 +2533,6 @@ export function App({
                     text: serializeStatsMessage(result, statsView),
                   },
                 ]);
-                resumeChatBottomFollow('smooth');
               })
               .catch(() => {});
             return true;
@@ -2929,7 +2598,6 @@ export function App({
               store.dispatch([
                 { type: 'status', text: serializeStatusMessage(info) },
               ]);
-              resumeChatBottomFollow('smooth');
             });
             return true;
           }
@@ -2976,7 +2644,9 @@ export function App({
                       { type: 'status', text: t('bug.submitted') },
                     ]);
                   } else {
-                    pushToast('error', t('bug.popupBlocked'));
+                    store.dispatch([
+                      { type: 'error', text: t('bug.popupBlocked') },
+                    ]);
                   }
                 }
               })
@@ -3062,15 +2732,24 @@ export function App({
   );
 
   const handleCancel = useCallback(() => {
-    sessionActions.cancel().catch((error: unknown) => {
-      reportError(error, 'Failed to cancel request');
-    });
-  }, [sessionActions, reportError]);
+    sessionActions
+      .cancel()
+      .then(() => {
+        store.dispatch([{ type: 'status', text: t('request.cancelled') }]);
+      })
+      .catch((error: unknown) => {
+        reportError(error, 'Failed to cancel request');
+      });
+  }, [sessionActions, store, t, reportError]);
 
-  const handleFocusTaskPill = useCallback((): boolean => {
-    if (interactionBlocked) return false;
-    return statusBarRef.current?.focusTaskPill() ?? false;
-  }, [interactionBlocked]);
+  const handleFocusActiveAgents = useCallback((): boolean => {
+    if (floatingAgents.length === 0) return false;
+    editorRef.current?.blur();
+    window.setTimeout(() => {
+      activeAgentsPanelRef.current?.focus({ preventScroll: true });
+    }, 0);
+    return true;
+  }, [floatingAgents.length]);
 
   const handleReturnToEditor = useCallback((text?: string) => {
     if (text) {
@@ -3111,7 +2790,7 @@ export function App({
 
   useEffect(() => {
     const onGlobalShortcut = (e: KeyboardEvent) => {
-      if (interactionBlocked) return;
+      if (bottomHidden) return;
       if (e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
         if (e.key === 'l') {
           e.preventDefault();
@@ -3125,21 +2804,14 @@ export function App({
         }
         if (e.key === 'y') {
           e.preventDefault();
-          handleRetry();
+          editorRef.current?.retryLast();
           return;
         }
       }
     };
     window.addEventListener('keydown', onGlobalShortcut, true);
     return () => window.removeEventListener('keydown', onGlobalShortcut, true);
-  }, [
-    interactionBlocked,
-    handleClearScreen,
-    handleToggleCompact,
-    handleRetry,
-    store,
-    t,
-  ]);
+  }, [bottomHidden, handleClearScreen, handleToggleCompact]);
 
   const resetEscapeState = useCallback(() => {
     escArmedActionRef.current = null;
@@ -3300,10 +2972,11 @@ export function App({
 
   const commands = useMemo(() => {
     const skillNames = new Set(connection.skills ?? []);
+    const hidden = new Set(
+      (hiddenSlashCommands ?? []).map(normalizeHiddenCommand).filter(Boolean),
+    );
     return mergeCommands(connection.commands ?? [], getLocalCommands(t))
-      .filter(
-        (command) => !hiddenCommands.has(normalizeHiddenCommand(command.name)),
-      )
+      .filter((command) => !hidden.has(normalizeHiddenCommand(command.name)))
       .map((command) => {
         if (!skillNames.has(command.name)) return command;
         return {
@@ -3312,22 +2985,22 @@ export function App({
           description: command.description || t('skills.run'),
         };
       });
-  }, [connection.commands, connection.skills, hiddenCommands, t]);
+  }, [connection.commands, connection.skills, hiddenSlashCommands, t]);
 
-  const welcomeHeaderProps = useMemo(
-    () => ({
-      version: connection.capabilities?.qwenCodeVersion || '',
-      cwd: connection.workspaceCwd || '',
-      currentModel,
-      currentMode,
-      hideTips: hideTipsSetting?.values.effective === true,
-    }),
+  const welcomeHeader = useMemo(
+    () => (
+      <WelcomeHeader
+        version={connection.capabilities?.qwenCodeVersion || ''}
+        cwd={connection.workspaceCwd || ''}
+        currentModel={currentModel}
+        currentMode={currentMode}
+      />
+    ),
     [
       connection.capabilities?.qwenCodeVersion,
       connection.workspaceCwd,
       currentModel,
       currentMode,
-      hideTipsSetting?.values.effective,
     ],
   );
 

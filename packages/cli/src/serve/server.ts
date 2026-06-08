@@ -37,7 +37,7 @@ import {
   canonicalizeWorkspace,
   createAcpSessionBridge,
   type AcpSessionBridge,
-} from './acp-session-bridge.js';
+} from './acpSessionBridge.js';
 import {
   type ServeAuthProviderInstallRequest,
   type ServeAuthProviderInstallResult,
@@ -142,16 +142,6 @@ export interface ServeAppDeps {
   /** Bridge instance; tests inject a fake. Defaults to a fresh real one. */
   bridge?: AcpSessionBridge;
   /**
-   * Directory of the built Web Shell SPA (`index.html` + `assets/`). When
-   * set (and `opts.serveWebShell !== false`), `createServeApp` mounts the
-   * UI at the daemon root before `bearerAuth`. Production `runQwenServe`
-   * resolves this via `resolveWebShellDir()` and injects it here; direct
-   * embeds / tests opt in by passing a fixture dir, so the default
-   * `createServeApp` (no injection) stays API-only and existing route tests
-   * are unaffected.
-   */
-  webShellDir?: string;
-  /**
    * Qwen Code version advertised to web/SDK clients. Production passes the
    * resolved CLI package version; tests/direct embeds may omit it.
    */
@@ -193,25 +183,12 @@ export interface ServeAppDeps {
    */
   deviceFlowProviders?: DeviceFlowProvider[];
   /**
-   * Installs an LLM auth provider by applying the same provider install plan
-   * used by interactive `/auth`. Production `runQwenServe` injects a
-   * settings-backed implementation; tests/direct embeds may omit it, in which
-   * case the route reports `not_implemented`.
-   */
-  installAuthProvider?: (
-    req: ServeAuthProviderInstallRequest,
-  ) => Promise<ServeAuthProviderInstallResult>;
-  /**
-   * Optional daemon logger. When provided, `sendBridgeError` routes
-   * each 5xx error through `daemonLog.error(...)` (which tees to stderr +
-   * the daemon log file). When omitted, falls back to existing
-   * stderr-only behavior.
+   * Optional daemon logger.
    */
   daemonLog?: DaemonLogger;
   startup?: DaemonStartupSnapshot;
   getChannelWorkerSnapshot?: () => ChannelWorkerSnapshot;
   workspace?: DaemonWorkspaceService;
-  statusProvider?: DaemonStatusProvider;
   persistDisabledTools?: (
     workspace: string,
     toolName: string,
@@ -223,14 +200,6 @@ export interface ServeAppDeps {
     scope: import('../config/settings.js').SettingScope,
     key: string,
     value: unknown,
-  ) => Promise<void | import('../config/settings.js').LoadedSettings>;
-  persistSettings?: (
-    workspace: string,
-    writes: Array<{
-      scope: import('../config/settings.js').SettingScope;
-      key: string;
-      value: unknown;
-    }>,
   ) => Promise<void>;
   /**
    * Reverse tool channel (issue #5626, Phase 2). Shared sender registry that
@@ -358,14 +327,11 @@ export function createServeApp(
     deps.bridge ??
     createAcpSessionBridge({
       maxSessions: opts.maxSessions,
-      maxPendingPromptsPerSession: opts.maxPendingPromptsPerSession,
       eventRingSize: opts.eventRingSize,
-      permissionResponseTimeoutMs: opts.permissionResponseTimeoutMs,
       boundWorkspace,
-      sessionShellCommandEnabled,
       // Wire the production status provider so direct embeds / tests
       // that don't inject `deps.bridge` get daemon env + preflight cells.
-      statusProvider,
+      statusProvider: createDaemonStatusProvider(),
       // Wire the WorkspaceFileSystem adapter so ACP writeTextFile /
       // readTextFile pick up trust / TOCTOU / audit.
       fileSystem: createBridgeFileSystemAdapter(fsFactory),
@@ -425,21 +391,7 @@ export function createServeApp(
         bridge.queryWorkspaceStatus(method, idle),
       invokeWorkspaceCommand: (method, params, invokeOpts) =>
         bridge.invokeWorkspaceCommand(method, params, invokeOpts),
-      refreshExtensionsForAllSessions: () =>
-        bridge.refreshExtensionsForAllSessions(),
-      ...(deps.persistSetting ? { persistSetting: deps.persistSetting } : {}),
-      ...(deps.persistSettings
-        ? { persistSettings: deps.persistSettings }
-        : {}),
-      publishWorkspaceEvent: (event) => {
-        if (
-          event.type === 'settings_changed' ||
-          event.type === 'settings_reloaded'
-        ) {
-          invalidateServeFeaturesCache();
-        }
-        bridge.publishWorkspaceEvent(event);
-      },
+      publishWorkspaceEvent: (event) => bridge.publishWorkspaceEvent(event),
     });
   // Order matters: rejection guards (CORS / Host allowlist / bearer auth)
   // run BEFORE the JSON body parser. Otherwise an unauthenticated POST
@@ -451,7 +403,7 @@ export function createServeApp(
   // both halves of the policy (matched → CORS headers + pass-through or
   // 204 preflight; unmatched → 403 with the same error envelope as the
   // wall). When `--allow-origin` is empty/undefined, the deny-wall stays
-  // installed. Pattern parsing happens in `run-qwen-serve.ts` for validation;
+  // installed. Pattern parsing happens in `runQwenServe.ts` for validation;
   // here we still keep the wildcard/no-token invariant for embedded
   // callers that construct the app directly.
   if (opts.allowOrigins && opts.allowOrigins.length > 0) {
@@ -530,7 +482,7 @@ export function createServeApp(
   // Mutation-route gate factory. Non-strict mode is passthrough;
   // `{ strict: true }` requires a token even on loopback defaults.
   const mutate = createMutationGate({
-    tokenConfigured,
+    tokenConfigured: opts.token !== undefined,
     requireAuth: opts.requireAuth === true,
   });
 
@@ -634,35 +586,6 @@ export function createServeApp(
     parseClientId: parseClientIdHeader,
     safeBody,
   });
-  registerWorkspaceSetupGithubRoutes(app, {
-    boundWorkspace,
-    bridge,
-    mutate,
-    parseClientId: parseClientIdHeader,
-    safeBody,
-  });
-  registerWorkspaceTrustRoutes(app, {
-    boundWorkspace,
-    workspace,
-    mutate,
-    safeBody,
-    parseAndValidateClientId: (req, res) =>
-      parseAndValidateWorkspaceClientId(req, res, bridge),
-  });
-
-  const broadcastSettingsChanged = (
-    key: string,
-    value: unknown,
-    scope: string,
-    clientId: string | undefined,
-  ) => {
-    invalidateServeFeaturesCache();
-    bridge.publishWorkspaceEvent({
-      type: 'settings_changed',
-      data: { key, value, scope },
-      ...(clientId ? { originatorClientId: clientId } : {}),
-    });
-  };
 
   if (deps.persistSetting) {
     const persistSetting = deps.persistSetting;
@@ -670,10 +593,14 @@ export function createServeApp(
       boundWorkspace,
       mutate,
       safeBody,
-      persistSetting: async (...args) => {
-        await persistSetting(...args);
+      persistSetting,
+      broadcastSettingsChanged: (key, value, scope, clientId) => {
+        bridge.publishWorkspaceEvent({
+          type: 'settings_changed',
+          data: { key, value, scope },
+          ...(clientId ? { originatorClientId: clientId } : {}),
+        });
       },
-      broadcastSettingsChanged,
       parseAndValidateClientId: (req, res) =>
         parseAndValidateWorkspaceClientId(req, res, bridge),
     });
@@ -852,10 +779,6 @@ export function createServeApp(
   }
 
   installFinalErrorHandler(app);
-
-  if (rateLimiter) {
-    setRateLimiter(app, rateLimiter);
-  }
 
   return app;
 }

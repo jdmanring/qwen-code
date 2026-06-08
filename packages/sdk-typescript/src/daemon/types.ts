@@ -20,10 +20,6 @@ export interface DaemonProtocolVersions {
   supported: string[];
 }
 
-export interface DaemonCapabilitiesLimits {
-  maxPendingPromptsPerSession?: number | null;
-}
-
 /** Capabilities envelope returned from `GET /capabilities`. */
 export interface DaemonCapabilities {
   v: 1;
@@ -43,19 +39,7 @@ export interface DaemonCapabilities {
    * `session_events`). Never gate UI off `mode`.
    */
   features: string[];
-  /**
-   * Numeric daemon limits. `null` means the daemon advertises the limit as
-   * disabled; absence means an older daemon did not advertise it.
-   */
-  limits?: DaemonCapabilitiesLimits;
   modelServices: string[];
-  /**
-   * Transport protocols the daemon advertises. Clients use this to
-   * negotiate the preferred transport (e.g. `['rest-sse', 'acp-ws',
-   * 'acp-http']`). Optional because older v=1 daemons predate
-   * transport negotiation — absence implies `['rest-sse']` only.
-   */
-  transports?: readonly string[];
   /**
    * Absolute canonical workspace path this daemon is bound to
    * (1 daemon = 1 workspace). Clients use this to
@@ -143,8 +127,6 @@ export interface DaemonSession {
   clientId?: string;
   /** ISO 8601 timestamp of when the session was created. */
   createdAt?: string;
-  /** True while the live session has an in-flight prompt. */
-  hasActivePrompt?: boolean;
 }
 
 /**
@@ -183,31 +165,13 @@ export interface DaemonRestoredSession extends DaemonSession {
   lastEventId?: number;
 }
 
-export interface BranchSessionRequest {
-  name?: string;
-}
-
-export interface DaemonBranchedSession extends DaemonRestoredSession {
-  displayName: string;
-  forkedFrom: { sessionId: string; displayName: string };
-}
-
-export interface ForkSessionRequest {
-  directive: string;
-}
-
-export interface DaemonForkSessionResult {
-  sessionId: string;
-  description: string;
-  launched: boolean;
-}
-
 /** Sparse session record returned by `GET /workspace/:id/sessions`. */
 export interface DaemonSessionSummary {
   sessionId: string;
   workspaceCwd: string;
   createdAt?: string;
   updatedAt?: string;
+  title?: string;
   displayName?: string;
   clientCount?: number;
   hasActivePrompt?: boolean;
@@ -499,7 +463,6 @@ export interface DaemonWorkspaceProvidersStatus {
   v: 1;
   workspaceCwd: string;
   initialized: boolean;
-  acpChannelLive?: boolean;
   current?: DaemonWorkspaceProviderCurrent;
   approvalMode?: DaemonApprovalMode;
   providers: DaemonWorkspaceProviderStatus[];
@@ -978,9 +941,6 @@ export interface DaemonSessionAgentTaskStatus {
   isBackgrounded: boolean;
   error?: string;
   resumeBlockedReason?: string;
-  stats?: { totalTokens: number; toolUses: number; durationMs: number };
-  recentActivities?: Array<{ name: string; description: string; at: number }>;
-  prompt?: string;
 }
 
 export interface DaemonSessionShellTaskStatus {
@@ -1031,30 +991,6 @@ export interface DaemonSessionTasksStatus {
   tasks: DaemonSessionTaskStatus[];
 }
 
-export interface DaemonLspServerStatus {
-  name: string;
-  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'READY' | 'FAILED';
-  languages: string[];
-  transport?: string;
-  command?: string;
-  error?: string;
-}
-
-export interface DaemonSessionLspStatus {
-  v: 1;
-  sessionId: string;
-  workspaceCwd: string;
-  enabled: boolean;
-  configuredServers: number;
-  readyServers: number;
-  failedServers: number;
-  inProgressServers: number;
-  notStartedServers: number;
-  statusUnavailable?: true;
-  initializationError?: string;
-  servers: DaemonLspServerStatus[];
-}
-
 export interface DaemonSessionStatsModelMetrics {
   api: {
     totalRequests: number;
@@ -1083,12 +1019,6 @@ export interface DaemonSessionStatsToolByName {
   };
 }
 
-export interface DaemonSessionStatsSkillByName {
-  count: number;
-  success: number;
-  fail: number;
-}
-
 /** Returned from `GET /session/:id/stats`. */
 export interface DaemonSessionStatsStatus {
   v: 1;
@@ -1109,24 +1039,11 @@ export interface DaemonSessionStatsStatus {
     totalLinesAdded: number;
     totalLinesRemoved: number;
   };
-  skills?: {
-    totalCalls: number;
-    totalSuccess: number;
-    totalFail: number;
-    byName: Record<string, DaemonSessionStatsSkillByName>;
-  };
 }
 
 /** Returned from `POST /session/:id/model`. ACP currently allows an opaque body. */
 export interface SetModelResult {
   [key: string]: unknown;
-}
-
-/** Returned from `POST /session/:id/language`. */
-export interface SetSessionLanguageResult {
-  language: string;
-  outputLanguage: string | null;
-  refreshed: boolean;
 }
 
 /**
@@ -1208,107 +1125,6 @@ export interface DaemonSettingUpdateResult {
   requiresRestart: boolean;
 }
 
-export type DaemonVoiceMode = 'hold' | 'tap';
-
-export type DaemonVoiceTransport =
-  | 'qwen-asr-chat'
-  | 'qwen-asr-realtime'
-  | 'dashscope-task-realtime';
-
-export interface DaemonVoiceModelDescriptor {
-  id: string;
-  transport: DaemonVoiceTransport;
-}
-
-export interface DaemonWorkspaceVoiceStatus {
-  v: 1;
-  workspaceCwd: string;
-  enabled: boolean;
-  mode: DaemonVoiceMode;
-  language: string;
-  voiceModel: string | null;
-  availableVoiceModels: DaemonVoiceModelDescriptor[];
-}
-
-export interface DaemonWorkspaceVoiceUpdate {
-  enabled?: boolean;
-  mode?: DaemonVoiceMode;
-  language?: string;
-  voiceModel?: string;
-}
-
-export type DaemonVoiceAudioInput = Blob | ArrayBuffer | Uint8Array;
-
-export interface DaemonWorkspaceVoiceTranscribeOptions {
-  mimeType: string;
-  voiceModel?: string;
-  clientId?: string;
-}
-
-export interface DaemonWorkspaceVoiceTranscriptionResult {
-  v: 1;
-  text: string;
-  model: string;
-  transport: DaemonVoiceTransport;
-}
-
-export type DaemonWorkspaceTrustState = 'trusted' | 'untrusted' | 'unknown';
-
-export type DaemonWorkspaceTrustSource = 'disabled' | 'ide' | 'file' | 'none';
-
-export type DaemonWorkspaceTrustLevel =
-  | 'TRUST_FOLDER'
-  | 'TRUST_PARENT'
-  | 'DO_NOT_TRUST';
-
-export interface DaemonWorkspaceTrustStatus {
-  v: 1;
-  workspaceCwd: string;
-  folderTrustEnabled: boolean;
-  effective: {
-    state: DaemonWorkspaceTrustState;
-    source: DaemonWorkspaceTrustSource;
-  };
-  explicitTrustLevel: DaemonWorkspaceTrustLevel | null;
-  requiresDaemonRestartForChanges: true;
-}
-
-export type DaemonWorkspaceTrustDesiredState = 'trusted' | 'untrusted';
-
-export interface DaemonWorkspaceTrustChangeRequest {
-  desiredState: DaemonWorkspaceTrustDesiredState;
-  reason?: string;
-}
-
-export interface DaemonWorkspaceTrustChangeResult {
-  accepted: boolean;
-  desiredState: DaemonWorkspaceTrustDesiredState;
-  requiresOperatorAction: true;
-}
-
-export type DaemonPermissionScope = 'user' | 'workspace';
-
-export type DaemonPermissionRuleType = 'allow' | 'ask' | 'deny';
-
-export interface DaemonPermissionRuleSet {
-  allow: string[];
-  ask: string[];
-  deny: string[];
-}
-
-export interface DaemonWorkspacePermissionScopeState {
-  path: string;
-  rules: DaemonPermissionRuleSet;
-}
-
-export interface DaemonWorkspacePermissionsStatus {
-  v: 1;
-  user: DaemonWorkspacePermissionScopeState;
-  workspace: DaemonWorkspacePermissionScopeState;
-  merged: DaemonPermissionRuleSet;
-  isTrusted: boolean;
-}
-
 /**
  * Result body of `POST /workspace/init`.
  *
@@ -1328,38 +1144,6 @@ export interface DaemonWorkspacePermissionsStatus {
 export interface DaemonInitWorkspaceResult {
   path: string;
   action: 'created' | 'overwrote' | 'noop';
-}
-
-export interface DaemonGithubSetupRequest {
-  consent: true;
-}
-
-export interface DaemonGithubSetupWorkflowResult {
-  sourcePath: string;
-  path: string;
-  status: 'written' | 'failed';
-  sizeBytes?: number;
-  error?: string;
-}
-
-export interface DaemonGithubSetupGitignoreResult {
-  path: '.gitignore';
-  status: 'created' | 'updated' | 'unchanged' | 'failed' | 'skipped';
-  added?: string[];
-  error?: string;
-}
-
-export interface DaemonGithubSetupResult {
-  kind: 'github_setup';
-  workspaceCwd: string;
-  gitRepoRoot: string;
-  releaseTag: string;
-  readmeUrl: string;
-  secretsUrl?: string;
-  workflows: DaemonGithubSetupWorkflowResult[];
-  gitignore: DaemonGithubSetupGitignoreResult;
-  warnings: string[];
-  partial?: boolean;
 }
 
 /**
@@ -1442,15 +1226,6 @@ export interface DaemonShellCommandResult {
  *   total has reached `clientBudget`. Caller should free a slot
  *   (disconnect another server) before retrying.
  */
-export interface DaemonReloadResponse {
-  env: { updatedKeys: string[]; removedKeys: string[] };
-  changedKeys: string[];
-  childReloaded: boolean;
-  sessionsRefreshed?: string[];
-  sessionsSkipped?: string[];
-  childError?: string;
-}
-
 export type DaemonMcpRestartResult =
   | {
       serverName: string;
@@ -1462,15 +1237,6 @@ export type DaemonMcpRestartResult =
       restarted: false;
       skipped: true;
       reason: 'in_flight' | 'disabled' | 'budget_would_exceed';
-    }
-  | {
-      serverName: string;
-      entries: Array<{
-        entryIndex: number;
-        restarted: boolean;
-        durationMs?: number;
-        reason?: string;
-      }>;
     };
 
 export type DaemonMcpManageAction =
@@ -1657,89 +1423,6 @@ export interface DaemonAuthStatusSnapshot {
   supportedDeviceFlowProviders: DaemonAuthProviderId[];
 }
 
-export interface DaemonAuthProviderModel {
-  id: string;
-  contextWindowSize?: number;
-  enableThinking?: boolean;
-  modalities?: {
-    image?: boolean;
-    pdf?: boolean;
-    audio?: boolean;
-    video?: boolean;
-  };
-  description?: string;
-}
-
-export interface DaemonAuthProviderBaseUrlOption {
-  id: string;
-  label: string;
-  url: string;
-  documentationUrl?: string;
-  apiKeyUrl?: string;
-}
-
-export interface DaemonAuthProviderDescriptor {
-  id: string;
-  label: string;
-  description: string;
-  uiGroup?: string;
-  protocol: string;
-  protocolOptions?: string[];
-  baseUrl?: string | DaemonAuthProviderBaseUrlOption[];
-  envKey?: string;
-  models?: DaemonAuthProviderModel[];
-  modelsEditable?: boolean;
-  apiKeyPlaceholder?: string;
-  documentationUrl?: string;
-  showAdvancedConfig?: boolean;
-  uiLabels?: {
-    flowTitle?: string;
-    baseUrlStepTitle?: string;
-  };
-  steps: Array<'protocol' | 'baseUrl' | 'apiKey' | 'models' | 'advancedConfig'>;
-}
-
-export interface DaemonAuthProviderCatalog {
-  v: 1;
-  workspaceCwd: string;
-  providers: DaemonAuthProviderDescriptor[];
-  groups: Array<{
-    id: 'alibaba' | 'third-party' | 'custom';
-    label: string;
-    description: string;
-    providerIds: string[];
-  }>;
-}
-
-export interface DaemonAuthProviderInstallRequest {
-  providerId: string;
-  protocol?: string;
-  baseUrl?: string;
-  apiKey: string;
-  modelIds?: string[];
-  advancedConfig?: {
-    enableThinking?: boolean;
-    multimodal?: {
-      image?: boolean;
-      pdf?: boolean;
-      audio?: boolean;
-      video?: boolean;
-    };
-    contextWindowSize?: number;
-    maxTokens?: number;
-  };
-}
-
-export interface DaemonAuthProviderInstallResult {
-  v: 1;
-  providerId: string;
-  providerLabel: string;
-  authType: string;
-  modelId?: string;
-  baseUrl?: string;
-  message: string;
-}
-
 /** A frame in the SSE event stream. */
 export interface DaemonEvent {
   /**
@@ -1757,8 +1440,6 @@ export interface DaemonEvent {
   type: string;
   /** Frame payload — opaque JSON. */
   data: unknown;
-  /** Envelope metadata, including daemon-emitted timestamps when available. */
-  _meta?: Record<string, unknown>;
   originatorClientId?: string;
 }
 
@@ -1828,7 +1509,6 @@ export type DaemonHookEventName =
   | 'PostToolBatch'
   | 'Notification'
   | 'UserPromptSubmit'
-  | 'UserPromptExpansion'
   | 'SessionStart'
   | 'Stop'
   | 'SubagentStart'
@@ -1841,7 +1521,6 @@ export type DaemonHookEventName =
   | 'StopFailure'
   | 'TodoCreated'
   | 'TodoCompleted'
-  | 'InstructionsLoaded'
   | (string & {});
 
 export type DaemonHookMatcherKind =
@@ -1850,9 +1529,7 @@ export type DaemonHookMatcherKind =
   | 'trigger'
   | 'sessionTrigger'
   | 'error'
-  | 'notificationType'
-  | 'commandName'
-  | 'filePath';
+  | 'notificationType';
 
 export interface DaemonHookEventMeta {
   description: string;
@@ -1981,26 +1658,6 @@ export interface DaemonExtensionCapabilities {
   hasSettings: boolean;
 }
 
-export type DaemonExtensionUpdateState =
-  | 'checking for updates'
-  | 'updated, needs restart'
-  | 'updating'
-  | 'updated'
-  | 'update available'
-  | 'up to date'
-  | 'error'
-  | 'not updatable'
-  | 'unknown';
-
-export interface DaemonExtensionDetails {
-  mcpServers: string[];
-  commands: string[];
-  skills: string[];
-  agents: string[];
-  contextFiles: string[];
-  settings: string[];
-}
-
 export interface DaemonExtensionEntry {
   kind: 'extension';
   id: string;
@@ -2015,9 +1672,7 @@ export interface DaemonExtensionEntry {
   originSource?: DaemonExtensionOriginSource;
   ref?: string;
   autoUpdate?: boolean;
-  updateState?: DaemonExtensionUpdateState;
   capabilities: DaemonExtensionCapabilities;
-  details?: DaemonExtensionDetails;
 }
 
 export interface DaemonWorkspaceExtensionsStatus {
@@ -2026,65 +1681,4 @@ export interface DaemonWorkspaceExtensionsStatus {
   initialized: boolean;
   extensions: DaemonExtensionEntry[];
   errors?: DaemonStatusCell[];
-}
-
-export interface ExtensionInstallRequest {
-  source: string;
-  ref?: string;
-  autoUpdate?: boolean;
-  allowPreRelease?: boolean;
-  registry?: string;
-  consent?: boolean;
-}
-
-export interface ExtensionInstallResponse {
-  accepted: true;
-  operationId: string;
-}
-
-export type ExtensionMutationResponse = ExtensionInstallResponse;
-
-export type ExtensionOperationState =
-  | 'queued'
-  | 'running'
-  | 'succeeded'
-  | 'succeeded_with_refresh_error'
-  | 'failed';
-
-export interface ExtensionOperationResult {
-  status: 'installed' | 'enabled' | 'disabled' | 'updated' | 'uninstalled';
-  source?: string;
-  name?: string;
-  version?: string;
-  refreshed?: number;
-  failed?: number;
-  error?: string;
-}
-
-export interface ExtensionOperationStatus {
-  v: 1;
-  operationId: string;
-  operation: string;
-  status: ExtensionOperationState;
-  createdAt: number;
-  updatedAt: number;
-  source?: string;
-  name?: string;
-  result?: ExtensionOperationResult;
-  error?: string;
-}
-
-export type ExtensionScope = 'user' | 'workspace';
-
-export interface ExtensionScopeRequest {
-  scope: ExtensionScope;
-}
-
-export interface ExtensionUpdateCheckResponse {
-  states: Record<string, DaemonExtensionUpdateState>;
-}
-
-export interface ExtensionRefreshResponse {
-  refreshed: number;
-  failed: number;
 }

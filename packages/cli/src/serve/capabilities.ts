@@ -31,14 +31,13 @@ export interface ServeCapabilityDescriptor {
 
 export const SERVE_CAPABILITY_REGISTRY = {
   health: { since: 'v1' },
-  daemon_status: { since: 'v1' },
   capabilities: { since: 'v1' },
   session_create: { since: 'v1' },
   session_scope_override: { since: 'v1' },
   session_load: { since: 'v1' },
-  session_resume: { since: 'v1' },
-  // Deprecated alias — kept until @agentclientprotocol/sdk graduates
-  // the underlying ACP method from unstable_resumeSession to resumeSession.
+  // ACP backs this with `connection.unstable_resumeSession`. Surface
+  // the unstable prefix so clients don't pin against a `v1` shape that
+  // the underlying ACP method may still change.
   unstable_session_resume: { since: 'v1' },
   session_list: { since: 'v1' },
   session_prompt: { since: 'v1' },
@@ -62,7 +61,6 @@ export const SERVE_CAPABILITY_REGISTRY = {
   workspace_mcp: { since: 'v1' },
   workspace_skills: { since: 'v1' },
   workspace_providers: { since: 'v1' },
-  auth_provider_install: { since: 'v1' },
   // Workspace memory CRUD (`GET/POST /workspace/memory`). Daemon exposes
   // hierarchical QWEN.md state and accepts append/replace writes scoped
   // to either the bound workspace or the global ~/.qwen directory.
@@ -137,17 +135,6 @@ export const SERVE_CAPABILITY_REGISTRY = {
   // (`tools.disabled` is consulted at `Config` construction time).
   workspace_tool_toggle: { since: 'v1' },
   workspace_settings: { since: 'v1' },
-  // `GET /workspace/permissions` is always available when this tag is
-  // advertised. `POST /workspace/permissions` updates the active ACP
-  // child and returns `permission_session_required` when no live ACP
-  // session exists; the tag means the route contract exists, not that
-  // the current daemon state can accept a write.
-  workspace_permissions: { since: 'v1' },
-  workspace_voice: { since: 'v1' },
-  workspace_voice_transcription: { since: 'v1', modes: ['batch'] },
-  // Inspect bound workspace trust and request local operator action.
-  // Remote clients cannot directly write trustedFolders.json.
-  workspace_trust: { since: 'v1' },
   // `POST /workspace/init` scaffolds an empty
   // `QWEN.md` (or whatever `getCurrentGeminiMdFilename()` returns) at
   // the bound workspace root. Body: `{force?: boolean}`. Default
@@ -156,11 +143,6 @@ export const SERVE_CAPABILITY_REGISTRY = {
   // the file, the caller should follow up with
   // `POST /session/:id/prompt`.
   workspace_init: { since: 'v1' },
-  // `POST /workspace/setup-github` installs the fixed
-  // qwen-code-action workflow set into the bound workspace after
-  // explicit consent. The route reuses the interactive `/setup-github`
-  // release lookup, workflow download, and `.gitignore` update logic.
-  workspace_github_setup: { since: 'v1' },
   // `POST /workspace/mcp/:server/restart` performs
   // a single-server MCP restart (disconnect + reconnect + rediscover)
   // through the ACP child's `McpClientManager`. Pre-checks the live
@@ -184,11 +166,6 @@ export const SERVE_CAPABILITY_REGISTRY = {
   // Side question (/btw) against the session's conversation context.
   // Single-turn, tool-free LLM call via runForkedAgent (cache path).
   session_btw: { since: 'v1' },
-  // Direct daemon-side shell execution for an existing session.
-  // Advertised CONDITIONALLY: operators must explicitly enable it and
-  // configure bearer auth. Clients must still send a session-bound
-  // X-Qwen-Client-Id when calling the route.
-  session_shell_command: { since: 'v1' },
   // Daemon hosts a workspace-shared MCP transport
   // pool (`QwenAgent.mcpPool`); `GET /workspace/mcp` reflects pool-level
   // accounting (`entryCount`, `entrySummary` on each per-server cell).
@@ -245,7 +222,6 @@ export const SERVE_CAPABILITY_REGISTRY = {
   prompt_absolute_deadline: { since: 'v1' },
   writer_idle_timeout: { since: 'v1' },
   non_blocking_prompt: { since: 'v1' },
-  session_language: { since: 'v1' },
   session_rewind: { since: 'v1' },
   workspace_hooks: { since: 'v1' },
   session_hooks: { since: 'v1' },

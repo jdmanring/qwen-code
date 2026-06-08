@@ -21,7 +21,6 @@ import {
   DaemonHttpError,
   DaemonSessionClient,
   createDaemonTranscriptStore,
-  extractServerTimestamp,
   matchTurnEvent,
   normalizeDaemonEvent,
   type DaemonEvent,
@@ -31,29 +30,26 @@ import {
   type DaemonTurnCompleteData,
   type DaemonUiEvent,
 } from '@qwen-code/sdk/daemon';
-import { createDaemonSessionActions, getPromptSettledKey } from './actions.js';
-import {
-  detachDaemonClient,
-  getStableClientId,
-  persistStableClientId,
-} from './clientLifecycle.js';
+import { createDaemonSessionActions } from './actions.js';
+import { detachDaemonClient, getStableClientId } from './clientLifecycle.js';
 import { useOptionalDaemonWorkspace } from '../workspace/DaemonWorkspaceProvider.js';
 import {
   getCurrentMode,
-  getSessionDisplayName,
-  getReplayTokenUsage,
-  getTokenCountFromUsage,
   mapProviderStatus,
-  mapSessionContextModels,
   mapSupportedCommands,
   mapWorkspaceSkills,
   updateConnectionFromDaemonEvent,
 } from './mappers.js';
 import {
   selectDaemonActiveTodoList,
+  selectDaemonLatestTodoList,
   selectDaemonPendingPermissions,
+  selectDaemonPendingPermissionRequest,
   selectDaemonStreamingState,
+  selectDaemonTodoLists,
 } from './selectors.js';
+import { transcriptBlocksToDaemonMessages } from './transcriptToMessages.js';
+import type { DaemonMessage } from './messageTypes.js';
 import {
   clearPassiveAssistantDoneTimer,
   delay,
@@ -75,16 +71,13 @@ import {
 } from '../pendingPromptVersion.js';
 import type {
   ActivePrompt,
-  AddDaemonSessionNotice,
   DaemonConnectionState,
   DaemonPromptStatus,
   DaemonSessionActions,
   DaemonSessionContextValue,
-  DaemonSessionNotice,
   DaemonSessionProviderProps,
   DaemonWorkspaceEventSignals,
   PendingSessionLoad,
-  SettledPrompt,
 } from './types.js';
 
 export type {
@@ -92,14 +85,13 @@ export type {
   DaemonConnectionState,
   DaemonConnectionStatus,
   DaemonModelInfo,
-  DaemonNoticeCategory,
-  DaemonNoticeOperation,
-  DaemonNoticeSeverity,
+  DaemonPendingPermissionRequest,
+  DaemonPermissionOptionKind,
+  DaemonPermissionRequestOption,
   DaemonPromptImage,
   DaemonPromptStatus,
   DaemonSessionActions,
   DaemonSessionContextValue,
-  DaemonSessionNotice,
   DaemonSessionProviderProps,
   DaemonTodoItem,
   DaemonTodoList,
@@ -108,19 +100,6 @@ export type {
   DaemonWorkspaceEventSignals,
   SendPromptOptions,
 } from './types.js';
-
-function assistantDoneFromTurnEvent(
-  event: DaemonEvent,
-  reason: string,
-): DaemonUiEvent {
-  const serverTimestamp = extractServerTimestamp(event);
-  return {
-    type: 'assistant.done',
-    reason,
-    eventId: event.id,
-    ...(serverTimestamp !== undefined ? { serverTimestamp } : {}),
-  };
-}
 
 const DaemonStoreContext = createContext<DaemonTranscriptStore | undefined>(
   undefined,
@@ -134,17 +113,6 @@ const DaemonActionsContext = createContext<DaemonSessionActions | undefined>(
 const DaemonPromptStatusContext = createContext<DaemonPromptStatus | undefined>(
   undefined,
 );
-interface SessionNoticesValue {
-  notices: readonly DaemonSessionNotice[];
-  dismissNotice(id: string): void;
-  clearNotices(): void;
-}
-
-type SessionNoticeInput = Parameters<AddDaemonSessionNotice>[0];
-
-const DaemonSessionNoticesContext = createContext<
-  SessionNoticesValue | undefined
->(undefined);
 const DaemonWorkspaceEventSignalsContext = createContext<
   DaemonWorkspaceEventSignals | undefined
 >(undefined);
@@ -162,7 +130,6 @@ const INITIAL_WORKSPACE_EVENT_SIGNALS: DaemonWorkspaceEventSignals = {
   toolsVersion: 0,
   settingsVersion: 0,
   mcpVersion: 0,
-  extensionsVersion: 0,
   initVersion: 0,
   authVersion: 0,
 };
@@ -233,7 +200,6 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
   const sessionRef = useRef<DaemonSessionClient | undefined>(undefined);
   const lastSessionIdRef = useRef<string | undefined>(undefined);
   const activePromptsRef = useRef<Map<string, ActivePrompt>>(new Map());
-  const settledPromptsRef = useRef<Map<string, SettledPrompt>>(new Map());
   const pendingSessionLoadRef = useRef<PendingSessionLoad | undefined>(
     undefined,
   );
@@ -261,8 +227,6 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
   loadWarningsRef.current = loadWarnings;
   const modelServiceId = createSessionRequest?.modelServiceId;
   const sessionScope = createSessionRequest?.sessionScope;
-  const createSessionRequestRef = useRef(createSessionRequest);
-  createSessionRequestRef.current = createSessionRequest;
   const [promptStatus, setPromptStatus] = useState<DaemonPromptStatus>('idle');
   const [restoreSessionId, setRestoreSessionId] = useState<string | undefined>(
     initialRestoreSessionId,
@@ -338,39 +302,9 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
       let reconnectSessionId = restoreSessionId;
       let shouldCreateFreshSession = !restoreSessionId && newSessionNonce > 0;
       let reconnectAttempt = 0;
-      let hasCurrentSessionActivePrompt = () => false;
-      // Set when the user explicitly deletes the session (server
-      // publishes session_closed with reason 'client_close').
-      // Reconnecting would auto-create a new session, undoing the
-      // user's delete. Other session_closed reasons (idle_timeout,
-      // last_client_detached) fall through to normal reconnect.
-      let userDeletedSession = false;
 
       while (!disposed && !abort.signal.aborted) {
         try {
-          // ── SSE Reconnection Strategy ────────────────────────────────
-          //
-          // Two reconnection paths depending on whether `session` survived
-          // the previous iteration's error handler:
-          //
-          // PATH A — Incremental (session preserved, retriable errors):
-          //   `session` is non-null → skip this entire `if (!session)` block
-          //   → go straight to `activeSession.events()` which sends
-          //   `Last-Event-ID` → daemon serves only missed events →
-          //   store.dispatch() appends to existing blocks. No reset, no
-          //   load(), minimal re-render.
-          //
-          // PATH B — Full reload (session cleared, terminal/auth errors,
-          //   ring eviction):
-          //   `session` is null → enter this block → DaemonSessionClient
-          //   .load() fetches compactedReplay + liveJournal → deferred
-          //   store.reset() + store.dispatch(replayEvents) rebuilds the
-          //   full transcript in a single synchronous batch.
-          //
-          // The `needsStoreReset` flag defers store.reset() to avoid an
-          // intermediate empty-blocks state that causes virtualizer
-          // removeChild errors (see replay injection section below).
-          // ─────────────────────────────────────────────────────────────
           let isSameSessionReconnect = false;
           let shouldInjectReplaySnapshot = false;
           let needsStoreReset = false;
@@ -400,13 +334,7 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
               status: 'connecting',
               error: undefined,
             }));
-            const getWorkspaceCapabilities =
-              workspaceGetCapabilitiesRef.current;
-            const caps =
-              workspaceCapabilitiesRef.current ??
-              (getWorkspaceCapabilities
-                ? await getWorkspaceCapabilities()
-                : await client.capabilities());
+            const caps = await client.capabilities();
             if (disposed || abort.signal.aborted) return;
             capabilities = caps;
             heartbeatSupportedRef.current =
@@ -480,23 +408,19 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
               restoreSessionId && restoreMode === 'resume'
                 ? DaemonSessionClient.resume
                 : DaemonSessionClient.load;
-            const targetSessionId = restoreSessionId ?? reconnectSessionId;
-            const requestClientId = clientId
-              ? clientIdRef.current
-              : getStableClientId(undefined, targetSessionId);
             const nextSession = restoreSessionId
               ? await restoreMethod(
                   client,
                   restoreSessionId,
                   { workspaceCwd: effectWorkspaceCwd },
-                  requestClientId,
+                  clientIdRef.current,
                 )
               : reconnectSessionId
                 ? await DaemonSessionClient.load(
                     client,
                     reconnectSessionId,
                     { workspaceCwd: effectWorkspaceCwd },
-                    requestClientId,
+                    clientIdRef.current,
                   )
                 : await DaemonSessionClient.createOrAttach(
                     client,
@@ -511,15 +435,8 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
                           : {}),
                       workspaceCwd: effectWorkspaceCwd,
                     },
-                    requestClientId,
+                    clientIdRef.current,
                   );
-            if (!clientId && nextSession.clientId) {
-              clientIdRef.current = nextSession.clientId;
-              persistStableClientId(
-                nextSession.clientId,
-                nextSession.sessionId,
-              );
-            }
             if (disposed || abort.signal.aborted) {
               void detachDaemonClient({
                 baseUrl: resolvedBaseUrl!,
@@ -532,22 +449,13 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
               return;
             }
             const previousSessionId = lastSessionIdRef.current;
-            if (previousSessionId !== nextSession.sessionId) {
-              clearNotices();
-            }
-            // Defer store.reset() until right before replay dispatch
-            // (after the await below) so that reset + dispatch share a
-            // single queueMicrotask notification. Without deferral, the
-            // microtask fires during the await and React sees an
-            // intermediate empty-blocks state, which causes removeChild
-            // errors in the virtualizer.
             if (
               previousSessionId !== undefined &&
               nextSession.sessionId !== previousSessionId
             ) {
               setPromptStatus('idle');
               clearPassiveAssistantDoneTimer(passiveAssistantDoneTimerRef);
-              needsStoreReset = true;
+              store.reset();
             } else if (previousSessionId !== undefined) {
               const replaySnapshotEventCount =
                 nextSession.replaySnapshot.compactedReplay.length +
@@ -555,7 +463,7 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
               if (replaySnapshotEventCount > 0) {
                 setPromptStatus('idle');
                 clearPassiveAssistantDoneTimer(passiveAssistantDoneTimerRef);
-                needsStoreReset = true;
+                store.reset();
               } else {
                 store.dispatch({
                   type: 'assistant.done',
@@ -572,12 +480,6 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
             shouldInjectReplaySnapshot =
               nextSession.replaySnapshot.compactedReplay.length > 0 ||
               nextSession.replaySnapshot.liveJournal.length > 0;
-            const replayEvents = [
-              ...nextSession.replaySnapshot.compactedReplay,
-              ...nextSession.replaySnapshot.liveJournal,
-            ];
-            replayTokenUsage = getReplayTokenUsage(replayEvents);
-            replayTokenCount = getTokenCountFromUsage(replayTokenUsage);
             session = nextSession;
             reconnectSessionId = session.sessionId;
             shouldCreateFreshSession = false;
@@ -653,26 +555,8 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
               ? loadWarningsRef.current?.context
               : undefined,
           ].filter((warning): warning is string => Boolean(warning));
-          const providerModelStatus = mapProviderStatus(providers);
-          const contextModelStatus = mapSessionContextModels(context);
-          const sessionModels =
-            contextModelStatus && contextModelStatus.models.length > 0
-              ? contextModelStatus.models
-              : providerModelStatus.models;
-          const sessionCurrentModel =
-            contextModelStatus?.currentModel ??
-            providerModelStatus.currentModel;
-          const providerContextWindow =
-            sessionCurrentModel === providerModelStatus.currentModel
-              ? providerModelStatus.contextWindow
-              : providerModelStatus.models.find(
-                  (model) => model.id === sessionCurrentModel,
-                )?.contextWindow;
-          const sessionContextWindow =
-            contextModelStatus?.contextWindow ??
-            sessionModels.find((model) => model.id === sessionCurrentModel)
-              ?.contextWindow ??
-            providerContextWindow;
+          const { models, currentModel, contextWindow } =
+            mapProviderStatus(providers);
           const { commands, skills } = mapSupportedCommands(supportedCommands);
           const currentMode =
             getCurrentMode(context) ?? providerModelStatus.currentMode;
@@ -680,11 +564,6 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
           setConnection((current) => ({
             status: 'connected',
             sessionId: activeSession.sessionId,
-            // Surface the bound client id so consumers can recognize their own
-            // originator-stamped frames (e.g. the web-shell's mid-turn dedupe).
-            ...(activeSession.clientId
-              ? { clientId: activeSession.clientId }
-              : {}),
             workspaceCwd: activeSession.workspaceCwd,
             commands: commands.length > 0 ? commands : current.commands,
             skills: skills.length > 0 ? skills : current.skills,
@@ -725,6 +604,11 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
               activeSession.lastEventId != null ||
               undefined,
           }));
+          setPromptStatus(
+            activePromptsRef.current.has(activeSession.sessionId)
+              ? 'streaming'
+              : 'idle',
+          );
           if (loadWarningTexts.length > 0) {
             store.dispatch(
               loadWarningTexts.map((text) => ({
@@ -743,20 +627,8 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
           // Feed replay snapshot (compacted history + live journal) into
           // the store before starting the SSE loop. The SSE stream begins
           // from lastEventId, so only post-snapshot events are delivered.
-          //
-          // The deferred store.reset() runs here — in the same synchronous
-          // block as store.dispatch() — so the queueMicrotask notification
-          // only fires once with the fully-populated state.
           const { compactedReplay, liveJournal } = activeSession.replaySnapshot;
           const replayEvents = [...compactedReplay, ...liveJournal];
-          if (
-            needsStoreReset &&
-            !(shouldInjectReplaySnapshot && replayEvents.length > 0)
-          ) {
-            // Reset needed but no replay data (e.g. fresh session) — reset
-            // immediately since there is no dispatch to batch with.
-            store.reset();
-          }
           if (shouldInjectReplaySnapshot && replayEvents.length > 0) {
             const replayOpts = {
               ...eventOptionsRef.current,
@@ -765,68 +637,54 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
             const allUiEvents: DaemonUiEvent[] = [];
             for (const replayEvent of replayEvents) {
               try {
-                const replayUiEvents = normalizeAndFilterEvent(
-                  replayEvent,
-                  activeSession.clientId,
-                  replayOpts,
-                  setConnection,
-                  { updateConnection: false },
-                );
                 allUiEvents.push(
-                  ...filterDaemonUiEventsForTranscript(
+                  ...normalizeAndFilterEvent(
                     replayEvent,
-                    replayUiEvents,
-                    addNotice,
+                    activeSession.clientId,
+                    replayOpts,
+                    setConnection,
+                    { updateConnection: false },
                   ),
                 );
-                if (replayEvent.type === 'turn_complete') {
-                  const stopReason =
-                    (replayEvent.data as DaemonTurnCompleteData | undefined)
-                      ?.stopReason ?? 'end_turn';
-                  allUiEvents.push(
-                    assistantDoneFromTurnEvent(replayEvent, stopReason),
-                  );
-                } else if (replayEvent.type === 'turn_error') {
-                  allUiEvents.push(
-                    assistantDoneFromTurnEvent(replayEvent, 'error'),
-                  );
-                }
               } catch (error) {
                 const message =
                   error instanceof Error ? error.message : String(error);
-                addNotice({
-                  severity: 'warning',
-                  category: 'protocol',
-                  operation: 'normalize_event',
-                  code: 'daemon.replay_event_malformed',
-                  message: 'Skipped malformed replay event',
-                  debugMessage: message,
+                allUiEvents.push({
+                  type: 'error',
+                  text: `Skipped malformed replay event: ${message}`,
                   recoverable: true,
                 });
-                console.warn(
-                  '[DaemonSessionProvider] skipped malformed replay event:',
-                  error,
-                );
               }
-            }
-            if (needsStoreReset) {
-              store.reset();
             }
             if (allUiEvents.length > 0) {
               store.dispatch(allUiEvents);
               bumpWorkspaceEventSignals(allUiEvents, setWorkspaceEventSignals);
             }
+            let activePromptSettled = false;
             for (const replayEvent of replayEvents) {
-              settleActivePromptFromTurnEvent(
-                activePromptsRef.current,
-                settledPromptsRef.current,
-                activeSession.sessionId,
-                replayEvent,
-                store,
-                setPromptStatus,
-                passiveAssistantDoneTimerRef,
-                { requireBoundPromptId: true },
-              );
+              activePromptSettled =
+                settleActivePromptFromTurnEvent(
+                  activePromptsRef.current,
+                  activeSession.sessionId,
+                  replayEvent,
+                  store,
+                  setPromptStatus,
+                  passiveAssistantDoneTimerRef,
+                  { requireBoundPromptId: true },
+                ) || activePromptSettled;
+            }
+            const lastReplayEvent = replayEvents[replayEvents.length - 1];
+            if (
+              !activePromptSettled &&
+              lastReplayEvent &&
+              (lastReplayEvent.type === 'turn_complete' ||
+                lastReplayEvent.type === 'turn_error') &&
+              !activePromptsRef.current.has(activeSession.sessionId)
+            ) {
+              store.dispatch({
+                type: 'assistant.done',
+                reason: 'replay_complete',
+              });
             }
             setConnection((c) => ({ ...c, catchingUp: undefined }));
           }
@@ -843,34 +701,6 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
           }
           let sawEvent = false;
           let resyncRequested = false;
-          const requestEpochResetReload = () => {
-            // An epoch reset means the daemon/EventBus timeline was rebuilt.
-            // The current SSE cursor and any restored/local prompt activity may
-            // describe the old epoch, so do a full /load and let
-            // hasActivePrompt from that fresh snapshot become authoritative.
-            const active = activePromptsRef.current.get(
-              activeSession.sessionId,
-            );
-            active?.controller.abort();
-            activePromptsRef.current.delete(activeSession.sessionId);
-            if (restoredActivePrompt) {
-              settleRestoredActivePrompt();
-            }
-            clearPassiveAssistantDoneTimer(passiveAssistantDoneTimerRef);
-            setPromptStatus('idle');
-            store.reset();
-            activeSession.setLastEventId(0);
-            reconnectSessionId = activeSession.sessionId;
-            resyncRequested = true;
-            session = undefined;
-            sessionRef.current = undefined;
-            hasCurrentSessionActivePromptRef.current = () => false;
-            setConnection((current) => ({
-              ...current,
-              status: 'connecting',
-              error: undefined,
-            }));
-          };
           for await (const event of activeSession.events({
             signal: abort.signal,
             maxQueued,
@@ -908,65 +738,22 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
                 eventOptionsRef.current,
                 setConnection,
               );
-              const uiEvents = filterDaemonUiEventsForTranscript(
-                event,
-                normalizedUiEvents,
-                addNotice,
-              );
-              if (event.type === 'state_resync_required') {
-                const reason =
-                  typeof event.data === 'object' && event.data !== null
-                    ? (event.data as Record<string, unknown>).reason
-                    : undefined;
-                if (reason === 'epoch_reset') {
-                  requestEpochResetReload();
-                  break;
-                }
-              }
               bumpWorkspaceEventSignals(uiEvents, setWorkspaceEventSignals);
               if (uiEvents.length > 0) {
-                const hasGenerationSignal = hasActiveGenerationSignal(uiEvents);
                 setPromptStatus((current) =>
-                  current === 'waiting' ||
-                  (current === 'idle' && hasGenerationSignal)
-                    ? 'streaming'
-                    : current,
+                  current === 'waiting' ? 'streaming' : current,
                 );
               }
               const activePromptSettled = settleActivePromptFromTurnEvent(
                 activePromptsRef.current,
-                settledPromptsRef.current,
                 activeSession.sessionId,
                 event,
                 store,
                 setPromptStatus,
                 passiveAssistantDoneTimerRef,
               );
-              let restoredPromptSettled = false;
-              if (
-                !activePromptSettled &&
-                restoredActivePrompt &&
-                (event.type === 'turn_complete' || event.type === 'turn_error')
-              ) {
-                // A refreshed page restores an already-running prompt without a
-                // local ActivePrompt entry or prompt promise to settle. The daemon
-                // terminal event is still authoritative, so end the restored
-                // running state here instead of relying on the observer branch.
-                settleRestoredActivePrompt();
-                restoredPromptSettled = true;
-                clearPassiveAssistantDoneTimer(passiveAssistantDoneTimerRef);
-                const stopReason =
-                  event.type === 'turn_complete'
-                    ? ((event.data as DaemonTurnCompleteData | undefined)
-                        ?.stopReason ?? 'end_turn')
-                    : 'error';
-                store.dispatch(assistantDoneFromTurnEvent(event, stopReason));
-                if (!hasSessionActivePrompt()) {
-                  setPromptStatus('idle');
-                }
-              }
               const shouldGuardAssistant =
-                !hasSessionActivePrompt() &&
+                !activePromptsRef.current.has(activeSession.sessionId) &&
                 store.getSnapshot().activeAssistantBlockId != null;
               const eventsToDispatch = shouldGuardAssistant
                 ? uiEvents.filter((e) => e.type !== 'debug')
@@ -975,28 +762,17 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
               for (const uiEvent of uiEvents) {
                 if (
                   uiEvent.type === 'prompt.cancelled' &&
-                  (restoredActivePrompt ||
-                    uiEvent.originatorClientId !== activeSession.clientId)
+                  uiEvent.originatorClientId !== activeSession.clientId
                 ) {
-                  store.dispatch(
-                    assistantDoneFromTurnEvent(event, 'cancelled'),
-                  );
-                  const cancellingRestoredPrompt = restoredActivePrompt;
-                  settleRestoredActivePrompt();
-                  restoredPromptSettled = true;
+                  setPromptStatus('idle');
                   clearPassiveAssistantDoneTimer(passiveAssistantDoneTimerRef);
-                  if (!cancellingRestoredPrompt) {
-                    activePromptsRef.current.delete(activeSession.sessionId);
-                  }
-                  if (!hasSessionActivePrompt()) {
-                    setPromptStatus('idle');
-                  }
+                  activePromptsRef.current.delete(activeSession.sessionId);
                 } else if (uiEvent.type === 'session.replay_complete') {
                   setConnection((c) => ({ ...c, catchingUp: undefined }));
                   if (store.getSnapshot().awaitingResync) {
                     store.clearAwaitingResync();
                   }
-                  if (!hasSessionActivePrompt()) {
+                  if (!activePromptsRef.current.has(activeSession.sessionId)) {
                     clearPassiveAssistantDoneTimer(
                       passiveAssistantDoneTimerRef,
                     );
@@ -1008,14 +784,9 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
                   }
                 }
               }
-              // A restored active prompt is not in activePromptsRef because this
-              // browser did not submit it. Treat it as active here too; otherwise
-              // the passive observer timer can briefly mark a still-running turn
-              // idle between sparse tool/thinking updates.
               const isObserver =
                 !activePromptSettled &&
-                !restoredPromptSettled &&
-                !hasSessionActivePrompt();
+                !activePromptsRef.current.has(activeSession.sessionId);
               if (isObserver) {
                 const hasUserMsg = uiEvents.some(
                   (e) => e.type === 'user.text.delta',
@@ -1033,11 +804,11 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
                 const stopReason =
                   (event.data as DaemonTurnCompleteData | undefined)
                     ?.stopReason ?? 'end_turn';
-                store.dispatch(assistantDoneFromTurnEvent(event, stopReason));
+                store.dispatch({ type: 'assistant.done', reason: stopReason });
                 setPromptStatus('idle');
               } else if (isObserver && event.type === 'turn_error') {
                 clearPassiveAssistantDoneTimer(passiveAssistantDoneTimerRef);
-                store.dispatch(assistantDoneFromTurnEvent(event, 'error'));
+                store.dispatch({ type: 'assistant.done', reason: 'error' });
                 setPromptStatus('idle');
               } else if (isObserver && hasActiveGenerationSignal(uiEvents)) {
                 schedulePassiveAssistantDone(
@@ -1048,27 +819,17 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
                   () => setPromptStatus('idle'),
                 );
               }
-              // ── state_resync_required handling ──────────────────────
-              // Resyncs are transcript recovery signals, not prompt terminal
-              // signals. For epoch_reset and ring_evicted we reload the session
-              // snapshot; the fresh /load response is the source of truth for
-              // hasActivePrompt and transcript replay.
               if (event.type === 'state_resync_required') {
                 const reason =
                   typeof event.data === 'object' && event.data !== null
                     ? (event.data as Record<string, unknown>).reason
                     : undefined;
-                if (reason !== 'epoch_reset') {
-                  // Resync asks us to rebuild transcript state, but it is not a
-                  // prompt terminal signal. Keep loading alive for local/restored
-                  // prompts until turn_complete, turn_error, or prompt_cancelled.
-                  if (!hasSessionActivePrompt()) {
-                    setPromptStatus('idle');
-                    clearPassiveAssistantDoneTimer(
-                      passiveAssistantDoneTimerRef,
-                    );
-                  }
-                  store.reset();
+                setPromptStatus('idle');
+                clearPassiveAssistantDoneTimer(passiveAssistantDoneTimerRef);
+                store.reset();
+                if (reason === 'epoch_reset') {
+                  activeSession.setLastEventId(0);
+                } else {
                   // Ring eviction means the SSE replay window has a real gap.
                   // Resetting and continuing on the same stream can only replay
                   // the surviving tail; reload the session snapshot instead so
@@ -1080,7 +841,6 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
                   resyncRequested = true;
                   session = undefined;
                   sessionRef.current = undefined;
-                  hasCurrentSessionActivePromptRef.current = () => false;
                   setConnection((current) => ({
                     ...current,
                     status: 'connecting',
@@ -1089,43 +849,14 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
                   break;
                 }
               }
-              // session_closed with reason 'client_close' means the
-              // user explicitly deleted the session. Stop the
-              // reconnect loop — without this, the next iteration
-              // would call createOrAttach and auto-create a new
-              // session, undoing the user's delete action.
-              // Other reasons (idle_timeout, last_client_detached)
-              // fall through to the normal reconnect path.
-              if (
-                event.type === 'session_closed' &&
-                (event.data as Record<string, unknown> | undefined)?.reason ===
-                  'client_close'
-              ) {
-                userDeletedSession = true;
-                const closedSessionId = activeSession.sessionId;
-                const active = activePromptsRef.current.get(closedSessionId);
-                active?.controller.abort();
-                activePromptsRef.current.delete(closedSessionId);
-                session = undefined;
-                sessionRef.current = undefined;
-                break;
-              }
             } catch (error) {
               const message =
                 error instanceof Error ? error.message : String(error);
-              addNotice({
-                severity: 'warning',
-                category: 'protocol',
-                operation: 'normalize_event',
-                code: 'daemon.event_malformed',
-                message: 'Skipped malformed daemon event',
-                debugMessage: message,
+              store.dispatch({
+                type: 'error',
+                text: `Skipped malformed daemon event: ${message}`,
                 recoverable: true,
               });
-              console.warn(
-                '[DaemonSessionProvider] skipped malformed daemon event:',
-                error,
-              );
             }
           }
           if (userDeletedSession) {
@@ -1156,25 +887,21 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
             // Keep the session handle after a normal SSE close so the next
             // subscription can resume from DaemonSessionClient.lastEventId.
             if (sessionRef.current?.sessionId === activeSession.sessionId) {
-              console.debug('[DaemonSessionProvider] SSE stream ended');
-              if (!hasSessionActivePrompt()) {
-                // A transport close is only a safe "done" signal for passive
-                // observers. When a local/restored prompt is still active, the
-                // daemon may continue running while we reconnect via
-                // Last-Event-ID, so keep the prompt in streaming state until a
-                // real turn_complete/turn_error/prompt_cancelled arrives.
-                clearPassiveAssistantDoneTimer(passiveAssistantDoneTimerRef);
-                setPromptStatus('idle');
-                store.dispatch({
-                  type: 'assistant.done',
-                  reason: 'stream_ended',
-                });
-              }
+              clearPassiveAssistantDoneTimer(passiveAssistantDoneTimerRef);
+              setPromptStatus('idle');
+              store.dispatch({
+                type: 'assistant.done',
+                reason: 'stream_ended',
+              });
             }
+            store.dispatch({
+              type: 'status',
+              text: 'SSE stream ended',
+            });
             setConnection((current) => ({
               ...current,
               status: 'disconnected',
-              error: undefined,
+              error: 'SSE stream ended',
             }));
           }
         } catch (error) {
@@ -1189,13 +916,11 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
             active?.controller.abort();
             activePromptsRef.current.delete(failedSessionId);
           }
-          // Retriable transport failures are not prompt terminal events. Keep
-          // restored/local prompts in streaming state until the daemon sends
-          // turn_complete, turn_error, or prompt_cancelled.
-          if (isAuthFailure || isTerminal || !hasCurrentSessionActivePrompt()) {
-            clearPassiveAssistantDoneTimer(passiveAssistantDoneTimerRef);
-            setPromptStatus('idle');
-          }
+          store.dispatch({ type: 'error', text: message, recoverable: true });
+          session = undefined;
+          sessionRef.current = undefined;
+          clearPassiveAssistantDoneTimer(passiveAssistantDoneTimerRef);
+          setPromptStatus('idle');
           const pendingLoad = pendingSessionLoadRef.current;
           if (
             pendingLoad &&
@@ -1244,8 +969,6 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
             );
           }
           if (!autoReconnect) {
-            session = undefined;
-            sessionRef.current = undefined;
             setConnection({
               status: 'error',
               error: message,
@@ -1302,7 +1025,7 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
       ) {
         clearTimeout(pendingSessionLoadRef.current.timeout);
         pendingSessionLoadRef.current.reject(
-          new DOMException('Session load interrupted by cleanup', 'AbortError'),
+          new Error('Session load interrupted by cleanup'),
         );
         pendingSessionLoadRef.current = undefined;
       }
@@ -1399,7 +1122,6 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
         store,
         sessionRef,
         activePromptsRef,
-        settledPromptsRef,
         pendingSessionLoadRef,
         pendingSessionLoadIdRef,
         heartbeatSupportedRef,
@@ -1482,15 +1204,13 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
     <DaemonStoreContext.Provider value={store}>
       <DaemonConnectionContext.Provider value={connection}>
         <DaemonPromptStatusContext.Provider value={promptStatus}>
-          <DaemonSessionNoticesContext.Provider value={noticesValue}>
-            <DaemonWorkspaceEventSignalsContext.Provider
-              value={workspaceEventSignals}
-            >
-              <DaemonActionsContext.Provider value={actions}>
-                {children}
-              </DaemonActionsContext.Provider>
-            </DaemonWorkspaceEventSignalsContext.Provider>
-          </DaemonSessionNoticesContext.Provider>
+          <DaemonWorkspaceEventSignalsContext.Provider
+            value={workspaceEventSignals}
+          >
+            <DaemonActionsContext.Provider value={actions}>
+              {children}
+            </DaemonActionsContext.Provider>
+          </DaemonWorkspaceEventSignalsContext.Provider>
         </DaemonPromptStatusContext.Provider>
       </DaemonConnectionContext.Provider>
     </DaemonStoreContext.Provider>
@@ -1499,7 +1219,6 @@ export function DaemonSessionProvider(props: DaemonSessionProviderProps) {
 
 function settleActivePromptFromTurnEvent(
   activePrompts: Map<string, ActivePrompt>,
-  settledPrompts: Map<string, SettledPrompt>,
   sessionId: string,
   event: DaemonEvent,
   store: DaemonTranscriptStore,
@@ -1526,29 +1245,29 @@ function settleActivePromptFromTurnEvent(
   try {
     const result = matchTurnEvent(event, promptId);
     if (!result) return false;
-    store.dispatch(assistantDoneFromTurnEvent(event, result.stopReason));
+    store.dispatch({ type: 'assistant.done', reason: result.stopReason });
     setPromptStatus('idle');
     if (active.resolve) {
       activePrompts.delete(sessionId);
       active.resolve(result);
     } else {
-      activePrompts.delete(sessionId);
-      settledPrompts.set(getPromptSettledKey(sessionId, promptId), {
-        status: 'resolved',
-        result,
+      activePrompts.set(sessionId, {
+        ...active,
+        promptId,
+        pendingResult: result,
       });
     }
   } catch (error) {
-    store.dispatch(assistantDoneFromTurnEvent(event, 'error'));
+    store.dispatch({ type: 'assistant.done', reason: 'error' });
     setPromptStatus('idle');
     if (active.reject) {
       activePrompts.delete(sessionId);
       active.reject(error);
     } else {
-      activePrompts.delete(sessionId);
-      settledPrompts.set(getPromptSettledKey(sessionId, promptId), {
-        status: 'rejected',
-        error,
+      activePrompts.set(sessionId, {
+        ...active,
+        promptId,
+        pendingError: error,
       });
     }
   }
@@ -1556,7 +1275,7 @@ function settleActivePromptFromTurnEvent(
 }
 
 function isPromptLifecycleTurnEvent(event: DaemonEvent): boolean {
-  return event.type === 'turn_complete';
+  return event.type === 'turn_complete' || event.type === 'turn_error';
 }
 
 function normalizeAndFilterEvent(
@@ -1574,92 +1293,7 @@ function normalizeAndFilterEvent(
     suppressOwnUserEcho: opts.suppressOwnUserEcho,
     includeRawEvent: opts.includeRawEvent,
   });
-  const goalStatusEvent = normalizeGoalStatusEvent(event);
-  if (isPromptLifecycleTurnEvent(event)) {
-    return goalStatusEvent ? [goalStatusEvent] : [];
-  }
-  return goalStatusEvent ? [...normalized, goalStatusEvent] : normalized;
-}
-
-function filterDaemonUiEventsForTranscript(
-  sourceEvent: DaemonEvent,
-  events: DaemonUiEvent[],
-  addNotice: AddDaemonSessionNotice,
-): DaemonUiEvent[] {
-  const filtered: DaemonUiEvent[] = [];
-  for (const event of events) {
-    if (event.type !== 'error') {
-      filtered.push(event);
-      continue;
-    }
-    if (sourceEvent.type === 'turn_error') {
-      filtered.push(event);
-      continue;
-    }
-    const notice = addNotice(
-      daemonErrorEventToNotice(sourceEvent, event as DaemonUiErrorEvent),
-    );
-    if (notice.category === 'protocol' || notice.category === 'connection') {
-      console.warn('[DaemonSessionProvider] daemon notice:', notice);
-    }
-  }
-  return filtered;
-}
-
-type DaemonUiErrorEvent = Extract<DaemonUiEvent, { type: 'error' }>;
-
-function daemonErrorEventToNotice(
-  sourceEvent: DaemonEvent,
-  event: DaemonUiErrorEvent,
-): SessionNoticeInput {
-  const base = {
-    message: event.text,
-    debugMessage: event.text,
-    recoverable: event.recoverable,
-  };
-
-  switch (sourceEvent.type) {
-    case 'model_switch_failed':
-      return {
-        ...base,
-        severity: 'error',
-        category: 'user_action',
-        operation: 'switch_model',
-        code: 'daemon.switch_model.failed',
-      };
-    case 'session_died':
-      return {
-        ...base,
-        severity: 'error',
-        category: 'connection',
-        operation: 'stream',
-        code: event.errorKind ?? 'daemon.session_died',
-      };
-    case 'client_evicted':
-      return {
-        ...base,
-        severity: 'warning',
-        category: 'connection',
-        operation: 'stream',
-        code: 'daemon.client_evicted',
-      };
-    case 'stream_error':
-      return {
-        ...base,
-        severity: 'warning',
-        category: 'connection',
-        operation: 'stream',
-        code: event.errorKind ?? 'daemon.stream_error',
-      };
-    default:
-      return {
-        ...base,
-        severity: 'warning',
-        category: 'protocol',
-        operation: 'normalize_event',
-        code: event.code ?? 'daemon.protocol.error',
-      };
-  }
+  return isPromptLifecycleTurnEvent(event) ? [] : normalized;
 }
 
 export function useDaemonSession(): DaemonSessionContextValue {
@@ -1706,6 +1340,21 @@ export function useDaemonPendingPermissions() {
   return useMemo(() => selectDaemonPendingPermissions(blocks), [blocks]);
 }
 
+export function useDaemonPendingPermissionRequest() {
+  const blocks = useDaemonTranscriptBlocks();
+  return useMemo(() => selectDaemonPendingPermissionRequest(blocks), [blocks]);
+}
+
+export function useDaemonTodoLists() {
+  const blocks = useDaemonTranscriptBlocks();
+  return useMemo(() => selectDaemonTodoLists(blocks), [blocks]);
+}
+
+export function useDaemonLatestTodoList() {
+  const blocks = useDaemonTranscriptBlocks();
+  return useMemo(() => selectDaemonLatestTodoList(blocks), [blocks]);
+}
+
 export function useDaemonActiveTodoList() {
   const blocks = useDaemonTranscriptBlocks();
   return useMemo(() => selectDaemonActiveTodoList(blocks), [blocks]);
@@ -1714,11 +1363,15 @@ export function useDaemonActiveTodoList() {
 export function useDaemonStreamingState() {
   const blocks = useDaemonTranscriptBlocks();
   const promptStatus = useDaemonPromptStatus();
-
   return useMemo(
     () => selectDaemonStreamingState(blocks, promptStatus),
     [blocks, promptStatus],
   );
+}
+
+export function useDaemonMessages(): DaemonMessage[] {
+  const blocks = useDaemonTranscriptBlocks();
+  return useMemo(() => transcriptBlocksToDaemonMessages(blocks), [blocks]);
 }
 
 export function useDaemonActions(): DaemonSessionActions {
@@ -1761,20 +1414,6 @@ export function useDaemonConnection(): DaemonConnectionState {
   return connection;
 }
 
-export function useDaemonSessionNotices(): {
-  notices: readonly DaemonSessionNotice[];
-  dismissNotice(id: string): void;
-  clearNotices(): void;
-} {
-  const value = useContext(DaemonSessionNoticesContext);
-  if (!value) {
-    throw new Error(
-      'useDaemonSessionNotices must be used within DaemonSessionProvider',
-    );
-  }
-  return value;
-}
-
 function hasActiveGenerationSignal(
   events: ReadonlyArray<{ type: string }>,
 ): boolean {
@@ -1786,125 +1425,8 @@ function hasActiveGenerationSignal(
   );
 }
 
-function normalizeGoalStatusEvent(event: DaemonEvent): DaemonUiEvent | null {
-  if (event.type !== 'session_update') return null;
-  const data = isRecord(event.data) ? event.data : undefined;
-  const update = isRecord(data?.['update'])
-    ? data['update']
-    : isRecord(event.data)
-      ? event.data
-      : undefined;
-  if (!update || update['sessionUpdate'] !== 'agent_message_chunk') {
-    return null;
-  }
-  const meta = update['_meta'];
-  if (!isRecord(meta)) return null;
-  const status = normalizeGoalStatus(meta['goalStatus']);
-  if (status) {
-    return createGoalStatusUiEvent(event, status);
-  }
-
-  const terminal = normalizeGoalTerminal(meta['goalTerminal']);
-  if (terminal) {
-    return createGoalStatusUiEvent(event, terminal);
-  }
-
-  const loop = meta['stopHookLoop'];
-  if (!isRecord(loop)) return null;
-  const goal = loop['goal'];
-  if (!isRecord(goal)) return null;
-  const condition = getString(goal, 'condition');
-  if (!condition) return null;
-
-  // Suppress per-iteration "checking" events from the transcript to avoid
-  // flooding with one card per stop-hook turn. The active goal state is
-  // already visible in the status bar; only terminal events and the initial
-  // "set" event are shown as transcript cards.
-  return null;
-}
-
-function createGoalStatusUiEvent(
-  event: DaemonEvent,
-  status: Record<string, unknown>,
-): DaemonUiEvent {
-  return {
-    type: 'status',
-    ...(event.id !== undefined ? { eventId: event.id } : {}),
-    ...(event.originatorClientId
-      ? { originatorClientId: event.originatorClientId }
-      : {}),
-    text: '',
-    source: 'goal',
-    data: status,
-  };
-}
-
-function normalizeGoalStatus(value: unknown): Record<string, unknown> | null {
-  if (!isRecord(value)) return null;
-  const kind = getString(value, 'kind');
-  if (
-    kind !== 'set' &&
-    kind !== 'cleared' &&
-    kind !== 'achieved' &&
-    kind !== 'failed' &&
-    kind !== 'aborted'
-  ) {
-    return null;
-  }
-  const condition = getString(value, 'condition');
-  if (!condition) return null;
-  const iterations = getNumber(value, 'iterations');
-  const durationMs = getNumber(value, 'durationMs');
-  const setAt = getNumber(value, 'setAt');
-  const lastReason = getString(value, 'lastReason');
-  return {
-    kind,
-    condition,
-    ...(iterations !== undefined ? { iterations } : {}),
-    ...(durationMs !== undefined ? { durationMs } : {}),
-    ...(setAt !== undefined ? { setAt } : {}),
-    ...(lastReason ? { lastReason } : {}),
-  };
-}
-
-function normalizeGoalTerminal(value: unknown): Record<string, unknown> | null {
-  if (!isRecord(value)) return null;
-  const kind = getString(value, 'kind');
-  if (kind !== 'achieved' && kind !== 'failed' && kind !== 'aborted') {
-    return null;
-  }
-  const condition = getString(value, 'condition');
-  if (!condition) return null;
-  const iterations = getNumber(value, 'iterations');
-  const durationMs = getNumber(value, 'durationMs');
-  const lastReason = getString(value, 'lastReason');
-  return {
-    kind,
-    condition,
-    ...(iterations !== undefined ? { iterations } : {}),
-    ...(durationMs !== undefined ? { durationMs } : {}),
-    ...(lastReason ? { lastReason } : {}),
-  };
-}
-
-function getString(
-  value: Record<string, unknown>,
-  key: string,
-): string | undefined {
-  const raw = value[key];
-  return typeof raw === 'string' ? raw : undefined;
-}
-
-function getNumber(
-  value: Record<string, unknown>,
-  key: string,
-): number | undefined {
-  const raw = value[key];
-  return typeof raw === 'number' && Number.isFinite(raw) ? raw : undefined;
-}
-
 function bumpWorkspaceEventSignals(
-  events: readonly DaemonUiEvent[],
+  events: ReadonlyArray<{ type: string }>,
   setSignals: Dispatch<SetStateAction<DaemonWorkspaceEventSignals>>,
 ): void {
   let memory = 0;
@@ -1912,10 +1434,6 @@ function bumpWorkspaceEventSignals(
   let tools = 0;
   let settings = 0;
   let mcp = 0;
-  let extensions = 0;
-  let lastExtensionChange:
-    | DaemonWorkspaceEventSignals['lastExtensionChange']
-    | undefined;
   let init = 0;
   let auth = 0;
 
@@ -1939,18 +1457,6 @@ function bumpWorkspaceEventSignals(
       case 'workspace.mcp.server_restart_refused':
         mcp += 1;
         break;
-      case 'workspace.extensions.changed':
-        extensions += 1;
-        lastExtensionChange = {
-          ...(event.status ? { status: event.status } : {}),
-          ...(event.source ? { source: event.source } : {}),
-          ...(event.name ? { name: event.name } : {}),
-          ...(event.version ? { version: event.version } : {}),
-          ...(event.error ? { error: event.error } : {}),
-          refreshed: event.refreshed,
-          failed: event.failed,
-        };
-        break;
       case 'workspace.initialized':
         init += 1;
         break;
@@ -1966,8 +1472,7 @@ function bumpWorkspaceEventSignals(
     }
   }
 
-  if (memory + agents + tools + settings + mcp + extensions + init + auth === 0)
-    return;
+  if (memory + agents + tools + settings + mcp + init + auth === 0) return;
 
   setSignals((current) => ({
     memoryVersion: current.memoryVersion + memory,
@@ -1975,8 +1480,6 @@ function bumpWorkspaceEventSignals(
     toolsVersion: current.toolsVersion + tools,
     settingsVersion: current.settingsVersion + settings,
     mcpVersion: current.mcpVersion + mcp,
-    extensionsVersion: current.extensionsVersion + extensions,
-    ...(lastExtensionChange ? { lastExtensionChange } : {}),
     initVersion: current.initVersion + init,
     authVersion: current.authVersion + auth,
   }));

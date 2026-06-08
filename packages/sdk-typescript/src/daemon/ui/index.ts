@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export {
-  extractServerTimestamp,
-  normalizeDaemonEvent,
-  getSessionUpdatePayload,
-} from './normalizer.js';
+export { normalizeDaemonEvent, getSessionUpdatePayload } from './normalizer.js';
 export { createDaemonToolPreview } from './toolPreview.js';
 export {
   appendLocalUserTranscriptMessage,
@@ -27,7 +23,6 @@ export {
   selectTranscriptBlocksOrderedByEventId,
 } from './transcript.js';
 export { createDaemonTranscriptStore } from './store.js';
-export { DAEMON_GOAL_STATUS_SENTINEL_PREFIX } from './sentinels.js';
 export {
   daemonUiEventToTerminalText,
   transcriptBlockToTerminalText,
@@ -67,7 +62,6 @@ export type {
   DaemonPermissionTranscriptBlock,
   DaemonStatusTranscriptBlock,
   DaemonTextTranscriptBlock,
-  DaemonTextDeltaMeta,
   DaemonToolPreview,
   DaemonToolTranscriptBlock,
   DaemonTranscriptBlock,
@@ -108,9 +102,7 @@ export type {
   DaemonUiWorkspaceAgentChangedEvent,
   DaemonUiWorkspaceToolToggledEvent,
   DaemonUiWorkspaceSettingsChangedEvent,
-  DaemonUiTrustChangeRequestedEvent,
   DaemonUiWorkspaceInitializedEvent,
-  DaemonUiGithubSetupCompletedEvent,
   DaemonUiMcpBudgetWarningEvent,
   DaemonUiMcpChildRefusedEvent,
   DaemonUiMcpServerRestartedEvent,

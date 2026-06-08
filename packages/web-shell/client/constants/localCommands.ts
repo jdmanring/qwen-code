@@ -37,7 +37,6 @@ export function getLocalCommands(t: Translate): CommandInfo[] {
     },
     { name: 'delete', description: t('local.delete') },
     { name: 'release', description: t('local.release') },
-    { name: 'auth', description: t('local.auth') },
     {
       name: 'approval-mode',
       description: t('local.approvalMode'),
@@ -46,12 +45,12 @@ export function getLocalCommands(t: Translate): CommandInfo[] {
     {
       name: 'model',
       description: t('local.model'),
-      argumentHint: '[--fast|--voice] [<model>]',
+      argumentHint: '[--fast] [<model>]',
     },
     {
       name: 'mcp',
       description: t('local.mcp'),
-      argumentHint: 'desc|nodesc|schema',
+      argumentHint: 'desc|nodesc|schema|auth|noauth',
     },
     { name: 'skills', description: t('local.skills') },
     { name: 'status', description: t('local.status') },
@@ -76,24 +75,7 @@ export function getLocalCommands(t: Translate): CommandInfo[] {
       description: t('local.agents'),
       argumentHint: 'manage|create',
     },
-    {
-      name: 'goal',
-      description: t('local.goal'),
-      argumentHint: '[<condition> | clear]',
-    },
-    { name: 'tasks', description: t('local.tasks') },
     { name: 'recap', description: t('local.recap') },
-    { name: 'rewind', description: t('local.rewind') },
-    {
-      name: 'branch',
-      description: t('local.branch'),
-      argumentHint: '[<name>]',
-    },
-    {
-      name: 'fork',
-      description: t('local.fork'),
-      argumentHint: '<directive>',
-    },
     { name: 'clear', description: t('local.clear') },
     { name: 'new', description: t('local.new') },
     { name: 'reset', description: t('local.reset') },
@@ -108,12 +90,6 @@ export function getLocalCommands(t: Translate): CommandInfo[] {
       argumentHint: '<session-id>',
     },
     { name: 'settings', description: t('local.settings') },
-    {
-      name: 'extensions',
-      description: t('local.extensions'),
-      argumentHint: 'manage|install <source>',
-      subcommands: ['manage', 'install'],
-    },
   ];
   return commands.map((command) => ({
     ...command,

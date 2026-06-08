@@ -84,12 +84,9 @@ export const DAEMON_KNOWN_EVENT_TYPE_VALUES = [
   'approval_mode_changed',
   'tool_toggled',
   'settings_changed',
-  'trust_change_requested',
   'workspace_initialized',
-  'github_setup_completed',
   'mcp_server_restarted',
   'mcp_server_restart_refused',
-  'settings_reloaded',
   // Runtime MCP server add/remove events. Fired by
   // `POST /workspace/mcp/servers` on success (including replace and
   // same-fingerprint no-op).
@@ -98,10 +95,6 @@ export const DAEMON_KNOWN_EVENT_TYPE_VALUES = [
   // `DELETE /workspace/mcp/servers/:name` when an entry was actually
   // removed. Idempotent skip ('not_present') does NOT emit.
   'mcp_server_removed',
-  // Extensions lifecycle events. Fired by background extension install/refresh
-  // work. Carries refreshed/failed session counts, and may include install
-  // success/failure details.
-  'extensions_changed',
   // Multi-client permission coordination events.
   // `permission_partial_vote` only fires under `consensus` policy;
   // `permission_forbidden` fires under `designated` (originator
@@ -140,12 +133,6 @@ export const DAEMON_KNOWN_EVENT_TYPE_VALUES = [
   'turn_complete',
   'turn_error',
   'session_rewound',
-  'session_branched',
-  // A5 (#4511): synthetic side-channel snapshot yielded after
-  // `replay_complete` when `?snapshot=1` is set on the SSE endpoint.
-  // Carries `currentModelId` and `currentApprovalMode` so reconnecting
-  // clients can seed their reducer without an extra round-trip.
-  'session_snapshot',
 ] as const;
 
 const DAEMON_KNOWN_EVENT_TYPES: ReadonlySet<string> = new Set<string>(
@@ -277,41 +264,6 @@ export interface DaemonSessionClosedData {
 export interface DaemonSessionMetadataUpdatedData {
   sessionId: string;
   displayName?: string;
-  [key: string]: unknown;
-}
-
-/**
- * `mid_turn_message_injected` payload. Emitted when the daemon drains
- * browser-queued mid-turn messages into the running turn (web-shell mid-turn
- * drain). It is a transient dedupe signal, not a transcript item: consumers
- * move these messages out of their pending queue so they aren't resent as the
- * next turn. They are not rendered from this event — the message already reached
- * the model mid-turn, and the persisted transcript shows it on reload.
- */
-export interface DaemonMidTurnMessageInjectedData {
-  sessionId: string;
-  messages: string[];
-  /**
-   * Trusted client id that queued these messages, so a consumer dedupes only its
-   * OWN pending queue — a peer attached to the same session must not drop a
-   * coincidentally-equal entry it didn't queue. Absent for anonymous pushes.
-   *
-   * CONTRACT: a consumer that dedupes on this event MUST compare this id against
-   * its own client id and skip frames originated by a different client. The
-   * daemon broadcasts the frame to every SSE subscriber on the session and does
-   * NOT route by originator, so a consumer that dedupes unconditionally will drop
-   * another client's coincidentally-equal pending message (double delivery).
-   *
-   * IMPORTANT — wire location: unlike the permission/settings events (which the
-   * session reducer's `mergeOriginator` step copies from the envelope INTO
-   * `data`), this event is NOT reduced, so the daemon leaves the id ONLY on the
-   * SSE envelope (`event.originatorClientId`) and never populates it here. A raw
-   * SDK consumer must read `event.originatorClientId`; `data.originatorClientId`
-   * is filled in only by a consumer that lifts it off the envelope itself (the
-   * web-shell's `parseSidechannelMidTurnInjected` does this). The field lives on
-   * this shape so that lifted representation is well-typed.
-   */
-  originatorClientId?: string;
   [key: string]: unknown;
 }
 
@@ -609,13 +561,6 @@ export interface DaemonToolToggledData {
   [key: string]: unknown;
 }
 
-export interface DaemonTrustChangeRequestedData {
-  workspaceCwd: string;
-  desiredState: 'trusted' | 'untrusted';
-  reason?: string;
-  [key: string]: unknown;
-}
-
 /**
  * Workspace-scoped: fan-outs to every active session SSE bus when
  * `POST /workspace/init` is invoked. The `action` field discriminates
@@ -636,27 +581,6 @@ export interface DaemonWorkspaceInitializedData {
   path: string;
   action: 'created' | 'overwrote' | 'noop';
   originatorClientId?: string;
-  [key: string]: unknown;
-}
-
-export interface DaemonGithubSetupCompletedData {
-  releaseTag: string;
-  readmeUrl: string;
-  secretsUrl?: string;
-  workflows: Array<{
-    sourcePath?: string;
-    path: string;
-    status: 'written' | 'failed';
-    sizeBytes?: number;
-    error?: string;
-  }>;
-  gitignore: {
-    path: '.gitignore';
-    status: 'created' | 'updated' | 'unchanged' | 'failed' | 'skipped';
-    added?: string[];
-    error?: string;
-  };
-  warnings: string[];
   [key: string]: unknown;
 }
 
@@ -748,14 +672,6 @@ export interface DaemonSessionRewoundData {
   [key: string]: unknown;
 }
 
-export interface DaemonSessionBranchedData {
-  sourceSessionId: string;
-  newSessionId: string;
-  displayName: string;
-  originatorClientId?: string;
-  [key: string]: unknown;
-}
-
 /**
  * Fired when `POST /workspace/mcp/servers` succeeds, including both
  * fresh additions and replace-on-existing-name. The event fans out to
@@ -797,34 +713,6 @@ export type DaemonMcpServerRemovedEvent = DaemonEventEnvelope<
   DaemonMcpServerRemovedData
 >;
 
-export interface DaemonExtensionsChangedData {
-  readonly refreshed: number;
-  readonly failed: number;
-  readonly status?:
-    | 'installed'
-    | 'enabled'
-    | 'disabled'
-    | 'updated'
-    | 'uninstalled'
-    | 'failed';
-  readonly source?: string;
-  readonly name?: string;
-  readonly version?: string;
-  readonly error?: string;
-  [key: string]: unknown;
-}
-
-export type DaemonExtensionsChangedEvent = DaemonEventEnvelope<
-  'extensions_changed',
-  DaemonExtensionsChangedData
->;
-
-export interface DaemonSessionSnapshotData {
-  sessionId: string;
-  currentModelId: string | null;
-  currentApprovalMode: string | null;
-  [key: string]: unknown;
-}
 export type DaemonSessionUpdateEvent = DaemonEventEnvelope<
   'session_update',
   DaemonSessionUpdateData
@@ -952,17 +840,9 @@ export type DaemonSettingsChangedEvent = DaemonEventEnvelope<
   'settings_changed',
   Record<string, unknown>
 >;
-export type DaemonTrustChangeRequestedEvent = DaemonEventEnvelope<
-  'trust_change_requested',
-  DaemonTrustChangeRequestedData
->;
 export type DaemonWorkspaceInitializedEvent = DaemonEventEnvelope<
   'workspace_initialized',
   DaemonWorkspaceInitializedData
->;
-export type DaemonGithubSetupCompletedEvent = DaemonEventEnvelope<
-  'github_setup_completed',
-  DaemonGithubSetupCompletedData
 >;
 export type DaemonMcpServerRestartedEvent = DaemonEventEnvelope<
   'mcp_server_restarted',
@@ -971,20 +851,6 @@ export type DaemonMcpServerRestartedEvent = DaemonEventEnvelope<
 export type DaemonMcpServerRestartRefusedEvent = DaemonEventEnvelope<
   'mcp_server_restart_refused',
   DaemonMcpServerRestartRefusedData
->;
-
-export interface DaemonSettingsReloadedData {
-  env: { updatedKeys: string[]; removedKeys: string[] };
-  changedKeys: string[];
-  childReloaded: boolean;
-  sessionsRefreshed?: string[];
-  sessionsSkipped?: string[];
-  childError?: string;
-  [key: string]: unknown;
-}
-export type DaemonSettingsReloadedEvent = DaemonEventEnvelope<
-  'settings_reloaded',
-  DaemonSettingsReloadedData
 >;
 
 export type DaemonAuthDeviceFlowStartedEvent = DaemonEventEnvelope<
@@ -1025,14 +891,6 @@ export type DaemonSessionRewoundEvent = DaemonEventEnvelope<
   'session_rewound',
   DaemonSessionRewoundData
 >;
-export type DaemonSessionSnapshotEvent = DaemonEventEnvelope<
-  'session_snapshot',
-  DaemonSessionSnapshotData
->;
-export type DaemonSessionBranchedEvent = DaemonEventEnvelope<
-  'session_branched',
-  DaemonSessionBranchedData
->;
 
 export type DaemonAuthEvent =
   | DaemonAuthDeviceFlowStartedEvent
@@ -1062,10 +920,8 @@ export type DaemonControlEvent =
   | DaemonToolToggledEvent
   | DaemonSettingsChangedEvent
   | DaemonWorkspaceInitializedEvent
-  | DaemonGithubSetupCompletedEvent
   | DaemonMcpServerRestartedEvent
   | DaemonMcpServerRestartRefusedEvent
-  | DaemonSettingsReloadedEvent
   | DaemonMcpServerAddedEvent
   | DaemonMcpServerRemovedEvent
   | DaemonSessionRewoundEvent;
@@ -1094,9 +950,7 @@ export type DaemonMcpGuardrailEvent =
  */
 export type DaemonWorkspaceMutationEvent =
   | DaemonMemoryChangedEvent
-  | DaemonAgentChangedEvent
-  | DaemonTrustChangeRequestedEvent
-  | DaemonExtensionsChangedEvent;
+  | DaemonAgentChangedEvent;
 
 /**
  * Daemon assist push events — non-terminal UX hints emitted by the ACP
@@ -1119,8 +973,7 @@ export type KnownDaemonEvent =
   | DaemonWorkspaceMutationEvent
   | DaemonAuthEvent
   | DaemonAssistEvent
-  | DaemonTurnEvent
-  | DaemonSessionSnapshotEvent;
+  | DaemonTurnEvent;
 
 export interface DaemonSessionViewState {
   lastEventId?: number;
@@ -1304,7 +1157,6 @@ export interface DaemonSessionViewState {
   lastTurnError?: DaemonTurnErrorData;
   rewindCount: number;
   lastRewind?: DaemonSessionRewoundData;
-  lastBranch?: DaemonSessionBranchedData;
 }
 
 /**
@@ -1345,11 +1197,6 @@ const RESYNC_PASSTHROUGH_TYPES = new Set<KnownDaemonEvent['type']>([
   'session_closed',
   'client_evicted',
   'stream_error',
-  // A5 (#4511): the snapshot is a full-state authoritative frame, not a
-  // delta, so it is safe to apply during resync — and it is exactly what
-  // lets a client that reconnected past the ring recover currentModelId /
-  // approvalMode without waiting for the next loadSession.
-  'session_snapshot',
 ]);
 
 export function createDaemonSessionViewState(
@@ -1406,7 +1253,6 @@ export function createDaemonSessionViewState(
     lastFollowupSuggestion: seed.lastFollowupSuggestion,
     rewindCount: seed.rewindCount ?? 0,
     lastRewind: seed.lastRewind,
-    lastBranch: seed.lastBranch,
   };
 }
 
@@ -1576,22 +1422,11 @@ export function asKnownDaemonEvent(
         : undefined;
     case 'settings_changed':
       return event.data != null && typeof event.data === 'object'
-        ? (event as DaemonEventEnvelope<
-            'settings_changed',
-            Record<string, unknown>
-          >)
-        : undefined;
-    case 'trust_change_requested':
-      return isTrustChangeRequestedData(event.data)
-        ? (event as DaemonTrustChangeRequestedEvent)
+        ? (event as DaemonEventEnvelope<'settings_changed', Record<string, unknown>>)
         : undefined;
     case 'workspace_initialized':
       return isWorkspaceInitializedData(event.data)
         ? (event as DaemonWorkspaceInitializedEvent)
-        : undefined;
-    case 'github_setup_completed':
-      return isGithubSetupCompletedData(event.data)
-        ? (event as DaemonGithubSetupCompletedEvent)
         : undefined;
     case 'mcp_server_restarted':
       return isMcpServerRestartedData(event.data)
@@ -1600,10 +1435,6 @@ export function asKnownDaemonEvent(
     case 'mcp_server_restart_refused':
       return isMcpServerRestartRefusedData(event.data)
         ? (event as DaemonMcpServerRestartRefusedEvent)
-        : undefined;
-    case 'settings_reloaded':
-      return event.data != null && typeof event.data === 'object'
-        ? (event as DaemonSettingsReloadedEvent)
         : undefined;
     case 'followup_suggestion':
       return isFollowupSuggestionData(event.data)
@@ -1617,10 +1448,6 @@ export function asKnownDaemonEvent(
       return isMcpServerRemovedData(event.data)
         ? (event as DaemonMcpServerRemovedEvent)
         : undefined;
-    case 'extensions_changed':
-      return isExtensionsChangedData(event.data)
-        ? (event as DaemonExtensionsChangedEvent)
-        : undefined;
     case 'turn_complete':
       return isTurnCompleteData(event.data)
         ? (event as DaemonTurnCompleteEvent)
@@ -1632,14 +1459,6 @@ export function asKnownDaemonEvent(
     case 'session_rewound':
       return isSessionRewoundData(event.data)
         ? (event as DaemonSessionRewoundEvent)
-        : undefined;
-    case 'session_snapshot':
-      return isSessionSnapshotData(event.data)
-        ? (event as DaemonSessionSnapshotEvent)
-        : undefined;
-    case 'session_branched':
-      return isSessionBranchedData(event.data)
-        ? (event as DaemonSessionBranchedEvent)
         : undefined;
     default:
       return undefined;
@@ -1966,8 +1785,6 @@ export function reduceDaemonSessionEvent(
       };
     case 'settings_changed':
       return base;
-    case 'trust_change_requested':
-      return base;
     case 'workspace_initialized':
       // Workspace-scoped fan-out. Non-terminal — just records that a
       // QWEN.md scaffold was performed.
@@ -1976,8 +1793,6 @@ export function reduceDaemonSessionEvent(
         workspaceInitCount: base.workspaceInitCount + 1,
         lastWorkspaceInit: mergeOriginator(event.data, event),
       };
-    case 'github_setup_completed':
-      return base;
     case 'mcp_server_restarted':
       return {
         ...base,
@@ -2010,9 +1825,6 @@ export function reduceDaemonSessionEvent(
         ...base,
         lastTurnError: event.data,
       };
-    // `mid_turn_message_injected` is a transient UX signal (the browser dedupes
-    // its own pending queue); like these mcp/settings notices it carries no
-    // reduced session-view state.
     case 'mcp_server_added':
     case 'mcp_server_removed':
     case 'settings_reloaded':
@@ -2027,22 +1839,6 @@ export function reduceDaemonSessionEvent(
         ...base,
         rewindCount: base.rewindCount + 1,
         lastRewind: mergeOriginator(event.data, event),
-      };
-    case 'session_snapshot':
-      return {
-        ...base,
-        sessionId: event.data.sessionId,
-        ...(event.data.currentModelId != null
-          ? { currentModelId: event.data.currentModelId }
-          : {}),
-        ...(event.data.currentApprovalMode != null
-          ? { approvalMode: event.data.currentApprovalMode }
-          : {}),
-      };
-    case 'session_branched':
-      return {
-        ...base,
-        lastBranch: mergeOriginator(event.data, event),
       };
     default: {
       const _exhaustive: never = event;
@@ -2732,18 +2528,6 @@ function isToolToggledData(value: unknown): value is DaemonToolToggledData {
   );
 }
 
-function isTrustChangeRequestedData(
-  value: unknown,
-): value is DaemonTrustChangeRequestedData {
-  if (!isRecord(value)) return false;
-  const desiredState = value['desiredState'];
-  return (
-    isNonEmptyString(value['workspaceCwd']) &&
-    (desiredState === 'trusted' || desiredState === 'untrusted') &&
-    (value['reason'] === undefined || typeof value['reason'] === 'string')
-  );
-}
-
 function isWorkspaceInitializedData(
   value: unknown,
 ): value is DaemonWorkspaceInitializedData {
@@ -2751,45 +2535,6 @@ function isWorkspaceInitializedData(
   if (!isNonEmptyString(value['path'])) return false;
   const action = value['action'];
   return action === 'created' || action === 'overwrote' || action === 'noop';
-}
-
-function isGithubSetupCompletedData(
-  value: unknown,
-): value is DaemonGithubSetupCompletedData {
-  if (!isRecord(value)) return false;
-  if (!isNonEmptyString(value['releaseTag'])) return false;
-  if (!isNonEmptyString(value['readmeUrl'])) return false;
-  if (!Array.isArray(value['workflows'])) return false;
-  if (!value['workflows'].every(isGithubSetupWorkflowResult)) return false;
-  if (!isGithubSetupGitignoreResult(value['gitignore'])) return false;
-  return (
-    Array.isArray(value['warnings']) &&
-    value['warnings'].every((warning) => typeof warning === 'string')
-  );
-}
-
-function isGithubSetupWorkflowResult(value: unknown): boolean {
-  if (!isRecord(value)) return false;
-  if (!isNonEmptyString(value['path'])) return false;
-  const status = value['status'];
-  if (status !== 'written' && status !== 'failed') return false;
-  if (value['sizeBytes'] !== undefined && !isFiniteNumber(value['sizeBytes'])) {
-    return false;
-  }
-  return value['error'] === undefined || typeof value['error'] === 'string';
-}
-
-function isGithubSetupGitignoreResult(value: unknown): boolean {
-  if (!isRecord(value)) return false;
-  if (value['path'] !== '.gitignore') return false;
-  const status = value['status'];
-  return (
-    status === 'created' ||
-    status === 'updated' ||
-    status === 'unchanged' ||
-    status === 'failed' ||
-    status === 'skipped'
-  );
 }
 
 function isMcpServerRestartedData(
@@ -2886,66 +2631,6 @@ function isMcpServerRemovedData(
   if (typeof value['wasShadowingSettings'] !== 'boolean') return false;
   if (!isNonEmptyString(value['originatorClientId'])) return false;
   return true;
-}
-
-function isExtensionsChangedData(
-  value: unknown,
-): value is DaemonExtensionsChangedData {
-  if (!isRecord(value)) return false;
-  if (typeof value['refreshed'] !== 'number') return false;
-  if (typeof value['failed'] !== 'number') return false;
-  if (
-    value['status'] !== undefined &&
-    value['status'] !== 'installed' &&
-    value['status'] !== 'enabled' &&
-    value['status'] !== 'disabled' &&
-    value['status'] !== 'updated' &&
-    value['status'] !== 'uninstalled' &&
-    value['status'] !== 'failed'
-  ) {
-    return false;
-  }
-  if (value['source'] !== undefined && typeof value['source'] !== 'string') {
-    return false;
-  }
-  if (value['name'] !== undefined && typeof value['name'] !== 'string') {
-    return false;
-  }
-  if (value['version'] !== undefined && typeof value['version'] !== 'string') {
-    return false;
-  }
-  if (value['error'] !== undefined && typeof value['error'] !== 'string') {
-    return false;
-  }
-  return true;
-}
-
-function isSessionBranchedData(
-  value: unknown,
-): value is DaemonSessionBranchedData {
-  if (!isRecord(value)) return false;
-  return (
-    isNonEmptyString(value['sourceSessionId']) &&
-    isNonEmptyString(value['newSessionId']) &&
-    isNonEmptyString(value['displayName'])
-  );
-}
-
-function isSessionSnapshotData(
-  value: unknown,
-): value is DaemonSessionSnapshotData {
-  // `currentModelId` / `currentApprovalMode` are `string | null` on the
-  // wire. Validate the types here, not just `sessionId`: the reducer
-  // propagates these into `state.currentModelId` / `state.approvalMode`
-  // on a `!= null` check alone, so an unchecked non-string (e.g. `42`,
-  // `{}`) would land in state and crash downstream `.trim()`-style calls.
-  if (!isRecord(value) || !isNonEmptyString(value['sessionId'])) return false;
-  const model = value['currentModelId'];
-  const mode = value['currentApprovalMode'];
-  return (
-    (model === null || typeof model === 'string') &&
-    (mode === null || typeof mode === 'string')
-  );
 }
 
 function isPermissionOption(value: unknown): value is DaemonPermissionOption {
