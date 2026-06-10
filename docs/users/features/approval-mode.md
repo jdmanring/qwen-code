@@ -52,8 +52,6 @@ If you are in Normal Mode, **Shift+Tab** (or **Tab** on Windows) first switches 
 
 The `/plan` command provides a quick shortcut for entering and exiting Plan Mode:
 
-Regular planning requests do not switch modes by themselves. If you want the read-only Plan Mode workflow, use `/plan`, the keyboard shortcut, or set the approval mode to `plan` explicitly.
-
 ```bash
 /plan                          # Enter plan mode
 /plan refactor the auth module # Enter plan mode and start planning
@@ -367,10 +365,10 @@ qwen --prompt "Run the test suite, fix all failing tests, then commit changes"
 
 ### Keyboard Shortcut Switching
 
-During a Qwen Code session, use **Shift+Tab**​ (or **Tab** on Windows) to quickly cycle through the five modes:
+During a Qwen Code session, use **Shift+Tab**​ (or **Tab** on Windows) to quickly cycle through the four modes:
 
 ```
-Plan Mode → Ask Permissions Mode → Auto-Edit Mode → Auto Mode → YOLO Mode → Plan Mode
+Ask Permissions Mode → Auto-Edit Mode → YOLO Mode → Plan Mode → Ask Permissions Mode
 ```
 
 ### Persistent Configuration
@@ -380,7 +378,7 @@ Plan Mode → Ask Permissions Mode → Auto-Edit Mode → Auto Mode → YOLO Mod
 // User-level: ~/.qwen/settings.json
 {
   "tools": {
-    "approvalMode": "auto-edit"  // or "plan", "default", "auto", "yolo"
+    "approvalMode": "auto-edit"  // or "plan", "auto", "yolo"
   }
 }
 ```
