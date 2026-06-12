@@ -21,35 +21,35 @@ help:
 	@echo "  make create-alias     - Create a 'qwen' alias for your shell"
 
 install:
-	npm install
+	pnpm install
 
 build:
-	npm run build
+	pnpm run build
 
 
 build-all:
-	npm run build:all
+	pnpm run build:all
 
 test:
-	npm run test
+	pnpm run test
 
 lint:
-	npm run lint
+	pnpm run lint
 
 format:
-	npm run format
+	pnpm run format
 
 preflight:
-	npm run preflight
+	pnpm run preflight
 
 clean:
-	npm run clean
+	pnpm run clean
 
 start:
-	npm run start
+	pnpm run start
 
 debug:
-	npm run debug
+	pnpm run debug
 
 
 run-npx:

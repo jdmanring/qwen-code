@@ -210,7 +210,7 @@
             "api-key"
           ],
           "enumDescriptions": [
-            "Alibaba Cloud Coding Plan — configurable from VS Code Settings",
+            "Alibaba Cloud Coding Plan \u2014 configurable from VS Code Settings",
             "Configured via Qwen Code: Auth or the onboarding button"
           ],
           "default": "coding-plan",
@@ -230,8 +230,8 @@
             "global"
           ],
           "enumDescriptions": [
-            "China — 阿里云百炼 (aliyun.com)",
-            "Global — Alibaba Cloud (alibabacloud.com)"
+            "China \u2014 \u963f\u91cc\u4e91\u767e\u70bc (aliyun.com)",
+            "Global \u2014 Alibaba Cloud (alibabacloud.com)"
           ],
           "default": "china",
           "markdownDescription": "Region for Coding Plan. _(Only used when Provider is `coding-plan`)_"
@@ -272,10 +272,11 @@
   "type": "module",
   "scripts": {
     "prepackage": "node ./scripts/prepackage.js",
-    "build": "npm run build:dev",
-    "build:dev": "npm run check-types && npm run lint && node esbuild.js",
+    "build": "pnpm run build:dev",
+    "build:dev": "pnpm run check-types && pnpm run lint && node esbuild.js",
     "build:prod": "node esbuild.js --production",
     "generate:notices": "node ./scripts/generate-notices.js",
+    "prepare": "pnpm run generate:notices",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "watch": "npm-run-all2 -p watch:*",

@@ -51,14 +51,14 @@ jobs:
 
       - name: 'Install dependencies'
         run: |-
-          npm ci --prefer-offline --no-audit --progress=false
+          ppnpm install --frozen-lockfile --prefer-offline --no-audit --progress=false
 
       - name: 'Build project'
         run: |-
-          npm run build
+          pnpm run build
 
       - name: 'Run Terminal Bench Oracle (task: ${{ matrix.task_id }})'
-        run: 'npm run test:terminal-bench:oracle'
+        run: 'pnpm run test:terminal-bench:oracle'
         timeout-minutes: 30
         env:
           CI: 'true'
@@ -69,7 +69,7 @@ jobs:
           TB_TIMEOUT_MINUTES: '30'
 
       - name: 'Run Terminal Bench Qwen (task: ${{ matrix.task_id }})'
-        run: 'npm run test:terminal-bench:qwen'
+        run: 'pnpm run test:terminal-bench:qwen'
         timeout-minutes: 30
         env:
           OPENAI_API_KEY: '${{ secrets.OPENAI_API_KEY }}'

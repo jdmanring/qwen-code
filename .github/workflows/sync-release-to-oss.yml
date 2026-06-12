@@ -61,7 +61,7 @@ jobs:
         env:
           NPM_CONFIG_PREFER_OFFLINE: 'true'
         run: |-
-          npm ci --no-audit --progress=false
+          ppnpm install --frozen-lockfile --no-audit --progress=false
 
       - name: 'Download Release Assets from GitHub'
         env:
@@ -75,7 +75,7 @@ jobs:
 
       - name: 'Verify Downloaded Release Assets'
         run: |-
-          npm run verify:installation-release -- --dir dist/standalone
+          pnpm run verify:installation-release -- --dir dist/standalone
 
       - name: 'Package Hosted Installation Assets'
         if: |-
@@ -84,7 +84,7 @@ jobs:
           RELEASE_TAG: '${{ env.RELEASE_TAG }}'
         run: |-
           RELEASE_VERSION="${RELEASE_TAG#v}"
-          npm run package:hosted-installation -- --out-dir dist/installation --version "${RELEASE_VERSION}"
+          pnpm run package:hosted-installation -- --out-dir dist/installation --version "${RELEASE_VERSION}"
 
       - name: 'Install ossutil'
         env:
@@ -152,7 +152,7 @@ jobs:
         run: |-
           set -euo pipefail
 
-          npm run verify:installation-release -- --base-url "${ALIYUN_OSS_PUBLIC_BASE_URL}/releases/qwen-code/${RELEASE_TAG}"
+          pnpm run verify:installation-release -- --base-url "${ALIYUN_OSS_PUBLIC_BASE_URL}/releases/qwen-code/${RELEASE_TAG}"
 
       - name: 'Sync Hosted Installation Assets to Aliyun OSS'
         if: |-
