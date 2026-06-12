@@ -148,7 +148,7 @@ describe('useStatusLine', () => {
     mockSettings.reloadScopeFromDisk.mockImplementation(() => undefined);
 
     // Set up exec mock implementation
-    vi.mocked(child_process.exec).mockImplementation(((
+    (child_process.exec as any).mockImplementation(((
       cmd: string,
       _opts: unknown,
       cb: ExecCallback,
