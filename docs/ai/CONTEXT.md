@@ -54,11 +54,20 @@ When a tool is required:
 
 The fork uses a structured pipeline to ensure clean upstream contributions:
 
-**Ingest upstream changes:**
-`upstream/main` → `upstream-mirror` → `integration` → `develop`
+```
+upstream/main → upstream-mirror → origin/ingest → origin/develop → origin/main
+                                   ↑
+                             contribution branches
+```
+
+**Sync upstream changes:**
+`upstream/main` → `upstream-mirror` (fast-forward) → `origin/ingest` (reset) → `origin/develop` (merge)
 
 **Create new upstream-candidate work:**
-Branch from `upstream-mirror` $\rightarrow$ commit $\rightarrow$ cherry-pick to `develop`.
+Branch from `origin/ingest` → commit → merge to `origin/develop`.
 
 **Rebase a staging branch:**
-Rebase onto `upstream-mirror` to ensure the PR applies cleanly to the current upstream state.
+Reset to `origin/ingest` and cherry-pick the unique contribution commit(s).
+
+**Release:**
+Merge `origin/develop` → `origin/main` (downstream release endpoint).
