@@ -91,13 +91,13 @@ cd qwen-code
 To install dependencies defined in `package.json` as well as root dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
 To build the entire project (all packages):
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 This command typically compiles TypeScript to JavaScript, bundles assets, and prepares the packages for execution. Refer to `scripts/build.js` and `package.json` scripts for more details on what happens during the build.
@@ -109,10 +109,10 @@ This command typically compiles TypeScript to JavaScript, bundles assets, and pr
 To build both the `qwen-code` CLI utility and the sandbox container, run `build:all` from the root directory:
 
 ```bash
-npm run build:all
+pnpm run build:all
 ```
 
-To skip building the sandbox container, you can use `npm run build` instead.
+To skip building the sandbox container, you can use `pnpm run build` instead.
 
 ### Running
 
@@ -229,7 +229,7 @@ To work on the documentation and preview changes locally:
 2. Install dependencies:
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. Link the documentation content from the main `docs` directory:
@@ -287,7 +287,7 @@ To debug the CLI's React-based UI, you can use React DevTools. Ink, the library 
     You can either install it globally:
 
     ```bash
-    npm install -g react-devtools@4.28.5
+    pnpm install -g react-devtools@4.28.5
     react-devtools
     ```
 
@@ -309,7 +309,7 @@ We publish an artifact for each commit to our internal registry. But if you need
 
 ```
 npm run clean
-npm install
+pnpm install
 npm run auth
 npm run prerelease:dev
 npm publish --workspaces

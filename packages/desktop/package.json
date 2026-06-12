@@ -113,7 +113,7 @@
     "marketing:dev": "vite dev --config apps/marketing/vite.config.ts",
     "marketing:build": "vite build --config apps/marketing/vite.config.ts",
     "marketing:preview": "vite preview --config apps/marketing/vite.config.ts",
-    "docs:dev": "cd apps/online-docs && npm install && npx mintlify dev",
+    "docs:dev": "cd apps/online-docs && pnpm install && npx mintlify dev",
     "build": "bun run scripts/build.ts",
     "release": "bun run scripts/release.ts",
     "bump-desktop-version": "bun run scripts/bump-desktop-version.ts",

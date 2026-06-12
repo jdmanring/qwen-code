@@ -83,7 +83,7 @@ jobs:
         env:
           NPM_CONFIG_PREFER_OFFLINE: 'true'
         run: |-
-          npm ci
+          ppnpm install --frozen-lockfile
 
       - name: 'Get the version'
         id: 'version'
@@ -137,14 +137,14 @@ jobs:
         if: |-
           ${{ github.event.inputs.force_skip_tests != 'true' }}
         run: |
-          npm run build --workspace=@qwen-code/webui
+          pnpm run build --workspace=@qwen-code/webui
 
       - name: 'Run Tests'
         if: |-
           ${{ github.event.inputs.force_skip_tests != 'true' }}
         working-directory: 'packages/vscode-ide-companion'
         run: |
-          npm run test:ci
+          pnpm run test:ci
         env:
           OPENAI_API_KEY: '${{ secrets.OPENAI_API_KEY }}'
           OPENAI_BASE_URL: '${{ secrets.OPENAI_BASE_URL }}'
@@ -201,18 +201,18 @@ jobs:
         env:
           NPM_CONFIG_PREFER_OFFLINE: 'true'
         run: |-
-          npm ci
+          ppnpm install --frozen-lockfile
 
       - name: 'Install VSCE'
         run: |-
-          npm install -g @vscode/vsce
+          pnpm install -g @vscode/vsce
 
       - name: 'Update package version'
         env:
           RELEASE_VERSION: '${{ needs.prepare.outputs.release_version }}'
         shell: 'bash'
         run: |-
-          npm run release:version -- "${RELEASE_VERSION}"
+          pnpm run release:version -- "${RELEASE_VERSION}"
 
       - name: 'Prepare VSCode Extension'
         env:
@@ -288,8 +288,8 @@ jobs:
 
       - name: 'Install VSCE and OVSX'
         run: |-
-          npm install -g @vscode/vsce
-          npm install -g ovsx
+          pnpm install -g @vscode/vsce
+          pnpm install -g ovsx
 
       - name: 'Publish to Microsoft Marketplace'
         if: "${{ needs.prepare.outputs.is_dry_run == 'false' && needs.prepare.outputs.is_preview != 'true' }}"

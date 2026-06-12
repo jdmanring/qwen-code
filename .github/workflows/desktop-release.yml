@@ -296,7 +296,7 @@ jobs:
       - name: 'Install Qwen Code source dependencies'
         if: "${{ inputs.qwen_code_source == 'source_branch' }}"
         working-directory: '${{ runner.temp }}/qwen-code-source'
-        run: 'npm ci'
+        run: 'ppnpm install --frozen-lockfile'
 
       - name: 'Bump desktop version'
         working-directory: 'packages/desktop'

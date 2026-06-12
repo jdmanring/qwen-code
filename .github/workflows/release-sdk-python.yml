@@ -210,7 +210,7 @@ jobs:
 
       - name: 'Install Dependencies'
         run: |
-          npm ci
+          ppnpm install --frozen-lockfile
           python -m pip install --upgrade pip
           python -m pip install -e 'packages/sdk-python[dev]' build
 
@@ -218,8 +218,8 @@ jobs:
         if: |-
           ${{ github.event.inputs.force_skip_tests != 'true' }}
         run: |
-          npm run build
-          npm run bundle
+          pnpm run build
+          pnpm run bundle
 
       - name: 'Set Python package version (local only)'
         env:

@@ -99,7 +99,7 @@ jobs:
         env:
           NPM_CONFIG_PREFER_OFFLINE: 'true'
         run: |-
-          npm ci --no-audit --progress=false
+          ppnpm install --frozen-lockfile --no-audit --progress=false
 
       - name: 'Get the version'
         id: 'version'
@@ -169,27 +169,27 @@ jobs:
         env:
           NPM_CONFIG_PREFER_OFFLINE: 'true'
         run: |-
-          npm ci --no-audit --progress=false
+          ppnpm install --frozen-lockfile --no-audit --progress=false
 
       - name: 'Format Project'
         run: |-
-          npm run format
+          pnpm run format
 
       - name: 'Run Lint'
         run: |-
-          npm run lint:ci
+          pnpm run lint:ci
 
       - name: 'Build Project'
         run: |-
-          npm run build
+          pnpm run build
 
       - name: 'Typecheck Project'
         run: |-
-          npm run typecheck
+          pnpm run typecheck
 
       - name: 'Run Workspace Tests'
         run: |-
-          npm run test:ci
+          pnpm run test:ci
 
   integration_none:
     name: 'Integration Tests (No Sandbox)'
@@ -222,15 +222,15 @@ jobs:
         env:
           NPM_CONFIG_PREFER_OFFLINE: 'true'
         run: |-
-          npm ci --no-audit --progress=false
+          ppnpm install --frozen-lockfile --no-audit --progress=false
 
       - name: 'Run CLI Integration Tests'
         run: |-
-          npm run test:integration:cli:sandbox:none
+          pnpm run test:integration:cli:sandbox:none
 
       - name: 'Run Interactive Integration Tests'
         run: |-
-          npm run test:integration:interactive:sandbox:none
+          pnpm run test:integration:interactive:sandbox:none
 
   integration_docker:
     name: 'Integration Tests (Docker)'
@@ -263,7 +263,7 @@ jobs:
         env:
           NPM_CONFIG_PREFER_OFFLINE: 'true'
         run: |-
-          npm ci --no-audit --progress=false
+          ppnpm install --frozen-lockfile --no-audit --progress=false
 
       - name: 'Set up Docker'
         uses: 'docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd' # ratchet:docker/setup-buildx-action@v4
@@ -272,7 +272,7 @@ jobs:
         env:
           QWEN_SANDBOX: 'docker'
         run: |-
-          npm run build:sandbox -- -s
+          pnpm run build:sandbox -- -s
 
       - name: 'Run CLI Docker Integration Tests'
         run: |-
@@ -335,7 +335,7 @@ jobs:
         env:
           NPM_CONFIG_PREFER_OFFLINE: 'true'
         run: |-
-          npm ci --no-audit --progress=false
+          ppnpm install --frozen-lockfile --no-audit --progress=false
 
       - name: 'Configure Git User'
         run: |-
@@ -355,7 +355,7 @@ jobs:
         env:
           RELEASE_VERSION: '${{ needs.prepare.outputs.release_version }}'
         run: |-
-          npm run release:version "${RELEASE_VERSION}"
+          pnpm run release:version "${RELEASE_VERSION}"
 
       - name: 'Commit and Conditionally Push package versions'
         env:
@@ -378,13 +378,13 @@ jobs:
 
       - name: 'Build Bundle and Prepare Package'
         run: |-
-          npm run bundle
-          npm run prepare:package
+          pnpm run bundle
+          pnpm run prepare:package
 
       - name: 'Build Standalone Archives'
         env:
           RELEASE_VERSION: '${{ needs.prepare.outputs.release_version }}'
-        run: 'npm run package:standalone:release -- --version "${RELEASE_VERSION}" --out-dir dist/standalone'
+        run: 'pnpm run package:standalone:release -- --version "${RELEASE_VERSION}" --out-dir dist/standalone'
 
       - name: 'Publish @qwen-code/qwen-code'
         working-directory: 'dist'
@@ -402,7 +402,7 @@ jobs:
 
       - name: 'Verify Standalone Archives'
         run: |-
-          npm run verify:installation-release -- --dir dist/standalone
+          pnpm run verify:installation-release -- --dir dist/standalone
 
       - name: 'Create GitHub Release and Tag'
         if: |-

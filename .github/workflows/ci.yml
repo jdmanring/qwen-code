@@ -103,13 +103,13 @@ jobs:
           cache: 'npm'
 
       - name: 'Install dependencies and run prepare'
-        run: 'npm ci'
+        run: 'ppnpm install --frozen-lockfile'
 
       - name: 'Check lockfile'
-        run: 'npm run check:lockfile'
+        run: 'pnpm run check:lockfile'
 
       - name: 'Check desktop workspace isolation'
-        run: 'npm run check:desktop-isolation'
+        run: 'pnpm run check:desktop-isolation'
 
       - name: 'Install linters'
         run: 'node scripts/lint.js --setup'
@@ -133,16 +133,16 @@ jobs:
         run: 'node scripts/lint.js --sensitive-keywords'
 
       - name: 'Run i18n check'
-        run: 'npm run check-i18n'
+        run: 'pnpm run check-i18n'
 
       - name: 'Generate settings schema'
-        run: 'npm run generate:settings-schema'
+        run: 'pnpm run generate:settings-schema'
 
       - name: 'Check settings schema is up-to-date'
         run: |
           if [[ -n $(git status --porcelain packages/vscode-ide-companion/schemas/settings.schema.json) ]]; then
             echo "❌ Error: settings.schema.json is out of date!"
-            echo "   Please run: npm run generate:settings-schema"
+            echo "   Please run: pnpm run generate:settings-schema"
             echo "   Then commit the updated schema file."
             git diff packages/vscode-ide-companion/schemas/settings.schema.json
             exit 1
@@ -195,12 +195,12 @@ jobs:
 
       - name: 'Install dependencies'
         run: |-
-          npm ci --prefer-offline --no-audit --progress=false
+          ppnpm install --frozen-lockfile --prefer-offline --no-audit --progress=false
 
       - name: 'Run tests and generate reports'
         env:
           NO_COLOR: true
-        run: 'npm run test:ci'
+        run: 'pnpm run test:ci'
 
       - name: 'Publish Test Report (for non-forks)'
         if: |-
