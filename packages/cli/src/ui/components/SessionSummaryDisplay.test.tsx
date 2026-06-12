@@ -51,8 +51,7 @@ const renderWithMockedStats = (
   });
 
   const mockConfig = {
-    getChatRecordingService: vi.fn(() =>
-      chatRecordingEnabled ? ({} as never) : undefined,
+    getChatRecordingService: vi.fn(() => chatRecordingEnabled ? ({} as never) : undefined,
     ),
   };
 

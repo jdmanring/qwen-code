@@ -64,8 +64,7 @@ describe('ChatRecordingService - recordCustomTitle', () => {
     } as unknown as Config;
 
     vi.mocked(randomUUID).mockImplementation(
-      () =>
-        `00000000-0000-0000-0000-00000000000${++uuidCounter}` as `${string}-${string}-${string}-${string}-${string}`,
+      () => `00000000-0000-0000-0000-00000000000${++uuidCounter}` as `${string}-${string}-${string}-${string}-${string}`,
     );
     vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
     vi.mocked(path.dirname).mockImplementation((p) => {

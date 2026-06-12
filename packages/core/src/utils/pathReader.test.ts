@@ -331,8 +331,7 @@ describe('readPathFromWorkspace', () => {
         },
       });
       const mockFileService = {
-        filterFiles: vi.fn((files: string[]) =>
-          files.filter((f) => !f.endsWith('ignored.log')),
+        filterFiles: vi.fn((files: string[]) => files.filter((f) => !f.endsWith('ignored.log')),
         ),
       } as unknown as FileDiscoveryService;
       const config = createMockConfig(CWD, [], mockFileService);
