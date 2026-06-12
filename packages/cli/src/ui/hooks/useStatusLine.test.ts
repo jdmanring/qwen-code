@@ -17,7 +17,13 @@ const debugLogMock = vi.hoisted(() => ({
 }));
 
 // --- Mock child_process (auto-mock, then override exec in beforeEach) ---
-vi.mock('child_process');
+vi.mock('child_process', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('child_process')>();
+  return {
+    ...actual,
+    exec: vi.fn(),
+  };
+});
 
 // --- Mock context hooks ---
 
@@ -146,7 +152,7 @@ describe('useStatusLine', () => {
     mockSettings.reloadScopeFromDisk.mockImplementation(() => undefined);
 
     // Set up exec mock implementation
-    vi.mocked(child_process.exec).mockImplementation(((
+    (child_process.exec as any).mockImplementation(((
       cmd: string,
       _opts: unknown,
       cb: ExecCallback,
