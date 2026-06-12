@@ -169,8 +169,7 @@ function createDialogHarness(agents = [createAgentResult()]) {
         stats: agent.stats,
       })),
     ),
-    getAgentState: vi.fn((agentId: string) =>
-      agents.find((agent) => agent.agentId === agentId),
+    getAgentState: vi.fn((agentId: string) => agents.find((agent) => agent.agentId === agentId),
     ),
     applyAgentResult,
   } as unknown as ArenaManager;

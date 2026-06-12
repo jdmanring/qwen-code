@@ -239,8 +239,7 @@ describe('WriteFileTool', () => {
       seedPriorRead(filePath);
 
       const readError = new Error('Simulated read error for confirmation');
-      vi.spyOn(fsService, 'readTextFile').mockImplementationOnce(() =>
-        Promise.reject(readError),
+      vi.spyOn(fsService, 'readTextFile').mockImplementationOnce(() => Promise.reject(readError),
       );
 
       const invocation = tool.build(params);
@@ -753,8 +752,7 @@ describe('WriteFileTool', () => {
       vi.restoreAllMocks();
 
       // Mock FileSystemService writeTextFile to throw generic error
-      vi.spyOn(fsService, 'writeTextFile').mockImplementationOnce(() =>
-        Promise.reject(new Error('Generic write error')),
+      vi.spyOn(fsService, 'writeTextFile').mockImplementationOnce(() => Promise.reject(new Error('Generic write error')),
       );
 
       const params = { file_path: filePath, content };

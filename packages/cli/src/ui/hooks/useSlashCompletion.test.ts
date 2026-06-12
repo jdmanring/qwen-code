@@ -109,8 +109,7 @@ vi.mock('fzf', async () => {
       return {
         find: vi
           .fn()
-          .mockImplementation((query: string) =>
-            simulateFuzzyMatching(items, query),
+          .mockImplementation((query: string) => simulateFuzzyMatching(items, query),
           ),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any;
@@ -125,8 +124,7 @@ const createDefaultAsyncFzfMock =
     return {
       find: vi
         .fn()
-        .mockImplementation((query: string) =>
-          simulateFuzzyMatching(items, query),
+        .mockImplementation((query: string) => simulateFuzzyMatching(items, query),
         ),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;

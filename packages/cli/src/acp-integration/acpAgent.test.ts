@@ -426,9 +426,7 @@ vi.mock('../utils/acpModelUtils.js', () => ({
   formatAcpModelId: vi.fn(
     (modelId: string, authType: string) => `${modelId}(${authType})`,
   ),
-  parseAcpBaseModelId: vi.fn((modelId: string) =>
-    modelId.replace(/\([^)]+\)$/, ''),
-  ),
+  parseAcpBaseModelId: vi.fn((modelId: string) => modelId.replace(/\([^)]+\)$/, '')),
 }));
 vi.mock('../utils/languageUtils.js', () => ({
   updateOutputLanguageFile: vi.fn(),
