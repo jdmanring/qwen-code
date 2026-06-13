@@ -490,7 +490,7 @@ class StatusTracker:
                     start = datetime.fromisoformat(run["started_at"])
                     end = datetime.fromisoformat(run["ended_at"])
                     duration = f"{(end - start).total_seconds():.1f}s"
-                except: pass
+                except Exception: pass
 
             error_msg = f'<div class="error-msg">{html.escape(run["error_message"])}</div>' if run.get("error_message") else ""
 
@@ -677,7 +677,7 @@ class ProgressDisplay:
                     end = datetime.fromisoformat(run.ended_at)
                     duration_sec = (end - start).total_seconds()
                     duration = f"{duration_sec:.1f}s"
-                except:
+                except Exception:
                     pass
             
             completed_table.add_row(

@@ -13,12 +13,12 @@ Usage:
 
 import sys
 import warnings
+import click
 from pathlib import Path
 
 # Suppress pydub/ffmpeg warning from markitdown[all] — irrelevant for document conversion
 warnings.filterwarnings("ignore", message="Couldn't find ffmpeg", category=RuntimeWarning)
 
-import click
 
 
 SUPPORTED_EXTENSIONS = {

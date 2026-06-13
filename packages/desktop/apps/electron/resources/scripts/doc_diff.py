@@ -14,13 +14,13 @@ Usage:
 import difflib
 import sys
 import warnings
+import click
+from diff_match_patch import diff_match_patch
 from pathlib import Path
 
 # Suppress pydub/ffmpeg warning from markitdown[all] — irrelevant for document conversion
 warnings.filterwarnings("ignore", message="Couldn't find ffmpeg", category=RuntimeWarning)
 
-import click
-from diff_match_patch import diff_match_patch
 
 
 def write_output(text: str, output_path: str | None) -> None:
