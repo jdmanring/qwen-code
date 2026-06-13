@@ -1,4 +1,4 @@
 [project]
-name = "sdk-python"
+name = "zed-extension"
 version = "0.1.0"
 dependencies = []

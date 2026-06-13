@@ -1,4 +1,4 @@
 [project]
-name = "sdk-python"
+name = "vscode-ide-companion"
 version = "0.1.0"
 dependencies = []

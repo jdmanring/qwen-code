@@ -1,4 +1,4 @@
 [project]
-name = "sdk-python"
+name = "channels-plugin-example"
 version = "0.1.0"
 dependencies = []
