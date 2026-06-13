@@ -22,7 +22,8 @@ export default tseslint.config(
   {
     // Global ignores
     ignores: [
-      'node_modules/*',
+      'node_modules/**',
+      '**/node_modules/**',
       'packages/**/dist/**',
       'bundle/**',
       'package/bundle/**',
@@ -84,6 +85,7 @@ export default tseslint.config(
       'import/resolver': {
         node: true,
       },
+      'import/ignore': ['yargs'],
     },
     rules: {
       ...importPlugin.configs.recommended.rules,
