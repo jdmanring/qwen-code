@@ -30,6 +30,7 @@
   "activationEvents": [
     "onStartupFinished",
     "onView:qwen-code.chatView.sidebar",
+    "onView:qwen-code.chatView.secondary",
     "onCommand:qwen-code.openChat",
     "onCommand:qwen-code.focusChat",
     "onCommand:qwen-code.newConversation",
@@ -47,7 +48,16 @@
         {
           "id": "qwen-code-sidebar",
           "title": "Qwen Code",
-          "icon": "assets/sidebar-icon.svg"
+          "icon": "assets/sidebar-icon.svg",
+          "when": "!qwen-code:supportsSecondarySidebar"
+        }
+      ],
+      "secondarySidebar": [
+        {
+          "id": "qwen-code-secondary",
+          "title": "Qwen Code",
+          "icon": "assets/sidebar-icon.svg",
+          "when": "qwen-code:supportsSecondarySidebar"
         }
       ]
     },
@@ -57,7 +67,17 @@
           "type": "webview",
           "id": "qwen-code.chatView.sidebar",
           "name": "Qwen Code",
-          "icon": "assets/sidebar-icon.svg"
+          "icon": "assets/sidebar-icon.svg",
+          "when": "!qwen-code:supportsSecondarySidebar"
+        }
+      ],
+      "qwen-code-secondary": [
+        {
+          "type": "webview",
+          "id": "qwen-code.chatView.secondary",
+          "name": "Qwen Code",
+          "icon": "assets/sidebar-icon.svg",
+          "when": "qwen-code:supportsSecondarySidebar"
         }
       ]
     },
@@ -290,7 +310,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@agentclientprotocol/sdk": "^0.14.1",
+    "@agentclientprotocol/sdk": "^0.22.1",
     "@qwen-code/sdk": "*",
     "@qwen-code/webui": "*",
     "@modelcontextprotocol/sdk": "^1.25.2",

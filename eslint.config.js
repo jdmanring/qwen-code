@@ -132,7 +132,7 @@ export default tseslint.config(
             '**/generated/**',
             './styles/tailwind.css',
             './styles/App.css',
-            './styles/style.css'
+            './styles/style.css',
           ],
         },
       ],
@@ -277,7 +277,20 @@ export default tseslint.config(
   // WebUI package - UI component library with Storybook
   {
     files: ['packages/webui/**/*.ts', 'packages/webui/**/*.tsx', 'packages/webui/**/*.js'],
-    rules: { 'no-console': 'off' },
+    rules: {
+      'no-console': 'off',
+      'import/no-internal-modules': 'off',
+    },
+  },
+  // ACP bridge package - index.ts re-exports from subdirectories
+  {
+    files: ['packages/acp-bridge/src/**/*.ts'],
+    rules: { 'import/no-internal-modules': 'off' },
+  },
+  // SubAgentTracker uses internal cross-module imports (./emitters/)
+  {
+    files: ['packages/cli/src/acp-integration/session/SubAgentTracker.ts'],
+    rules: { 'import/no-internal-modules': 'off' },
   },
   // Chrome extension (chrome-extension) - the MV3 background service
   // worker and content scripts run in the browser with no stdio; console is
