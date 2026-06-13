@@ -1,0 +1,4 @@
+[project]
+name = "channels-telegram"
+version = "0.1.0"
+dependencies = []

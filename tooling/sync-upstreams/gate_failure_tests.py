@@ -1,232 +1,198 @@
 #!/usr/bin/env python3
 """
-Gate Failure Tests
-
-Verifies that each pipeline gate correctly blocks failures.
-Run after any changes to the pipeline itself.
-
-Usage:
-    python3 tooling/sync-upstreams/gate_failure_tests.py
-
-Note: These tests verify the pipeline code contains the correct patterns.
-They do NOT run actual gates against broken code — they test the pipeline
-structure is correctly wired.
+Pipeline gate failure tests.
+Verifies that each failure mode (merge conflict, symmetry violation, boot failure)
+is correctly detected and blocked by the upstream sync pipeline.
 """
 
+import subprocess
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).parent.parent.parent.resolve()
+sys.path.append(str(Path(__file__).parent))
+from upstream_ingest_pipeline import REPO_ROOT, SyncManager, UpstreamIngestPipeline, _GitRunner
 
 
-class TestResult:
-    def __init__(self, name: str):
-        self.name = name
-        self.passed = False
-        self.message = ""
-
-    def __str__(self) -> str:
-        status = "PASS" if self.passed else "FAIL"
-        return f"  {status}  {self.name}" + (f" — {self.message}" if self.message else "")
+class Colors:
+    GREEN = "\033[0;32m"
+    RED = "\033[0;31m"
+    BLUE = "\033[0;34m"
+    NC = "\033[0m"
 
 
-def test_merge_conflict_detection() -> TestResult:
-    result = TestResult("Merge Conflict Detection")
-    pipeline_file = REPO_ROOT / "tooling" / "sync-upstreams" / "upstream_ingest_pipeline.py"
-    content = pipeline_file.read_text()
-
-    checks = [
-        ('"merge", "--abort"', "Pipeline should abort merge on conflict"),
-        ("--diff-filter=U", "Pipeline should detect conflicted files"),
-        ("RuntimeError", "Pipeline should raise on unresolvable conflicts"),
-        ("Merge conflict", "Pipeline should report merge conflicts"),
-    ]
-
-    missing = [desc for pattern, desc in checks if pattern not in content]
-    if missing:
-        result.message = f"Missing: {', '.join(missing)}"
-    else:
-        result.passed = True
-
-    return result
+def log_info(msg: str):
+    print(f"{Colors.BLUE}[INFO]{Colors.NC} {msg}")
 
 
-def test_protected_files_restored() -> TestResult:
-    result = TestResult("Protected Files Restoration")
-    pipeline_file = REPO_ROOT / "tooling" / "sync-upstreams" / "upstream_ingest_pipeline.py"
-    content = pipeline_file.read_text()
-
-    checks = [
-        ("PROTECTED_FILES", "Pipeline should define protected files list"),
-        ("_restore_protected_files", "Pipeline should have restore function"),
-        ("checkout", "Pipeline should checkout protected files"),
-        ("integration_ref", "Pipeline should use integration ref for restoration"),
-    ]
-
-    missing = [desc for pattern, desc in checks if pattern not in content]
-    if missing:
-        result.message = f"Missing: {', '.join(missing)}"
-    else:
-        result.passed = True
-
-    return result
+def log_success(msg: str):
+    print(f"{Colors.GREEN}[PASS]{Colors.NC} {msg}")
 
 
-def test_staging_isolation() -> TestResult:
-    result = TestResult("Staging Branch Isolation")
-    pipeline_file = REPO_ROOT / "tooling" / "sync-upstreams" / "upstream_ingest_pipeline.py"
-    content = pipeline_file.read_text()
-
-    checks = [
-        ("sync/staging-", "Pipeline should create staging branches"),
-        ("ff-only", "Pipeline should ff-only merge into integration"),
-        ("cleanup_staging", "Pipeline should clean up staging branches"),
-    ]
-
-    missing = [desc for pattern, desc in checks if pattern not in content]
-    if missing:
-        result.message = f"Missing: {', '.join(missing)}"
-    else:
-        result.passed = True
-
-    return result
+def log_error(msg: str):
+    print(f"{Colors.RED}[FAIL]{Colors.NC} {msg}")
 
 
-def test_lkg_tagging() -> TestResult:
-    result = TestResult("LKG Tag Creation")
-    pipeline_file = REPO_ROOT / "tooling" / "sync-upstreams" / "upstream_ingest_pipeline.py"
-    content = pipeline_file.read_text()
-
-    checks = [
-        ("LKG-", "Pipeline should create LKG tags"),
-        ('"tag", "-a"', "Pipeline should create annotated tags"),
-    ]
-
-    missing = [desc for pattern, desc in checks if pattern not in content]
-    if missing:
-        result.message = f"Missing: {', '.join(missing)}"
-    else:
-        result.passed = True
-
-    return result
+def git(cmd: list, cwd: Path, check: bool = True) -> subprocess.CompletedProcess:
+    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, check=check)
 
 
-def test_preflight_checks() -> TestResult:
-    result = TestResult("Pre-flight Checks")
-    pipeline_file = REPO_ROOT / "tooling" / "sync-upstreams" / "upstream_ingest_pipeline.py"
-    content = pipeline_file.read_text()
+class GateFailureTests:
+    def __init__(self):
+        self.root = REPO_ROOT
 
-    checks = [
-        ("PreFlight", "Pipeline should have pre-flight checks"),
-        ("integration", "Pipeline should verify integration branch"),
-        ("REQUIRED_REMOTES", "Pipeline should verify required remotes"),
-    ]
+    def test_merge_conflict(self):
+        """
+        Verify the pipeline aborts and leaves integration untouched when a
+        merge conflict occurs.
 
-    missing = [desc for pattern, desc in checks if pattern not in content]
-    if missing:
-        result.message = f"Missing: {', '.join(missing)}"
-    else:
-        result.passed = True
+        Uses SyncManager directly so the injected commits on upstream-mirror
+        are not wiped by sync_mirror()'s reset-to-upstream/main.
+        """
+        log_info("Testing Failure Mode: Merge Conflict")
 
-    return result
+        _git = _GitRunner(self.root)
+        sync = SyncManager(_git)
+        test_file = self.root / "Conflict_Test.txt"
 
+        orig_integration = _git.output(["git", "rev-parse", "integration"])
+        orig_mirror = _git.output(["git", "rev-parse", "upstream-mirror"])
 
-def test_three_gates() -> TestResult:
-    result = TestResult("Three-Gate Pipeline")
-    pipeline_file = REPO_ROOT / "tooling" / "sync-upstreams" / "upstream_ingest_pipeline.py"
-    content = pipeline_file.read_text()
+        success = False
+        try:
+            # Establish a shared base on integration
+            git(["git", "checkout", "integration"], self.root)
+            test_file.write_text("base version\n")
+            git(["git", "add", str(test_file)], self.root)
+            git(["git", "commit", "-m", "chaos: conflict-test base"], self.root)
+            base_commit = _git.output(["git", "rev-parse", "HEAD"])
 
-    checks = [
-        ("_gate_build", "Pipeline should have build gate"),
-        ("_gate_lint", "Pipeline should have lint gate"),
-        ("_gate_tests", "Pipeline should have test gate"),
-        ("Gate 1/3", "Pipeline should label build gate"),
-        ("Gate 2/3", "Pipeline should label lint gate"),
-        ("Gate 3/3", "Pipeline should label test gate"),
-    ]
+            # Diverge integration from the base
+            test_file.write_text("Integration version\n")
+            git(["git", "add", str(test_file)], self.root)
+            git(["git", "commit", "-m", "chaos: conflict-test integration"], self.root)
 
-    missing = [desc for pattern, desc in checks if pattern not in content]
-    if missing:
-        result.message = f"Missing: {', '.join(missing)}"
-    else:
-        result.passed = True
+            # Reset upstream-mirror to the shared base and add a conflicting change
+            git(["git", "checkout", "-B", "upstream-mirror", base_commit], self.root)
+            test_file.write_text("Mirror version\n")
+            git(["git", "add", str(test_file)], self.root)
+            git(["git", "commit", "-m", "chaos: conflict-test mirror"], self.root)
 
-    return result
+            git(["git", "checkout", "integration"], self.root)
 
+            # Merge via SyncManager — bypasses sync_mirror so injected commits survive
+            sync.create_staging()
+            try:
+                sync.merge_mirror_to_stage()
+                log_error("Merge unexpectedly succeeded — conflict was not detected!")
+            except RuntimeError:
+                log_success("Pipeline correctly detected and aborted merge conflict.")
 
-def test_gate_commands() -> TestResult:
-    result = TestResult("Gate Commands (Node.js)")
-    pipeline_file = REPO_ROOT / "tooling" / "sync-upstreams" / "upstream_ingest_pipeline.py"
-    content = pipeline_file.read_text()
+                git(["git", "checkout", "integration"], self.root, check=False)
+                content = test_file.read_text() if test_file.exists() else ""
+                if "Integration version" in content:
+                    log_success("Integration branch remained stable.")
+                    success = True
+                else:
+                    log_error(f"Integration branch was polluted! Content: {content!r}")
 
-    checks = [
-        ("pnpm install", "Build gate should use pnpm"),
-        ("eslint", "Lint gate should use eslint"),
-        ("vitest", "Test gate should use vitest"),
-    ]
+        finally:
+            sync.cleanup_staging()
+            git(["git", "checkout", "integration"], self.root, check=False)
+            git(["git", "reset", "--hard", orig_integration], self.root, check=False)
+            git(["git", "checkout", "-B", "upstream-mirror", orig_mirror], self.root, check=False)
+            git(["git", "checkout", "integration"], self.root, check=False)
+            test_file.unlink(missing_ok=True)
 
-    missing = [desc for pattern, desc in checks if pattern not in content]
-    if missing:
-        result.message = f"Missing: {', '.join(missing)}"
-    else:
-        result.passed = True
+        return success
 
-    return result
+    def test_symmetry_violation(self):
+        """
+        Verify the symmetry gate blocks a config file without a matching doc.
 
+        Writes an untracked file (survives git checkouts) and uses dry_run to
+        run gates against the current working state.
+        """
+        log_info("Testing Failure Mode: Symmetry Violation")
 
-def test_finally_cleanup() -> TestResult:
-    result = TestResult("Finally Block Cleanup")
-    pipeline_file = REPO_ROOT / "tooling" / "sync-upstreams" / "upstream_ingest_pipeline.py"
-    content = pipeline_file.read_text()
+        config_file = self.root / ".qwen" / "config" / "violation.toml"
+        config_file.parent.mkdir(parents=True, exist_ok=True)
 
-    checks = [
-        ("finally:", "Pipeline should have finally block"),
-        ("cleanup_staging", "Finally block should call cleanup"),
-    ]
+        try:
+            config_file.write_text("test = 1\n")
 
-    missing = [desc for pattern, desc in checks if pattern not in content]
-    if missing:
-        result.message = f"Missing: {', '.join(missing)}"
-    else:
-        result.passed = True
+            orch = UpstreamIngestPipeline(dry_run=True)
+            result = orch.run()
 
-    return result
+            if not result.success and result.stage == "VERIFICATION":
+                log_success("Pipeline correctly blocked symmetry violation.")
+                return True
+            else:
+                log_error(
+                    f"Pipeline failed to block symmetry violation. "
+                    f"Stage: {result.stage}, success: {result.success}"
+                )
+                return False
+        finally:
+            config_file.unlink(missing_ok=True)
 
+    def test_boot_failure(self):
+        """
+        Verify the boot gate blocks when uv.lock is missing.
 
-def main() -> None:
-    print("=" * 56)
-    print("  PIPELINE GATE FAILURE TEST REPORT")
-    print("=" * 56)
-    print()
+        Uses dry_run=True so no git checkout can restore uv.lock before the
+        gate runs. Boot gate is ordered first (before lint) so uv run ruff
+        cannot recreate the lockfile and defeat the check.
+        """
+        log_info("Testing Failure Mode: Boot Failure")
 
-    results = []
+        lockfile = self.root / "uv.lock"
+        if not lockfile.exists():
+            log_info("uv.lock not found — skipping.")
+            return True
 
-    print("Structural Tests:")
-    results.append(test_merge_conflict_detection())
-    results.append(test_protected_files_restored())
-    results.append(test_staging_isolation())
-    results.append(test_lkg_tagging())
-    results.append(test_preflight_checks())
-    results.append(test_three_gates())
-    results.append(test_gate_commands())
-    results.append(test_finally_cleanup())
+        backup = lockfile.with_suffix(".lock.bak")
+        lockfile.rename(backup)
 
-    for r in results:
-        print(r)
+        success = False
+        try:
+            orch = UpstreamIngestPipeline(dry_run=True)
+            result = orch.run()
 
-    print()
+            if not result.success and result.stage == "VERIFICATION":
+                log_success("Pipeline correctly blocked boot failure.")
+                success = True
+            else:
+                log_error(
+                    f"Pipeline failed to block boot failure. "
+                    f"Stage: {result.stage}, success: {result.success}"
+                )
+        finally:
+            backup.rename(lockfile)
 
-    passed = sum(1 for r in results if r.passed)
-    total = len(results)
-    print(f"Results: {passed}/{total} passed")
+        return success
 
-    if passed == total:
-        print("[PASS] All gate failure tests passed.")
-        sys.exit(0)
-    else:
-        print("[FAIL] Some tests failed. Review the pipeline code.")
-        sys.exit(1)
+    def run_all(self):
+        results = []
+        results.append(("Merge Conflict", self.test_merge_conflict()))
+        results.append(("Symmetry Violation", self.test_symmetry_violation()))
+        results.append(("Boot Failure", self.test_boot_failure()))
+
+        print("\n" + "=" * 42)
+        print("PIPELINE GATE FAILURE TEST REPORT")
+        print("=" * 42)
+        for name, res in results:
+            status = "PASS" if res else "FAIL"
+            print(f"  {name:<25}: {status}")
+        print("=" * 42)
+
+        return all(res for _, res in results)
 
 
 if __name__ == "__main__":
-    main()
+    suite = GateFailureTests()
+    if suite.run_all():
+        log_success("All gate failure tests passed.")
+        sys.exit(0)
+    else:
+        log_error("One or more gate failure tests failed.")
+        sys.exit(1)

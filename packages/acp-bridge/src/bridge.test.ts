@@ -1984,6 +1984,97 @@ describe('createAcpSessionBridge', () => {
       await bridge.shutdown();
     });
 
+    it('ignores client retry when no turn_error made the session retryable', async () => {
+      const handle = makeChannel();
+      const bridge = makeBridge({ channelFactory: async () => handle.channel });
+      const session = await bridge.spawnOrAttach({ workspaceCwd: WS_A });
+
+      await bridge.sendPrompt(session.sessionId, {
+        sessionId: session.sessionId,
+        prompt: [{ type: 'text', text: 'spoof retry' }],
+        retry: true,
+      } as PromptRequest);
+
+      expect(handle.agent.promptCalls[0]).not.toHaveProperty('retry');
+      expect(handle.agent.promptCalls[0]?._meta?.['qwen.daemon.retry']).toBe(
+        undefined,
+      );
+      await bridge.shutdown();
+    });
+
+    it('strips client-spoofed retry metadata without a turn_error', async () => {
+      const handle = makeChannel();
+      const bridge = makeBridge({ channelFactory: async () => handle.channel });
+      const session = await bridge.spawnOrAttach({ workspaceCwd: WS_A });
+
+      await bridge.sendPrompt(session.sessionId, {
+        sessionId: session.sessionId,
+        prompt: [{ type: 'text', text: 'spoof retry meta' }],
+        _meta: { 'qwen.daemon.retry': true },
+      } as PromptRequest);
+
+      expect(handle.agent.promptCalls[0]?._meta?.['qwen.daemon.retry']).toBe(
+        undefined,
+      );
+      await bridge.shutdown();
+    });
+
+    it('honors retry once after a turn_error', async () => {
+      let calls = 0;
+      const handle = makeChannel({
+        promptImpl: () => {
+          calls += 1;
+          if (calls === 1) throw new Error('temporary failure');
+          return { stopReason: 'end_turn' };
+        },
+      });
+      const bridge = makeBridge({ channelFactory: async () => handle.channel });
+      const session = await bridge.spawnOrAttach({ workspaceCwd: WS_A });
+      const abort = new AbortController();
+      const iter = bridge.subscribeEvents(session.sessionId, {
+        signal: abort.signal,
+      });
+      const turnError = (async () => {
+        for await (const event of iter) {
+          if (event.type === 'turn_error') return event;
+        }
+        throw new Error('turn_error was not published');
+      })();
+
+      await expect(
+        bridge.sendPrompt(session.sessionId, {
+          sessionId: session.sessionId,
+          prompt: [{ type: 'text', text: 'first' }],
+        }),
+      ).rejects.toThrow();
+      await turnError;
+
+      await bridge.sendPrompt(session.sessionId, {
+        sessionId: session.sessionId,
+        prompt: [{ type: 'text', text: 'retry' }],
+        retry: true,
+      } as PromptRequest);
+
+      expect(handle.agent.promptCalls[1]?._meta).toHaveProperty(
+        'qwen.daemon.retry',
+        true,
+      );
+
+      await bridge.sendPrompt(session.sessionId, {
+        sessionId: session.sessionId,
+        prompt: [{ type: 'text', text: 'second spoof' }],
+        retry: true,
+      } as PromptRequest);
+
+      expect(handle.agent.promptCalls[2]).not.toHaveProperty('retry');
+      expect(handle.agent.promptCalls[2]?._meta?.['qwen.daemon.retry']).toBe(
+        undefined,
+      );
+
+      abort.abort();
+      await bridge.shutdown();
+    });
+
     it('echoes user_message_chunk to ALL session subscribers (cross-client sync)', async () => {
       // Cross-client sync fix: a prompt sent by client A must be visible
       // to every SSE subscriber of the same session — not just the
@@ -5716,6 +5807,106 @@ describe('createAcpSessionBridge', () => {
       }
       expect(collected[0]?.type).toBe('session_update');
       expect(collected[0]?.id).toBe(1);
+
+      abort.abort();
+      await bridge.shutdown();
+    });
+
+    it('splits a2ui tool updates and publishes a sanitized original frame', async () => {
+      let capturedConn: AgentSideConnection | undefined;
+      const factory: ChannelFactory = async () => {
+        const { clientStream, agentStream } = createInMemoryChannel();
+        const fakeAgent = new FakeAgent();
+        capturedConn = new AgentSideConnection(() => fakeAgent, agentStream);
+        return {
+          stream: clientStream,
+          exited: new Promise<
+            | { exitCode: number | null; signalCode: NodeJS.Signals | null }
+            | undefined
+          >(() => {}),
+          kill: async () => {},
+          killSync: () => {},
+        };
+      };
+      const bridge = makeBridge({ channelFactory: factory });
+      const session = await bridge.spawnOrAttach({ workspaceCwd: WS_A });
+
+      const abort = new AbortController();
+      const iter = bridge.subscribeEvents(session.sessionId, {
+        signal: abort.signal,
+      });
+      const text =
+        '[{"version":"v0.9","createSurface":{"surfaceId":"s1","components":[]}},{"version":"v0.9","updateComponents":{"surfaceId":"s2","components":[]}}]\nfallback summary';
+
+      void capturedConn!.sessionUpdate({
+        sessionId: session.sessionId,
+        update: {
+          sessionUpdate: 'tool_call_update',
+          toolCallId: 'call-1',
+          _meta: {
+            serverId: 'a2ui-ui',
+            toolName: 'mcp__a2ui-ui__present_ui',
+          },
+          content: [{ type: 'content', content: { type: 'text', text } }],
+          rawOutput: text,
+        },
+      });
+
+      const collected: Array<{ type: string; data: unknown }> = [];
+      for await (const e of iter) {
+        collected.push({ type: e.type, data: e.data });
+        if (collected.length === 3) break;
+      }
+      expect(collected.map((e) => e.type)).toEqual([
+        'session_update',
+        'session_update',
+        'session_update',
+      ]);
+      expect(collected[0]?.data).toMatchObject({
+        sessionId: session.sessionId,
+        update: {
+          sessionUpdate: 'a2ui',
+          a2ui: {
+            surfaceId: 's1',
+            callId: 'call-1',
+            commands: [
+              {
+                version: 'v0.9',
+                createSurface: { surfaceId: 's1', components: [] },
+              },
+            ],
+          },
+          _meta: { source: 'a2ui-bridge' },
+        },
+      });
+      expect(collected[1]?.data).toMatchObject({
+        update: {
+          sessionUpdate: 'a2ui',
+          a2ui: {
+            surfaceId: 's2',
+            callId: 'call-1',
+            commands: [
+              {
+                version: 'v0.9',
+                updateComponents: { surfaceId: 's2', components: [] },
+              },
+            ],
+          },
+          _meta: { source: 'a2ui-bridge' },
+        },
+      });
+      expect(collected[2]?.data).toMatchObject({
+        update: {
+          sessionUpdate: 'tool_call_update',
+          content: [
+            {
+              type: 'content',
+              content: { type: 'text', text: 'fallback summary' },
+            },
+          ],
+          rawOutput: 'fallback summary',
+        },
+      });
 
       abort.abort();
       await bridge.shutdown();

@@ -1,0 +1,4 @@
+[project]
+name = "channels-dingtalk"
+version = "0.1.0"
+dependencies = []

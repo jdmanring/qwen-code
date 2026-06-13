@@ -14,13 +14,13 @@ Usage:
 import difflib
 import sys
 import warnings
+import click
+from diff_match_patch import diff_match_patch
 from pathlib import Path
 
 # Suppress pydub/ffmpeg warning from markitdown[all] — irrelevant for document conversion
 warnings.filterwarnings("ignore", message="Couldn't find ffmpeg", category=RuntimeWarning)
 
-import click
-from diff_match_patch import diff_match_patch
 
 
 def write_output(text: str, output_path: str | None) -> None:
@@ -163,18 +163,18 @@ def format_summary(text1: str, text2: str, name1: str, name2: str, word_level: b
 
     summary_parts = [
         f"Comparison: {name1} vs {name2}",
-        f"",
+        "",
         f"File 1: {len(lines1)} lines, {len(text1)} characters",
         f"File 2: {len(lines2)} lines, {len(text2)} characters",
-        f"",
+        "",
         f"Similarity: {similarity:.1f}%",
-        f"",
-        f"Line changes:",
+        "",
+        "Line changes:",
         f"  Added lines:   {added_lines}",
         f"  Removed lines: {removed_lines}",
         f"  Changed lines: {changed_lines}",
-        f"",
-        f"Character-level changes:",
+        "",
+        "Character-level changes:",
         f"  Insertions: {insertions} ({insert_chars} characters)",
         f"  Deletions:  {deletions} ({delete_chars} characters)",
     ]
