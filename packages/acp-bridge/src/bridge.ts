@@ -3165,11 +3165,12 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
         originatorClientId = resolveTrustedClientId(entry, context.clientId);
       }
 
-      const branchResult = entry.promptQueue.then(async () => {
+      const previousQueue = entry.promptQueue;
+      const branchPromise = (async () => {
+        await previousQueue;
         if (entry.promptActive) {
           throw new BranchWhilePromptActiveError(sessionId);
         }
-
         if (
           byId.size + inFlightSpawns.size + inFlightRestores.size >=
           maxSessions
@@ -3246,12 +3247,14 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
             title: entry.displayName ?? sessionId.slice(0, 8),
           },
         };
-      });
-      entry.promptQueue = branchResult.then(
+      })();
+
+      entry.promptQueue = branchPromise.then(
         () => undefined,
         () => undefined,
       );
-      return branchResult;
+
+      return branchPromise;
     },
 
     async closeSession(sessionId, context, closeOpts) {

@@ -33,9 +33,12 @@ import {
   RestoreInProgressError,
   SessionShellClientRequiredError,
   SessionShellDisabledError,
+  BranchWhilePromptActiveError,
+  SessionLimitExceededError,
   SessionNotFoundError,
   WorkspaceMismatchError,
 } from './bridgeErrors.js';
+import { SERVE_CONTROL_EXT_METHODS } from './status.js';
 import { MAX_WORKSPACE_PATH_LENGTH } from './workspacePaths.js';
 import { extractErrorMessage, extractErrorCode } from './bridge.js';
 import type { ChannelFactory } from './channel.js';
@@ -270,7 +273,7 @@ describe('createAcpSessionBridge', () => {
     const bridge = makeBridge({
       channelFactory: async () => {
         const h = makeChannel({
-          extMethodImpl: (method, params) => {
+          extMethodImpl: (method, _params) => {
             if (method === 'qwen/status/session/context') {
               return {
                 v: 1,
@@ -341,7 +344,7 @@ describe('createAcpSessionBridge', () => {
             });
             return { stopReason: 'end_turn' };
           },
-          extMethodImpl: (method, params) => {
+          extMethodImpl: (method, _params) => {
             if (method === 'qwen/status/session/tasks') {
               return {
                 v: 1,
@@ -1237,6 +1240,244 @@ describe('createAcpSessionBridge', () => {
     const err = new WorkspaceMismatchError('/work/bound', normal);
     expect(err.requested).toBe(normal);
     expect(err.requested.endsWith('…[truncated]')).toBe(false);
+  });
+
+  describe('branchSession', () => {
+    it('branches a live session and returns the new session with title and fork info', async () => {
+      const handles: ChannelHandle[] = [];
+      const factory: ChannelFactory = async () => {
+        const h = makeChannel({
+          extMethodImpl: (method, _params) => {
+            if (method === SERVE_CONTROL_EXT_METHODS.sessionBranch) {
+              return { newSessionId: 'branched-1', title: 'Branched Session' };
+            }
+            return {};
+          },
+          resumeSessionImpl: () => ({ modes: null }),
+        });
+        handles.push(h);
+        return h.channel;
+      };
+      const bridge = makeBridge({ channelFactory: factory });
+
+      const source = await bridge.spawnOrAttach({ workspaceCwd: WS_A });
+      // Mock a display name for the source session
+      await bridge.updateSessionMetadata(source.sessionId, {
+        displayName: 'Source Session',
+      });
+
+      const branched = await bridge.branchSession(source.sessionId, {
+        name: 'Branched Session',
+      });
+
+      expect(branched.sessionId).not.toBe(source.sessionId);
+      expect(branched.title).toBe('Branched Session');
+      expect(branched.forkedFrom).toEqual({
+        sessionId: source.sessionId,
+        title: 'Source Session',
+      });
+      expect(branched.attached).toBe(false);
+      expect(bridge.sessionCount).toBe(2);
+
+      await bridge.shutdown();
+    });
+
+    it('rejects branching when a prompt is active', async () => {
+      let resolvePromptStarted: () => void = () => void 0;
+      const promptStartedPromise = new Promise<void>((r) => {
+        resolvePromptStarted = r;
+      });
+
+      const handles: ChannelHandle[] = [];
+      const factory: ChannelFactory = async () => {
+        const h = makeChannel({
+          promptImpl: async () => {
+            resolvePromptStarted();
+            await new Promise((r) => setTimeout(r, 100));
+            return { stopReason: 'end_turn' };
+          },
+          resumeSessionImpl: () => ({ modes: null }),
+        });
+        handles.push(h);
+        return h.channel;
+      };
+      const bridge = makeBridge({ channelFactory: factory });
+
+      const session = await bridge.spawnOrAttach({ workspaceCwd: WS_A });
+      const prompt = bridge.sendPrompt(session.sessionId, {
+        sessionId: session.sessionId,
+        prompt: [{ type: 'text', text: 'long prompt' }],
+      });
+
+      // Wait deterministically for the prompt to start executing
+      await promptStartedPromise;
+
+      // Branching while prompt is active must throw
+      await expect(
+        bridge.branchSession(session.sessionId, { name: 'Fork' }),
+      ).rejects.toBeInstanceOf(BranchWhilePromptActiveError);
+
+      await prompt;
+      await bridge.shutdown();
+    });
+
+    it('rejects branching when session limit is reached', async () => {
+      const handles: ChannelHandle[] = [];
+      const factory: ChannelFactory = async () => {
+        const h = makeChannel({
+          resumeSessionImpl: () => ({ modes: null }),
+        });
+        handles.push(h);
+        return h.channel;
+      };
+      const bridge = makeBridge({
+        channelFactory: factory,
+        maxSessions: 1,
+      });
+
+      const session = await bridge.spawnOrAttach({ workspaceCwd: WS_A });
+      // Second session (via branch) should exceed the limit
+      await expect(
+        bridge.branchSession(session.sessionId, { name: 'Fork' }),
+      ).rejects.toBeInstanceOf(SessionLimitExceededError);
+
+      await bridge.shutdown();
+    });
+
+    it('handles invalid agent response gracefully', async () => {
+      const handles: ChannelHandle[] = [];
+      const factory: ChannelFactory = async () => {
+        const h = makeChannel({
+          extMethodImpl: (method, _params) => {
+            if (method === SERVE_CONTROL_EXT_METHODS.sessionBranch) {
+              return { newSessionId: 123 }; // Invalid type (number instead of string)
+            }
+            return {};
+          },
+          resumeSessionImpl: () => ({ modes: null }),
+        });
+        handles.push(h);
+        return h.channel;
+      };
+      const bridge = makeBridge({ channelFactory: factory });
+
+      const session = await bridge.spawnOrAttach({ workspaceCwd: WS_A });
+      await expect(
+        bridge.branchSession(session.sessionId, { name: 'Fork' }),
+      ).rejects.toThrow(/agent returned invalid response/);
+
+      await bridge.shutdown();
+    });
+
+    it('cleans up the branched session if the subsequent resume fails', async () => {
+      const handles: ChannelHandle[] = [];
+      const factory: ChannelFactory = async () => {
+        const h = makeChannel({
+          extMethodImpl: (method, _params) => {
+            if (method === SERVE_CONTROL_EXT_METHODS.sessionBranch) {
+              return { newSessionId: 'branched-fail', title: 'Fork' };
+            }
+            return {};
+          },
+          resumeSessionImpl: () => {
+            throw new Error('Resume failed');
+          },
+        });
+        handles.push(h);
+        return h.channel;
+      };
+      const bridge = makeBridge({ channelFactory: factory });
+
+      const session = await bridge.spawnOrAttach({ workspaceCwd: WS_A });
+      await expect(
+        bridge.branchSession(session.sessionId, { name: 'Fork' }),
+      ).rejects.toThrow(/Internal error/);
+
+      // The branched session should have been closed via sessionClose extMethod
+      expect(handles[0]?.agent.extMethodCalls).toContainEqual(
+        expect.objectContaining({
+          method: SERVE_CONTROL_EXT_METHODS.sessionClose,
+          params: expect.objectContaining({ sessionId: 'branched-fail' }),
+        }),
+      );
+      expect(bridge.sessionCount).toBe(1);
+
+      await bridge.shutdown();
+    });
+
+    it('publishes a session_branched event to the source session and workspace', async () => {
+      const handles: ChannelHandle[] = [];
+      const factory: ChannelFactory = async () => {
+        const h = makeChannel({
+          extMethodImpl: (method, _params) => {
+            if (method === SERVE_CONTROL_EXT_METHODS.sessionBranch) {
+              return { newSessionId: 'branched-1', title: 'Branched Session' };
+            }
+            return {};
+          },
+          resumeSessionImpl: () => ({ modes: null }),
+        });
+        handles.push(h);
+        return h.channel;
+      };
+      const bridge = makeBridge({ channelFactory: factory });
+
+      const source = await bridge.spawnOrAttach({ workspaceCwd: WS_A });
+      const events = bridge.subscribeEvents(source.sessionId);
+      const eventIterator = events[Symbol.asyncIterator]();
+
+      const branched = await bridge.branchSession(source.sessionId, {
+        name: 'Branched Session',
+      });
+
+      const event = await eventIterator.next();
+      expect(event.value).toMatchObject({
+        type: 'session_branched',
+        data: {
+          sourceSessionId: source.sessionId,
+          newSessionId: branched.sessionId,
+          displayName: 'Branched Session',
+        },
+      });
+
+      await bridge.shutdown();
+    });
+
+    it('includes the originatorClientId in the session_branched event if provided', async () => {
+      const handles: ChannelHandle[] = [];
+      const factory: ChannelFactory = async () => {
+        const h = makeChannel({
+          extMethodImpl: (method, _params) => {
+            if (method === SERVE_CONTROL_EXT_METHODS.sessionBranch) {
+              return { newSessionId: 'branched-2', title: 'Branched Session' };
+            }
+            return {};
+          },
+          resumeSessionImpl: () => ({ modes: null }),
+        });
+        handles.push(h);
+        return h.channel;
+      };
+      const bridge = makeBridge({ channelFactory: factory });
+
+      const source = await bridge.spawnOrAttach({ workspaceCwd: WS_A });
+      const events = bridge.subscribeEvents(source.sessionId);
+      const eventIterator = events[Symbol.asyncIterator]();
+
+      await bridge.branchSession(
+        source.sessionId,
+        { name: 'Branched Session' },
+        { clientId: source.clientId },
+      );
+
+      const event = await eventIterator.next();
+      expect(event.value).toMatchObject({
+        type: 'session_branched',
+        originatorClientId: source.clientId,
+      });
+
+      await bridge.shutdown();
+    });
   });
 
   it('creates fresh session per call under sessionScope:thread (Stage 1.5 multi-session: shares channel)', async () => {
@@ -5006,7 +5247,7 @@ describe('createAcpSessionBridge', () => {
       const factory: ChannelFactory = async () => {
         const { clientStream, agentStream } = createInMemoryChannel();
         const agent = new FakeAgent({
-          extMethodImpl: (method, params) => {
+          extMethodImpl: (method, _params) => {
             calls.push({ method });
             if (method === 'qwen/control/session/approval_mode') {
               return Promise.resolve({
@@ -5414,7 +5655,7 @@ describe('createAcpSessionBridge', () => {
       return async () => {
         const { clientStream, agentStream } = createInMemoryChannel();
         const agent = new FakeAgent({
-          extMethodImpl: (method, params) => {
+          extMethodImpl: (method, _params) => {
             if (method === 'qwen/control/session/recap') {
               return Promise.resolve(respond(params));
             }
@@ -5497,7 +5738,7 @@ describe('createAcpSessionBridge', () => {
       return async () => {
         const { clientStream, agentStream } = createInMemoryChannel();
         const agent = new FakeAgent({
-          extMethodImpl: (method, params) => {
+          extMethodImpl: (method, _params) => {
             if (method === 'qwen/control/workspace/mcp/runtime-add') {
               return Promise.resolve(respond(params));
             }
@@ -5656,7 +5897,7 @@ describe('createAcpSessionBridge', () => {
       return async () => {
         const { clientStream, agentStream } = createInMemoryChannel();
         const agent = new FakeAgent({
-          extMethodImpl: (method, params) => {
+          extMethodImpl: (method, _params) => {
             if (method === 'qwen/control/workspace/mcp/runtime-remove') {
               return Promise.resolve(respond(params));
             }
@@ -8171,7 +8412,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
       const factory: ChannelFactory = async () => {
         const { clientStream, agentStream } = createInMemoryChannel();
         const agent = new FakeAgent({
-          extMethodImpl: (method, params) => {
+          extMethodImpl: (method, _params) => {
             if (method === 'qwen/control/session/approval_mode') {
               return Promise.resolve({
                 previous: 'default',
@@ -9160,7 +9401,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
       const factory: ChannelFactory = async () => {
         const { clientStream, agentStream } = createInMemoryChannel();
         const fakeAgent = new FakeAgent({
-          extMethodImpl: (method, params) => {
+          extMethodImpl: (method, _params) => {
             if (method === 'qwen/control/session/approval_mode') {
               return Promise.resolve({
                 previous: 'default',
@@ -9291,7 +9532,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
       const factory: ChannelFactory = async () => {
         const { clientStream, agentStream } = createInMemoryChannel();
         const fakeAgent = new FakeAgent({
-          extMethodImpl: (method, params) => {
+          extMethodImpl: (method, _params) => {
             if (method === 'qwen/control/session/approval_mode') {
               return Promise.resolve({
                 previous: 'default',
@@ -9365,7 +9606,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
       const factory: ChannelFactory = async () => {
         const { clientStream, agentStream } = createInMemoryChannel();
         const fakeAgent = new FakeAgent({
-          extMethodImpl: (method, params) => {
+          extMethodImpl: (method, _params) => {
             if (method === 'qwen/control/session/approval_mode') {
               return Promise.resolve({
                 previous: 'default',
