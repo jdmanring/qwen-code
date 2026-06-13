@@ -1,0 +1,54 @@
+name: Sync upstream
+
+on:
+  schedule:
+    - cron: "0 3 * * *"   # 3am UTC daily
+  workflow_dispatch:        # manual trigger from GitHub UI
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    if: github.repository != 'QwenLM/qwen-code'
+
+    steps:
+      - name: Checkout integration branch
+        uses: actions/checkout@v4
+        with:
+          ref: integration
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/QwenLM/qwen-code.git
+          git fetch upstream main
+
+      - name: Ensure upstream-mirror branch exists locally
+        run: |
+          git fetch origin upstream-mirror:upstream-mirror || \
+          git checkout -b upstream-mirror upstream/main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Run ingest pipeline (CI mode)
+        run: |
+          python3 tooling/sync-upstreams/upstream_ingest_pipeline.py --skip-tests --push
