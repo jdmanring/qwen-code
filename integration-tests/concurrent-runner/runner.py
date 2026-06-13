@@ -490,7 +490,8 @@ class StatusTracker:
                     start = datetime.fromisoformat(run["started_at"])
                     end = datetime.fromisoformat(run["ended_at"])
                     duration = f"{(end - start).total_seconds():.1f}s"
-                except Exception: pass
+                except Exception:
+                    pass
 
             error_msg = f'<div class="error-msg">{html.escape(run["error_message"])}</div>' if run.get("error_message") else ""
 
