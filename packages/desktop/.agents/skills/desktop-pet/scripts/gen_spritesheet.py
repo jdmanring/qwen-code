@@ -13,7 +13,6 @@ Usage:
 import argparse
 import json
 import sys
-import math
 
 try:
     from PIL import Image, ImageDraw, ImageFont

@@ -17,7 +17,7 @@ import shutil
 import subprocess
 import sys
 import uuid
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
@@ -27,7 +27,6 @@ from rich.console import Console
 from rich.live import Live
 from rich.table import Table
 from rich.panel import Panel
-from rich.progress import Progress, TaskID
 import aiofiles
 import aiofiles.os
 
@@ -183,7 +182,7 @@ class GitWorktreeManager:
         if git_dir.exists():
             return
 
-        self.console.print(f"[yellow]Source repo is not a git repository. Initializing...[/yellow]")
+        self.console.print("[yellow]Source repo is not a git repository. Initializing...[/yellow]")
 
         # git init
         result = await self._run_command(["git", "init"], cwd=self.source_repo)
@@ -203,7 +202,7 @@ class GitWorktreeManager:
         if result.returncode != 0:
             raise RuntimeError(f"Failed to create initial commit: {result.stderr}")
 
-        self.console.print(f"[green]✓ Git repository initialized[/green]")
+        self.console.print("[green]✓ Git repository initialized[/green]")
 
     async def create(self, source_repo: Path, worktree_dir: Path, branch: Optional[str] = None) -> Path:
         """Create a new git worktree from the source repository."""
