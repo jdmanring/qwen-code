@@ -9,7 +9,24 @@ dependencies = []
 managed = true
 
 [tool.uv.workspace]
-members = ["apps/*", "packages/*"]
+members = [
+    "packages/acp-bridge",
+    "packages/channels/base",
+    "packages/channels/dingtalk",
+    "packages/channels/plugin-example",
+    "packages/channels/telegram",
+    "packages/channels/weixin",
+    "packages/channels",
+    "packages/cli",
+    "packages/core",
+    "packages/sdk-java",
+    "packages/sdk-python",
+    "packages/sdk-typescript",
+    "packages/vscode-ide-companion",
+    "packages/web-templates",
+    "packages/webui",
+    "packages/zed-extension",
+]
 
 [dependency-groups]
 dev = [
