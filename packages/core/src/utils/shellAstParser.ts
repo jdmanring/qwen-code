@@ -16,7 +16,6 @@
 
 import { Parser, Language, type Tree, type Node as TreeSitterNode } from 'web-tree-sitter';
 import fs from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isShellCommandReadOnly } from './shellReadOnlyChecker.js';
@@ -37,7 +36,7 @@ import { isShellCommandReadOnly } from './shellReadOnlyChecker.js';
  * falls back to reading the file directly from node_modules.
  */
 async function loadWasmBinary(
-  dynamicImport: () => Promise<unknown>,
+  binaryImportPath: string,
   fallbackSpecifier: string,
 ): Promise<Uint8Array> {
   const nativeFs =
@@ -49,22 +48,50 @@ async function loadWasmBinary(
     !moduleFilePath.includes(path.join('src', '')) &&
     !moduleFilePath.includes(path.join('dist', 'src', ''));
 
-  try {
-    if (isBundleMode) {
-      // Bundle mode: esbuild replaces `?binary` imports with inline Uint8Array.
-      const mod = await dynamicImport();
-      const wasmBinary = (mod as { default?: unknown }).default;
-      if (wasmBinary instanceof Uint8Array && wasmBinary.byteLength > 0) {
-        return wasmBinary;
-      }
+  if (isBundleMode) {
+    // Bundle mode: esbuild replaces `?binary` imports with inline Uint8Array.
+    // Use new Function to prevent Vite from statically analyzing this import.
+    const dynamicImport = new Function(
+      `return import("${binaryImportPath}")`,
+    ) as () => Promise<unknown>;
+    const mod = await dynamicImport();
+    const wasmBinary = (mod as { default?: unknown }).default;
+    if (wasmBinary instanceof Uint8Array && wasmBinary.byteLength > 0) {
+      return wasmBinary;
     }
-  } catch {
-    // Fall through to node_modules lookup below.
   }
 
   // Source / dev mode: read the file directly from node_modules.
-  const require = createRequire(import.meta.url);
-  const filePath = require.resolve(fallbackSpecifier);
+  // Some packages (e.g. web-tree-sitter) don't have a "main" field and
+  // their "exports" field isn't fully compatible with createRequire's
+  // subpath resolution. To avoid ERR_PACKAGE_PATH_NOT_EXPORTED, we
+  // resolve the package directory by looking for it in node_modules
+  // relative to the current module's location.
+  const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+  const pkgName = fallbackSpecifier.split('/')[0]!;
+  const wasmSubpath = fallbackSpecifier.split('/').slice(1).join('/');
+
+  // Search for the package directory in node_modules ancestors
+  let pkgDir: string | null = null;
+  let searchDir = moduleDir;
+  while (searchDir !== path.dirname(searchDir)) {
+    const candidate = path.join(searchDir, 'node_modules', pkgName);
+    try {
+      nativeFs.accessSync(path.join(candidate, 'package.json'));
+      pkgDir = candidate;
+      break;
+    } catch {
+      searchDir = path.dirname(searchDir);
+    }
+  }
+
+  if (!pkgDir) {
+    throw new Error(
+      `Could not find package "${pkgName}" in node_modules from ${moduleDir}`,
+    );
+  }
+
+  const filePath = path.join(pkgDir, wasmSubpath);
   return new Uint8Array(nativeFs.readFileSync(filePath));
 }
 
@@ -620,14 +647,13 @@ export async function initParser(): Promise<void> {
 
   initPromise = (async () => {
     const treeSitterWasm = await loadWasmBinary(
-      () => import('web-tree-sitter/web-tree-sitter.wasm?binary' as string),
+      'web-tree-sitter/web-tree-sitter.wasm?binary',
       'web-tree-sitter/web-tree-sitter.wasm',
     );
     await Parser.init({ wasmBinary: treeSitterWasm });
     parserInstance = new Parser();
     const bashWasm = await loadWasmBinary(
-      () =>
-        import('tree-sitter-bash/tree-sitter-bash.wasm?binary' as string),
+      'tree-sitter-bash/tree-sitter-bash.wasm?binary',
       'tree-sitter-bash/tree-sitter-bash.wasm',
     );
     bashLanguage = await Language.load(bashWasm);
