@@ -406,9 +406,9 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
       title: `Confirm Edit: ${shortenPath(makeRelative(this.params.file_path, this.config.getTargetDir()))}`,
       fileName,
       filePath: this.params.file_path,
-      fileDiff,
-      originalContent: editData.currentContent,
-      newContent: editData.newContent,
+      fileDiff: fileDiff ?? '',
+      originalContent: editData.currentContent as any,
+      newContent: editData.newContent as any,
       onConfirm: async (outcome: ToolConfirmationOutcome) => {
         if (outcome === ToolConfirmationOutcome.ProceedAlways) {
           this.config.setApprovalMode(ApprovalMode.AUTO_EDIT);
@@ -643,12 +643,12 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
         'Current',
         'Proposed',
         DEFAULT_DIFF_OPTIONS,
-      );
+      ) ?? '';
       const displayResult = {
-        fileDiff,
+        fileDiff: fileDiff ?? '',
         fileName,
-        originalContent: editData.currentContent,
-        newContent: editData.newContent,
+        originalContent: editData.currentContent as any,
+        newContent: editData.newContent as any,
         diffStat,
       };
 

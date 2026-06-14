@@ -6,8 +6,9 @@
 
 import * as Diff from 'diff';
 import type { DiffStat } from './tools.js';
+import type { StructuredPatch, StructuredPatchHunk } from 'diff';
 
-export const DEFAULT_DIFF_OPTIONS = {
+export const DEFAULT_DIFF_OPTIONS: any = {
   context: 3,
   ignoreWhitespace: true,
 } satisfies Diff.StructuredPatchOptionsNonabortable;
@@ -18,13 +19,16 @@ export function getDiffStat(
   aiStr: string,
   userStr: string,
 ): DiffStat {
-  const getStats = (patch: Diff.StructuredPatch) => {
+  const getStats = (patch: StructuredPatch | undefined | null) => {
+    if (!patch) {
+      return { addedLines: 0, removedLines: 0, addedChars: 0, removedChars: 0 };
+    }
     let addedLines = 0;
     let removedLines = 0;
     let addedChars = 0;
     let removedChars = 0;
 
-    patch.hunks.forEach((hunk: Diff.StructuredPatchHunk) => {
+    patch.hunks.forEach((hunk: StructuredPatchHunk) => {
       hunk.lines.forEach((line: string) => {
         if (line.startsWith('+')) {
           addedLines++;

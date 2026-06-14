@@ -452,7 +452,7 @@ class NotebookEditInvocation extends BaseToolInvocation<
       'Current',
       'Proposed',
       DEFAULT_DIFF_OPTIONS,
-    );
+    ) ?? '';
 
     const confirmationDetails: ToolEditConfirmationDetails = {
       type: 'edit',
@@ -647,7 +647,7 @@ class NotebookEditInvocation extends BaseToolInvocation<
         'Current',
         'Proposed',
         DEFAULT_DIFF_OPTIONS,
-      );
+      ) ?? '';
       const diffStat = getDiffStat(
         fileName,
         prepared.originalContent,

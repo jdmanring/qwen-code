@@ -6,7 +6,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Box, Text } from 'ink';
-import type { Hunk } from 'diff';
+import type { StructuredPatchHunk } from 'diff';
 import type {
   FileHistoryService,
   GitDiffResult,
@@ -507,7 +507,7 @@ function FileDetail({
 }: {
   file: UnifiedFile;
   activeSource: Source;
-  currentHunks: Map<string, Hunk[]>;
+  currentHunks: Map<string, StructuredPatchHunk[]>;
   availableHeight: number;
   contentWidth: number;
 }): React.JSX.Element {
@@ -591,7 +591,7 @@ function useVisibleWindow(
 
 function currentToFiles(
   result: GitDiffResult | null,
-  hunks: Map<string, Hunk[]>,
+  hunks: Map<string, StructuredPatchHunk[]>,
 ): UnifiedFile[] {
   if (!result) return [];
   // `result.perFileStats` is already bounded by `fetchGitDiff` (MAX_FILES=50)
@@ -608,7 +608,7 @@ function currentToFiles(
 function perFileToUnified(
   path: string,
   s: PerFileStats,
-  hunks: Map<string, Hunk[]>,
+  hunks: Map<string, StructuredPatchHunk[]>,
 ): UnifiedFile {
   const fileHunks = hunks.get(path);
   // `s.truncated` from `parseGitNumstat` already means "untracked file

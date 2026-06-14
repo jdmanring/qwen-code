@@ -225,7 +225,7 @@ class WriteFileToolInvocation extends BaseToolInvocation<
       'Current',
       'Proposed',
       DEFAULT_DIFF_OPTIONS,
-    );
+    ) ?? '';
 
     const confirmationDetails: ToolEditConfirmationDetails = {
       type: 'edit',
@@ -506,7 +506,7 @@ class WriteFileToolInvocation extends BaseToolInvocation<
         'Original',
         'Written',
         DEFAULT_DIFF_OPTIONS,
-      );
+      ) ?? '';
 
       const originallyProposedContent = ai_proposed_content || content;
       const diffStat = getDiffStat(
