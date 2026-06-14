@@ -60,10 +60,10 @@
   "devDependencies": {
     "@qwen-code/acp-bridge": "file:../acp-bridge",
     "@types/node": "^22.0.0",
-    "typescript-eslint": "^8.0.0"
+    "typescript-eslint": "^8.0.0",
     "@vitest/coverage-v8": "^1.6.0",
     "dts-bundle-generator": "^9.5.1",
-    "esbuild": "^0.25.12",
+    "esbuild": "^0.28.0",
     "eslint": "^10.4.0",
     "typescript": "^5.4.5",
     "vitest": "^1.6.0"
