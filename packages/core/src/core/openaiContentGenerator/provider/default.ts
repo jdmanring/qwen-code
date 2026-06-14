@@ -46,9 +46,7 @@ function mirrorReasoningContentToReasoning(
 /**
  * Default provider for standard OpenAI-compatible APIs
  */
-export class DefaultOpenAICompatibleProvider
-  implements OpenAICompatibleProvider
-{
+export class DefaultOpenAICompatibleProvider implements OpenAICompatibleProvider {
   protected contentGeneratorConfig: ContentGeneratorConfig;
   protected cliConfig: Config;
 
@@ -94,7 +92,7 @@ export class DefaultOpenAICompatibleProvider
       timeout,
       maxRetries,
       defaultHeaders,
-      ...(runtimeOptions || {}),
+      ...(runtimeOptions as any),
     });
   }
 

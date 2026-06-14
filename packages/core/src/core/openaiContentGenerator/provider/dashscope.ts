@@ -90,7 +90,7 @@ export class DashScopeOpenAICompatibleProvider extends DefaultOpenAICompatiblePr
 
     const isProxyMatch = Boolean(
       normalizedProxyUrl &&
-        normalizedBaseUrl.toLowerCase() === normalizedProxyUrl.toLowerCase(),
+      normalizedBaseUrl.toLowerCase() === normalizedProxyUrl.toLowerCase(),
     );
 
     if (
@@ -153,7 +153,7 @@ export class DashScopeOpenAICompatibleProvider extends DefaultOpenAICompatiblePr
       timeout,
       maxRetries,
       defaultHeaders,
-      ...(runtimeOptions || {}),
+      ...(runtimeOptions as any),
     });
   }
 
@@ -254,7 +254,7 @@ export class DashScopeOpenAICompatibleProvider extends DefaultOpenAICompatiblePr
         : messages.map((message, index) => {
             const shouldAddCacheControl = Boolean(
               (index === systemIndex && systemIndex !== -1) ||
-                (index === lastIndex && cacheControl === 'all'),
+              (index === lastIndex && cacheControl === 'all'),
             );
 
             if (
