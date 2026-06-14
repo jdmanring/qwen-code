@@ -599,7 +599,7 @@ describe('git extension helpers', () => {
 
       // Create the zip file
       const output = fsSync.createWriteStream(archivePath);
-      const archive = archiver.create('zip');
+      const archive = new archiver.ZipArchive();
 
       const streamFinished = new Promise((resolve, reject) => {
         output.on('close', () => resolve(null));
