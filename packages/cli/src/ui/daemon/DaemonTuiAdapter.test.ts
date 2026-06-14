@@ -73,6 +73,10 @@ class EventQueue implements AsyncGenerator<DaemonTuiEvent> {
     }
   }
 
+  async [Symbol.asyncDispose](): Promise<void> {
+    this.close();
+  }
+
   fail(error: unknown): void {
     this.failure = error;
     for (const waiter of this.waiters.splice(0)) {
@@ -819,6 +823,9 @@ describe('DaemonTuiAdapter', () => {
       }),
       [Symbol.asyncIterator]() {
         return this;
+      },
+      [Symbol.asyncDispose]() {
+        return Promise.resolve();
       },
     };
     session.events.mockReturnValue(hangingEvents);

@@ -14,7 +14,7 @@
  *   4. `extractCommandRules()`  – extract minimum-scope wildcard permission rules
  */
 
-import { Parser, Language, type Tree, type Node as TreeSitterNode } from 'web-tree-sitter';
+import { Parser, Node, Language, Tree } from 'web-tree-sitter';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -675,14 +675,18 @@ export async function initParser(): Promise<void> {
  */
 export async function parseShellCommand(command: string): Promise<Tree> {
   await initParser();
-  return parserInstance!.parse(command);
+  const tree = parserInstance!.parse(command);
+  if (!tree) {
+    throw new Error('Failed to parse shell command: tree-sitter returned null');
+  }
+  return tree;
 }
 
 // ---------------------------------------------------------------------------
 // AST Helpers
 // ---------------------------------------------------------------------------
 
-type SyntaxNode = TreeSitterNode;
+type SyntaxNode = Node;
 
 /** Collect all descendant nodes of given types. */
 function collectDescendants(

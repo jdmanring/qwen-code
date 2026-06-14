@@ -243,9 +243,8 @@ describe('gemini.tsx main function', () => {
         throw new MockProcessExitError(code);
       });
 
-    const { loadCliConfig, parseArguments } = await import(
-      './config/config.js'
-    );
+    const { loadCliConfig, parseArguments } =
+      await import('./config/config.js');
     const { loadSettings } = await import('./config/settings.js');
     const { loadSandboxConfig } = await import('./config/sandboxConfig.js');
 
@@ -285,12 +284,10 @@ describe('gemini.tsx main function', () => {
     const originalArgv = process.argv;
     process.argv = ['node', 'script.js', '--bare'];
 
-    const { loadCliConfig, parseArguments } = await import(
-      './config/config.js'
-    );
-    const { loadSettings, createMinimalSettings } = await import(
-      './config/settings.js'
-    );
+    const { loadCliConfig, parseArguments } =
+      await import('./config/config.js');
+    const { loadSettings, createMinimalSettings } =
+      await import('./config/settings.js');
     const { loadSandboxConfig } = await import('./config/sandboxConfig.js');
     const { relaunchAppInChildProcess } = await import('./utils/relaunch.js');
     const nonInteractiveModule = await import('./nonInteractiveCli.js');
@@ -383,9 +380,8 @@ describe('gemini.tsx main function', () => {
         throw new MockProcessExitError(code);
       });
 
-    const { loadCliConfig, parseArguments } = await import(
-      './config/config.js'
-    );
+    const { loadCliConfig, parseArguments } =
+      await import('./config/config.js');
     const { loadSettings } = await import('./config/settings.js');
     const { loadSandboxConfig } = await import('./config/sandboxConfig.js');
     const { start_sandbox } = await import('./utils/sandbox.js');
@@ -565,18 +561,16 @@ describe('gemini.tsx main function', () => {
         throw new MockProcessExitError(code);
       });
 
-    const { loadCliConfig, parseArguments } = await import(
-      './config/config.js'
-    );
+    const { loadCliConfig, parseArguments } =
+      await import('./config/config.js');
     const { loadSettings } = await import('./config/settings.js');
     const cleanupModule = await import('./utils/cleanup.js');
     const validatorModule = await import('./validateNonInterActiveAuth.js');
     const streamJsonModule = await import('./nonInteractive/session.js');
     const initializerModule = await import('./core/initializer.js');
     const startupWarningsModule = await import('./utils/startupWarnings.js');
-    const userStartupWarningsModule = await import(
-      './utils/userStartupWarnings.js'
-    );
+    const userStartupWarningsModule =
+      await import('./utils/userStartupWarnings.js');
 
     vi.mocked(cleanupModule.cleanupCheckpoints).mockResolvedValue(undefined);
     vi.mocked(cleanupModule.registerCleanup).mockImplementation(() => {});
@@ -694,19 +688,11 @@ describe('gemini.tsx main function kitty protocol', () => {
   let setRawModeSpy: MockInstance<
     (mode: boolean) => NodeJS.ReadStream & { fd: 0 }
   >;
-  let initialSigintListeners: NodeJS.SignalsListener[];
-  let initialSigtermListeners: NodeJS.SignalsListener[];
 
   beforeEach(() => {
     // Set no relaunch in tests since process spawning causing issues in tests
     originalEnvNoRelaunch = process.env['QWEN_CODE_NO_RELAUNCH'];
     process.env['QWEN_CODE_NO_RELAUNCH'] = 'true';
-    initialSigintListeners = process.listeners(
-      'SIGINT',
-    ) as NodeJS.SignalsListener[];
-    initialSigtermListeners = process.listeners(
-      'SIGTERM',
-    ) as NodeJS.SignalsListener[];
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (!(process.stdin as any).setRawMode) {
@@ -726,17 +712,6 @@ describe('gemini.tsx main function kitty protocol', () => {
   });
 
   afterEach(() => {
-    for (const listener of process.listeners('SIGINT')) {
-      if (!initialSigintListeners.includes(listener)) {
-        process.removeListener('SIGINT', listener as NodeJS.SignalsListener);
-      }
-    }
-    for (const listener of process.listeners('SIGTERM')) {
-      if (!initialSigtermListeners.includes(listener)) {
-        process.removeListener('SIGTERM', listener as NodeJS.SignalsListener);
-      }
-    }
-
     // Restore original env variables
     if (originalEnvNoRelaunch !== undefined) {
       process.env['QWEN_CODE_NO_RELAUNCH'] = originalEnvNoRelaunch;
@@ -747,12 +722,10 @@ describe('gemini.tsx main function kitty protocol', () => {
   });
 
   it('should call setRawMode and detectAndEnableKittyProtocol when isInteractive is true', async () => {
-    const { detectAndEnableKittyProtocol } = await import(
-      './ui/utils/kittyProtocolDetector.js'
-    );
-    const { loadCliConfig, parseArguments } = await import(
-      './config/config.js'
-    );
+    const { detectAndEnableKittyProtocol } =
+      await import('./ui/utils/kittyProtocolDetector.js');
+    const { loadCliConfig, parseArguments } =
+      await import('./config/config.js');
     const { loadSettings } = await import('./config/settings.js');
     vi.mocked(loadCliConfig).mockResolvedValue({
       isInteractive: () => true,
@@ -843,9 +816,8 @@ describe('gemini.tsx main function kitty protocol', () => {
   });
 
   it('should run cleanup before exiting on interactive SIGINT', async () => {
-    const { loadCliConfig, parseArguments } = await import(
-      './config/config.js'
-    );
+    const { loadCliConfig, parseArguments } =
+      await import('./config/config.js');
     const { loadSettings } = await import('./config/settings.js');
     const cleanupModule = await import('./utils/cleanup.js');
     const signalHandlers = new Map<string, (...args: unknown[]) => void>();
@@ -923,9 +895,8 @@ describe('gemini.tsx main function kitty protocol', () => {
     // gemini.tsx must reject this combination at runtime (parse-time
     // gating can't catch the no-prompt-on-TTY case because stdin
     // availability isn't probed yet at parse time).
-    const { loadCliConfig, parseArguments } = await import(
-      './config/config.js'
-    );
+    const { loadCliConfig, parseArguments } =
+      await import('./config/config.js');
     const { loadSettings } = await import('./config/settings.js');
     const cleanupModule = await import('./utils/cleanup.js');
 
