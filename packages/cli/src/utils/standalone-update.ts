@@ -200,7 +200,7 @@ function validateExtractedPaths(resolvedDest: string): void {
   });
   for (const entry of entries) {
     const fullPath = path.join(
-      String(entry.parentPath || entry.path),
+      String(entry.parentPath ?? ''),
       entry.name,
     );
     const resolved = fs.realpathSync(fullPath);
