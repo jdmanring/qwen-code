@@ -61,9 +61,8 @@ const { __setMockGlobalDir } = (await import('../config/storage.js')) as any;
 let capturedBackend: FakeBackend | null = null;
 
 vi.mock('../agents/backends/InProcessBackend.js', async () => {
-  const { FakeBackend: FB } = await import(
-    '../agents/team/test-utils/fake-backend.js'
-  );
+  const { FakeBackend: FB } =
+    await import('../agents/team/test-utils/fake-backend.js');
   return {
     InProcessBackend: class MockInProcessBackend extends FB {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

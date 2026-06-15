@@ -474,9 +474,8 @@ describe('AgentTool', () => {
         // AgentTool execute() in a unit test would require mocking
         // most of the agent runtime; the isolation check itself is
         // what the test is guarding.)
-        const { GitWorktreeService } = await import(
-          '../../services/gitWorktreeService.js'
-        );
+        const { GitWorktreeService } =
+          await import('../../services/gitWorktreeService.js');
         const svc = new GitWorktreeService(repo);
         const dirty = await svc.hasWorktreeChanges(repo);
         expect(dirty).toBe(true);
@@ -507,9 +506,8 @@ describe('AgentTool', () => {
         execFileSync('git', ['commit', '-q', '-m', 'init', '--no-verify'], {
           cwd: repo,
         });
-        const { GitWorktreeService } = await import(
-          '../../services/gitWorktreeService.js'
-        );
+        const { GitWorktreeService } =
+          await import('../../services/gitWorktreeService.js');
         const svc = new GitWorktreeService(repo);
         expect(await svc.hasWorktreeChanges(repo)).toBe(false);
       } finally {

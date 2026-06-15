@@ -56,10 +56,10 @@ export class AcpFileSystemService implements FileSystemService {
 
     let response: ReadTextFileResponse;
     try {
-      response = await this.connection.readTextFile({
+      response = (await this.connection.readTextFile({
         ...params,
         sessionId: this.sessionId,
-      }) as ReadTextFileResponse;
+      })) as ReadTextFileResponse;
     } catch (error) {
       const errorCode = getErrorCode(error);
 

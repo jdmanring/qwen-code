@@ -29,7 +29,7 @@ function createAdapter(modelProviders: ModelProvidersConfig = {}) {
     backup: vi.fn(),
     restore: vi.fn(),
     cleanupBackup: vi.fn(),
-  };
+  } as any;
   return adapter;
 }
 

@@ -218,14 +218,15 @@ class WriteFileToolInvocation extends BaseToolInvocation<
     );
     const fileName = path.basename(this.params.file_path);
 
-    const fileDiff = Diff.createPatch(
-      fileName,
-      originalContent, // Original content (empty if new file or unreadable)
-      this.params.content, // Content after potential correction
-      'Current',
-      'Proposed',
-      DEFAULT_DIFF_OPTIONS,
-    ) ?? '';
+    const fileDiff =
+      Diff.createPatch(
+        fileName,
+        originalContent, // Original content (empty if new file or unreadable)
+        this.params.content, // Content after potential correction
+        'Current',
+        'Proposed',
+        DEFAULT_DIFF_OPTIONS,
+      ) ?? '';
 
     const confirmationDetails: ToolEditConfirmationDetails = {
       type: 'edit',
@@ -499,14 +500,15 @@ class WriteFileToolInvocation extends BaseToolInvocation<
       // However, if it was unreadable, currentContentForDiff will be empty.
       const currentContentForDiff = originalContent;
 
-      const fileDiff = Diff.createPatch(
-        fileName,
-        currentContentForDiff,
-        content,
-        'Original',
-        'Written',
-        DEFAULT_DIFF_OPTIONS,
-      ) ?? '';
+      const fileDiff =
+        Diff.createPatch(
+          fileName,
+          currentContentForDiff,
+          content,
+          'Original',
+          'Written',
+          DEFAULT_DIFF_OPTIONS,
+        ) ?? '';
 
       const originallyProposedContent = ai_proposed_content || content;
       const diffStat = getDiffStat(

@@ -11,11 +11,11 @@ import type { Config } from '@qwen-code/qwen-code-core';
 
 describe('PlanEmitter', () => {
   let mockContext: SessionContext;
-  let sendUpdateSpy: ReturnType<typeof vi.fn>;
+  let sendUpdateSpy: any;
   let emitter: PlanEmitter;
 
   beforeEach(() => {
-    sendUpdateSpy = vi.fn().mockResolvedValue(undefined);
+    sendUpdateSpy = vi.fn() as any;
     mockContext = {
       sessionId: 'test-session-id',
       config: {} as Config,

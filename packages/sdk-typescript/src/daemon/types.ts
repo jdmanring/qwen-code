@@ -615,8 +615,7 @@ export interface DaemonWorkspaceAgentSummary {
   filePath?: string;
 }
 
-export interface DaemonWorkspaceAgentDetail
-  extends DaemonWorkspaceAgentSummary {
+export interface DaemonWorkspaceAgentDetail extends DaemonWorkspaceAgentSummary {
   systemPrompt: string;
   tools?: string[];
   disallowedTools?: string[];

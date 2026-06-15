@@ -277,7 +277,7 @@ describe('createAcpSessionBridge', () => {
             if (method === 'qwen/status/session/context') {
               return {
                 v: 1,
-                sessionId: params['sessionId'],
+                sessionId: _params['sessionId'],
                 workspaceCwd: WS_A,
                 state: {},
               };
@@ -285,14 +285,14 @@ describe('createAcpSessionBridge', () => {
             if (method === 'qwen/status/session/tasks') {
               return {
                 v: 1,
-                sessionId: params['sessionId'],
+                sessionId: _params['sessionId'],
                 now: 1_700_000_000_000,
                 tasks: [],
               };
             }
             return {
               v: 1,
-              sessionId: params['sessionId'],
+              sessionId: _params['sessionId'],
               availableCommands: [],
               availableSkills: [],
             };
@@ -348,7 +348,7 @@ describe('createAcpSessionBridge', () => {
             if (method === 'qwen/status/session/tasks') {
               return {
                 v: 1,
-                sessionId: params['sessionId'],
+                sessionId: _params['sessionId'],
                 now: 1_700_000_000_000,
                 tasks: [],
               };
@@ -5252,7 +5252,7 @@ describe('createAcpSessionBridge', () => {
             if (method === 'qwen/control/session/approval_mode') {
               return Promise.resolve({
                 previous: 'default',
-                current: (params as { mode: string }).mode,
+                current: (_params as { mode: string }).mode,
               });
             }
             return Promise.resolve({});
@@ -5657,7 +5657,7 @@ describe('createAcpSessionBridge', () => {
         const agent = new FakeAgent({
           extMethodImpl: (method, _params) => {
             if (method === 'qwen/control/session/recap') {
-              return Promise.resolve(respond(params));
+              return Promise.resolve(respond(_params));
             }
             return Promise.resolve({});
           },
@@ -5740,7 +5740,7 @@ describe('createAcpSessionBridge', () => {
         const agent = new FakeAgent({
           extMethodImpl: (method, _params) => {
             if (method === 'qwen/control/workspace/mcp/runtime-add') {
-              return Promise.resolve(respond(params));
+              return Promise.resolve(respond(_params));
             }
             return Promise.resolve({});
           },
@@ -5899,7 +5899,7 @@ describe('createAcpSessionBridge', () => {
         const agent = new FakeAgent({
           extMethodImpl: (method, _params) => {
             if (method === 'qwen/control/workspace/mcp/runtime-remove') {
-              return Promise.resolve(respond(params));
+              return Promise.resolve(respond(_params));
             }
             return Promise.resolve({});
           },
@@ -8416,7 +8416,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
             if (method === 'qwen/control/session/approval_mode') {
               return Promise.resolve({
                 previous: 'default',
-                current: (params as { mode: string }).mode,
+                current: (_params as { mode: string }).mode,
               });
             }
             return Promise.resolve({});
@@ -9405,7 +9405,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
             if (method === 'qwen/control/session/approval_mode') {
               return Promise.resolve({
                 previous: 'default',
-                current: (params as { mode: string }).mode,
+                current: (_params as { mode: string }).mode,
               });
             }
             if (method === 'qwen/status/session/context') {
@@ -9536,7 +9536,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
             if (method === 'qwen/control/session/approval_mode') {
               return Promise.resolve({
                 previous: 'default',
-                current: (params as { mode: string }).mode,
+                current: (_params as { mode: string }).mode,
               });
             }
             if (method === 'qwen/status/session/context') {
@@ -9610,7 +9610,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
             if (method === 'qwen/control/session/approval_mode') {
               return Promise.resolve({
                 previous: 'default',
-                current: (params as { mode: string }).mode,
+                current: (_params as { mode: string }).mode,
               });
             }
             if (method === 'qwen/status/session/context') {

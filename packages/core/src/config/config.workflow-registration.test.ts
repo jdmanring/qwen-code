@@ -162,9 +162,8 @@ describe('WorkflowTool registration', () => {
 // the exclusion entry would silently open the recursion.
 describe('Workflow anti-recursion guard', () => {
   it('ToolNames.WORKFLOW is in EXCLUDED_TOOLS_FOR_SUBAGENTS', async () => {
-    const { EXCLUDED_TOOLS_FOR_SUBAGENTS } = await import(
-      '../agents/runtime/agent-core.js'
-    );
+    const { EXCLUDED_TOOLS_FOR_SUBAGENTS } =
+      await import('../agents/runtime/agent-core.js');
     expect(EXCLUDED_TOOLS_FOR_SUBAGENTS.has(ToolNames.WORKFLOW)).toBe(true);
   });
 });

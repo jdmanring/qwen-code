@@ -341,7 +341,7 @@ Capabilities advertise 时在 `_meta.qwen.methods` 中声明这些方法。
 | `serve/workspace-service/__tests__/authService.test.ts`   | unit test                                          |
 | `serve/workspace-service/__tests__/agentsService.test.ts` | unit test                                          |
 | `serve/workspace-service/__tests__/memoryService.test.ts` | unit test                                          |
-| `serve/workspace-service/__tests__/e2e.test.ts`           | 端到端 REST ↔ /acp 等价验证                       |
+| `serve/workspace-service/__tests__/e2e.test.ts`           | 端到端 REST ↔ /acp 等价验证                        |
 
 ### 7.2 修改
 

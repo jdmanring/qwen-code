@@ -199,10 +199,7 @@ function validateExtractedPaths(resolvedDest: string): void {
     withFileTypes: true,
   });
   for (const entry of entries) {
-    const fullPath = path.join(
-      String(entry.parentPath ?? ''),
-      entry.name,
-    );
+    const fullPath = path.join(String(entry.parentPath ?? ''), entry.name);
     const resolved = fs.realpathSync(fullPath);
     if (
       !resolved.startsWith(resolvedDest + path.sep) &&

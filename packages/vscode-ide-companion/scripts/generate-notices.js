@@ -106,7 +106,7 @@ function resolveInLockfile(packageName, packages, resolveFrom) {
     }
     // Move up: strip the last /node_modules/... segment
     const lastNm = current.lastIndexOf('/node_modules/');
-    if (lastNm === -1) break;
+    if (lastNm === -1) {break;}
     current = current.slice(0, lastNm);
   }
   // Finally try root hoisted level

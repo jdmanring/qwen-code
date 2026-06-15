@@ -47,8 +47,8 @@ function captureKeypressHandler(): (key: Key) => void {
 }
 
 describe('TextInput', () => {
-  let onChange: ReturnType<typeof vi.fn>;
-  let onSubmit: ReturnType<typeof vi.fn>;
+  let onChange: any;
+  let onSubmit: any;
 
   beforeEach(() => {
     vi.clearAllMocks();

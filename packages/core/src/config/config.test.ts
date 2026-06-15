@@ -1007,9 +1007,11 @@ describe('Server Config (config.ts)', () => {
     it('should not strip thoughts when switching from Vertex to GenAI', async () => {
       const config = new Config(baseParams);
 
-      vi.mocked(createContentGeneratorConfig).mockImplementation(
-        function(_: Config, authType: AuthType | undefined) { return { authType }; } as unknown as ContentGeneratorConfig,
-      );
+      vi.mocked(createContentGeneratorConfig).mockImplementation((
+        _: Config,
+        authType: AuthType | undefined,
+        __?: unknown,
+      ) => ({ authType } as any));
 
       await config.refreshAuth(AuthType.USE_VERTEX_AI);
 
@@ -3334,7 +3336,8 @@ describe('setApprovalMode with folder trust', () => {
         );
         expect(fs.unlinkSync).toHaveBeenCalledWith(filePath);
       } finally {
-        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) => pathToResolve.toString(),
+        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) =>
+          pathToResolve.toString(),
         );
       }
     });
@@ -3371,7 +3374,8 @@ describe('setApprovalMode with folder trust', () => {
         );
         expect(fs.readFileSync).not.toHaveBeenCalled();
       } finally {
-        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) => pathToResolve.toString(),
+        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) =>
+          pathToResolve.toString(),
         );
       }
     });
@@ -3509,7 +3513,8 @@ describe('setApprovalMode with folder trust', () => {
         expect(fs.mkdirSync).not.toHaveBeenCalled();
         expect(fs.readFileSync).not.toHaveBeenCalled();
       } finally {
-        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) => pathToResolve.toString(),
+        vi.mocked(fs.realpathSync).mockImplementation((pathToResolve) =>
+          pathToResolve.toString(),
         );
       }
     });
@@ -3991,9 +3996,8 @@ describe('Model Switching and Config Updates', () => {
     }
 
     it('resolves getters to the runtime view inside the frame, instance fields outside', async () => {
-      const { runWithRuntimeContentGenerator } = await import(
-        '../agents/runtime/agent-context.js'
-      );
+      const { runWithRuntimeContentGenerator } =
+        await import('../agents/runtime/agent-context.js');
       const config = new Config(baseParams);
       const parentGenerator = {
         generateContentStream: vi.fn(),
@@ -4040,9 +4044,8 @@ describe('Model Switching and Config Updates', () => {
     });
 
     it('falls back to the parent model id when the runtime view config has no model', async () => {
-      const { runWithRuntimeContentGenerator } = await import(
-        '../agents/runtime/agent-context.js'
-      );
+      const { runWithRuntimeContentGenerator } =
+        await import('../agents/runtime/agent-context.js');
       const config = new Config(baseParams);
       setInstanceFields(
         config,

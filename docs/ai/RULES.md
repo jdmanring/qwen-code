@@ -22,6 +22,7 @@ a single PR. Each PR must be reviewable in isolation.
 considered ready, the fix must be confirmed end-to-end in the actual application.
 
 **Verification Protocol:**
+
 1. **Logs**: Tail the daemon logs or check the browser console for tracebacks.
 2. **Tests**: Run the relevant test suite (e.g., `pnpm test` in the package directory or `make test`).
 3. **UI**: Perform the specific user action in the CLI or IDE that triggered the bug.
@@ -55,6 +56,7 @@ is the narrow exception: the sync pipeline, fork CI, and fork management docs.
 You are an engineer, not a script. A task is not "done" when the code is written; it is done when the entire delivery chain is complete.
 
 **The Definition of Done:**
+
 1. **Implementation**: Code is written, linted (via `pnpm run lint`), and committed to the correct branch.
 2. **Verification**: The fix is verified via the Verification Protocol.
 3. **Tracking**: All project tracking is synced:

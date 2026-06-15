@@ -38,9 +38,8 @@ describe('bundled locale fallback', () => {
     });
 
     const { setLanguageAsync, t } = await import('./index.js');
-    const { languageCommand } = await import(
-      '../ui/commands/languageCommand.js'
-    );
+    const { languageCommand } =
+      await import('../ui/commands/languageCommand.js');
 
     await setLanguageAsync('zh');
 
@@ -115,9 +114,8 @@ describe('language normalization', () => {
   });
 
   it('normalizes explicit locale IDs before loading translations', async () => {
-    const { setLanguageAsync, getCurrentLanguage, t } = await import(
-      './index.js'
-    );
+    const { setLanguageAsync, getCurrentLanguage, t } =
+      await import('./index.js');
 
     await setLanguageAsync('zh-CN');
 
@@ -126,9 +124,8 @@ describe('language normalization', () => {
   });
 
   it('normalizes explicit POSIX locale strings before loading translations', async () => {
-    const { initializeI18n, getCurrentLanguage, t } = await import(
-      './index.js'
-    );
+    const { initializeI18n, getCurrentLanguage, t } =
+      await import('./index.js');
 
     await initializeI18n('pt_BR.UTF-8');
 

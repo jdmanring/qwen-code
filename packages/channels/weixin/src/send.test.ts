@@ -69,9 +69,8 @@ vi.mock('./api.js', () => ({
 const { encryptAesEcb, computeMd5 } =
   await vi.importActual<typeof import('./media.js')>('./media.js');
 
-const { sendImage, detectImageMime, validateImagePath } = await import(
-  './send.js'
-);
+const { sendImage, detectImageMime, validateImagePath } =
+  await import('./send.js');
 
 describe('markdownToPlainText', () => {
   it('strips code blocks', () => {

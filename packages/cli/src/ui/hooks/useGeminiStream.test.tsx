@@ -83,7 +83,8 @@ const MockedApiCancelEvent = vi.hoisted(() =>
 );
 const mockParseAndFormatApiError = vi.hoisted(() =>
   vi.fn(
-    (msg: unknown) => `[API Error: ${typeof msg === 'string' ? msg : 'An unknown error occurred.'}]`,
+    (msg: unknown) =>
+      `[API Error: ${typeof msg === 'string' ? msg : 'An unknown error occurred.'}]`,
   ),
 );
 const mockLogApiCancel = vi.hoisted(() => vi.fn());
@@ -215,9 +216,9 @@ describe('useGeminiStream', () => {
       alwaysSkipModificationConfirmation: false,
       vertexai: false,
       contextFileName: undefined,
-      getToolRegistry: vi.fn(
-        function() { return { getToolSchemaList: vi.fn(() => []) }; } as any,
-      ),
+      getToolRegistry: vi.fn(function () {
+        return { getToolSchemaList: vi.fn(() => []) };
+      } as any),
       getProjectRoot: vi.fn(() => '/test/dir'),
       getFileCheckpointingEnabled: vi.fn(() => false),
       getGeminiClient: mockGetGeminiClient,
@@ -2217,7 +2218,8 @@ describe('useGeminiStream', () => {
       const holdStream = new Promise<void>((resolve) => {
         releaseStream = resolve;
       });
-      vi.mocked(findLastSafeSplitPoint).mockImplementation((s: string) => s.startsWith('\n\n') ? 2 : s.length,
+      vi.mocked(findLastSafeSplitPoint).mockImplementation((s: string) =>
+        s.startsWith('\n\n') ? 2 : s.length,
       );
 
       const mockStream = (async function* () {

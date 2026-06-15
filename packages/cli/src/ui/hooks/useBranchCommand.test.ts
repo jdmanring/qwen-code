@@ -33,10 +33,10 @@ describe('useBranchCommand', () => {
 
   const makeOptions = () => ({
     config,
-    historyManager: { clearItems, loadHistory, addItem },
-    startNewSession: startNewSessionUI,
-    setSessionName,
-    remount,
+    historyManager: { clearItems, loadHistory, addItem } as any,
+    startNewSession: startNewSessionUI as any,
+    setSessionName: setSessionName as any,
+    remount: remount as any,
   });
 
   // Helper to build a ChatRecord-shaped user message for loadSession mocks.

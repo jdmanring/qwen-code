@@ -242,7 +242,7 @@ describe('extensionConsentString', () => {
 });
 
 describe('requestConsentOrFail', () => {
-  let mockRequestConsent: ReturnType<typeof vi.fn>;
+  let mockRequestConsent: any;
 
   beforeEach(() => {
     mockRequestConsent = vi.fn();

@@ -238,10 +238,14 @@ describe('runForkedAgent (cache path)', () => {
     expect(ctorArgs[4]).toBeUndefined(); // telemetryService
 
     // Verify sendMessageStream was called
-    expect(mockSendMessageStream).toHaveBeenCalledExactlyOnceWith('test-model', expect.objectContaining({
+    expect(mockSendMessageStream).toHaveBeenCalledExactlyOnceWith(
+      'test-model',
+      expect.objectContaining({
         message: [{ text: 'suggest something' }],
         config: expect.objectContaining({ tools: [] }),
-      }), 'forked_query');
+      }),
+      'forked_query',
+    );
     expect(capturedParams).not.toBeNull();
 
     // KEY ASSERTION: per-request config must have tools: [] to prevent

@@ -75,11 +75,11 @@ async function addMcpServer(
 
   const hasOAuth = Boolean(
     oauthClientId ||
-      oauthClientSecret ||
-      oauthRedirectUri ||
-      oauthAuthorizationUrl ||
-      oauthTokenUrl ||
-      (scopes && scopes.length > 0),
+    oauthClientSecret ||
+    oauthRedirectUri ||
+    oauthAuthorizationUrl ||
+    oauthTokenUrl ||
+    (scopes && scopes.length > 0),
   );
 
   // OAuth only applies to remote HTTP/SSE transports. Reject mixing with stdio

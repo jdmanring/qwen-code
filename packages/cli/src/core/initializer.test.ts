@@ -39,15 +39,8 @@ vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
 });
 
 describe('initializeApp', () => {
-  let mockConfig: {
-    getModelsConfig: ReturnType<typeof vi.fn>;
-    getIdeMode: ReturnType<typeof vi.fn>;
-    getGeminiMdFileCount: ReturnType<typeof vi.fn>;
-  };
-  let mockSettings: {
-    merged: Record<string, unknown>;
-    setValue: ReturnType<typeof vi.fn>;
-  };
+  let mockConfig: any;
+  let mockSettings: any;
 
   beforeEach(() => {
     vi.clearAllMocks();

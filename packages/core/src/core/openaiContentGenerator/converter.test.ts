@@ -3776,7 +3776,9 @@ describe('OpenAIContentConverter', () => {
       const result = await converter.convertGeminiToolsToOpenAI(callableTools);
 
       expect(result).toHaveLength(1);
-      expect(result[0].function.name).toBe('dynamic_tool');
+      expect(
+        (result[0] as OpenAI.Chat.ChatCompletionFunctionTool).function.name,
+      ).toBe('dynamic_tool');
     });
 
     it('should skip functions without name or description', async () => {
@@ -3802,7 +3804,9 @@ describe('OpenAIContentConverter', () => {
       const result = await converter.convertGeminiToolsToOpenAI(geminiTools);
 
       expect(result).toHaveLength(1);
-      expect(result[0].function.name).toBe('valid_tool');
+      expect(
+        (result[0] as OpenAI.Chat.ChatCompletionFunctionTool).function.name,
+      ).toBe('valid_tool');
     });
 
     it('should handle tools without functionDeclarations', async () => {
@@ -3828,7 +3832,10 @@ describe('OpenAIContentConverter', () => {
       const result = await converter.convertGeminiToolsToOpenAI(geminiTools);
 
       expect(result).toHaveLength(1);
-      expect(result[0].function.parameters).toBeUndefined();
+      expect(
+        (result[0] as OpenAI.Chat.ChatCompletionFunctionTool).function
+          .parameters,
+      ).toBeUndefined();
     });
 
     it('should not mutate original parametersJsonSchema', async () => {
@@ -3851,8 +3858,14 @@ describe('OpenAIContentConverter', () => {
       const result = await converter.convertGeminiToolsToOpenAI(mcpTools);
 
       // Verify the result is a copy, not the same reference
-      expect(result[0].function.parameters).not.toBe(originalSchema);
-      expect(result[0].function.parameters).toEqual(originalSchema);
+      expect(
+        (result[0] as OpenAI.Chat.ChatCompletionFunctionTool).function
+          .parameters,
+      ).not.toBe(originalSchema);
+      expect(
+        (result[0] as OpenAI.Chat.ChatCompletionFunctionTool).function
+          .parameters,
+      ).toEqual(originalSchema);
     });
   });
 

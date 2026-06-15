@@ -2,8 +2,8 @@ name: Sync upstream
 
 on:
   schedule:
-    - cron: "0 3 * * *"   # 3am UTC daily
-  workflow_dispatch:        # manual trigger from GitHub UI
+    - cron: '0 3 * * *' # 3am UTC daily
+  workflow_dispatch: # manual trigger from GitHub UI
 
 concurrency:
   group: upstream-sync
@@ -44,7 +44,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: '22'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4

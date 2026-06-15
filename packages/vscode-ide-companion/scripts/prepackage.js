@@ -50,9 +50,9 @@ function run(cmd, args, opts = {}) {
 }
 
 function parseVsceTarget(target) {
-  if (!target) return null;
+  if (!target) {return null;}
   const parts = target.split('-');
-  if (parts.length !== 2) return null;
+  if (parts.length !== 2) {return null;}
   const [platform, arch] = parts;
   return { platform, arch };
 }
@@ -68,7 +68,7 @@ function getExpectedRipgrepDirName() {
       : null;
   const normalizedArch = arch === 'x64' || arch === 'arm64' ? arch : null;
 
-  if (!normalizedPlatform || !normalizedArch) return null;
+  if (!normalizedPlatform || !normalizedArch) {return null;}
   return `${normalizedArch}-${normalizedPlatform}`;
 }
 
@@ -104,10 +104,10 @@ function pruneBundledRipgrep() {
   const removed = [];
 
   for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
+    if (!entry.isDirectory()) {continue;}
     const name = entry.name;
-    if (!/^(x64|arm64)-(darwin|linux|win32)$/.test(name)) continue;
-    if (name === expectedDirName) continue;
+    if (!/^(x64|arm64)-(darwin|linux|win32)$/.test(name)) {continue;}
+    if (name === expectedDirName) {continue;}
 
     const fullPath = path.join(ripgrepDir, name);
     fs.rmSync(fullPath, { recursive: true, force: true });
@@ -127,10 +127,10 @@ function pruneBundledRipgrep() {
 }
 
 function removeSelfReferenceFromNodeModules() {
-  if (process.platform !== 'win32') return;
+  if (process.platform !== 'win32') {return;}
 
   const packageJsonPath = path.join(bundledCliDir, 'package.json');
-  if (!fs.existsSync(packageJsonPath)) return;
+  if (!fs.existsSync(packageJsonPath)) {return;}
 
   let packageName;
   try {
@@ -140,20 +140,20 @@ function removeSelfReferenceFromNodeModules() {
     return;
   }
 
-  if (typeof packageName !== 'string' || packageName.length === 0) return;
+  if (typeof packageName !== 'string' || packageName.length === 0) {return;}
 
   // Some npm installations on Windows can create a junction in node_modules
   // pointing back to the package itself. vsce/yazl can't zip that reliably.
   let selfPath;
   if (packageName.startsWith('@')) {
     const [scope, name] = packageName.split('/');
-    if (!scope || !name) return;
+    if (!scope || !name) {return;}
     selfPath = path.join(bundledCliDir, 'node_modules', scope, name);
   } else {
     selfPath = path.join(bundledCliDir, 'node_modules', packageName);
   }
 
-  if (!fs.existsSync(selfPath)) return;
+  if (!fs.existsSync(selfPath)) {return;}
 
   fs.rmSync(selfPath, { recursive: true, force: true });
   console.log(

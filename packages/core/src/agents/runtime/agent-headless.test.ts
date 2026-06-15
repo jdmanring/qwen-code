@@ -277,12 +277,10 @@ describe('subagent.ts', () => {
       });
 
       mockSendMessageStream = vi.fn();
-      vi.mocked(GeminiChat).mockImplementation(
-        function() { return {
-            sendMessageStream: mockSendMessageStream,
-            setLastPromptTokenCount: vi.fn(),
-          }; } as unknown as GeminiChat,
-      );
+      vi.mocked(GeminiChat).mockImplementation(() => ({
+          sendMessageStream: mockSendMessageStream,
+          setLastPromptTokenCount: vi.fn(),
+        } as any));
 
       // Default mock for executeToolCall
       vi.mocked(executeToolCall).mockResolvedValue({
@@ -1003,7 +1001,8 @@ describe('subagent.ts', () => {
         } as unknown as AnyDeclarativeTool;
         vi.mocked(
           (config.getToolRegistry() as unknown as ToolRegistry).getTool,
-        ).mockImplementation((name: string) => name === 'list_files' ? listFilesTool : undefined,
+        ).mockImplementation((name: string) =>
+          name === 'list_files' ? listFilesTool : undefined,
         );
 
         const scope = await AgentHeadless.create(
@@ -1168,12 +1167,10 @@ describe('subagent.ts', () => {
           { text: 'Let me think...' as string, thought: true },
           { text: 'Here is the answer.' as string },
         ]);
-        vi.mocked(GeminiChat).mockImplementation(
-          function() { return {
-              sendMessageStream: mockSendMessageStream,
-              setLastPromptTokenCount: vi.fn(),
-            }; } as unknown as GeminiChat,
-        );
+        vi.mocked(GeminiChat).mockImplementation(() => ({
+            sendMessageStream: mockSendMessageStream,
+            setLastPromptTokenCount: vi.fn(),
+          } as any));
 
         const eventEmitter = new AgentEventEmitter();
         const events: AgentStreamTextEvent[] = [];
@@ -1207,12 +1204,10 @@ describe('subagent.ts', () => {
           { text: 'Internal reasoning here.' as string, thought: true },
           { text: 'The final answer.' as string },
         ]);
-        vi.mocked(GeminiChat).mockImplementation(
-          function() { return {
-              sendMessageStream: mockSendMessageStream,
-              setLastPromptTokenCount: vi.fn(),
-            }; } as unknown as GeminiChat,
-        );
+        vi.mocked(GeminiChat).mockImplementation(() => ({
+            sendMessageStream: mockSendMessageStream,
+            setLastPromptTokenCount: vi.fn(),
+          } as any));
 
         const scope = await AgentHeadless.create(
           'test-agent',
@@ -1271,12 +1266,10 @@ describe('subagent.ts', () => {
             }
           })();
         });
-        vi.mocked(GeminiChat).mockImplementation(
-          function() { return {
-              sendMessageStream: mockSendMessageStream,
-              setLastPromptTokenCount: vi.fn(),
-            }; } as unknown as GeminiChat,
-        );
+        vi.mocked(GeminiChat).mockImplementation(() => ({
+            sendMessageStream: mockSendMessageStream,
+            setLastPromptTokenCount: vi.fn(),
+          } as any));
 
         const scope = await AgentHeadless.create(
           'test-agent',

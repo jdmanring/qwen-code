@@ -42,10 +42,10 @@ git push origin main --follow-tags
 
 ## Branch Origins
 
-| Work type | Branch from | Merge to |
-|-----------|-------------|----------|
-| Upstream fix/feature | `upstream-mirror` | `develop` (cherry-pick) |
-| Fork-only (CI, docs, pipeline) | `develop` | `develop` (merge) |
+| Work type                      | Branch from       | Merge to                |
+| ------------------------------ | ----------------- | ----------------------- |
+| Upstream fix/feature           | `upstream-mirror` | `develop` (cherry-pick) |
+| Fork-only (CI, docs, pipeline) | `develop`         | `develop` (merge)       |
 
 ## Two Remotes
 
@@ -64,10 +64,10 @@ upstream → source (read-only, never push)
 
 ## Failure Recovery
 
-| Problem | Fix |
-|---------|-----|
-| Pre-flight fails | `git checkout integration && git stash` |
-| Merge conflict | Resolve, commit, re-run pipeline |
-| Gate fails | Fix upstream regression, re-run |
-| Empty cherry-pick | Change is already upstream — skip |
+| Problem           | Fix                                                 |
+| ----------------- | --------------------------------------------------- |
+| Pre-flight fails  | `git checkout integration && git stash`             |
+| Merge conflict    | Resolve, commit, re-run pipeline                    |
+| Gate fails        | Fix upstream regression, re-run                     |
+| Empty cherry-pick | Change is already upstream — skip                   |
 | Need to roll back | `python3 tooling/sync-upstreams/rollback_to_lkg.py` |

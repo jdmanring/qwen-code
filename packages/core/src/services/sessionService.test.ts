@@ -52,12 +52,12 @@ describe('SessionService', () => {
     sessionService = new SessionService('/test/project/root');
 
     readdirSyncSpy = vi.spyOn(fs, 'readdirSync').mockReturnValue([]);
-    statSyncSpy = vi.spyOn(fs, 'statSync').mockImplementation(
-      function() { return {
-          mtimeMs: Date.now(),
-          isFile: () => true,
-        }; } as fs.Stats,
-    );
+    statSyncSpy = vi.spyOn(fs, 'statSync').mockImplementation(function () {
+      return {
+        mtimeMs: Date.now(),
+        isFile: () => true,
+      };
+    } as any);
     unlinkSyncSpy = vi
       .spyOn(fs, 'unlinkSync')
       .mockImplementation(() => undefined);
@@ -147,7 +147,7 @@ describe('SessionService', () => {
       readdirSyncSpy.mockReturnValue([
         `${sessionIdA}.jsonl`,
         `${sessionIdB}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      ] as any);
 
       statSyncSpy.mockImplementation((filePath: fs.PathLike) => {
         const path = filePath.toString();
@@ -177,9 +177,7 @@ describe('SessionService', () => {
     it('should extract prompt text from first record', async () => {
       const now = Date.now();
 
-      readdirSyncSpy.mockReturnValue([
-        `${sessionIdA}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      readdirSyncSpy.mockReturnValue([`${sessionIdA}.jsonl`] as any);
 
       statSyncSpy.mockReturnValue({
         mtimeMs: now,
@@ -201,9 +199,7 @@ describe('SessionService', () => {
       // a session preview) is about to display them. Pinning this
       // contract here so future refactors can't quietly re-introduce
       // the per-file scan that used to dominate /resume open time.
-      readdirSyncSpy.mockReturnValue([
-        `${sessionIdA}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      readdirSyncSpy.mockReturnValue([`${sessionIdA}.jsonl`] as any);
       statSyncSpy.mockReturnValue({
         mtimeMs: Date.now(),
         isFile: () => true,
@@ -223,9 +219,7 @@ describe('SessionService', () => {
         message: { role: 'user', parts: [{ text: longPrompt }] },
       };
 
-      readdirSyncSpy.mockReturnValue([
-        `${sessionIdA}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      readdirSyncSpy.mockReturnValue([`${sessionIdA}.jsonl`] as any);
       statSyncSpy.mockReturnValue({
         mtimeMs: Date.now(),
         isFile: () => true,
@@ -245,7 +239,7 @@ describe('SessionService', () => {
         `${sessionIdA}.jsonl`,
         `${sessionIdB}.jsonl`,
         `${sessionIdC}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      ] as any);
 
       statSyncSpy.mockImplementation((filePath: fs.PathLike) => {
         const path = filePath.toString();
@@ -288,7 +282,7 @@ describe('SessionService', () => {
         `${sessionIdA}.jsonl`,
         `${sessionIdB}.jsonl`,
         `${sessionIdC}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      ] as any);
 
       statSyncSpy.mockImplementation((filePath: fs.PathLike) => {
         const path = filePath.toString();
@@ -312,9 +306,7 @@ describe('SessionService', () => {
     });
 
     it('should skip files from different projects', async () => {
-      readdirSyncSpy.mockReturnValue([
-        `${sessionIdA}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      readdirSyncSpy.mockReturnValue([`${sessionIdA}.jsonl`] as any);
       statSyncSpy.mockReturnValue({
         mtimeMs: Date.now(),
         isFile: () => true,
@@ -338,9 +330,7 @@ describe('SessionService', () => {
     });
 
     it('should list a migrated session when runtime status matches this project', async () => {
-      readdirSyncSpy.mockReturnValue([
-        `${sessionIdA}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      readdirSyncSpy.mockReturnValue([`${sessionIdA}.jsonl`] as any);
       statSyncSpy.mockReturnValue({
         mtimeMs: Date.now(),
         isFile: () => true,
@@ -378,7 +368,7 @@ describe('SessionService', () => {
         'not-a-uuid.jsonl', // invalid pattern
         'readme.txt', // not jsonl
         '.hidden.jsonl', // hidden file
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      ] as any);
       statSyncSpy.mockReturnValue({
         mtimeMs: Date.now(),
         isFile: () => true,
@@ -840,7 +830,8 @@ describe('SessionService', () => {
       vi.mocked(jsonl.readLines).mockResolvedValue([otherProjectRecord]);
       // Make the projectHash mock context-sensitive so the cwd check
       // actually distinguishes projects.
-      vi.mocked(getProjectHash).mockImplementation((cwd) => cwd === '/test/project/root' ? 'test-project-hash' : 'other-hash',
+      vi.mocked(getProjectHash).mockImplementation((cwd) =>
+        cwd === '/test/project/root' ? 'test-project-hash' : 'other-hash',
       );
       const createReadStreamSpy = vi.spyOn(fs, 'createReadStream');
 
@@ -902,7 +893,7 @@ describe('SessionService', () => {
       readdirSyncSpy.mockReturnValue([
         `${sessionIdA}.jsonl`,
         `${sessionIdB}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      ] as any);
 
       statSyncSpy.mockImplementation((filePath: fs.PathLike) => {
         const path = filePath.toString();

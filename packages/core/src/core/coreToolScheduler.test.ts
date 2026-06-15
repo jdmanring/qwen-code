@@ -177,7 +177,8 @@ function createMockToolSpan(
 
 vi.mock('../telemetry/session-tracing.js', () => ({
   startToolSpan: vi.fn(
-    (name: string, attrs?: Record<string, string | number | boolean>) => createMockToolSpan(`tool.${name}`, { tool_name: name, ...attrs }),
+    (name: string, attrs?: Record<string, string | number | boolean>) =>
+      createMockToolSpan(`tool.${name}`, { tool_name: name, ...attrs }),
   ),
   endToolSpan: vi.fn(
     (
@@ -480,7 +481,7 @@ class StructuredErrorOnConfirmationTool extends BaseDeclarativeTool<
 }
 
 async function waitForStatus(
-  onToolCallsUpdate: Mock,
+  onToolCallsUpdate: any,
   status: 'awaiting_approval' | 'executing' | 'success' | 'error' | 'cancelled',
   timeout = 5000,
 ): Promise<ToolCall> {
@@ -489,7 +490,7 @@ async function waitForStatus(
     const check = () => {
       if (Date.now() - startTime > timeout) {
         const seenStatuses = onToolCallsUpdate.mock.calls
-          .flatMap((call) => call[0])
+          .flatMap((call: any) => call[0])
           .map((toolCall: ToolCall) => toolCall.status);
         reject(
           new Error(
@@ -502,7 +503,7 @@ async function waitForStatus(
       }
 
       const foundCall = onToolCallsUpdate.mock.calls
-        .flatMap((call) => call[0])
+        .flatMap((call: any) => call[0])
         .find((toolCall: ToolCall) => toolCall.status === status);
       if (foundCall) {
         resolve(foundCall);
@@ -702,8 +703,9 @@ describe('CoreToolScheduler', () => {
       getAllToolNames: () => [...options.toolsByName.keys()],
     } as unknown as ToolRegistry;
 
-    const onAllToolCallsComplete = options.onAllToolCallsComplete ?? vi.fn();
-    const onToolCallsUpdate = options.onToolCallsUpdate ?? vi.fn();
+    const onAllToolCallsComplete =
+      options.onAllToolCallsComplete ?? (vi.fn() as any);
+    const onToolCallsUpdate = options.onToolCallsUpdate ?? (vi.fn() as any);
     const scheduler = new CoreToolScheduler({
       config: {
         getSessionId: () => 'test-session-id',
@@ -5150,8 +5152,8 @@ describe('CoreToolScheduler plan mode with ask_user_question', () => {
 
     return new CoreToolScheduler({
       config: mockConfig,
-      onAllToolCallsComplete,
-      onToolCallsUpdate,
+      onAllToolCallsComplete: onAllToolCallsComplete as any,
+      onToolCallsUpdate: onToolCallsUpdate as any,
       getPreferredEditor: () => 'vscode',
       onEditorClose: vi.fn(),
     });
@@ -7848,9 +7850,8 @@ describe('Fire hook functions integration', () => {
 
   describe('firePostToolUseFailureHook', () => {
     it('should return additional context when hook provides it', async () => {
-      const { firePostToolUseFailureHook } = await import(
-        './toolHookTriggers.js'
-      );
+      const { firePostToolUseFailureHook } =
+        await import('./toolHookTriggers.js');
 
       const mockResponse: HookExecutionResponse = {
         type: MessageBusType.HOOK_EXECUTION_RESPONSE,
@@ -7879,9 +7880,8 @@ describe('Fire hook functions integration', () => {
     });
 
     it('should return empty object when no message bus is provided', async () => {
-      const { firePostToolUseFailureHook } = await import(
-        './toolHookTriggers.js'
-      );
+      const { firePostToolUseFailureHook } =
+        await import('./toolHookTriggers.js');
 
       const result = await firePostToolUseFailureHook(
         undefined,
@@ -7952,9 +7952,8 @@ describe('Fire hook functions integration', () => {
 
   describe('firePermissionRequestHook', () => {
     it('should return hasDecision: false when hook makes no decision', async () => {
-      const { firePermissionRequestHook } = await import(
-        './toolHookTriggers.js'
-      );
+      const { firePermissionRequestHook } =
+        await import('./toolHookTriggers.js');
 
       const mockResponse: HookExecutionResponse = {
         type: MessageBusType.HOOK_EXECUTION_RESPONSE,
@@ -7978,9 +7977,8 @@ describe('Fire hook functions integration', () => {
     });
 
     it('should return hasDecision: true with allow decision when hook allows', async () => {
-      const { firePermissionRequestHook } = await import(
-        './toolHookTriggers.js'
-      );
+      const { firePermissionRequestHook } =
+        await import('./toolHookTriggers.js');
 
       const mockResponse: HookExecutionResponse = {
         type: MessageBusType.HOOK_EXECUTION_RESPONSE,
@@ -8011,9 +8009,8 @@ describe('Fire hook functions integration', () => {
     });
 
     it('should return hasDecision: true with deny decision when hook denies', async () => {
-      const { firePermissionRequestHook } = await import(
-        './toolHookTriggers.js'
-      );
+      const { firePermissionRequestHook } =
+        await import('./toolHookTriggers.js');
 
       const mockResponse: HookExecutionResponse = {
         type: MessageBusType.HOOK_EXECUTION_RESPONSE,
@@ -8046,9 +8043,8 @@ describe('Fire hook functions integration', () => {
     });
 
     it('should return hasDecision: false when no message bus is provided', async () => {
-      const { firePermissionRequestHook } = await import(
-        './toolHookTriggers.js'
-      );
+      const { firePermissionRequestHook } =
+        await import('./toolHookTriggers.js');
 
       const result = await firePermissionRequestHook(
         undefined,
@@ -8078,7 +8074,7 @@ describe('Fire hook functions integration', () => {
     function createScheduler(
       tools: Map<string, MockTool>,
       onAllToolCallsComplete: Mock,
-      onToolCallsUpdate: Mock,
+      onToolCallsUpdate: any,
     ) {
       const mockToolRegistry = {
         getTool: (name: string) => tools.get(name),

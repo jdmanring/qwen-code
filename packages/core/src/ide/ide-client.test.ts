@@ -128,8 +128,12 @@ describe('IdeClient', () => {
     } as unknown as Mocked<StdioClientTransport>;
 
     vi.mocked(Client).mockImplementation(() => mockClient);
-    vi.mocked(StreamableHTTPClientTransport).mockImplementation(() => mockHttpTransport);
-    vi.mocked(StdioClientTransport).mockImplementation(() => mockStdioTransport);
+    vi.mocked(StreamableHTTPClientTransport).mockImplementation(
+      () => mockHttpTransport,
+    );
+    vi.mocked(StdioClientTransport).mockImplementation(
+      () => mockStdioTransport,
+    );
     mockUndiciFetch.mockReset();
     mockEnvHttpProxyAgent.mockClear();
 
@@ -242,11 +246,7 @@ describe('IdeClient', () => {
       vi.mocked(fs.promises.readFile).mockRejectedValue(
         new Error('File not found'),
       );
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue([]);
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue([]);
       process.env['QWEN_CODE_IDE_SERVER_PORT'] = '9090';
 
       const ideClient = await IdeClient.getInstance();
@@ -267,11 +267,7 @@ describe('IdeClient', () => {
       vi.mocked(fs.promises.readFile).mockRejectedValue(
         new Error('File not found'),
       );
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue([]);
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue([]);
       vi.mocked(fs.existsSync).mockImplementation(
         (filePath: fs.PathLike) => filePath === '/.dockerenv',
       );
@@ -337,22 +333,19 @@ describe('IdeClient', () => {
           throw new Error(`unexpected path: ${file}`);
         },
       );
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue(['1111.lock', '2222.lock']);
-      (
-        vi.mocked(fs.promises.stat) as Mock<
-          (path: fs.PathLike) => Promise<fs.Stats>
-        >
-      ).mockImplementation(async (filePath: fs.PathLike) => {
-        const now = Date.now();
-        const file = String(filePath);
-        return {
-          mtimeMs: file.endsWith('2222.lock') ? now : now - 1000,
-        } as fs.Stats;
-      });
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue([
+        '1111.lock',
+        '2222.lock',
+      ]);
+      (vi.mocked(fs.promises.stat) as any).mockImplementation(
+        async (filePath: fs.PathLike) => {
+          const now = Date.now();
+          const file = String(filePath);
+          return {
+            mtimeMs: file.endsWith('2222.lock') ? now : now - 1000,
+          } as fs.Stats;
+        },
+      );
       vi.mocked(fs.existsSync).mockImplementation(
         (filePath: fs.PathLike) => String(filePath) === '/test/workspace',
       );
@@ -397,11 +390,7 @@ describe('IdeClient', () => {
         new Error('File not found'),
       );
 
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue([]);
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue([]);
       process.env['QWEN_CODE_IDE_SERVER_STDIO_COMMAND'] = 'env-cmd';
       process.env['QWEN_CODE_IDE_SERVER_STDIO_ARGS'] = '["--bar"]';
 
@@ -421,11 +410,7 @@ describe('IdeClient', () => {
     it('should prioritize file config over environment variables', async () => {
       const config = { port: '8080' };
       vi.mocked(fs.promises.readFile).mockResolvedValue(JSON.stringify(config));
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue([]);
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue([]);
       process.env['QWEN_CODE_IDE_SERVER_PORT'] = '9090';
 
       const ideClient = await IdeClient.getInstance();
@@ -444,11 +429,7 @@ describe('IdeClient', () => {
       vi.mocked(fs.promises.readFile).mockRejectedValue(
         new Error('File not found'),
       );
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue([]);
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue([]);
 
       const ideClient = await IdeClient.getInstance();
       await ideClient.connect();
@@ -606,16 +587,10 @@ describe('IdeClient', () => {
           throw new Error(`unexpected path: ${file}`);
         },
       );
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue(['1000.lock']);
-      (
-        vi.mocked(fs.promises.stat) as Mock<
-          (path: fs.PathLike) => Promise<fs.Stats>
-        >
-      ).mockResolvedValue({ mtimeMs: oldTime } as fs.Stats);
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue(['1000.lock']);
+      (vi.mocked(fs.promises.stat) as any).mockResolvedValue({
+        mtimeMs: oldTime,
+      } as fs.Stats);
       vi.spyOn(process, 'kill').mockImplementation(() => true);
 
       const ideClient = await IdeClient.getInstance();
@@ -652,21 +627,18 @@ describe('IdeClient', () => {
           throw new Error(`unexpected path: ${file}`);
         },
       );
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue(['1000.lock', '2000.lock']);
-      (
-        vi.mocked(fs.promises.stat) as Mock<
-          (path: fs.PathLike) => Promise<fs.Stats>
-        >
-      ).mockImplementation(async (filePath: fs.PathLike) => {
-        const file = String(filePath);
-        return {
-          mtimeMs: file.endsWith('1000.lock') ? staleTime : now,
-        } as fs.Stats;
-      });
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue([
+        '1000.lock',
+        '2000.lock',
+      ]);
+      (vi.mocked(fs.promises.stat) as any).mockImplementation(
+        async (filePath: fs.PathLike) => {
+          const file = String(filePath);
+          return {
+            mtimeMs: file.endsWith('1000.lock') ? staleTime : now,
+          } as fs.Stats;
+        },
+      );
       vi.mocked(fs.existsSync).mockImplementation(
         (filePath: fs.PathLike) => String(filePath) === '/test/workspace',
       );
@@ -706,22 +678,19 @@ describe('IdeClient', () => {
           throw new Error(`unexpected path: ${file}`);
         },
       );
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue(['1000.lock', '2000.lock']);
-      (
-        vi.mocked(fs.promises.stat) as Mock<
-          (path: fs.PathLike) => Promise<fs.Stats>
-        >
-      ).mockImplementation(async (filePath: fs.PathLike) => {
-        const now = Date.now();
-        const file = String(filePath);
-        return {
-          mtimeMs: file.endsWith('2000.lock') ? now : now - 1000,
-        } as fs.Stats;
-      });
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue([
+        '1000.lock',
+        '2000.lock',
+      ]);
+      (vi.mocked(fs.promises.stat) as any).mockImplementation(
+        async (filePath: fs.PathLike) => {
+          const now = Date.now();
+          const file = String(filePath);
+          return {
+            mtimeMs: file.endsWith('2000.lock') ? now : now - 1000,
+          } as fs.Stats;
+        },
+      );
 
       const ideClient = await IdeClient.getInstance();
       const result = await (
@@ -758,22 +727,19 @@ describe('IdeClient', () => {
           throw new Error(`unexpected path: ${file}`);
         },
       );
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue(['1000.lock', '2000.lock']);
-      (
-        vi.mocked(fs.promises.stat) as Mock<
-          (path: fs.PathLike) => Promise<fs.Stats>
-        >
-      ).mockImplementation(async (filePath: fs.PathLike) => {
-        const now = Date.now();
-        const file = String(filePath);
-        return {
-          mtimeMs: file.endsWith('2000.lock') ? now : now - 1000,
-        } as fs.Stats;
-      });
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue([
+        '1000.lock',
+        '2000.lock',
+      ]);
+      (vi.mocked(fs.promises.stat) as any).mockImplementation(
+        async (filePath: fs.PathLike) => {
+          const now = Date.now();
+          const file = String(filePath);
+          return {
+            mtimeMs: file.endsWith('2000.lock') ? now : now - 1000,
+          } as fs.Stats;
+        },
+      );
 
       const ideClient = await IdeClient.getInstance();
       const result = await (
@@ -795,11 +761,7 @@ describe('IdeClient', () => {
     it('should return false if tool discovery fails', async () => {
       const config = { port: '8080' };
       vi.mocked(fs.promises.readFile).mockResolvedValue(JSON.stringify(config));
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue([]);
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue([]);
       mockClient.request.mockRejectedValue(new Error('Method not found'));
 
       const ideClient = await IdeClient.getInstance();
@@ -814,11 +776,7 @@ describe('IdeClient', () => {
     it('should return false if diffing tools are not available', async () => {
       const config = { port: '8080' };
       vi.mocked(fs.promises.readFile).mockResolvedValue(JSON.stringify(config));
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue([]);
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue([]);
       mockClient.request.mockResolvedValue({
         tools: [{ name: 'someOtherTool' }],
       });
@@ -835,11 +793,7 @@ describe('IdeClient', () => {
     it('should return false if only openDiff tool is available', async () => {
       const config = { port: '8080' };
       vi.mocked(fs.promises.readFile).mockResolvedValue(JSON.stringify(config));
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue([]);
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue([]);
       mockClient.request.mockResolvedValue({
         tools: [{ name: 'openDiff' }],
       });
@@ -856,11 +810,7 @@ describe('IdeClient', () => {
     it('should return true if connected and diffing tools are available', async () => {
       const config = { port: '8080' };
       vi.mocked(fs.promises.readFile).mockResolvedValue(JSON.stringify(config));
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue([]);
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue([]);
       mockClient.request.mockResolvedValue({
         tools: [{ name: 'openDiff' }, { name: 'closeDiff' }],
       });
@@ -880,11 +830,7 @@ describe('IdeClient', () => {
       const authToken = 'test-auth-token';
       const config = { port: '8080', authToken };
       vi.mocked(fs.promises.readFile).mockResolvedValue(JSON.stringify(config));
-      (
-        vi.mocked(fs.promises.readdir) as Mock<
-          (path: fs.PathLike) => Promise<string[]>
-        >
-      ).mockResolvedValue([]);
+      (vi.mocked(fs.promises.readdir) as any).mockResolvedValue([]);
 
       const ideClient = await IdeClient.getInstance();
       await ideClient.connect();

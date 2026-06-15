@@ -546,7 +546,8 @@ describe('Settings Loading and Merging', () => {
 
     it('should warn when trusted workspace empty modelProviders overrides user modelProviders', () => {
       (mockFsExistsSync as Mock).mockImplementation(
-        (p: fs.PathLike) => p === USER_SETTINGS_PATH || p === MOCK_WORKSPACE_SETTINGS_PATH,
+        (p: fs.PathLike) =>
+          p === USER_SETTINGS_PATH || p === MOCK_WORKSPACE_SETTINGS_PATH,
       );
       const userSettingsContent = {
         modelProviders: {
@@ -579,7 +580,8 @@ describe('Settings Loading and Merging', () => {
 
     it('should not warn when workspace does not define modelProviders', () => {
       (mockFsExistsSync as Mock).mockImplementation(
-        (p: fs.PathLike) => p === USER_SETTINGS_PATH || p === MOCK_WORKSPACE_SETTINGS_PATH,
+        (p: fs.PathLike) =>
+          p === USER_SETTINGS_PATH || p === MOCK_WORKSPACE_SETTINGS_PATH,
       );
       const userSettingsContent = {
         modelProviders: {
@@ -610,7 +612,8 @@ describe('Settings Loading and Merging', () => {
         source: 'file',
       });
       (mockFsExistsSync as Mock).mockImplementation(
-        (p: fs.PathLike) => p === USER_SETTINGS_PATH || p === MOCK_WORKSPACE_SETTINGS_PATH,
+        (p: fs.PathLike) =>
+          p === USER_SETTINGS_PATH || p === MOCK_WORKSPACE_SETTINGS_PATH,
       );
       const userSettingsContent = {
         modelProviders: {
@@ -1302,7 +1305,8 @@ describe('Settings Loading and Merging', () => {
 
     it('should merge excludedProjectEnvVars with workspace taking precedence over user', () => {
       (mockFsExistsSync as Mock).mockImplementation(
-        (p: fs.PathLike) => p === USER_SETTINGS_PATH || p === MOCK_WORKSPACE_SETTINGS_PATH,
+        (p: fs.PathLike) =>
+          p === USER_SETTINGS_PATH || p === MOCK_WORKSPACE_SETTINGS_PATH,
       );
       const userSettingsContent = {
         general: {},
@@ -1345,7 +1349,8 @@ describe('Settings Loading and Merging', () => {
 
     it('should default contextFileName to undefined if not in any settings file', () => {
       (mockFsExistsSync as Mock).mockImplementation(
-        (p: fs.PathLike) => p === USER_SETTINGS_PATH || p === MOCK_WORKSPACE_SETTINGS_PATH,
+        (p: fs.PathLike) =>
+          p === USER_SETTINGS_PATH || p === MOCK_WORKSPACE_SETTINGS_PATH,
       );
       const userSettingsContent = { ui: { theme: 'dark' } };
       const workspaceSettingsContent = { tools: { sandbox: true } };
@@ -1423,7 +1428,8 @@ describe('Settings Loading and Merging', () => {
 
     it('should merge MCP servers correctly, with workspace taking precedence', () => {
       (mockFsExistsSync as Mock).mockImplementation(
-        (p: fs.PathLike) => p === USER_SETTINGS_PATH || p === MOCK_WORKSPACE_SETTINGS_PATH,
+        (p: fs.PathLike) =>
+          p === USER_SETTINGS_PATH || p === MOCK_WORKSPACE_SETTINGS_PATH,
       );
       const userSettingsContent = {
         mcpServers: {
@@ -1949,7 +1955,8 @@ describe('Settings Loading and Merging', () => {
       // Verify the backup was written back to the original path
       const writeCalls = (fs.writeFileSync as Mock).mock.calls;
       const restoreWrite = writeCalls.find(
-        (call: unknown[]) => call[0] === USER_SETTINGS_PATH && call[1] === validBackupContent,
+        (call: unknown[]) =>
+          call[0] === USER_SETTINGS_PATH && call[1] === validBackupContent,
       );
       expect(restoreWrite).toBeDefined();
 
@@ -2490,7 +2497,8 @@ describe('Settings Loading and Merging', () => {
       };
 
       (mockFsExistsSync as Mock).mockImplementation(
-        (p: fs.PathLike) => p === USER_SETTINGS_PATH || p === qwenEnvPath || p === homeEnvPath,
+        (p: fs.PathLike) =>
+          p === USER_SETTINGS_PATH || p === qwenEnvPath || p === homeEnvPath,
       );
       (fs.readFileSync as Mock).mockImplementation(
         (p: fs.PathOrFileDescriptor) => {
@@ -3462,7 +3470,8 @@ describe('Settings Loading and Merging', () => {
         isTrusted: isWorkspaceTrustedValue,
         source: 'file',
       });
-      (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [USER_SETTINGS_PATH, geminiEnvPath].includes(p.toString()),
+      (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+        [USER_SETTINGS_PATH, geminiEnvPath].includes(p.toString()),
       );
       const userSettingsContent: Settings = {
         ui: {
@@ -3506,7 +3515,8 @@ describe('Settings Loading and Merging', () => {
         isTrusted: false,
         source: 'file',
       });
-      (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [USER_SETTINGS_PATH, projectEnvPath].includes(p.toString()),
+      (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+        [USER_SETTINGS_PATH, projectEnvPath].includes(p.toString()),
       );
       const userSettingsContent: Settings = {
         ui: {
@@ -3560,7 +3570,8 @@ describe('Settings Loading and Merging', () => {
           },
         };
 
-        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [USER_SETTINGS_PATH].includes(p.toString()),
+        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+          [USER_SETTINGS_PATH].includes(p.toString()),
         );
         (fs.readFileSync as Mock).mockImplementation(
           (p: fs.PathOrFileDescriptor) => {
@@ -3589,7 +3600,8 @@ describe('Settings Loading and Merging', () => {
           },
         };
 
-        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [USER_SETTINGS_PATH, geminiEnvPath].includes(p.toString()),
+        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+          [USER_SETTINGS_PATH, geminiEnvPath].includes(p.toString()),
         );
         (fs.readFileSync as Mock).mockImplementation(
           (p: fs.PathOrFileDescriptor) => {
@@ -3622,7 +3634,8 @@ describe('Settings Loading and Merging', () => {
           },
         };
 
-        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [USER_SETTINGS_PATH, geminiEnvPath].includes(p.toString()),
+        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+          [USER_SETTINGS_PATH, geminiEnvPath].includes(p.toString()),
         );
         (fs.readFileSync as Mock).mockImplementation(
           (p: fs.PathOrFileDescriptor) => {
@@ -3654,7 +3667,8 @@ describe('Settings Loading and Merging', () => {
           },
         };
 
-        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [USER_SETTINGS_PATH].includes(p.toString()),
+        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+          [USER_SETTINGS_PATH].includes(p.toString()),
         );
         (fs.readFileSync as Mock).mockImplementation(
           (p: fs.PathOrFileDescriptor) => {
@@ -3692,7 +3706,8 @@ describe('Settings Loading and Merging', () => {
           },
         };
 
-        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [USER_SETTINGS_PATH].includes(p.toString()),
+        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+          [USER_SETTINGS_PATH].includes(p.toString()),
         );
         (fs.readFileSync as Mock).mockImplementation(
           (p: fs.PathOrFileDescriptor) => {
@@ -3825,7 +3840,8 @@ describe('Settings Loading and Merging', () => {
           isTrusted: true,
           source: 'file',
         });
-        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [USER_SETTINGS_PATH, customGlobalEnvPath].includes(p.toString()),
+        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+          [USER_SETTINGS_PATH, customGlobalEnvPath].includes(p.toString()),
         );
         (fs.readFileSync as Mock).mockImplementation(
           (p: fs.PathOrFileDescriptor) => {
@@ -3859,7 +3875,8 @@ describe('Settings Loading and Merging', () => {
           isTrusted: true,
           source: 'file',
         });
-        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [USER_SETTINGS_PATH, projectEnvPath].includes(p.toString()),
+        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+          [USER_SETTINGS_PATH, projectEnvPath].includes(p.toString()),
         );
         (fs.readFileSync as Mock).mockImplementation(
           (p: fs.PathOrFileDescriptor) => {
@@ -3900,7 +3917,8 @@ describe('Settings Loading and Merging', () => {
           isTrusted: true,
           source: 'file',
         });
-        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [USER_SETTINGS_PATH, userQwenEnvPath].includes(p.toString()),
+        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+          [USER_SETTINGS_PATH, userQwenEnvPath].includes(p.toString()),
         );
         (fs.readFileSync as Mock).mockImplementation(
           (p: fs.PathOrFileDescriptor) => {
@@ -3930,7 +3948,8 @@ describe('Settings Loading and Merging', () => {
           isTrusted: true,
           source: 'file',
         });
-        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [USER_SETTINGS_PATH, workspaceQwenEnvPath].includes(p.toString()),
+        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+          [USER_SETTINGS_PATH, workspaceQwenEnvPath].includes(p.toString()),
         );
         (fs.readFileSync as Mock).mockImplementation(
           (p: fs.PathOrFileDescriptor) => {
@@ -3968,7 +3987,8 @@ describe('Settings Loading and Merging', () => {
           isTrusted: true,
           source: 'file',
         });
-        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [USER_SETTINGS_PATH, workspaceQwenEnvPath].includes(p.toString()),
+        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+          [USER_SETTINGS_PATH, workspaceQwenEnvPath].includes(p.toString()),
         );
         (fs.readFileSync as Mock).mockImplementation(
           (p: fs.PathOrFileDescriptor) => {
@@ -4011,7 +4031,8 @@ describe('Settings Loading and Merging', () => {
           isTrusted: true,
           source: 'file',
         });
-        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [userQwenEnvPath, customSettingsPath].includes(p.toString()),
+        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+          [userQwenEnvPath, customSettingsPath].includes(p.toString()),
         );
         (fs.readFileSync as Mock).mockImplementation(
           (p: fs.PathOrFileDescriptor) => {
@@ -4057,7 +4078,8 @@ describe('Settings Loading and Merging', () => {
 
         const loaded = loadSettings(MOCK_WORKSPACE_DIR);
 
-        const warningMatch = loaded.migrationWarnings.find((w) => w.includes('QWEN_HOME points to'),
+        const warningMatch = loaded.migrationWarnings.find((w) =>
+          w.includes('QWEN_HOME points to'),
         );
         expect(warningMatch).toBeDefined();
         expect(warningMatch).toContain(customHome);
@@ -4073,13 +4095,15 @@ describe('Settings Loading and Merging', () => {
           isTrusted: true,
           source: 'file',
         });
-        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [customSettingsPath].includes(p.toString()),
+        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+          [customSettingsPath].includes(p.toString()),
         );
         (fs.readFileSync as Mock).mockImplementation(() => '{}');
 
         const loaded = loadSettings(MOCK_WORKSPACE_DIR);
 
-        const warningMatch = loaded.migrationWarnings.find((w) => w.includes('QWEN_HOME points to'),
+        const warningMatch = loaded.migrationWarnings.find((w) =>
+          w.includes('QWEN_HOME points to'),
         );
         expect(warningMatch).toBeUndefined();
       });
@@ -4096,13 +4120,15 @@ describe('Settings Loading and Merging', () => {
           isTrusted: true,
           source: 'file',
         });
-        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) => [legacySettings].includes(p.toString()),
+        (mockFsExistsSync as Mock).mockImplementation((p: fs.PathLike) =>
+          [legacySettings].includes(p.toString()),
         );
         (fs.readFileSync as Mock).mockImplementation(() => '{}');
 
         const loaded = loadSettings(MOCK_WORKSPACE_DIR);
 
-        const warningMatch = loaded.migrationWarnings.find((w) => w.includes('QWEN_HOME points to'),
+        const warningMatch = loaded.migrationWarnings.find((w) =>
+          w.includes('QWEN_HOME points to'),
         );
         expect(warningMatch).toBeUndefined();
       });

@@ -198,7 +198,8 @@ describe('Storage – getPlansDir', () => {
   const projectRoot = path.resolve('workspace', 'project');
 
   beforeEach(() => {
-    mockRealpathSync.mockImplementation((pathToResolve) => actualFs.realpathSync(pathToResolve),
+    mockRealpathSync.mockImplementation((pathToResolve) =>
+      actualFs.realpathSync(pathToResolve),
     );
   });
 

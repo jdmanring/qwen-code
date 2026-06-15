@@ -702,9 +702,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn(),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockReturnValue(
-      mockedMcpClient as unknown as McpClient,
-    );
+    vi.mocked(McpClient).mockReturnValue(mockedMcpClient as any);
     const mockConfig = {
       isTrustedFolder: () => true,
       getMcpServers: () => ({ srv: {} }),
@@ -727,7 +725,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn(),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
     const mockConfig = {
       isTrustedFolder: () => true,
       getMcpServers: () => ({ 'test-server': {} }),
@@ -756,7 +754,7 @@ describe('McpClientManager', () => {
             .mockReturnValue(
               name === 'with-instructions' ? 'Use concise replies.' : undefined,
             ),
-        }) as unknown as McpClient,
+        }) as any,
     );
     const mockConfig = {
       isTrustedFolder: () => true,
@@ -786,7 +784,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn(),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
     const mockConfig = {
       isTrustedFolder: () => false,
       getMcpServers: () => ({ 'test-server': {} }),
@@ -809,9 +807,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn(),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockReturnValue(
-      mockedMcpClient as unknown as McpClient,
-    );
+    vi.mocked(McpClient).mockReturnValue(mockedMcpClient as any);
     const mockConfig = {
       isTrustedFolder: () => false,
       getMcpServers: () => ({ 'test-server': {} }),
@@ -838,9 +834,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn(),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockReturnValue(
-      mockedMcpClient as unknown as McpClient,
-    );
+    vi.mocked(McpClient).mockReturnValue(mockedMcpClient as any);
     const mockConfig = {
       isTrustedFolder: () => true,
       getMcpServers: () => ({ 'pending-server': { scope: 'project' } }),
@@ -867,9 +861,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn(),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockReturnValue(
-      mockedMcpClient as unknown as McpClient,
-    );
+    vi.mocked(McpClient).mockReturnValue(mockedMcpClient as any);
     const mockConfig = {
       isTrustedFolder: () => true,
       getMcpServers: () => ({ 'approved-server': { scope: 'project' } }),
@@ -889,17 +881,17 @@ describe('McpClientManager', () => {
   it('should disconnect all clients when stop is called', async () => {
     // Track disconnect calls across all instances
     const disconnectCalls: string[] = [];
-    vi.mocked(McpClient).mockImplementation(
-      function(name: string) { return {
-          connect: vi.fn(),
-          discover: vi.fn(),
-          disconnect: vi.fn().mockImplementation(() => {
-            disconnectCalls.push(name);
-            return Promise.resolve();
-          }),
-          getStatus: vi.fn(),
-        }; } as unknown as McpClient,
-    );
+    vi.mocked(McpClient).mockImplementation(function (name: string) {
+      return {
+        connect: vi.fn(),
+        discover: vi.fn(),
+        disconnect: vi.fn().mockImplementation(() => {
+          disconnectCalls.push(name);
+          return Promise.resolve();
+        }),
+        getStatus: vi.fn(),
+      };
+    } as any);
     const mockConfig = {
       isTrustedFolder: () => true,
       getMcpServers: () => ({ 'test-server': {}, 'another-server': {} }),
@@ -933,7 +925,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn().mockResolvedValue(undefined),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
     const mockConfig = {
       isTrustedFolder: () => true,
       getMcpServers: () => ({ 'test-server': {} }),
@@ -962,7 +954,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn().mockResolvedValue(undefined),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
 
     const mockConfig = {
       isTrustedFolder: () => true,
@@ -1001,8 +993,8 @@ describe('McpClientManager', () => {
     };
 
     vi.mocked(McpClient)
-      .mockImplementationOnce(() => firstClient as unknown as McpClient)
-      .mockImplementationOnce(() => secondClient as unknown as McpClient);
+      .mockImplementationOnce(() => firstClient as any)
+      .mockImplementationOnce(() => secondClient as any);
 
     const mockConfig = {
       isTrustedFolder: () => true,
@@ -1051,7 +1043,7 @@ describe('McpClientManager', () => {
 
     vi.mocked(McpClient).mockImplementation(() => {
       if (vi.mocked(McpClient).mock.calls.length === 1) {
-        return firstClient as unknown as McpClient;
+        return firstClient as any;
       }
 
       const replacementClient = {
@@ -1061,7 +1053,7 @@ describe('McpClientManager', () => {
         getStatus: vi.fn(),
       };
       replacementClients.push(replacementClient);
-      return replacementClient as unknown as McpClient;
+      return replacementClient as any;
     });
 
     const mockConfig = {
@@ -1130,8 +1122,8 @@ describe('McpClientManager', () => {
       getStatus: vi.fn(),
     };
     vi.mocked(McpClient)
-      .mockImplementationOnce(() => firstClient as unknown as McpClient)
-      .mockImplementationOnce(() => failedClient as unknown as McpClient);
+      .mockImplementationOnce(() => firstClient as any)
+      .mockImplementationOnce(() => failedClient as any);
 
     const mockConfig = {
       isTrustedFolder: () => true,
@@ -1196,7 +1188,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn().mockResolvedValue(undefined),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
 
     const mockConfig = {
       isTrustedFolder: () => true,
@@ -1243,7 +1235,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn().mockResolvedValue(undefined),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
 
     const mockConfig = {
       isTrustedFolder: () => true,
@@ -1276,7 +1268,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn().mockResolvedValue(undefined),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
 
     const mockConfig = {
       isTrustedFolder: () => true,
@@ -1328,7 +1320,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn().mockResolvedValue(undefined),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
     const mockConfig = {
       isTrustedFolder: () => true,
       getMcpServers: () => ({
@@ -1365,7 +1357,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn().mockResolvedValue(undefined),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
 
     const removeMcpToolsByServer = vi.fn();
     const toolRegistryStub = {
@@ -1427,7 +1419,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn().mockResolvedValue(undefined),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
 
     const mockConfig = {
       isTrustedFolder: () => true,
@@ -1479,7 +1471,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn().mockResolvedValue(undefined),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
     const mockConfig = {
       isTrustedFolder: () => true,
       getMcpServers: () => ({
@@ -1524,7 +1516,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn().mockResolvedValue(undefined),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
 
     const calls: number[] = [];
     const realSetTimeout = globalThis.setTimeout;
@@ -1582,7 +1574,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn().mockResolvedValue(undefined),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
 
     const mockConfig = {
       isTrustedFolder: () => true,
@@ -1634,7 +1626,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn().mockResolvedValue(undefined),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
 
     const mockConfig = {
       isTrustedFolder: () => true,
@@ -1686,7 +1678,7 @@ describe('McpClientManager', () => {
       disconnect: vi.fn().mockResolvedValue(undefined),
       getStatus: vi.fn(),
     };
-    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as unknown as McpClient);
+    vi.mocked(McpClient).mockImplementation(() => mockedMcpClient as any);
 
     const mcpClientModule = await import('./mcp-client.js');
     const { MCPDiscoveryState } = mcpClientModule;
@@ -1779,9 +1771,8 @@ describe('McpClientManager — PR 14 guardrails', () => {
   }
 
   it('getMcpClientAccounting returns zero on an empty manager', async () => {
-    const { McpClientManager: MgrCtor } = await import(
-      './mcp-client-manager.js'
-    );
+    const { McpClientManager: MgrCtor } =
+      await import('./mcp-client-manager.js');
     const config = configWithServers({});
     const manager = new MgrCtor(config, {} as ToolRegistry);
     const accounting = manager.getMcpClientAccounting();
@@ -1818,7 +1809,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     vi.mocked(McpClient).mockImplementation(() => {
       const m = makeConnectedMcpClientMock();
       created.push(m);
-      return m as unknown as McpClient;
+      return m as any;
     });
     // 4 stdio servers, budget 2. enforce mode refuses 2.
     const config = configWithServers({
@@ -1846,7 +1837,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     vi.mocked(McpClient).mockImplementation(() => {
       const m = makeConnectedMcpClientMock();
       created.push(m);
-      return m as unknown as McpClient;
+      return m as any;
     });
     const config = configWithServers({
       a: { command: 'node' },
@@ -1868,7 +1859,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
 
   it('off mode does not reserve any slot', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const config = configWithServers({
       a: { command: 'node' },
@@ -1891,7 +1882,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     const created: string[] = [];
     vi.mocked(McpClient).mockImplementation((name: string) => {
       created.push(name);
-      return makeConnectedMcpClientMock() as unknown as McpClient;
+      return makeConnectedMcpClientMock() as any;
     });
     // Insertion order: zulu, alpha, mike. Budget 2 → zulu+alpha survive.
     const config = configWithServers({
@@ -1912,7 +1903,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
 
   it('discoverAllMcpTools resets lastRefusedServerNames each pass', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const config = configWithServers({
       a: { command: 'node' },
@@ -1936,7 +1927,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
   it('readResource throws BudgetExhaustedError in enforce mode when full', async () => {
     const { BudgetExhaustedError } = await import('./mcp-client-manager.js');
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const config = configWithServers({
       a: { command: 'node' },
@@ -1956,7 +1947,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
 
   it('disconnectServer releases the slot for re-use', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const config = configWithServers({
       a: { command: 'node' },
@@ -2006,7 +1997,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     const created: string[] = [];
     vi.mocked(McpClient).mockImplementation((name: string) => {
       created.push(name);
-      return makeConnectedMcpClientMock() as unknown as McpClient;
+      return makeConnectedMcpClientMock() as any;
     });
     // `b` is disabled — must not even attempt to reserve. With budget=2,
     // `a` and `c` should both succeed (b is invisible to the gate, so it
@@ -2041,7 +2032,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     const created: string[] = [];
     vi.mocked(McpClient).mockImplementation((name: string) => {
       created.push(name);
-      return makeConnectedMcpClientMock() as unknown as McpClient;
+      return makeConnectedMcpClientMock() as any;
     });
     const config = configWithServers({
       a: { command: 'node' },
@@ -2066,7 +2057,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
 
   it('disconnectServer-then-disable drops refusal tag (review #4)', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const config = configWithServers({
       a: { command: 'node' },
@@ -2088,7 +2079,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
   it('incremental discovery frees removed slots BEFORE reserving new ones (review #5)', async () => {
     let inflight = 0;
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     inflight = 0;
     const mcpServers: Record<string, { command: string }> = {
@@ -2139,7 +2130,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     // built by `acpAgent.buildBudgetCells`. This test just pins the
     // manager-side invariant: off-mode is pure observability.
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const config = configWithServers({
       a: { command: 'node' },
@@ -2170,9 +2161,9 @@ describe('McpClientManager — PR 14 guardrails', () => {
           discover: vi.fn().mockResolvedValue(undefined),
           disconnect: vi.fn().mockResolvedValue(undefined),
           getStatus: vi.fn(),
-        } as unknown as McpClient;
+        } as any;
       }
-      return makeConnectedMcpClientMock() as unknown as McpClient;
+      return makeConnectedMcpClientMock() as any;
     });
     const config = configWithServers({
       a: { command: 'node' }, // will fail
@@ -2202,20 +2193,20 @@ describe('McpClientManager — PR 14 guardrails', () => {
 
   it('connect() failure in readResource releases the slot AND re-throws (wenshao C3)', async () => {
     let getResourceCalled = false;
-    vi.mocked(McpClient).mockImplementation(
-      function() { return {
-          // Stays disconnected → readResource code path forces a
-          // `client.connect()` before `client.readResource(...)`.
-          connect: vi.fn().mockRejectedValue(new Error('lazy connect boom')),
-          discover: vi.fn().mockResolvedValue(undefined),
-          disconnect: vi.fn().mockResolvedValue(undefined),
-          getStatus: vi.fn(),
-          readResource: vi.fn().mockImplementation(() => {
-            getResourceCalled = true;
-            return Promise.resolve({});
-          }),
-        }; } as unknown as McpClient,
-    );
+    vi.mocked(McpClient).mockImplementation(function () {
+      return {
+        // Stays disconnected → readResource code path forces a
+        // `client.connect()` before `client.readResource(...)`.
+        connect: vi.fn().mockRejectedValue(new Error('lazy connect boom')),
+        discover: vi.fn().mockResolvedValue(undefined),
+        disconnect: vi.fn().mockResolvedValue(undefined),
+        getStatus: vi.fn(),
+        readResource: vi.fn().mockImplementation(() => {
+          getResourceCalled = true;
+          return Promise.resolve({});
+        }),
+      };
+    } as any);
     const config = configWithServers({
       a: { command: 'node' },
     });
@@ -2254,7 +2245,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
   // Round 3 review fixes (PR #4247 wenshao second pass).
   it('readResource rejects disabled servers before checking budget (wenshao R3 #5)', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     // Pre-fix the lazy spawn path bypassed `isMcpServerDisabled`,
     // so a disabled server could be resurrected by a resource read.
@@ -2275,7 +2266,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
 
   it('readResource disabled gate fires BEFORE budget gate (wenshao R3 #5 precedence)', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     // Set up a budget-exhausted scenario + disable the target. The
     // disabled error must win over the budget error (matches the
@@ -2303,9 +2294,8 @@ describe('McpClientManager — PR 14 guardrails', () => {
   });
 
   it('exports MCP_BUDGET_WARN_FRACTION constant (wenshao R3 #7)', async () => {
-    const { MCP_BUDGET_WARN_FRACTION } = await import(
-      './mcp-client-manager.js'
-    );
+    const { MCP_BUDGET_WARN_FRACTION } =
+      await import('./mcp-client-manager.js');
     // Pinned to 0.75 to match PR 10's slow_client_warning hysteresis
     // primer (eventBus.ts WARN_THRESHOLD_RATIO). PR 14b will introduce
     // the matching reset fraction (0.375) to complete the dual-threshold
@@ -2315,14 +2305,14 @@ describe('McpClientManager — PR 14 guardrails', () => {
 
   // Round 4 review fixes (PR #4247 wenshao R3-R4 zombie leak in internal path).
   it('discoverMcpToolsForServer fresh-reserve connect-failure releases slot (wenshao R4 C2)', async () => {
-    vi.mocked(McpClient).mockImplementation(
-      function() { return {
-          connect: vi.fn().mockRejectedValue(new Error('boom')),
-          discover: vi.fn().mockResolvedValue(undefined),
-          disconnect: vi.fn().mockResolvedValue(undefined),
-          getStatus: vi.fn(),
-        }; } as unknown as McpClient,
-    );
+    vi.mocked(McpClient).mockImplementation(function () {
+      return {
+        connect: vi.fn().mockRejectedValue(new Error('boom')),
+        discover: vi.fn().mockResolvedValue(undefined),
+        disconnect: vi.fn().mockResolvedValue(undefined),
+        getStatus: vi.fn(),
+      };
+    } as any);
     const config = configWithServers({ x: { command: 'node' } });
     const manager = mkManager({
       config,
@@ -2355,14 +2345,14 @@ describe('McpClientManager — PR 14 guardrails', () => {
   it('runWithDiscoveryTimeout timeout handler releases the budget slot (wenshao R5 line 956)', async () => {
     vi.useFakeTimers();
     // McpClient.connect never resolves → timeout fires.
-    vi.mocked(McpClient).mockImplementation(
-      function() { return {
-          connect: vi.fn(() => new Promise(() => {})),
-          discover: vi.fn(),
-          disconnect: vi.fn().mockResolvedValue(undefined),
-          getStatus: vi.fn(),
-        }; } as unknown as McpClient,
-    );
+    vi.mocked(McpClient).mockImplementation(function () {
+      return {
+        connect: vi.fn(() => new Promise(() => {})),
+        discover: vi.fn(),
+        disconnect: vi.fn().mockResolvedValue(undefined),
+        getStatus: vi.fn(),
+      };
+    } as any);
     const config = configWithServers({ a: { command: 'node' } });
     const manager = mkManager({
       config,
@@ -2397,7 +2387,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     const created: string[] = [];
     vi.mocked(McpClient).mockImplementation((name: string) => {
       created.push(name);
-      return makeConnectedMcpClientMock() as unknown as McpClient;
+      return makeConnectedMcpClientMock() as any;
     });
     const config = configWithServers({
       first: { command: 'node' },
@@ -2432,7 +2422,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     // must drop `b` from lastRefusedServerNames (pre-fix the snapshot kept
     // reporting `b` as `disabledReason: 'budget'` even after it connected).
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const config = configWithServers({
       a: { command: 'node' },
@@ -2460,7 +2450,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     // snapshot reported `disabledReason: 'budget'` for a CONNECTED
     // server until the next discovery pass cleared the per-pass log.
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const config = configWithServers({
       a: { command: 'node' },
@@ -2488,7 +2478,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     let createdCount = 0;
     vi.mocked(McpClient).mockImplementation(() => {
       createdCount += 1;
-      return makeConnectedMcpClientMock() as unknown as McpClient;
+      return makeConnectedMcpClientMock() as any;
     });
     const config = configWithServers(
       { a: { command: 'node' } },
@@ -2506,7 +2496,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     let createdCount = 0;
     vi.mocked(McpClient).mockImplementation(() => {
       createdCount += 1;
-      return makeConnectedMcpClientMock() as unknown as McpClient;
+      return makeConnectedMcpClientMock() as any;
     });
     const config = configWithServers(
       { a: { command: 'node' } },
@@ -2527,17 +2517,17 @@ describe('McpClientManager — PR 14 guardrails', () => {
     // deletes the client from the map without calling
     // `disconnect()`, leaking the stdio child.
     let disconnectCalls = 0;
-    vi.mocked(McpClient).mockImplementation(
-      function() { return {
-          connect: vi.fn().mockResolvedValue(undefined),
-          discover: vi.fn().mockRejectedValue(new Error('discover failed')),
-          disconnect: vi.fn().mockImplementation(() => {
-            disconnectCalls += 1;
-            return Promise.resolve();
-          }),
-          getStatus: vi.fn(),
-        }; } as unknown as McpClient,
-    );
+    vi.mocked(McpClient).mockImplementation(function () {
+      return {
+        connect: vi.fn().mockResolvedValue(undefined),
+        discover: vi.fn().mockRejectedValue(new Error('discover failed')),
+        disconnect: vi.fn().mockImplementation(() => {
+          disconnectCalls += 1;
+          return Promise.resolve();
+        }),
+        getStatus: vi.fn(),
+      };
+    } as any);
     const config = configWithServers({ x: { command: 'node' } });
     const manager = mkManager({
       config,
@@ -2577,7 +2567,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     // resource reads via its existing CONNECTED client until the
     // next incremental discovery pass called removeServer.
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     let disabled = false;
     const config = configWithServers(
@@ -2601,7 +2591,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
 
   it('readResource rejects existing-but-now-pending servers', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     let pending = false;
     const config = configWithServers(
@@ -2625,7 +2615,7 @@ describe('McpClientManager — PR 14 guardrails', () => {
     let createdCount = 0;
     vi.mocked(McpClient).mockImplementation(() => {
       createdCount += 1;
-      return makeConnectedMcpClientMock() as unknown as McpClient;
+      return makeConnectedMcpClientMock() as any;
     });
     const config = configWithServers(
       { a: { command: 'node' } },
@@ -2648,20 +2638,18 @@ describe('McpClientManager — PR 14 guardrails', () => {
     // partially established transport then threw → catch deleted
     // client without disconnect() → stdio child / socket leaked.
     let disconnectCalls = 0;
-    vi.mocked(McpClient).mockImplementation(
-      function() { return {
-          connect: vi
-            .fn()
-            .mockRejectedValue(new Error('mid-handshake failure')),
-          discover: vi.fn(),
-          disconnect: vi.fn().mockImplementation(() => {
-            disconnectCalls += 1;
-            return Promise.resolve();
-          }),
-          getStatus: vi.fn(),
-          readResource: vi.fn(),
-        }; } as unknown as McpClient,
-    );
+    vi.mocked(McpClient).mockImplementation(function () {
+      return {
+        connect: vi.fn().mockRejectedValue(new Error('mid-handshake failure')),
+        discover: vi.fn(),
+        disconnect: vi.fn().mockImplementation(() => {
+          disconnectCalls += 1;
+          return Promise.resolve();
+        }),
+        getStatus: vi.fn(),
+        readResource: vi.fn(),
+      };
+    } as any);
     const config = configWithServers({ x: { command: 'node' } });
     const manager = mkManager({
       config,
@@ -2702,17 +2690,17 @@ describe('McpClientManager — PR 14 guardrails', () => {
     // leaked for the rest of the daemon's lifetime (stop() can't
     // see the entry it just removed from this.clients).
     let disconnectCalls = 0;
-    vi.mocked(McpClient).mockImplementation(
-      function() { return {
-          connect: vi.fn().mockResolvedValue(undefined),
-          discover: vi.fn().mockRejectedValue(new Error('discover failed')),
-          disconnect: vi.fn().mockImplementation(() => {
-            disconnectCalls += 1;
-            return Promise.resolve();
-          }),
-          getStatus: vi.fn(),
-        }; } as unknown as McpClient,
-    );
+    vi.mocked(McpClient).mockImplementation(function () {
+      return {
+        connect: vi.fn().mockResolvedValue(undefined),
+        discover: vi.fn().mockRejectedValue(new Error('discover failed')),
+        disconnect: vi.fn().mockImplementation(() => {
+          disconnectCalls += 1;
+          return Promise.resolve();
+        }),
+        getStatus: vi.fn(),
+      };
+    } as any);
     const config = configWithServers({ a: { command: 'node' } });
     const manager = mkManager({
       config,
@@ -2757,21 +2745,21 @@ describe('McpClientManager — PR 14 guardrails', () => {
     // the operator's stable server that just hiccupped should keep
     // its capacity reservation for the health-monitor retry loop.
     let connectThrows = false;
-    vi.mocked(McpClient).mockImplementation(
-      function() { return {
-          connect: vi.fn().mockImplementation(async () => {
-            if (connectThrows) throw new Error('reconnect boom');
-          }),
-          discover: vi.fn().mockResolvedValue(undefined),
-          disconnect: vi.fn().mockResolvedValue(undefined),
-          getStatus: vi.fn(() =>
-            connectThrows
-              ? undefined
-              : ((vi.mocked as unknown as { val: unknown }).val =
-                  'CONNECTED' as unknown),
-          ),
-        }; } as unknown as McpClient,
-    );
+    vi.mocked(McpClient).mockImplementation(function () {
+      return {
+        connect: vi.fn().mockImplementation(async () => {
+          if (connectThrows) throw new Error('reconnect boom');
+        }),
+        discover: vi.fn().mockResolvedValue(undefined),
+        disconnect: vi.fn().mockResolvedValue(undefined),
+        getStatus: vi.fn(() =>
+          connectThrows
+            ? undefined
+            : ((vi.mocked as unknown as { val: unknown }).val =
+                'CONNECTED' as unknown),
+        ),
+      };
+    } as any);
     const config = configWithServers({ a: { command: 'node' } });
     const manager = mkManager({
       config,
@@ -2835,15 +2823,14 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
   }
 
   it('exports MCP_BUDGET_REARM_FRACTION = 0.375', async () => {
-    const { MCP_BUDGET_REARM_FRACTION } = await import(
-      './mcp-client-manager.js'
-    );
+    const { MCP_BUDGET_REARM_FRACTION } =
+      await import('./mcp-client-manager.js');
     expect(MCP_BUDGET_REARM_FRACTION).toBe(0.375);
   });
 
   it('budget_warning fires once on first 75% upward crossing', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const events: unknown[] = [];
     // 4-server config, budget 4, ratio after pass = 4/4 = 1.0 ≥ 0.75
@@ -2886,7 +2873,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
 
   it('budget_warning does NOT fire when ratio stays below 75%', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const events: unknown[] = [];
     // 2 of 4 → 0.5 < 0.75 → no fire.
@@ -2912,7 +2899,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
 
   it('budget_warning hysteresis re-arms only after dropping below 37.5%', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const events: unknown[] = [];
     // Budget 4. Pass 1: 4/4 = 1.0 fires. Pass 2 after disconnecting
@@ -2981,7 +2968,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
 
   it('off mode never fires budget_warning', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const events: unknown[] = [];
     const config = configWithServers({
@@ -3003,7 +2990,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
 
   it('refused_batch coalesces multi-refusal into one event per pass', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const events: unknown[] = [];
     // budget 1, 3 servers → a connects, b+c refused.
@@ -3040,7 +3027,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
 
   it('refused_batch does NOT fire when no servers are refused', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const events: unknown[] = [];
     const config = configWithServers({
@@ -3066,7 +3053,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
   it('readResource refusal emits a length-1 refused_batch then throws', async () => {
     const { BudgetExhaustedError } = await import('./mcp-client-manager.js');
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const events: unknown[] = [];
     const config = configWithServers({
@@ -3113,7 +3100,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
     // can't fire. Verified externally by observing that no events
     // arrive.
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const events: unknown[] = [];
     const config = configWithServers({
@@ -3140,7 +3127,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
 
   it('refused_batch transports preserve the per-server family at refusal time', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const events: unknown[] = [];
     // Mixed transports refused; budget 1 admits the first only.
@@ -3173,7 +3160,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
 
   it('warn mode never emits refused_batch (only enforce refuses)', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const events: unknown[] = [];
     const config = configWithServers({
@@ -3200,7 +3187,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
 
   it('stop() re-arms the warning state machine for the next session', async () => {
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const events: unknown[] = [];
     const config = configWithServers({
@@ -3241,7 +3228,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
     // instead of 1 length-N batch. This test pins the documented
     // "one batch per pass" contract via the `bulkPassDepth` guard.
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const events: unknown[] = [];
     // Budget 1, 4 servers — 1 admitted, 3 refused. Pre-fix this
@@ -3285,7 +3272,7 @@ describe('McpClientManager — PR 14b push events + hysteresis', () => {
     // disconnect 3 servers (1/4, below re-arm) → reconnect 3 → 4/4
     // → fire #2. Pre-fix: only one fire. Post-fix: two fires.
     vi.mocked(McpClient).mockImplementation(
-      () => makeConnectedMcpClientMock() as unknown as McpClient,
+      () => makeConnectedMcpClientMock() as any,
     );
     const events: unknown[] = [];
     const config = configWithServers({

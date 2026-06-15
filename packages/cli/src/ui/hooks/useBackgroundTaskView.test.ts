@@ -395,7 +395,7 @@ describe('useBackgroundTaskView', () => {
           timestamp: Date.now(),
         },
       ],
-    } as typeof agents[number];
+    } as (typeof agents)[number];
 
     act(() => agentReg.fireApproval());
 

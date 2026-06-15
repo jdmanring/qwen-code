@@ -4622,9 +4622,8 @@ export class Config {
       if (options?.forSubAgent) return;
       const schema = this.jsonSchema;
       await registerLazy(ToolNames.STRUCTURED_OUTPUT, async () => {
-        const { SyntheticOutputTool } = await import(
-          '../tools/syntheticOutput.js'
-        );
+        const { SyntheticOutputTool } =
+          await import('../tools/syntheticOutput.js');
         return new SyntheticOutputTool(schema);
       });
     };
@@ -4743,9 +4742,8 @@ export class Config {
       return new TodoWriteTool(this);
     });
     await registerLazy(ToolNames.ASK_USER_QUESTION, async () => {
-      const { AskUserQuestionTool } = await import(
-        '../tools/askUserQuestion.js'
-      );
+      const { AskUserQuestionTool } =
+        await import('../tools/askUserQuestion.js');
       return new AskUserQuestionTool(this);
     });
     if (!this.sdkMode) {
@@ -4843,9 +4841,8 @@ export class Config {
     // built-in also gates these. Direct registry.registerFactory() would
     // bypass coreTools allowlist + whole-tool deny rules.
     if (this.isComputerUseEnabled()) {
-      const { registerComputerUseTools } = await import(
-        '../tools/computer-use/index.js'
-      );
+      const { registerComputerUseTools } =
+        await import('../tools/computer-use/index.js');
       await registerComputerUseTools(registerLazy, this);
     }
 

@@ -18,6 +18,7 @@ import * as fs from 'node:fs/promises';
 import * as fsSync from 'node:fs';
 import * as path from 'node:path';
 import * as tar from 'tar';
+// archiver's ZipArchive export was removed in newer versions; cast at use site
 import * as archiver from 'archiver';
 import {
   ExtensionUpdateState,
@@ -599,7 +600,7 @@ describe('git extension helpers', () => {
 
       // Create the zip file
       const output = fsSync.createWriteStream(archivePath);
-      const archive = new archiver.ZipArchive();
+      const archive = new (archiver as any).ZipArchive({ zlib: { level: 9 } });
 
       const streamFinished = new Promise((resolve, reject) => {
         output.on('close', () => resolve(null));

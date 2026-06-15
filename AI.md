@@ -1,6 +1,6 @@
 # AI Instructions for Qwen Code
 
-This project uses a split-knowledge system to ensure high precision. 
+This project uses a split-knowledge system to ensure high precision.
 **You MUST read the following files before performing any action:**
 
 1. [docs/ai/RULES.md](./docs/ai/RULES.md) - **CRITICAL**: Hard constraints, the Git pipeline, and "Never" lists.

@@ -464,7 +464,8 @@ describe('editor utils', () => {
           throw new Error(); // CLI not found
         });
         // Accept any path containing Zed.app
-        (existsSync as Mock).mockImplementation((path: string) => path.includes('Zed.app'),
+        (existsSync as Mock).mockImplementation((path: string) =>
+          path.includes('Zed.app'),
         );
 
         const mockSpawnOn = vi.fn((event, cb) => {
@@ -517,7 +518,10 @@ describe('editor utils', () => {
 
     describe('onEditorClose callback', () => {
       beforeEach(() => {
-        (spawnSync as Mock).mockImplementation(() => ({ error: null, status: 0 }));
+        (spawnSync as Mock).mockImplementation(() => ({
+          error: null,
+          status: 0,
+        }));
       });
       const terminalEditors: EditorType[] = ['vim', 'neovim', 'emacs'];
       for (const editor of terminalEditors) {
@@ -722,7 +726,8 @@ describe('editor utils', () => {
           throw new Error(); // CLI not found
         });
         // Accept any path containing Zed.app (the CLI check will be for Contents/MacOS/cli)
-        (existsSync as Mock).mockImplementation((path: string) => path.includes('Zed.app'),
+        (existsSync as Mock).mockImplementation((path: string) =>
+          path.includes('Zed.app'),
         );
 
         const diffCommand = getDiffCommand('old.txt', 'new.txt', 'zed');
@@ -766,7 +771,8 @@ describe('editor utils', () => {
           throw new Error(); // CLI not found
         });
         // Accept any path containing Zed.app
-        (existsSync as Mock).mockImplementation((path: string) => path.includes('Zed.app'),
+        (existsSync as Mock).mockImplementation((path: string) =>
+          path.includes('Zed.app'),
         );
 
         const diffCommand = getDiffCommand('old.txt', 'new.txt', 'zed');

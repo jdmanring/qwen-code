@@ -476,7 +476,7 @@ export class AcpConnection {
     if (!this.sessionId) {
       throw new Error('No active ACP session');
     }
-    const promptBlocks =
+    const promptBlocks: ContentBlock[] =
       typeof prompt === 'string' ? [{ type: 'text', text: prompt }] : prompt;
     const response: PromptResponse = await conn.prompt({
       sessionId: this.sessionId,
@@ -566,8 +566,8 @@ export class AcpConnection {
         const existingMeta = (params['_meta'] ?? {}) as Record<string, unknown>;
         params['_meta'] = { ...existingMeta, size: options.size };
       }
-      const response = await conn.unstable_listSessions(
-        params as Parameters<typeof conn.unstable_listSessions>[0],
+      const response = await conn.listSessions(
+        params as Parameters<typeof conn.listSessions>[0],
       );
       console.log(
         '[ACP] Session list response:',

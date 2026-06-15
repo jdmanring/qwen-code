@@ -42,7 +42,9 @@ export interface CurrentDiffData {
  */
 export function useDiffData(cwd: string | undefined): CurrentDiffData {
   const [result, setResult] = useState<GitDiffResult | null>(null);
-  const [hunks, setHunks] = useState<Map<string, StructuredPatchHunk[]>>(new Map());
+  const [hunks, setHunks] = useState<Map<string, StructuredPatchHunk[]>>(
+    new Map(),
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

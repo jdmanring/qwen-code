@@ -127,8 +127,10 @@ const MAX_PENDING_PER_SESSION = 64;
 export type DaemonKnownEventType =
   (typeof DAEMON_KNOWN_EVENT_TYPE_VALUES)[number];
 
-export interface DaemonEventEnvelope<TType extends string, TData>
-  extends Omit<DaemonEvent, 'type' | 'data'> {
+export interface DaemonEventEnvelope<TType extends string, TData> extends Omit<
+  DaemonEvent,
+  'type' | 'data'
+> {
   type: TType;
   data: TData;
 }

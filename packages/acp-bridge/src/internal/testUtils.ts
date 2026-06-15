@@ -185,9 +185,7 @@ export class FakeAgent implements Agent {
     }
     return {};
   }
-  async unstable_resumeSession(
-    p: ResumeSessionRequest,
-  ): Promise<ResumeSessionResponse> {
+  async resumeSession(p: ResumeSessionRequest): Promise<ResumeSessionResponse> {
     this.resumeSessionCalls.push(p);
     if (this.opts.resumeSessionImpl) {
       return this.opts.resumeSessionImpl(p, this);

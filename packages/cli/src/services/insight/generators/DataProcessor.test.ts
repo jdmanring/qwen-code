@@ -51,12 +51,12 @@ const mockedReadJsonlFile = vi.mocked(readJsonlFile);
 describe('DataProcessor', () => {
   let mockConfig: Config;
   let dataProcessor: DataProcessor;
-  let mockGenerateJson: ReturnType<typeof vi.fn>;
+  let mockGenerateJson: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mockGenerateJson = vi.fn();
+    mockGenerateJson = vi.fn() as any;
     mockRunSideQuery.mockImplementation((_config, request) =>
       mockGenerateJson(request),
     );

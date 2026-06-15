@@ -27,15 +27,15 @@ origin/main (release endpoint for downstream consumers)
 
 ### Branch Roles
 
-| Branch | Role | Push? | Description |
-|--------|------|-------|-------------|
-| `upstream/main` | Source of truth | Read-only | The upstream repo (e.g., QwenLM/qwen-code) |
-| `upstream-mirror` | Exact mirror | Fast-forward only | Always matches `upstream/main` HEAD |
-| `origin/ingest` | Contribution base | Force-push | Reset to match mirror; all contributions fork from here |
-| `origin/develop` | Integration | Force-push | All contribution branches merge here |
-| `origin/main` | Release endpoint | Merge only | For downstream consumers; never pull back into workbench |
-| `fork/*` | Fork infrastructure | Push | Fork-specific docs, tooling, PR drafts |
-| `feat/*`, `chore/*` | Contributions | Force-push | Individual PR candidates based on `ingest` |
+| Branch              | Role                | Push?             | Description                                              |
+| ------------------- | ------------------- | ----------------- | -------------------------------------------------------- |
+| `upstream/main`     | Source of truth     | Read-only         | The upstream repo (e.g., QwenLM/qwen-code)               |
+| `upstream-mirror`   | Exact mirror        | Fast-forward only | Always matches `upstream/main` HEAD                      |
+| `origin/ingest`     | Contribution base   | Force-push        | Reset to match mirror; all contributions fork from here  |
+| `origin/develop`    | Integration         | Force-push        | All contribution branches merge here                     |
+| `origin/main`       | Release endpoint    | Merge only        | For downstream consumers; never pull back into workbench |
+| `fork/*`            | Fork infrastructure | Push              | Fork-specific docs, tooling, PR drafts                   |
+| `feat/*`, `chore/*` | Contributions       | Force-push        | Individual PR candidates based on `ingest`               |
 
 ## Workflow
 
@@ -110,6 +110,7 @@ When another fork (e.g., megalonyx-monorepo) has work that should be staged as u
 ## Verification
 
 For each contribution branch:
+
 ```bash
 npm install
 npm run build
@@ -117,6 +118,7 @@ npm run typecheck
 ```
 
 For the develop branch (integration):
+
 ```bash
 npm install
 npm run build

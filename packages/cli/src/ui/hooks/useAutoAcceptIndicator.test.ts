@@ -69,42 +69,16 @@ describe('useAutoAcceptIndicator', () => {
       const instanceGetApprovalModeMock = vi.fn();
       const instanceSetApprovalModeMock = vi.fn();
 
-      const instance: MockConfigInstanceShape = {
-        getApprovalMode: instanceGetApprovalModeMock as Mock<
-          () => ApprovalMode
-        >,
-        setApprovalMode: instanceSetApprovalModeMock as Mock<
-          (value: ApprovalMode) => void
-        >,
-        isTrustedFolder: vi.fn().mockReturnValue(true) as Mock<() => boolean>,
-        getCoreTools: vi.fn().mockReturnValue([]) as Mock<() => string[]>,
-        getToolDiscoveryCommand: vi.fn().mockReturnValue(undefined) as Mock<
-          () => string | undefined
-        >,
-        getTargetDir: vi.fn().mockReturnValue('.') as Mock<() => string>,
-        getApiKey: vi.fn().mockReturnValue('test-api-key') as Mock<
-          () => string
-        >,
-        getModel: vi.fn().mockReturnValue('test-model') as Mock<() => string>,
-        getSandbox: vi.fn().mockReturnValue(false) as Mock<
-          () => boolean | string
-        >,
-        getDebugMode: vi.fn().mockReturnValue(false) as Mock<() => boolean>,
-        getQuestion: vi.fn().mockReturnValue(undefined) as Mock<
-          () => string | undefined
-        >,
-        getFullContext: vi.fn().mockReturnValue(false) as Mock<() => boolean>,
-        getUserAgent: vi.fn().mockReturnValue('test-user-agent') as Mock<
-          () => string
-        >,
-        getUserMemory: vi.fn().mockReturnValue('') as Mock<() => string>,
-        getGeminiMdFileCount: vi.fn().mockReturnValue(0) as Mock<() => number>,
-        getToolRegistry: vi
-          .fn()
-          .mockReturnValue({ discoverTools: vi.fn() }) as Mock<
-          () => { discoverTools: Mock<() => void> }
-        >,
-      };
+      const instance = {
+        getApprovalMode: instanceGetApprovalModeMock as any,
+        setApprovalMode: instanceSetApprovalModeMock as any,
+        isTrustedFolder: vi.fn().mockReturnValue(true) as any,
+        getTargetDir: vi.fn().mockReturnValue('.') as any,
+        getModel: vi.fn().mockReturnValue('test-model') as any,
+        getDebugMode: vi.fn().mockReturnValue(false) as any,
+        getFullContext: vi.fn().mockReturnValue(false) as any,
+        getUserMemory: vi.fn().mockReturnValue('') as any,
+      } as MockConfigInstanceShape;
       instanceSetApprovalModeMock.mockImplementation((value: ApprovalMode) => {
         instanceGetApprovalModeMock.mockReturnValue(value);
       });

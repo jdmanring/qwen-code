@@ -1559,7 +1559,8 @@ describe('LoggingContentGenerator', () => {
 
   it('uses generator modalities when converting logged OpenAI requests', async () => {
     convertGeminiRequestToOpenAISpy.mockImplementationOnce(
-      (request, requestContext, options) => realConvertGeminiRequestToOpenAI(request, requestContext, options),
+      (request, requestContext, options) =>
+        realConvertGeminiRequestToOpenAI(request, requestContext, options),
     );
 
     const wrapped = createWrappedGenerator(

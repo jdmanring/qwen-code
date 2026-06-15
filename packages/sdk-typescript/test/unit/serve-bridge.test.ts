@@ -13,7 +13,10 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { createServeBridgeMcpServer } from '../../src/daemon-mcp/serve-bridge/createServeBridgeMcpServer.js';
-import { resolveSessionId, handler } from '../../src/daemon-mcp/serve-bridge/helpers.js';
+import {
+  resolveSessionId,
+  handler,
+} from '../../src/daemon-mcp/serve-bridge/helpers.js';
 import type {
   BridgeState,
   SessionEventStream,
@@ -173,9 +176,8 @@ describe('serve-bridge', () => {
         });
 
         // Import tools dynamically to test with mock state
-        const { infrastructureTools } = await import(
-          '../../src/daemon-mcp/serve-bridge/tools/infrastructure.js'
-        );
+        const { infrastructureTools } =
+          await import('../../src/daemon-mcp/serve-bridge/tools/infrastructure.js');
         const tools = infrastructureTools(state);
         const healthTool = tools.find(
           (t: { name: string }) => t.name === 'health',
@@ -202,9 +204,8 @@ describe('serve-bridge', () => {
           },
         });
 
-        const { sessionTools } = await import(
-          '../../src/daemon-mcp/serve-bridge/tools/session.js'
-        );
+        const { sessionTools } =
+          await import('../../src/daemon-mcp/serve-bridge/tools/session.js');
         const tools = sessionTools(state);
         const createTool = tools.find(
           (t: { name: string }) => t.name === 'session_create',
@@ -225,9 +226,8 @@ describe('serve-bridge', () => {
           fetchReply: () => new Response(null, { status: 204 }),
         });
 
-        const { sessionTools } = await import(
-          '../../src/daemon-mcp/serve-bridge/tools/session.js'
-        );
+        const { sessionTools } =
+          await import('../../src/daemon-mcp/serve-bridge/tools/session.js');
         const tools = sessionTools(state);
         const closeTool = tools.find(
           (t: { name: string }) => t.name === 'session_close',
@@ -243,9 +243,8 @@ describe('serve-bridge', () => {
           fetchReply: () => new Response(null, { status: 204 }),
         });
 
-        const { sessionTools } = await import(
-          '../../src/daemon-mcp/serve-bridge/tools/session.js'
-        );
+        const { sessionTools } =
+          await import('../../src/daemon-mcp/serve-bridge/tools/session.js');
         const tools = sessionTools(state);
         const closeTool = tools.find(
           (t: { name: string }) => t.name === 'session_close',
@@ -259,9 +258,8 @@ describe('serve-bridge', () => {
     describe('workspace read tools', () => {
       it('should register all 10 read tools', async () => {
         const { state } = makeMockState();
-        const { workspaceReadTools } = await import(
-          '../../src/daemon-mcp/serve-bridge/tools/workspaceRead.js'
-        );
+        const { workspaceReadTools } =
+          await import('../../src/daemon-mcp/serve-bridge/tools/workspaceRead.js');
         const tools = workspaceReadTools(state);
         expect(tools).toHaveLength(10);
 
@@ -282,9 +280,8 @@ describe('serve-bridge', () => {
     describe('workspace write tools', () => {
       it('should register all 9 write tools', async () => {
         const { state } = makeMockState();
-        const { workspaceWriteTools } = await import(
-          '../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js'
-        );
+        const { workspaceWriteTools } =
+          await import('../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js');
         const tools = workspaceWriteTools(state);
         expect(tools).toHaveLength(9);
 
@@ -301,9 +298,8 @@ describe('serve-bridge', () => {
     describe('agent tools', () => {
       it('should register all 2 agent tools', async () => {
         const { state } = makeMockState();
-        const { agentTools } = await import(
-          '../../src/daemon-mcp/serve-bridge/tools/agent.js'
-        );
+        const { agentTools } =
+          await import('../../src/daemon-mcp/serve-bridge/tools/agent.js');
         const tools = agentTools(state);
         expect(tools).toHaveLength(2);
 
@@ -316,9 +312,8 @@ describe('serve-bridge', () => {
     describe('allTools', () => {
       it('should aggregate to exactly 31 tools', async () => {
         const { state } = makeMockState();
-        const { allTools } = await import(
-          '../../src/daemon-mcp/serve-bridge/tools/index.js'
-        );
+        const { allTools } =
+          await import('../../src/daemon-mcp/serve-bridge/tools/index.js');
         const tools = allTools(state);
         expect(tools).toHaveLength(31);
 
@@ -360,9 +355,8 @@ describe('serve-bridge', () => {
       };
       state.eventStreams.set('test-session', fakeStream);
 
-      const { agentTools } = await import(
-        '../../src/daemon-mcp/serve-bridge/tools/agent.js'
-      );
+      const { agentTools } =
+        await import('../../src/daemon-mcp/serve-bridge/tools/agent.js');
       const tools = agentTools(state);
       const promptTool = tools.find(
         (t: { name: string }) => t.name === 'prompt',
@@ -383,9 +377,8 @@ describe('serve-bridge', () => {
         defaultSessionId: 'no-stream-session',
       });
 
-      const { agentTools } = await import(
-        '../../src/daemon-mcp/serve-bridge/tools/agent.js'
-      );
+      const { agentTools } =
+        await import('../../src/daemon-mcp/serve-bridge/tools/agent.js');
       const tools = agentTools(state);
       const promptTool = tools.find(
         (t: { name: string }) => t.name === 'prompt',
@@ -402,9 +395,8 @@ describe('serve-bridge', () => {
         fetchReply: () => jsonResponse(200, { stopReason: 'end' }),
       });
 
-      const { createPromptCollector } = await import(
-        '../../src/daemon-mcp/serve-bridge/sse.js'
-      );
+      const { createPromptCollector } =
+        await import('../../src/daemon-mcp/serve-bridge/sse.js');
       const fakeStream: SessionEventStream = {
         sessionId: 'test-session',
         abortCtrl: new AbortController(),
@@ -413,9 +405,8 @@ describe('serve-bridge', () => {
       };
       state.eventStreams.set('test-session', fakeStream);
 
-      const { agentTools } = await import(
-        '../../src/daemon-mcp/serve-bridge/tools/agent.js'
-      );
+      const { agentTools } =
+        await import('../../src/daemon-mcp/serve-bridge/tools/agent.js');
       const tools = agentTools(state);
       const promptTool = tools.find(
         (t: { name: string }) => t.name === 'prompt',
@@ -432,9 +423,8 @@ describe('serve-bridge', () => {
         fetchReply: () => jsonResponse(200, {}),
       });
 
-      const { createPromptCollector } = await import(
-        '../../src/daemon-mcp/serve-bridge/sse.js'
-      );
+      const { createPromptCollector } =
+        await import('../../src/daemon-mcp/serve-bridge/sse.js');
       const collector = createPromptCollector();
       const fakeStream: SessionEventStream = {
         sessionId: 'test-session',
@@ -444,9 +434,8 @@ describe('serve-bridge', () => {
       };
       state.eventStreams.set('test-session', fakeStream);
 
-      const { agentTools } = await import(
-        '../../src/daemon-mcp/serve-bridge/tools/agent.js'
-      );
+      const { agentTools } =
+        await import('../../src/daemon-mcp/serve-bridge/tools/agent.js');
       const tools = agentTools(state);
       const cancelTool = tools.find(
         (t: { name: string }) => t.name === 'prompt_cancel',
@@ -465,9 +454,8 @@ describe('serve-bridge', () => {
       });
       state.allowGlobalScope = false;
 
-      const { workspaceWriteTools } = await import(
-        '../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js'
-      );
+      const { workspaceWriteTools } =
+        await import('../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js');
       const tools = workspaceWriteTools(state);
       const memWriteTool = tools.find(
         (t: { name: string }) => t.name === 'workspace_memory_write',
@@ -487,16 +475,21 @@ describe('serve-bridge', () => {
       });
       state.allowGlobalScope = false;
 
-      const { workspaceWriteTools } = await import(
-        '../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js'
-      );
+      const { workspaceWriteTools } =
+        await import('../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js');
       const tools = workspaceWriteTools(state);
       const agentsTool = tools.find(
         (t: { name: string }) => t.name === 'workspace_agents_manage',
       );
 
       const result = await agentsTool.handler(
-        { action: 'create', scope: 'global', name: 'x', description: 'x', system_prompt: 'x' },
+        {
+          action: 'create',
+          scope: 'global',
+          name: 'x',
+          description: 'x',
+          system_prompt: 'x',
+        },
         {},
       );
       expect(result.isError).toBe(true);
@@ -509,9 +502,8 @@ describe('serve-bridge', () => {
       });
       state.allowGlobalScope = false;
 
-      const { workspaceWriteTools } = await import(
-        '../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js'
-      );
+      const { workspaceWriteTools } =
+        await import('../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js');
       const tools = workspaceWriteTools(state);
       const approvalTool = tools.find(
         (t: { name: string }) => t.name === 'session_set_approval_mode',
@@ -531,9 +523,8 @@ describe('serve-bridge', () => {
       });
       state.allowGlobalScope = false;
 
-      const { workspaceWriteTools } = await import(
-        '../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js'
-      );
+      const { workspaceWriteTools } =
+        await import('../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js');
       const tools = workspaceWriteTools(state);
       const approvalTool = tools.find(
         (t: { name: string }) => t.name === 'session_set_approval_mode',
@@ -553,9 +544,8 @@ describe('serve-bridge', () => {
       });
       state.allowGlobalScope = false;
 
-      const { workspaceWriteTools } = await import(
-        '../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js'
-      );
+      const { workspaceWriteTools } =
+        await import('../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js');
       const tools = workspaceWriteTools(state);
       const approvalTool = tools.find(
         (t: { name: string }) => t.name === 'session_set_approval_mode',
@@ -576,9 +566,8 @@ describe('serve-bridge', () => {
       });
       state.allowGlobalScope = false;
 
-      const { workspaceWriteTools } = await import(
-        '../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js'
-      );
+      const { workspaceWriteTools } =
+        await import('../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js');
       const tools = workspaceWriteTools(state);
       const agentsTool = tools.find(
         (t: { name: string }) => t.name === 'workspace_agents_manage',
@@ -597,9 +586,8 @@ describe('serve-bridge', () => {
         defaultSessionId: 'test-session',
       });
 
-      const { workspaceWriteTools } = await import(
-        '../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js'
-      );
+      const { workspaceWriteTools } =
+        await import('../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js');
       const tools = workspaceWriteTools(state);
       const writeFileTool = tools.find(
         (t: { name: string }) => t.name === 'file_write',
@@ -619,9 +607,8 @@ describe('serve-bridge', () => {
       });
       state.allowGlobalScope = false;
 
-      const { workspaceWriteTools } = await import(
-        '../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js'
-      );
+      const { workspaceWriteTools } =
+        await import('../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js');
       const tools = workspaceWriteTools(state);
       const toggleTool = tools.find(
         (t: { name: string }) => t.name === 'workspace_tool_toggle',
@@ -642,9 +629,8 @@ describe('serve-bridge', () => {
       });
       state.allowGlobalScope = true;
 
-      const { workspaceWriteTools } = await import(
-        '../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js'
-      );
+      const { workspaceWriteTools } =
+        await import('../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js');
       const tools = workspaceWriteTools(state);
       const toggleTool = tools.find(
         (t: { name: string }) => t.name === 'workspace_tool_toggle',
@@ -663,9 +649,8 @@ describe('serve-bridge', () => {
       });
       state.allowGlobalScope = true;
 
-      const { workspaceWriteTools } = await import(
-        '../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js'
-      );
+      const { workspaceWriteTools } =
+        await import('../../src/daemon-mcp/serve-bridge/tools/workspaceWrite.js');
       const tools = workspaceWriteTools(state);
       const agentsTool = tools.find(
         (t: { name: string }) => t.name === 'workspace_agents_manage',

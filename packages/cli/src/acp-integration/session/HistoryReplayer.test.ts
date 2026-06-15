@@ -17,7 +17,7 @@ import type {
 
 describe('HistoryReplayer', () => {
   let mockContext: SessionContext;
-  let sendUpdateSpy: ReturnType<typeof vi.fn>;
+  let sendUpdateSpy: any;
   let replayer: HistoryReplayer;
 
   beforeEach(() => {

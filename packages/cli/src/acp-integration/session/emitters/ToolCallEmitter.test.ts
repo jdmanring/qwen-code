@@ -24,7 +24,7 @@ const createMockMessage = (text?: string): Part[] =>
 
 describe('ToolCallEmitter', () => {
   let mockContext: SessionContext;
-  let sendUpdateSpy: ReturnType<typeof vi.fn>;
+  let sendUpdateSpy: any;
   let mockToolRegistry: ToolRegistry;
   let emitter: ToolCallEmitter;
 
@@ -43,7 +43,7 @@ describe('ToolCallEmitter', () => {
     }) as unknown as AnyDeclarativeTool;
 
   beforeEach(() => {
-    sendUpdateSpy = vi.fn().mockResolvedValue(undefined);
+    sendUpdateSpy = vi.fn() as any;
     mockToolRegistry = {
       getTool: vi.fn().mockReturnValue(null),
     } as unknown as ToolRegistry;

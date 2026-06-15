@@ -321,10 +321,7 @@ export class GeminiClient {
     this.initializedSessionId = sessionId;
 
     // Clean up stale tool result files from previous sessions (fire-and-forget)
-    void cleanupOldToolResults(
-      Storage.getGlobalTempDir(),
-      24 * 60 * 60 * 1000,
-    );
+    void cleanupOldToolResults(Storage.getGlobalTempDir(), 24 * 60 * 60 * 1000);
   }
 
   /**
@@ -658,10 +655,7 @@ export class GeminiClient {
     debugLogger.debug('[FILE_READ_CACHE] clear after resetChat');
     this.config.getFileReadCache().clear();
     // Clean up old tool result overflow files on /clear
-    void cleanupOldToolResults(
-      Storage.getGlobalTempDir(),
-      24 * 60 * 60 * 1000,
-    );
+    void cleanupOldToolResults(Storage.getGlobalTempDir(), 24 * 60 * 60 * 1000);
     this.config.getBaseLlmClient().clearPerModelGeneratorCache();
     // Abort any in-flight auto-memory recall so the stale controller
     // does not leak into the next session.

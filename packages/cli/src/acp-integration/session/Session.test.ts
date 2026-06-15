@@ -1119,14 +1119,7 @@ describe('Session', () => {
       await session.sendAvailableCommandsUpdate();
 
       const meta = (
-        vi.mocked(mockClient.sessionUpdate).mock.calls.at(-1)![0] as {
-          update: {
-            _meta: {
-              availableSkills: string[];
-              availableSkillDetails: Array<{ name: string }>;
-            };
-          };
-        }
+        vi.mocked(mockClient.sessionUpdate).mock.calls.at(-1)![0] as any
       ).update._meta;
       expect(meta.availableSkills).toEqual(
         expect.arrayContaining(['mgr-skill', 'batch']),
@@ -1134,7 +1127,7 @@ describe('Session', () => {
       expect(meta.availableSkills).toHaveLength(2);
       // Name list stays in lockstep with the details list.
       expect([...meta.availableSkills].sort()).toEqual(
-        meta.availableSkillDetails.map((detail) => detail.name).sort(),
+        meta.availableSkillDetails.map((detail: any) => detail.name).sort(),
       );
     });
 
@@ -4911,7 +4904,8 @@ describe('Session', () => {
           }),
         };
 
-        mockToolRegistry.getTool.mockImplementation((name: string) => name === core.ToolNames.AGENT ? agentTool : undefined,
+        mockToolRegistry.getTool.mockImplementation((name: string) =>
+          name === core.ToolNames.AGENT ? agentTool : undefined,
         );
         mockConfig.getApprovalMode = vi
           .fn()

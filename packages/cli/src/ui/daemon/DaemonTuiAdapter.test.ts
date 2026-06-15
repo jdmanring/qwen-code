@@ -86,11 +86,11 @@ class EventQueue implements AsyncGenerator<DaemonTuiEvent> {
 }
 
 interface FakeSession extends DaemonTuiSessionClient {
-  prompt: ReturnType<typeof vi.fn>;
-  events: ReturnType<typeof vi.fn>;
-  cancel: ReturnType<typeof vi.fn>;
-  setModel: ReturnType<typeof vi.fn>;
-  respondToPermission: ReturnType<typeof vi.fn>;
+  prompt: any;
+  events: any;
+  cancel: any;
+  setModel: any;
+  respondToPermission: any;
 }
 
 function createFakeSession(events: EventQueue): FakeSession {

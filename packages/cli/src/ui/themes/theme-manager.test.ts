@@ -28,7 +28,14 @@ vi.mock('node:fs', async (importOriginal) => {
   const readFileSync = vi.fn();
   const mkdirSync = vi.fn();
   const writeFileSync = vi.fn();
-  const mod = { ...actual, realpathSync, existsSync, readFileSync, mkdirSync, writeFileSync };
+  const mod = {
+    ...actual,
+    realpathSync,
+    existsSync,
+    readFileSync,
+    mkdirSync,
+    writeFileSync,
+  };
   return { ...mod, default: mod };
 });
 vi.mock('node:os', async (importOriginal) => {

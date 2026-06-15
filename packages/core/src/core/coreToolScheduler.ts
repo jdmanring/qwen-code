@@ -140,7 +140,6 @@ import { acquireSleepInhibitor } from '../services/sleepInhibitor.js';
 const GATE_HEADROOM = 3000;
 const GATE_EXEMPT_TOOLS = new Set(['read_file']);
 
-
 function extractTextFromPartListUnion(c: PartListUnion): string {
   if (typeof c === 'string') return c;
   if (Array.isArray(c)) {

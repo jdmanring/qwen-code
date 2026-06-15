@@ -74,8 +74,7 @@ export type DaemonIdeSessionFactory = (
   opts: DaemonIdeSessionFactoryOptions,
 ) => Promise<DaemonIdeSessionClient>;
 
-export interface DaemonIdeConnectionOptions
-  extends DaemonIdeSessionFactoryOptions {
+export interface DaemonIdeConnectionOptions extends DaemonIdeSessionFactoryOptions {
   sessionFactory?: DaemonIdeSessionFactory;
 }
 

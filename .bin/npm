@@ -1,2 +1,2 @@
-#!/bin/sh
+#!/bin/bash
 /home/james/.local/lib/qwen-code/node/bin/node /home/james/.local/lib/qwen-code/node/lib/node_modules/npm/bin/npm-cli.js "$@"

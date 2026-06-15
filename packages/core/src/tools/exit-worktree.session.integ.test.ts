@@ -122,9 +122,8 @@ describe('ExitWorktreeTool — WorktreeSession sidecar cleanup', () => {
 
     // Now provision a second worktree out-of-band (without going through
     // the tool, so the sidecar is NOT overwritten).
-    const { GitWorktreeService } = await import(
-      '../services/gitWorktreeService.js'
-    );
+    const { GitWorktreeService } =
+      await import('../services/gitWorktreeService.js');
     const svc = new GitWorktreeService(repoRoot);
     await svc.createUserWorktree('other-slug');
 
@@ -143,9 +142,8 @@ describe('ExitWorktreeTool — WorktreeSession sidecar cleanup', () => {
 
   it('is a no-op when no sidecar exists', async () => {
     // Provision a worktree directly via the service (no sidecar written).
-    const { GitWorktreeService } = await import(
-      '../services/gitWorktreeService.js'
-    );
+    const { GitWorktreeService } =
+      await import('../services/gitWorktreeService.js');
     const svc = new GitWorktreeService(repoRoot);
     await svc.createUserWorktree('no-sidecar');
 

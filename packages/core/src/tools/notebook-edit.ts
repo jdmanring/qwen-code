@@ -445,14 +445,15 @@ class NotebookEditInvocation extends BaseToolInvocation<
   ): Promise<ToolCallConfirmationDetails> {
     const prepared = await this.prepareEdit(abortSignal);
     const fileName = path.basename(this.params.notebook_path);
-    const fileDiff = Diff.createPatch(
-      fileName,
-      prepared.originalContent,
-      prepared.updatedContent,
-      'Current',
-      'Proposed',
-      DEFAULT_DIFF_OPTIONS,
-    ) ?? '';
+    const fileDiff =
+      Diff.createPatch(
+        fileName,
+        prepared.originalContent,
+        prepared.updatedContent,
+        'Current',
+        'Proposed',
+        DEFAULT_DIFF_OPTIONS,
+      ) ?? '';
 
     const confirmationDetails: ToolEditConfirmationDetails = {
       type: 'edit',
@@ -640,14 +641,15 @@ class NotebookEditInvocation extends BaseToolInvocation<
       }
 
       const fileName = path.basename(this.params.notebook_path);
-      const fileDiff = Diff.createPatch(
-        fileName,
-        prepared.originalContent,
-        prepared.updatedContent,
-        'Current',
-        'Proposed',
-        DEFAULT_DIFF_OPTIONS,
-      ) ?? '';
+      const fileDiff =
+        Diff.createPatch(
+          fileName,
+          prepared.originalContent,
+          prepared.updatedContent,
+          'Current',
+          'Proposed',
+          DEFAULT_DIFF_OPTIONS,
+        ) ?? '';
       const diffStat = getDiffStat(
         fileName,
         prepared.originalContent,

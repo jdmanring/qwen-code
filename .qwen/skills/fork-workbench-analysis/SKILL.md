@@ -12,6 +12,7 @@ This skill performs a comprehensive health check of a fork workbench repository.
 ## When to Use
 
 Use this skill when:
+
 - Auditing a fork workbench before a release cycle
 - Diagnosing why PRs are not clean against upstream
 - Onboarding a new fork to the workbench pattern
@@ -28,6 +29,7 @@ git branch -r | grep origin/ | grep -v HEAD
 ```
 
 Identify:
+
 - **Remotes**: `origin` (fork), `upstream` (source), any others (e.g., `megalonyx`)
 - **Local branches**: contribution branches, `develop`, `main`, `integration`, `upstream-mirror`
 - **Remote-only branches**: branches on `origin` that don't exist locally (orphaned staging)
@@ -60,6 +62,7 @@ git merge-base origin/main origin/develop
 ```
 
 **Key questions to answer:**
+
 - Is `origin/main` ahead of, behind, or in sync with `upstream/main`?
 - Is `origin/main` an ancestor of `origin/develop` (or vice versa)?
 - What is the merge-base of `main` and `develop`? Is it current or stale?
@@ -88,11 +91,13 @@ ls docs/fork/upstream/pr-status.md
 ```
 
 Run the gate failure tests:
+
 ```bash
 python3 tooling/sync-upstreams/gate_failure_tests.py
 ```
 
 Check LKG tags:
+
 ```bash
 git tag -l "LKG-*"
 ```
@@ -114,6 +119,7 @@ git diff upstream/mirror..<branch> --name-only
 ```
 
 **Red flags:**
+
 - Branch based on `develop` instead of `upstream-mirror`
 - Branch contains fork-specific files (docs/fork/, tooling/sync-upstreams/, etc.)
 - Branch has more than 3-5 commits (scope creep)
@@ -137,12 +143,14 @@ git log --oneline origin/main..<branch>  # empty = fully merged
 ### 6. Documentation Consistency
 
 Check for stale references:
+
 ```bash
 # Should find zero branch-name "ingest" references (renamed to "integration")
 grep -rn "\bingest\b" --include="*.md" docs/fork/ docs/ai/ .qwen/skills/fork-sync-contributions/ .qwen/skills/fork-workbench-pipeline/ AI.md
 ```
 
 Verify issue tracker and PR status are current:
+
 - Every contribution branch has a corresponding issue
 - PR drafts exist for each contribution
 - Status fields are accurate
@@ -152,9 +160,11 @@ Verify issue tracker and PR status are current:
 Produce a structured report with these sections:
 
 ### Summary
+
 One-line health assessment: **HEALTHY** / **NEEDS ATTENTION** / **CRITICAL**
 
 ### Branch Topology
+
 ```
 upstream/main (source)
   ├── origin/upstream-mirror (should match)
@@ -164,33 +174,38 @@ upstream/main (source)
 ```
 
 ### Issues Found
+
 Each issue with:
+
 - **Severity**: CRITICAL / HIGH / MEDIUM / LOW
 - **Description**: What's wrong
 - **Risk**: What could go wrong
 - **Fix**: Recommended remediation
 
 ### Pipeline Health
+
 - Gate failure tests: PASS/FAIL (N/8)
 - LKG tags: count and recency
 - CI workflow: present/absent
 - Rollback utility: present/absent
 
 ### Contribution Branches
+
 Table of all contribution branches with status:
 | Branch | Base | Commits | Unique | Status |
 
 ### Recommendations
+
 Prioritized list of actions (immediate, short-term, long-term)
 
 ## Common Findings
 
-| Finding | Severity | Fix |
-|---------|----------|-----|
-| `origin/main` not ancestor of `origin/develop` | HIGH | Reset main to upstream/main, re-apply contributions |
-| `origin/upstream-main` stale | MEDIUM | Delete or update |
-| Orphaned remote branches | LOW | Delete after confirming content is merged |
-| Contribution branch based on `develop` | HIGH | Rebase onto upstream-mirror |
-| Gate failure tests failing | HIGH | Fix pipeline code |
-| No LKG tags | MEDIUM | Run pipeline to generate initial tag |
-| Stale `fork/workbench-items` branch | LOW | Delete or rebase |
+| Finding                                        | Severity | Fix                                                 |
+| ---------------------------------------------- | -------- | --------------------------------------------------- |
+| `origin/main` not ancestor of `origin/develop` | HIGH     | Reset main to upstream/main, re-apply contributions |
+| `origin/upstream-main` stale                   | MEDIUM   | Delete or update                                    |
+| Orphaned remote branches                       | LOW      | Delete after confirming content is merged           |
+| Contribution branch based on `develop`         | HIGH     | Rebase onto upstream-mirror                         |
+| Gate failure tests failing                     | HIGH     | Fix pipeline code                                   |
+| No LKG tags                                    | MEDIUM   | Run pipeline to generate initial tag                |
+| Stale `fork/workbench-items` branch            | LOW      | Delete or rebase                                    |

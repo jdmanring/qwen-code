@@ -1,7 +1,7 @@
 This file contains third-party software notices and license terms.
 
 ============================================================
-@agentclientprotocol/sdk@0.14.1
+@agentclientprotocol/sdk@0.22.1
 (git+https://github.com/agentclientprotocol/typescript-sdk.git)
 
 
@@ -307,11 +307,11 @@ SOFTWARE.
 
 
 ============================================================
-fast-uri@3.0.6
+fast-uri@3.1.2
 (git+https://github.com/fastify/fast-uri.git)
 
-Copyright (c) 2021 The Fastify Team
 Copyright (c) 2011-2021, Gary Court until https://github.com/garycourt/uri-js/commit/a1acf730b4bba3f1097c9f52e7d9d3aba8cdcaae
+Copyright (c) 2021-present The Fastify team <https://github.com/fastify/fastify#team>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -451,7 +451,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ============================================================
-cors@2.8.5
+cors@2.8.6
 (No repository found)
 
 (The MIT License)
@@ -676,12 +676,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ============================================================
-eventsource-parser@3.0.3
+eventsource-parser@3.1.0
 (git+ssh://git@github.com/rexxars/eventsource-parser.git)
 
 MIT License
 
-Copyright (c) 2025 Espen Hovlandsdal <espen@hovlandsdal.com>
+Copyright (c) 2026 Espen Hovlandsdal <espen@hovlandsdal.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -1261,7 +1261,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 ============================================================
-side-channel@1.1.0
+side-channel@1.1.1
 (git+https://github.com/ljharb/side-channel.git)
 
 MIT License
@@ -1342,7 +1342,7 @@ SOFTWARE.
 
 
 ============================================================
-side-channel-list@1.0.0
+side-channel-list@1.0.1
 (git+https://github.com/ljharb/side-channel-list.git)
 
 MIT License
@@ -1530,7 +1530,7 @@ SOFTWARE.
 
 
 ============================================================
-es-object-atoms@1.1.1
+es-object-atoms@1.1.2
 (git+https://github.com/ljharb/es-object-atoms.git)
 
 MIT License
@@ -1665,7 +1665,7 @@ SOFTWARE.
 
 
 ============================================================
-hasown@2.0.2
+hasown@2.0.4
 (git+https://github.com/inspect-js/hasOwn.git)
 
 MIT License
@@ -2340,7 +2340,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ============================================================
-path-to-regexp@8.2.0
+path-to-regexp@8.4.2
 (https://github.com/pillarjs/path-to-regexp.git)
 
 The MIT License (MIT)
@@ -2478,7 +2478,7 @@ THE SOFTWARE.
 
 
 ============================================================
-hono@4.12.23
+hono@4.12.25
 (git+https://github.com/honojs/hono.git)
 
 MIT License
@@ -2505,7 +2505,7 @@ SOFTWARE.
 
 
 ============================================================
-jose@6.1.3
+jose@6.2.3
 (No repository found)
 
 The MIT License (MIT)
@@ -2595,7 +2595,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 ============================================================
-pkce-challenge@5.0.0
+pkce-challenge@5.0.1
 (git+https://github.com/crouchcd/pkce-challenge.git)
 
 MIT License
@@ -2669,7 +2669,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ============================================================
-markdown-it@14.1.0
+markdown-it@14.2.0
 (No repository found)
 
 Copyright (c) 2014 Vitaly Puzrin, Alex Kocharin.
@@ -2974,7 +2974,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 ============================================================
-linkify-it@5.0.0
+linkify-it@5.0.1
 (No repository found)
 
 Copyright (c) 2015 Vitaly Puzrin.
@@ -3105,7 +3105,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ============================================================
-dotenv@17.1.0
+dotenv@17.4.2
 (git://github.com/motdotla/dotenv.git)
 
 Copyright (c) 2015, Scott Motte
@@ -3134,7 +3134,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 ============================================================
-react@19.2.4
+react@19.2.7
 (https://github.com/facebook/react.git)
 
 MIT License
@@ -3161,7 +3161,7 @@ SOFTWARE.
 
 
 ============================================================
-react-dom@19.2.4
+react-dom@19.2.7
 (https://github.com/facebook/react.git)
 
 MIT License
@@ -3215,7 +3215,7 @@ SOFTWARE.
 
 
 ============================================================
-semver@7.7.3
+semver@7.8.4
 (git+https://github.com/npm/node-semver.git)
 
 The ISC License

@@ -99,9 +99,8 @@ describe('GitWorktreeService.validateUserWorktreeSlug', () => {
     // which silently broke EVERY agent isolation invocation. This
     // test pins the contract: anything `generateAgentWorktreeSlug`
     // produces MUST round-trip through the user validator.
-    const { generateAgentWorktreeSlug } = await import(
-      '../services/gitWorktreeService.js'
-    );
+    const { generateAgentWorktreeSlug } =
+      await import('../services/gitWorktreeService.js');
     for (let i = 0; i < 50; i++) {
       const slug = generateAgentWorktreeSlug();
       expect(GitWorktreeService.validateUserWorktreeSlug(slug)).toBeNull();
@@ -122,9 +121,8 @@ describe('generateAgentWorktreeSlug', () => {
 
 describe('worktreeBranchForSlug', () => {
   it('prefixes the slug with WORKTREE_BRANCH_PREFIX', async () => {
-    const { worktreeBranchForSlug, WORKTREE_BRANCH_PREFIX } = await import(
-      '../services/gitWorktreeService.js'
-    );
+    const { worktreeBranchForSlug, WORKTREE_BRANCH_PREFIX } =
+      await import('../services/gitWorktreeService.js');
     expect(worktreeBranchForSlug('feat-x')).toBe(
       `${WORKTREE_BRANCH_PREFIX}feat-x`,
     );
@@ -204,9 +202,8 @@ describe('session marker round-trip', () => {
     const fs = await import('node:fs/promises');
     const path = await import('node:path');
     const os = await import('node:os');
-    const { readWorktreeSessionMarker } = await import(
-      '../services/gitWorktreeService.js'
-    );
+    const { readWorktreeSessionMarker } =
+      await import('../services/gitWorktreeService.js');
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'qwen-wt-session-'));
     try {
       expect(await readWorktreeSessionMarker(tmp)).toBeNull();
@@ -219,9 +216,8 @@ describe('session marker round-trip', () => {
     const fs = await import('node:fs/promises');
     const pathMod = await import('node:path');
     const os = await import('node:os');
-    const { readWorktreeSessionMarker, WORKTREE_SESSION_FILE } = await import(
-      '../services/gitWorktreeService.js'
-    );
+    const { readWorktreeSessionMarker, WORKTREE_SESSION_FILE } =
+      await import('../services/gitWorktreeService.js');
     const tmp = await fs.mkdtemp(pathMod.join(os.tmpdir(), 'qwen-wt-session-'));
     try {
       await fs.writeFile(

@@ -857,9 +857,8 @@ describe('ReadFileTool', () => {
         const previousLocal = process.env['QWEN_CODE_MEMORY_LOCAL'];
         process.env['QWEN_CODE_MEMORY_LOCAL'] = '1';
         try {
-          const { getAutoMemoryRoot, clearAutoMemoryRootCache } = await import(
-            '../memory/paths.js'
-          );
+          const { getAutoMemoryRoot, clearAutoMemoryRootCache } =
+            await import('../memory/paths.js');
           clearAutoMemoryRootCache();
           const memRoot = getAutoMemoryRoot(tempRootDir);
           await fsp.mkdir(memRoot, { recursive: true });

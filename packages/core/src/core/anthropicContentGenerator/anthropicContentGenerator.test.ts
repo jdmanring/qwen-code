@@ -30,7 +30,7 @@ type AnthropicCreateArgs = [
 const anthropicMockState: {
   constructorOptions?: Record<string, unknown>;
   lastCreateArgs?: AnthropicCreateArgs;
-  createImpl: ReturnType<typeof vi.fn>;
+  createImpl: any;
 } = {
   constructorOptions: undefined,
   lastCreateArgs: undefined,

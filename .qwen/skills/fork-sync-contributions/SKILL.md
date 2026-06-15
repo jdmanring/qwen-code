@@ -18,14 +18,14 @@ upstream/main → upstream-mirror → origin/ingest → origin/develop → origi
 
 ## Architecture
 
-| Branch | Role | Description |
-|--------|------|-------------|
-| `upstream/main` | Source of truth | The upstream QwenLM/qwen-code repo |
-| `upstream-mirror` | Exact mirror | Fast-forwarded to match `upstream/main` |
-| `origin/ingest` | Contribution base | Reset to match `upstream-mirror`; contribution branches fork from here |
-| `origin/develop` | Integration | All contribution branches merge here for integration testing |
-| `origin/main` | Release endpoint | Clean release branch for downstream consumers; never pull from here back into the workbench |
-| `fork/*` | Fork infrastructure | Fork-specific docs, tooling, PR drafts — kept separate from contributions |
+| Branch            | Role                | Description                                                                                 |
+| ----------------- | ------------------- | ------------------------------------------------------------------------------------------- |
+| `upstream/main`   | Source of truth     | The upstream QwenLM/qwen-code repo                                                          |
+| `upstream-mirror` | Exact mirror        | Fast-forwarded to match `upstream/main`                                                     |
+| `origin/ingest`   | Contribution base   | Reset to match `upstream-mirror`; contribution branches fork from here                      |
+| `origin/develop`  | Integration         | All contribution branches merge here for integration testing                                |
+| `origin/main`     | Release endpoint    | Clean release branch for downstream consumers; never pull from here back into the workbench |
+| `fork/*`          | Fork infrastructure | Fork-specific docs, tooling, PR drafts — kept separate from contributions                   |
 
 ## Phase 1: Assess Divergence
 
@@ -35,6 +35,7 @@ git fetch origin
 ```
 
 Determine:
+
 1. **Upstream commits to ingest**: `git log --oneline origin/ingest..upstream/main`
 2. **Our staged commits**: `git log --oneline upstream/main..origin/main` (on old base)
 3. **Branch inventory**: `git branch | grep -v -E "main|develop|upstream-mirror|integration|ingest"`
@@ -73,6 +74,7 @@ git push origin <branch> --force
 **Do NOT rebase integration branches** (branches with ~190 commits). These are stale tracking branches and should be deleted if they have no unique content. Only rebase true contribution branches (1-3 commits each).
 
 **Conflict resolution:**
+
 - For package.json conflicts: take the contribution's version (the dependency upgrade)
 - For test file conflicts: take upstream's version (latest test structure) and re-apply the contribution's assertion changes
 - For deleted files: accept the deletion if the contribution intentionally removes/restructures the file
@@ -104,13 +106,13 @@ git push origin main
 
 Produce a summary table:
 
-| Branch | Status | Commits | Description |
-|--------|--------|---------|-------------|
-| upstream-mirror | Synced | — | Exact copy of upstream/main |
-| ingest | Reset | — | Clean base for contributions |
-| chore/xxx | Rebased | N | Description |
-| feat/xxx | Rebased | N | Description |
-| develop | Merged | — | All contributions integrated |
+| Branch          | Status  | Commits | Description                  |
+| --------------- | ------- | ------- | ---------------------------- |
+| upstream-mirror | Synced  | —       | Exact copy of upstream/main  |
+| ingest          | Reset   | —       | Clean base for contributions |
+| chore/xxx       | Rebased | N       | Description                  |
+| feat/xxx        | Rebased | N       | Description                  |
+| develop         | Merged  | —       | All contributions integrated |
 
 ## Key Principles
 
@@ -125,13 +127,17 @@ Produce a summary table:
 ## Troubleshooting
 
 ### Cherry-pick conflicts with package.json
+
 The upstream may have already bumped a dependency. Resolve by taking the higher version.
 
 ### Cherry-pick produces empty commit
+
 The contribution's changes were already merged upstream. Skip with `git rebase --skip` or delete the branch.
 
 ### Branch has 190+ commits (integration branch)
+
 This is a stale tracking branch, not a contribution branch. Reset it to `ingest` and check for unique commits. If none, delete it.
 
 ### Pre-commit hook fails (npm not found)
+
 Set `HUSKY=0` to bypass: `HUSKY=0 git commit ...`

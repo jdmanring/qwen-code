@@ -636,14 +636,15 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
         editData.newContent,
       );
 
-      const fileDiff = Diff.createPatch(
-        fileName,
-        editData.currentContent ?? '', // Should not be null here if not isNewFile
-        editData.newContent,
-        'Current',
-        'Proposed',
-        DEFAULT_DIFF_OPTIONS,
-      ) ?? '';
+      const fileDiff =
+        Diff.createPatch(
+          fileName,
+          editData.currentContent ?? '', // Should not be null here if not isNewFile
+          editData.newContent,
+          'Current',
+          'Proposed',
+          DEFAULT_DIFF_OPTIONS,
+        ) ?? '';
       const displayResult = {
         fileDiff: fileDiff ?? '',
         fileName,

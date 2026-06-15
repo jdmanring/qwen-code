@@ -102,6 +102,8 @@
     "LICENSE"
   ],
   "devDependencies": {
+    "@eslint/compat": "^2.1.0",
+    "@eslint/js": "^10.0.1",
     "@types/marked": "^5.0.2",
     "@types/mime-types": "^3.0.1",
     "@types/minimatch": "^5.1.2",
@@ -140,7 +142,7 @@
     "tree-sitter-cli": "^0.26.9",
     "tsx": "^4.20.3",
     "typescript-eslint": "^8.0.0",
-    "vitest": "^4.0.0",
+    "vitest": "^4.1.8",
     "yargs": "^18.0.0"
   },
   "dependencies": {
@@ -164,5 +166,5 @@
     "*.{json,md}": [
       "prettier --write"
     ]
-  },
+  }
 }

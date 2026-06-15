@@ -248,9 +248,8 @@ describe('extractToolFilePaths → SkillActivationRegistry integration', () => {
   // to activate skills keyed on the joined effective selector — there
   // was no test exercising the path that mattered.
   it('activates a skill keyed on src/**/*.ts from glob({ path: "src", pattern: "**/*.ts" })', async () => {
-    const { extractToolFilePaths } = await import(
-      '../core/coreToolScheduler.js'
-    );
+    const { extractToolFilePaths } =
+      await import('../core/coreToolScheduler.js');
     const candidates = extractToolFilePaths('glob', {
       path: 'src',
       pattern: '**/*.ts',
@@ -269,9 +268,8 @@ describe('extractToolFilePaths → SkillActivationRegistry integration', () => {
   });
 
   it('does NOT activate from external glob.path (project-root guard wins)', async () => {
-    const { extractToolFilePaths } = await import(
-      '../core/coreToolScheduler.js'
-    );
+    const { extractToolFilePaths } =
+      await import('../core/coreToolScheduler.js');
     const candidates = extractToolFilePaths('glob', {
       path: '/tmp/external',
       pattern: '**/*.ts',

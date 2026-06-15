@@ -411,7 +411,9 @@ export function parseGitNumstat(stdout: string): GitDiffResult {
  * - Skip files whose raw diff exceeds `MAX_DIFF_SIZE_BYTES`.
  * - Truncate per-file content at `MAX_LINES_PER_FILE` lines.
  */
-export function parseGitDiff(stdout: string): Map<string, StructuredPatchHunk[]> {
+export function parseGitDiff(
+  stdout: string,
+): Map<string, StructuredPatchHunk[]> {
   const result = new Map<string, StructuredPatchHunk[]>();
   if (!stdout.trim()) return result;
 

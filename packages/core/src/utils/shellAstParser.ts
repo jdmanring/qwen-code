@@ -14,7 +14,7 @@
  *   4. `extractCommandRules()`  – extract minimum-scope wildcard permission rules
  */
 
-import { Parser, Node, Language, Tree } from 'web-tree-sitter';
+import Parser from 'web-tree-sitter';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -627,7 +627,7 @@ const DOCKER_COMPOSE_SUBCOMMANDS = new Set([
 // ---------------------------------------------------------------------------
 
 let parserInstance: Parser | null = null;
-let bashLanguage: Language | null = null;
+let bashLanguage: Parser.Language | null = null;
 let initPromise: Promise<void> | null = null;
 /** Set to true permanently once WASM initialisation fails. */
 let parserInitFailed = false;
@@ -656,7 +656,7 @@ export async function initParser(): Promise<void> {
       'tree-sitter-bash/tree-sitter-bash.wasm?binary',
       'tree-sitter-bash/tree-sitter-bash.wasm',
     );
-    bashLanguage = await Language.load(bashWasm);
+    bashLanguage = await Parser.Language.load(bashWasm);
     parserInstance.setLanguage(bashLanguage);
   })().catch((err: unknown) => {
     // Mark as permanently failed so callers can use the regex fallback
@@ -673,7 +673,7 @@ export async function initParser(): Promise<void> {
  * Parse a shell command string into a tree-sitter Tree.
  * Initialises the parser lazily if needed.
  */
-export async function parseShellCommand(command: string): Promise<Tree> {
+export async function parseShellCommand(command: string): Promise<Parser.Tree> {
   await initParser();
   const tree = parserInstance!.parse(command);
   if (!tree) {
@@ -686,7 +686,7 @@ export async function parseShellCommand(command: string): Promise<Tree> {
 // AST Helpers
 // ---------------------------------------------------------------------------
 
-type SyntaxNode = Node;
+type SyntaxNode = Parser.SyntaxNode;
 
 /** Collect all descendant nodes of given types. */
 function collectDescendants(

@@ -56,6 +56,10 @@ class EventQueue implements AsyncGenerator<DaemonIdeEvent> {
     return this;
   }
 
+  async [Symbol.asyncDispose](): Promise<void> {
+    this.close();
+  }
+
   push(event: DaemonIdeEvent): void {
     const waiter = this.waiters.shift();
     if (waiter) {
@@ -81,10 +85,10 @@ class EventQueue implements AsyncGenerator<DaemonIdeEvent> {
 }
 
 interface FakeSession extends DaemonIdeSessionClient {
-  prompt: ReturnType<typeof vi.fn>;
-  cancel: ReturnType<typeof vi.fn>;
-  setModel: ReturnType<typeof vi.fn>;
-  respondToPermission: ReturnType<typeof vi.fn>;
+  prompt: any;
+  cancel: any;
+  setModel: any;
+  respondToPermission: any;
 }
 
 function createFakeSession(

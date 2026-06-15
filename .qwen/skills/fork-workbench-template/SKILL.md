@@ -14,6 +14,7 @@ The complete template project lives at `/home/james/Projects/fork-workbench-temp
 ## When to Use
 
 Use this template when:
+
 - Setting up a new fork intended as a contribution workbench
 - An existing fork lacks gates, automation, or rollback capability
 - You need a standard, repeatable process across multiple projects
@@ -29,35 +30,35 @@ upstream/main → upstream-mirror → sync/staging-* → [gates] → integration
 
 ### Stage Definitions
 
-| Stage | Branch | How written | Purpose |
-|-------|--------|-------------|---------|
-| Source of truth | `upstream/main` | Read-only fetch | The upstream project |
-| Mirror | `upstream-mirror` | `git reset --hard upstream/main` | Exact copy of upstream HEAD |
-| Staging | `sync/staging-TIMESTAMP` | Throwaway branch off `integration` | Gates run here; never touches `integration` until all pass |
-| Vetted | `integration` | Fast-forward merge from staging after gates pass | Clean, verified upstream surface |
-| Development | `develop` | Manual merge from `integration` | All fork work lives here |
-| Release | `main` | Merge from `develop` | Downstream consumers; never pull back into workbench |
+| Stage           | Branch                   | How written                                      | Purpose                                                    |
+| --------------- | ------------------------ | ------------------------------------------------ | ---------------------------------------------------------- |
+| Source of truth | `upstream/main`          | Read-only fetch                                  | The upstream project                                       |
+| Mirror          | `upstream-mirror`        | `git reset --hard upstream/main`                 | Exact copy of upstream HEAD                                |
+| Staging         | `sync/staging-TIMESTAMP` | Throwaway branch off `integration`               | Gates run here; never touches `integration` until all pass |
+| Vetted          | `integration`            | Fast-forward merge from staging after gates pass | Clean, verified upstream surface                           |
+| Development     | `develop`                | Manual merge from `integration`                  | All fork work lives here                                   |
+| Release         | `main`                   | Merge from `develop`                             | Downstream consumers; never pull back into workbench       |
 
 ## Template File Inventory
 
 The template project at `/home/james/Projects/fork-workbench-template/` contains:
 
-| File | Purpose | Copy to fork as |
-|------|---------|-----------------|
-| `FORK_WORKBENCH_TEMPLATE.md` | Authoritative guide — branch architecture, rules, workflow | `FORK_WORKBENCH_TEMPLATE.md` (root) |
-| `README.md` | Quick start, design decisions, ecosystem reference | `README.md` (root) |
-| `CONTRIBUTING.md` | How upstream contributors interact with this fork | `CONTRIBUTING.md` (root) |
-| `docs/runbook.md` | Pipeline failure recovery — every failure mode | `docs/runbook.md` |
-| `docs/fork/README.md` | Navigation hub for fork management docs | `docs/fork/README.md` |
-| `docs/fork/issue-tracker.md` | Issue-to-branch mapping with labels and status | `docs/fork/issue-tracker.md` |
-| `docs/fork/changes-from-upstream.md` | Master record of deliberate divergence | `docs/fork/changes-from-upstream.md` |
-| `docs/fork/upstream/pr-status.md` | Status of staged upstream contributions | `docs/fork/upstream/pr-status.md` |
-| `tooling/sync-upstreams/upstream_ingest_pipeline.py` | Python pipeline script | `tooling/sync-upstreams/upstream_ingest_pipeline.py` |
-| `tooling/sync-upstreams/upstream_ingest_pipeline.sh` | Node.js pipeline script | `tooling/sync-upstreams/upstream_ingest_pipeline.sh` |
-| `tooling/sync-upstreams/rollback_to_lkg.py` | Rollback utility | `tooling/sync-upstreams/rollback_to_lkg.py` |
-| `tooling/sync-upstreams/gate_failure_tests.py` | Pipeline self-tests | `tooling/sync-upstreams/gate_failure_tests.py` |
-| `.github/workflows/sync-upstream.yml` | Daily CI auto-ingest (standalone) | `.github/workflows/sync-upstream.yml` |
-| `.github/workflows/sync-upstream-reusable.yml` | Reusable workflow (workflow_call) | `.github/workflows/sync-upstream-reusable.yml` |
+| File                                                 | Purpose                                                    | Copy to fork as                                      |
+| ---------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------- |
+| `FORK_WORKBENCH_TEMPLATE.md`                         | Authoritative guide — branch architecture, rules, workflow | `FORK_WORKBENCH_TEMPLATE.md` (root)                  |
+| `README.md`                                          | Quick start, design decisions, ecosystem reference         | `README.md` (root)                                   |
+| `CONTRIBUTING.md`                                    | How upstream contributors interact with this fork          | `CONTRIBUTING.md` (root)                             |
+| `docs/runbook.md`                                    | Pipeline failure recovery — every failure mode             | `docs/runbook.md`                                    |
+| `docs/fork/README.md`                                | Navigation hub for fork management docs                    | `docs/fork/README.md`                                |
+| `docs/fork/issue-tracker.md`                         | Issue-to-branch mapping with labels and status             | `docs/fork/issue-tracker.md`                         |
+| `docs/fork/changes-from-upstream.md`                 | Master record of deliberate divergence                     | `docs/fork/changes-from-upstream.md`                 |
+| `docs/fork/upstream/pr-status.md`                    | Status of staged upstream contributions                    | `docs/fork/upstream/pr-status.md`                    |
+| `tooling/sync-upstreams/upstream_ingest_pipeline.py` | Python pipeline script                                     | `tooling/sync-upstreams/upstream_ingest_pipeline.py` |
+| `tooling/sync-upstreams/upstream_ingest_pipeline.sh` | Node.js pipeline script                                    | `tooling/sync-upstreams/upstream_ingest_pipeline.sh` |
+| `tooling/sync-upstreams/rollback_to_lkg.py`          | Rollback utility                                           | `tooling/sync-upstreams/rollback_to_lkg.py`          |
+| `tooling/sync-upstreams/gate_failure_tests.py`       | Pipeline self-tests                                        | `tooling/sync-upstreams/gate_failure_tests.py`       |
+| `.github/workflows/sync-upstream.yml`                | Daily CI auto-ingest (standalone)                          | `.github/workflows/sync-upstream.yml`                |
+| `.github/workflows/sync-upstream-reusable.yml`       | Reusable workflow (workflow_call)                          | `.github/workflows/sync-upstream-reusable.yml`       |
 
 Copy the entire `tooling/sync-upstreams/`, `docs/fork/`, and `.github/workflows/` directories into your fork. Then adapt the files as described below.
 
@@ -71,22 +72,27 @@ This is the single most important file. It must contain:
 # Git Branch Workflow
 
 ## Branch Map
+
 | Branch | Purpose | Rules |
 | (every branch with its role and constraints)
 
 ## Two Kinds of Work Branches — Different Origins
+
 ### Category 1: Upstream-Candidate (default)
+
 - Branch from upstream-mirror
 - Single clean commit
 - Cherry-pick to develop
 - Branch stays permanently as PR staging
 
 ### Category 2: Fork-Only (narrow exception)
+
 - Branch from develop
 - Merge back to develop
 - Only for: sync pipeline, fork CI, fork management docs
 
 ## Issue-First Workflow
+
 1. Create issue
 2. Determine category
 3. Branch from correct origin
@@ -95,12 +101,15 @@ This is the single most important file. It must contain:
 6. Update tracking docs
 
 ## Pipeline Commands
+
 (exact commands for sync, rebase, promote)
 
 ## Failure Recovery
+
 (what to do when gates fail, merge conflicts, etc.)
 
 ## Pre-Flight Checklist
+
 - [ ] Branch starts from correct origin
 - [ ] Single clean commit
 - [ ] Diff contains only intended files
@@ -126,6 +135,7 @@ Core pipeline script. Must implement:
 ### 3. `tooling/sync-upstreams/rollback_to_lkg.py`
 
 Rollback utility:
+
 - List LKG tags
 - Reset `integration` to a chosen tag
 - Confirm before destructive operation
@@ -133,6 +143,7 @@ Rollback utility:
 ### 4. `.github/workflows/sync-upstream.yml`
 
 CI automation:
+
 - Schedule: daily (e.g., 3am UTC)
 - Checkout `integration` with full history
 - Add upstream remote, fetch
@@ -142,6 +153,7 @@ CI automation:
 ### 5. `docs/ai/CONTEXT.md` and `docs/ai/RULES.md`
 
 Split knowledge system:
+
 - `CONTEXT.md`: mental model, architecture, pipeline diagram
 - `RULES.md`: hard constraints, "Never" lists, branch origin rules
 
@@ -173,6 +185,7 @@ git push origin develop
 ### Step 3: Create Pipeline Scripts
 
 Create `tooling/sync-upstreams/` directory with:
+
 - `upstream_ingest_pipeline.py` (see requirements above)
 - `rollback_to_lkg.py`
 
@@ -187,6 +200,7 @@ Create `docs/dev/git-branch-workflow.md` with full reference.
 ### Step 6: Define Protected Files
 
 In the pipeline script, maintain a `PROTECTED_FILES` list of fork-specific files that are restored after every upstream merge. Common entries:
+
 - Pipeline script itself
 - Fork CI workflow
 - Fork documentation
@@ -261,36 +275,40 @@ git cherry-pick <commit-hash>
 ## Adaptation Notes
 
 ### For Python Projects (like odysseus)
+
 - Gate 1: `python -m py_compile` on changed files
 - Gate 2: `ruff check .`
 - Gate 3: `pytest` (smoke tests)
 
 ### For Node.js/TypeScript Projects (like qwen-code)
+
 - Gate 1: `pnpm install` (lockfile check)
 - Gate 2: `pnpm run lint`
 - Gate 3: `pnpm test`
 
 ### For Monorepos with Separate Build Systems (like megalonyx)
+
 - Consider a two-remote architecture only if the monorepo cannot be a GitHub fork
 - Add isolation gates to outbound contributions (block fork-specific keywords)
 - Use `package-lock.json` auto-resolution when upstream and fork use different package managers
 
 ### For Projects Without CI
+
 - Skip `sync-upstream.yml`
 - Run pipeline manually before each contribution cycle
 - LKG tags still provide rollback safety
 
 ## Common Mistakes to Avoid
 
-| Mistake | Why bad | Correct action |
-|---------|---------|----------------|
-| Branching upstream-candidate off `develop` | Pollutes branch with fork history | Branch from `upstream-mirror` |
-| Merging upstream-candidate to `develop` | Imports upstream history | Cherry-pick specific commits |
-| Skipping gates on upstream merge | Regressions land in `integration` | Always run the full pipeline |
-| Deleting contribution branches after cherry-pick | Loses the upstream PR staging | Branch stays permanently |
-| Pulling from `main` back into workbench | Contaminates with release artifacts | `main` is outbound only |
-| Committing to `upstream-mirror` | Destroyed on next sync | Use as branch origin only |
-| Not tagging promotions | No rollback point | Always tag `LKG-YYYYMMDD-HHMM` |
+| Mistake                                          | Why bad                             | Correct action                 |
+| ------------------------------------------------ | ----------------------------------- | ------------------------------ |
+| Branching upstream-candidate off `develop`       | Pollutes branch with fork history   | Branch from `upstream-mirror`  |
+| Merging upstream-candidate to `develop`          | Imports upstream history            | Cherry-pick specific commits   |
+| Skipping gates on upstream merge                 | Regressions land in `integration`   | Always run the full pipeline   |
+| Deleting contribution branches after cherry-pick | Loses the upstream PR staging       | Branch stays permanently       |
+| Pulling from `main` back into workbench          | Contaminates with release artifacts | `main` is outbound only        |
+| Committing to `upstream-mirror`                  | Destroyed on next sync              | Use as branch origin only      |
+| Not tagging promotions                           | No rollback point                   | Always tag `LKG-YYYYMMDD-HHMM` |
 
 ## Operational Procedures
 

@@ -2183,7 +2183,7 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
       ci = await ensureChannel();
       ci.pendingRestoreIds.add(req.sessionId);
       // Mark this id as in-flight restore BEFORE the ACP
-      // `loadSession`/`unstable_resumeSession` call. Restore-time
+      // `loadSession`/`resumeSession` call. Restore-time
       // guardrail events arriving during that ACP call hit
       // `bufferEarlyEvent` BEFORE the post-restore
       // `createSessionEntry -> drainEarlyEvents` clears the tombstone,
@@ -2233,7 +2233,7 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
         } else {
           state = await Promise.race([
             withTimeout(
-              ci.connection.unstable_resumeSession({
+              ci.connection.resumeSession({
                 sessionId: req.sessionId,
                 cwd: workspaceKey,
                 mcpServers: [],

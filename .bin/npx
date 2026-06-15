@@ -1,2 +1,2 @@
-#!/bin/sh
-/home/james/.local/lib/qwen-code/node/bin/node /home/james/.local/lib/qwen-code/node/lib/node_modules/npm/bin/npx-cli.js "$@"
+#!/bin/bash
+node /home/james/.local/lib/qwen-code/node/lib/node_modules/npm/bin/npx-cli.js "$@"

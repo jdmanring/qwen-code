@@ -426,7 +426,9 @@ vi.mock('../utils/acpModelUtils.js', () => ({
   formatAcpModelId: vi.fn(
     (modelId: string, authType: string) => `${modelId}(${authType})`,
   ),
-  parseAcpBaseModelId: vi.fn((modelId: string) => modelId.replace(/\([^)]+\)$/, '')),
+  parseAcpBaseModelId: vi.fn((modelId: string) =>
+    modelId.replace(/\([^)]+\)$/, ''),
+  ),
 }));
 vi.mock('../utils/languageUtils.js', () => ({
   updateOutputLanguageFile: vi.fn(),
@@ -5867,7 +5869,7 @@ describe('sessionLanguage multi-session propagation', () => {
 
     vi.mocked(Session).mockImplementation(() => {
       const cfg = sessionConfigs[sessionIdx]!;
-      const id = (cfg.getSessionId as ReturnType<typeof vi.fn>)();
+      const id = (cfg.getSessionId as any)();
       const mock = {
         getId: vi.fn().mockReturnValue(id),
         getConfig: vi.fn().mockReturnValue(cfg),
@@ -5965,7 +5967,7 @@ describe('sessionLanguage multi-session propagation', () => {
     );
     vi.mocked(Session).mockImplementation(() => {
       const cfg = sessionConfigs[sessionIdx]!;
-      const id = (cfg.getSessionId as ReturnType<typeof vi.fn>)();
+      const id = (cfg.getSessionId as any)();
       sessionIdx++;
       return {
         getId: vi.fn().mockReturnValue(id),

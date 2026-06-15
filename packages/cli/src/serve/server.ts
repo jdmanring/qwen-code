@@ -387,6 +387,22 @@ function parseStringArray(value: unknown): string[] | undefined {
   return result.length > 0 ? [...new Set(result)] : undefined;
 }
 
+function getStringParam(req: Request, param: string): string | undefined {
+  const value = req.params[param];
+  return typeof value === 'string'
+    ? value
+    : Array.isArray(value)
+      ? value[0]
+      : undefined;
+}
+
+function getStringQuery(req: Request, query: string): string | undefined {
+  const value = req.query[query];
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value) && typeof value[0] === 'string') return value[0];
+  return undefined;
+}
+
 function parsePositiveBoundedInteger(
   value: unknown,
   max: number,
@@ -1633,7 +1649,7 @@ export function createServeApp(
     '/workspace/auth/device-flow/:id',
     mutate({ strict: true }),
     async (req, res) => {
-      const id = req.params['id'];
+      const id = getStringParam(req, 'id');
       if (!id) {
         res.status(404).json({
           error: 'Device-flow id required',
@@ -1666,7 +1682,7 @@ export function createServeApp(
     '/workspace/auth/device-flow/:id',
     mutate({ strict: true }),
     (req, res) => {
-      const id = req.params['id'];
+      const id = getStringParam(req, 'id');
       if (!id) {
         res.status(404).json({
           error: 'Device-flow id required',
@@ -2111,8 +2127,8 @@ export function createServeApp(
     '/session/:id/tasks/:taskId/cancel',
     mutate({ strict: true }),
     async (req, res) => {
-      const sessionId = req.params['id'];
-      const taskId = req.params['taskId'];
+      const sessionId = getStringParam(req, 'id');
+      const taskId = getStringParam(req, 'taskId');
       if (!sessionId || !taskId) {
         res.status(400).json({
           error: '`sessionId` and `taskId` route parameters are required',
@@ -2144,7 +2160,7 @@ export function createServeApp(
     '/session/:id/goal/clear',
     mutate({ strict: true }),
     async (req, res) => {
-      const sessionId = req.params['id'];
+      const sessionId = getStringParam(req, 'id');
       if (!sessionId) {
         res
           .status(400)
@@ -2163,7 +2179,13 @@ export function createServeApp(
   );
 
   app.post('/session/:id/prompt', mutate(), async (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = getStringParam(req, 'id');
+    if (!sessionId) {
+      res
+        .status(400)
+        .json({ error: '`sessionId` route parameter is required' });
+      return;
+    }
     const body = safeBody(req);
     const prompt = body['prompt'];
     if (!Array.isArray(prompt) || prompt.length === 0) {
@@ -2316,7 +2338,13 @@ export function createServeApp(
   });
 
   app.post('/session/:id/cancel', mutate(), async (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = getStringParam(req, 'id');
+    if (!sessionId) {
+      res
+        .status(400)
+        .json({ error: '`sessionId` route parameter is required' });
+      return;
+    }
     const body = safeBody(req);
     const clientId = parseClientIdHeader(req, res);
     if (clientId === null) return;
@@ -2342,7 +2370,13 @@ export function createServeApp(
   });
 
   app.delete('/session/:id', async (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = getStringParam(req, 'id');
+    if (!sessionId) {
+      res
+        .status(400)
+        .json({ error: '`sessionId` route parameter is required' });
+      return;
+    }
     const clientId = parseClientIdHeader(req, res);
     if (clientId === null) return;
     try {
@@ -2509,11 +2543,8 @@ export function createServeApp(
       return;
     }
     try {
-      const cursor =
-        typeof req.query['cursor'] === 'string'
-          ? req.query['cursor']
-          : undefined;
-      const sizeParam = req.query['size'];
+      const cursor = getStringQuery(req, 'cursor');
+      const sizeParam = getStringQuery(req, 'size');
       const size =
         typeof sizeParam === 'string' ? parseInt(sizeParam, 10) : undefined;
       const result = await listWorkspaceSessionsForResponse(bridge, key, {
@@ -2545,7 +2576,13 @@ export function createServeApp(
   });
 
   app.post('/session/:id/model', mutate(), async (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = getStringParam(req, 'id');
+    if (!sessionId) {
+      res
+        .status(400)
+        .json({ error: '`sessionId` route parameter is required' });
+      return;
+    }
     const body = safeBody(req);
     const modelId = body['modelId'];
     if (typeof modelId !== 'string' || !modelId) {
@@ -2656,7 +2693,13 @@ export function createServeApp(
   });
 
   app.post('/session/:id/shell', mutate({ strict: true }), async (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = getStringParam(req, 'id');
+    if (!sessionId) {
+      res
+        .status(400)
+        .json({ error: '`sessionId` route parameter is required' });
+      return;
+    }
     if (!sessionShellCommandEnabled) {
       sendBridgeError(res, new SessionShellDisabledError(), {
         route: 'POST /session/:id/shell',
@@ -2721,7 +2764,7 @@ export function createServeApp(
   });
 
   app.get('/session/:id/rewind/snapshots', async (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = getStringParam(req, 'id');
     if (!sessionId) {
       res
         .status(400)
@@ -2742,7 +2785,13 @@ export function createServeApp(
     '/session/:id/rewind',
     mutate({ strict: true }),
     async (req, res) => {
-      const sessionId = req.params['id'];
+      const sessionId = getStringParam(req, 'id');
+      if (!sessionId) {
+        res
+          .status(400)
+          .json({ error: '`sessionId` route parameter is required' });
+        return;
+      }
       const body = safeBody(req);
       const promptId = body['promptId'];
       if (typeof promptId !== 'string' || promptId.length === 0) {
@@ -2776,7 +2825,13 @@ export function createServeApp(
     async (req, res) => {
       // Validates `mode` against `APPROVAL_MODES` and an optional
       // `persist: boolean` flag.
-      const sessionId = req.params['id'];
+      const sessionId = getStringParam(req, 'id');
+      if (!sessionId) {
+        res
+          .status(400)
+          .json({ error: '`sessionId` route parameter is required' });
+        return;
+      }
       const body = safeBody(req);
       const mode = body['mode'];
       const persist = body['persist'];
@@ -2818,7 +2873,13 @@ export function createServeApp(
   );
 
   app.post('/session/:id/language', mutate(), async (req, res) => {
-    const sessionId = req.params['id'];
+    const sessionId = getStringParam(req, 'id');
+    if (!sessionId) {
+      res
+        .status(400)
+        .json({ error: '`sessionId` route parameter is required' });
+      return;
+    }
     const body = safeBody(req);
     const language = body['language'];
     const syncOutputLanguage = body['syncOutputLanguage'];
@@ -3108,7 +3169,7 @@ export function createServeApp(
       // session SSE bus. Already-registered tools in live sessions
       // are NOT retroactively unregistered — toggling takes effect on
       // the next ACP child spawn or session refresh.
-      const rawToolName = req.params['name'];
+      const rawToolName = getStringParam(req, 'name');
       if (!rawToolName || typeof rawToolName !== 'string') {
         res.status(400).json({
           error: 'Tool name path parameter is required',
@@ -3166,8 +3227,20 @@ export function createServeApp(
   );
 
   app.post('/session/:id/permission/:requestId', mutate(), (req, res) => {
-    const sessionId = req.params['id'];
-    const requestId = req.params['requestId'];
+    const sessionId = getStringParam(req, 'id');
+    if (!sessionId) {
+      res
+        .status(400)
+        .json({ error: '`sessionId` route parameter is required' });
+      return;
+    }
+    const requestId = getStringParam(req, 'requestId');
+    if (!requestId) {
+      res
+        .status(400)
+        .json({ error: '`requestId` route parameter is required' });
+      return;
+    }
     const response = parsePermissionVoteBody(req, res);
     if (response === undefined) return;
     const clientId = parseClientIdHeader(req, res);
@@ -3206,7 +3279,13 @@ export function createServeApp(
   });
 
   app.post('/permission/:requestId', mutate(), (req, res) => {
-    const requestId = req.params['requestId'];
+    const requestId = getStringParam(req, 'requestId');
+    if (!requestId) {
+      res
+        .status(400)
+        .json({ error: '`requestId` route parameter is required' });
+      return;
+    }
     const response = parsePermissionVoteBody(req, res);
     if (response === undefined) return;
     const clientId = parseClientIdHeader(req, res);
@@ -3884,7 +3963,7 @@ function requireSessionId(
   req: import('express').Request,
   res: import('express').Response,
 ): string | null {
-  const sessionId = req.params['id'];
+  const sessionId = getStringParam(req, 'id');
   if (!sessionId) {
     res.status(400).json({ error: '`sessionId` route parameter is required' });
     return null;

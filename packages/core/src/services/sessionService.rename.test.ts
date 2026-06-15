@@ -266,9 +266,7 @@ describe('SessionService - rename and custom title', () => {
       }>,
     ) {
       readdirSyncSpy.mockReturnValue(
-        sessions.map((s) => `${s.id}.jsonl`) as unknown as Array<
-          fs.Dirent<Buffer>
-        >,
+        sessions.map((s) => `${s.id}.jsonl`) as any,
       );
 
       statSyncSpy.mockImplementation((filePath: fs.PathLike) => {
@@ -442,7 +440,7 @@ describe('SessionService - rename and custom title', () => {
         `${sessionIdA}.jsonl`,
         `${sessionIdB}.jsonl`,
         `${sessionIdC}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      ] as any);
 
       const sharedMtime = now;
       statSyncSpy.mockImplementation(
@@ -490,7 +488,7 @@ describe('SessionService - rename and custom title', () => {
       readdirSyncSpy.mockReturnValue([
         `${sessionIdA}.jsonl`,
         `${sessionIdB}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      ] as any);
 
       statSyncSpy.mockImplementation((filePath: fs.PathLike) => {
         const p = filePath.toString();
@@ -533,9 +531,7 @@ describe('SessionService - rename and custom title', () => {
           systemPayload: { customTitle: 'my-feature' },
         }) + '\n';
 
-      readdirSyncSpy.mockReturnValue([
-        `${sessionIdA}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      readdirSyncSpy.mockReturnValue([`${sessionIdA}.jsonl`] as any);
 
       statSyncSpy.mockReturnValue({
         mtimeMs: now,
@@ -563,9 +559,7 @@ describe('SessionService - rename and custom title', () => {
     it('should return undefined customTitle when none set', async () => {
       const now = Date.now();
 
-      readdirSyncSpy.mockReturnValue([
-        `${sessionIdA}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      readdirSyncSpy.mockReturnValue([`${sessionIdA}.jsonl`] as any);
 
       statSyncSpy.mockReturnValue({
         mtimeMs: now,
@@ -599,9 +593,7 @@ describe('SessionService - rename and custom title', () => {
           },
         }) + '\n';
 
-      readdirSyncSpy.mockReturnValue([
-        `${sessionIdA}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      readdirSyncSpy.mockReturnValue([`${sessionIdA}.jsonl`] as any);
 
       statSyncSpy.mockReturnValue({
         mtimeMs: now,
@@ -638,9 +630,7 @@ describe('SessionService - rename and custom title', () => {
           systemPayload: { customTitle: 'legacy-title' },
         }) + '\n';
 
-      readdirSyncSpy.mockReturnValue([
-        `${sessionIdA}.jsonl`,
-      ] as unknown as Array<fs.Dirent<Buffer>>);
+      readdirSyncSpy.mockReturnValue([`${sessionIdA}.jsonl`] as any);
 
       statSyncSpy.mockReturnValue({
         mtimeMs: now,

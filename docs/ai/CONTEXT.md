@@ -15,6 +15,7 @@ Qwen Code is an AI-powered coding assistant. It is architected as a split betwee
 ## Code Layout
 
 **Core Packages (`packages/`)**
+
 - `packages/cli`: The frontend. Handles user input (slash commands, @-files), TUI rendering (using Ink), and session management.
 - `packages/core`: The backend. Orchestrates LLM API calls, manages prompt construction, and executes tools.
 - `packages/core/src/tools/`: The tool library. Individual modules for file system access, shell execution, web fetching, and MCP integration.
@@ -23,6 +24,7 @@ Qwen Code is an AI-powered coding assistant. It is architected as a split betwee
 - `packages/webui`: A standalone React-based web interface.
 
 **Project Root**
+
 - `docs/`: Technical documentation. `docs/design/` contains the a detailed archive of technical specs.
 - `scripts/`: Build and utility scripts.
 - `integration-tests/`: End-to-end tests validating the CLI $\rightarrow$ Core $\rightarrow$ LLM flow.

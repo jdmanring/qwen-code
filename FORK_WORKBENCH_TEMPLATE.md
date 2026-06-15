@@ -14,16 +14,16 @@ upstream/main → upstream-mirror → sync/staging-* → [gates] → integration
                                 contribution branches
 ```
 
-| Branch | Role | Push? | Description |
-|--------|------|-------|-------------|
-| `upstream/main` | Source of truth | Read-only | The upstream repo |
-| `upstream-mirror` | Exact mirror | Fast-forward only | Always matches `upstream/main` HEAD |
-| `integration` | Vetted upstream changes | Force-push | Only the pipeline writes here; never commit directly |
-| `develop` | Primary working branch | Force-push | All fork work lands here eventually |
-| `main` | Stable fork releases | Merge only | For downstream consumers; never pull back into workbench |
-| `feat/*`, `fix/*`, `chore/*` | Contribution branches | Force-push | Individual PR candidates, based on `upstream-mirror` |
-| `fork/*` | Fork infrastructure | Push | Fork-specific docs, tooling, PR drafts |
-| `sync/staging-*` | Temporary pipeline branches | None | Created and deleted automatically by the pipeline |
+| Branch                       | Role                        | Push?             | Description                                              |
+| ---------------------------- | --------------------------- | ----------------- | -------------------------------------------------------- |
+| `upstream/main`              | Source of truth             | Read-only         | The upstream repo                                        |
+| `upstream-mirror`            | Exact mirror                | Fast-forward only | Always matches `upstream/main` HEAD                      |
+| `integration`                | Vetted upstream changes     | Force-push        | Only the pipeline writes here; never commit directly     |
+| `develop`                    | Primary working branch      | Force-push        | All fork work lands here eventually                      |
+| `main`                       | Stable fork releases        | Merge only        | For downstream consumers; never pull back into workbench |
+| `feat/*`, `fix/*`, `chore/*` | Contribution branches       | Force-push        | Individual PR candidates, based on `upstream-mirror`     |
+| `fork/*`                     | Fork infrastructure         | Push              | Fork-specific docs, tooling, PR drafts                   |
+| `sync/staging-*`             | Temporary pipeline branches | None              | Created and deleted automatically by the pipeline        |
 
 ---
 
@@ -36,6 +36,7 @@ This is the most important rule. There are two categories of work and they requi
 ### Category 1: Upstream-Candidate (the default — almost all work)
 
 These branches are staging for upstream pull requests. They must:
+
 - Contain **only the changes for that one fix or feature**
 - Start from `upstream-mirror` so they have no fork history
 - Have a **single clean commit** (or a small number of tightly related commits)
@@ -54,6 +55,7 @@ The branch stays permanently as the upstream PR staging. Do not delete it after 
 ### Category 2: Fork-Only (narrow exception)
 
 These branches will never go upstream. They branch from `develop` and merge back. Fork-only is **only**:
+
 - The sync pipeline (`tooling/sync-upstreams/` or equivalent)
 - Fork CI (`.github/workflows/sync-upstream.yml` or equivalent)
 - Fork management docs (`docs/fork/`, workflow documentation)
@@ -152,11 +154,11 @@ This is a manual step — the pipeline does not auto-merge to `develop`.
 
 ## Gates — Qwen Code Ecosystem
 
-| Gate | Command | Purpose |
-|------|---------|---------|
+| Gate  | Command                          | Purpose              |
+| ----- | -------------------------------- | -------------------- |
 | Build | `pnpm install --frozen-lockfile` | Lockfile consistency |
-| Lint | `npx eslint .` | Code style |
-| Tests | `npx vitest run` | Full test suite |
+| Lint  | `npx eslint .`                   | Code style           |
+| Tests | `npx vitest run`                 | Full test suite      |
 
 ---
 
@@ -179,13 +181,13 @@ A `rollback_to_lkg.py` script is provided in `tooling/sync-upstreams/` for safe 
 
 The pipeline restores these files to their `integration` state after every upstream merge:
 
-| Protected | Why |
-|-----------|-----|
-| `tooling/sync-upstreams/upstream_ingest_pipeline.py` | The pipeline itself |
-| `.github/workflows/sync-upstream.yml` | Fork-only workflow — does not exist upstream |
-| `AI.md` | Fork-specific AI guidance |
-| `docs/ai/` | Fork-specific AI context and rules |
-| `docs/fork/` | Fork management documentation |
+| Protected                                            | Why                                          |
+| ---------------------------------------------------- | -------------------------------------------- |
+| `tooling/sync-upstreams/upstream_ingest_pipeline.py` | The pipeline itself                          |
+| `.github/workflows/sync-upstream.yml`                | Fork-only workflow — does not exist upstream |
+| `AI.md`                                              | Fork-specific AI guidance                    |
+| `docs/ai/`                                           | Fork-specific AI context and rules           |
+| `docs/fork/`                                         | Fork management documentation                |
 
 ---
 
@@ -196,6 +198,7 @@ See `docs/runbook.md` for detailed failure recovery procedures. Summary:
 ### Gate failure (build/lint/test)
 
 Upstream introduced a regression. Do NOT bypass the gate. Investigate what broke. Options:
+
 1. File an upstream issue; wait for them to fix it
 2. Apply a minimal fix on the staging branch, then re-run gates
 3. If urgent: run `--dry-run` to understand scope, then decide
@@ -217,12 +220,12 @@ git branch -D sync/staging-TIMESTAMP
 
 ### Pre-flight failure
 
-| Cause | Fix |
-|-------|-----|
-| Not on `integration` branch | `git checkout integration` |
-| Uncommitted changes | `git stash` or commit them |
-| Missing `upstream` remote | `git remote add upstream <url>` |
-| Missing tooling dependency | Install pnpm, Node.js 22 |
+| Cause                       | Fix                             |
+| --------------------------- | ------------------------------- |
+| Not on `integration` branch | `git checkout integration`      |
+| Uncommitted changes         | `git stash` or commit them      |
+| Missing `upstream` remote   | `git remote add upstream <url>` |
+| Missing tooling dependency  | Install pnpm, Node.js 22        |
 
 ---
 
@@ -269,11 +272,13 @@ git push origin main --follow-tags
 **Why `--no-ff`:** The merge commit records when the release happened and what was included.
 
 **When to release:**
+
 - After a set of contribution branches has been merged to `develop` and tested
 - After a major upstream version has been ingested and verified
 - On a regular cadence (e.g., weekly, monthly) if this fork has downstream consumers
 
 **What main should contain:**
+
 - All upstream changes (via the ingest pipeline)
 - All merged contribution branches (via develop)
 - A clean, linear history that downstream consumers can rely on
@@ -329,17 +334,17 @@ Sometimes a contribution branch's changes have already been merged upstream:
 
 ## Common Mistakes to Avoid
 
-| Mistake | Why bad | Correct action |
-|---------|---------|----------------|
-| Classifying work as fork-only without a specific reason | Prevents valid upstream contributions | Default to upstream-candidate |
-| Branching an upstream-candidate off `develop` | Pollutes branch with fork commits | Branch from `origin/upstream-mirror` |
-| Committing to `upstream-mirror` | Commits destroyed on next sync | Use as branch origin only |
-| Cherry-picking from `upstream/main` directly to `develop` | Bypasses gates | Run the ingest pipeline |
-| Merging an upstream-candidate branch to `develop` | Would import upstream history | Cherry-pick specific commits |
-| Closing an issue before verifying the fix works | Disrupts workflow tracking | Verify first, close after |
-| Creating a branch without an issue | Untraceable work | Create issue first, always |
-| Editing `develop` directly for upstream-candidate work | Creates untracked work | Branch from upstream-mirror |
-| Forgetting to update docs | Future agents lack context | Update fork documentation |
+| Mistake                                                   | Why bad                               | Correct action                       |
+| --------------------------------------------------------- | ------------------------------------- | ------------------------------------ |
+| Classifying work as fork-only without a specific reason   | Prevents valid upstream contributions | Default to upstream-candidate        |
+| Branching an upstream-candidate off `develop`             | Pollutes branch with fork commits     | Branch from `origin/upstream-mirror` |
+| Committing to `upstream-mirror`                           | Commits destroyed on next sync        | Use as branch origin only            |
+| Cherry-picking from `upstream/main` directly to `develop` | Bypasses gates                        | Run the ingest pipeline              |
+| Merging an upstream-candidate branch to `develop`         | Would import upstream history         | Cherry-pick specific commits         |
+| Closing an issue before verifying the fix works           | Disrupts workflow tracking            | Verify first, close after            |
+| Creating a branch without an issue                        | Untraceable work                      | Create issue first, always           |
+| Editing `develop` directly for upstream-candidate work    | Creates untracked work                | Branch from upstream-mirror          |
+| Forgetting to update docs                                 | Future agents lack context            | Update fork documentation            |
 
 ---
 

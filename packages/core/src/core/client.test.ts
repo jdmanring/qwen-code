@@ -16,7 +16,7 @@ import {
 
 // Force UTC timezone so toLocaleDateString('en-US', ...) produces consistent
 // output regardless of the developer's local timezone.
-process.env.TZ = 'UTC';
+process.env['TZ'] = 'UTC';
 
 import { mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -267,7 +267,8 @@ vi.mock('../telemetry/uiTelemetry.js', () => ({
   uiTelemetryService: mockUiTelemetryService,
 }));
 vi.mock('../telemetry/loggers.js', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../telemetry/loggers.js')>();
+  const actual =
+    await importOriginal<typeof import('../telemetry/loggers.js')>();
   return {
     ...actual,
     logChatCompression: vi.fn(),
@@ -831,7 +832,8 @@ describe('Gemini Client (client.ts)', () => {
         { name: 'cron_list', description: 'list' },
       ]);
       // ToolSearch is available so we DON'T enter the eager-reveal branch.
-      reg.getTool.mockImplementation((n: string) => n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation((n: string) =>
+        n === 'tool_search' ? ({} as never) : null,
       );
       reg.revealDeferredTool.mockClear();
 
@@ -880,7 +882,8 @@ describe('Gemini Client (client.ts)', () => {
       reg.getDeferredToolSummary.mockReturnValue([
         { name: 'cron_create', description: 'schedule' },
       ]);
-      reg.getTool.mockImplementation((n: string) => n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation((n: string) =>
+        n === 'tool_search' ? ({} as never) : null,
       );
       reg.revealDeferredTool.mockClear();
 
@@ -1266,7 +1269,8 @@ describe('Gemini Client (client.ts)', () => {
 
     it('queues and drains a reminder for newly registered MCP deferred tools', async () => {
       const reg = getRegistryMock();
-      reg.getTool.mockImplementation((n: string) => n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation((n: string) =>
+        n === 'tool_search' ? ({} as never) : null,
       );
       reg.getDeferredToolSummary.mockReturnValue([
         {
@@ -1311,7 +1315,8 @@ describe('Gemini Client (client.ts)', () => {
 
     it('omits already-revealed deferred tools from added reminders', async () => {
       const reg = getRegistryMock();
-      reg.getTool.mockImplementation((n: string) => n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation((n: string) =>
+        n === 'tool_search' ? ({} as never) : null,
       );
       reg.getDeferredToolSummary.mockReturnValue([
         { name: 'mcp__server__alpha', description: 'a', serverName: 'server' },
@@ -1338,7 +1343,8 @@ describe('Gemini Client (client.ts)', () => {
 
     it('re-announces an MCP tool after its server disconnects and reconnects', async () => {
       const reg = getRegistryMock();
-      reg.getTool.mockImplementation((n: string) => n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation((n: string) =>
+        n === 'tool_search' ? ({} as never) : null,
       );
       const tool = {
         name: 'mcp__flaky__do',
@@ -1404,7 +1410,8 @@ describe('Gemini Client (client.ts)', () => {
 
     it('does not append the same added MCP reminder twice', async () => {
       const reg = getRegistryMock();
-      reg.getTool.mockImplementation((n: string) => n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation((n: string) =>
+        n === 'tool_search' ? ({} as never) : null,
       );
       reg.getDeferredToolSummary.mockReturnValue([
         {
@@ -1431,7 +1438,8 @@ describe('Gemini Client (client.ts)', () => {
 
     it('does not drain queued MCP reminders on tool-result turns', async () => {
       const reg = getRegistryMock();
-      reg.getTool.mockImplementation((n: string) => n === 'tool_search' ? ({} as never) : null,
+      reg.getTool.mockImplementation((n: string) =>
+        n === 'tool_search' ? ({} as never) : null,
       );
       reg.getDeferredToolSummary.mockReturnValue([
         {
@@ -4147,9 +4155,8 @@ hello
 
       // Force the next-speaker check to recurse so we hit `return continueTurn`.
       // The recursion call passes through this same mock stream and returns.
-      const { checkNextSpeaker } = await import(
-        '../utils/nextSpeakerChecker.js'
-      );
+      const { checkNextSpeaker } =
+        await import('../utils/nextSpeakerChecker.js');
       const mockedCheckNextSpeaker = vi.mocked(checkNextSpeaker);
       mockedCheckNextSpeaker
         .mockResolvedValueOnce({
@@ -4805,9 +4812,8 @@ Other open files:
 
     it('should stop infinite loop after MAX_TURNS when nextSpeaker always returns model', async () => {
       // Get the mocked checkNextSpeaker function and configure it to trigger infinite loop
-      const { checkNextSpeaker } = await import(
-        '../utils/nextSpeakerChecker.js'
-      );
+      const { checkNextSpeaker } =
+        await import('../utils/nextSpeakerChecker.js');
       const mockCheckNextSpeaker = vi.mocked(checkNextSpeaker);
       mockCheckNextSpeaker.mockResolvedValue({
         next_speaker: 'model',
@@ -5031,9 +5037,8 @@ Other open files:
       // someone tries to bypass it by calling with a very large turns value
 
       // Get the mocked checkNextSpeaker function and configure it to trigger infinite loop
-      const { checkNextSpeaker } = await import(
-        '../utils/nextSpeakerChecker.js'
-      );
+      const { checkNextSpeaker } =
+        await import('../utils/nextSpeakerChecker.js');
       const mockCheckNextSpeaker = vi.mocked(checkNextSpeaker);
       mockCheckNextSpeaker.mockResolvedValue({
         next_speaker: 'model',
@@ -5940,9 +5945,8 @@ Other open files:
 
     it('should not call checkNextSpeaker when turn.run() yields an error', async () => {
       // Arrange
-      const { checkNextSpeaker } = await import(
-        '../utils/nextSpeakerChecker.js'
-      );
+      const { checkNextSpeaker } =
+        await import('../utils/nextSpeakerChecker.js');
       const mockCheckNextSpeaker = vi.mocked(checkNextSpeaker);
 
       const mockStream = (async function* () {
@@ -5975,9 +5979,8 @@ Other open files:
 
     it('should not call checkNextSpeaker when turn.run() yields a value then an error', async () => {
       // Arrange
-      const { checkNextSpeaker } = await import(
-        '../utils/nextSpeakerChecker.js'
-      );
+      const { checkNextSpeaker } =
+        await import('../utils/nextSpeakerChecker.js');
       const mockCheckNextSpeaker = vi.mocked(checkNextSpeaker);
 
       const mockStream = (async function* () {

@@ -32,7 +32,7 @@ execSync('tsc --project tsconfig.build.json', {
 
 try {
   execSync(
-    'npx dts-bundle-generator --project tsconfig.build.json -o dist/index.d.ts src/index.ts',
+    '../../node_modules/.bin/dts-bundle-generator --project tsconfig.build.json -o dist/index.d.ts src/index.ts',
     {
       stdio: 'inherit',
       cwd: rootDir,

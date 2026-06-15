@@ -118,14 +118,14 @@ function createStreamTextEvent(
 describe('SubAgentTracker', () => {
   let mockContext: SessionContext;
   let mockClient: AgentSideConnection;
-  let sendUpdateSpy: ReturnType<typeof vi.fn>;
+  let sendUpdateSpy: any;
   let requestPermissionSpy: ReturnType<typeof vi.fn>;
   let tracker: SubAgentTracker;
   let eventEmitter: AgentEventEmitter;
   let abortController: AbortController;
 
   beforeEach(() => {
-    sendUpdateSpy = vi.fn().mockResolvedValue(undefined);
+    sendUpdateSpy = vi.fn() as any;
     requestPermissionSpy = vi.fn().mockResolvedValue({
       outcome: { optionId: ToolConfirmationOutcome.ProceedOnce },
     });
