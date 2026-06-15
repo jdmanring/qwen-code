@@ -42,6 +42,8 @@ import {
   type AgentToolCallEvent,
   type AgentToolResultEvent,
 } from './agent-events.js';
+import { MockGeminiChat } from '../../test-utils/mockGeminiChat.js';
+import { createMockWorkspaceContext } from '../../test-utils/mockWorkspaceContext.js';
 import type {
   ModelConfig,
   PromptConfig,
@@ -183,7 +185,7 @@ const createMockStream = (
   let index = 0;
   // This mock now returns a Promise that resolves to the async generator,
   // matching the new signature for sendMessageStream.
-  return vi.fn().mockImplementation(async () => {
+  return async () => {
     const response = functionCallsList[index] || 'stop';
     index++;
 
@@ -224,7 +226,7 @@ const createMockStream = (
         }; // Handle empty array also as stop
       }
     })();
-  });
+  };
 };
 
 describe('subagent.ts', () => {
@@ -246,6 +248,7 @@ describe('subagent.ts', () => {
 
   describe('AgentHeadless', () => {
     let mockSendMessageStream: Mock;
+    let mockConfig: Config;
 
     const defaultModelConfig: ModelConfig = {
       model: 'qwen3-coder-plus',
@@ -258,6 +261,44 @@ describe('subagent.ts', () => {
 
     beforeEach(async () => {
       vi.clearAllMocks();
+
+      mockConfig = {
+        getCoreTools: vi.fn().mockReturnValue([]),
+        getPermissionsAllow: vi.fn().mockReturnValue([]),
+        getPermissionsAsk: vi.fn().mockReturnValue([]),
+        getPermissionsDeny: vi.fn().mockReturnValue([]),
+        getDebugMode: vi.fn().mockReturnValue(false),
+        getTargetDir: vi.fn().mockReturnValue('/test/dir'),
+        getSessionId: vi.fn().mockReturnValue('test-session'),
+        getWorkspaceContext: vi
+          .fn()
+          .mockReturnValue(createMockWorkspaceContext('/test/dir')),
+        storage: {
+          getUserSkillsDirs: vi.fn().mockReturnValue(['/test/dir/.qwen/skills']),
+          getProjectTempDir: vi.fn().mockReturnValue('/tmp/qwen-temp'),
+          getProjectDir: vi.fn().mockReturnValue('/test/proj'),
+        },
+        getTruncateToolOutputThreshold: vi.fn().mockReturnValue(0),
+        getTruncateToolOutputLines: vi.fn().mockReturnValue(0),
+        getPermissionManager: vi.fn().mockReturnValue(undefined),
+        getGeminiClient: vi.fn(),
+        getModel: vi.fn().mockReturnValue('qwen3-coder-plus'),
+        getGitCoAuthor: vi.fn().mockReturnValue({
+          commit: true,
+          pr: true,
+          name: 'Qwen-Coder',
+          email: 'qwen-coder@alibabacloud.com',
+        }),
+        getShouldUseNodePtyShell: vi.fn().mockReturnValue(false),
+        getBackgroundShellRegistry: vi.fn().mockReturnValue({
+          register: vi.fn(),
+          get: vi.fn(),
+          getAll: vi.fn().mockReturnValue([]),
+          cancel: vi.fn(),
+          complete: vi.fn(),
+          fail: vi.fn(),
+        }),
+      } as unknown as Config;
 
       vi.mocked(createContentGenerator).mockResolvedValue({
         getGenerativeModel: vi.fn(),
@@ -278,11 +319,11 @@ describe('subagent.ts', () => {
 
       mockSendMessageStream = vi.fn();
       vi.mocked(GeminiChat).mockImplementation(
-        () =>
-          ({
-            sendMessageStream: mockSendMessageStream,
-            setLastPromptTokenCount: vi.fn(),
-          }) as unknown as GeminiChat,
+        function () {
+          const mockChat = new MockGeminiChat(mockConfig);
+          mockChat.sendMessageStream = mockSendMessageStream;
+          return mockChat as unknown as GeminiChat;
+        },
       );
 
       // Default mock for executeToolCall
@@ -712,7 +753,12 @@ describe('subagent.ts', () => {
           // No ToolConfig, No OutputConfig
         );
 
-        await scope.execute(new ContextState());
+        try {
+          await scope.execute(new ContextState());
+        } catch (e) {
+          console.error('[DEBUG] execute failed:', e);
+          throw e;
+        }
 
         expect(scope.getTerminateMode()).toBe(AgentTerminateMode.GOAL);
         expect(mockSendMessageStream).toHaveBeenCalledTimes(1);
@@ -1251,11 +1297,11 @@ describe('subagent.ts', () => {
           { text: 'Here is the answer.' as string },
         ]);
         vi.mocked(GeminiChat).mockImplementation(
-          () =>
-            ({
-              sendMessageStream: mockSendMessageStream,
-              setLastPromptTokenCount: vi.fn(),
-            }) as unknown as GeminiChat,
+          function () {
+            const mockChat = new MockGeminiChat(mockConfig);
+            mockChat.sendMessageStream = mockSendMessageStream;
+            return mockChat as unknown as GeminiChat;
+          },
         );
 
         const eventEmitter = new AgentEventEmitter();
@@ -1291,11 +1337,11 @@ describe('subagent.ts', () => {
           { text: 'The final answer.' as string },
         ]);
         vi.mocked(GeminiChat).mockImplementation(
-          () =>
-            ({
-              sendMessageStream: mockSendMessageStream,
-              setLastPromptTokenCount: vi.fn(),
-            }) as unknown as GeminiChat,
+          function () {
+            const mockChat = new MockGeminiChat(mockConfig);
+            mockChat.sendMessageStream = mockSendMessageStream;
+            return mockChat as unknown as GeminiChat;
+          },
         );
 
         const scope = await AgentHeadless.create(
@@ -1356,11 +1402,11 @@ describe('subagent.ts', () => {
           })();
         });
         vi.mocked(GeminiChat).mockImplementation(
-          () =>
-            ({
-              sendMessageStream: mockSendMessageStream,
-              setLastPromptTokenCount: vi.fn(),
-            }) as unknown as GeminiChat,
+          function () {
+            const mockChat = new MockGeminiChat(mockConfig);
+            mockChat.sendMessageStream = mockSendMessageStream;
+            return mockChat as unknown as GeminiChat;
+          },
         );
 
         const scope = await AgentHeadless.create(

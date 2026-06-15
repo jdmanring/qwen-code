@@ -50,7 +50,7 @@ import type {
   FunctionDeclaration,
   GenerateContentResponseUsageMetadata,
 } from '@google/genai';
-import { GeminiChat } from '../../core/geminiChat.js';
+import { GeminiChat, type GeminiChatInterface } from '../../core/geminiChat.js';
 import { dedupeToolCallsById } from '../../core/toolCallIdUtils.js';
 import type {
   PromptConfig,
@@ -346,7 +346,7 @@ export class AgentCore {
   async createChat(
     context: ContextState,
     options?: CreateChatOptions,
-  ): Promise<GeminiChat | undefined> {
+  ): Promise<GeminiChatInterface | undefined> {
     if (
       !this.promptConfig.systemPrompt &&
       !this.promptConfig.renderedSystemPrompt &&
@@ -416,6 +416,7 @@ export class AgentCore {
       chat.setLastPromptTokenCount(this.lastPromptTokenCount);
       return chat;
     } catch (error) {
+      console.error('[DEBUG] CRITICAL EXCEPTION in createChat:', error);
       await reportError(
         error,
         'Error initializing chat session.',
@@ -552,7 +553,7 @@ export class AgentCore {
    * @returns ReasoningLoopResult with the final text, terminate mode, and turns used.
    */
   async runReasoningLoop(
-    chat: GeminiChat,
+    chat: GeminiChatInterface,
     initialMessages: Content[],
     toolsList: FunctionDeclaration[],
     abortController: AbortController,
@@ -644,7 +645,7 @@ export class AgentCore {
   }
 
   private async _runReasoningLoopInner(
-    chat: GeminiChat,
+    chat: GeminiChatInterface,
     initialMessages: Content[],
     toolsList: FunctionDeclaration[],
     abortController: AbortController,
@@ -658,6 +659,7 @@ export class AgentCore {
     let stickyMaxOutputTokens: number | undefined;
 
     while (true) {
+      console.log('[DEBUG] Reasoning loop turn:', turnCounter);
       // Check abort before starting a new round — prevents unnecessary API
       // calls after processFunctionCalls was unblocked by an abort signal.
       if (abortController.signal.aborted) {
@@ -705,6 +707,7 @@ export class AgentCore {
           messageParams,
           promptId,
         );
+        console.log('[DEBUG] sendMessageStream returned stream');
         this.eventEmitter?.emit(AgentEventType.ROUND_START, {
           subagentId: this.subagentId,
           round: turnCounter,

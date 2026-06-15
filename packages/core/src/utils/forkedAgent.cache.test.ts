@@ -17,6 +17,7 @@ import { AuthType } from '../core/contentGenerator.js';
 import { GeminiChat, StreamEventType } from '../core/geminiChat.js';
 import { createRuntimeContentGeneratorView } from '../models/content-generator-config.js';
 import type { RuntimeContentGeneratorView } from '../agents/runtime/agent-context.js';
+import { MockGeminiChat } from '../test-utils/mockGeminiChat.js';
 
 vi.mock('../core/geminiChat.js', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../core/geminiChat.js')>();
@@ -205,10 +206,11 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
-          sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+      function () {
+        const mockChat = new MockGeminiChat({} as Config);
+        mockChat.sendMessageStream = mockSendMessageStream;
+        return mockChat as unknown as GeminiChat;
+      },
     );
 
     const mockConfig = {} as unknown as Config;
@@ -301,10 +303,11 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
-          sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+      function () {
+        const mockChat = new MockGeminiChat({} as Config);
+        mockChat.sendMessageStream = mockSendMessageStream;
+        return mockChat as unknown as GeminiChat;
+      },
     );
 
     const schema = {
@@ -370,10 +373,11 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
-          sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+      function () {
+        const mockChat = new MockGeminiChat({} as Config);
+        mockChat.sendMessageStream = mockSendMessageStream;
+        return mockChat as unknown as GeminiChat;
+      },
     );
 
     const mockConfig = {
@@ -456,10 +460,11 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
-          sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+      function () {
+        const mockChat = new MockGeminiChat({} as Config);
+        mockChat.sendMessageStream = mockSendMessageStream;
+        return mockChat as unknown as GeminiChat;
+      },
     );
 
     const mockConfig = {
@@ -547,10 +552,11 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
-          sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+      function () {
+        const mockChat = new MockGeminiChat({} as Config);
+        mockChat.sendMessageStream = mockSendMessageStream;
+        return mockChat as unknown as GeminiChat;
+      },
     );
 
     const mockConfig = {

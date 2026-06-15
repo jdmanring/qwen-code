@@ -1351,7 +1351,41 @@ function stripTrailingSessionStartContextBlock(
   return systemInstruction.slice(0, startIndex);
 }
 
-export class GeminiChat {
+/**
+ * Public interface for GeminiChat to allow type-safe mocking without
+ * inheritance-induced recursion.
+ */
+export interface GeminiChatInterface {
+  getLastPromptTokenCount(): number;
+  setLastPromptTokenCount(count: number): void;
+  tryCompress(
+    promptId: string,
+    model: string,
+    force?: boolean,
+    signal?: AbortSignal,
+    options?: TryCompressOptions,
+  ): Promise<ChatCompressionInfo>;
+  compressFast(): {
+    info: ChatCompressionInfo;
+    microcompactMeta?: MicrocompactMeta;
+  };
+  setSystemInstruction(sysInstr: string): void;
+  setSessionStartContext(extraInstruction: string): void;
+  applySessionStartContext(
+    extraInstruction: string,
+    _source: SessionStartSource,
+  ): void;
+  sendMessageStream(
+    model: string,
+    params: SendMessageParameters,
+    prompt_id: string,
+  ): Promise<AsyncGenerator<StreamEvent>>;
+  getHistory(): Content[];
+  setHistory(history: Content[]): void;
+  getHistoryShallow(deepClone?: boolean): Content[];
+}
+
+export class GeminiChat implements GeminiChatInterface {
   // A promise to represent the current state of the message being sent to the
   // model.
   private sendPromise: Promise<void> = Promise.resolve();
