@@ -80,12 +80,12 @@ describe('mcp-client', () => {
         setRequestHandler: vi.fn(),
         getInstructions: vi.fn(),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockImplementation(function() {
+        return mockedClient as unknown as ClientLib.Client;
+      });
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockImplementation(function() {
+        return {} as SdkClientStdioLib.StdioClientTransport;
+      });
       const mockedMcpToTool = vi.mocked(GenAiLib.mcpToTool).mockReturnValue({
         tool: () => ({
           functionDeclarations: [
@@ -120,12 +120,12 @@ describe('mcp-client', () => {
         setRequestHandler: vi.fn(),
         getInstructions: vi.fn().mockReturnValue('Use concise replies.'),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockImplementation(function() {
+        return mockedClient as unknown as ClientLib.Client;
+      });
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockImplementation(function() {
+        return {} as SdkClientStdioLib.StdioClientTransport;
+      });
 
       const client = new McpClient(
         'test-server',
@@ -156,12 +156,12 @@ describe('mcp-client', () => {
         tool: vi.fn(),
         getInstructions: vi.fn(),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockImplementation(function() {
+        return mockedClient as unknown as ClientLib.Client;
+      });
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockImplementation(function() {
+        return {} as SdkClientStdioLib.StdioClientTransport;
+      });
       vi.mocked(GenAiLib.mcpToTool).mockReturnValue({
         tool: () =>
           Promise.resolve({
@@ -217,12 +217,12 @@ describe('mcp-client', () => {
         request: vi.fn().mockRejectedValue(new Error('Test error')),
         getInstructions: vi.fn(),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockImplementation(function() {
+        return mockedClient as unknown as ClientLib.Client;
+      });
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockImplementation(function() {
+        return {} as SdkClientStdioLib.StdioClientTransport;
+      });
       vi.mocked(GenAiLib.mcpToTool).mockReturnValue({
         tool: () => Promise.resolve({ functionDeclarations: [] }),
       } as unknown as GenAiLib.CallableTool);
@@ -263,12 +263,12 @@ describe('mcp-client', () => {
         close: vi.fn(),
         getInstructions: vi.fn(),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockImplementation(function() {
+        return mockedClient as unknown as ClientLib.Client;
+      });
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockImplementation(function() {
+        return {} as SdkClientStdioLib.StdioClientTransport;
+      });
       vi.mocked(GenAiLib.mcpToTool).mockReturnValue({
         tool: () => Promise.resolve({ functionDeclarations: [] }),
       } as unknown as GenAiLib.CallableTool);
@@ -311,12 +311,12 @@ describe('mcp-client', () => {
         listTools: vi.fn().mockResolvedValue({ tools: [] }),
         getInstructions: vi.fn(),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockImplementation(function() {
+        return mockedClient as unknown as ClientLib.Client;
+      });
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockImplementation(function() {
+        return {} as SdkClientStdioLib.StdioClientTransport;
+      });
       vi.mocked(GenAiLib.mcpToTool).mockReturnValue({
         tool: () =>
           Promise.resolve({
@@ -361,12 +361,12 @@ describe('mcp-client', () => {
         listTools: vi.fn().mockResolvedValue({ tools: [] }),
         getInstructions: vi.fn(),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockImplementation(function() {
+        return mockedClient as unknown as ClientLib.Client;
+      });
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockImplementation(function() {
+        return {} as SdkClientStdioLib.StdioClientTransport;
+      });
       vi.mocked(GenAiLib.mcpToTool).mockReturnValue({
         tool: () =>
           Promise.resolve({
@@ -436,12 +436,12 @@ describe('mcp-client', () => {
         listTools: vi.fn().mockResolvedValue({ tools: [] }),
         getInstructions: vi.fn(),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockImplementation(function() {
+        return mockedClient as unknown as ClientLib.Client;
+      });
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockImplementation(function() {
+        return {} as SdkClientStdioLib.StdioClientTransport;
+      });
       vi.mocked(GenAiLib.mcpToTool).mockReturnValue({
         tool: () =>
           Promise.resolve({
@@ -505,12 +505,12 @@ describe('mcp-client', () => {
         listTools: vi.fn().mockResolvedValue({ tools: [] }),
         getInstructions: vi.fn(),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockImplementation(function() {
+        return mockedClient as unknown as ClientLib.Client;
+      });
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockImplementation(function() {
+        return {} as SdkClientStdioLib.StdioClientTransport;
+      });
       vi.mocked(GenAiLib.mcpToTool).mockReturnValue({
         tool: () => Promise.resolve({ functionDeclarations: [] }),
       } as unknown as GenAiLib.CallableTool);
@@ -576,12 +576,12 @@ describe('mcp-client', () => {
         listTools: vi.fn().mockResolvedValue({ tools: [] }),
         getInstructions: vi.fn(),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        {} as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.mocked(ClientLib.Client).mockImplementation(function() {
+        return mockedClient as unknown as ClientLib.Client;
+      });
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockImplementation(function() {
+        return {} as SdkClientStdioLib.StdioClientTransport;
+      });
       vi.mocked(GenAiLib.mcpToTool).mockReturnValue({
         tool: () =>
           Promise.resolve({
@@ -951,7 +951,9 @@ describe('mcp-client', () => {
     it('should connect via command', async () => {
       const mockedTransport = vi
         .spyOn(SdkClientStdioLib, 'StdioClientTransport')
-        .mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
+        .mockImplementation(function() {
+          return {} as SdkClientStdioLib.StdioClientTransport;
+        });
 
       await createTransport(
         'test-server',
@@ -984,7 +986,9 @@ describe('mcp-client', () => {
       };
       const mockedTransport = vi
         .spyOn(SdkClientStdioLib, 'StdioClientTransport')
-        .mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
+        .mockImplementation(function() {
+          return {} as SdkClientStdioLib.StdioClientTransport;
+        });
 
       await createTransport(
         'test-server',
@@ -1018,7 +1022,9 @@ describe('mcp-client', () => {
       };
       const mockedTransport = vi
         .spyOn(SdkClientStdioLib, 'StdioClientTransport')
-        .mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
+        .mockImplementation(function() {
+          return {} as SdkClientStdioLib.StdioClientTransport;
+        });
 
       await createTransport(
         'test-server',
@@ -1038,7 +1044,9 @@ describe('mcp-client', () => {
     it('should connect via command without cwd', async () => {
       const mockedTransport = vi
         .spyOn(SdkClientStdioLib, 'StdioClientTransport')
-        .mockReturnValue({} as SdkClientStdioLib.StdioClientTransport);
+        .mockImplementation(function() {
+          return {} as SdkClientStdioLib.StdioClientTransport;
+        });
 
       await createTransport(
         'test-server',
@@ -1137,12 +1145,11 @@ describe('mcp-client', () => {
     describe('authenticated Streamable HTTP compatibility fetch', () => {
       it('wires the compatibility fetch for OAuth httpUrl transports', async () => {
         const getValidToken = vi.fn().mockResolvedValue('oauth-token');
-        vi.mocked(MCPOAuthProvider).mockImplementation(
-          () =>
-            ({
-              getValidToken,
-            }) as unknown as MCPOAuthProvider,
-        );
+        vi.mocked(MCPOAuthProvider).mockImplementation(function() {
+      return {
+        getValidToken,
+      } as unknown as MCPOAuthProvider;
+    });
 
         const transport = await createTransport(
           'oauth-test-server',
@@ -1290,12 +1297,14 @@ describe('mcp-client', () => {
         close: vi.fn(),
         getInstructions: vi.fn(),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue({
-        close: vi.fn(),
-      } as unknown as SdkClientStdioLib.StdioClientTransport);
+      vi.mocked(ClientLib.Client).mockImplementation(function() {
+        return mockedClient as unknown as ClientLib.Client;
+      });
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockImplementation(function() {
+        return {
+          close: vi.fn(),
+        } as unknown as SdkClientStdioLib.StdioClientTransport;
+      });
 
       const client = new McpClient(
         'racy-server',
@@ -1337,13 +1346,13 @@ describe('mcp-client', () => {
         close: vi.fn(),
         getInstructions: vi.fn(),
       };
-      vi.mocked(ClientLib.Client).mockReturnValue(
-        mockedClient as unknown as ClientLib.Client,
-      );
+      vi.mocked(ClientLib.Client).mockImplementation(function() {
+        return mockedClient as unknown as ClientLib.Client;
+      });
       const mockedTransport = { close: vi.fn().mockResolvedValue(undefined) };
-      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockReturnValue(
-        mockedTransport as unknown as SdkClientStdioLib.StdioClientTransport,
-      );
+      vi.spyOn(SdkClientStdioLib, 'StdioClientTransport').mockImplementation(function() {
+        return mockedTransport as unknown as SdkClientStdioLib.StdioClientTransport;
+      });
 
       const client = new McpClient(
         'healthy-server',

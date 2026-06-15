@@ -105,10 +105,14 @@ describe('WriteFileTool', () => {
     }
 
     // Setup GeminiClient mock
-    mockGeminiClientInstance = new (vi.mocked(GeminiClient))(
+    mockGeminiClientInstance = new (vi.mocked(GeminiClient) as any)(
       mockConfig,
     ) as Mocked<GeminiClient>;
-    vi.mocked(GeminiClient).mockImplementation(() => mockGeminiClientInstance);
+    vi.mocked(GeminiClient).mockImplementation(
+      function () {
+        return mockGeminiClientInstance;
+      },
+    );
 
     // Now that mockGeminiClientInstance is initialized, set the mock implementation for getGeminiClient
     mockConfigInternal.getGeminiClient.mockReturnValue(

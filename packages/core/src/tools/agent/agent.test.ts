@@ -673,7 +673,9 @@ describe('AgentTool', () => {
         set: vi.fn(),
       } as unknown as ContextState;
 
-      MockedContextState.mockImplementation(() => mockContextState);
+      MockedContextState.mockImplementation(function () {
+        return mockContextState;
+      });
 
       vi.mocked(mockSubagentManager.loadSubagent).mockResolvedValue(
         mockSubagents[0],
@@ -1150,7 +1152,9 @@ describe('AgentTool', () => {
         set: vi.fn(),
       } as unknown as ContextState;
 
-      MockedContextState.mockImplementation(() => mockContextState);
+      MockedContextState.mockImplementation(function () {
+        return mockContextState;
+      });
 
       // Parent conversation history: empty (first-turn fork — falls back to
       // the fork agent's own systemPrompt + wildcard tools because no
@@ -1455,7 +1459,9 @@ describe('AgentTool', () => {
         set: vi.fn(),
       } as unknown as ContextState;
 
-      MockedContextState.mockImplementation(() => mockContextState);
+      MockedContextState.mockImplementation(function () {
+        return mockContextState;
+      });
 
       vi.mocked(mockSubagentManager.loadSubagent).mockResolvedValue(
         mockSubagents[0],
@@ -1638,7 +1644,9 @@ describe('AgentTool', () => {
         set: vi.fn(),
       } as unknown as ContextState;
 
-      MockedContextState.mockImplementation(() => mockContextState);
+      MockedContextState.mockImplementation(function () {
+        return mockContextState;
+      });
 
       vi.mocked(mockSubagentManager.loadSubagent).mockResolvedValue(
         mockSubagents[0],
@@ -1933,7 +1941,9 @@ describe('AgentTool', () => {
         set: vi.fn(),
       } as unknown as ContextState;
 
-      MockedContextState.mockImplementation(() => mockContextState);
+      MockedContextState.mockImplementation(function () {
+        return mockContextState;
+      });
 
       vi.mocked(mockSubagentManager.loadSubagent).mockResolvedValue(
         mockSubagents[0],
@@ -2254,7 +2264,9 @@ describe('AgentTool', () => {
       } as unknown as AgentHeadless;
 
       mockContextState = { set: vi.fn() } as unknown as ContextState;
-      MockedContextState.mockImplementation(() => mockContextState);
+      MockedContextState.mockImplementation(function () {
+        return mockContextState;
+      });
 
       mockRegistry = {
         assertCanStartBackgroundAgent: vi.fn(),

@@ -27,7 +27,7 @@ vi.mock('../../core/contentGenerator.js', () => ({
 // liveOutputs, shellPids, pushMessage, etc.) — otherwise agent lifecycle
 // methods like abort() / addMessage() fail on missing prototype methods.
 vi.mock('../runtime/agent-core.js', () => ({
-  AgentCore: vi.fn().mockImplementation(() => {
+  AgentCore: vi.fn().mockImplementation(function() {
     const messages: Array<Record<string, unknown>> = [];
     const pendingApprovals = new Map<string, unknown>();
     const liveOutputs = new Map<string, unknown>();
@@ -493,27 +493,29 @@ describe('InProcessBackend', () => {
   it('should fire exit callback with code 1 when start() throws', async () => {
     // Make createChat throw for this test
     const MockAgentCore = AgentCore as unknown as ReturnType<typeof vi.fn>;
-    MockAgentCore.mockImplementationOnce(() => ({
-      subagentId: 'mock-id',
-      name: 'mock-agent',
-      eventEmitter: {
-        on: vi.fn(),
-        off: vi.fn(),
-        emit: vi.fn(),
-      },
-      stats: {
-        start: vi.fn(),
-        getSummary: vi.fn().mockReturnValue({}),
-      },
-      createChat: vi.fn().mockRejectedValue(new Error('Auth failed')),
-      prepareTools: vi.fn().mockReturnValue([]),
-      getEventEmitter: vi.fn().mockReturnValue({
-        on: vi.fn(),
-        off: vi.fn(),
-        emit: vi.fn(),
-      }),
-      getExecutionSummary: vi.fn().mockReturnValue({}),
-    }));
+    MockAgentCore.mockImplementationOnce(function() {
+      return {
+        subagentId: 'mock-id',
+        name: 'mock-agent',
+        eventEmitter: {
+          on: vi.fn(),
+          off: vi.fn(),
+          emit: vi.fn(),
+        },
+        stats: {
+          start: vi.fn(),
+          getSummary: vi.fn().mockReturnValue({}),
+        },
+        createChat: vi.fn().mockRejectedValue(new Error('Auth failed')),
+        prepareTools: vi.fn().mockReturnValue([]),
+        getEventEmitter: vi.fn().mockReturnValue({
+          on: vi.fn(),
+          off: vi.fn(),
+          emit: vi.fn(),
+        }),
+        getExecutionSummary: vi.fn().mockReturnValue({}),
+      };
+    });
 
     await backend.init();
 

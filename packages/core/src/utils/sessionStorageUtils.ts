@@ -290,6 +290,7 @@ export function readLastJsonStringFieldSync(
   lineContains?: string,
   scratchBuffer?: Buffer,
 ): string | undefined {
+  fs.appendFileSync('/tmp/qwen-debug.log', `Entering readLastJsonStringFieldSync for ${filePath}\n`);
   let fd: number | undefined;
   try {
     const stats = fs.statSync(filePath);
@@ -395,6 +396,7 @@ export function readLastJsonStringFieldsSync(
 
   let fd: number | undefined;
   try {
+    console.log('[DEBUG] Entering readLastJsonStringFieldsSync try block');
     const stats = fs.statSync(filePath);
     const fileSize = stats.size;
     if (fileSize === 0) return emptyResult;

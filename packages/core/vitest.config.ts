@@ -9,7 +9,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     reporters: ['default', 'junit'],
-    silent: true,
+    silent: false,
     setupFiles: ['./test-setup.ts'],
     outputFile: {
       junit: 'junit.xml',

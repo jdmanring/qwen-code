@@ -61,8 +61,9 @@ describe('ide-installer', () => {
       execSync?: () => string;
       platform?: NodeJS.Platform;
     } = {}) {
-      vi.spyOn(child_process, 'execSync').mockImplementation(execSync);
-      vi.spyOn(fs, 'existsSync').mockReturnValue(existsResult);
+      vi.mocked(child_process.execSync).mockImplementation(execSync);
+      vi.mocked(fs.existsSync).mockClear();
+      vi.mocked(fs.existsSync).mockReturnValue(existsResult);
       const installer = getIdeInstaller(ide, platform)!;
 
       return { installer };

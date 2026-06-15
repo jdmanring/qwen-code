@@ -155,6 +155,7 @@ describe('sessionStorageUtils', () => {
 
     afterEach(() => {
       fs.rmSync(tmpDir, { recursive: true, force: true });
+      vi.restoreAllMocks();
     });
 
     function writeFile(name: string, content: string): string {
@@ -538,6 +539,7 @@ describe('sessionStorageUtils', () => {
 
     afterEach(() => {
       fs.rmSync(tmpDir, { recursive: true, force: true });
+      vi.restoreAllMocks();
     });
 
     function writeFile(name: string, content: string): string {

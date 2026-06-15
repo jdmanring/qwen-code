@@ -283,6 +283,7 @@ export class AgentHeadless {
         this.finalText = result.text;
         this.terminateMode = result.terminateMode ?? AgentTerminateMode.GOAL;
       } catch (error) {
+        console.error(`[AgentHeadless] FATAL ERROR in subagent ${this.core.name}:`, error);
         debugLogger.error('Error during subagent execution:', error);
         this.terminateMode = AgentTerminateMode.ERROR;
         this.core.eventEmitter?.emit(AgentEventType.ERROR, {

@@ -11,7 +11,7 @@
  * unsuitable for verifying actual `git config` side effects.
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi, beforeAll } from 'vitest';
 import { execFileSync } from 'node:child_process';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
@@ -26,8 +26,20 @@ describe('GitWorktreeService.createUserWorktree() — hooksPath setup', () => {
 
   let repoRoot: string;
 
+  beforeAll(async () => {
+    // Bypass git security restrictions on core.hooksPath in /tmp
+    execFileSync('git', ['config', '--global', 'safe.directory', '*']);
+    
+    // Also set a temporary global config to be absolutely sure
+    const configDir = await fs.mkdtemp(path.join(os.tmpdir(), 'qwen-git-config-suite-'));
+    const configPath = path.join(configDir, 'gitconfig');
+    await fs.writeFile(configPath, '[safe]\n\tdirectory = *\n');
+    process.env['GIT_CONFIG_GLOBAL'] = configPath;
+  });
+
   beforeEach(async () => {
     repoRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'qwen-wt-hooks-'));
+
     execFileSync('git', ['init', '-q', '-b', 'main'], { cwd: repoRoot });
     execFileSync('git', ['config', 'user.email', 't@e.com'], { cwd: repoRoot });
     execFileSync('git', ['config', 'user.name', 't'], { cwd: repoRoot });
@@ -45,7 +57,7 @@ describe('GitWorktreeService.createUserWorktree() — hooksPath setup', () => {
     await fs.rm(repoRoot, { recursive: true, force: true });
   });
 
-  function readWorktreeConfig(worktreePath: string, key: string): string {
+  async function readWorktreeConfig(worktreePath: string, key: string): Promise<string> {
     try {
       return execFileSync('git', ['config', '--local', key], {
         cwd: worktreePath,
@@ -67,7 +79,7 @@ describe('GitWorktreeService.createUserWorktree() — hooksPath setup', () => {
     const result = await svc.createUserWorktree('husky-test');
     expect(result.success).toBe(true);
 
-    const hooksPath = readWorktreeConfig(
+    const hooksPath = await readWorktreeConfig(
       result.worktree!.path,
       'core.hooksPath',
     );
@@ -79,7 +91,7 @@ describe('GitWorktreeService.createUserWorktree() — hooksPath setup', () => {
     const result = await svc.createUserWorktree('hooks-fallback');
     expect(result.success).toBe(true);
 
-    const hooksPath = readWorktreeConfig(
+    const hooksPath = await readWorktreeConfig(
       result.worktree!.path,
       'core.hooksPath',
     );

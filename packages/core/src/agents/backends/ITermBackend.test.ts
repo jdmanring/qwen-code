@@ -60,6 +60,17 @@ function makeConfig(
 }
 
 function setupDefaultMocks(): void {
+  // Clear call history for all hoisted mocks to ensure test isolation
+  hoistedVerifyITerm.mockClear();
+  hoistedItermSplitPane.mockClear();
+  hoistedItermRunCommand.mockClear();
+  hoistedItermSendText.mockClear();
+  hoistedItermFocusSession.mockClear();
+  hoistedItermCloseSession.mockClear();
+  hoistedFsMkdir.mockClear();
+  hoistedFsReadFile.mockClear();
+  hoistedFsRm.mockClear();
+
   hoistedVerifyITerm.mockResolvedValue(undefined);
   hoistedItermSplitPane.mockResolvedValue('sess-new-1');
   hoistedItermRunCommand.mockResolvedValue(undefined);

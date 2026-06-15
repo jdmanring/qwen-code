@@ -93,6 +93,28 @@ async function spawnWithTimers(
 }
 
 function setupDefaultMocks(): void {
+  // Clear call history for all hoisted mocks to ensure test isolation
+  hoistedVerifyTmux.mockClear();
+  hoistedTmuxCurrentPaneId.mockClear();
+  hoistedTmuxCurrentWindowTarget.mockClear();
+  hoistedTmuxHasSession.mockClear();
+  hoistedTmuxHasWindow.mockClear();
+  hoistedTmuxNewSession.mockClear();
+  hoistedTmuxNewWindow.mockClear();
+  hoistedTmuxSplitWindow.mockClear();
+  hoistedTmuxSendKeys.mockClear();
+  hoistedTmuxSelectPane.mockClear();
+  hoistedTmuxSelectPaneTitle.mockClear();
+  hoistedTmuxSelectPaneStyle.mockClear();
+  hoistedTmuxSelectLayout.mockClear();
+  hoistedTmuxListPanes.mockClear();
+  hoistedTmuxSetOption.mockClear();
+  hoistedTmuxRespawnPane.mockClear();
+  hoistedTmuxKillPane.mockClear();
+  hoistedTmuxKillSession.mockClear();
+  hoistedTmuxResizePane.mockClear();
+  hoistedTmuxGetFirstPaneId.mockClear();
+
   hoistedVerifyTmux.mockResolvedValue(undefined);
   hoistedTmuxHasSession.mockResolvedValue(false);
   hoistedTmuxHasWindow.mockResolvedValue(false);

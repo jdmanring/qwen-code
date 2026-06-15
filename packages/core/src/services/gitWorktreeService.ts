@@ -225,7 +225,7 @@ export class GitWorktreeService {
 
   constructor(sourceRepoPath: string, customBaseDir?: string) {
     this.sourceRepoPath = path.resolve(sourceRepoPath);
-    this.git = simpleGit(this.sourceRepoPath);
+    this.git = simpleGit(this.sourceRepoPath, { unsafe: { allowUnsafeHooksPath: true } } as any);
     this.customBaseDir = customBaseDir;
   }
 
@@ -1463,11 +1463,7 @@ export class GitWorktreeService {
       // of its own). Priority: .husky/ first (common for JS projects),
       // .git/hooks fallback. Mirrors claude-code's performPostCreationSetup.
       // Best-effort: hook failures must not abort worktree creation.
-      await this.configureHooksPath(worktreePath).catch((error) => {
-        debugLogger.warn(
-          `createUserWorktree: failed to configure core.hooksPath for ${slug}: ${error}`,
-        );
-      });
+      await this.configureHooksPath(worktreePath);
 
       // Phase D-2: symlink user-configured directories from the main
       // repo into the new worktree (e.g. node_modules) so the model can
@@ -1496,6 +1492,7 @@ export class GitWorktreeService {
       return { success: true, worktree };
     } catch (error) {
       const message = `Failed to create worktree "${slug}": ${error instanceof Error ? error.message : 'Unknown error'}`;
+      console.error(message);
       debugLogger.warn(`createUserWorktree: ${message}`);
       return { success: false, error: message };
     }
@@ -1557,7 +1554,7 @@ export class GitWorktreeService {
     }
     if (!hooksPath) return;
 
-    const worktreeGit = simpleGit(worktreePath);
+    const worktreeGit = simpleGit(worktreePath, { unsafe: { allowUnsafeHooksPath: true } } as any);
     let existing = '';
     try {
       // Saves the write subprocess when value already matches. The probe
@@ -1576,7 +1573,11 @@ export class GitWorktreeService {
     // — in both cases overwriting silently replaces the user's choice.
     // (PR #4174 review #3259975242.)
     if (existing === '') {
-      await worktreeGit.raw(['config', 'core.hooksPath', hooksPath]);
+      try {
+        await worktreeGit.raw(['config', '--local', 'core.hooksPath', hooksPath]);
+      } catch (e) {
+        debugLogger.warn(`configureHooksPath: failed to set core.hooksPath for ${worktreePath}: ${e}`);
+      }
     } else if (existing !== hooksPath) {
       debugLogger.debug(
         `configureHooksPath: preserving existing core.hooksPath=${existing} ` +

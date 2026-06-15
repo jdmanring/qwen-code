@@ -28,6 +28,7 @@ export interface InstallResult {
 async function findVsCodeCommand(
   platform: NodeJS.Platform = process.platform,
 ): Promise<string | null> {
+  console.log('[DEBUG] findVsCodeCommand platform:', platform);
   // 1. Check PATH first.
   const vscodeCommand = getVsCodeCommand(platform);
   try {
