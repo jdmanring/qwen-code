@@ -127,10 +127,8 @@ class PreFlight:
             if not symmetry_check.exists():
                 raise RuntimeError(f"Missing {symmetry_check.relative_to(self._git.root)}")
 
-            _resolve_ruff()
-
-            if not shutil.which("uv"):
-                raise RuntimeError("uv not found. Install from https://docs.astral.sh/uv/")
+            if not shutil.which("node"):
+                raise RuntimeError("node not found. Install Node.js >=22.")
 
             # Only block on changes to tracked files — untracked files can't pollute a merge.
             dirty = self._git.run(["git", "diff", "--quiet", "HEAD"], check=False).returncode != 0
@@ -220,41 +218,43 @@ class GateKeeper:
 
     def __init__(self, git: _GitRunner) -> None:
         self._git = git
-        self._ruff = _resolve_ruff()
 
     def verify(self) -> bool:
-        # Boot runs first: fail before `uv run ruff` can recreate a missing lockfile.
         return self._gate_boot() and self._gate_lint() and self._gate_symmetry()
 
     def _gate_boot(self) -> bool:
         """
-        Runs first — verifies the Python workspace is bootable before any `uv run`
-        command can silently recreate a stale or missing lockfile.
+        Verifies Node.js dependency integrity by running a clean install
+        with the locked lockfile. This catches drift between package.json
+        and package-lock.json.
         """
-        logger.info("Gate 1/3: Boot test (uv lock --check)...")
+        logger.info("Gate 1/3: Boot test (npm ci)...")
         result = subprocess.run(
-            ["uv", "lock", "--check"],
+            ["npm", "ci", "--ignore-scripts"],
             cwd=self._git.root,
             capture_output=True,
             text=True,
         )
         if result.returncode != 0:
             log_error(
-                f"Boot gate failed — lockfile out of sync:\n"
+                f"Boot gate failed — npm ci failed:\n"
                 f"{result.stderr.strip()}\n"
-                "Fix with: uv lock"
+                "Fix with: npm install"
             )
             return False
         log_success("Boot gate passed.")
         return True
 
     def _gate_lint(self) -> bool:
-        logger.info("Gate 2/3: Ruff lint...")
-        cmd = self._ruff + ["check", "."]
-        result = subprocess.run(cmd, cwd=self._git.root)
+        logger.info("Gate 2/3: ESLint...")
+        result = subprocess.run(
+            ["npx", "eslint", ".", "--ext", ".ts,.tsx", "--max-warnings", "0"],
+            cwd=self._git.root,
+            capture_output=True,
+            text=True,
+        )
         if result.returncode != 0:
-            fix_cmd = " ".join(self._ruff + ["check", "--fix", "."])
-            log_error(f"Lint gate failed. Auto-fix attempt: {fix_cmd}")
+            log_error(f"Lint gate failed:\n{result.stdout.strip()}")
             return False
         log_success("Lint gate passed.")
         return True
