@@ -290,7 +290,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@agentclientprotocol/sdk": "^0.22.1",
+    "@agentclientprotocol/sdk": "^0.25.1",
     "@qwen-code/sdk": "*",
     "@qwen-code/webui": "*",
     "@modelcontextprotocol/sdk": "^1.25.2",
