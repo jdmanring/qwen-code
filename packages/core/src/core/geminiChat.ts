@@ -77,6 +77,7 @@ import { getContextLengthExceededInfo } from '../utils/contextLengthError.js';
 import { isSystemReminderContent } from '../utils/environmentContext.js';
 import type { SessionStartSource } from '../hooks/types.js';
 import { getCustomSystemPrompt } from './prompts.js';
+import { RETRYABLE_STREAM_TRANSPORT_CODES } from './stream-transport-retry.js';
 import {
   collectToolCallIdsFromHistory,
   normalizeModelToolCallIds,
@@ -306,6 +307,11 @@ const INVALID_CONTENT_RETRY_OPTIONS: ContentRetryOptions = {
 const INVALID_STREAM_RETRY_CONFIG = {
   maxRetries: 2,
   initialDelayMs: 2000,
+};
+
+const TRANSPORT_STREAM_RETRY_CONFIG = {
+  maxRetries: 2,
+  initialDelayMs: 1000,
 };
 
 /**
@@ -1991,6 +1997,7 @@ export class GeminiChat implements GeminiChatInterface {
         let lastError: unknown = new Error('Request failed after all retries.');
         let rateLimitRetryCount = 0;
         let invalidStreamRetryCount = 0;
+        let transportStreamRetryCount = 0;
         let reactiveCompressionAttempted = false;
         let suppressNextRetryEvent = false;
 
@@ -2016,13 +2023,15 @@ export class GeminiChat implements GeminiChatInterface {
           attempt < INVALID_CONTENT_RETRY_OPTIONS.maxAttempts;
           attempt++
         ) {
+          let streamYieldedChunk = false;
           try {
             if (suppressNextRetryEvent) {
               suppressNextRetryEvent = false;
             } else if (
               attempt > 0 ||
               rateLimitRetryCount > 0 ||
-              invalidStreamRetryCount > 0
+              invalidStreamRetryCount > 0 ||
+              transportStreamRetryCount > 0
             ) {
               yield { type: StreamEventType.RETRY };
             }
@@ -2036,6 +2045,7 @@ export class GeminiChat implements GeminiChatInterface {
 
             lastFinishReason = undefined;
             for await (const chunk of stream) {
+              streamYieldedChunk = true;
               const fr = chunk.candidates?.[0]?.finishReason;
               if (fr) lastFinishReason = fr;
               yield { type: StreamEventType.CHUNK, value: chunk };
@@ -2098,13 +2108,16 @@ export class GeminiChat implements GeminiChatInterface {
             // These arrive as StreamContentError with finish_reason="error_finish"
             // from the pipeline, containing the throttling message in the content.
             // Covers TPM throttling, GLM rate limits, and other provider throttling.
+            // Classify once per failed attempt; reused by the rate-limit
+            // diagnostics below and the transport-retry decision further down.
+            const classification = classifyRetryError(error, {
+              authType: cgConfig?.authType,
+              extraRetryErrorCodes,
+            });
+
             const isRateLimit = isRateLimitError(error, extraRetryErrorCodes);
             if (isRateLimit) {
               const details = getRateLimitErrorDetails(error);
-              const classification = classifyRetryError(error, {
-                authType: cgConfig?.authType,
-                extraRetryErrorCodes,
-              });
               // The classifier is observation-only here; stream retry control
               // remains governed by isRateLimitError and the retry budget.
               const diagnosticFields = {
@@ -2161,6 +2174,57 @@ export class GeminiChat implements GeminiChatInterface {
                 attempts: rateLimitRetryCount,
                 maxRetries: maxRateLimitRetries,
                 ...diagnosticFields,
+              });
+            }
+
+            // Replay only curated socket-level failures before any response
+            // chunk has reached callers.
+            const isRetryableStreamTransportError =
+              classification.kind === 'transport' &&
+              classification.transportCode !== undefined &&
+              RETRYABLE_STREAM_TRANSPORT_CODES.has(
+                classification.transportCode,
+              );
+            if (
+              isRetryableStreamTransportError &&
+              !streamYieldedChunk &&
+              transportStreamRetryCount <
+                TRANSPORT_STREAM_RETRY_CONFIG.maxRetries
+            ) {
+              popPartialIfPushed();
+              transportStreamRetryCount++;
+              const delayMs =
+                TRANSPORT_STREAM_RETRY_CONFIG.initialDelayMs *
+                transportStreamRetryCount;
+              debugLogger.warn('Transport stream retry scheduled', {
+                retryPath: 'stream',
+                retryDecision: 'retry',
+                attempt: transportStreamRetryCount,
+                maxRetries: TRANSPORT_STREAM_RETRY_CONFIG.maxRetries,
+                retryDelayMs: delayMs,
+                errorKind: classification.kind,
+                transportCode: classification.transportCode,
+              });
+              yield { type: StreamEventType.RETRY };
+              suppressNextRetryEvent = true;
+              // Don't count transport retries against the content retry limit.
+              attempt--;
+              await delay(delayMs, params.config?.abortSignal).promise;
+              continue;
+            }
+            if (isRetryableStreamTransportError) {
+              // Reached only when the retry above did not fire: either a chunk
+              // was already yielded (replaying would duplicate output) or the
+              // retry budget is exhausted. Either way the error propagates.
+              debugLogger.warn('Transport stream retry not taken', {
+                retryPath: 'stream',
+                retryDecision: streamYieldedChunk
+                  ? 'skipped_after_chunk'
+                  : 'exhausted',
+                attempts: transportStreamRetryCount,
+                maxRetries: TRANSPORT_STREAM_RETRY_CONFIG.maxRetries,
+                errorKind: classification.kind,
+                transportCode: classification.transportCode,
               });
             }
 
