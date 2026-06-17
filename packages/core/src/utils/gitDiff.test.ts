@@ -10,6 +10,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import type { StructuredPatchHunk } from 'diff';
 import {
   fetchGitDiff,
   fetchGitDiffHunks,
@@ -1280,5 +1281,23 @@ describe('fetchGitDiff untracked counting', () => {
     expect(result!.stats.linesAdded).toBe(totalUntracked);
     // Visible per-file rows still cap at MAX_FILES.
     expect(result!.perFileStats.size).toBe(MAX_FILES);
+  });
+});
+
+describe('GitDiffHunk type alias', () => {
+  it('is assignable to and from StructuredPatchHunk', () => {
+    // GitDiffHunk is a type alias for StructuredPatchHunk (from diff v9).
+    // This test verifies the alias is compatible at the type level.
+    const hunk: import('./gitDiff.js').GitDiffHunk = {
+      oldStart: 1,
+      oldLines: 3,
+      newStart: 1,
+      newLines: 4,
+      lines: [' line one', '-removed', '+added'],
+      oldContentHeader: undefined,
+      newContentHeader: undefined,
+    } satisfies StructuredPatchHunk;
+    expect(hunk.oldStart).toBe(1);
+    expect(hunk.lines).toHaveLength(3);
   });
 });

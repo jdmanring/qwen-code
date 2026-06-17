@@ -5,7 +5,8 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { getDiffStat, hasHunks, createPatchSmart } from './diffOptions.js';
+import type { StructuredPatchOptionsNonabortable } from 'diff';
+import { DEFAULT_DIFF_OPTIONS, getDiffStat, hasHunks, createPatchSmart } from './diffOptions.js';
 
 describe('hasHunks', () => {
   it('should return false for empty string', () => {
@@ -233,5 +234,16 @@ describe('getDiffStat', () => {
       user_added_chars: 0,
       user_removed_chars: 0,
     });
+  });
+});
+
+describe('DEFAULT_DIFF_OPTIONS type', () => {
+  it('satisfies StructuredPatchOptionsNonabortable', () => {
+    // DEFAULT_DIFF_OPTIONS is typed as satisfying
+    // StructuredPatchOptionsNonabortable (diff v9). This test verifies
+    // the type is compatible at the type level.
+    const opts: StructuredPatchOptionsNonabortable = DEFAULT_DIFF_OPTIONS;
+    expect(opts.context).toBe(3);
+    expect(opts.ignoreWhitespace).toBe(true);
   });
 });
