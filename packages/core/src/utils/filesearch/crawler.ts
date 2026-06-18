@@ -644,7 +644,7 @@ function getPosixRelative(from: string, to: string): string {
 
 function isValidIgnorePath(relativePath: string): boolean {
   if (!relativePath || relativePath === '.') {
-    return false;
+    return true;
   }
 
   if (path.posix.isAbsolute(relativePath)) {
@@ -732,6 +732,8 @@ function applyFilters(
   const fileFilter = options.ignore.getFileFilter();
 
   return results.filter((p) => {
+    if (p === '.') return true;
+
     if (maxDepth !== undefined && p !== '.') {
       const crawlRootRelativeEntry = relativeToCrawlDir
         ? stripCrawlDirectoryPrefix(p, relativeToCrawlDir)
@@ -741,10 +743,9 @@ function applyFilters(
       }
     }
 
-    if (p === '.') return true;
-
     if (p.endsWith('/')) {
-      if (!isValidIgnorePath(p.slice(0, -1))) {
+      const stripped = p.slice(0, -1);
+      if (!isValidIgnorePath(stripped)) {
         return false;
       }
       return !dirFilter(p);
@@ -963,20 +964,25 @@ function posixPathUnderGitRoot(
   normCrawlDir: string,
 ): string {
   const nf = normalizeGitPath(normalizedFile, false);
+  const isDir = nf.endsWith('/');
 
   if (relativeToGitRoot && relativeToGitRoot !== '.') {
     const rest = sliceAfterGitPathspecPrefix(nf, normGitRoot);
     if (rest !== null) {
-      return path.posix.join(normCrawlDir, rest);
+      const joined = path.posix.join(normCrawlDir, rest);
+      return isDir && !joined.endsWith('/') ? `${joined}/` : joined;
     }
     if (equalsRepoRelativeCaseAware(nf, normGitRoot)) {
       const base = nf.replace(/\/+$/, '');
       return `${base}/`;
     }
     const nfFile = nf.replace(/\/+$/, '');
-    return path.posix.join(normCrawlDir, nfFile);
+    const joined = path.posix.join(normCrawlDir, nfFile);
+    return isDir && !joined.endsWith('/') ? `${joined}/` : joined;
   }
-  return path.posix.join(normCrawlDir, nf.replace(/\/+$/, ''));
+  const nfFile = nf.replace(/\/+$/, '');
+  const joined = path.posix.join(normCrawlDir, nfFile);
+  return isDir && !joined.endsWith('/') ? `${joined}/` : joined;
 }
 
 async function crawlWithGitLsFiles(
@@ -1091,6 +1097,22 @@ async function crawlWithGitLsFiles(
       return true;
     }
     if (stat.isDirectory()) {
+      const fullPath = posixPathUnderGitRoot(
+        normalizedFile,
+        relativeToGitRoot,
+        relativeToCrawlDir,
+        normGitRoot,
+        normCrawlDir,
+      );
+      if (!shouldIncludeFile(fullPath, dirFilter, fileFilter)) {
+        return true;
+      }
+      fileSet.add(fullPath);
+      if (
+        shouldCountTowardBudget(fullPath, relativeToCrawlDir, options.maxDepth)
+      ) {
+        budgetedFileCount++;
+      }
       return true;
     }
 
@@ -1204,8 +1226,11 @@ async function crawlWithGitLsFiles(
   return { success: true, files: limitedResults };
 }
 
-function buildResultsFromFileSet(files: Set<string>): string[] {
-  const dirSet = new Set<string>();
+function buildResultsFromFileSet(
+  files: Set<string>,
+  extraDirs: Set<string> = new Set(),
+): string[] {
+  const dirSet = new Set<string>(extraDirs);
   for (const file of files) {
     const parts = file.split('/');
     let current = '';
@@ -1214,7 +1239,8 @@ function buildResultsFromFileSet(files: Set<string>): string[] {
       dirSet.add(current + '/');
     }
   }
-  return ['.', ...Array.from(dirSet), ...Array.from(files)];
+  const dirs = Array.from(dirSet).sort();
+  return ['.', ...dirs, ...Array.from(files)];
 }
 
 async function crawlWithRipgrep(
@@ -1271,7 +1297,26 @@ async function crawlWithRipgrep(
     }
   }
 
-  const results = buildResultsFromFileSet(fileSet);
+  const extraDirs = new Set<string>();
+  try {
+    const fdirApi = new fdir()
+      .withRelativePaths()
+      .withDirs()
+      .withPathSeparator('/')
+      .filter((path, isDir) => isDir);
+    const dirs = await fdirApi.crawl(crawlDirectory).withPromise();
+    for (const d of dirs) {
+      if (d === '.') continue;
+      const fullPath = path.posix.join(relativeToCrawlDir, d);
+      if (shouldIncludeFile(fullPath, dirFilter, fileFilter)) {
+        extraDirs.add(fullPath.endsWith('/') ? fullPath : `${fullPath}/`);
+      }
+    }
+  } catch (_e) {
+    // Fallback: if fdir fails, we just lose empty directories, which is what we have now.
+  }
+
+  const results = buildResultsFromFileSet(fileSet, extraDirs);
   const filteredResults = applyFilters(
     results,
     options,
