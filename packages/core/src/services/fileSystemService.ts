@@ -279,7 +279,7 @@ export class StandardFileSystemService implements FileSystemService {
     params: Omit<WriteTextFileRequest, 'sessionId'>,
   ): Promise<WriteTextFileResponse> {
     const { path: filePath, _meta } = params;
-    const prepared = prepareTextFileContent(filePath, params.content, _meta);
+    const prepared = prepareTextFileContent(filePath, params['content'], _meta);
     if (Buffer.isBuffer(prepared.data)) {
       await atomicWriteFile(filePath, prepared.data);
     } else {

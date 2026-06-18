@@ -1059,7 +1059,7 @@ export class AcpDispatcher {
           const ctx = this.sessionCtx(conn, sessionId, loopback);
           await this.bridge.setSessionModel(
             sessionId,
-            { modelId, sessionId },
+            { modeId, sessionId },
             ctx,
           );
           this.replySession(conn, sessionId, id, {});

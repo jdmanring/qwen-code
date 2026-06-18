@@ -2652,10 +2652,10 @@ export function createServeApp(
   app.post('/session/:id/model', mutate(), async (req, res) => {
     const sessionId = req.params['id'];
     const body = safeBody(req);
-    const modelId = body['modelId'];
-    if (typeof modelId !== 'string' || !modelId) {
+    const modeId = body['modeId'];
+    if (typeof modeId !== 'string' || !modeId) {
       res.status(400).json({
-        error: '`modelId` is required and must be a non-empty string',
+        error: '`modeId` is required and must be a non-empty string',
       });
       return;
     }
@@ -2667,7 +2667,7 @@ export function createServeApp(
         {
           ...(body as object),
           sessionId,
-          modelId,
+          modeId,
         } as Parameters<AcpSessionBridge['setSessionModel']>[1],
         clientId !== undefined ? { clientId } : undefined,
       );
