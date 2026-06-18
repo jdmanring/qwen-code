@@ -118,8 +118,6 @@ import type {
   SessionUpdate,
   SetSessionConfigOptionRequest,
   SetSessionConfigOptionResponse,
-  SetSessionModelRequest,
-  SetSessionModelResponse,
   SetSessionModeRequest,
   SetSessionModeResponse,
 } from '@agentclientprotocol/sdk';
@@ -2836,13 +2834,11 @@ class QwenAgent implements Agent {
 
     const session = await this.createAndStoreSession(config);
     const availableModels = this.buildAvailableModels(config);
-    const modesData = this.buildModesData(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
       sessionId: session.getId(),
-      models: availableModels,
-      modes: modesData,
+      modes: availableModels,
       configOptions,
     };
   }
@@ -2878,13 +2874,11 @@ class QwenAgent implements Agent {
 
     await this.#restoreWorktreeOnResume(config, session);
 
-    const modesData = this.buildModesData(config);
     const availableModels = this.buildAvailableModels(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
-      modes: modesData,
-      models: availableModels,
+      modes: availableModels,
       configOptions,
     };
   }
@@ -2921,13 +2915,11 @@ class QwenAgent implements Agent {
 
     await this.#restoreWorktreeOnResume(config, session);
 
-    const modesData = this.buildModesData(config);
     const availableModels = this.buildAvailableModels(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
-      modes: modesData,
-      models: availableModels,
+      modes: availableModels,
       configOptions,
     };
   }
@@ -3010,8 +3002,8 @@ class QwenAgent implements Agent {
   }
 
   async unstable_setSessionModel(
-    params: SetSessionModelRequest,
-  ): Promise<SetSessionModelResponse | void> {
+    params: SetSessionModeRequest,
+  ): Promise<SetSessionModeResponse | void> {
     const session = this.sessions.get(params.sessionId);
     if (!session) {
       throw RequestError.invalidParams(
@@ -7814,7 +7806,7 @@ class QwenAgent implements Agent {
     return session;
   }
 
-  private buildAvailableModels(config: Config): NewSessionResponse['models'] {
+  private buildAvailableModels(config: Config): NewSessionResponse['modes'] {
     const rawCurrentModelId = (
       config.getModel() ||
       this.config.getModel() ||

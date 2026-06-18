@@ -145,8 +145,8 @@ import type {
   SessionUpdate,
   SetSessionModeRequest,
   SetSessionModeResponse,
-  SetSessionModelRequest,
-  SetSessionModelResponse,
+  SetSessionModeRequest,
+  SetSessionModeResponse,
   AgentSideConnection,
 } from '@agentclientprotocol/sdk';
 import type { LoadedSettings } from '../../config/settings.js';
@@ -3621,9 +3621,9 @@ export class Session implements SessionContext {
    * Validates the model ID and switches the model via Config.
    */
   async setModel(
-    params: SetSessionModelRequest,
+    params: SetSessionModeRequest,
     options: { persistDefault?: boolean } = {},
-  ): Promise<SetSessionModelResponse | void> {
+  ): Promise<SetSessionModeResponse | void> {
     const rawModelId = params.modelId.trim();
 
     if (!rawModelId) {
