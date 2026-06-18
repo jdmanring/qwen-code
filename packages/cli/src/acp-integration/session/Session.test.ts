@@ -1168,7 +1168,7 @@ describe('Session', () => {
       await session.sendAvailableCommandsUpdate();
 
       const meta = (
-        vi.mocked(mockClient.sessionUpdate).mock.calls.at(-1)![0] as {
+        vi.mocked(mockClient.sessionUpdate).mock.calls.at(-1)![0] as unknown as {
           update: {
             _meta: {
               availableSkills: string[];
@@ -6734,7 +6734,7 @@ describe('Session', () => {
         .filter(
           (update) =>
             update.sessionUpdate === 'tool_call_update' &&
-            update._meta?.provenance === 'subagent',
+            update._meta?.['provenance'] === 'subagent',
         );
       expect(subagentUpdates).toEqual([]);
     });
