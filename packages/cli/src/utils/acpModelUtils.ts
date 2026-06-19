@@ -105,33 +105,33 @@ export function parseAcpBaseModelId(value: string): string {
 }
 
 /**
- * Parses an ACP model option string into `{ modelId, authType? }`.
+ * Parses an ACP model option string into `{ modeId, authType? }`.
  *
  * Supports the following formats:
- * - `${modelId}(${authType})` - Standard registry model (e.g., "gpt-4(USE_OPENAI)")
+ * - `${modeId}(${authType})` - Standard registry model (e.g., "gpt-4(USE_OPENAI)")
  * - `${snapshotId}(${authType})` - Runtime model snapshot (e.g., "$runtime|USE_OPENAI|gpt-4(USE_OPENAI)")
- *   where snapshotId is in format `$runtime|${authType}|${modelId}`
+ *   where snapshotId is in format `$runtime|${authType}|${modeId}`
  * - Plain model ID - Returns as-is with no authType
  *
  * If the string ends with `(...)` and `...` is a valid `AuthType`, returns both;
- * otherwise returns the trimmed input as `modelId` only.
+ * otherwise returns the trimmed input as `modeId` only.
  */
 export function parseAcpModelOption(input: string): {
-  modelId: string;
+  modeId: string;
   authType?: AuthType;
 } {
   const trimmed = input.trim();
   const closeIdx = trimmed.lastIndexOf(')');
   const openIdx = trimmed.lastIndexOf('(');
   if (openIdx >= 0 && closeIdx === trimmed.length - 1 && openIdx < closeIdx) {
-    const maybeModelId = trimmed.slice(0, openIdx);
+    const maybeModeId = trimmed.slice(0, openIdx);
     const maybeAuthType = trimmed.slice(openIdx + 1, closeIdx);
     const parsedAuthType = z.nativeEnum(AuthType).safeParse(maybeAuthType);
     if (parsedAuthType.success) {
-      return { modelId: maybeModelId, authType: parsedAuthType.data };
+      return { modeId: maybeModeId, authType: parsedAuthType.data };
     }
   }
-  return { modelId: trimmed };
+  return { modeId: trimmed };
 }
 
 /**

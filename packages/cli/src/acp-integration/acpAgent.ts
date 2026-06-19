@@ -3039,7 +3039,7 @@ class QwenAgent implements Agent {
         await session.setModel(
           {
             sessionId,
-            modelId: value as string,
+            modeId: value as string,
           },
           { persistDefault: false },
         );
@@ -7818,21 +7818,21 @@ class QwenAgent implements Agent {
       .filter(isMainSelectableModel);
 
     const activeRuntimeSnapshot = config.getActiveRuntimeModelSnapshot?.();
-    const currentModelId = activeRuntimeSnapshot
+    const currentModeId = activeRuntimeSnapshot
       ? formatAcpModelId(
           activeRuntimeSnapshot.id,
           activeRuntimeSnapshot.authType,
         )
       : this.formatCurrentModelId(rawCurrentModelId, currentAuthType);
 
-    const mappedAvailableModels = allConfiguredModels.map((model) => {
+    const mappedAvailableModes = allConfiguredModels.map((model) => {
       const effectiveModelId =
         model.isRuntimeModel && model.runtimeSnapshotId
           ? model.runtimeSnapshotId
           : model.id;
 
       return {
-        modelId: formatAcpModelId(effectiveModelId, model.authType),
+        id: formatAcpModelId(effectiveModelId, model.authType),
         name: model.label,
         description: model.description ?? null,
         _meta: {
@@ -7842,8 +7842,8 @@ class QwenAgent implements Agent {
     });
 
     return {
-      currentModelId,
-      availableModels: mappedAvailableModels,
+      currentModeId,
+      availableModes: mappedAvailableModes,
     };
   }
 

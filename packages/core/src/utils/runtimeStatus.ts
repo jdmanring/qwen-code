@@ -151,7 +151,7 @@ export async function readRuntimeStatus(
   const workDir = obj['work_dir'];
   const hostname = obj['hostname'];
   const startedAt = obj['started_at'];
-  const qwenVersion = obj['qwen_version'];
+  const qwenVersion = obj['qwen_version'] ?? null;
 
   if (!isFiniteInteger(schemaVersion)) return null;
   if (!isFiniteInteger(pid)) return null;
