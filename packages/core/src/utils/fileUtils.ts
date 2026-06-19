@@ -1154,20 +1154,20 @@ export async function processSingleFileContent(
           filePath,
           pageRange ?? undefined,
         );
-        if (pdfResult.success) {
-          const pagesLabel = pages ? ` (pages ${pages})` : '';
+        if (pdfResult.success === false) {
+          // pdftotext failed or not available — return helpful error
           return {
-            llmContent: pdfResult.text,
-            returnDisplay: `Read pdf as text${pagesLabel}: ${relativePathForDisplay}`,
+            llmContent: `[Cannot extract text from PDF: "${displayName}". ${pdfResult.error}]`,
+            returnDisplay: `Failed to read pdf: ${relativePathForDisplay}`,
+            error: pdfResult.error,
+            errorType: ToolErrorType.READ_CONTENT_FAILURE,
           };
         }
 
-        // pdftotext failed or not available — return helpful error
+        const pagesLabel = pages ? ` (pages ${pages})` : '';
         return {
-          llmContent: `[Cannot extract text from PDF: "${displayName}". ${pdfResult.error}]`,
-          returnDisplay: `Failed to read pdf: ${relativePathForDisplay}`,
-          error: pdfResult.error,
-          errorType: ToolErrorType.READ_CONTENT_FAILURE,
+          llmContent: pdfResult.text,
+          returnDisplay: `Read pdf as text${pagesLabel}: ${relativePathForDisplay}`,
         };
       }
       case 'notebook': {

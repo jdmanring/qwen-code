@@ -808,9 +808,8 @@ function createToolMessage(
   return {
     role: 'tool' as const,
     tool_call_id: response.id || '',
-    content: contentParts as unknown as
-      | string
-      | OpenAI.Chat.ChatCompletionContentPartText[],
+    content:
+      contentParts as unknown as OpenAI.Chat.ChatCompletionToolMessageParam['content'],
   };
 }
 
@@ -1098,7 +1097,7 @@ export function convertOpenAIResponseToGemini(
     // Handle tool calls
     if (choice.message.tool_calls) {
       for (const toolCall of choice.message.tool_calls) {
-        if (toolCall.function) {
+        if ('function' in toolCall && toolCall.function) {
           let args: Record<string, unknown> = {};
           if (toolCall.function.arguments) {
             args = safeJsonParse(toolCall.function.arguments, {});
@@ -1259,7 +1258,7 @@ export function convertOpenAIChunkToGemini(
         const index = toolCall.index ?? 0;
 
         // Process the tool call chunk through the streaming parser
-        if (toolCall.function?.arguments) {
+        if ('function' in toolCall && toolCall.function?.arguments) {
           toolCallParser.addChunk(
             index,
             toolCall.function.arguments,
@@ -1272,7 +1271,7 @@ export function convertOpenAIChunkToGemini(
             index,
             '', // Empty chunk for metadata-only updates
             toolCall.id,
-            toolCall.function?.name,
+            'function' in toolCall ? toolCall.function?.name : undefined,
           );
         }
       }

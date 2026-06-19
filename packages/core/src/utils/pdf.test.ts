@@ -378,7 +378,7 @@ describe('pdf utilities', () => {
       mockExecError();
       const result = await extractPDFText('/test.pdf');
       expect(result.success).toBe(false);
-      if (!result.success) {
+      if (result.success === false) {
         expect(result.error).toContain('pdftotext is not installed');
       }
     });
@@ -397,7 +397,7 @@ describe('pdf utilities', () => {
 
       const result = await extractPDFText('/test.pdf');
       expect(result.success).toBe(false);
-      if (!result.success) {
+      if (result.success === false) {
         expect(result.error).toContain('password-protected');
       }
     });
@@ -416,7 +416,7 @@ describe('pdf utilities', () => {
 
       const result = await extractPDFText('/test.pdf');
       expect(result.success).toBe(false);
-      if (!result.success) {
+      if (result.success === false) {
         expect(result.error).toContain('corrupted or invalid');
       }
     });
@@ -495,7 +495,7 @@ describe('pdf utilities', () => {
 
       const result = await extractPDFText('/test.pdf');
       expect(result.success).toBe(false);
-      if (!result.success) {
+      if (result.success === false) {
         expect(result.error).toContain('password-protected');
       }
     });
@@ -528,7 +528,7 @@ describe('pdf utilities', () => {
 
       const result = await extractPDFText('/test.pdf');
       expect(result.success).toBe(false);
-      if (!result.success) {
+      if (result.success === false) {
         expect(result.error).toMatch(/timed out/i);
       }
     });
@@ -563,7 +563,7 @@ describe('pdf utilities', () => {
 
       const result = await extractPDFText('/test.pdf');
       expect(result.success).toBe(false);
-      if (!result.success) {
+      if (result.success === false) {
         expect(result.error).toMatch(/timed out/i);
       }
     });
@@ -582,7 +582,7 @@ describe('pdf utilities', () => {
 
       const result = await extractPDFText('/test.pdf');
       expect(result.success).toBe(false);
-      if (!result.success) {
+      if (result.success === false) {
         expect(result.error).toContain('no text output');
       }
     });

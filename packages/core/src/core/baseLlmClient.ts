@@ -451,7 +451,7 @@ export class BaseLlmClient {
    */
   async resolveForModel(model: string): Promise<ResolvedGeneratorForModel> {
     const selector = this.resolveModelSelector(model);
-    const requestModel = selector?.modelId ?? this.config.getModel() ?? model;
+    const requestModel = selector?.modeId ?? this.config.getModel() ?? model;
     const mainModel = this.config.getModel() ?? model;
     const mainGeneratorConfig = this.config.getContentGeneratorConfig();
     const mainAuthType = mainGeneratorConfig?.authType;
@@ -507,7 +507,7 @@ export class BaseLlmClient {
     const modelsConfig = this.config.getModelsConfig?.();
     if (!modelsConfig) return undefined;
     if (!selector) return undefined;
-    const modelId = selector.modelId;
+    const modelId = selector.modeId;
 
     if (selector.authType) {
       return modelsConfig.getResolvedModel(selector.authType, modelId);
@@ -541,7 +541,7 @@ export class BaseLlmClient {
     selector: ResolvedModelId | undefined,
   ): Promise<ContentGenerator> {
     const cacheKey = selector
-      ? `${selector.authType ?? ''}:${selector.modelId}`
+      ? `${selector.authType ?? ''}:${selector.modeId}`
       : model;
     const cached = this.perModelGeneratorCache.get(cacheKey);
     if (cached) return cached;
@@ -561,7 +561,7 @@ export class BaseLlmClient {
 
     const generatorPromise = (async () => {
       try {
-        const targetModel = resolvedModel.id ?? selector?.modelId ?? model;
+        const targetModel = resolvedModel.id ?? selector?.modeId ?? model;
         const targetConfig = buildAgentContentGeneratorConfig(
           this.config,
           targetModel,

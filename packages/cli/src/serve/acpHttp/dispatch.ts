@@ -944,7 +944,7 @@ export class AcpDispatcher {
           if (configId === 'model') {
             await this.bridge.setSessionModel(
               sessionId,
-              { modelId: rawValue } as unknown as Parameters<
+              { modeId: rawValue } as unknown as Parameters<
                 HttpAcpBridge['setSessionModel']
               >[1],
               ctx,
@@ -1043,15 +1043,15 @@ export class AcpDispatcher {
             return;
           }
           if (!this.requireOwned(conn, sessionId, id)) return;
-          const modelId = String(params['modelId'] ?? '');
-          if (!modelId) {
+          const modeId = String(params['modeId'] ?? '');
+          if (!modeId) {
             if (id !== undefined) {
               this.replySession(
                 conn,
                 sessionId,
                 id,
                 undefined,
-                error(id, RPC.INVALID_PARAMS, '`modelId` is required'),
+                error(id, RPC.INVALID_PARAMS, '`modeId` is required'),
               );
             }
             return;
