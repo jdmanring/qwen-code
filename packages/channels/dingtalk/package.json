@@ -24,6 +24,6 @@
     "dingtalk-stream-sdk-nodejs": "^2.0.4"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.8.3"
   }
 }
