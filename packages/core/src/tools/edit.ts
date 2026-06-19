@@ -175,7 +175,7 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
         params.file_path,
         'editing',
       );
-      if (!decision.ok) {
+      if (decision.ok === false) {
         return {
           currentContent: null,
           newContent: '',
@@ -235,7 +235,7 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
         'editing',
         { expectExisting: true },
       );
-      if (!postDecision.ok) {
+      if (postDecision.ok === false) {
         // Forensic trail for post-read TOCTOU rejections. These are
         // rare ("file changed between stat and read") and the model
         // self-heals by re-reading, so without a debug record an
@@ -538,7 +538,7 @@ class EditToolInvocation implements ToolInvocation<EditToolParams, ToolResult> {
           // pre-write state (ok:true → writeTextFile creates).
           { expectExisting: !editData.isNewFile },
         );
-        if (!writeDecision.ok) {
+        if (writeDecision.ok === false) {
           debugLogger.warn('pre-write TOCTOU rejection', {
             path: this.params.file_path,
             reason: writeDecision.type,

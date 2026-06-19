@@ -353,7 +353,7 @@ export function ModelDialog({
   }, [fastModelSetting, isFastModelMode]);
   const preferredModelId =
     isFastModelMode && parsedFastModelSetting
-      ? parsedFastModelSetting.modelId
+      ? parsedFastModelSetting.modeId
       : config?.getModel() || MAINLINE_CODER_MODEL;
   // Check if current model is a runtime model
   // Runtime snapshot ID is already in $runtime|${authType}|${modelId} format
@@ -375,10 +375,10 @@ export function ModelDialog({
         ? availableModelEntries.find(
             ({ authType: t2, model }) =>
               t2 === parsedFastModelSetting.authType &&
-              model.id === parsedFastModelSetting.modelId,
+              model.id === parsedFastModelSetting.modeId,
           )
         : availableModelEntries.find(
-            ({ model }) => model.id === parsedFastModelSetting.modelId,
+            ({ model }) => model.id === parsedFastModelSetting.modeId,
           )
       : undefined;
   const preferredKey = activeRuntimeSnapshot

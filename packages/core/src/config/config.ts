@@ -70,7 +70,6 @@ import { ToolRegistry, type ToolFactory } from '../tools/tool-registry.js';
 import type { McpBudgetEvent } from '../tools/mcp-client-manager.js';
 import { ToolNames } from '../tools/tool-names.js';
 import type { LspClient, LspStatusSnapshot } from '../lsp/types.js';
-import type { InstructionLoadReason } from '../hooks/types.js';
 
 // Other modules
 import { ideContextStore } from '../ide/ideContext.js';
@@ -122,6 +121,7 @@ import {
   type HookExecutionResponse,
 } from '../confirmation-bus/types.js';
 import {
+  type InstructionLoadReason,
   PermissionMode,
   NotificationType,
   type PermissionDeniedReason,
@@ -1670,7 +1670,7 @@ export class Config {
                   (input['tool_name'] as string) || '',
                   (input['tool_input'] as Record<string, unknown>) || {},
                   (input['tool_use_id'] as string) || '',
-                  (input['permission_mode'] as PermissionMode | undefined) ??
+                  (input['permission_mode'] as PermissionMode) ||
                     PermissionMode.Default,
                   signal,
                 );
@@ -1682,7 +1682,8 @@ export class Config {
                   (input['tool_input'] as Record<string, unknown>) || {},
                   (input['tool_response'] as Record<string, unknown>) || {},
                   (input['tool_use_id'] as string) || '',
-                  (input['permission_mode'] as PermissionMode) || 'default',
+                  (input['permission_mode'] as PermissionMode) ||
+                    PermissionMode.Default,
                   signal,
                 );
                 break;
@@ -1693,14 +1694,16 @@ export class Config {
                   (input['tool_input'] as Record<string, unknown>) || {},
                   (input['error'] as string) || '',
                   input['is_interrupt'] as boolean | undefined,
-                  (input['permission_mode'] as PermissionMode) || 'default',
+                  (input['permission_mode'] as PermissionMode) ||
+                    PermissionMode.Default,
                   signal,
                 );
                 break;
               case 'PostToolBatch':
                 result = await hookSystem.firePostToolBatchEvent(
                   (input['tool_calls'] as PostToolBatchToolCall[]) || [],
-                  (input['permission_mode'] as PermissionMode) || 'default',
+                  (input['permission_mode'] as PermissionMode) ||
+                    PermissionMode.Default,
                   signal,
                 );
                 break;
@@ -2550,14 +2553,14 @@ export class Config {
     const available = selector.authType
       ? this.getAllConfiguredModels([selector.authType])
       : this.getAllConfiguredModels();
-    if (!available.some((m) => m.id === selector.modelId)) {
+    if (!available.some((m) => m.id === selector.modeId)) {
       return undefined;
     }
 
     const rawSelector = resolveModelId(this.fastModel);
     return rawSelector?.authType
-      ? `${rawSelector.authType}:${selector.modelId}`
-      : selector.modelId;
+      ? `${rawSelector.authType}:${selector.modeId}`
+      : selector.modeId;
   }
 
   private resolveFastModelSelector() {

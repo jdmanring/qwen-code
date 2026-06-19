@@ -985,7 +985,7 @@ export class SubagentManager {
     const view = await createRuntimeContentGeneratorView(
       base,
       base,
-      resolvedModel.modelId,
+      resolvedModel.modeId,
       authOverrides,
     );
 
@@ -1027,7 +1027,7 @@ export class SubagentManager {
       runtimeContext,
     );
     const modelConfig: ModelConfig = {
-      ...(resolvedModel ? { model: resolvedModel.modelId } : {}),
+      ...(resolvedModel ? { model: resolvedModel.modeId } : {}),
     };
 
     const runConfig: RunConfig = {

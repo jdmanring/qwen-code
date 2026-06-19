@@ -41,21 +41,21 @@ async function switchMainModel(
   if (parsed.authType) {
     await config.switchModel(
       parsed.authType,
-      parsed.modelId,
+      parsed.modeId,
       parsed.authType !== currentAuthType &&
         parsed.authType === AuthType.QWEN_OAUTH
         ? { requireCachedCredentials: true }
         : undefined,
     );
     persistSetting(settings, 'security.auth.selectedType', parsed.authType);
-    persistSetting(settings, 'model.name', parsed.modelId);
+    persistSetting(settings, 'model.name', parsed.modeId);
     // `/model <id>` selects by id only, so clear any baseUrl disambiguator left
     // by a previous model-picker selection — otherwise next launch would
     // resolve to a different provider than this switch just chose. Use an
     // empty-string tombstone so the clear overrides a lower-scope value (an
     // undefined write is dropped from JSON and would not override on merge).
     persistSetting(settings, 'model.baseUrl', '');
-    return parsed.modelId;
+    return parsed.modeId;
   }
 
   await config.switchModel(currentAuthType, modelArg, undefined);
@@ -219,14 +219,14 @@ export const modelCommand: SlashCommand = {
       const availableModels = selector.authType
         ? config.getAvailableModelsForAuthType(selector.authType)
         : config.getAllConfiguredModels();
-      if (!availableModels.some((model) => model.id === selector.modelId)) {
+      if (!availableModels.some((model) => model.id === selector.modeId)) {
         return {
           type: 'message',
           messageType: 'error',
           content: selector.authType
             ? formatUnavailableModelMessage(
                 'Fast model',
-                selector.modelId,
+                selector.modeId,
                 selector.authType,
                 availableModels,
               )
@@ -276,13 +276,13 @@ export const modelCommand: SlashCommand = {
       const targetAuthType = parsed.authType ?? authType;
       const availableModels =
         config.getAvailableModelsForAuthType(targetAuthType);
-      if (!availableModels.some((model) => model.id === parsed.modelId)) {
+      if (!availableModels.some((model) => model.id === parsed.modeId)) {
         return {
           type: 'message',
           messageType: 'error',
           content: formatUnavailableModelMessage(
             'Model',
-            parsed.modelId,
+            parsed.modeId,
             targetAuthType,
             availableModels,
           ),
