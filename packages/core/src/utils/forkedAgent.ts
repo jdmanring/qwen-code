@@ -201,7 +201,7 @@ async function buildForkedModelRuntime(
   // to the parent session model instead of passing the raw selector string
   // to the provider. Matches the subagent path, where an unresolvable
   // selector means "inherit parent".
-  const model = resolvedModel?.modelId ?? base.getModel();
+  const model = resolvedModel?.modeId ?? base.getModel();
   const runtimeView = await buildForkedRuntimeContentGeneratorView(
     base,
     contentGeneratorOwner,
@@ -224,7 +224,7 @@ async function buildForkedRuntimeContentGeneratorView(
     currentContentGeneratorConfig?.model ?? base.getModel?.();
   if (
     resolvedModel.authType === currentAuthType &&
-    resolvedModel.modelId === currentModel
+    resolvedModel.modeId === currentModel
   ) {
     return undefined;
   }
@@ -232,7 +232,7 @@ async function buildForkedRuntimeContentGeneratorView(
   return createRuntimeContentGeneratorView(
     base,
     contentGeneratorOwner,
-    resolvedModel.modelId,
+    resolvedModel.modeId,
     { authType: resolvedModel.authType },
   );
 }

@@ -163,7 +163,7 @@ class WriteFileToolInvocation extends BaseToolInvocation<
         this.params.file_path,
         'overwriting',
       );
-      if (!decision.ok) {
+      if (decision.ok === false) {
         // Surface the structured ToolErrorType through scheduler.
         // A plain `throw new Error` would hit the scheduler's catch
         // block and be reported as UNHANDLED_EXCEPTION — losing the
@@ -208,7 +208,7 @@ class WriteFileToolInvocation extends BaseToolInvocation<
         'overwriting',
         { expectExisting: true },
       );
-      if (!postDecision.ok) {
+      if (postDecision.ok === false) {
         debugLogger.warn('post-read TOCTOU rejection (confirmation)', {
           path: this.params.file_path,
           reason: postDecision.type,
@@ -298,7 +298,7 @@ class WriteFileToolInvocation extends BaseToolInvocation<
         file_path,
         'overwriting',
       );
-      if (!decision.ok) {
+      if (decision.ok === false) {
         return {
           llmContent: decision.rawMessage,
           returnDisplay: `Error: ${decision.displayMessage}`,
@@ -362,7 +362,7 @@ class WriteFileToolInvocation extends BaseToolInvocation<
         'overwriting',
         { expectExisting: true },
       );
-      if (!postDecision.ok) {
+      if (postDecision.ok === false) {
         debugLogger.warn('post-read TOCTOU rejection (execute)', {
           path: file_path,
           reason: postDecision.type,
@@ -456,7 +456,7 @@ class WriteFileToolInvocation extends BaseToolInvocation<
         // state (ok:true → writeTextFile creates).
         { expectExisting: fileExists },
       );
-      if (!writeDecision.ok) {
+      if (writeDecision.ok === false) {
         debugLogger.warn('pre-write TOCTOU rejection', {
           path: file_path,
           reason: writeDecision.type,

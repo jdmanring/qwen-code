@@ -1567,7 +1567,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
       filePath,
       'editing',
     );
-    if (!priorReadResult.ok) {
+    if (priorReadResult.ok === false) {
       throw new StructuredToolError(
         priorReadResult.rawMessage,
         priorReadResult.type,
