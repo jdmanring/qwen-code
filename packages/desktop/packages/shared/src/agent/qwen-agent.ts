@@ -19,10 +19,18 @@ import {
   type Client,
   type ContentBlock,
   type McpServer,
-  type ModelInfo,
   type RequestPermissionRequest,
   type RequestPermissionResponse,
 } from '@agentclientprotocol/sdk';
+
+export type ModelInfo = {
+  modelId: string;
+  name: string;
+  description?: string;
+  provider?: string;
+  capabilities?: Record<string, unknown>;
+};
+
 import type {
   AgentEvent,
   AskUserQuestionItem,
@@ -3219,7 +3227,7 @@ export class QwenAgent extends BaseAgent {
         await this.callAcp(
           'session/set_model',
           (connection) =>
-            connection.unstable_setSessionModel({
+            connection.request('session/set_model', {
               sessionId,
               modelId: model,
             }),
