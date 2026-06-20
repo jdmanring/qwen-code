@@ -3219,7 +3219,7 @@ export class QwenAgent extends BaseAgent {
         await this.callAcp(
           'session/set_model',
           (connection) =>
-            connection.unstable_setSessionModel({
+            connection.request('session/set_model', {
               sessionId,
               modelId: model,
             }),

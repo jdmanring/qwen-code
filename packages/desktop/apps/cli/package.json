@@ -14,8 +14,8 @@
     "test": "bun test src/"
   },
   "dependencies": {
-    "@craft-agent/shared": "workspace:*",
-    "@craft-agent/server-core": "workspace:*"
+    "@craft-agent/shared": "*",
+    "@craft-agent/server-core": "*"
   },
   "devDependencies": {
     "typescript": "^5.8.2",

@@ -25,10 +25,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@craft-agent/core": "workspace:*",
-    "@craft-agent/messaging-gateway": "workspace:*",
-    "@craft-agent/server-core": "workspace:*",
-    "@craft-agent/shared": "workspace:*"
+    "@craft-agent/core": "*",
+    "@craft-agent/messaging-gateway": "*",
+    "@craft-agent/server-core": "*",
+    "@craft-agent/shared": "*"
   },
   "devDependencies": {
     "typescript": "^5.8.2",
