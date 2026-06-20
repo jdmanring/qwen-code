@@ -88,10 +88,10 @@
     },
     "baseline-browser-mapping": "^2.9.19",
     "normalize-package-data": "^7.0.1",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0"
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3"
   },
   "bin": {
     "qwen": "scripts/cli-entry.js"
@@ -103,6 +103,7 @@
     "LICENSE"
   ],
   "devDependencies": {
+    "@types/bun": "^1.3.14",
     "@types/marked": "^5.0.2",
     "@types/mime-types": "^3.0.1",
     "@types/minimatch": "^5.1.2",
