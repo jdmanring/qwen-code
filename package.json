@@ -14,7 +14,19 @@
     "packages/channels/feishu",
     "packages/channels/qqbot",
     "packages/channels/plugin-example",
-    "!packages/desktop"
+    "packages/desktop/apps/cli",
+    "packages/desktop/apps/electron",
+    "packages/desktop/apps/viewer",
+    "packages/desktop/apps/webui",
+    "packages/desktop/packages/core",
+    "packages/desktop/packages/messaging-gateway",
+    "packages/desktop/packages/shared",
+    "packages/desktop/packages/session-mcp-server",
+    "packages/desktop/packages/server",
+    "packages/desktop/packages/server-core",
+    "packages/desktop/packages/ui",
+    "packages/desktop/packages/messaging-whatsapp-worker",
+    "packages/desktop/packages/session-tools-core"
   ],
   "repository": {
     "type": "git",
