@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "^0.27.0",
-    "@google/genai": "2.6.0",
+    "@google/genai": "2.8.0",
     "@iarna/toml": "^2.2.5",
     "@modelcontextprotocol/sdk": "^1.25.2",
     "@qwen-code/acp-bridge": "file:../acp-bridge",
