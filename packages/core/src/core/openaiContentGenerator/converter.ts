@@ -1120,14 +1120,15 @@ export function convertOpenAIResponseToGemini(
       for (const toolCall of choice.message.tool_calls) {
         if (toolCall.function) {
           let args: Record<string, unknown> = {};
-          if (toolCall.function.arguments) {
+          if ('function' in toolCall && toolCall.function?.arguments) {
             args = safeJsonParse(toolCall.function.arguments, {});
           }
 
           parts.push({
             functionCall: {
               id: toolCall.id,
-              name: toolCall.function.name,
+              name:
+                'function' in toolCall ? toolCall.function?.name : undefined,
               args,
             },
           });

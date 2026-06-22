@@ -1928,8 +1928,11 @@ describe('OpenAIContentConverter', () => {
       const assistant = messages.find(hasOpenAIToolCalls);
 
       expect(assistant?.tool_calls).toHaveLength(1);
-      expect(assistant?.tool_calls?.[0].id).toBe('dup_id_0001');
-      expect(assistant?.tool_calls?.[0].function.arguments).toBe(
+      const toolCall = assistant?.tool_calls?.[0] as
+        | OpenAI.Chat.ChatCompletionMessageFunctionToolCall
+        | undefined;
+      expect(toolCall?.id).toBe('dup_id_0001');
+      expect(toolCall?.function.arguments).toBe(
         JSON.stringify({ file_path: 'a.ts' }),
       );
     });
@@ -4541,7 +4544,8 @@ describe('OpenAIContentConverter', () => {
       const result = await converter.convertGeminiToolsToOpenAI(callableTools);
 
       expect(result).toHaveLength(1);
-      expect(result[0].function.name).toBe('dynamic_tool');
+      const tool = result[0] as OpenAI.Chat.ChatCompletionFunctionTool;
+      expect(tool.function.name).toBe('dynamic_tool');
     });
 
     it('should skip functions without name or description', async () => {
@@ -4567,7 +4571,8 @@ describe('OpenAIContentConverter', () => {
       const result = await converter.convertGeminiToolsToOpenAI(geminiTools);
 
       expect(result).toHaveLength(1);
-      expect(result[0].function.name).toBe('valid_tool');
+      const tool = result[0] as OpenAI.Chat.ChatCompletionFunctionTool;
+      expect(tool.function.name).toBe('valid_tool');
     });
 
     it('should handle tools without functionDeclarations', async () => {
@@ -4593,7 +4598,8 @@ describe('OpenAIContentConverter', () => {
       const result = await converter.convertGeminiToolsToOpenAI(geminiTools);
 
       expect(result).toHaveLength(1);
-      expect(result[0].function.parameters).toBeUndefined();
+      const tool = result[0] as OpenAI.Chat.ChatCompletionFunctionTool;
+      expect(tool.function.parameters).toBeUndefined();
     });
 
     it('should not mutate original parametersJsonSchema', async () => {
@@ -4616,8 +4622,9 @@ describe('OpenAIContentConverter', () => {
       const result = await converter.convertGeminiToolsToOpenAI(mcpTools);
 
       // Verify the result is a copy, not the same reference
-      expect(result[0].function.parameters).not.toBe(originalSchema);
-      expect(result[0].function.parameters).toEqual(originalSchema);
+      const tool = result[0] as OpenAI.Chat.ChatCompletionFunctionTool;
+      expect(tool.function.parameters).not.toBe(originalSchema);
+      expect(tool.function.parameters).toEqual(originalSchema);
     });
   });
 
