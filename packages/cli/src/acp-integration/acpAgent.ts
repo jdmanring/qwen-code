@@ -174,6 +174,16 @@ import {
   getOutputLanguageFilePath,
   writeOutputLanguageAndRegisterPath,
 } from '../utils/languageUtils.js';
+interface CorrectAcpResponse {
+  sessionId: string;
+  models: {
+    currentModelId: string;
+    availableModels: unknown[];
+  };
+  modes: SessionModeState;
+  configOptions: SessionConfigOption[];
+}
+
 import { runWithAcpRuntimeOutputDir } from './runtimeOutputDirContext.js';
 import { runExitCleanup } from '../utils/cleanup.js';
 import { appEvents, AppEvent } from '../utils/events.js';
@@ -2844,7 +2854,7 @@ class QwenAgent implements Agent {
       models: availableModels,
       modes: modesData,
       configOptions,
-    };
+    } as CorrectAcpResponse as NewSessionResponse;
   }
 
   async loadSession(params: LoadSessionRequest): Promise<LoadSessionResponse> {
@@ -2883,10 +2893,11 @@ class QwenAgent implements Agent {
     const configOptions = this.buildConfigOptions(config);
 
     return {
+      sessionId: session.getId(),
       modes: modesData,
       models: availableModels,
       configOptions,
-    };
+    } as CorrectAcpResponse;
   }
 
   async unstable_resumeSession(
@@ -2926,10 +2937,11 @@ class QwenAgent implements Agent {
     const configOptions = this.buildConfigOptions(config);
 
     return {
+      sessionId: session.getId(),
       modes: modesData,
       models: availableModels,
       configOptions,
-    };
+    } as CorrectAcpResponse;
   }
 
   /**
@@ -7814,7 +7826,7 @@ class QwenAgent implements Agent {
     return session;
   }
 
-  private buildAvailableModels(config: Config): NewSessionResponse['models'] {
+  private buildAvailableModels(config: Config): CorrectAcpResponse['models'] {
     const rawCurrentModelId = (
       config.getModel() ||
       this.config.getModel() ||
