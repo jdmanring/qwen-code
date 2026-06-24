@@ -6921,13 +6921,13 @@ describe('createServeApp', () => {
       const res = await request(app)
         .post('/session/session-A/model')
         .set('Host', `127.0.0.1:${baseOpts.port}`)
-        .send({ modelId: 'qwen3-coder', sessionId: 'spoofed-B' });
+        .send({ modeId: 'qwen3-coder', sessionId: 'spoofed-B' });
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({ _meta: { applied: true } });
       expect(bridge.setModelCalls).toHaveLength(1);
       expect(bridge.setModelCalls[0]?.sessionId).toBe('session-A');
       expect(bridge.setModelCalls[0]?.req.sessionId).toBe('session-A');
-      expect(bridge.setModelCalls[0]?.req.modelId).toBe('qwen3-coder');
+      expect(bridge.setModelCalls[0]?.req.modeId).toBe('qwen3-coder');
     });
 
     it('passes client identity context into bridge.setSessionModel', async () => {
@@ -6937,14 +6937,14 @@ describe('createServeApp', () => {
         .post('/session/session-A/model')
         .set('Host', `127.0.0.1:${baseOpts.port}`)
         .set('X-Qwen-Client-Id', 'client-1')
-        .send({ modelId: 'qwen3-coder' });
+        .send({ modeId: 'qwen3-coder' });
       expect(res.status).toBe(200);
       expect(bridge.setModelCalls[0]?.context).toEqual({
         clientId: 'client-1',
       });
     });
 
-    it('400 when modelId is missing', async () => {
+    it('400 when modeId is missing', async () => {
       const bridge = fakeBridge();
       const app = createServeApp(baseOpts, undefined, { bridge });
       const res = await request(app)
@@ -6955,13 +6955,13 @@ describe('createServeApp', () => {
       expect(bridge.setModelCalls).toHaveLength(0);
     });
 
-    it('400 when modelId is not a non-empty string', async () => {
+    it('400 when modeId is not a non-empty string', async () => {
       const bridge = fakeBridge();
       const app = createServeApp(baseOpts, undefined, { bridge });
       const res = await request(app)
         .post('/session/session-A/model')
         .set('Host', `127.0.0.1:${baseOpts.port}`)
-        .send({ modelId: '' });
+        .send({ modeId: '' });
       expect(res.status).toBe(400);
       expect(bridge.setModelCalls).toHaveLength(0);
     });
@@ -6976,7 +6976,7 @@ describe('createServeApp', () => {
       const res = await request(app)
         .post('/session/missing/model')
         .set('Host', `127.0.0.1:${baseOpts.port}`)
-        .send({ modelId: 'qwen3-coder' });
+        .send({ modeId: 'qwen3-coder' });
       expect(res.status).toBe(404);
       expect(res.body.sessionId).toBe('missing');
     });

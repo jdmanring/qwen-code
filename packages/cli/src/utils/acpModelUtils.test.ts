@@ -31,14 +31,14 @@ describe('acpModelUtils', () => {
 
   it('parses modelId and validates authType', () => {
     expect(parseAcpModelOption(` qwen3(${AuthType.USE_OPENAI}) `)).toEqual({
-      modelId: 'qwen3',
+      modeId: 'qwen3',
       authType: AuthType.USE_OPENAI,
     });
   });
 
   it('returns trimmed input as modelId when authType is invalid', () => {
     expect(parseAcpModelOption('qwen3(not-a-real-auth)')).toEqual({
-      modelId: 'qwen3(not-a-real-auth)',
+      modeId: 'qwen3(not-a-real-auth)',
     });
   });
 
