@@ -8391,9 +8391,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
       const it2 = iter[Symbol.asyncIterator]();
       const next = await it2.next();
       expect(next.value?.type).toBe('model_switched');
-      expect((next.value?.data as { modeId: string }).modeId).toBe(
-        'qwen-max',
-      );
+      expect((next.value?.data as { modeId: string }).modeId).toBe('qwen-max');
       abort.abort();
       await bridge.shutdown();
     });
@@ -8999,7 +8997,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
               sessionId: `sess:${p.cwd}`,
               models: {
                 currentModelId: 'qwen-plus',
-                availableModels: [{ modeId: 'qwen-plus', name: 'Qwen Plus' }],
+                availableModels: [{ modelId: 'qwen-plus', name: 'Qwen Plus' }],
               },
               modes: {
                 currentModeId: 'auto-edit',
@@ -9218,9 +9216,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
       // The original model_switched is delivered; reconcile failure stays in
       // the operator log (no bus event the SDK cannot decode).
       expect(next.value?.type).toBe('model_switched');
-      expect((next.value?.data as { modeId: string }).modeId).toBe(
-        'qwen-max',
-      );
+      expect((next.value?.data as { modeId: string }).modeId).toBe('qwen-max');
       abort.abort();
       await bridge.shutdown();
     });

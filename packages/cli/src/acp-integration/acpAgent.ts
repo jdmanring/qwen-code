@@ -2738,11 +2738,13 @@ class QwenAgent implements Agent {
 
     const session = await this.createAndStoreSession(config);
     const availableModels = this.buildAvailableModels(config);
+    const modesData = this.buildModesData(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
       sessionId: session.getId(),
-      modes: availableModels,
+      models: availableModels,
+      modes: modesData,
       configOptions,
     };
   }
@@ -2782,10 +2784,12 @@ class QwenAgent implements Agent {
     await this.#restoreWorktreeOnResume(config, session);
 
     const availableModels = this.buildAvailableModels(config);
+    const modesData = this.buildModesData(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
-      modes: availableModels,
+      models: availableModels,
+      modes: modesData,
       configOptions,
     };
   }
@@ -2819,10 +2823,12 @@ class QwenAgent implements Agent {
     await this.#restoreWorktreeOnResume(config, session);
 
     const availableModels = this.buildAvailableModels(config);
+    const modesData = this.buildModesData(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
-      modes: availableModels,
+      models: availableModels,
+      modes: modesData,
       configOptions,
     };
   }
@@ -6939,7 +6945,7 @@ class QwenAgent implements Agent {
     return session;
   }
 
-  private buildAvailableModels(config: Config): NewSessionResponse['modes'] {
+  private buildAvailableModels(config: Config): NewSessionResponse['models'] {
     const rawCurrentModelId = (
       config.getModel() ||
       this.config.getModel() ||
@@ -6949,21 +6955,21 @@ class QwenAgent implements Agent {
     const allConfiguredModels = config.getAllConfiguredModels();
 
     const activeRuntimeSnapshot = config.getActiveRuntimeModelSnapshot?.();
-    const currentModeId = activeRuntimeSnapshot
+    const currentModelId = activeRuntimeSnapshot
       ? formatAcpModelId(
           activeRuntimeSnapshot.id,
           activeRuntimeSnapshot.authType,
         )
       : this.formatCurrentModelId(rawCurrentModelId, currentAuthType);
 
-    const mappedAvailableModes = allConfiguredModels.map((model) => {
+    const mappedAvailableModels = allConfiguredModels.map((model) => {
       const effectiveModelId =
         model.isRuntimeModel && model.runtimeSnapshotId
           ? model.runtimeSnapshotId
           : model.id;
 
       return {
-        id: formatAcpModelId(effectiveModelId, model.authType),
+        modelId: formatAcpModelId(effectiveModelId, model.authType),
         name: model.label,
         description: model.description ?? null,
         _meta: {
@@ -6973,8 +6979,8 @@ class QwenAgent implements Agent {
     });
 
     return {
-      currentModeId,
-      availableModes: mappedAvailableModes,
+      currentModelId,
+      availableModels: mappedAvailableModels,
     };
   }
 

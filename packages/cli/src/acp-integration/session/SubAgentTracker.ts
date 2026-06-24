@@ -232,7 +232,7 @@ export class SubAgentTracker {
         await event.respond(outcome, {
           answers:
             'answers' in output
-              ? (output as { answers: unknown }).answers
+              ? (output as { answers: Record<string, string> }).answers
               : undefined,
         });
         if (

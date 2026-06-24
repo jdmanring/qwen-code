@@ -944,7 +944,7 @@ export class AcpDispatcher {
           if (configId === 'model') {
             await this.bridge.setSessionModel(
               sessionId,
-              { modeId: rawValue } as unknown as Parameters<
+              { modelId: rawValue } as unknown as Parameters<
                 HttpAcpBridge['setSessionModel']
               >[1],
               ctx,
