@@ -9,9 +9,10 @@ import tseslint from 'typescript-eslint';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import prettierConfig from 'eslint-config-prettier';
-import importPlugin from 'eslint-plugin-import';
+import importPlugin from 'eslint-plugin-import-x';
 import vitest from '@vitest/eslint-plugin';
 import globals from 'globals';
+import { fixupPluginRules } from '@eslint/compat';
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import storybook from 'eslint-plugin-storybook';
 import checkFile from 'eslint-plugin-check-file';
@@ -38,11 +39,15 @@ export default tseslint.config(
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
-  reactHooks.configs['recommended-latest'],
-  reactPlugin.configs.flat.recommended,
-  reactPlugin.configs.flat['jsx-runtime'], // Add this if you are using React 17+
   {
-    // Settings for eslint-plugin-react
+    files: ['**/*.tsx'],
+    plugins: {
+      react: fixupPluginRules(reactPlugin),
+      'react-hooks': fixupPluginRules(reactHooks),
+    },
+    ...reactHooks.configs['recommended-latest'],
+    ...reactPlugin.configs.flat.recommended,
+    ...reactPlugin.configs.flat['jsx-runtime'],
     settings: {
       react: {
         version: 'detect',
@@ -53,7 +58,7 @@ export default tseslint.config(
     // Import specific config
     files: ['packages/cli/src/**/*.{ts,tsx}'], // Target only TS/TSX in the cli package
     plugins: {
-      import: importPlugin,
+      'import-x': importPlugin,
     },
     settings: {
       'import/resolver': {
@@ -61,18 +66,18 @@ export default tseslint.config(
       },
     },
     rules: {
-      ...importPlugin.configs.recommended.rules,
-      ...importPlugin.configs.typescript.rules,
-      'import/no-default-export': 'warn',
-      'import/no-unresolved': 'off', // Disable for now, can be noisy with monorepos/paths
-      'import/namespace': 'off', // Disabled due to https://github.com/import-js/eslint-plugin-import/issues/2866
+      ...importPlugin.configs['flat/recommended'].rules,
+      ...importPlugin.configs['flat/typescript'].rules,
+      'import-x/no-default-export': 'warn',
+      'import-x/no-unresolved': 'off', // Disable for now, can be noisy with monorepos/paths
+      'import-x/namespace': 'off', // Disabled due to https://github.com/import-js/eslint-plugin-import/issues/2866
     },
   },
   {
     // General overrides and rules for the project (TS/TSX files)
     files: ['packages/**/src/**/*.{ts,tsx}'], // Target TS/TSX in all packages (including nested)
     plugins: {
-      import: importPlugin,
+      'import-x': importPlugin,
     },
     settings: {
       'import/resolver': {
@@ -119,7 +124,7 @@ export default tseslint.config(
           caughtErrorsIgnorePattern: '^_',
         },
       ],
-      'import/no-internal-modules': [
+      'import-x/no-internal-modules': [
         'error',
         {
           allow: [
@@ -136,7 +141,7 @@ export default tseslint.config(
           ],
         },
       ],
-      'import/no-relative-packages': 'error',
+      'import-x/no-relative-packages': 'error',
       'no-cond-assign': 'error',
       'no-debugger': 'error',
       'no-duplicate-case': 'error',
