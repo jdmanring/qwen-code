@@ -6,7 +6,7 @@
 
 import type {
   AgentSideConnection,
-  FileSystemCapability,
+  FileSystemCapabilities,
   ReadTextFileRequest,
   WriteTextFileRequest,
   WriteTextFileResponse,
@@ -109,7 +109,7 @@ export class AcpFileSystemService implements FileSystemService {
   constructor(
     private readonly connection: AgentSideConnection,
     private readonly sessionId: string,
-    private readonly capabilities: FileSystemCapability,
+    private readonly capabilities: FileSystemCapabilities,
     private readonly fallback: FileSystemService,
     private readonly options: AcpFileSystemServiceOptions = {},
   ) {}
