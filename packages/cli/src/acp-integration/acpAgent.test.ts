@@ -5281,7 +5281,6 @@ describe('QwenAgent loadSession / unstable_resumeSession', () => {
 
     expect(response).toMatchObject({
       modes: expect.anything(),
-      models: expect.anything(),
       configOptions: expect.anything(),
     });
     // load semantic: history MUST be replayed so SSE subscribers see
@@ -5312,7 +5311,6 @@ describe('QwenAgent loadSession / unstable_resumeSession', () => {
 
     expect(response).toMatchObject({
       modes: expect.anything(),
-      models: expect.anything(),
       configOptions: expect.anything(),
     });
     expect(lastSessionMock?.replayHistory).not.toHaveBeenCalled();
@@ -5386,7 +5384,6 @@ describe('QwenAgent loadSession / unstable_resumeSession', () => {
 
     expect(response).toMatchObject({
       modes: expect.anything(),
-      models: expect.anything(),
       configOptions: expect.anything(),
     });
     // resume semantic: model context is restored internally via

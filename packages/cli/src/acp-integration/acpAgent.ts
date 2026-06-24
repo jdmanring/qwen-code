@@ -2737,13 +2737,11 @@ class QwenAgent implements Agent {
     this.setupFileSystem(config);
 
     const session = await this.createAndStoreSession(config);
-    const availableModels = this.buildAvailableModels(config);
     const modesData = this.buildModesData(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
       sessionId: session.getId(),
-      models: availableModels,
       modes: modesData,
       configOptions,
     };
@@ -2783,12 +2781,10 @@ class QwenAgent implements Agent {
 
     await this.#restoreWorktreeOnResume(config, session);
 
-    const availableModels = this.buildAvailableModels(config);
     const modesData = this.buildModesData(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
-      models: availableModels,
       modes: modesData,
       configOptions,
     };
@@ -2822,12 +2818,10 @@ class QwenAgent implements Agent {
 
     await this.#restoreWorktreeOnResume(config, session);
 
-    const availableModels = this.buildAvailableModels(config);
     const modesData = this.buildModesData(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
-      models: availableModels,
       modes: modesData,
       configOptions,
     };
@@ -6945,7 +6939,7 @@ class QwenAgent implements Agent {
     return session;
   }
 
-  private buildAvailableModels(config: Config): NewSessionResponse['models'] {
+  private buildAvailableModels(config: Config) {
     const rawCurrentModelId = (
       config.getModel() ||
       this.config.getModel() ||
