@@ -285,7 +285,7 @@ class GateKeeper:
         return self._gate_build() and self._gate_typecheck() and self._gate_symmetry()
 
     def _gate_build(self) -> bool:
-        logger.info("Gate 1/3: cleaning build artifacts + build...")
+        logger.info("Gate 1/3: cleaning build artifacts + npm install + build...")
         subprocess.run(
             ["find", ".", "-name", "*.tsbuildinfo", "-not", "-path", "./.git/*", "-delete"],
             cwd=self._git.root,
@@ -301,6 +301,12 @@ class GateKeeper:
                 cwd=self._git.root,
                 capture_output=True,
             )
+        subprocess.run(
+            ["npm", "install", "--ignore-scripts"],
+            cwd=self._git.root,
+            capture_output=True,
+            text=True,
+        )
         result = subprocess.run(
             ["npm", "run", "build"],
             cwd=self._git.root,
