@@ -285,22 +285,7 @@ class GateKeeper:
         return self._gate_build() and self._gate_typecheck() and self._gate_symmetry()
 
     def _gate_build(self) -> bool:
-        logger.info("Gate 1/3: cleaning build artifacts + npm install + build...")
-        subprocess.run(
-            ["find", ".", "-name", "*.tsbuildinfo", "-not", "-path", "./.git/*", "-delete"],
-            cwd=self._git.root,
-            capture_output=True,
-        )
-        for pkg in ["packages/core", "packages/cli", "packages/acp-bridge",
-                    "packages/channels/base", "packages/channels/telegram",
-                    "packages/channels/weixin", "packages/channels/dingtalk",
-                    "packages/channels/feishu", "packages/channels/qqbot",
-                    "packages/channels/plugin-example"]:
-            subprocess.run(
-                ["rm", "-rf", f"{pkg}/dist", f"{pkg}/tsconfig.tsbuildinfo"],
-                cwd=self._git.root,
-                capture_output=True,
-            )
+        logger.info("Gate 1/3: npm install + build...")
         subprocess.run(
             ["npm", "install", "--ignore-scripts"],
             cwd=self._git.root,
