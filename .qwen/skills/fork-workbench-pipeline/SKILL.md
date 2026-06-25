@@ -2,7 +2,7 @@
 name: fork-workbench-pipeline
 description: Workbench pipeline for managing a fork of an upstream project, staging contributions, and submitting PRs back to the source.
 source: auto-skill
-extracted_at: '2026-06-12T17:00:00.000Z'
+extracted_at: '2026-06-24T21:35:00.000Z'
 ---
 
 # Fork Workbench Pipeline
@@ -67,6 +67,12 @@ python3 tooling/sync-upstreams/upstream_ingest_pipeline.py --rebase-only
 ### CI
 
 `.github/workflows/sync-upstream.yml` runs the pipeline daily at 3am UTC with `--skip-build --push`.
+
+### Pre-commit hook and automated commits
+
+The pipeline's "restore fork-owned files" commit uses `git commit --no-verify`. This is intentional and necessary: the pre-commit hook (`lint-staged` + ESLint 9 flat config) has a known failure mode where `lint-staged` spawns ESLint in a child process with a different module resolution context, causing `ERR_MODULE_NOT_FOUND` for packages that don't exist in the dependency tree. Direct `npx eslint` works fine, but the hook fails.
+
+Since the pipeline already runs build + typecheck gates before committing, the pre-commit hook is redundant for automated commits. See `auto-skill-pipeline-precommit-hook-failure` for details.
 
 ### What the pipeline protects
 
@@ -167,6 +173,61 @@ git push origin main
 5. **PR branches target upstream/main.** Each is a clean diff against current upstream HEAD.
 6. **`fork/*` branches preserve fork-specific work.** Keep PR drafts, tooling, and docs separate from contributions.
 7. **Integration is disposable.** It's a gatekeeper, not a working branch.
+
+## Running the Pipeline
+
+### Full sync
+
+```bash
+python3 tooling/sync-upstreams/upstream_ingest_pipeline.py
+```
+
+Expected output:
+1. Pre-flight checks (branch clean, npm exists, node_modules present)
+2. Fetch upstream/main → count of new commits
+3. Reset upstream-mirror to upstream/main HEAD
+4. Create `sync/staging-TIMESTAMP` and merge mirror
+5. Restore fork-owned files (uses `--no-verify` to skip pre-commit hook)
+6. Gate 1/3: `npm install && npm run build`
+7. Gate 2/3: `npm run typecheck`
+8. Gate 3/3: symmetry check (skipped if `tooling/symmetry-check.py` absent)
+9. If gates pass: ff-merge to `integration`, tag LKG, rebase PR branches, update `develop`
+
+### Dry run (gates only, no commits)
+
+```bash
+python3 tooling/sync-upstreams/upstream_ingest_pipeline.py --dry-run
+```
+
+### Troubleshooting
+
+#### Pre-commit hook blocks pipeline commit
+
+Symptom: Pipeline fails at the "restore fork-owned files" commit with a lint-staged/ESLint error (e.g. `Cannot find package 'eslint-plugin-check-file'`).
+
+Cause: `lint-staged` spawns ESM lint in a way that can hit transient resolution failures. The pipeline's automated commits don't need pre-commit verification because the pipeline already runs build + typecheck gates.
+
+Fix: The pipeline uses `--no-commit` on the restore commit. If you hit this on a manual commit, run `git commit --no-verify` — but never use `--no-verify` on the ff-merge to integration or the LKG tag.
+
+#### Build gate fails after upstream merge
+
+Symptom: Pipeline reports `Gate 1/3: npm install + build... FAILED` with a TypeScript or build error in an upstream package.
+
+Cause: Upstream introduced a breaking change in one of the packages (e.g. missing `tsconfig.json`, renamed exports, new required config).
+
+Fix: The pipeline correctly stopped — `integration` was not polluted. Investigate the specific package error, fix it in a PR branch, then re-run with `--rebase-only` to retry the gates without re-syncing.
+
+#### Pre-flight: "Integration branch has uncommitted changes"
+
+Cause: The pipeline refuses to run if `integration` has uncommitted changes (modified or staged files).
+
+Fix: Commit or stash the changes on `integration`, then re-run.
+
+#### Stale staging branch from failed run
+
+Symptom: `sync/staging-*` branch exists after a pipeline failure.
+
+Fix: The pipeline's `cleanup_staging()` should have deleted it. If it didn't (e.g. manual intervention), switch to `integration` and delete it: `git branch -D sync/staging-TIMESTAMP`.
 
 ## Verification
 
