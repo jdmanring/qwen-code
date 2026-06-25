@@ -230,7 +230,10 @@ export class SubAgentTracker {
                 .parse(output.outcome.optionId);
         // Respond to subagent with the outcome
         await event.respond(outcome, {
-          answers: 'answers' in output ? output.answers : undefined,
+          answers:
+            'answers' in output
+              ? (output as { answers: Record<string, string> }).answers
+              : undefined,
         });
         if (
           outcome === ToolConfirmationOutcome.Cancel &&

@@ -1043,15 +1043,15 @@ export class AcpDispatcher {
             return;
           }
           if (!this.requireOwned(conn, sessionId, id)) return;
-          const modelId = String(params['modelId'] ?? '');
-          if (!modelId) {
+          const modeId = String(params['modeId'] ?? '');
+          if (!modeId) {
             if (id !== undefined) {
               this.replySession(
                 conn,
                 sessionId,
                 id,
                 undefined,
-                error(id, RPC.INVALID_PARAMS, '`modelId` is required'),
+                error(id, RPC.INVALID_PARAMS, '`modeId` is required'),
               );
             }
             return;
@@ -1059,7 +1059,7 @@ export class AcpDispatcher {
           const ctx = this.sessionCtx(conn, sessionId, loopback);
           await this.bridge.setSessionModel(
             sessionId,
-            { modelId, sessionId },
+            { modeId, sessionId },
             ctx,
           );
           this.replySession(conn, sessionId, id, {});

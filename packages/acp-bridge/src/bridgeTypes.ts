@@ -12,8 +12,8 @@ import type {
   PromptResponse,
   RequestPermissionResponse,
   ResumeSessionResponse,
-  SetSessionModelRequest,
-  SetSessionModelResponse,
+  SetSessionModeRequest,
+  SetSessionModeResponse,
 } from '@agentclientprotocol/sdk';
 import type { BridgeEvent, SubscribeOptions } from './eventBus.js';
 import type { PermissionPolicy } from './permission.js';
@@ -478,9 +478,9 @@ export interface AcpSessionBridge {
    */
   setSessionModel(
     sessionId: string,
-    req: SetSessionModelRequest,
+    req: SetSessionModeRequest,
     context?: BridgeClientRequestContext,
-  ): Promise<SetSessionModelResponse>;
+  ): Promise<SetSessionModeResponse>;
 
   /**
    * Switch UI language and optionally LLM output language for a live

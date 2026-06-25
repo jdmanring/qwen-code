@@ -50,7 +50,7 @@ describe('resolveModelId', () => {
       }),
     ).toEqual({
       authType: AuthType.USE_ANTHROPIC,
-      modelId: 'main-model',
+      modeId: 'main-model',
     });
   });
 
@@ -62,7 +62,7 @@ describe('resolveModelId', () => {
       }),
     ).toEqual({
       authType: AuthType.USE_OPENAI,
-      modelId: 'main-model',
+      modeId: 'main-model',
     });
   });
 
@@ -72,14 +72,14 @@ describe('resolveModelId', () => {
 
   it('resolves fast to the configured fast model', () => {
     expect(resolveModelId('fast', { fastModel: 'fast-model' })).toEqual({
-      modelId: 'fast-model',
+      modeId: 'fast-model',
     });
   });
 
   it('resolves fast to authType-prefixed configured fast models', () => {
     expect(resolveModelId('fast', { fastModel: 'openai:fast-model' })).toEqual({
       authType: AuthType.USE_OPENAI,
-      modelId: 'fast-model',
+      modeId: 'fast-model',
     });
   });
 
@@ -89,33 +89,33 @@ describe('resolveModelId', () => {
 
   it('parses bare model IDs to concrete model IDs', () => {
     expect(resolveModelId('glm-5')).toEqual({
-      modelId: 'glm-5',
+      modeId: 'glm-5',
     });
   });
 
   it('parses authType-prefixed model IDs', () => {
     expect(resolveModelId('openai:glm-5')).toEqual({
       authType: AuthType.USE_OPENAI,
-      modelId: 'glm-5',
+      modeId: 'glm-5',
     });
   });
 
   it('trims authType-prefixed model IDs', () => {
     expect(resolveModelId(' openai : glm-5 ')).toEqual({
       authType: AuthType.USE_OPENAI,
-      modelId: 'glm-5',
+      modeId: 'glm-5',
     });
   });
 
   it('treats unknown prefix as bare model ID (colon in model ID)', () => {
     expect(resolveModelId('invalid:glm-5')).toEqual({
-      modelId: 'invalid:glm-5',
+      modeId: 'invalid:glm-5',
     });
   });
 
   it('treats model IDs with colons as bare model IDs', () => {
     expect(resolveModelId('gpt-4o:online')).toEqual({
-      modelId: 'gpt-4o:online',
+      modeId: 'gpt-4o:online',
     });
   });
 
@@ -143,7 +143,7 @@ describe('resolveModelId with configured model context', () => {
       }),
     ).toEqual({
       authType: AuthType.USE_OPENAI,
-      modelId: 'deepseek-v4-flash',
+      modeId: 'deepseek-v4-flash',
     });
   });
 
@@ -158,7 +158,7 @@ describe('resolveModelId with configured model context', () => {
       }),
     ).toEqual({
       authType: AuthType.USE_OPENAI,
-      modelId: 'deepseek-v4-flash',
+      modeId: 'deepseek-v4-flash',
     });
   });
 
@@ -170,7 +170,7 @@ describe('resolveModelId with configured model context', () => {
       }),
     ).toEqual({
       authType: AuthType.USE_ANTHROPIC,
-      modelId: 'unknown-model',
+      modeId: 'unknown-model',
     });
   });
 
@@ -182,7 +182,7 @@ describe('resolveModelId with configured model context', () => {
       }),
     ).toEqual({
       authType: AuthType.USE_OPENAI,
-      modelId: 'deepseek-v4-flash',
+      modeId: 'deepseek-v4-flash',
     });
   });
 
@@ -194,7 +194,7 @@ describe('resolveModelId with configured model context', () => {
       }),
     ).toEqual({
       authType: AuthType.USE_ANTHROPIC,
-      modelId: 'deepseek-v4-flash',
+      modeId: 'deepseek-v4-flash',
     });
   });
 
@@ -215,7 +215,7 @@ describe('resolveModelId with configured model context', () => {
       }),
     ).toEqual({
       authType: AuthType.USE_OPENAI,
-      modelId: 'deepseek-v4-flash',
+      modeId: 'deepseek-v4-flash',
     });
   });
 
@@ -231,7 +231,7 @@ describe('resolveModelId with configured model context', () => {
       }),
     ).toEqual({
       authType: AuthType.USE_OPENAI,
-      modelId: 'deepseek-v4-flash',
+      modeId: 'deepseek-v4-flash',
     });
   });
 

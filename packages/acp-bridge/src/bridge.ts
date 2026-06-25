@@ -13,8 +13,8 @@ import {
 import type {
   CancelNotification,
   PromptRequest,
-  SetSessionModelRequest,
-  SetSessionModelResponse,
+  SetSessionModeRequest,
+  SetSessionModeResponse,
 } from '@agentclientprotocol/sdk';
 import type { ApprovalMode } from '@qwen-code/qwen-code-core';
 import {
@@ -2292,16 +2292,11 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
       let state: BridgeSessionState;
       try {
         if (action === 'load') {
-          state = await Promise.race([
+          const raceResult = await Promise.race([
             withTimeout(
-              ci.connection.loadSession({
+              ci.connection.unstable_forkSession({
                 sessionId: req.sessionId,
                 cwd: workspaceKey,
-                // Restore path drops per-request `mcpServers` (matches
-                // `doSpawn`); daemon-wide MCP comes from settings on
-                // the agent side. The SDK's `RestoreSessionRequest`
-                // intentionally has no `mcpServers` field for the
-                // same reason.
                 mcpServers: [],
               }),
               initTimeoutMs,
@@ -2309,10 +2304,11 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
             ),
             transportClosed,
           ]);
+          state = raceResult as BridgeSessionState;
         } else {
-          state = await Promise.race([
+          const raceResult = await Promise.race([
             withTimeout(
-              ci.connection.unstable_resumeSession({
+              ci.connection.unstable_forkSession({
                 sessionId: req.sessionId,
                 cwd: workspaceKey,
                 mcpServers: [],
@@ -2322,6 +2318,7 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
             ),
             transportClosed,
           ]);
+        state = raceResult as BridgeSessionState;
         }
       } catch (err) {
         restoreEvents.close();
@@ -3795,15 +3792,15 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
         entry,
         context?.clientId,
       );
-      const normalized: SetSessionModelRequest = { ...req, sessionId };
+      const normalized: SetSessionModeRequest = { ...req, sessionId };
       // The ACP SDK marks setSessionModel as unstable (not in spec yet); the
       // method on AgentSideConnection is `unstable_setSessionModel`. Cast
       // through the shape we know rather than couple to the prefix in case
       // it's renamed when the spec stabilizes.
       const conn = entry.connection as unknown as {
         unstable_setSessionModel(
-          p: SetSessionModelRequest,
-        ): Promise<SetSessionModelResponse>;
+          p: SetSessionModeRequest,
+        ): Promise<SetSessionModeResponse>;
       };
       // Serialize through `entry.modelChangeQueue` so a `POST /session/:id/model`
       // can't race with `applyModelServiceId` (e.g. an attach-with-different-
@@ -3863,7 +3860,7 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
           // corrected by the `reconcileAfterRoundtrip` below, which reads
           // the agent's authoritative canonical id and re-publishes if it
           // differs.
-          publishModelSwitched(entry, req.modelId, originatorClientId);
+          publishModelSwitched(entry, req.modeId, originatorClientId);
           succeeded = true;
           return result;
         } finally {
@@ -3883,7 +3880,7 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
         () => undefined,
         () => undefined,
       );
-      let response: SetSessionModelResponse;
+      let response: SetSessionModeResponse;
       try {
         response = await work;
       } catch (err) {
@@ -3896,7 +3893,7 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
           type: 'model_switch_failed',
           data: {
             sessionId: entry.sessionId,
-            requestedModelId: req.modelId,
+            requestedModelId: req.modeId,
             error: err instanceof Error ? err.message : String(err),
           },
           ...(originatorClientId ? { originatorClientId } : {}),
