@@ -291,6 +291,12 @@ class GateKeeper:
             cwd=self._git.root,
             capture_output=True,
         )
+        subprocess.run(
+            ["find", ".", "-type", "d", "-name", "dist", "-not", "-path", "./.git/*",
+             "-exec", "rm", "-rf", "{}", "+"],
+            cwd=self._git.root,
+            capture_output=True,
+        )
         result = subprocess.run(
             ["npm", "run", "build"],
             cwd=self._git.root,
