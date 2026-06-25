@@ -8,6 +8,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useLoadingIndicator } from './useLoadingIndicator.js';
 import { StreamingState } from '../types.js';
+import type { ThoughtSummary } from '../types.js';
 import { PHRASE_CHANGE_INTERVAL_MS } from './usePhraseCycler.js';
 import * as i18n from '../../i18n/index.js';
 
@@ -137,44 +138,51 @@ describe('useLoadingIndicator', () => {
   describe('token tracking', () => {
     it('should capture token snapshot when task starts', () => {
       const { result, rerender } = renderHook(
-        ({ streamingState, currentCandidatesTokens }) =>
+        ({ streamingState, currentCandidatesTokens, currentStreamingChars }) =>
           useLoadingIndicator(
             streamingState,
             undefined,
             currentCandidatesTokens,
+            currentStreamingChars,
           ),
         {
           initialProps: {
             streamingState: StreamingState.Idle,
             currentCandidatesTokens: 100,
+            currentStreamingChars: 400,
           },
         },
       );
 
       expect(result.current.taskStartTokens).toBe(0);
+      expect(result.current.taskStartStreamingChars).toBe(0);
 
       act(() => {
         rerender({
           streamingState: StreamingState.Responding,
           currentCandidatesTokens: 100,
+          currentStreamingChars: 400,
         });
       });
 
       expect(result.current.taskStartTokens).toBe(100);
+      expect(result.current.taskStartStreamingChars).toBe(400);
     });
 
     it('should reset token snapshot when transitioning from Responding to Idle', async () => {
       const { result, rerender } = renderHook(
-        ({ streamingState, currentCandidatesTokens }) =>
+        ({ streamingState, currentCandidatesTokens, currentStreamingChars }) =>
           useLoadingIndicator(
             streamingState,
             undefined,
             currentCandidatesTokens,
+            currentStreamingChars,
           ),
         {
           initialProps: {
             streamingState: StreamingState.Idle,
             currentCandidatesTokens: 0,
+            currentStreamingChars: 0,
           },
         },
       );
@@ -183,15 +191,18 @@ describe('useLoadingIndicator', () => {
         rerender({
           streamingState: StreamingState.Responding,
           currentCandidatesTokens: 0,
+          currentStreamingChars: 0,
         });
       });
       expect(result.current.taskStartTokens).toBe(0);
+      expect(result.current.taskStartStreamingChars).toBe(0);
 
       await act(async () => {
         await vi.advanceTimersByTimeAsync(1000);
         rerender({
           streamingState: StreamingState.Responding,
           currentCandidatesTokens: 500,
+          currentStreamingChars: 2000,
         });
       });
 
@@ -199,35 +210,41 @@ describe('useLoadingIndicator', () => {
         rerender({
           streamingState: StreamingState.Idle,
           currentCandidatesTokens: 500,
+          currentStreamingChars: 2000,
         });
       });
 
       expect(result.current.taskStartTokens).toBe(0);
+      expect(result.current.taskStartStreamingChars).toBe(0);
     });
 
     it('should reset token snapshot when transitioning from WaitingForConfirmation to Responding', async () => {
       const { result, rerender } = renderHook(
-        ({ streamingState, currentCandidatesTokens }) =>
+        ({ streamingState, currentCandidatesTokens, currentStreamingChars }) =>
           useLoadingIndicator(
             streamingState,
             undefined,
             currentCandidatesTokens,
+            currentStreamingChars,
           ),
         {
           initialProps: {
             streamingState: StreamingState.Responding,
             currentCandidatesTokens: 100,
+            currentStreamingChars: 400,
           },
         },
       );
 
       expect(result.current.taskStartTokens).toBe(100);
+      expect(result.current.taskStartStreamingChars).toBe(400);
 
       await act(async () => {
         await vi.advanceTimersByTimeAsync(5000);
         rerender({
           streamingState: StreamingState.Responding,
           currentCandidatesTokens: 500,
+          currentStreamingChars: 2000,
         });
       });
 
@@ -235,6 +252,7 @@ describe('useLoadingIndicator', () => {
         rerender({
           streamingState: StreamingState.WaitingForConfirmation,
           currentCandidatesTokens: 500,
+          currentStreamingChars: 2000,
         });
       });
 
@@ -242,10 +260,191 @@ describe('useLoadingIndicator', () => {
         rerender({
           streamingState: StreamingState.Responding,
           currentCandidatesTokens: 500,
+          currentStreamingChars: 2000,
         });
       });
 
       expect(result.current.taskStartTokens).toBe(500);
+      expect(result.current.taskStartStreamingChars).toBe(2000);
+    });
+  });
+
+  describe('thinking-intent-driven phrase', () => {
+    const thoughtWithSubject: ThoughtSummary = {
+      subject: 'Analyzing auth flow',
+      description: 'Checking how sessions are managed',
+    };
+
+    it('should show thought subject during Responding', () => {
+      const { result } = renderHook(() =>
+        useLoadingIndicator(
+          StreamingState.Responding,
+          undefined,
+          undefined,
+          undefined,
+          thoughtWithSubject,
+        ),
+      );
+
+      expect(result.current.currentLoadingPhrase).toBe('Analyzing auth flow');
+    });
+
+    it('should fall back to witty phrase when thought is null', () => {
+      const { result } = renderHook(() =>
+        useLoadingIndicator(
+          StreamingState.Responding,
+          undefined,
+          undefined,
+          undefined,
+          null,
+        ),
+      );
+
+      expect(MOCK_WITTY_PHRASES).toContain(result.current.currentLoadingPhrase);
+    });
+
+    it('should fall back to description when thought subject is empty', () => {
+      const { result } = renderHook(() =>
+        useLoadingIndicator(
+          StreamingState.Responding,
+          undefined,
+          undefined,
+          undefined,
+          { subject: '', description: 'some reasoning' },
+        ),
+      );
+
+      expect(result.current.currentLoadingPhrase).toBe('some reasoning');
+    });
+
+    it('should use only first line of multiline description when subject is empty', () => {
+      const { result } = renderHook(() =>
+        useLoadingIndicator(
+          StreamingState.Responding,
+          undefined,
+          undefined,
+          undefined,
+          { subject: '', description: 'first line\nsecond line\nthird line' },
+        ),
+      );
+
+      expect(result.current.currentLoadingPhrase).toBe('first line');
+    });
+
+    it('should truncate long thought subjects', () => {
+      const longSubject = 'A'.repeat(120);
+      const { result } = renderHook(() =>
+        useLoadingIndicator(
+          StreamingState.Responding,
+          undefined,
+          undefined,
+          undefined,
+          { subject: longSubject, description: '' },
+        ),
+      );
+
+      expect(result.current.currentLoadingPhrase).toBe('A'.repeat(79) + '…');
+      expect(result.current.currentLoadingPhrase.length).toBe(80);
+    });
+
+    it('should not use thought subject during WaitingForConfirmation', () => {
+      const { result } = renderHook(() =>
+        useLoadingIndicator(
+          StreamingState.WaitingForConfirmation,
+          undefined,
+          undefined,
+          undefined,
+          thoughtWithSubject,
+        ),
+      );
+
+      expect(result.current.currentLoadingPhrase).toBe(
+        'Waiting for user confirmation...',
+      );
+    });
+
+    it('should not use thought subject during Idle', () => {
+      const { result } = renderHook(() =>
+        useLoadingIndicator(
+          StreamingState.Idle,
+          undefined,
+          undefined,
+          undefined,
+          thoughtWithSubject,
+        ),
+      );
+
+      expect(MOCK_WITTY_PHRASES).toContain(result.current.currentLoadingPhrase);
+    });
+
+    it('should switch from witty phrase to thought subject when thought arrives', () => {
+      const { result, rerender } = renderHook(
+        ({ thought }) =>
+          useLoadingIndicator(
+            StreamingState.Responding,
+            undefined,
+            undefined,
+            undefined,
+            thought,
+          ),
+        { initialProps: { thought: null as ThoughtSummary | null } },
+      );
+
+      expect(MOCK_WITTY_PHRASES).toContain(result.current.currentLoadingPhrase);
+
+      rerender({ thought: thoughtWithSubject });
+
+      expect(result.current.currentLoadingPhrase).toBe('Analyzing auth flow');
+    });
+
+    it('should retain thought subject after thought is cleared (content/toolcall)', () => {
+      const { result, rerender } = renderHook(
+        ({ thought }) =>
+          useLoadingIndicator(
+            StreamingState.Responding,
+            undefined,
+            undefined,
+            undefined,
+            thought,
+          ),
+        {
+          initialProps: {
+            thought: thoughtWithSubject as ThoughtSummary | null,
+          },
+        },
+      );
+
+      expect(result.current.currentLoadingPhrase).toBe('Analyzing auth flow');
+
+      // Simulate useGeminiStream clearing thought on content/toolcall
+      rerender({ thought: null });
+
+      expect(result.current.currentLoadingPhrase).toBe('Analyzing auth flow');
+    });
+
+    it('should clear retained thought subject on Idle', () => {
+      const { result, rerender } = renderHook(
+        ({ streamingState, thought }) =>
+          useLoadingIndicator(
+            streamingState,
+            undefined,
+            undefined,
+            undefined,
+            thought,
+          ),
+        {
+          initialProps: {
+            streamingState: StreamingState.Responding,
+            thought: thoughtWithSubject as ThoughtSummary | null,
+          },
+        },
+      );
+
+      expect(result.current.currentLoadingPhrase).toBe('Analyzing auth flow');
+
+      rerender({ streamingState: StreamingState.Idle, thought: null });
+
+      expect(MOCK_WITTY_PHRASES).toContain(result.current.currentLoadingPhrase);
     });
   });
 });

@@ -7,12 +7,14 @@ export const TOOL_DISPLAY_NAMES: Record<string, string> = {
   grep_search: 'Grep',
   glob: 'Glob',
   run_shell_command: 'Shell',
-  todo_write: 'TodoWrite',
+  todo_write: 'TodoList',
   save_memory: 'SaveMemory',
   agent: 'Agent',
   skill: 'Skill',
   exit_plan_mode: 'ExitPlanMode',
   web_fetch: 'WebFetch',
+  webfetch: 'WebFetch',
+  fetch: 'WebFetch',
   list_directory: 'ListFiles',
   lsp: 'Lsp',
   ask_user_question: 'AskUserQuestion',
@@ -43,7 +45,14 @@ export const TOOL_DISPLAY_NAMES: Record<string, string> = {
 };
 
 export function formatToolDisplayName(toolName: string): string {
-  return TOOL_DISPLAY_NAMES[toolName] ?? toolName;
+  if (!toolName.trim()) return 'Tool';
+  const exact = TOOL_DISPLAY_NAMES[toolName];
+  if (exact) return exact;
+  const lower = toolName.toLowerCase();
+  if (lower === 'web_fetch' || lower === 'webfetch' || lower === 'fetch') {
+    return 'WebFetch';
+  }
+  return toolName;
 }
 
 /**
@@ -56,9 +65,17 @@ export function localizeToolDisplayName(
   toolName: string,
   t: (key: string, vars?: Record<string, string | number>) => string,
 ): string {
-  const key = `toolName.${toolName}`;
-  const translated = t(key);
-  return translated === key ? formatToolDisplayName(toolName) : translated;
+  const displayName = formatToolDisplayName(toolName);
+  const keys = [
+    `toolName.${toolName}`,
+    `toolName.${toolName.toLowerCase()}`,
+    `toolName.${displayName.toLowerCase()}`,
+  ];
+  for (const key of keys) {
+    const translated = t(key);
+    if (translated !== key) return translated;
+  }
+  return displayName;
 }
 
 export function isAskUserQuestionToolName(toolName: string): boolean {
@@ -102,10 +119,17 @@ export function extractText(tool: ACPToolCall): string | null {
 export function getToolResultSummary(tool: ACPToolCall): string {
   if (tool.status !== 'completed' && tool.status !== 'failed') return '';
 
+  const name = tool.toolName.toLowerCase();
+  if (name === 'grep_search' || name === 'grep' || name === 'search') {
+    const rawSummary = parseGrepSummary(
+      (extractRawOutputText(tool.rawOutput) ?? '').trim(),
+    );
+    if (rawSummary) return rawSummary;
+  }
+
   const text = extractText(tool);
   if (!text) return '';
 
-  const name = tool.toolName.toLowerCase();
   const lines = text.split('\n');
   const lineCount = lines.length;
 
@@ -129,7 +153,10 @@ export function getToolResultSummary(tool: ACPToolCall): string {
     return truncateText(firstLine, 80);
   }
 
-  if (name === 'grep' || name === 'search') {
+  if (name === 'grep_search' || name === 'grep' || name === 'search') {
+    const summary = parseGrepSummary(text.trim());
+    if (summary) return summary;
+
     const matchCount = lines.filter((l) => l.trim()).length;
     return `${matchCount} result(s)`;
   }
@@ -184,6 +211,12 @@ function getDescriptionFromTitle(
   }
 
   return formatDescriptionPaths(title, workspaceCwd);
+}
+
+function parseGrepSummary(text: string): string | null {
+  if (text === 'No matches found') return text;
+  if (/^Found \d+ match(?:es)?(?: \(truncated\))?$/.test(text)) return text;
+  return null;
 }
 
 function getDescriptionFromArgs(

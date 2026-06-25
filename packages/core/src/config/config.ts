@@ -18,10 +18,13 @@ import { ProxyAgent, setGlobalDispatcher } from 'undici';
 import type {
   ContentGenerator,
   ContentGeneratorConfig,
+  InputModalities,
 } from '../core/contentGenerator.js';
 import type { ContentGeneratorConfigSources } from '../core/contentGenerator.js';
 import type { MCPOAuthConfig } from '../mcp/oauth-provider.js';
 import type { ShellExecutionConfig } from '../services/shellExecutionService.js';
+import type { VisionBridgeModelSelection } from '../services/visionBridge/vision-bridge-service.js';
+import { selectVisionBridgeModel } from '../services/visionBridge/vision-bridge-service.js';
 import type { AnyToolInvocation } from '../tools/tools.js';
 import type { ArenaManager } from '../agents/arena/ArenaManager.js';
 import { ArenaAgentClient } from '../agents/arena/ArenaAgentClient.js';
@@ -69,6 +72,10 @@ import { recordStartupEvent } from '../utils/startupEventSink.js';
 import { ToolRegistry, type ToolFactory } from '../tools/tool-registry.js';
 import type { McpBudgetEvent } from '../tools/mcp-client-manager.js';
 import { ToolNames } from '../tools/tool-names.js';
+import type {
+  ArtifactHostConfig,
+  ArtifactOssConfig,
+} from '../tools/artifact/publisher.js';
 import type { LspClient, LspStatusSnapshot } from '../lsp/types.js';
 import type { InstructionLoadReason } from '../hooks/types.js';
 
@@ -76,6 +83,7 @@ import type { InstructionLoadReason } from '../hooks/types.js';
 import { ideContextStore } from '../ide/ideContext.js';
 import { InputFormat, OutputFormat } from '../output/types.js';
 import { PromptRegistry } from '../prompts/prompt-registry.js';
+import { ResourceRegistry } from '../resources/resource-registry.js';
 import { SkillManager } from '../skills/skill-manager.js';
 import { PermissionManager } from '../permissions/permission-manager.js';
 import {
@@ -147,6 +155,7 @@ import {
   DEFAULT_FILE_FILTERING_OPTIONS,
   DEFAULT_MEMORY_FILE_FILTERING_OPTIONS,
 } from './constants.js';
+import { DEFAULT_QWEN_CUSTOM_IGNORE_FILE_NAMES } from '../utils/qwenIgnoreParser.js';
 import { DEFAULT_TOOL_RESULTS_TOTAL_CHARS_THRESHOLD } from './clearContextDefaults.js';
 import { DEFAULT_QWEN_EMBEDDING_MODEL } from './models.js';
 import { Storage } from './storage.js';
@@ -539,7 +548,7 @@ export type ExtensionOriginSource = 'QwenCode' | 'Claude' | 'Gemini';
 
 export interface ExtensionInstallMetadata {
   source: string;
-  type: 'git' | 'local' | 'link' | 'github-release' | 'npm';
+  type: 'git' | 'local' | 'link' | 'github-release' | 'npm' | 'archive-url';
   originSource?: ExtensionOriginSource;
   releaseTag?: string; // Only present for github-release and npm installs.
   registryUrl?: string; // Only present for npm installs.
@@ -774,6 +783,7 @@ export interface ConfigParameters {
   approvalMode?: ApprovalMode;
   contextFileName?: string | string[];
   accessibility?: AccessibilitySettings;
+  showResponseTokensPerSecond?: boolean;
   telemetry?: TelemetrySettings;
   outboundCorrelation?: OutboundCorrelationSettings;
   gitCoAuthor?: GitCoAuthorParam;
@@ -789,6 +799,7 @@ export interface ConfigParameters {
   fileFiltering?: {
     respectGitIgnore?: boolean;
     respectQwenIgnore?: boolean;
+    customIgnoreFiles?: string[];
     enableRecursiveFileSearch?: boolean;
     enableFuzzySearch?: boolean;
   };
@@ -822,11 +833,26 @@ export interface ConfigParameters {
   cronEnabled?: boolean;
   agentTeamEnabled?: boolean;
   workflowsEnabled?: boolean;
+  artifactEnabled?: boolean;
+  artifactAutoOpen?: boolean;
+  artifactPublisher?: 'local' | 'host' | 'oss';
+  artifactHost?: ArtifactHostConfig;
+  artifactOss?: ArtifactOssConfig;
+  /**
+   * P5 T7: suppress the one-time `Workflow` tool usage-warning banner.
+   * When `true`, the registry-side warning latch is bypassed and the
+   * banner is not prepended to the run's display payload. Defaults to
+   * `false`. The banner itself is per-session (registry-scoped), so
+   * even when unset it fires at most once per process.
+   */
+  skipWorkflowUsageWarning?: boolean;
   computerUseEnabled?: boolean;
   computerUseMaxImageDimension?: number;
   emitToolUseSummaries?: boolean;
   listExtensions?: boolean;
   overrideExtensions?: string[];
+  /** Locale code for resolving localizable extension fields (e.g., 'en', 'zh'). */
+  locale?: string;
   allowedMcpServers?: string[];
   excludedMcpServers?: string[];
   /**
@@ -913,6 +939,8 @@ export interface ConfigParameters {
   enableManagedAutoDream?: boolean;
   /** Enable automatic project skill review after tool-heavy sessions. Defaults to false. */
   enableAutoSkill?: boolean;
+  /** Require user confirmation before persisting an auto-activated skill. Defaults to true. */
+  autoSkillConfirm?: boolean;
   /**
    * Lightweight model for background tasks (memory extraction, dream, /btw side questions).
    * When set and valid for the current auth type, forked agents use this model instead of
@@ -965,6 +993,8 @@ export interface ConfigParameters {
     ruleType: 'allow' | 'ask' | 'deny',
     rule: string,
   ) => Promise<void>;
+  /** Lifecycle handle for an external settings file watcher. Stopped during shutdown. */
+  settingsWatcher?: { stopWatching(): void };
 }
 
 function normalizeConfigOutputFormat(
@@ -1120,6 +1150,7 @@ export class Config {
    */
   private pendingMcpBudgetCallback?: (event: McpBudgetEvent) => void;
   private promptRegistry!: PromptRegistry;
+  private resourceRegistry!: ResourceRegistry;
   private subagentManager!: SubagentManager;
   private memoryPressureConfig?: MemoryPressureConfig;
   private memoryPressureMonitor?: MemoryPressureMonitor;
@@ -1210,6 +1241,7 @@ export class Config {
   private planGateEntryCounter = 0;
   private autoModeDenialState: AutoModeDenialState = createDenialState();
   private readonly accessibility: AccessibilitySettings;
+  private readonly showResponseTokensPerSecond: boolean;
   private readonly telemetrySettings: TelemetrySettings;
   private readonly outboundCorrelationSettings: OutboundCorrelationSettings;
   private readonly gitCoAuthor: GitCoAuthorSettings;
@@ -1221,6 +1253,7 @@ export class Config {
   private readonly fileFiltering: {
     respectGitIgnore: boolean;
     respectQwenIgnore: boolean;
+    customIgnoreFiles: string[];
     enableRecursiveFileSearch: boolean;
     enableFuzzySearch: boolean;
   };
@@ -1255,7 +1288,13 @@ export class Config {
   private readonly experimentalZedIntegration: boolean = false;
   private readonly cronEnabled: boolean = true;
   private readonly agentTeamEnabled: boolean = false;
+  private readonly artifactEnabled: boolean = false;
+  private readonly artifactAutoOpen: boolean = true;
+  private readonly artifactPublisher: 'local' | 'host' | 'oss' = 'local';
+  private readonly artifactHost?: ArtifactHostConfig;
+  private readonly artifactOss?: ArtifactOssConfig;
   private workflowsEnabled = false;
+  private readonly skipWorkflowUsageWarning: boolean = false;
   private readonly computerUseEnabled: boolean = true;
   private readonly computerUseMaxImageDimension?: number;
   private readonly emitToolUseSummaries: boolean = true;
@@ -1312,6 +1351,7 @@ export class Config {
   private readonly enableManagedAutoMemory: boolean;
   private readonly enableManagedAutoDream: boolean;
   private readonly enableAutoSkill: boolean;
+  private readonly autoSkillConfirm: boolean;
   private fastModel?: string;
   private readonly disableAllHooks: boolean;
   private readonly stopHookBlockingCap: number;
@@ -1325,6 +1365,7 @@ export class Config {
   private messageBus?: MessageBus;
   private readonly memoryManager: MemoryManager;
   private readonly modelChangeListeners = new Set<(model: string) => void>();
+  private readonly settingsWatcher?: { stopWatching(): void };
 
   constructor(params: ConfigParameters) {
     this.sessionId = params.sessionId ?? randomUUID();
@@ -1392,6 +1433,8 @@ export class Config {
     this.contextRuleExcludes = params.contextRuleExcludes ?? [];
     this.approvalMode = params.approvalMode ?? ApprovalMode.DEFAULT;
     this.accessibility = params.accessibility ?? {};
+    this.showResponseTokensPerSecond =
+      params.showResponseTokensPerSecond ?? false;
     this.telemetrySettings = {
       enabled: params.telemetry?.enabled ?? false,
       target: params.telemetry?.target ?? DEFAULT_TELEMETRY_TARGET,
@@ -1424,6 +1467,9 @@ export class Config {
     this.fileFiltering = {
       respectGitIgnore: params.fileFiltering?.respectGitIgnore ?? true,
       respectQwenIgnore: params.fileFiltering?.respectQwenIgnore ?? true,
+      customIgnoreFiles: params.fileFiltering?.customIgnoreFiles ?? [
+        ...DEFAULT_QWEN_CUSTOM_IGNORE_FILE_NAMES,
+      ],
       enableRecursiveFileSearch:
         params.fileFiltering?.enableRecursiveFileSearch ?? true,
       enableFuzzySearch: params.fileFiltering?.enableFuzzySearch ?? true,
@@ -1455,7 +1501,13 @@ export class Config {
       params.experimentalZedIntegration ?? false;
     this.cronEnabled = params.cronEnabled ?? true;
     this.agentTeamEnabled = params.agentTeamEnabled ?? false;
+    this.artifactEnabled = params.artifactEnabled ?? false;
+    this.artifactAutoOpen = params.artifactAutoOpen ?? true;
+    this.artifactPublisher = params.artifactPublisher ?? 'local';
+    this.artifactHost = params.artifactHost;
+    this.artifactOss = params.artifactOss;
     this.workflowsEnabled = params.workflowsEnabled ?? false;
+    this.skipWorkflowUsageWarning = params.skipWorkflowUsageWarning ?? false;
     this.computerUseEnabled = params.computerUseEnabled ?? true;
     this.computerUseMaxImageDimension = params.computerUseMaxImageDimension;
     this.emitToolUseSummaries = params.emitToolUseSummaries ?? true;
@@ -1555,10 +1607,12 @@ export class Config {
       workspaceDir: this.targetDir,
       enabledExtensionOverrides: this.overrideExtensions,
       isWorkspaceTrusted: this.isTrustedFolder(),
+      locale: params.locale,
     });
     this.enableManagedAutoMemory = params.enableManagedAutoMemory ?? true;
     this.enableManagedAutoDream = params.enableManagedAutoDream ?? true;
     this.enableAutoSkill = params.enableAutoSkill ?? true;
+    this.autoSkillConfirm = params.autoSkillConfirm ?? true;
     this.fastModel = params.fastModel || undefined;
     this.disableAllHooks = params.disableAllHooks ?? false;
     this.stopHookBlockingCap = resolveStopHookBlockingCap(
@@ -1569,6 +1623,7 @@ export class Config {
     this.projectHooks = params.projectHooks;
     // Legacy: fall back to merged hooks if new fields are not provided
     this.hooks = params.hooks;
+    this.settingsWatcher = params.settingsWatcher;
     this.memoryManager = new MemoryManager();
   }
 
@@ -1586,6 +1641,7 @@ export class Config {
     // Initialize centralized FileDiscoveryService
     this.getFileService();
     this.promptRegistry = new PromptRegistry();
+    this.resourceRegistry = new ResourceRegistry();
     this.extensionManager.setConfig(this);
     const explicitExtensionNames = this.getExplicitExtensionNames();
     if (!this.getBareMode()) {
@@ -1673,6 +1729,7 @@ export class Config {
                   (input['permission_mode'] as PermissionMode | undefined) ??
                     PermissionMode.Default,
                   signal,
+                  (input['tool_call_id'] as string) || undefined,
                 );
                 break;
               }
@@ -1684,6 +1741,7 @@ export class Config {
                   (input['tool_use_id'] as string) || '',
                   (input['permission_mode'] as PermissionMode) || 'default',
                   signal,
+                  (input['tool_call_id'] as string) || undefined,
                 );
                 break;
               case 'PostToolUseFailure':
@@ -1695,6 +1753,7 @@ export class Config {
                   input['is_interrupt'] as boolean | undefined,
                   (input['permission_mode'] as PermissionMode) || 'default',
                   signal,
+                  (input['tool_call_id'] as string) || undefined,
                 );
                 break;
               case 'PostToolBatch':
@@ -1733,6 +1792,7 @@ export class Config {
                   (input['reason'] as PermissionDeniedReason) ||
                     'classifier_blocked',
                   signal,
+                  (input['tool_call_id'] as string) || undefined,
                 );
                 break;
               case 'SubagentStart':
@@ -2516,6 +2576,20 @@ export class Config {
   }
 
   /**
+   * Resolve the effective input modalities of the current primary model. The
+   * content generator config always carries resolved modalities (name-based
+   * detection fills them in, defaulting unknown models to text-only), which is
+   * the same source the file reader uses to decide media support. Used to
+   * decide whether the vision bridge should run.
+   *
+   * @returns The resolved input modalities. Unknown models are treated as
+   * text-only so bridge features can conservatively adapt image inputs.
+   */
+  getEffectiveInputModalities(): InputModalities {
+    return this.getContentGeneratorConfig()?.modalities ?? {};
+  }
+
+  /**
    * Get the human-readable display name for the currently selected model.
    * Resolves the model id to its name from the model registry.
    * Falls back to the raw model id when the model is not found.
@@ -2563,10 +2637,22 @@ export class Config {
   private resolveFastModelSelector() {
     if (!this.fastModel) return undefined;
     try {
+      const rawSelector = resolveModelId(this.fastModel);
+      if (!rawSelector) return undefined;
+      if (rawSelector.authType) return rawSelector;
+
+      const currentAuthType = this.getContentGeneratorConfig()?.authType;
+      if (!currentAuthType) {
+        this.debugLogger.debug(
+          'No active auth type; skipping bare fast model resolution',
+        );
+        return undefined;
+      }
+
       return resolveModelId(this.fastModel, {
-        currentAuthType: this.getContentGeneratorConfig()?.authType,
-        getAvailableModels: (authTypes) =>
-          this.getAllConfiguredModels(authTypes),
+        currentAuthType,
+        getAvailableModels: () =>
+          this.getAllConfiguredModels([currentAuthType]),
       });
     } catch {
       return undefined;
@@ -2579,6 +2665,27 @@ export class Config {
    */
   setFastModel(model: string | undefined): void {
     this.fastModel = model || undefined;
+  }
+
+  /**
+   * Pick an image-capable model from the registered models to use as the
+   * vision bridge model. This lets the bridge work out-of-the-box when the user
+   * already has a vision model on the SAME provider as their text-only primary
+   * (see {@link selectVisionBridgeModel} — it never reaches across providers).
+   * `runSideQuery` resolves the chosen model's credentials by id.
+   *
+   * @returns A same-provider image-capable model, or `undefined`.
+   */
+  getDefaultVisionBridgeModel(): VisionBridgeModelSelection | undefined {
+    const contentGeneratorConfig = this.getContentGeneratorConfig();
+    return selectVisionBridgeModel(
+      this.getModel(),
+      this.getAllConfiguredModels(),
+      {
+        authType: contentGeneratorConfig?.authType,
+        baseUrl: contentGeneratorConfig?.baseUrl,
+      },
+    );
   }
 
   /**
@@ -2639,6 +2746,8 @@ export class Config {
       this.contentGeneratorConfig.enableCacheControl =
         config.enableCacheControl;
       this.contentGeneratorConfig.splitToolMedia = config.splitToolMedia;
+      this.contentGeneratorConfig.toolResultContentFormat =
+        config.toolResultContentFormat;
 
       if ('model' in sources) {
         this.contentGeneratorConfigSources['model'] = sources['model'];
@@ -2658,6 +2767,10 @@ export class Config {
       if ('splitToolMedia' in sources) {
         this.contentGeneratorConfigSources['splitToolMedia'] =
           sources['splitToolMedia'];
+      }
+      if ('toolResultContentFormat' in sources) {
+        this.contentGeneratorConfigSources['toolResultContentFormat'] =
+          sources['toolResultContentFormat'];
       }
       return;
     }
@@ -2954,6 +3067,10 @@ export class Config {
    */
   async shutdown(): Promise<void> {
     try {
+      // Stop the settings watcher regardless of initialization state —
+      // it is started before Config.initialize() and would leak otherwise.
+      this.settingsWatcher?.stopWatching();
+
       if (!this.initialized) {
         // Nothing else to clean up if not initialized.
         return;
@@ -2992,6 +3109,10 @@ export class Config {
 
   getPromptRegistry(): PromptRegistry {
     return this.promptRegistry;
+  }
+
+  getResourceRegistry(): ResourceRegistry {
+    return this.resourceRegistry;
   }
 
   getDebugMode(): boolean {
@@ -3227,7 +3348,25 @@ export class Config {
   }
 
   isMcpServerDisabled(serverName: string): boolean {
-    return this.excludedMcpServers?.includes(serverName) ?? false;
+    if (this.excludedMcpServers?.includes(serverName)) return true;
+    // Extension-bundled servers can be disabled individually via extension
+    // preferences. Only the extension that actually contributed the server is
+    // consulted, so a same-named server from another source (e.g. a shadowing
+    // user config) is never affected. The owner lookup mirrors the
+    // getMcpServers() merge (user/project config wins, then first active
+    // extension) without rebuilding the merged map — this predicate runs per
+    // server in discovery loops and on every resource read.
+    if (this.mcpServers?.[serverName]) return false;
+    for (const extension of this.getActiveExtensions()) {
+      if (extension.config.mcpServers?.[serverName]) {
+        return (
+          this.extensionManager
+            ?.getDisabledMcpServers(extension.config.name)
+            .includes(serverName) ?? false
+        );
+      }
+    }
+    return false;
   }
 
   /**
@@ -3549,7 +3688,10 @@ export class Config {
     return this.planGateState;
   }
 
-  setApprovalMode(mode: ApprovalMode): void {
+  setApprovalMode(
+    mode: ApprovalMode,
+    options?: { enteredByModel?: boolean },
+  ): void {
     if (
       !this.isTrustedFolder() &&
       mode !== ApprovalMode.DEFAULT &&
@@ -3562,8 +3704,14 @@ export class Config {
     // Track the mode before entering plan mode so it can be restored later
     if (mode === ApprovalMode.PLAN && this.approvalMode !== ApprovalMode.PLAN) {
       this.prePlanMode = this.approvalMode;
-      // Begin a fresh Plan Mode Entry for the Plan Approval Gate.
-      this.planGateState = createPlanGateState(++this.planGateEntryCounter);
+      // Begin a fresh Plan Mode Entry for the Plan Approval Gate. Only the
+      // model's enter_plan_mode tool marks the entry as model-initiated; every
+      // user-driven entry (Shift+Tab, /plan, dialog) defaults to false so the
+      // user always gets the confirmation dialog on exit (issue #5574).
+      this.planGateState = createPlanGateState(
+        ++this.planGateEntryCounter,
+        options?.enteredByModel ?? false,
+      );
     } else if (
       mode !== ApprovalMode.PLAN &&
       this.approvalMode === ApprovalMode.PLAN
@@ -3759,6 +3907,10 @@ export class Config {
     return this.accessibility;
   }
 
+  getShowResponseTokensPerSecond(): boolean {
+    return this.showResponseTokensPerSecond;
+  }
+
   getTelemetryEnabled(): boolean {
     return this.telemetrySettings.enabled ?? false;
   }
@@ -3873,6 +4025,35 @@ export class Config {
     return this.agentTeamEnabled;
   }
 
+  isArtifactEnabled(): boolean {
+    // Artifacts are experimental and opt-in. Publishing writes outside the
+    // project and opens a browser, so it is limited to interactive, non-SDK
+    // sessions. QWEN_CODE_DISABLE_ARTIFACT hard-disables;
+    // QWEN_CODE_ENABLE_ARTIFACT force-enables (still subject to the
+    // interactive/SDK gate).
+    if (process.env['QWEN_CODE_DISABLE_ARTIFACT'] === '1') return false;
+    if (this.sdkMode || !this.interactive) return false;
+    if (process.env['QWEN_CODE_ENABLE_ARTIFACT'] === '1') return true;
+    return this.artifactEnabled;
+  }
+
+  getArtifactPublisherKind(): 'local' | 'host' | 'oss' {
+    return this.artifactPublisher;
+  }
+
+  getArtifactHostConfig(): ArtifactHostConfig | undefined {
+    return this.artifactHost;
+  }
+
+  getArtifactOssConfig(): ArtifactOssConfig | undefined {
+    return this.artifactOss;
+  }
+
+  shouldAutoOpenArtifact(): boolean {
+    if (process.env['QWEN_ARTIFACT_NO_AUTO_OPEN'] === '1') return false;
+    return this.artifactAutoOpen && !this.isBrowserLaunchSuppressed();
+  }
+
   isWorkflowsEnabled(): boolean {
     // Workflows are experimental and opt-in: enabled via settings or env var
     // P1 also honors a kill switch: QWEN_CODE_DISABLE_WORKFLOWS=1 forces off
@@ -3883,6 +4064,18 @@ export class Config {
 
   setWorkflowsEnabled(enabled: boolean): void {
     this.workflowsEnabled = enabled;
+  }
+
+  /**
+   * P5 T7: read the `skipWorkflowUsageWarning` setting. When `true`, the
+   * `Workflow` tool suppresses the one-time banner that announces the
+   * `QWEN_CODE_MAX_TOKENS_PER_WORKFLOW` env knob. The registry-side
+   * `shouldShowUsageWarning()` latch is still session-scoped, so even
+   * when this returns `false` the banner fires at most once per
+   * process.
+   */
+  getSkipWorkflowUsageWarning(): boolean {
+    return this.skipWorkflowUsageWarning;
   }
 
   isComputerUseEnabled(): boolean {
@@ -3934,6 +4127,7 @@ export class Config {
     return {
       respectGitIgnore: this.fileFiltering.respectGitIgnore,
       respectQwenIgnore: this.fileFiltering.respectQwenIgnore,
+      customIgnoreFiles: [...this.fileFiltering.customIgnoreFiles],
     };
   }
 
@@ -4000,7 +4194,10 @@ export class Config {
 
   getFileService(): FileDiscoveryService {
     if (!this.fileDiscoveryService) {
-      this.fileDiscoveryService = new FileDiscoveryService(this.targetDir);
+      this.fileDiscoveryService = new FileDiscoveryService(
+        this.targetDir,
+        this.fileFiltering.customIgnoreFiles,
+      );
     }
     return this.fileDiscoveryService;
   }
@@ -4074,6 +4271,10 @@ export class Config {
 
   getAutoSkillEnabled(): boolean {
     return this.enableAutoSkill && !this.getBareMode();
+  }
+
+  getAutoSkillConfirmEnabled(): boolean {
+    return this.autoSkillConfirm && !this.getBareMode();
   }
 
   getPreventSystemSleepEnabled(): boolean {
@@ -4490,6 +4691,16 @@ export class Config {
     );
   }
 
+  async reviveCompletedBackgroundAgent(
+    agentId: string,
+    initialMessage?: string,
+  ): Promise<import('../agents/background-tasks.js').AgentTask | undefined> {
+    return this.getBackgroundAgentResumeService().reviveCompletedBackgroundAgent(
+      agentId,
+      initialMessage,
+    );
+  }
+
   abandonBackgroundAgent(agentId: string): boolean {
     return this.getBackgroundAgentResumeService().abandonBackgroundAgent(
       agentId,
@@ -4746,6 +4957,12 @@ export class Config {
       const { ToolSearchTool } = await import('../tools/tool-search.js');
       return new ToolSearchTool(this);
     });
+    await registerLazy(ToolNames.READ_MCP_RESOURCE, async () => {
+      const { ReadMcpResourceTool } = await import(
+        '../tools/read-mcp-resource.js'
+      );
+      return new ReadMcpResourceTool(this);
+    });
     await registerLazy(ToolNames.AGENT, async () => {
       const { AgentTool } = await import('../tools/agent/agent.js');
       return new AgentTool(this);
@@ -4858,6 +5075,14 @@ export class Config {
       const { WebFetchTool } = await import('../tools/web-fetch.js');
       return new WebFetchTool(this);
     });
+    if (this.isArtifactEnabled()) {
+      await registerLazy(ToolNames.ARTIFACT, async () => {
+        const { ArtifactTool } = await import(
+          '../tools/artifact/artifact-tool.js'
+        );
+        return new ArtifactTool(this);
+      });
+    }
     if (this.isLspEnabled() && this.getLspClient()) {
       await registerLazy(ToolNames.LSP, async () => {
         const { LspTool } = await import('../tools/lsp.js');
@@ -4885,6 +5110,12 @@ export class Config {
       await registerLazy(ToolNames.CRON_DELETE, async () => {
         const { CronDeleteTool } = await import('../tools/cron-delete.js');
         return new CronDeleteTool(this);
+      });
+      // Reuses the cron scheduler's session-only one-shot path, so it is
+      // gated on the same flag as the cron tools.
+      await registerLazy(ToolNames.LOOP_WAKEUP, async () => {
+        const { LoopWakeupTool } = await import('../tools/loop-wakeup.js');
+        return new LoopWakeupTool(this);
       });
     }
 

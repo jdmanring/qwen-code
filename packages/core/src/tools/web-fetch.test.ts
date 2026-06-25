@@ -54,6 +54,26 @@ describe('WebFetchTool', () => {
       );
     });
 
+    it.each(['HTTPS://example.com', 'Http://example.com'])(
+      'should accept uppercase http url schemes: %s',
+      (url) => {
+        const tool = new WebFetchTool(mockConfig);
+        expect(() =>
+          tool.build({ url, prompt: 'summarize this' }),
+        ).not.toThrow();
+      },
+    );
+
+    it.each(['ftp://example.com', 'http:example.com', 'http:/example.com'])(
+      'should reject invalid or unsupported url schemes: %s',
+      (url) => {
+        const tool = new WebFetchTool(mockConfig);
+        expect(() => tool.build({ url, prompt: 'summarize this' })).toThrow(
+          "The 'url' must be a valid URL starting with http:// or https://.",
+        );
+      },
+    );
+
     it('should return WEB_FETCH_FALLBACK_FAILED on fetch failure', async () => {
       vi.spyOn(fetchUtils, 'isPrivateIp').mockReturnValue(true);
       vi.spyOn(fetchUtils, 'fetchWithTimeout').mockRejectedValue(
@@ -104,11 +124,13 @@ describe('WebFetchTool', () => {
       expect(fetchSpy).toHaveBeenCalledWith(
         'https://example.com',
         expect.any(Number),
-        { Accept: 'text/markdown, text/html, text/plain' },
+        {
+          Accept: 'text/markdown, text/html;q=0.9, text/plain;q=0.8, */*;q=0.1',
+        },
       );
     });
 
-    it('should request only markdown when format is markdown', async () => {
+    it('should prefer markdown when format is markdown', async () => {
       const fetchSpy = vi
         .spyOn(fetchUtils, 'fetchWithTimeout')
         .mockResolvedValue({
@@ -133,11 +155,11 @@ describe('WebFetchTool', () => {
       expect(fetchSpy).toHaveBeenCalledWith(
         'https://example.com',
         expect.any(Number),
-        { Accept: 'text/markdown' },
+        { Accept: 'text/markdown, */*;q=0.1' },
       );
     });
 
-    it('should request only HTML when format is html', async () => {
+    it('should prefer HTML when format is html', async () => {
       const fetchSpy = vi
         .spyOn(fetchUtils, 'fetchWithTimeout')
         .mockResolvedValue({
@@ -162,11 +184,11 @@ describe('WebFetchTool', () => {
       expect(fetchSpy).toHaveBeenCalledWith(
         'https://example.com',
         expect.any(Number),
-        { Accept: 'text/html' },
+        { Accept: 'text/html, */*;q=0.1' },
       );
     });
 
-    it('should request plain text when format is text', async () => {
+    it('should prefer plain text when format is text', async () => {
       const fetchSpy = vi
         .spyOn(fetchUtils, 'fetchWithTimeout')
         .mockResolvedValue({
@@ -191,8 +213,42 @@ describe('WebFetchTool', () => {
       expect(fetchSpy).toHaveBeenCalledWith(
         'https://example.com',
         expect.any(Number),
-        { Accept: 'text/plain' },
+        { Accept: 'text/plain, */*;q=0.1' },
       );
+    });
+
+    it('should process JSON content returned by fallback content negotiation', async () => {
+      let receivedContent = '';
+      vi.spyOn(fetchUtils, 'fetchWithTimeout').mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        text: () =>
+          Promise.resolve(
+            JSON.stringify({
+              published_at: '2026-01-27T11:50:52Z',
+              body: '<p>Release <b>notes</b></p>',
+              desc: 'Use &amp; for ampersand',
+            }),
+          ),
+      } as Response);
+
+      mockGenerateContent.mockImplementation((options) => {
+        receivedContent = options.contents[0].parts[0].text;
+        return Promise.resolve({ text: 'Processed', usage: undefined });
+      });
+
+      const tool = new WebFetchTool(mockConfig);
+      const params = {
+        url: 'https://api.github.com/repos/openai/codex/releases/tags/rust-v0.92.0',
+        prompt: 'report the published date',
+      };
+      const invocation = tool.build(params);
+      await invocation.execute(new AbortController().signal);
+
+      expect(receivedContent).toContain('published_at');
+      expect(receivedContent).toContain('2026-01-27T11:50:52Z');
+      expect(receivedContent).toContain('<p>Release <b>notes</b></p>');
+      expect(receivedContent).toContain('Use &amp; for ampersand');
     });
 
     it('should include markdown content in prompt when server returns markdown', async () => {
