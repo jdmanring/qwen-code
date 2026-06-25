@@ -145,6 +145,7 @@
   "dependencies": {
     "@tencent-connect/qqbot-connector": "^1.1.0",
     "@testing-library/dom": "^10.4.1",
+    "ajv": "^8.20.0",
     "ink": "^7.0.3",
     "simple-git": "^3.28.0"
   },
