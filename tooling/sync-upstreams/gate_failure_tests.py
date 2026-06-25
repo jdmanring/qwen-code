@@ -1,0 +1,223 @@
+#!/usr/bin/env python3
+"""
+Pipeline gate failure tests.
+Verifies that each failure mode (merge conflict, symmetry violation, build
+failure, rebase conflict) is correctly detected and blocked by the upstream
+sync pipeline.
+"""
+
+import subprocess
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).parent))
+from upstream_ingest_pipeline import (
+    REPO_ROOT,
+    SyncManager,
+    UpstreamIngestPipeline,
+    BranchRebaser,
+    _GitRunner,
+)
+
+
+class Colors:
+    GREEN = "\033[0;32m"
+    RED = "\033[0;31m"
+    BLUE = "\033[0;34m"
+    NC = "\033[0m"
+
+
+def log_info(msg: str):
+    print(f"{Colors.BLUE}[INFO]{Colors.NC} {msg}")
+
+
+def log_success(msg: str):
+    print(f"{Colors.GREEN}[PASS]{Colors.NC} {msg}")
+
+
+def log_error(msg: str):
+    print(f"{Colors.RED}[FAIL]{Colors.NC} {msg}")
+
+
+def git(cmd: list, cwd: Path, check: bool = True) -> subprocess.CompletedProcess:
+    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, check=check)
+
+
+class GateFailureTests:
+    def __init__(self):
+        self.root = REPO_ROOT
+
+    def test_merge_conflict(self):
+        log_info("Testing Failure Mode: Merge Conflict")
+
+        _git = _GitRunner(self.root)
+        sync = SyncManager(_git)
+        test_file = self.root / "Conflict_Test.txt"
+
+        orig_integration = _git.output(["git", "rev-parse", "integration"])
+        orig_mirror = _git.output(["git", "rev-parse", "upstream-mirror"])
+
+        success = False
+        try:
+            git(["git", "checkout", "integration"], self.root)
+            test_file.write_text("base version\n")
+            git(["git", "add", str(test_file)], self.root)
+            git(["git", "commit", "-m", "chaos: conflict-test base"], self.root)
+            base_commit = _git.output(["git", "rev-parse", "HEAD"])
+
+            test_file.write_text("Integration version\n")
+            git(["git", "add", str(test_file)], self.root)
+            git(["git", "commit", "-m", "chaos: conflict-test integration"], self.root)
+
+            git(["git", "checkout", "-B", "upstream-mirror", base_commit], self.root)
+            test_file.write_text("Mirror version\n")
+            git(["git", "add", str(test_file)], self.root)
+            git(["git", "commit", "-m", "chaos: conflict-test mirror"], self.root)
+
+            git(["git", "checkout", "integration"], self.root)
+
+            sync.create_staging()
+            try:
+                sync.merge_mirror_to_stage()
+                log_error("Merge unexpectedly succeeded — conflict was not detected!")
+            except RuntimeError:
+                log_success("Pipeline correctly detected and aborted merge conflict.")
+
+                git(["git", "checkout", "integration"], self.root, check=False)
+                content = test_file.read_text() if test_file.exists() else ""
+                if "Integration version" in content:
+                    log_success("Integration branch remained stable.")
+                    success = True
+                else:
+                    log_error(f"Integration branch was polluted! Content: {content!r}")
+
+        finally:
+            sync.cleanup_staging()
+            git(["git", "checkout", "integration"], self.root, check=False)
+            git(["git", "reset", "--hard", orig_integration], self.root, check=False)
+            git(["git", "checkout", "-B", "upstream-mirror", orig_mirror], self.root, check=False)
+            git(["git", "checkout", "integration"], self.root, check=False)
+            test_file.unlink(missing_ok=True)
+
+        return success
+
+    def test_symmetry_violation(self):
+        log_info("Testing Failure Mode: Symmetry Violation")
+
+        config_file = self.root / ".qwen" / "config" / "violation.toml"
+        config_file.parent.mkdir(parents=True, exist_ok=True)
+
+        try:
+            config_file.write_text("test = 1\n")
+
+            orch = UpstreamIngestPipeline(dry_run=True, skip_build=True)
+            result = orch.run()
+
+            if not result.success and result.stage == "VERIFICATION":
+                log_success("Pipeline correctly blocked symmetry violation.")
+                return True
+            else:
+                log_error(
+                    f"Pipeline failed to block symmetry violation. "
+                    f"Stage: {result.stage}, success: {result.success}"
+                )
+                return False
+        finally:
+            config_file.unlink(missing_ok=True)
+
+    def test_build_failure(self):
+        log_info("Testing Failure Mode: Build Failure (gate 1/3)")
+
+        package_json = self.root / "package.json"
+        original = package_json.read_text()
+
+        try:
+            corrupted = original.replace('"name":', '"name": 123 /* chaos */')
+            package_json.write_text(corrupted)
+
+            orch = UpstreamIngestPipeline(dry_run=True)
+            result = orch.run()
+
+            if not result.success and result.stage == "VERIFICATION":
+                log_success("Pipeline correctly blocked build failure.")
+                return True
+            else:
+                log_error(
+                    f"Pipeline failed to block build failure. "
+                    f"Stage: {result.stage}, success: {result.success}"
+                )
+                return False
+        finally:
+            package_json.write_text(original)
+
+    def test_rebase_conflict(self):
+        log_info("Testing Failure Mode: Rebase Conflict")
+
+        _git = _GitRunner(self.root)
+        rebaser = BranchRebaser(_git)
+
+        orig_integration = _git.output(["git", "rev-parse", "integration"])
+        orig_develop = _git.output(["git", "rev-parse", "develop"])
+        orig_mirror = _git.output(["git", "rev-parse", "upstream-mirror"])
+
+        test_file = self.root / "Rebase_Conflict_Test.txt"
+
+        try:
+            git(["git", "checkout", "integration"], self.root)
+            test_file.write_text("integration version\n")
+            git(["git", "add", str(test_file)], self.root)
+            git(["git", "commit", "-m", "chaos: rebase-conflict base"], self.root)
+            new_integration = _git.output(["git", "rev-parse", "HEAD"])
+
+            git(["git", "checkout", "-B", "upstream-mirror", new_integration], self.root)
+
+            test_file.write_text("develop version\n")
+            git(["git", "checkout", "develop"], self.root)
+            git(["git", "add", str(test_file)], self.root)
+            git(["git", "commit", "-m", "chaos: rebase-conflict develop"], self.root)
+
+            rebaser.integration_head = new_integration
+            result = rebaser.update_develop()
+
+            if not result:
+                log_success("Pipeline correctly detected rebase conflict in develop update.")
+                return True
+            else:
+                log_error("Pipeline should have failed on rebase conflict but didn't.")
+                return False
+
+        finally:
+            git(["git", "checkout", "integration"], self.root, check=False)
+            git(["git", "reset", "--hard", orig_integration], self.root, check=False)
+            git(["git", "checkout", "develop"], self.root, check=False)
+            git(["git", "reset", "--hard", orig_develop], self.root, check=False)
+            git(["git", "checkout", "-B", "upstream-mirror", orig_mirror], self.root, check=False)
+            git(["git", "checkout", "integration"], self.root, check=False)
+            test_file.unlink(missing_ok=True)
+
+    def run_all(self):
+        results = []
+        results.append(("Merge Conflict", self.test_merge_conflict()))
+        results.append(("Symmetry Violation", self.test_symmetry_violation()))
+        results.append(("Build Failure", self.test_build_failure()))
+        results.append(("Rebase Conflict", self.test_rebase_conflict()))
+
+        print("\n" + "=" * 42)
+        print("PIPELINE GATE FAILURE TEST REPORT")
+        print("=" * 42)
+        for name, res in results:
+            status = "PASS" if res else "FAIL"
+            print(f"  {name:<25}: {status}")
+        print("=" * 42)
+
+        return all(res for _, res in results)
+
+
+if __name__ == "__main__":
+    suite = GateFailureTests()
+    if suite.run_all():
+        log_success("All gate failure tests passed.")
+        sys.exit(0)
+    else:
+        log_error("One or more gate failure tests failed.")
+        sys.exit(1)
