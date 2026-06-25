@@ -259,7 +259,7 @@ class SyncManager:
         if restored:
             log_info(f"Restored {len(restored)} fork-owned file(s).")
             self._git.run(
-                ["git", "commit", "-m", "chore(sync): restore fork-owned files after upstream merge"]
+                ["git", "commit", "--no-verify", "-m", "chore(sync): restore fork-owned files after upstream merge"]
             )
         else:
             log_success("Protected files unchanged by upstream — no restoration needed.")
