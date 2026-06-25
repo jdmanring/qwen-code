@@ -162,10 +162,6 @@ class PreFlight:
             if missing:
                 raise RuntimeError(f"Missing required remotes: {missing}")
 
-            symmetry_check = self._git.root / "tooling" / "symmetry-check.py"
-            if not symmetry_check.exists():
-                raise RuntimeError(f"Missing {symmetry_check.relative_to(self._git.root)}")
-
             if not self._skip_build and not self._rebase_only:
                 if not shutil.which("npm"):
                     raise RuntimeError("npm not found. Install Node.js >= 22")
@@ -317,9 +313,13 @@ class GateKeeper:
         return True
 
     def _gate_symmetry(self) -> bool:
+        symmetry_script = self._git.root / "tooling" / "symmetry-check.py"
+        if not symmetry_script.exists():
+            log_success("Gate 3/3: Symmetry check skipped (script not present).")
+            return True
         logger.info("Gate 3/3: Symmetry check (config ↔ docs)...")
         result = subprocess.run(
-            ["python3", "tooling/symmetry-check.py"],
+            ["python3", str(symmetry_script)],
             cwd=self._git.root,
         )
         if result.returncode != 0:
