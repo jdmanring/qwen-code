@@ -291,12 +291,16 @@ class GateKeeper:
             cwd=self._git.root,
             capture_output=True,
         )
-        subprocess.run(
-            ["find", ".", "-type", "d", "-name", "dist", "-not", "-path", "./.git/*",
-             "-exec", "rm", "-rf", "{}", "+"],
-            cwd=self._git.root,
-            capture_output=True,
-        )
+        for pkg in ["packages/core", "packages/cli", "packages/acp-bridge",
+                    "packages/channels/base", "packages/channels/telegram",
+                    "packages/channels/weixin", "packages/channels/dingtalk",
+                    "packages/channels/feishu", "packages/channels/qqbot",
+                    "packages/channels/plugin-example"]:
+            subprocess.run(
+                ["rm", "-rf", f"{pkg}/dist", f"{pkg}/tsconfig.tsbuildinfo"],
+                cwd=self._git.root,
+                capture_output=True,
+            )
         result = subprocess.run(
             ["npm", "run", "build"],
             cwd=self._git.root,
