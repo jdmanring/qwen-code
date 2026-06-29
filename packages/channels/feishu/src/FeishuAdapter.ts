@@ -69,6 +69,8 @@ interface CardSessionState {
   creationTimer?: ReturnType<typeof setTimeout>;
   /** Set when busy-wait timeout abandons in-flight card creation. */
   abandoned?: boolean;
+  /** AbortController for in-flight card creation — aborted on busy-wait timeout. */
+  abortController?: AbortController;
   /** Set by onResponseComplete to distinguish completed from cancelled in onPromptEnd. */
   completed?: boolean;
   /** Set synchronously in onCardAction so .then() callbacks can detect stop intent
@@ -760,6 +762,7 @@ export class FeishuChannel extends ChannelBase {
     text: string,
     title?: string,
     inboundMsgId?: string,
+    signal?: AbortSignal,
   ): Promise<{ messageId: string; success: boolean }> {
     const token = await this.getTenantAccessToken();
     if (!token) return { messageId: '', success: false };
@@ -791,7 +794,9 @@ export class FeishuChannel extends ChannelBase {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(body),
-          signal: AbortSignal.timeout(15_000),
+          signal: signal
+            ? AbortSignal.any([signal, AbortSignal.timeout(15_000)])
+            : AbortSignal.timeout(15_000),
         },
       );
 
@@ -992,6 +997,19 @@ export class FeishuChannel extends ChannelBase {
             }
             cs.creating = false;
             this.cleanupCard(inboundMsgId);
+            return;
+          }
+          if (cs.abandoned) {
+            // onResponseComplete timed out and fell back to sendMessage; delete
+            // the card we just created to avoid an orphan.
+            if (result.success) {
+              await this.deleteCard(result.messageId).catch((err) => {
+                process.stderr.write(
+                  `[Feishu:${this.name}] ORPHANED CARD: failed to delete abandoned card msg=${result.messageId}: ${err instanceof Error ? err.message : err}\n`,
+                );
+              });
+            }
+            cs.creating = false;
             return;
           }
           if (result.success) {
@@ -1216,33 +1234,38 @@ export class FeishuChannel extends ChannelBase {
       clearTimeout(cardState.creationTimer);
     }
 
-    // Wait for in-flight card creation (with 10s timeout)
-    if (cardState?.creating) {
-      await new Promise<void>((resolve) => {
-        let elapsed = 0;
-        const check = setInterval(() => {
-          elapsed += 50;
-          if (!cardState.creating || elapsed > 10_000) {
-            clearInterval(check);
-            resolve();
-          }
-        }, 50);
-      });
+    // Wait for in-flight card creation (with 10s timeout). Abort the fetch
+    // on timeout so the creationTimer callback can detect abandonment via
+    // cardState.abandoned and delete the card — preventing an orphan.
+    if (cardState?.creating && cardState.abortController) {
+      const timeout = setTimeout(() => {
+        cardState.abandoned = true;
+        cardState.abortController?.abort();
+      }, 10_000);
+      try {
+        while (cardState.creating) {
+          await new Promise<void>((r) => setTimeout(r, 50));
+          if (cardState.abandoned) break;
+        }
+      } finally {
+        clearTimeout(timeout);
+      }
     }
 
-    // Re-check stopped state after busy-wait (user may have clicked Stop during wait)
+    // Re-check stopped state after wait (user may have clicked Stop during wait)
     if (cardState?.stopped || this.stoppedMessages.has(inboundMsgId)) {
       this.cleanupCard(inboundMsgId);
       this.stoppedMessages.delete(inboundMsgId);
       return;
     }
 
-    // Abandon in-flight card creation if busy-wait timed out — fall back to
+    // Abandon in-flight card creation if timeout fired — fall back to
     // plain message instead of creating a second card (which would race with
     // the original in-flight creation).
-    if (cardState?.creating) {
+    if (cardState?.creating || cardState?.abandoned) {
       cardState.stopped = true;
       cardState.abandoned = true;
+      cardState.abortController?.abort();
       this.cleanupCard(inboundMsgId);
       await this.sendMessage(chatId, fullText);
       return;
@@ -1322,6 +1345,7 @@ export class FeishuChannel extends ChannelBase {
       displayText,
       undefined,
       inboundMsgId,
+      cardState?.abortController?.signal,
     );
     if (result.success) {
       const finalized = await this.updateCard(
@@ -1383,12 +1407,14 @@ export class FeishuChannel extends ChannelBase {
           lastUpdateAt: Date.now(),
         };
         this.cardSessions.set(inboundMsgId, cardState);
+        cardState.abortController = new AbortController();
 
         this.createStreamingCard(
           chatId,
           placeholderText,
           undefined,
           inboundMsgId,
+          cardState.abortController.signal,
         )
           .then((result) => {
             // Only check stopped (not cancelling) — cancelling is set before
@@ -1855,6 +1881,7 @@ export class FeishuChannel extends ChannelBase {
     if (cardState?.creationTimer) {
       clearTimeout(cardState.creationTimer);
     }
+    cardState?.abortController?.abort();
     this.cardSessions.delete(inboundMsgId);
     this.msgToQuestion.delete(inboundMsgId);
     this.msgToSenderName.delete(inboundMsgId);
