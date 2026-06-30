@@ -47,7 +47,7 @@ vi.mock('@anthropic-ai/sdk', () => {
       this.messages = {
         create: (...args: AnthropicCreateArgs) => {
           anthropicMockState.lastCreateArgs = args;
-          return anthropicMockState.createImpl(...args);
+          return (anthropicMockState.createImpl as any)(...args);
         },
       };
     }

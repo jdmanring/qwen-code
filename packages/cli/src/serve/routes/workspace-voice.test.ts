@@ -397,11 +397,11 @@ describe('workspace voice routes', () => {
       mutate: () => (_req: Request, _res: Response, next: NextFunction) =>
         next(),
       safeBody: (req) => req.body as Record<string, unknown>,
-      persistSetting: h.persistSetting,
+      persistSetting: h.persistSetting as any,
       persistSettings,
       broadcastSettingsChanged,
       parseAndValidateClientId: vi.fn(() => 'client-1'),
-      transcribe: h.transcribe,
+      transcribe: h.transcribe as any,
     });
 
     const res = await request(app).post('/workspace/voice').send({
@@ -482,11 +482,11 @@ describe('workspace voice routes', () => {
       mutate: () => (_req: Request, _res: Response, next: NextFunction) =>
         next(),
       safeBody: (req) => req.body as Record<string, unknown>,
-      persistSetting: h.persistSetting,
+      persistSetting: h.persistSetting as any,
       persistSettings,
       broadcastSettingsChanged,
       parseAndValidateClientId: vi.fn(() => 'client-1'),
-      transcribe: h.transcribe,
+      transcribe: h.transcribe as any,
     });
 
     const res = await request(app).post('/workspace/voice').send({
@@ -529,7 +529,7 @@ describe('workspace voice routes', () => {
       persistSetting,
       broadcastSettingsChanged,
       parseAndValidateClientId: vi.fn(() => 'client-1'),
-      transcribe: h.transcribe,
+      transcribe: h.transcribe as any,
     });
 
     const res = await request(app).post('/workspace/voice').send({
@@ -784,10 +784,10 @@ describe('workspace voice routes', () => {
       boundWorkspace: h.workspace,
       mutate,
       safeBody: () => ({}),
-      persistSetting: h.persistSetting,
+      persistSetting: h.persistSetting as any,
       broadcastSettingsChanged: vi.fn(),
       parseAndValidateClientId: vi.fn(),
-      transcribe: h.transcribe,
+      transcribe: h.transcribe as any,
     });
 
     expect(mutate).toHaveBeenNthCalledWith(1, { strict: true });

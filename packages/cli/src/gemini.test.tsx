@@ -900,13 +900,27 @@ describe('gemini.tsx main function kitty protocol', () => {
 
   afterEach(() => {
     for (const listener of process.listeners('SIGINT')) {
-      if (!initialSigintListeners.includes(listener)) {
-        process.removeListener('SIGINT', listener as NodeJS.SignalsListener);
+      if (
+        !initialSigintListeners.includes(
+          listener as unknown as NodeJS.SignalsListener,
+        )
+      ) {
+        process.removeListener(
+          'SIGINT',
+          listener as unknown as NodeJS.SignalsListener,
+        );
       }
     }
     for (const listener of process.listeners('SIGTERM')) {
-      if (!initialSigtermListeners.includes(listener)) {
-        process.removeListener('SIGTERM', listener as NodeJS.SignalsListener);
+      if (
+        !initialSigtermListeners.includes(
+          listener as unknown as NodeJS.SignalsListener,
+        )
+      ) {
+        process.removeListener(
+          'SIGTERM',
+          listener as unknown as NodeJS.SignalsListener,
+        );
       }
     }
 

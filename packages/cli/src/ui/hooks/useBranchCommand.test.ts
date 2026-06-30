@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useBranchCommand } from './useBranchCommand.js';
+import { useBranchCommand, type UseBranchCommandOptions } from './useBranchCommand.js';
 import { restoreGoalFromHistory } from '../utils/restoreGoal.js';
 import type { LoadedSettings } from '../../config/settings.js';
 
@@ -36,13 +36,13 @@ describe('useBranchCommand', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let config: any;
 
-  const makeOptions = () => ({
+  const makeOptions = (): UseBranchCommandOptions => ({
     config,
     settings: mockSettings,
-    historyManager: { clearItems, loadHistory, addItem },
-    startNewSession: startNewSessionUI,
-    setSessionName,
-    remount,
+    historyManager: { clearItems, loadHistory, addItem } as any,
+    startNewSession: startNewSessionUI as any,
+    setSessionName: setSessionName as any,
+    remount: remount as any,
   });
 
   // Helper to build a ChatRecord-shaped user message for loadSession mocks.

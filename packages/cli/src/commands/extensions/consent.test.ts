@@ -250,7 +250,7 @@ describe('requestConsentOrFail', () => {
   });
 
   it('should do nothing when options is undefined', async () => {
-    await requestConsentOrFail(mockRequestConsent, undefined);
+    await requestConsentOrFail(mockRequestConsent as any, undefined);
 
     expect(mockRequestConsent).not.toHaveBeenCalled();
   });
@@ -258,7 +258,7 @@ describe('requestConsentOrFail', () => {
   it('should request consent for new extension', async () => {
     mockRequestConsent.mockResolvedValueOnce(true);
 
-    await requestConsentOrFail(mockRequestConsent, {
+    await requestConsentOrFail(mockRequestConsent as any, {
       extensionConfig: { name: 'test-extension', version: '1.0.0' },
       originSource: 'QwenCode',
     });
@@ -270,7 +270,7 @@ describe('requestConsentOrFail', () => {
     mockRequestConsent.mockResolvedValueOnce(false);
 
     await expect(
-      requestConsentOrFail(mockRequestConsent, {
+      requestConsentOrFail(mockRequestConsent as any, {
         extensionConfig: { name: 'test-extension', version: '1.0.0' },
         originSource: 'QwenCode',
       }),
@@ -283,7 +283,7 @@ describe('requestConsentOrFail', () => {
       version: '1.0.0',
     };
 
-    await requestConsentOrFail(mockRequestConsent, {
+    await requestConsentOrFail(mockRequestConsent as any, {
       extensionConfig,
       previousExtensionConfig: extensionConfig,
       originSource: 'QwenCode',
@@ -295,7 +295,7 @@ describe('requestConsentOrFail', () => {
   it('should request consent when commands change', async () => {
     mockRequestConsent.mockResolvedValueOnce(true);
 
-    await requestConsentOrFail(mockRequestConsent, {
+    await requestConsentOrFail(mockRequestConsent as any, {
       extensionConfig: { name: 'test-extension', version: '1.0.0' },
       commands: ['command1'],
       previousExtensionConfig: { name: 'test-extension', version: '1.0.0' },

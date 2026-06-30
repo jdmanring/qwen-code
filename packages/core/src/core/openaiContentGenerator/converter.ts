@@ -1118,16 +1118,17 @@ export function convertOpenAIResponseToGemini(
     // Handle tool calls
     if (choice.message.tool_calls) {
       for (const toolCall of choice.message.tool_calls) {
-        if (toolCall.function) {
+        if (toolCall.type === 'function') {
+          const fn = toolCall;
           let args: Record<string, unknown> = {};
-          if (toolCall.function.arguments) {
-            args = safeJsonParse(toolCall.function.arguments, {});
+          if (fn.function.arguments) {
+            args = safeJsonParse(fn.function.arguments, {});
           }
 
           parts.push({
             functionCall: {
-              id: toolCall.id,
-              name: toolCall.function.name,
+              id: fn.id,
+              name: fn.function.name,
               args,
             },
           });

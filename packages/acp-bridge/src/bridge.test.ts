@@ -5137,17 +5137,17 @@ describe('createAcpSessionBridge', () => {
   describe('modelServiceId honored at session create', () => {
     /** Build a channel that records `unstable_setSessionModel` calls. */
     function setup(opts: { setModelImpl?: () => Promise<unknown> } = {}) {
-      const setModelCalls: Array<{ sessionId: string; modelId: string }> = [];
+      const setModelCalls: Array<{ sessionId: string; modeId: string }> = [];
       const factory: ChannelFactory = async () => {
         const { clientStream, agentStream } = createInMemoryChannel();
         const fakeAgent = new FakeAgent();
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
             if (prop === 'unstable_setSessionModel') {
-              return async (req: { sessionId: string; modelId: string }) => {
+              return async (req: { sessionId: string; modeId: string }) => {
                 setModelCalls.push({
                   sessionId: req.sessionId,
-                  modelId: req.modelId,
+                  modeId: req.modeId,
                 });
                 if (opts.setModelImpl) await opts.setModelImpl();
                 return {};
@@ -5503,11 +5503,11 @@ describe('createAcpSessionBridge', () => {
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
             if (prop === 'unstable_setSessionModel') {
-              return async (req: { modelId: string }) => {
-                callOrder.push(`enter:${req.modelId}`);
+              return async (req: { modeId: string }) => {
+                callOrder.push(`enter:${req.modeId}`);
                 // Simulate an agent that takes time to apply.
                 await new Promise((r) => setTimeout(r, 30));
-                callOrder.push(`exit:${req.modelId}`);
+                callOrder.push(`exit:${req.modeId}`);
                 return {};
               };
             }
@@ -5562,17 +5562,17 @@ describe('createAcpSessionBridge', () => {
   describe('attach honors modelServiceId on existing session', () => {
     /** Channel + agent factory that records every set-model call. */
     function setupRecording() {
-      const setModelCalls: Array<{ sessionId: string; modelId: string }> = [];
+      const setModelCalls: Array<{ sessionId: string; modeId: string }> = [];
       const factory: ChannelFactory = async () => {
         const { clientStream, agentStream } = createInMemoryChannel();
         const fakeAgent = new FakeAgent();
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
             if (prop === 'unstable_setSessionModel') {
-              return async (req: { sessionId: string; modelId: string }) => {
+              return async (req: { sessionId: string; modeId: string }) => {
                 setModelCalls.push({
                   sessionId: req.sessionId,
-                  modelId: req.modelId,
+                  modeId: req.modeId,
                 });
                 return {};
               };
@@ -5632,7 +5632,7 @@ describe('createAcpSessionBridge', () => {
       await bridge.spawnOrAttach({ workspaceCwd: WS_A });
 
       expect(setModelCalls).toEqual([
-        { sessionId: expect.any(String), modelId: 'model-A' },
+        { sessionId: expect.any(String), modeId: 'model-A' },
       ]);
 
       await bridge.shutdown();
@@ -6246,7 +6246,7 @@ describe('createAcpSessionBridge', () => {
   describe('setSessionModel', () => {
     /** Set up a channel where the agent records setSessionModel calls. */
     async function setup() {
-      const setModelCalls: Array<{ sessionId: string; modelId: string }> = [];
+      const setModelCalls: Array<{ sessionId: string; modeId: string }> = [];
       const factory: ChannelFactory = async () => {
         const { clientStream, agentStream } = createInMemoryChannel();
         const fakeAgent = new FakeAgent();
@@ -6255,10 +6255,10 @@ describe('createAcpSessionBridge', () => {
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
             if (prop === 'unstable_setSessionModel') {
-              return async (req: { sessionId: string; modelId: string }) => {
+              return async (req: { sessionId: string; modeId: string }) => {
                 setModelCalls.push({
                   sessionId: req.sessionId,
-                  modelId: req.modelId,
+                  modeId: req.modeId,
                 });
                 return {};
               };
@@ -6287,7 +6287,7 @@ describe('createAcpSessionBridge', () => {
       const { bridge, session, setModelCalls } = await setup();
       const response = await bridge.setSessionModel(session.sessionId, {
         sessionId: 'spoofed',
-        modelId: 'qwen3-coder',
+        modeId: 'qwen3-coder',
       });
       expect(response).toEqual({});
       expect(setModelCalls[0]?.sessionId).toBe(session.sessionId);
@@ -6303,14 +6303,14 @@ describe('createAcpSessionBridge', () => {
       });
       await bridge.setSessionModel(session.sessionId, {
         sessionId: session.sessionId,
-        modelId: 'qwen3-coder',
+        modeId: 'qwen3-coder',
       });
       const it = iter[Symbol.asyncIterator]();
       const next = await it.next();
       expect(next.value?.type).toBe('model_switched');
       expect(next.value?.data).toEqual({
         sessionId: session.sessionId,
-        modelId: 'qwen3-coder',
+        modeId: 'qwen3-coder',
       });
       const settingsChanged = await it.next();
       expect(settingsChanged.value?.type).toBe('settings_changed');
@@ -6332,7 +6332,7 @@ describe('createAcpSessionBridge', () => {
         session.sessionId,
         {
           sessionId: session.sessionId,
-          modelId: 'qwen3-coder',
+          modeId: 'qwen3-coder',
         },
         { clientId: session.clientId },
       );
@@ -6371,7 +6371,7 @@ describe('createAcpSessionBridge', () => {
           session.sessionId,
           {
             sessionId: session.sessionId,
-            modelId: 'qwen3-coder',
+            modeId: 'qwen3-coder',
           },
           { clientId: 'client-not-issued' },
         ),
@@ -6388,7 +6388,7 @@ describe('createAcpSessionBridge', () => {
       await expect(
         bridge.setSessionModel('unknown', {
           sessionId: 'unknown',
-          modelId: 'qwen3-coder',
+          modeId: 'qwen3-coder',
         }),
       ).rejects.toBeInstanceOf(SessionNotFoundError);
     });
@@ -8047,7 +8047,7 @@ describe('createAcpSessionBridge', () => {
       expect(collected[0]?.type).toBe('model_switched');
       expect(collected[0]?.data).toEqual({
         sessionId: session.sessionId,
-        modelId: 'qwen-max',
+        modeId: 'qwen-max',
       });
       abort.abort();
       await bridge.shutdown();
@@ -8100,7 +8100,7 @@ describe('createAcpSessionBridge', () => {
       const modelChange = bridge
         .setSessionModel(
           session.sessionId,
-          { sessionId: session.sessionId, modelId: 'qwen-max' },
+          { sessionId: session.sessionId, modeId: 'qwen-max' },
           undefined,
         )
         .catch(() => {});
@@ -9746,14 +9746,14 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
 
       await bridge.setSessionModel(
         session.sessionId,
-        { sessionId: session.sessionId, modelId: 'qwen-max' },
+        { sessionId: session.sessionId, modeId: 'qwen-max' },
         undefined,
       );
 
       const it2 = iter[Symbol.asyncIterator]();
       const next = await it2.next();
       expect(next.value?.type).toBe('model_switched');
-      expect((next.value?.data as { modelId: string }).modelId).toBe(
+      expect((next.value?.data as { modeId: string }).modelId).toBe(
         'qwen-max',
       );
       abort.abort();
@@ -10361,7 +10361,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
               sessionId: `sess:${p.cwd}`,
               models: {
                 currentModelId: 'qwen-plus',
-                availableModels: [{ modelId: 'qwen-plus', name: 'Qwen Plus' }],
+                availableModels: [{ modeId: 'qwen-plus', name: 'Qwen Plus' }],
               },
               modes: {
                 currentModeId: 'auto-edit',
@@ -10462,7 +10462,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
 
       await bridge.setSessionModel(
         session.sessionId,
-        { sessionId: session.sessionId, modelId: 'qwen-max' },
+        { sessionId: session.sessionId, modeId: 'qwen-max' },
         undefined,
       );
 
@@ -10471,7 +10471,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
       for await (const e of iter) {
         seen.push({
           type: e.type,
-          modelId: (e.data as { modelId?: string })?.modelId,
+          modeId: (e.data as { modelId?: string })?.modelId,
           value: (e.data as { value?: string })?.value,
         });
         if (seen.filter((s) => s.type === 'model_switched').length === 2) break;
@@ -10516,7 +10516,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
             if (prop === 'unstable_setSessionModel') {
-              return async (p: { modelId: string }) => {
+              return async (p: { modeId: string }) => {
                 lastModel = p.modelId;
                 return {};
               };
@@ -10545,21 +10545,21 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
 
       await bridge.setSessionModel(
         session.sessionId,
-        { sessionId: session.sessionId, modelId: 'qwen-max' },
+        { sessionId: session.sessionId, modeId: 'qwen-max' },
         undefined,
       );
       // Second distinct change terminates the iterator; a spurious
       // corrective would surface as a duplicate model_switched.
       await bridge.setSessionModel(
         session.sessionId,
-        { sessionId: session.sessionId, modelId: 'qwen-plus' },
+        { sessionId: session.sessionId, modeId: 'qwen-plus' },
         undefined,
       );
 
       const switches: string[] = [];
       for await (const e of iter) {
         if (e.type === 'model_switched') {
-          switches.push((e.data as { modelId: string }).modelId);
+          switches.push((e.data as { modeId: string }).modelId);
           if (switches.includes('qwen-plus')) break;
         }
       }
@@ -10583,7 +10583,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
       await expect(
         bridge.setSessionModel(
           session.sessionId,
-          { sessionId: session.sessionId, modelId: 'qwen-max' },
+          { sessionId: session.sessionId, modeId: 'qwen-max' },
           undefined,
         ),
       ).resolves.toBeDefined();
@@ -10593,7 +10593,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
       // The original model_switched is delivered; reconcile failure stays in
       // the operator log (no bus event the SDK cannot decode).
       expect(next.value?.type).toBe('model_switched');
-      expect((next.value?.data as { modelId: string }).modelId).toBe(
+      expect((next.value?.data as { modeId: string }).modelId).toBe(
         'qwen-max',
       );
       abort.abort();
@@ -10651,7 +10651,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
       await expect(
         bridge.setSessionModel(
           session.sessionId,
-          { sessionId: session.sessionId, modelId: 'qwen-max' },
+          { sessionId: session.sessionId, modeId: 'qwen-max' },
           undefined,
         ),
       ).rejects.toThrow();
@@ -10727,14 +10727,14 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
       // A: publishes gen=1; its reconcile starts and blocks on the gate.
       await bridge.setSessionModel(
         session.sessionId,
-        { sessionId: session.sessionId, modelId: 'qwen-max' },
+        { sessionId: session.sessionId, modeId: 'qwen-max' },
         undefined,
       );
       // B: publishes gen=2 while A's reconcile is still awaiting the gated
       // status read; B's own reconcile bails on the in-flight guard.
       await bridge.setSessionModel(
         session.sessionId,
-        { sessionId: session.sessionId, modelId: 'qwen-plus' },
+        { sessionId: session.sessionId, modeId: 'qwen-plus' },
         undefined,
       );
       // Now let A's status read resolve — it must detect the generation
@@ -10744,7 +10744,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
       const switches: string[] = [];
       for await (const e of iter) {
         if (e.type === 'model_switched') {
-          switches.push((e.data as { modelId: string }).modelId);
+          switches.push((e.data as { modeId: string }).modelId);
           if (switches.includes('qwen-turbo')) break;
         }
       }

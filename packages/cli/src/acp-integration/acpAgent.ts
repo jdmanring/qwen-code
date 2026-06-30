@@ -4263,7 +4263,7 @@ class QwenAgent implements Agent {
       return this.acpCell('providers', {
         status: 'ok',
         detail: {
-          count: models.length,
+          count: modes.length,
           providers: [...authTypes],
         },
       });

@@ -253,7 +253,7 @@ describe('IdeClient', () => {
         new Error('File not found'),
       );
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue([]);
@@ -278,7 +278,7 @@ describe('IdeClient', () => {
         new Error('File not found'),
       );
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue([]);
@@ -348,12 +348,12 @@ describe('IdeClient', () => {
         },
       );
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue(['1111.lock', '2222.lock']);
       (
-        vi.mocked(fs.promises.stat) as Mock<
+        vi.mocked(fs.promises.stat) as unknown as Mock<
           (path: fs.PathLike) => Promise<fs.Stats>
         >
       ).mockImplementation(async (filePath: fs.PathLike) => {
@@ -520,7 +520,7 @@ describe('IdeClient', () => {
       );
 
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue([]);
@@ -544,7 +544,7 @@ describe('IdeClient', () => {
       const config = { port: '8080' };
       vi.mocked(fs.promises.readFile).mockResolvedValue(JSON.stringify(config));
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue([]);
@@ -567,7 +567,7 @@ describe('IdeClient', () => {
         new Error('File not found'),
       );
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue([]);
@@ -929,12 +929,12 @@ describe('IdeClient', () => {
           },
         );
         (
-          vi.mocked(fs.promises.readdir) as Mock<
+          vi.mocked(fs.promises.readdir) as unknown as Mock<
             (path: fs.PathLike) => Promise<string[]>
           >
         ).mockResolvedValue(['2345.lock']);
         (
-          vi.mocked(fs.promises.stat) as Mock<
+          vi.mocked(fs.promises.stat) as unknown as Mock<
             (path: fs.PathLike) => Promise<fs.Stats>
           >
         ).mockResolvedValue({ mtimeMs: Date.now() } as fs.Stats);
@@ -1114,12 +1114,12 @@ describe('IdeClient', () => {
         },
       );
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue(['1000.lock']);
       (
-        vi.mocked(fs.promises.stat) as Mock<
+        vi.mocked(fs.promises.stat) as unknown as Mock<
           (path: fs.PathLike) => Promise<fs.Stats>
         >
       ).mockResolvedValue({ mtimeMs: oldTime } as fs.Stats);
@@ -1160,12 +1160,12 @@ describe('IdeClient', () => {
         },
       );
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue(['1000.lock', '2000.lock']);
       (
-        vi.mocked(fs.promises.stat) as Mock<
+        vi.mocked(fs.promises.stat) as unknown as Mock<
           (path: fs.PathLike) => Promise<fs.Stats>
         >
       ).mockImplementation(async (filePath: fs.PathLike) => {
@@ -1214,12 +1214,12 @@ describe('IdeClient', () => {
         },
       );
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue(['1000.lock', '2000.lock']);
       (
-        vi.mocked(fs.promises.stat) as Mock<
+        vi.mocked(fs.promises.stat) as unknown as Mock<
           (path: fs.PathLike) => Promise<fs.Stats>
         >
       ).mockImplementation(async (filePath: fs.PathLike) => {
@@ -1266,12 +1266,12 @@ describe('IdeClient', () => {
         },
       );
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue(['1000.lock', '2000.lock']);
       (
-        vi.mocked(fs.promises.stat) as Mock<
+        vi.mocked(fs.promises.stat) as unknown as Mock<
           (path: fs.PathLike) => Promise<fs.Stats>
         >
       ).mockImplementation(async (filePath: fs.PathLike) => {
@@ -1303,7 +1303,7 @@ describe('IdeClient', () => {
       const config = { port: '8080' };
       vi.mocked(fs.promises.readFile).mockResolvedValue(JSON.stringify(config));
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue([]);
@@ -1322,7 +1322,7 @@ describe('IdeClient', () => {
       const config = { port: '8080' };
       vi.mocked(fs.promises.readFile).mockResolvedValue(JSON.stringify(config));
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue([]);
@@ -1343,7 +1343,7 @@ describe('IdeClient', () => {
       const config = { port: '8080' };
       vi.mocked(fs.promises.readFile).mockResolvedValue(JSON.stringify(config));
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue([]);
@@ -1364,7 +1364,7 @@ describe('IdeClient', () => {
       const config = { port: '8080' };
       vi.mocked(fs.promises.readFile).mockResolvedValue(JSON.stringify(config));
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue([]);
@@ -1388,7 +1388,7 @@ describe('IdeClient', () => {
       const config = { port: '8080', authToken };
       vi.mocked(fs.promises.readFile).mockResolvedValue(JSON.stringify(config));
       (
-        vi.mocked(fs.promises.readdir) as Mock<
+        vi.mocked(fs.promises.readdir) as unknown as Mock<
           (path: fs.PathLike) => Promise<string[]>
         >
       ).mockResolvedValue([]);
