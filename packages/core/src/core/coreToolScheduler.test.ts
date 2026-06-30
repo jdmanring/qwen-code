@@ -497,7 +497,7 @@ class StructuredErrorOnConfirmationTool extends BaseDeclarativeTool<
 }
 
 async function waitForStatus(
-  onToolCallsUpdate: Mock,
+  onToolCallsUpdate: ReturnType<typeof vi.fn>,
   status: 'awaiting_approval' | 'executing' | 'success' | 'error' | 'cancelled',
   timeout = 5000,
 ): Promise<ToolCall> {
@@ -777,8 +777,8 @@ describe('CoreToolScheduler', () => {
         getInputFormat: () => undefined,
         getExperimentalZedIntegration: () => false,
       } as unknown as Config,
-      onAllToolCallsComplete,
-      onToolCallsUpdate,
+      onAllToolCallsComplete: onAllToolCallsComplete as any,
+      onToolCallsUpdate: onToolCallsUpdate as any,
       getPreferredEditor: () => 'vscode',
       onEditorClose: vi.fn(),
     });
@@ -5862,8 +5862,8 @@ describe('CoreToolScheduler plan mode with ask_user_question', () => {
 
     return new CoreToolScheduler({
       config: mockConfig,
-      onAllToolCallsComplete,
-      onToolCallsUpdate,
+      onAllToolCallsComplete: onAllToolCallsComplete as any,
+      onToolCallsUpdate: onToolCallsUpdate as any,
       getPreferredEditor: () => 'vscode',
       onEditorClose: vi.fn(),
     });

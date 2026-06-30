@@ -42,7 +42,10 @@ vi.mock('@qwen-code/qwen-code-core', async (importOriginal) => {
 
 describe('initializeApp', () => {
   let mockConfig: {
-    getModelsConfig: ReturnType<typeof vi.fn>;
+    getModelsConfig: ReturnType<typeof vi.fn> & (() => {
+      getCurrentAuthType: ReturnType<typeof vi.fn>;
+      wasAuthTypeExplicitlyProvided: ReturnType<typeof vi.fn>;
+    });
     getIdeMode: ReturnType<typeof vi.fn>;
     getGeminiMdFileCount: ReturnType<typeof vi.fn>;
   };

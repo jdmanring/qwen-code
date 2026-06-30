@@ -25,13 +25,13 @@ function createAdapter(modelProviders: ModelProvidersConfig = {}) {
     restore: ReturnType<typeof vi.fn>;
     cleanupBackup: ReturnType<typeof vi.fn>;
   } = {
-    getValue: vi.fn(),
-    setValue: vi.fn(),
-    getModelProviders: vi.fn(() => modelProviders),
-    persist: vi.fn(),
-    backup: vi.fn(),
-    restore: vi.fn(),
-    cleanupBackup: vi.fn(),
+    getValue: vi.fn() as any,
+    setValue: vi.fn() as any,
+    getModelProviders: vi.fn(() => modelProviders) as any,
+    persist: vi.fn() as any,
+    backup: vi.fn() as any,
+    restore: vi.fn() as any,
+    cleanupBackup: vi.fn() as any,
   };
   return adapter;
 }

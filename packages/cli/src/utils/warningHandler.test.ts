@@ -29,7 +29,7 @@ describe('initializeWarningHandler', () => {
     process.removeAllListeners('warning');
     resetWarningHandlerForTests();
     priorListener = vi.fn();
-    process.on('warning', priorListener);
+    process.on('warning', priorListener as any);
   });
 
   afterEach(() => {

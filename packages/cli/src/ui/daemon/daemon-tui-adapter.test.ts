@@ -57,6 +57,10 @@ class EventQueue implements AsyncGenerator<DaemonTuiEvent> {
     return this;
   }
 
+  async [Symbol.asyncDispose](): Promise<void> {
+    this.close();
+  }
+
   push(event: DaemonTuiEvent): void {
     const waiter = this.waiters.shift();
     if (waiter) {
@@ -81,15 +85,7 @@ class EventQueue implements AsyncGenerator<DaemonTuiEvent> {
   }
 }
 
-interface FakeSession extends DaemonTuiSessionClient {
-  prompt: ReturnType<typeof vi.fn>;
-  events: ReturnType<typeof vi.fn>;
-  cancel: ReturnType<typeof vi.fn>;
-  setModel: ReturnType<typeof vi.fn>;
-  respondToPermission: ReturnType<typeof vi.fn>;
-}
-
-function createFakeSession(events: EventQueue): FakeSession {
+function createFakeSession(events: EventQueue): DaemonTuiSessionClient {
   return {
     sessionId: 'session-1',
     workspaceCwd: '/repo',
@@ -104,7 +100,7 @@ function createFakeSession(events: EventQueue): FakeSession {
     cancel: vi.fn().mockResolvedValue(undefined),
     setModel: vi.fn().mockResolvedValue({}),
     respondToPermission: vi.fn().mockResolvedValue(true),
-  };
+  } as DaemonTuiSessionClient;
 }
 
 async function waitFor(assertion: () => void): Promise<void> {
@@ -630,7 +626,7 @@ describe('DaemonTuiAdapter', () => {
       }),
     );
     expect(adapter.lastEventId).toBe(10);
-    expect(session.events).toHaveBeenCalledWith({
+    expect(session.events as ReturnType<typeof vi.fn>).toHaveBeenCalledWith({
       signal: expect.any(AbortSignal),
       lastEventId: 3,
       resume: true,
@@ -715,7 +711,7 @@ describe('DaemonTuiAdapter', () => {
 
     adapter.start();
     await adapter.sendPrompt('hello daemon');
-    expect(session.prompt).toHaveBeenCalledWith(
+    expect(session.prompt as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(
       {
         prompt: [{ type: 'text', text: 'hello daemon' }],
       },
@@ -727,7 +723,7 @@ describe('DaemonTuiAdapter', () => {
 
     const blocks: ContentBlock[] = [{ type: 'text', text: 'structured' }];
     await adapter.sendPrompt(blocks);
-    expect(session.prompt).toHaveBeenLastCalledWith(
+    expect(session.prompt as ReturnType<typeof vi.fn>).toHaveBeenLastCalledWith(
       { prompt: blocks },
       expect.any(AbortSignal),
     );
@@ -737,12 +733,18 @@ describe('DaemonTuiAdapter', () => {
     await adapter.approvePermission('req-1', 'proceed_once');
     await adapter.rejectPermission('req-2');
 
-    expect(session.cancel).toHaveBeenCalledOnce();
-    expect(session.setModel).toHaveBeenCalledWith('qwen3-coder-plus');
-    expect(session.respondToPermission).toHaveBeenNthCalledWith(1, 'req-1', {
+    expect(session.cancel as ReturnType<typeof vi.fn>).toHaveBeenCalledOnce();
+    expect(session.setModel as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(
+      'qwen3-coder-plus',
+    );
+    expect(
+      session.respondToPermission as ReturnType<typeof vi.fn>,
+    ).toHaveBeenNthCalledWith(1, 'req-1', {
       outcome: { outcome: 'selected', optionId: 'proceed_once' },
     });
-    expect(session.respondToPermission).toHaveBeenNthCalledWith(2, 'req-2', {
+    expect(
+      session.respondToPermission as ReturnType<typeof vi.fn>,
+    ).toHaveBeenNthCalledWith(2, 'req-2', {
       outcome: { outcome: 'cancelled' },
     });
 
@@ -752,7 +754,9 @@ describe('DaemonTuiAdapter', () => {
   it('reports prompt failures without fabricating turn completion', async () => {
     const events = new EventQueue();
     const session = createFakeSession(events);
-    session.prompt.mockRejectedValue(new Error('\x1b[31mdaemon down\x1b[0m'));
+    (session.prompt as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('\x1b[31mdaemon down\x1b[0m'),
+    );
     const onUpdate = vi.fn();
     const adapter = new DaemonTuiAdapter({ session, onUpdate });
 
@@ -797,7 +801,9 @@ describe('DaemonTuiAdapter', () => {
     adapter.start();
     await stopPromise;
 
-    await waitFor(() => expect(session.events).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(session.events as ReturnType<typeof vi.fn>).toHaveBeenCalledTimes(2),
+    );
     await adapter.stop();
   });
 
@@ -814,8 +820,11 @@ describe('DaemonTuiAdapter', () => {
       [Symbol.asyncIterator]() {
         return this;
       },
+      async [Symbol.asyncDispose]() {},
     };
-    session.events.mockReturnValue(hangingEvents);
+    (session.events as ReturnType<typeof vi.fn>).mockReturnValue(
+      hangingEvents,
+    );
     const onUpdate = vi.fn();
     const adapter = new DaemonTuiAdapter({ session, onUpdate });
 
@@ -825,7 +834,7 @@ describe('DaemonTuiAdapter', () => {
     await vi.advanceTimersByTimeAsync(5_000);
     await stopPromise;
 
-    expect(session.events).toHaveBeenCalledTimes(2);
+    expect(session.events as ReturnType<typeof vi.fn>).toHaveBeenCalledTimes(2);
     vi.useRealTimers();
   });
 
@@ -902,7 +911,7 @@ describe('DaemonTuiAdapter', () => {
       onUpdate: cancelUpdates,
     });
     cancelAdapter.start();
-    cancelSession.cancel.mockRejectedValueOnce(
+    (cancelSession.cancel as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
       new Error('\x1b[31mcancel down\x1b[0m'),
     );
     await expect(cancelAdapter.cancel()).rejects.toThrow('cancel down');
@@ -922,7 +931,9 @@ describe('DaemonTuiAdapter', () => {
       onUpdate: modelUpdates,
     });
     modelAdapter.start();
-    modelSession.setModel.mockRejectedValueOnce(new Error('model down'));
+    (modelSession.setModel as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+      new Error('model down'),
+    );
     await expect(modelAdapter.setModel('qwen3-coder-plus')).rejects.toThrow(
       'model down',
     );
@@ -942,7 +953,7 @@ describe('DaemonTuiAdapter', () => {
       onUpdate: voteUpdates,
     });
     voteAdapter.start();
-    voteSession.respondToPermission.mockRejectedValueOnce(
+    (voteSession.respondToPermission as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
       new Error('vote down'),
     );
     await expect(

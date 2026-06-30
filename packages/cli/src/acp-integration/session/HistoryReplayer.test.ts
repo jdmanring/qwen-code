@@ -48,7 +48,7 @@ describe('HistoryReplayer', () => {
       } as unknown as Config,
       sendUpdate: vi.fn(async (update) => {
         sentUpdateContexts.push({ activeRecordId, activeRecordTimestamp });
-        await sendUpdateSpy(update);
+        await (sendUpdateSpy as any)(update);
       }),
       setActiveRecordId: setActiveRecordIdSpy,
     } as unknown as SessionContext;

@@ -53,7 +53,7 @@ describe('ToolCallEmitter', () => {
       config: {
         getToolRegistry: () => mockToolRegistry,
       } as unknown as Config,
-      sendUpdate: sendUpdateSpy,
+      sendUpdate: sendUpdateSpy as any,
     };
 
     emitter = new ToolCallEmitter(mockContext);

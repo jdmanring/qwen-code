@@ -14,7 +14,7 @@
  *   4. `extractCommandRules()`  – extract minimum-scope wildcard permission rules
  */
 
-import Parser from 'web-tree-sitter';
+import * as Parser from 'web-tree-sitter';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';

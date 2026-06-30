@@ -19,7 +19,7 @@ describe('PlanEmitter', () => {
     mockContext = {
       sessionId: 'test-session-id',
       config: {} as Config,
-      sendUpdate: sendUpdateSpy,
+      sendUpdate: sendUpdateSpy as any,
     };
     emitter = new PlanEmitter(mockContext);
   });
@@ -71,7 +71,7 @@ describe('PlanEmitter', () => {
       const ctx: SessionContext = {
         sessionId: 'test-session-id',
         config: {} as Config,
-        sendUpdate: sendUpdateSpy,
+        sendUpdate: sendUpdateSpy as any,
         cumulativeUsage,
       };
       await new PlanEmitter(ctx).emitPlan([

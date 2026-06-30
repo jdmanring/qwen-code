@@ -48,13 +48,13 @@ function captureKeypressHandler(): (key: Key) => void {
 }
 
 describe('TextInput', () => {
-  let onChange: ReturnType<typeof vi.fn>;
-  let onSubmit: ReturnType<typeof vi.fn>;
+  let onChange = vi.fn() as any;
+  let onSubmit = vi.fn() as any;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    onChange = vi.fn();
-    onSubmit = vi.fn();
+    onChange = vi.fn() as any;
+    onSubmit = vi.fn() as any;
   });
 
   describe('multiline mode (height > 1)', () => {

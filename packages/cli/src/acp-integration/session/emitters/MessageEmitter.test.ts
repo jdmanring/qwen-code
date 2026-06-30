@@ -19,7 +19,7 @@ describe('MessageEmitter', () => {
     mockContext = {
       sessionId: 'test-session-id',
       config: {} as Config,
-      sendUpdate: sendUpdateSpy,
+      sendUpdate: sendUpdateSpy as any,
     };
     emitter = new MessageEmitter(mockContext);
   });
@@ -289,7 +289,7 @@ describe('MessageEmitter', () => {
       const ctx: SessionContext = {
         sessionId: 'test-session-id',
         config: {} as Config,
-        sendUpdate: sendUpdateSpy,
+        sendUpdate: sendUpdateSpy as any,
         cumulativeUsage,
       };
       const e = new MessageEmitter(ctx);
@@ -330,7 +330,7 @@ describe('MessageEmitter', () => {
       const ctx: SessionContext = {
         sessionId: 'test-session-id',
         config: {} as Config,
-        sendUpdate: sendUpdateSpy,
+        sendUpdate: sendUpdateSpy as any,
         cumulativeUsage,
       };
       await new MessageEmitter(ctx).emitUsageMetadata({
@@ -357,7 +357,7 @@ describe('MessageEmitter', () => {
       const ctx: SessionContext = {
         sessionId: 'test-session-id',
         config: {} as Config,
-        sendUpdate: sendUpdateSpy,
+        sendUpdate: sendUpdateSpy as any,
         cumulativeUsage,
       };
       // NaN survives `?? 0` (NaN ?? 0 === NaN); a non-finite duration or token
