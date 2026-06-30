@@ -145,8 +145,6 @@ import type {
   SessionUpdate,
   SetSessionModeRequest,
   SetSessionModeResponse,
-  SetSessionModelRequest,
-  SetSessionModelResponse,
   AgentSideConnection,
 } from '@agentclientprotocol/sdk';
 import type { LoadedSettings } from '../../config/settings.js';
@@ -3621,29 +3619,29 @@ export class Session implements SessionContext {
    * Validates the model ID and switches the model via Config.
    */
   async setModel(
-    params: SetSessionModelRequest,
+    params: SetSessionModeRequest,
     options: { persistDefault?: boolean } = {},
-  ): Promise<SetSessionModelResponse | void> {
-    const rawModelId = params.modelId.trim();
+  ): Promise<SetSessionModeResponse | void> {
+    const rawModeId = params.modeId.trim();
 
-    if (!rawModelId) {
-      throw RequestError.invalidParams(undefined, 'modelId cannot be empty');
+    if (!rawModeId) {
+      throw RequestError.invalidParams(undefined, 'modeId cannot be empty');
     }
 
-    const parsed = parseAcpModelOption(rawModelId);
+    const parsed = parseAcpModelOption(rawModeId);
     const previousAuthType = this.config.getAuthType?.();
     const selectedAuthType = parsed.authType ?? previousAuthType;
 
     if (!selectedAuthType) {
       throw RequestError.invalidParams(
         undefined,
-        `authType cannot be determined for modelId "${parsed.modelId}"`,
+        `authType cannot be determined for modeId "${parsed.modeId}"`,
       );
     }
 
     await this.config.switchModel(
       selectedAuthType,
-      parsed.modelId,
+      parsed.modeId,
       selectedAuthType !== previousAuthType &&
         selectedAuthType === AuthType.QWEN_OAUTH
         ? { requireCachedCredentials: true }
@@ -3652,7 +3650,7 @@ export class Session implements SessionContext {
 
     const after = this.config.getContentGeneratorConfig?.();
     const effectiveAuthType = after?.authType ?? selectedAuthType;
-    const effectiveModelId = after?.model ?? parsed.modelId;
+    const effectiveModeId = after?.model ?? parsed.modeId;
 
     // Notify attached clients of an in-session model switch so a
     // `/model` slash command or plan-mode change reaches the bus (today only
@@ -3668,7 +3666,7 @@ export class Session implements SessionContext {
       .extNotification('qwen/notify/session/model-update', {
         v: 1,
         sessionId: this.sessionId,
-        currentModelId: effectiveModelId,
+        currentModeId: effectiveModeId,
       })
       .catch((error) => {
         // Advisory only; a failed notification must not fail the model switch.
@@ -3677,7 +3675,7 @@ export class Session implements SessionContext {
 
     if (options.persistDefault ?? true) {
       const persistScope = getPersistScopeForModelSelection(this.settings);
-      this.settings.setValue(persistScope, 'model.name', parsed.modelId);
+      this.settings.setValue(persistScope, 'model.name', parsed.modeId);
       // Id-only switch: clear any baseUrl disambiguator left by a previous
       // model-picker selection so the next launch resolves to this provider,
       // not a stale one sharing the same model id. Empty-string tombstone so
@@ -3695,10 +3693,10 @@ export class Session implements SessionContext {
       _meta: {
         qwenModelSwitch: {
           authType: effectiveAuthType,
-          modelId: effectiveModelId,
+          modeId: effectiveModeId,
           baseUrl: after?.baseUrl ?? '(default)',
           apiKey: maskApiKeyForDisplay(after?.apiKey),
-          isRuntime: rawModelId.startsWith('$runtime|'),
+          isRuntime: rawModeId.startsWith('$runtime|'),
         },
       },
     };

@@ -686,7 +686,7 @@ export function mountWorkspaceAgentsRoutes(
  * sending its own 400 — caller must short-circuit on `null`.
  */
 function validateAgentType(req: Request, res: Response): string | null {
-  const raw = req.params['agentType'];
+  const raw = String(req.params['agentType'] ?? '');
   if (!raw || raw.length === 0) {
     res.status(400).json({
       error: '`agentType` path parameter is required',
@@ -724,7 +724,7 @@ function parseScopeQuery(
   req: Request,
   res: Response,
 ): SubagentLevel | undefined | null {
-  const raw = req.query['scope'];
+  const raw = String(req.query['scope'] ?? '');
   if (raw === undefined) return undefined;
   if (typeof raw !== 'string') {
     res.status(400).json({

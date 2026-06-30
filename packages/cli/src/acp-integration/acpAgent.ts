@@ -118,8 +118,6 @@ import type {
   SessionUpdate,
   SetSessionConfigOptionRequest,
   SetSessionConfigOptionResponse,
-  SetSessionModelRequest,
-  SetSessionModelResponse,
   SetSessionModeRequest,
   SetSessionModeResponse,
 } from '@agentclientprotocol/sdk';
@@ -2835,13 +2833,11 @@ class QwenAgent implements Agent {
     this.setupFileSystem(config);
 
     const session = await this.createAndStoreSession(config);
-    const availableModels = this.buildAvailableModels(config);
     const modesData = this.buildModesData(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
       sessionId: session.getId(),
-      models: availableModels,
       modes: modesData,
       configOptions,
     };
@@ -2879,12 +2875,10 @@ class QwenAgent implements Agent {
     await this.#restoreWorktreeOnResume(config, session);
 
     const modesData = this.buildModesData(config);
-    const availableModels = this.buildAvailableModels(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
       modes: modesData,
-      models: availableModels,
       configOptions,
     };
   }
@@ -2922,12 +2916,10 @@ class QwenAgent implements Agent {
     await this.#restoreWorktreeOnResume(config, session);
 
     const modesData = this.buildModesData(config);
-    const availableModels = this.buildAvailableModels(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
       modes: modesData,
-      models: availableModels,
       configOptions,
     };
   }
@@ -3010,8 +3002,8 @@ class QwenAgent implements Agent {
   }
 
   async unstable_setSessionModel(
-    params: SetSessionModelRequest,
-  ): Promise<SetSessionModelResponse | void> {
+    params: SetSessionModeRequest,
+  ): Promise<SetSessionModeResponse | void> {
     const session = this.sessions.get(params.sessionId);
     if (!session) {
       throw RequestError.invalidParams(
@@ -3047,7 +3039,7 @@ class QwenAgent implements Agent {
         await session.setModel(
           {
             sessionId,
-            modelId: value as string,
+            modeId: value as string,
           },
           { persistDefault: false },
         );
@@ -7814,7 +7806,7 @@ class QwenAgent implements Agent {
     return session;
   }
 
-  private buildAvailableModels(config: Config): NewSessionResponse['models'] {
+  private buildAvailableModels(config: Config) {
     const rawCurrentModelId = (
       config.getModel() ||
       this.config.getModel() ||

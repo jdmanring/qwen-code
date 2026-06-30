@@ -477,7 +477,7 @@ class NotebookEditInvocation extends BaseToolInvocation<
       this.config,
       this.params.notebook_path,
     );
-    if (!preDecision.ok) {
+    if (preDecision.ok === false) {
       throw new StructuredToolError(preDecision.rawMessage, preDecision.type);
     }
 
@@ -518,7 +518,7 @@ class NotebookEditInvocation extends BaseToolInvocation<
       this.params.notebook_path,
       { expectExisting: true },
     );
-    if (!postDecision.ok) {
+    if (postDecision.ok === false) {
       throw new StructuredToolError(postDecision.rawMessage, postDecision.type);
     }
 
@@ -608,7 +608,7 @@ class NotebookEditInvocation extends BaseToolInvocation<
         this.params.notebook_path,
         { expectExisting: true },
       );
-      if (!writeDecision.ok) {
+      if (writeDecision.ok === false) {
         return {
           llmContent: writeDecision.rawMessage,
           returnDisplay: `Error: ${writeDecision.displayMessage}`,
