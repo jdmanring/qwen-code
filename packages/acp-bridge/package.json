@@ -103,12 +103,12 @@
     "!dist/**/*.test.*"
   ],
   "dependencies": {
-    "@agentclientprotocol/sdk": "^0.14.1",
+    "@agentclientprotocol/sdk": "^1.1.0",
     "@qwen-code/qwen-code-core": "file:../core"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
-    "vitest": "^3.1.1"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
   },
   "engines": {
     "node": ">=22"

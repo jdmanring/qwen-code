@@ -4,6 +4,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "lib": ["ES2023"],
     "composite": true,
     "types": ["node", "vitest/globals"],

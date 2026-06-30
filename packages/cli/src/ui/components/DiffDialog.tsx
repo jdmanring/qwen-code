@@ -6,7 +6,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Box, Text } from 'ink';
-import type { Hunk } from 'diff';
+import type { StructuredPatchHunk } from 'diff';
 import type {
   FileHistoryService,
   GitDiffResult,
@@ -55,7 +55,7 @@ type UnifiedFile = {
    *  turn entries have empty hunks — pressing Enter on those would land
    *  the user on a dead-end "No hunks available" screen, so we block
    *  Enter in the keypress handler when this is false. */
-  hasHunks: boolean;
+  hasStructuredPatchHunks: boolean;
 };
 
 type Source =
@@ -223,7 +223,7 @@ export function DiffDialog({
         );
         return;
       }
-      if (!sel.hasHunks) {
+      if (!sel.hasStructuredPatchHunks) {
         setKeyHintRef.current(t('No diff content available for this file.'));
         return;
       }
@@ -235,10 +235,7 @@ export function DiffDialog({
   useKeypress(handleKeypress, { isActive: true });
 
   const { columns, rows } = useTerminalSize();
-  // Cap to the app's main content area (AppContainer caps it at 100). The old
-  // 110 cap exceeded that container, so on wide terminals the dialog overflowed
-  // and its right border/edge was clipped off-screen.
-  const dialogWidth = Math.min(columns - 4, 100);
+  const dialogWidth = Math.min(columns - 4, 102);
   const detailHeight = Math.max(8, rows - 12);
 
   const headerTitle =
@@ -339,7 +336,7 @@ export function DiffDialog({
           <FileDetail
             file={selectedFile}
             activeSource={activeSource}
-            currentHunks={current.hunks}
+            currentStructuredPatchHunks={current.hunks}
             availableHeight={detailHeight}
             contentWidth={dialogWidth - 4}
           />
@@ -504,20 +501,20 @@ function FileRow({
 function FileDetail({
   file,
   activeSource,
-  currentHunks,
+  currentStructuredPatchHunks,
   availableHeight,
   contentWidth,
 }: {
   file: UnifiedFile;
   activeSource: Source;
-  currentHunks: Map<string, Hunk[]>;
+  currentStructuredPatchHunks: Map<string, StructuredPatchHunk[]>;
   availableHeight: number;
   contentWidth: number;
 }): React.JSX.Element {
   const diffText = useMemo(() => {
     if (file.isBinary) return '';
     if (activeSource.kind === 'current') {
-      const hunks = currentHunks.get(file.path);
+      const hunks = currentStructuredPatchHunks.get(file.path);
       if (!hunks || hunks.length === 0) return '';
       return hunksToUnifiedDiff(file.path, hunks);
     }
@@ -526,7 +523,7 @@ function FileDetail({
     );
     if (!entry) return '';
     return hunksToUnifiedDiff(file.path, entry.hunks);
-  }, [file, activeSource, currentHunks]);
+  }, [file, activeSource, currentStructuredPatchHunks]);
 
   if (file.isBinary) {
     return (
@@ -594,7 +591,7 @@ function useVisibleWindow(
 
 function currentToFiles(
   result: GitDiffResult | null,
-  hunks: Map<string, Hunk[]>,
+  hunks: Map<string, StructuredPatchHunk[]>,
 ): UnifiedFile[] {
   if (!result) return [];
   // `result.perFileStats` is already bounded by `fetchGitDiff` (MAX_FILES=50)
@@ -611,9 +608,9 @@ function currentToFiles(
 function perFileToUnified(
   path: string,
   s: PerFileStats,
-  hunks: Map<string, Hunk[]>,
+  hunks: Map<string, StructuredPatchHunk[]>,
 ): UnifiedFile {
-  const fileHunks = hunks.get(path);
+  const fileStructuredPatchHunks = hunks.get(path);
   // `s.truncated` from `parseGitNumstat` already means "untracked file
   // exceeded the line-counting read cap". The earlier `total >
   // MAX_LINES_PER_FILE` OR was conflating it with `parseGitDiff`'s
@@ -640,7 +637,7 @@ function perFileToUnified(
     // entries can lack hunks even when present in perFileStats — gate
     // Enter on the actual presence of hunks rather than the row's
     // existence.
-    hasHunks: !!fileHunks && fileHunks.length > 0,
+    hasStructuredPatchHunks: !!fileStructuredPatchHunks && fileStructuredPatchHunks.length > 0,
   };
 }
 
@@ -663,7 +660,7 @@ function turnFileToUnified(f: TurnFileDiff): UnifiedFile {
     isNewFile: f.isNewFile,
     truncated: false,
     oversized: f.oversized,
-    hasHunks: f.hunks.length > 0,
+    hasStructuredPatchHunks: f.hunks.length > 0,
   };
 }
 

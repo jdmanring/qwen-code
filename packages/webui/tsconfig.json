@@ -16,6 +16,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@qwen-code/sdk": ["../sdk-typescript/src/index.ts"],
       "@qwen-code/sdk/daemon": ["../sdk-typescript/src/daemon/index.ts"]

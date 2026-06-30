@@ -19,9 +19,9 @@
   },
   "dependencies": {
     "@qwen-code/channel-base": "file:../base",
-    "@larksuiteoapi/node-sdk": "^1.45.0"
+    "@larksuiteoapi/node-sdk": "^1.68.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^6.0.3"
   }
 }

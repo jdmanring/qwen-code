@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import type { Hunk } from 'diff';
+import type { StructuredPatchHunk } from 'diff';
 import {
   createDebugLogger,
   fetchGitDiff,
@@ -18,7 +18,7 @@ const debugLogger = createDebugLogger('DiffDialog');
 export interface CurrentDiffData {
   /** `null` ⇒ not a git repo / HEAD missing / mid-rebase / etc. */
   result: GitDiffResult | null;
-  hunks: Map<string, Hunk[]>;
+  hunks: Map<string, StructuredPatchHunk[]>;
   loading: boolean;
 }
 
@@ -42,14 +42,16 @@ export interface CurrentDiffData {
  */
 export function useDiffData(cwd: string | undefined): CurrentDiffData {
   const [result, setResult] = useState<GitDiffResult | null>(null);
-  const [hunks, setHunks] = useState<Map<string, Hunk[]>>(new Map());
+  const [hunks, setStructuredPatchHunks] = useState<Map<string, StructuredPatchHunk[]>>(
+    new Map(),
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     if (!cwd) {
       setResult(null);
-      setHunks(new Map());
+      setStructuredPatchHunks(new Map());
       setLoading(false);
       return;
     }
@@ -61,13 +63,13 @@ export function useDiffData(cwd: string | undefined): CurrentDiffData {
       }),
       fetchGitDiffHunks(cwd).catch((err) => {
         debugLogger.debug(`fetchGitDiffHunks failed: ${err}`);
-        return new Map<string, Hunk[]>();
+        return new Map<string, StructuredPatchHunk[]>();
       }),
     ])
       .then(([statsRes, hunksRes]) => {
         if (cancelled) return;
         setResult(statsRes);
-        setHunks(hunksRes);
+        setStructuredPatchHunks(hunksRes);
         setLoading(false);
       })
       .catch((err) => {

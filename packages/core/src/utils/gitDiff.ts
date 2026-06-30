@@ -16,11 +16,11 @@ import * as nodeFs from 'node:fs';
 import { access, lstat, open, readFile, stat } from 'node:fs/promises';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
-import type { Hunk } from 'diff';
+import type { StructuredPatchHunk } from 'diff';
 import { findGitRoot } from './gitUtils.js';
 
 /** Re-export so consumers don't need to depend on `diff` directly. */
-export type GitDiffHunk = Hunk;
+export type GitDiffStructuredPatchHunk = StructuredPatchHunk;
 
 const execFileAsync = promisify(execFile);
 
@@ -99,7 +99,7 @@ function getUntrackedOpenFlags(): number {
 /**
  * Fetch numstat-based git diff stats (files changed, lines added/removed) and
  * per-file summaries comparing the working tree to HEAD. Structured hunks are
- * available separately via `fetchGitDiffHunks`.
+ * available separately via `fetchGitDiffStructuredPatchHunks`.
  *
  * Returns `null` when not inside a git repo, when git itself fails, or when
  * the working tree is in a transient state (merge, rebase, cherry-pick,
@@ -282,9 +282,9 @@ export async function fetchGitDiff(cwd: string): Promise<GitDiffResult | null> {
  * parser would let us terminate `git` early at `MAX_FILES`; that's a
  * reasonable follow-up but out of scope for this utility's first cut.
  */
-export async function fetchGitDiffHunks(
+export async function fetchGitDiffStructuredPatchHunks(
   cwd: string,
-): Promise<Map<string, Hunk[]>> {
+): Promise<Map<string, StructuredPatchHunk[]>> {
   // Walk ancestors once; reuse for the transient-state probe and the diff
   // call. Running from the repo root also keeps hunk keys repo-root-relative
   // regardless of which subdirectory the caller is in.
@@ -411,8 +411,10 @@ export function parseGitNumstat(stdout: string): GitDiffResult {
  * - Skip files whose raw diff exceeds `MAX_DIFF_SIZE_BYTES`.
  * - Truncate per-file content at `MAX_LINES_PER_FILE` lines.
  */
-export function parseGitDiff(stdout: string): Map<string, Hunk[]> {
-  const result = new Map<string, Hunk[]>();
+export function parseGitDiff(
+  stdout: string,
+): Map<string, StructuredPatchHunk[]> {
+  const result = new Map<string, StructuredPatchHunk[]>();
   if (!stdout.trim()) return result;
 
   const fileDiffs = stdout.split(/^diff --git /m).filter(Boolean);
@@ -434,8 +436,8 @@ export function parseGitDiff(stdout: string): Map<string, Hunk[]> {
     const filePath = extractFilePath(lines);
     if (filePath === null) continue;
 
-    const fileHunks: Hunk[] = [];
-    let currentHunk: Hunk | null = null;
+    const fileStructuredPatchHunks: StructuredPatchHunk[] = [];
+    let currentStructuredPatchHunk: StructuredPatchHunk | null = null;
     let lineCount = 0;
 
     for (let i = 1; i < lines.length; i++) {
@@ -444,8 +446,8 @@ export function parseGitDiff(stdout: string): Map<string, Hunk[]> {
         /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/,
       );
       if (hunkMatch) {
-        if (currentHunk) fileHunks.push(currentHunk);
-        currentHunk = {
+        if (currentStructuredPatchHunk) fileStructuredPatchHunks.push(currentStructuredPatchHunk);
+        currentStructuredPatchHunk = {
           oldStart: parseInt(hunkMatch[1] ?? '0', 10),
           oldLines: parseInt(hunkMatch[2] ?? '1', 10),
           newStart: parseInt(hunkMatch[3] ?? '0', 10),
@@ -458,7 +460,7 @@ export function parseGitDiff(stdout: string): Map<string, Hunk[]> {
       // Pre-hunk metadata is only skipped before the first `@@` header. Once
       // inside a hunk, a line like `---foo` is a removed source line whose
       // content happens to start with `---`, and must not be dropped.
-      if (!currentHunk) {
+      if (!currentStructuredPatchHunk) {
         continue;
       }
 
@@ -470,13 +472,13 @@ export function parseGitDiff(stdout: string): Map<string, Hunk[]> {
         if (lineCount >= MAX_LINES_PER_FILE) break;
         // Force a flat string copy to break V8 sliced-string references so the
         // whole raw diff can be GC'd once parsing finishes.
-        currentHunk.lines.push('' + line);
+        currentStructuredPatchHunk.lines.push('' + line);
         lineCount++;
       }
     }
 
-    if (currentHunk) fileHunks.push(currentHunk);
-    if (fileHunks.length > 0) result.set(filePath, fileHunks);
+    if (currentStructuredPatchHunk) fileStructuredPatchHunks.push(currentStructuredPatchHunk);
+    if (fileStructuredPatchHunks.length > 0) result.set(filePath, fileStructuredPatchHunks);
   }
 
   return result;
@@ -600,7 +602,7 @@ function unquoteCStylePath(s: string): string {
  * appends after whitespace-containing paths) and `unquoteCStylePath`
  * (decode `"..."` C-quoted form for paths whose raw bytes include tabs,
  * newlines, quotes, or non-ASCII characters that core.quotepath does not
- * suppress). Without the unquote step, fetchGitDiffHunks would silently
+ * suppress). Without the unquote step, fetchGitDiffStructuredPatchHunks would silently
  * drop hunks for any tracked file whose name contains those characters.
  *
  * Returns `null` when the block has no hunks or no recognizable path line
@@ -838,7 +840,7 @@ export async function resolveGitDir(cwd: string): Promise<string | null> {
 /**
  * Same contract as `resolveGitDir`, but skips the ancestor walk when the
  * caller has already resolved the worktree root. Used by `fetchGitDiff` /
- * `fetchGitDiffHunks` so they walk ancestors at most once per invocation.
+ * `fetchGitDiffStructuredPatchHunks` so they walk ancestors at most once per invocation.
  */
 async function resolveGitDirFromRoot(gitRoot: string): Promise<string | null> {
   const dotGit = path.join(gitRoot, '.git');

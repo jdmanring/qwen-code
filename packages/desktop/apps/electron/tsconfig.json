@@ -20,11 +20,21 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "rootDirs": ["src", "../../packages/shared/src"],
     "paths": {
       "@/*": ["src/renderer/*"],
       "@config/*": ["../../packages/shared/src/config/*"],
       "@craft-agent/shared": ["../../packages/shared/src/index.ts"],
-      "@craft-agent/shared/*": ["../../packages/shared/src/*"]
+      "@craft-agent/shared/*": ["../../packages/shared/src/*"],
+      "@craft-agent/core": ["../../packages/core/src/index.ts"],
+      "@craft-agent/core/*": ["../../packages/core/src/*"],
+      "@craft-agent/server-core": ["../../packages/server-core/src/index.ts"],
+      "@craft-agent/server-core/*": ["../../packages/server-core/src/*"],
+      "@craft-agent/ui": ["../../packages/ui/src/index.ts"],
+      "@craft-agent/ui/annotations/*": ["../../packages/ui/src/components/annotations/*"],
+      "@craft-agent/ui/chat/*": ["../../packages/ui/src/components/chat/*"],
+      "@craft-agent/ui/*": ["../../packages/ui/src/*"]
     }
   },
   "include": ["src/**/*", "../../packages/shared/src/**/*.d.ts"],

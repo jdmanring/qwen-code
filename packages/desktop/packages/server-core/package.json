@@ -29,11 +29,11 @@
     "@craft-agent/session-tools-core": "workspace:*",
     "@craft-agent/shared": "workspace:*",
     "jose": "^6.0.0",
-    "ws": "^8.19.0",
+    "ws": "^8.21.0",
     "sharp": "0.34.5"
   },
   "devDependencies": {
-    "typescript": "^5.8.2",
-    "@types/node": "^22.0.0"
+    "typescript": "^6.0.3",
+    "@types/node": "^26.0.1"
   }
 }
