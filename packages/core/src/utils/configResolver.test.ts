@@ -28,7 +28,11 @@ describe('configResolver', () => {
       );
 
       expect(result.value).toBe('from-env');
-      expect(result.source).toEqual({ kind: 'env', envKey: 'MODEL' });
+      expect(result.source).toEqual({
+        kind: 'env',
+        envKey: 'MODEL',
+        detail: 'env.MODEL',
+      });
     });
 
     it('returns default when all layers are undefined', () => {
@@ -100,7 +104,11 @@ describe('configResolver', () => {
       const result = envLayer(env, 'MY_VAR');
 
       expect(result.value).toBe('my-value');
-      expect(result.source).toEqual({ kind: 'env', envKey: 'MY_VAR' });
+      expect(result.source).toEqual({
+        kind: 'env',
+        envKey: 'MY_VAR',
+        detail: 'env.MY_VAR',
+      });
     });
 
     it('handles missing environment variable', () => {
@@ -108,7 +116,11 @@ describe('configResolver', () => {
       const result = envLayer(env, 'MISSING_VAR');
 
       expect(result.value).toBeUndefined();
-      expect(result.source).toEqual({ kind: 'env', envKey: 'MISSING_VAR' });
+      expect(result.source).toEqual({
+        kind: 'env',
+        envKey: 'MISSING_VAR',
+        detail: 'env.MISSING_VAR',
+      });
     });
 
     it('supports transform function', () => {
@@ -128,6 +140,7 @@ describe('configResolver', () => {
       expect(settingsSource('model.name')).toEqual({
         kind: 'settings',
         settingsPath: 'model.name',
+        detail: 'settings.model.name',
       });
     });
 
