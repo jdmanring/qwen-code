@@ -27,7 +27,16 @@ import { MessageEmitter } from './emitters/MessageEmitter.js';
 import type {
   AgentSideConnection,
   RequestPermissionRequest,
+  RequestPermissionResponse,
 } from '@agentclientprotocol/sdk';
+
+/**
+ * Qwen extension: ACP permission responses may carry structured answers
+ * to ask-user-question prompts. The SDK type does not include this field.
+ */
+type PermissionResponseWithAnswers = RequestPermissionResponse & {
+  answers?: Record<string, string>;
+};
 import {
   buildPermissionRequestContent,
   toPermissionOptions,
@@ -220,7 +229,10 @@ export class SubAgentTracker {
 
       try {
         // Request permission from client
-        const output = await this.client.requestPermission(params);
+        const output =
+          (await this.client.requestPermission(
+            params,
+          )) as PermissionResponseWithAnswers;
         const outcome =
           output.outcome.outcome === 'cancelled'
             ? ToolConfirmationOutcome.Cancel
@@ -229,7 +241,7 @@ export class SubAgentTracker {
                 .parse(output.outcome.optionId);
         // Respond to subagent with the outcome
         await event.respond(outcome, {
-          answers: 'answers' in output ? output.answers : undefined,
+          answers: output.answers,
         });
         if (outcome === ToolConfirmationOutcome.Cancel) {
           this.onPermissionCancel?.();
