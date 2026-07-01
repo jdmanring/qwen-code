@@ -10,12 +10,7 @@ import {
   ClientSideConnection,
   PROTOCOL_VERSION,
 } from '@agentclientprotocol/sdk';
-import type {
-  CancelNotification,
-  PromptRequest,
-  SetSessionModeRequest,
-  SetSessionModeResponse,
-} from '@agentclientprotocol/sdk';
+import type { CancelNotification, PromptRequest } from '@agentclientprotocol/sdk';
 import type { ApprovalMode } from '@qwen-code/qwen-code-core';
 import {
   DAEMON_TRACEPARENT_META_KEY,
@@ -24,7 +19,11 @@ import {
   ShellExecutionService,
   type ShellOutputEvent,
 } from '@qwen-code/qwen-code-core';
-import type { ShellCommandResult } from './bridgeTypes.js';
+import type {
+  SetSessionModelRequest,
+  SetSessionModelResponse,
+  ShellCommandResult,
+} from './bridgeTypes.js';
 import type { AcpChannel } from './channel.js';
 import {
   EventBus,
@@ -4458,15 +4457,15 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
         entry,
         context?.clientId,
       );
-      const normalized: SetSessionModeRequest = { ...req, sessionId };
+      const normalized: SetSessionModelRequest = { ...req, sessionId };
       // The ACP SDK marks setSessionModel as unstable (not in spec yet); the
       // method on AgentSideConnection is `unstable_setSessionModel`. Cast
       // through the shape we know rather than couple to the prefix in case
       // it's renamed when the spec stabilizes.
       const conn = entry.connection as unknown as {
         unstable_setSessionModel(
-          p: SetSessionModeRequest,
-        ): Promise<SetSessionModeResponse>;
+          p: SetSessionModelRequest,
+        ): Promise<SetSessionModelResponse>;
       };
       // Serialize through `entry.modelChangeQueue` so a `POST /session/:id/model`
       // can't race with `applyModelServiceId` (e.g. an attach-with-different-
@@ -4526,12 +4525,12 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
           // corrected by the `reconcileAfterRoundtrip` below, which reads
           // the agent's authoritative canonical id and re-publishes if it
           // differs.
-          publishModelSwitched(entry, req.modeId, originatorClientId);
+          publishModelSwitched(entry, req.modelId, originatorClientId);
           broadcastWorkspaceEvent({
             type: 'settings_changed',
             data: {
               key: 'model.name',
-              value: req.modeId,
+              value: req.modelId,
             },
             ...(originatorClientId ? { originatorClientId } : {}),
           });
@@ -4554,7 +4553,7 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
         () => undefined,
         () => undefined,
       );
-      let response: SetSessionModeResponse;
+      let response: SetSessionModelResponse;
       try {
         response = await work;
       } catch (err) {
@@ -4567,7 +4566,7 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
           type: 'model_switch_failed',
           data: {
             sessionId: entry.sessionId,
-            requestedModelId: req.modeId,
+            requestedModelId: req.modelId,
             error: err instanceof Error ? err.message : String(err),
           },
           ...(originatorClientId ? { originatorClientId } : {}),
