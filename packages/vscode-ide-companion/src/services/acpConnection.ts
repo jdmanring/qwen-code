@@ -663,18 +663,20 @@ export class AcpConnection {
     };
   }
 
-  async setModel(modelId: string): Promise<SetSessionModelResponse> {
+  async setModel(modelId: string): Promise<void> {
     const conn = this.ensureConnection();
     if (!this.sessionId) {
       throw new Error('No active ACP session');
     }
     console.log('[ACP] Sending session/set_model:', modelId);
-    const res = await conn.unstable_setSessionModel({
+    // ACP SDK v1.1.0 removed `unstable_setSessionModel` in favor of
+    // `setSessionConfigOption({ configId: 'model', value: <modelId> })`.
+    await conn.setSessionConfigOption({
       sessionId: this.sessionId,
-      modelId,
+      configId: 'model',
+      value: modelId,
     });
-    console.log('[ACP] set_model response:', res);
-    return res;
+    console.log('[ACP] set_model response: ok');
   }
 
   disconnect(): void {

@@ -5135,7 +5135,7 @@ describe('createAcpSessionBridge', () => {
   });
 
   describe('modelServiceId honored at session create', () => {
-    /** Build a channel that records `unstable_setSessionModel` calls. */
+    /** Build a channel that records `setSessionConfigOption` calls. */
     function setup(opts: { setModelImpl?: () => Promise<unknown> } = {}) {
       const setModelCalls: Array<{ sessionId: string; modelId: string }> = [];
       const factory: ChannelFactory = async () => {
@@ -5143,12 +5143,18 @@ describe('createAcpSessionBridge', () => {
         const fakeAgent = new FakeAgent();
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
-            if (prop === 'unstable_setSessionModel') {
-              return async (req: { sessionId: string; modelId: string }) => {
-                setModelCalls.push({
-                  sessionId: req.sessionId,
-                  modelId: req.modelId,
-                });
+            if (prop === 'setSessionConfigOption') {
+              return async (req: {
+                sessionId: string;
+                configId: string;
+                value: string;
+              }) => {
+                if (req.configId === 'model') {
+                  setModelCalls.push({
+                    sessionId: req.sessionId,
+                    modelId: req.value,
+                  });
+                }
                 if (opts.setModelImpl) await opts.setModelImpl();
                 return {};
               };
@@ -5172,7 +5178,7 @@ describe('createAcpSessionBridge', () => {
       return { bridge, setModelCalls };
     }
 
-    it('applies modelServiceId via unstable_setSessionModel after newSession', async () => {
+    it('applies modelServiceId via setSessionConfigOption after newSession', async () => {
       const { bridge, setModelCalls } = setup();
       const session = await bridge.spawnOrAttach({
         workspaceCwd: WS_A,
@@ -5356,7 +5362,7 @@ describe('createAcpSessionBridge', () => {
         const fakeAgent = new FakeAgent();
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
-            if (prop === 'unstable_setSessionModel') {
+            if (prop === 'setSessionConfigOption') {
               return async () => {
                 attempts += 1;
                 if (attempts > 1) throw new Error('agent denied');
@@ -5427,7 +5433,7 @@ describe('createAcpSessionBridge', () => {
     it('does NOT reconcile when applyModelServiceId roundtrip fails on attach', async () => {
       // F4oaj: the attach-time model apply (`applyModelServiceId`) gates
       // reconcile on the same `succeeded` flag as `setSessionModel`. When the
-      // agent rejects `unstable_setSessionModel`, `publishModelSwitched` never
+      // agent rejects `setSessionConfigOption`, `publishModelSwitched` never
       // runs and the cache is unchanged, so reconciliation must be skipped (no
       // status read) — otherwise a corrective `model_switched` would be paired
       // with the `model_switch_failed`. The agent's status deliberately drifts
@@ -5448,7 +5454,7 @@ describe('createAcpSessionBridge', () => {
         });
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
-            if (prop === 'unstable_setSessionModel') {
+            if (prop === 'setSessionConfigOption') {
               return async () => {
                 throw new Error('agent denied');
               };
@@ -5502,12 +5508,14 @@ describe('createAcpSessionBridge', () => {
         const fakeAgent = new FakeAgent();
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
-            if (prop === 'unstable_setSessionModel') {
-              return async (req: { modelId: string }) => {
-                callOrder.push(`enter:${req.modelId}`);
-                // Simulate an agent that takes time to apply.
-                await new Promise((r) => setTimeout(r, 30));
-                callOrder.push(`exit:${req.modelId}`);
+            if (prop === 'setSessionConfigOption') {
+              return async (req: { configId: string; value: string }) => {
+                if (req.configId === 'model') {
+                  callOrder.push(`enter:${req.value}`);
+                  // Simulate an agent that takes time to apply.
+                  await new Promise((r) => setTimeout(r, 30));
+                  callOrder.push(`exit:${req.value}`);
+                }
                 return {};
               };
             }
@@ -5568,12 +5576,18 @@ describe('createAcpSessionBridge', () => {
         const fakeAgent = new FakeAgent();
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
-            if (prop === 'unstable_setSessionModel') {
-              return async (req: { sessionId: string; modelId: string }) => {
-                setModelCalls.push({
-                  sessionId: req.sessionId,
-                  modelId: req.modelId,
-                });
+            if (prop === 'setSessionConfigOption') {
+              return async (req: {
+                sessionId: string;
+                configId: string;
+                value: string;
+              }) => {
+                if (req.configId === 'model') {
+                  setModelCalls.push({
+                    sessionId: req.sessionId,
+                    modelId: req.value,
+                  });
+                }
                 return {};
               };
             }
@@ -5595,7 +5609,7 @@ describe('createAcpSessionBridge', () => {
       return { factory, setModelCalls };
     }
 
-    it('applies modelServiceId on attach via unstable_setSessionModel', async () => {
+    it('applies modelServiceId on attach via setSessionConfigOption', async () => {
       const { factory, setModelCalls } = setupRecording();
       const bridge = makeBridge({ channelFactory: factory });
 
@@ -6250,16 +6264,22 @@ describe('createAcpSessionBridge', () => {
       const factory: ChannelFactory = async () => {
         const { clientStream, agentStream } = createInMemoryChannel();
         const fakeAgent = new FakeAgent();
-        // Augment the agent with the unstable model setter via a proxy so we
+        // Augment the agent with the model config setter via a proxy so we
         // don't need to extend the FakeAgent class with optional methods.
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
-            if (prop === 'unstable_setSessionModel') {
-              return async (req: { sessionId: string; modelId: string }) => {
-                setModelCalls.push({
-                  sessionId: req.sessionId,
-                  modelId: req.modelId,
-                });
+            if (prop === 'setSessionConfigOption') {
+              return async (req: {
+                sessionId: string;
+                configId: string;
+                value: string;
+              }) => {
+                if (req.configId === 'model') {
+                  setModelCalls.push({
+                    sessionId: req.sessionId,
+                    modelId: req.value,
+                  });
+                }
                 return {};
               };
             }
@@ -8054,7 +8074,7 @@ describe('createAcpSessionBridge', () => {
     });
 
     it('suppresses current_model_update while a bridge model roundtrip is in flight', async () => {
-      // Hang the agent's unstable_setSessionModel so the bridge roundtrip
+      // Hang the agent's setSessionConfigOption so the bridge roundtrip
       // stays in flight (modelRoundtripInFlight = true). The concurrent
       // in-session current_model_update must be suppressed; only the bridge's
       // own model_switched (after the roundtrip) reaches the bus.
@@ -8065,7 +8085,7 @@ describe('createAcpSessionBridge', () => {
         const fakeAgent = new FakeAgent();
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
-            if (prop === 'unstable_setSessionModel') {
+            if (prop === 'setSessionConfigOption') {
               return () =>
                 new Promise<Record<string, never>>((res) => {
                   releaseModel = () => res({});
@@ -9719,7 +9739,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
         const fakeAgent = new FakeAgent();
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
-            if (prop === 'unstable_setSessionModel') {
+            if (prop === 'setSessionConfigOption') {
               return async () => ({});
             }
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -10428,7 +10448,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
         });
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
-            if (prop === 'unstable_setSessionModel') {
+            if (prop === 'setSessionConfigOption') {
               return async () => ({});
             }
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -10515,7 +10535,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
         });
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
-            if (prop === 'unstable_setSessionModel') {
+            if (prop === 'setSessionConfigOption') {
               return async (p: { modelId: string }) => {
                 lastModel = p.modelId;
                 return {};
@@ -10601,7 +10621,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
     });
 
     it('does NOT reconcile when the model roundtrip itself fails', async () => {
-      // The agent's unstable_setSessionModel rejects, so publishModelSwitched
+      // The agent's setSessionConfigOption rejects, so publishModelSwitched
       // never runs and the cache is unchanged. Reconciliation must be skipped
       // (no status read), and the only bus event is model_switch_failed —
       // never a corrective model_switched paired with the failure.
@@ -10621,7 +10641,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
         });
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
-            if (prop === 'unstable_setSessionModel') {
+            if (prop === 'setSessionConfigOption') {
               return async () => {
                 throw new Error('agent refused model switch');
               };
@@ -10699,7 +10719,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
         });
         const augmented = new Proxy(fakeAgent, {
           get(target, prop) {
-            if (prop === 'unstable_setSessionModel') {
+            if (prop === 'setSessionConfigOption') {
               return async () => ({});
             }
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

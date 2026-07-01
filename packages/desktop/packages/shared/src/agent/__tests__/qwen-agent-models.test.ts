@@ -19,10 +19,6 @@ type QwenModelInternals = {
   callAcp: <T>(
     method: string,
     execute: (connection: {
-      unstable_setSessionModel: (params: {
-        sessionId: string;
-        modelId: string;
-      }) => Promise<T>;
       setSessionConfigOption: (params: {
         sessionId: string;
         configId: string;
@@ -236,12 +232,10 @@ describe('QwenAgent model metadata', () => {
     internals.callAcp = async (method, execute) => {
       methods.push(method);
       return execute({
-        unstable_setSessionModel: async (params) => {
+        setSessionConfigOption: async (params) => {
           setModelParams.push(params);
           return undefined as Awaited<ReturnType<typeof execute>>;
         },
-        setSessionConfigOption: async () =>
-          undefined as Awaited<ReturnType<typeof execute>>,
         setSessionMode: async () =>
           undefined as Awaited<ReturnType<typeof execute>>,
       });
@@ -249,11 +243,12 @@ describe('QwenAgent model metadata', () => {
 
     await internals.applySessionSettings('qwen-session-1');
 
-    expect(methods).toContain('session/set_model');
-    expect(methods).not.toContain('session/set_config_option');
+    expect(methods).toContain('session/set_config_option');
+    expect(methods).not.toContain('session/set_model');
     expect(setModelParams).toContainEqual({
       sessionId: 'qwen-session-1',
-      modelId: 'qwen3-coder-plus',
+      configId: 'model',
+      value: 'qwen3-coder-plus',
     });
   });
 

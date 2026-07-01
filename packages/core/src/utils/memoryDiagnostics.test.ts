@@ -50,6 +50,7 @@ describe('collectMemoryDiagnostics', () => {
         total_global_handles_size: 0,
         used_global_handles_size: 0,
         external_memory: 700,
+        total_allocated_bytes: 80 * 1024 * 1024,
       }),
       heapSpaceStatistics: () => [
         {
@@ -184,6 +185,7 @@ describe('collectMemoryDiagnostics', () => {
         total_global_handles_size: 0,
         used_global_handles_size: 0,
         external_memory: 700,
+        total_allocated_bytes: 32 * 1024 * 1024,
       }),
       activeHandles: () => 0,
       activeRequests: () => 0,
@@ -220,6 +222,7 @@ describe('collectMemoryDiagnostics', () => {
         total_global_handles_size: 0,
         used_global_handles_size: 0,
         external_memory: 10,
+        total_allocated_bytes: 100,
       }),
       activeHandles: () => 200,
       activeRequests: () => 0,
@@ -256,6 +259,7 @@ describe('collectMemoryDiagnostics', () => {
         total_global_handles_size: 0,
         used_global_handles_size: 0,
         external_memory: 10,
+        total_allocated_bytes: 100,
       }),
       resourceUsage: () => ({
         userCPUTime: 10,
@@ -308,6 +312,7 @@ describe('collectMemoryDiagnostics', () => {
         total_global_handles_size: 0,
         used_global_handles_size: 0,
         external_memory: 10,
+        total_allocated_bytes: 100,
       }),
       resourceUsage: () => ({
         userCPUTime: 10,
@@ -369,6 +374,7 @@ describe('collectMemoryDiagnostics', () => {
         total_global_handles_size: 0,
         used_global_handles_size: 0,
         external_memory: 10,
+        total_allocated_bytes: 100,
       }),
       heapSpaceStatistics: () => {
         throw new Error('not available');
@@ -429,6 +435,7 @@ describe('collectMemoryDiagnostics', () => {
         total_global_handles_size: 0,
         used_global_handles_size: 0,
         external_memory: 10,
+        total_allocated_bytes: 100,
       }),
       activeHandles: () => {
         throw new Error('handles unavailable');
@@ -477,6 +484,7 @@ describe('collectMemoryDiagnostics', () => {
           total_global_handles_size: 0,
           used_global_handles_size: 0,
           external_memory: 10,
+          total_allocated_bytes: 100,
         }),
       });
 
@@ -527,6 +535,7 @@ describe('collectMemoryDiagnostics', () => {
         total_global_handles_size: 0,
         used_global_handles_size: 0,
         external_memory: 10,
+        total_allocated_bytes: 100,
       }),
       heapSpaceStatistics: () => {
         heapSpacesStarted = true;
@@ -576,6 +585,7 @@ describe('collectMemoryDiagnostics', () => {
         total_global_handles_size: 0,
         used_global_handles_size: 0,
         external_memory: 10,
+        total_allocated_bytes: 100,
       }),
       activeRequests: () => 101,
     });
@@ -611,6 +621,7 @@ describe('collectMemoryDiagnostics', () => {
         total_global_handles_size: 0,
         used_global_handles_size: 0,
         external_memory: 10,
+        total_allocated_bytes: 100,
       }),
     });
 
@@ -645,6 +656,7 @@ describe('collectMemoryDiagnostics', () => {
         total_global_handles_size: 0,
         used_global_handles_size: 0,
         external_memory: 10,
+        total_allocated_bytes: 100,
       }),
       activeHandles: () => 0,
       activeRequests: () => 0,
