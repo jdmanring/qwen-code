@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { createDebugLogger } from '../utils/debugLogger.js';
 import type { AuthType } from '../core/contentGenerator.js';
 import type { ModelProvidersConfig } from '../models/types.js';
 import type {
@@ -11,6 +12,8 @@ import type {
   ProviderModelProvidersPatch,
   ProviderSettingsAdapter,
 } from './types.js';
+
+const debugLogger = createDebugLogger('PROVIDER_INSTALL');
 
 /**
  * Environment variable names an install plan must never set — they alter
@@ -291,8 +294,7 @@ export async function applyProviderInstallPlan(
     try {
       settings.restore?.();
     } catch (restoreErr) {
-      // eslint-disable-next-line no-console -- best-effort rollback path
-      console.error(
+      debugLogger.error(
         '[applyProviderInstallPlan] settings.restore failed during rollback:',
         restoreErr,
       );
@@ -309,16 +311,14 @@ export async function applyProviderInstallPlan(
       // process.env writes can throw if a custom property descriptor on
       // process.env has been installed (rare, but observed in some test
       // harnesses). Don't let it skip the runtime-providers rollback below.
-      // eslint-disable-next-line no-console -- best-effort rollback path
-      console.error('[applyProviderInstallPlan] env rollback failed:', envErr);
+      debugLogger.error('[applyProviderInstallPlan] env rollback failed:', envErr);
     }
     // Restore in-memory runtime providers — reloadModelProviders may have run
     // before the failure (e.g. before a refreshAuth rejection).
     try {
       reloadModelProviders?.(previousRuntimeProviders);
     } catch (reloadErr) {
-      // eslint-disable-next-line no-console -- best-effort rollback path
-      console.error(
+      debugLogger.error(
         '[applyProviderInstallPlan] reloadModelProviders failed during rollback:',
         reloadErr,
       );

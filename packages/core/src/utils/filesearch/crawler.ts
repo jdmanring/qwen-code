@@ -10,6 +10,9 @@ import { spawn } from 'node:child_process';
 import { fdir } from 'fdir';
 import type { Ignore } from './ignore.js';
 import * as cache from './crawlCache.js';
+import { createDebugLogger } from '../utils/debugLogger.js';
+
+const debugLogger = createDebugLogger('FILESEARCH_CRAWLER');
 
 export interface CrawlOptions {
   // The directory to start the crawl from.
@@ -162,8 +165,7 @@ function logCommandProblem(
   if (detail.stderr && detail.stderr.length > 0) {
     parts.push(truncateStderrSnippet(detail.stderr));
   }
-  // eslint-disable-next-line no-console -- intentional diagnostics for git/rg failures
-  console.warn(parts.join(' '));
+  debugLogger.warn(parts.join(' '));
 }
 
 function withSafeGitConfig(args: string[]): string[] {
@@ -1487,8 +1489,7 @@ export async function crawl(options: CrawlOptions): Promise<string[]> {
   }
 
   if (gitResult.gitRepoListingFailed) {
-    // eslint-disable-next-line no-console -- operator-visible crawl strategy degradation
-    console.warn(
+    debugLogger.warn(
       '[crawler] falling back to ripgrep (git ls-files unavailable)',
     );
   }
@@ -1510,8 +1511,7 @@ export async function crawl(options: CrawlOptions): Promise<string[]> {
   }
 
   // Ripgrep failed — fdir is the slowest crawl path (including non-git trees).
-  // eslint-disable-next-line no-console -- operator-visible crawl strategy degradation
-  console.warn('[crawler] falling back to fdir (ripgrep unavailable)');
+  debugLogger.warn('[crawler] falling back to fdir (ripgrep unavailable)');
 
   const relativeToCrawlDirForFdir = getPosixRelative(
     options.cwd,

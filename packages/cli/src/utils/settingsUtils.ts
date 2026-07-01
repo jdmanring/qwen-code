@@ -5,6 +5,7 @@
  */
 
 import * as fs from 'node:fs';
+import { createDebugLogger } from '@qwen-code/qwen-code-core';
 import type {
   Settings,
   SettingScope,
@@ -19,6 +20,8 @@ import type {
 import { getSettingsSchema } from '../config/settingsSchema.js';
 import { t } from '../i18n/index.js';
 import { isAutoLanguage } from './languageUtils.js';
+
+const debugLogger = createDebugLogger('SETTINGS_UTILS');
 
 // The schema is now nested, but many parts of the UI and logic work better
 // with a flattened structure and dot-notation keys. This section flattens the
@@ -719,9 +722,8 @@ export function restoreSettingsFromBackup(filePath: string): boolean {
     // Caller handles the boolean failure, but log the underlying cause so
     // EACCES / disk full / file-locked don't all look identical from
     // upstream — the adapter's own warning then has something to point at.
-    // eslint-disable-next-line no-console -- best-effort rollback path
-    console.error(
-      `[settingsUtils] restoreSettingsFromBackup(${filePath}) failed:`,
+    debugLogger.error(
+      `restoreSettingsFromBackup(${filePath}) failed:`,
       err,
     );
   }

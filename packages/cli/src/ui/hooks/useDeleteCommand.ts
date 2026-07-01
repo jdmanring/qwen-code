@@ -6,8 +6,11 @@
 
 import { useCallback, useRef, useState } from 'react';
 import type { Config } from '@qwen-code/qwen-code-core';
+import { createDebugLogger } from '@qwen-code/qwen-code-core';
 import type { UseHistoryManagerReturn } from './useHistoryManager.js';
 import { t } from '../../i18n/index.js';
+
+const debugLogger = createDebugLogger('USE_DELETE_COMMAND');
 
 export interface UseDeleteCommandOptions {
   config: Config | null;
@@ -92,8 +95,7 @@ export function useDeleteCommand(
           );
         }
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('handleDelete failed:', error);
+        debugLogger.error('handleDelete failed:', error);
         addItem?.(
           {
             type: 'error',
@@ -222,8 +224,7 @@ export function useDeleteCommand(
           );
         }
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('handleDeleteMany failed:', error);
+        debugLogger.error('handleDeleteMany failed:', error);
         const detail = error instanceof Error ? error.message : String(error);
         addItem?.(
           {

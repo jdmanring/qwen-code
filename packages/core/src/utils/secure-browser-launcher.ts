@@ -13,6 +13,9 @@ import {
   isBrowserCommandBlocked,
   shouldAttemptBrowserLaunch,
 } from './browser.js';
+import { createDebugLogger } from './debugLogger.js';
+
+const debugLogger = createDebugLogger('SECURE_BROWSER_LAUNCHER');
 
 const execFileAsync = promisify(execFile);
 
@@ -103,22 +106,18 @@ export async function openBrowserSecurely(
       await launchDetached(browserCommand.command, browserCommand.args);
       return;
     } catch (_error) {
-      /* eslint-disable no-console */
-      console.warn(
+      debugLogger.warn(
         `Failed to open BROWSER command ${browserCommand.command}: ${formatLaunchError(
           _error,
         )}. Falling back to the platform browser opener.`,
       );
-      /* eslint-enable no-console */
     }
   }
 
   if (!shouldAttemptBrowserLaunch({ ignoreBrowserBlocklist: true })) {
-    /* eslint-disable no-console */
-    console.warn(
+    debugLogger.warn(
       `Browser launch is not available in this environment. Please open this URL manually: ${url}`,
     );
-    /* eslint-enable no-console */
     return;
   }
 
@@ -205,11 +204,9 @@ export async function openBrowserSecurely(
     }
 
     // Log the URL so the user can open it manually instead of crashing.
-    /* eslint-disable no-console */
-    console.warn(
+    debugLogger.warn(
       `Failed to open browser automatically. Please open this URL manually: ${url}`,
     );
-    /* eslint-enable no-console */
     return;
   }
 }
@@ -261,11 +258,9 @@ function buildBrowserCommand(
 
   const browserCommand = parseBrowserCommand(browserEnv);
   if (!browserCommand) {
-    /* eslint-disable no-console */
-    console.warn(
+    debugLogger.warn(
       'Invalid BROWSER environment variable, falling back to platform default.',
     );
-    /* eslint-enable no-console */
     return undefined;
   }
 

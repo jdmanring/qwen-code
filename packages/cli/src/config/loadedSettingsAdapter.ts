@@ -15,6 +15,7 @@ import type {
   ModelProvidersConfig,
   ProviderSettingsAdapter,
 } from '@qwen-code/qwen-code-core';
+import { createDebugLogger } from '@qwen-code/qwen-code-core';
 import type { LoadedSettings, SettingScope } from './settings.js';
 import { getPersistScopeForModelSelection } from './modelProvidersScope.js';
 import {
@@ -23,6 +24,8 @@ import {
   restoreSettingsFromBackup,
   getNestedProperty,
 } from '../utils/settingsUtils.js';
+
+const debugLogger = createDebugLogger('LOADED_SETTINGS_ADAPTER');
 
 export function createLoadedSettingsAdapter(
   settings: LoadedSettings,
@@ -81,9 +84,8 @@ export function createLoadedSettingsAdapter(
       // on-disk file may be inconsistent with the recovered in-memory state.
       const restored = restoreSettingsFromBackup(settingsFile.path);
       if (!restored) {
-        // eslint-disable-next-line no-console -- best-effort rollback path
-        console.error(
-          `[loadedSettingsAdapter] On-disk rollback of ${settingsFile.path} failed; ` +
+        debugLogger.error(
+          `On-disk rollback of ${settingsFile.path} failed; ` +
             `in-memory state was restored but the file may be inconsistent. ` +
             `Re-run /auth or inspect the file directly to recover.`,
         );
