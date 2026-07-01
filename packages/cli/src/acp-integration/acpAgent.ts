@@ -121,11 +121,7 @@ import type {
   SetSessionModeRequest,
   SetSessionModeResponse,
 } from '@agentclientprotocol/sdk';
-import type {
-  SessionModelState,
-  SetSessionModelRequest,
-  SetSessionModelResponse,
-} from '@qwen-code/acp-bridge/bridgeTypes';
+import type { SessionModelState } from '@qwen-code/acp-bridge/bridgeTypes';
 import {
   buildAuthMethods,
   pickAuthMethodsForAuthRequired,
@@ -3006,19 +3002,6 @@ class QwenAgent implements Agent {
     return session.setMode(params);
   }
 
-  async unstable_setSessionModel(
-    params: SetSessionModelRequest,
-  ): Promise<SetSessionModelResponse | void> {
-    const session = this.sessions.get(params.sessionId);
-    if (!session) {
-      throw RequestError.invalidParams(
-        undefined,
-        `Session not found for id: ${params.sessionId}`,
-      );
-    }
-    return await session.setModel(params);
-  }
-
   async setSessionConfigOption(
     params: SetSessionConfigOptionRequest,
   ): Promise<SetSessionConfigOptionResponse> {
@@ -4260,7 +4243,7 @@ class QwenAgent implements Agent {
       return this.acpCell('providers', {
         status: 'ok',
         detail: {
-          count: modes.length,
+          count: models.length,
           providers: [...authTypes],
         },
       });

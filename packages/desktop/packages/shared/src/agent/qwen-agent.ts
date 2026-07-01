@@ -3215,32 +3215,8 @@ export class QwenAgent extends BaseAgent {
     }
 
     try {
-      if (options.persistDefault ?? true) {
-        await this.callAcp(
-          'session/set_model',
-          (connection) =>
-            connection.unstable_setSessionModel({
-              sessionId,
-              modelId: model,
-            }),
-          10_000,
-        );
-      } else {
-        await this.callAcp(
-          'session/set_config_option',
-          (connection) =>
-            connection.setSessionConfigOption({
-              sessionId,
-              configId: 'model',
-              value: model,
-            }),
-          10_000,
-        );
-      }
-    } catch (error) {
-      this.debug(
-        `Qwen session/set_model failed: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      // ACP SDK v1.1.0 removed `unstable_setSessionModel` in favor of
+      // `setSessionConfigOption({ configId: 'model', value: <modelId> })`.
       await this.callAcp(
         'session/set_config_option',
         (connection) =>
@@ -3250,11 +3226,11 @@ export class QwenAgent extends BaseAgent {
             value: model,
           }),
         10_000,
-      ).catch((fallbackError) => {
-        this.debug(
-          `Qwen model config fallback failed: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`,
-        );
-      });
+      );
+    } catch (error) {
+      this.debug(
+        `Qwen session/set_config_option failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
