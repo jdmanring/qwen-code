@@ -245,13 +245,11 @@ export function initializeTelemetry(config: TelemetryRuntimeConfig): void {
   // that auto-stub Config methods to return undefined.
   const attrWarnings = config.getTelemetryResourceAttributeWarnings() ?? [];
   if (attrWarnings.length > 0) {
-    // eslint-disable-next-line no-console
-    console.warn(
+    debugLogger.warn(
       `[qwen-code telemetry] ${attrWarnings.length} resource attribute issue(s):`,
     );
     for (const w of attrWarnings) {
-      // eslint-disable-next-line no-console
-      console.warn(`  - ${w}`);
+      debugLogger.warn(`  - ${w}`);
     }
   }
 

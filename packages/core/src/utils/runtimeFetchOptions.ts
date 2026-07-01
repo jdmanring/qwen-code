@@ -690,8 +690,7 @@ function buildFetchOptionsWithDispatcher(
     // Dual logging: debugLogger writes to ~/.qwen/debug/ (for local debugging),
     // console.error writes to stderr (captured by container orchestrators and log aggregators).
     // This ensures visibility in production even when debug sessions are inactive.
-    // eslint-disable-next-line no-console
-    console.error(`[RUNTIME_FETCH] ${logMessage}`);
+    debugLogger.error(`[RUNTIME_FETCH] ${logMessage}`);
     return NO_DISPATCHER_FALLBACK[sdkType];
   }
 }

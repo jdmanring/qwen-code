@@ -10,10 +10,12 @@ import type {
   MCPServerConfig,
   McpServerScope,
 } from '@qwen-code/qwen-code-core';
-import { ApprovalMode, isGatedMcpScope } from '@qwen-code/qwen-code-core';
+import { ApprovalMode, createDebugLogger, isGatedMcpScope } from '@qwen-code/qwen-code-core';
 import { loadMcpApprovals } from '../../config/mcpApprovals.js';
 import { McpApprovalChoice } from '../components/mcp/MCPServerApprovalDialog.js';
 import { appEvents, AppEvent } from '../../utils/events.js';
+
+const debugLogger = createDebugLogger('USE_MCP_APPROVAL');
 
 export interface PendingMcpServer {
   name: string;
@@ -121,10 +123,7 @@ export const useMcpApproval = (config: Config) => {
       void registry
         ?.discoverToolsForServer?.(name)
         ?.catch?.((error: unknown) => {
-          if (process.env['DEBUG']) {
-            // eslint-disable-next-line no-console
-            console.error(`MCP reconnect failed for ${name}:`, error);
-          }
+          debugLogger.error(`MCP reconnect failed for ${name}:`, error);
         });
     },
     [config],

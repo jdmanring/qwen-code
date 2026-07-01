@@ -16,6 +16,7 @@ import {
   buildInstallPlan,
   buildProviderTemplate,
   computeModelListVersion,
+  createDebugLogger,
   getDefaultModelIds,
   PROVIDER_METADATA_NS,
   resolveBaseUrl,
@@ -26,6 +27,8 @@ import type { LoadedSettings } from '../../config/settings.js';
 import { t } from '../../i18n/index.js';
 import { createLoadedSettingsAdapter } from '../../config/loadedSettingsAdapter.js';
 import { getPersistScopeForModelSelection } from '../../config/modelProvidersScope.js';
+
+const debugLogger = createDebugLogger('USE_PROVIDER_UPDATES');
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -119,9 +122,8 @@ function migrateProviderMetadata(settings: LoadedSettings): void {
   }
 
   if (migrated) {
-    // eslint-disable-next-line no-console
-    console.log(
-      '[info] Migrated provider metadata to providerMetadata namespace.',
+    debugLogger.debug(
+      'Migrated provider metadata to providerMetadata namespace.',
     );
   }
 }

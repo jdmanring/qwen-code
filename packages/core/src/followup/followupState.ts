@@ -9,6 +9,10 @@
  * shared between CLI (Ink) and WebUI (React) hooks.
  */
 
+import { createDebugLogger } from '../utils/debugLogger.js';
+
+const debugLogger = createDebugLogger('FOLLOWUP_STATE');
+
 /**
  * State for prompt suggestion display.
  */
@@ -186,8 +190,7 @@ export function createFollowupController(
         suggestion_length: text.length,
       });
     } catch (e: unknown) {
-      // eslint-disable-next-line no-console
-      console.error('[followup] onOutcome callback threw:', e);
+      debugLogger.error('[followup] onOutcome callback threw:', e);
     }
 
     applyState(INITIAL_FOLLOWUP_STATE);
@@ -198,8 +201,7 @@ export function createFollowupController(
           getOnAccept?.()?.(text);
         }
       } catch (error: unknown) {
-        // eslint-disable-next-line no-console
-        console.error('[followup] onAccept callback threw:', error);
+        debugLogger.error('[followup] onAccept callback threw:', error);
       } finally {
         if (acceptTimeoutId) {
           clearTimeout(acceptTimeoutId);
@@ -232,8 +234,7 @@ export function createFollowupController(
           suggestion_length: currentState.suggestion.length,
         });
       } catch (e: unknown) {
-        // eslint-disable-next-line no-console
-        console.error('[followup] onOutcome callback threw:', e);
+        debugLogger.error('[followup] onOutcome callback threw:', e);
       }
     }
 

@@ -407,8 +407,7 @@ function logTokenUsageWriteFailure(error: unknown): void {
       const suppressedCount = suppressedCountByCode.get(code) ?? 0;
       suppressedCountByCode.delete(code);
       const message = error instanceof Error ? error.message : String(error);
-      // eslint-disable-next-line no-console -- surface persistent local write failures outside debug mode
-      console.error(
+      debugLogger.error(
         `[token-usage] Write failed (${code}):`,
         suppressedCount > 0
           ? `${message} (${suppressedCount} similar suppressed since last log)`
