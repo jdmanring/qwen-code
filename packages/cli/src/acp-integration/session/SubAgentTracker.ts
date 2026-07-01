@@ -229,7 +229,14 @@ export class SubAgentTracker {
                 .parse(output.outcome.optionId);
         // Respond to subagent with the outcome
         await event.respond(outcome, {
+<<<<<<< HEAD
           answers: 'answers' in output ? output.answers : undefined,
+=======
+          answers:
+            'answers' in output
+              ? (output as { answers: unknown }).answers
+              : undefined,
+>>>>>>> ebe475894 (feat(deps): align typescript to ^5.8.3 and fix lint errors)
         });
         if (outcome === ToolConfirmationOutcome.Cancel) {
           this.onPermissionCancel?.();
