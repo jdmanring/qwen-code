@@ -10,8 +10,13 @@ import { KeychainTokenStorage } from './keychain-token-storage.js';
 import { FileTokenStorage } from './file-token-storage.js';
 import { type OAuthCredentials, TokenStorageType } from './types.js';
 
-vi.mock('./keychain-token-storage.js', () => ({
-  KeychainTokenStorage: vi.fn().mockImplementation(() => ({
+const {
+  mockKeychainInstance,
+  mockFileInstance,
+  KeychainTokenStorageMock,
+  FileTokenStorageMock,
+} = vi.hoisted(() => {
+  const mockKeychainInstance = {
     isAvailable: vi.fn(),
     getCredentials: vi.fn(),
     setCredentials: vi.fn(),
@@ -19,18 +24,48 @@ vi.mock('./keychain-token-storage.js', () => ({
     listServers: vi.fn(),
     getAllCredentials: vi.fn(),
     clearAll: vi.fn(),
-  })),
-}));
-
-vi.mock('./file-token-storage.js', () => ({
-  FileTokenStorage: vi.fn().mockImplementation(() => ({
+    setSecret: vi.fn(),
+    getSecret: vi.fn(),
+    deleteSecret: vi.fn(),
+    listSecrets: vi.fn(),
+  };
+  const mockFileInstance = {
+    isAvailable: vi.fn(),
     getCredentials: vi.fn(),
     setCredentials: vi.fn(),
     deleteCredentials: vi.fn(),
     listServers: vi.fn(),
     getAllCredentials: vi.fn(),
     clearAll: vi.fn(),
-  })),
+    setSecret: vi.fn(),
+    getSecret: vi.fn(),
+    deleteSecret: vi.fn(),
+    listSecrets: vi.fn(),
+  };
+  class KeychainTokenStorageMockClass {
+    constructor() {
+      return mockKeychainInstance;
+    }
+  }
+  class FileTokenStorageMockClass {
+    constructor() {
+      return mockFileInstance;
+    }
+  }
+  return {
+    mockKeychainInstance,
+    mockFileInstance,
+    KeychainTokenStorageMock: KeychainTokenStorageMockClass,
+    FileTokenStorageMock: FileTokenStorageMockClass,
+  };
+});
+
+vi.mock('./keychain-token-storage.js', () => ({
+  KeychainTokenStorage: KeychainTokenStorageMock,
+}));
+
+vi.mock('./file-token-storage.js', () => ({
+  FileTokenStorage: FileTokenStorageMock,
 }));
 
 interface MockStorage {
@@ -58,40 +93,8 @@ describe('HybridTokenStorage', () => {
     process.env = { ...originalEnv };
 
     // Create mock instances before creating HybridTokenStorage
-    mockKeychainStorage = {
-      isAvailable: vi.fn(),
-      getCredentials: vi.fn(),
-      setCredentials: vi.fn(),
-      deleteCredentials: vi.fn(),
-      listServers: vi.fn(),
-      getAllCredentials: vi.fn(),
-      clearAll: vi.fn(),
-      setSecret: vi.fn(),
-      getSecret: vi.fn(),
-      deleteSecret: vi.fn(),
-      listSecrets: vi.fn(),
-    };
-
-    mockFileStorage = {
-      isAvailable: vi.fn(),
-      getCredentials: vi.fn(),
-      setCredentials: vi.fn(),
-      deleteCredentials: vi.fn(),
-      listServers: vi.fn(),
-      getAllCredentials: vi.fn(),
-      clearAll: vi.fn(),
-      setSecret: vi.fn(),
-      getSecret: vi.fn(),
-      deleteSecret: vi.fn(),
-      listSecrets: vi.fn(),
-    };
-
-    (
-      KeychainTokenStorage as unknown as ReturnType<typeof vi.fn>
-    ).mockImplementation(() => mockKeychainStorage);
-    (
-      FileTokenStorage as unknown as ReturnType<typeof vi.fn>
-    ).mockImplementation(() => mockFileStorage);
+    mockKeychainStorage = mockKeychainInstance;
+    mockFileStorage = mockFileInstance;
 
     storage = new HybridTokenStorage('test-service');
   });

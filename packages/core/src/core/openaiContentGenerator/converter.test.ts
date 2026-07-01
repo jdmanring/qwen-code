@@ -1929,7 +1929,7 @@ describe('OpenAIContentConverter', () => {
 
       expect(assistant?.tool_calls).toHaveLength(1);
       expect(assistant?.tool_calls?.[0].id).toBe('dup_id_0001');
-      expect(assistant?.tool_calls?.[0].function.arguments).toBe(
+      expect((assistant?.tool_calls?.[0] as any).function.arguments).toBe(
         JSON.stringify({ file_path: 'a.ts' }),
       );
     });

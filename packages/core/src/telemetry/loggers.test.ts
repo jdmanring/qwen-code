@@ -99,7 +99,8 @@ import { runWithChatRecordingSuppressed } from '../utils/chat-recording-suppress
 
 describe('loggers', () => {
   const mockLogger = {
-    emit: vi.fn(),
+    emit: vi.fn() as any,
+    enabled: vi.fn().mockReturnValue(true),
   };
   const mockUiEvent = {
     addEvent: vi.fn(),

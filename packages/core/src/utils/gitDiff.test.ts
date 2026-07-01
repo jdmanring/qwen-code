@@ -12,7 +12,7 @@ import { promisify } from 'node:util';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   fetchGitDiff,
-  fetchGitDiffHunks,
+  fetchGitDiffStructuredPatchHunks,
   MAX_DIFF_SIZE_BYTES,
   MAX_FILES,
   MAX_LINES_PER_FILE,
@@ -351,11 +351,11 @@ describe('fetchGitDiff', () => {
       '0000000000000000000000000000000000000000\n',
     );
     expect(await fetchGitDiff(repo)).toBeNull();
-    expect((await fetchGitDiffHunks(repo)).size).toBe(0);
+    expect((await fetchGitDiffStructuredPatchHunks(repo)).size).toBe(0);
   });
 });
 
-describe('fetchGitDiffHunks', () => {
+describe('fetchGitDiffStructuredPatchHunks', () => {
   let repo: string;
 
   beforeEach(async () => {
@@ -372,7 +372,7 @@ describe('fetchGitDiffHunks', () => {
     await git(repo, 'commit', '-q', '-m', 'init');
 
     await fs.writeFile(path.join(repo, 'a.txt'), 'one\nTWO\nthree\n');
-    const hunks = await fetchGitDiffHunks(repo);
+    const hunks = await fetchGitDiffStructuredPatchHunks(repo);
     const fileHunks = hunks.get('a.txt');
     expect(fileHunks).toBeDefined();
     expect(fileHunks![0].lines.some((l: string) => l.startsWith('-two'))).toBe(
@@ -395,10 +395,10 @@ describe('fetchGitDiffHunks', () => {
     // round-trip through parseGitDiff even though their prefixes match
     // file-header sentinels.
     await fs.writeFile(path.join(repo, 'notes.md'), 'keep\nkeep2\n');
-    const hunks = await fetchGitDiffHunks(repo);
+    const hunks = await fetchGitDiffStructuredPatchHunks(repo);
     const fileHunks = hunks.get('notes.md');
     expect(fileHunks).toBeDefined();
-    const removed = fileHunks!.flatMap((h) =>
+    const removed = fileHunks!.flatMap((h: { lines: string[] }) =>
       h.lines.filter((l: string) => l.startsWith('-')),
     );
     expect(removed).toEqual(
@@ -410,7 +410,7 @@ describe('fetchGitDiffHunks', () => {
     // Real git output for a tracked file named `tab\there.txt` looks like
     // `+++ "b/tab\there.txt"` even with `core.quotepath=false` — C-quoting
     // for tabs/newlines/quotes is independent of that config. Without the
-    // unquote step in `extractFilePath`, fetchGitDiffHunks would silently
+    // unquote step in `extractFilePath`, fetchGitDiffStructuredPatchHunks would silently
     // drop the file's hunks.
     const weirdName = 'tab\there.txt';
     try {
@@ -422,12 +422,12 @@ describe('fetchGitDiffHunks', () => {
     await git(repo, 'commit', '-q', '-m', 'init');
     await fs.writeFile(path.join(repo, weirdName), 'y\n');
 
-    const hunks = await fetchGitDiffHunks(repo);
+    const hunks = await fetchGitDiffStructuredPatchHunks(repo);
     expect([...hunks.keys()]).toEqual([weirdName]);
-    expect(hunks.get(weirdName)![0].lines.some((l) => l.startsWith('-x'))).toBe(
+    expect(hunks.get(weirdName)![0].lines.some((l: string) => l.startsWith('-x'))).toBe(
       true,
     );
-    expect(hunks.get(weirdName)![0].lines.some((l) => l.startsWith('+y'))).toBe(
+    expect(hunks.get(weirdName)![0].lines.some((l: string) => l.startsWith('+y'))).toBe(
       true,
     );
   });
@@ -439,7 +439,7 @@ describe('fetchGitDiffHunks', () => {
     await git(repo, 'commit', '-q', '-m', 'init');
     await fs.writeFile(path.join(repo, 'a b', 'c.txt'), 'y\n');
 
-    const hunks = await fetchGitDiffHunks(repo);
+    const hunks = await fetchGitDiffStructuredPatchHunks(repo);
     // `diff --git a/a b/c.txt b/a b/c.txt` is ambiguous to split; the parser
     // must anchor on `+++ b/<path>\t` instead.
     expect([...hunks.keys()]).toEqual(['a b/c.txt']);
@@ -456,7 +456,7 @@ describe('fetchGitDiffHunks', () => {
     lines[35] = 'CHANGED_LATE';
     await fs.writeFile(path.join(repo, 'big.txt'), lines.join('\n') + '\n');
 
-    const hunks = await fetchGitDiffHunks(repo);
+    const hunks = await fetchGitDiffStructuredPatchHunks(repo);
     const fileHunks = hunks.get('big.txt');
     expect(fileHunks).toBeDefined();
     expect(fileHunks!.length).toBeGreaterThanOrEqual(2);
@@ -750,7 +750,7 @@ describe('fetchGitDiff transient-state detection', () => {
       await fs.writeFile(target, '0\n');
     }
     expect(await fetchGitDiff(repo)).toBeNull();
-    expect((await fetchGitDiffHunks(repo)).size).toBe(0);
+    expect((await fetchGitDiffStructuredPatchHunks(repo)).size).toBe(0);
   });
 });
 
@@ -987,12 +987,12 @@ describe('fetchGitDiff fast path with untracked-only workspaces', () => {
   });
 });
 
-describe('fetchGitDiffHunks ignores external diff drivers', () => {
+describe('fetchGitDiffStructuredPatchHunks ignores external diff drivers', () => {
   it('does not invoke GIT_EXTERNAL_DIFF when reading hunks', async () => {
     // Reproduces wenshao Critical (PR #3491 line 219). Plain `git diff`
     // honors `GIT_EXTERNAL_DIFF` / `diff.<name>.command`, so a malicious
     // worktree could execute arbitrary commands when a caller of
-    // `fetchGitDiffHunks` only wants to inspect hunks. The fix is
+    // `fetchGitDiffStructuredPatchHunks` only wants to inspect hunks. The fix is
     // `--no-ext-diff`; this test plants an env-var driver that touches a
     // sentinel file and asserts it never fires.
     const repo = await fs.mkdtemp(path.join(os.tmpdir(), 'qwen-gitdiff-ext-'));
@@ -1019,12 +1019,12 @@ describe('fetchGitDiffHunks ignores external diff drivers', () => {
         { mode: 0o755 },
       );
 
-      // Set GIT_EXTERNAL_DIFF for the rest of this test. fetchGitDiffHunks
+      // Set GIT_EXTERNAL_DIFF for the rest of this test. fetchGitDiffStructuredPatchHunks
       // calls runGit which spawns child processes that inherit our env.
       const prev = process.env['GIT_EXTERNAL_DIFF'];
       process.env['GIT_EXTERNAL_DIFF'] = driverScript;
       try {
-        const hunks = await fetchGitDiffHunks(repo);
+        const hunks = await fetchGitDiffStructuredPatchHunks(repo);
         expect(hunks.get('a.txt')).toBeDefined();
       } finally {
         if (prev === undefined) delete process.env['GIT_EXTERNAL_DIFF'];
@@ -1090,7 +1090,7 @@ describe('fetchGitDiffHunks ignores external diff drivers', () => {
       await execFileAsync('git', ['commit', '-q', '-m', 'init'], { cwd: repo });
       await fs.writeFile(path.join(repo, 'doc.pdf'), 'b\n');
 
-      const hunks = await fetchGitDiffHunks(repo);
+      const hunks = await fetchGitDiffStructuredPatchHunks(repo);
       expect(hunks.get('doc.pdf')).toBeDefined();
 
       let driverFired = false;

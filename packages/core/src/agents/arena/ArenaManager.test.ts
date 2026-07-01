@@ -38,19 +38,25 @@ vi.mock('../index.js', async (importOriginal) => {
 // session-marker helpers) keep working. Without this, vitest replaces
 // the entire module surface and any static import of those constants
 // elsewhere in the dependency graph blows up at load time.
+class MockGitWorktreeService {
+  constructor() {
+    return {
+      checkGitAvailable: vi.fn().mockResolvedValue({ available: true }),
+      isGitRepository: vi.fn().mockResolvedValue(true),
+      setupWorktrees: hoistedMockSetupWorktrees,
+      cleanupSession: hoistedMockCleanupSession,
+      getWorktreeDiff: hoistedMockGetWorktreeDiff,
+      applyWorktreeChanges: hoistedMockApplyWorktreeChanges,
+    };
+  }
+}
+
 vi.mock('../../services/gitWorktreeService.js', async (importOriginal) => {
   const actual =
     await importOriginal<
       typeof import('../../services/gitWorktreeService.js')
     >();
-  const MockClass = vi.fn().mockImplementation(() => ({
-    checkGitAvailable: vi.fn().mockResolvedValue({ available: true }),
-    isGitRepository: vi.fn().mockResolvedValue(true),
-    setupWorktrees: hoistedMockSetupWorktrees,
-    cleanupSession: hoistedMockCleanupSession,
-    getWorktreeDiff: hoistedMockGetWorktreeDiff,
-    applyWorktreeChanges: hoistedMockApplyWorktreeChanges,
-  }));
+  const MockClass = vi.fn(MockGitWorktreeService);
   // Static methods called by ArenaManager
   (MockClass as unknown as Record<string, unknown>)['getBaseDir'] = () =>
     path.join(os.tmpdir(), 'arena-mock');

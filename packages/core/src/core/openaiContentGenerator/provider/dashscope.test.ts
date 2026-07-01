@@ -33,15 +33,19 @@ vi.mock('../../../utils/debugLogger.js', () => ({
 }));
 
 // Mock OpenAI
-vi.mock('openai', () => ({
-  default: vi.fn().mockImplementation((config) => ({
-    config,
-    chat: {
+const { MockOpenAI } = vi.hoisted(() => {
+  class MockOpenAI {
+    chat = {
       completions: {
         create: vi.fn(),
       },
-    },
-  })),
+    };
+    constructor(public config: unknown) {}
+  }
+  return { MockOpenAI };
+});
+vi.mock('openai', () => ({
+  default: vi.fn(MockOpenAI),
 }));
 
 vi.mock('../../../utils/runtimeFetchOptions.js', () => ({

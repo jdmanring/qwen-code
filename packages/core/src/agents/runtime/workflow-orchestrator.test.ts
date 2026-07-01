@@ -97,6 +97,14 @@ const worktreeStubs = vi.hoisted(() => {
   return { makeStub, instances: [] as Array<ReturnType<typeof makeStub>> };
 });
 
+class MockGitWorktreeService {
+  constructor() {
+    const stub = worktreeStubs.makeStub();
+    worktreeStubs.instances.push(stub);
+    return stub;
+  }
+}
+
 vi.mock('../../services/gitWorktreeService.js', async (importOriginal) => {
   const actual =
     await importOriginal<
@@ -106,11 +114,7 @@ vi.mock('../../services/gitWorktreeService.js', async (importOriginal) => {
     ...actual,
     generateAgentWorktreeSlug: () => 'agent-deadbe1',
     writeWorktreeSessionMarker: vi.fn(async () => {}),
-    GitWorktreeService: vi.fn().mockImplementation(() => {
-      const stub = worktreeStubs.makeStub();
-      worktreeStubs.instances.push(stub);
-      return stub;
-    }),
+    GitWorktreeService: vi.fn(MockGitWorktreeService),
   };
 });
 

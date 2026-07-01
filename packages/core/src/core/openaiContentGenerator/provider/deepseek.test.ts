@@ -11,10 +11,14 @@ import type { ContentGeneratorConfig } from '../../contentGenerator.js';
 import type { Config } from '../../../config/config.js';
 
 // Mock OpenAI client to avoid real network calls
+const { MockOpenAI } = vi.hoisted(() => {
+  class MockOpenAI {
+    constructor(public config: unknown) {}
+  }
+  return { MockOpenAI };
+});
 vi.mock('openai', () => ({
-  default: vi.fn().mockImplementation((config) => ({
-    config,
-  })),
+  default: vi.fn(MockOpenAI),
 }));
 
 describe('DeepSeekOpenAICompatibleProvider', () => {

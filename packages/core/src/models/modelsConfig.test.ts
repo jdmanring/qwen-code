@@ -294,8 +294,16 @@ describe('ModelsConfig', () => {
 
   it.each([
     { kind: 'cli' as const, detail: '--base-url' },
-    { kind: 'env' as const, envKey: 'OPENAI_BASE_URL' },
-    { kind: 'settings' as const, settingsPath: 'model.baseUrl' },
+    {
+      kind: 'env' as const,
+      detail: 'env.OPENAI_BASE_URL',
+      envKey: 'OPENAI_BASE_URL',
+    },
+    {
+      kind: 'settings' as const,
+      detail: 'settings.model.baseUrl',
+      settingsPath: 'model.baseUrl',
+    },
   ])(
     'should preserve $kind baseUrl during same-model auth refresh',
     (baseUrlSource) => {
@@ -322,9 +330,9 @@ describe('ModelsConfig', () => {
           apiKey: 'resolved-key',
         },
         generationConfigSources: {
-          model: { kind: 'settings', settingsPath: 'model.name' },
+          model: { kind: 'settings', detail: 'settings.model.name', settingsPath: 'model.name' },
           baseUrl: baseUrlSource,
-          apiKey: { kind: 'settings', settingsPath: 'model.apiKey' },
+          apiKey: { kind: 'settings', detail: 'settings.model.apiKey', settingsPath: 'model.apiKey' },
         },
       });
 
@@ -877,6 +885,7 @@ describe('ModelsConfig', () => {
         },
         apiKey: {
           kind: 'env',
+          detail: `env.${envKeyA}`,
           envKey: envKeyA,
           via: {
             kind: 'modelProviders',
@@ -1255,7 +1264,7 @@ describe('ModelsConfig', () => {
       },
       generationConfigSources: {
         model: { kind: 'settings', detail: 'settings.model.name' },
-        apiKey: { kind: 'env', envKey: 'OPENAI_API_KEY' },
+        apiKey: { kind: 'env', detail: 'env.OPENAI_API_KEY', envKey: 'OPENAI_API_KEY' },
       },
     });
 
@@ -1537,6 +1546,7 @@ describe('ModelsConfig', () => {
         modalities: {
           kind: 'settings',
           settingsPath: 'model.generationConfig.modalities',
+          detail: 'model.generationConfig.modalities',
         },
       },
     });
@@ -1549,6 +1559,7 @@ describe('ModelsConfig', () => {
     expect(modelsConfig.getGenerationConfigSources()['modalities']).toEqual({
       kind: 'settings',
       settingsPath: 'model.generationConfig.modalities',
+      detail: 'model.generationConfig.modalities',
     });
   });
 
@@ -1818,9 +1829,9 @@ describe('ModelsConfig', () => {
           baseUrl: 'https://api.example.com/v1',
         },
         generationConfigSources: {
-          model: { kind: 'env', envKey: 'OPENAI_MODEL' },
-          apiKey: { kind: 'env', envKey: 'OPENAI_API_KEY' },
-          baseUrl: { kind: 'env', envKey: 'OPENAI_BASE_URL' },
+          model: { kind: 'env', detail: 'env.OPENAI_MODEL', envKey: 'OPENAI_MODEL' },
+          apiKey: { kind: 'env', detail: 'env.OPENAI_API_KEY', envKey: 'OPENAI_API_KEY' },
+          baseUrl: { kind: 'env', detail: 'env.OPENAI_BASE_URL', envKey: 'OPENAI_BASE_URL' },
         },
       });
 
@@ -1854,9 +1865,9 @@ describe('ModelsConfig', () => {
           baseUrl: 'https://api.example.com/v1',
         },
         generationConfigSources: {
-          model: { kind: 'env', envKey: 'OPENAI_MODEL' },
-          apiKey: { kind: 'env', envKey: 'OPENAI_API_KEY' },
-          baseUrl: { kind: 'env', envKey: 'OPENAI_BASE_URL' },
+          model: { kind: 'env', detail: 'env.OPENAI_MODEL', envKey: 'OPENAI_MODEL' },
+          apiKey: { kind: 'env', detail: 'env.OPENAI_API_KEY', envKey: 'OPENAI_API_KEY' },
+          baseUrl: { kind: 'env', detail: 'env.OPENAI_BASE_URL', envKey: 'OPENAI_BASE_URL' },
         },
       });
       modelsConfig.detectAndCaptureRuntimeModel();
@@ -1909,7 +1920,7 @@ describe('ModelsConfig', () => {
         },
         generationConfigSources: {
           model: { kind: 'settings', detail: 'settings.model.name' },
-          apiKey: { kind: 'env', envKey: 'OPENAI_API_KEY' },
+          apiKey: { kind: 'env', detail: 'env.OPENAI_API_KEY', envKey: 'OPENAI_API_KEY' },
           baseUrl: { kind: 'settings', detail: 'settings.openaiBaseUrl' },
         },
       });

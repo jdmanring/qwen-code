@@ -233,10 +233,16 @@ vi.mock('../../telemetry/loggers.js', async (importOriginal) => {
   };
 });
 
+class MockOpenAILogger {
+  constructor() {
+    return {
+      logInteraction: vi.fn().mockResolvedValue(undefined),
+    };
+  }
+}
+
 vi.mock('../../utils/openaiLogger.js', () => ({
-  OpenAILogger: vi.fn().mockImplementation(() => ({
-    logInteraction: vi.fn().mockResolvedValue(undefined),
-  })),
+  OpenAILogger: vi.fn(MockOpenAILogger),
 }));
 
 const realConvertGeminiRequestToOpenAI =

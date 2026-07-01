@@ -1651,8 +1651,16 @@ describe('modelConfigUtils', () => {
           sources: {
             model:
               model === 'custom-model'
-                ? { kind: 'settings' as const, path: 'model.name' }
-                : { kind: 'env' as const, envKey: 'OPENAI_MODEL' },
+                ? {
+                    kind: 'settings' as const,
+                    detail: 'settings.model',
+                    path: 'model.name',
+                  }
+                : {
+                    kind: 'env' as const,
+                    detail: 'env.OPENAI_MODEL',
+                    envKey: 'OPENAI_MODEL',
+                  },
           },
           warnings: [],
         };
@@ -1683,7 +1691,11 @@ describe('modelConfigUtils', () => {
         vi.mocked(resolveModelConfig).mockImplementation(() => ({
           config: { model: 'settings-model', apiKey: 'key', baseUrl: '' },
           sources: {
-            model: { kind: 'settings' as const, path: 'model.name' },
+            model: {
+              kind: 'settings' as const,
+              detail: 'settings.model',
+              path: 'model.name',
+            },
           },
           warnings: [],
         }));
@@ -1709,7 +1721,11 @@ describe('modelConfigUtils', () => {
         vi.mocked(resolveModelConfig).mockImplementation(() => ({
           config: { model: 'env-model', apiKey: 'key', baseUrl: '' },
           sources: {
-            model: { kind: 'env' as const, envKey: 'OPENAI_MODEL' },
+            model: {
+              kind: 'env' as const,
+              detail: 'env.OPENAI_MODEL',
+              envKey: 'OPENAI_MODEL',
+            },
           },
           warnings: [],
         }));
@@ -1760,7 +1776,13 @@ describe('modelConfigUtils', () => {
 
         vi.mocked(resolveModelConfig).mockImplementation(() => ({
           config: { model: 'qwen-model', apiKey: 'key', baseUrl: '' },
-          sources: { model: { kind: 'env' as const, envKey: 'QWEN_MODEL' } },
+          sources: {
+            model: {
+              kind: 'env' as const,
+              detail: 'env.QWEN_MODEL',
+              envKey: 'QWEN_MODEL',
+            },
+          },
           warnings: [],
         }));
 
@@ -1793,7 +1815,11 @@ describe('modelConfigUtils', () => {
             baseUrl: 'https://api.anthropic.com',
           },
           sources: {
-            model: { kind: 'env' as const, envKey: 'ANTHROPIC_MODEL' },
+            model: {
+              kind: 'env' as const,
+              detail: 'env.ANTHROPIC_MODEL',
+              envKey: 'ANTHROPIC_MODEL',
+            },
           },
           warnings: [],
         }));

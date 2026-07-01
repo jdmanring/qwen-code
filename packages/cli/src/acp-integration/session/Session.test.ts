@@ -1040,7 +1040,7 @@ describe('Session', () => {
       const requested = `qwen3-coder-plus(${AuthType.USE_OPENAI})`;
       await session.setModel({
         sessionId: 'test-session-id',
-        modelId: `  ${requested}  `,
+        modeId: `  ${requested}  `,
       });
 
       expect(mockConfig.switchModel).toHaveBeenCalledWith(
@@ -1069,7 +1069,7 @@ describe('Session', () => {
     it('emits a current_model_update extNotification after switching (A1)', async () => {
       await session.setModel({
         sessionId: 'test-session-id',
-        modelId: `qwen3-coder-plus(${AuthType.USE_OPENAI})`,
+        modeId: `qwen3-coder-plus(${AuthType.USE_OPENAI})`,
       });
 
       expect(mockClient.extNotification).toHaveBeenCalledWith(
@@ -1087,7 +1087,7 @@ describe('Session', () => {
       await expect(
         session.setModel({
           sessionId: 'test-session-id',
-          modelId: `qwen3-coder-plus(${AuthType.USE_OPENAI})`,
+          modeId: `qwen3-coder-plus(${AuthType.USE_OPENAI})`,
         }),
       ).rejects.toThrow();
       expect(mockClient.extNotification).not.toHaveBeenCalledWith(
@@ -1100,7 +1100,7 @@ describe('Session', () => {
       await expect(
         session.setModel({
           sessionId: 'test-session-id',
-          modelId: '   ',
+          modeId: '   ',
         }),
       ).rejects.toThrow('Invalid params');
 
@@ -1112,7 +1112,7 @@ describe('Session', () => {
       await session.setModel(
         {
           sessionId: 'test-session-id',
-          modelId: `qwen3-coder-flash(${AuthType.USE_OPENAI})`,
+          modeId: `qwen3-coder-flash(${AuthType.USE_OPENAI})`,
         },
         { persistDefault: false },
       );
@@ -1132,7 +1132,7 @@ describe('Session', () => {
       await expect(
         session.setModel({
           sessionId: 'test-session-id',
-          modelId: `invalid-model(${AuthType.USE_OPENAI})`,
+          modeId: `invalid-model(${AuthType.USE_OPENAI})`,
         }),
       ).rejects.toThrow('Invalid model');
       expect(mockSettings.setValue).not.toHaveBeenCalled();

@@ -31,11 +31,31 @@ import type { Config } from '../config/config.js';
 import type { AggregatedHookResult } from './hookAggregator.js';
 import type { HookOutput } from './types.js';
 
-vi.mock('./hookRegistry.js');
-vi.mock('./hookRunner.js');
-vi.mock('./hookAggregator.js');
-vi.mock('./hookPlanner.js');
-vi.mock('./hookEventHandler.js');
+vi.mock('./hookRegistry.js', () => ({
+  HookRegistry: vi.fn(class MockHookRegistry {
+    constructor() {}
+  }),
+}));
+vi.mock('./hookRunner.js', () => ({
+  HookRunner: vi.fn(class MockHookRunner {
+    constructor() {}
+  }),
+}));
+vi.mock('./hookAggregator.js', () => ({
+  HookAggregator: vi.fn(class MockHookAggregator {
+    constructor() {}
+  }),
+}));
+vi.mock('./hookPlanner.js', () => ({
+  HookPlanner: vi.fn(class MockHookPlanner {
+    constructor() {}
+  }),
+}));
+vi.mock('./hookEventHandler.js', () => ({
+  HookEventHandler: vi.fn(class MockHookEventHandler {
+    constructor() {}
+  }),
+}));
 
 const createMockAggregatedResult = (
   success: boolean = true,
@@ -107,11 +127,21 @@ describe('HookSystem', () => {
       setMessagesProvider: vi.fn(),
     } as unknown as HookEventHandler;
 
-    vi.mocked(HookRegistry).mockImplementation(() => mockHookRegistry);
-    vi.mocked(HookRunner).mockImplementation(() => mockHookRunner);
-    vi.mocked(HookAggregator).mockImplementation(() => mockHookAggregator);
-    vi.mocked(HookPlanner).mockImplementation(() => mockHookPlanner);
-    vi.mocked(HookEventHandler).mockImplementation(() => mockHookEventHandler);
+    vi.mocked(HookRegistry).mockImplementation(function () {
+      return mockHookRegistry;
+    });
+    vi.mocked(HookRunner).mockImplementation(function () {
+      return mockHookRunner;
+    });
+    vi.mocked(HookAggregator).mockImplementation(function () {
+      return mockHookAggregator;
+    });
+    vi.mocked(HookPlanner).mockImplementation(function () {
+      return mockHookPlanner;
+    });
+    vi.mocked(HookEventHandler).mockImplementation(function () {
+      return mockHookEventHandler;
+    });
 
     hookSystem = new HookSystem(mockConfig);
   });
