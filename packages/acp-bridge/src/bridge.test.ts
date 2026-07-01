@@ -10361,7 +10361,7 @@ describe('createHttpAcpBridge — side-channel state layer (#4511)', () => {
               sessionId: `sess:${p.cwd}`,
               models: {
                 currentModelId: 'qwen-plus',
-                availableModels: [{ modelId: 'qwen-plus', name: 'Qwen Plus' }],
+                availableModels: [{ id: 'qwen-plus', name: 'Qwen Plus' }],
               },
               modes: {
                 currentModeId: 'auto-edit',

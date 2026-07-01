@@ -10,12 +10,7 @@ import {
   ClientSideConnection,
   PROTOCOL_VERSION,
 } from '@agentclientprotocol/sdk';
-import type {
-  CancelNotification,
-  PromptRequest,
-  SetSessionModelRequest,
-  SetSessionModelResponse,
-} from '@agentclientprotocol/sdk';
+import type { CancelNotification, PromptRequest } from '@agentclientprotocol/sdk';
 import type { ApprovalMode } from '@qwen-code/qwen-code-core';
 import {
   DAEMON_TRACEPARENT_META_KEY,
@@ -24,7 +19,11 @@ import {
   ShellExecutionService,
   type ShellOutputEvent,
 } from '@qwen-code/qwen-code-core';
-import type { ShellCommandResult } from './bridgeTypes.js';
+import type {
+  SetSessionModelRequest,
+  SetSessionModelResponse,
+  ShellCommandResult,
+} from './bridgeTypes.js';
 import type { AcpChannel } from './channel.js';
 import {
   EventBus,
@@ -2468,7 +2467,7 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
       ci = await ensureChannel();
       ci.pendingRestoreIds.add(req.sessionId);
       // Mark this id as in-flight restore BEFORE the ACP
-      // `loadSession`/`unstable_resumeSession` call. Restore-time
+      // `loadSession`/`unstable_forkSession` call. Restore-time
       // guardrail events arriving during that ACP call hit
       // `bufferEarlyEvent` BEFORE the post-restore
       // `createSessionEntry -> drainEarlyEvents` clears the tombstone,
@@ -2518,7 +2517,7 @@ export function createAcpSessionBridge(opts: BridgeOptions): AcpSessionBridge {
         } else {
           state = await Promise.race([
             withTimeout(
-              ci.connection.unstable_resumeSession({
+              ci.connection.unstable_forkSession({
                 sessionId: req.sessionId,
                 cwd: workspaceKey,
                 mcpServers: [],

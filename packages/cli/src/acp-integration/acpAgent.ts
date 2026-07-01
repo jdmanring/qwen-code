@@ -118,11 +118,14 @@ import type {
   SessionUpdate,
   SetSessionConfigOptionRequest,
   SetSessionConfigOptionResponse,
-  SetSessionModelRequest,
-  SetSessionModelResponse,
   SetSessionModeRequest,
   SetSessionModeResponse,
 } from '@agentclientprotocol/sdk';
+import type {
+  SessionModelState,
+  SetSessionModelRequest,
+  SetSessionModelResponse,
+} from '@qwen-code/acp-bridge/bridgeTypes';
 import {
   buildAuthMethods,
   pickAuthMethodsForAuthRequired,
@@ -2835,13 +2838,11 @@ class QwenAgent implements Agent {
     this.setupFileSystem(config);
 
     const session = await this.createAndStoreSession(config);
-    const availableModels = this.buildAvailableModels(config);
     const modesData = this.buildModesData(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
       sessionId: session.getId(),
-      models: availableModels,
       modes: modesData,
       configOptions,
     };
@@ -2879,12 +2880,10 @@ class QwenAgent implements Agent {
     await this.#restoreWorktreeOnResume(config, session);
 
     const modesData = this.buildModesData(config);
-    const availableModels = this.buildAvailableModels(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
       modes: modesData,
-      models: availableModels,
       configOptions,
     };
   }
@@ -2922,12 +2921,10 @@ class QwenAgent implements Agent {
     await this.#restoreWorktreeOnResume(config, session);
 
     const modesData = this.buildModesData(config);
-    const availableModels = this.buildAvailableModels(config);
     const configOptions = this.buildConfigOptions(config);
 
     return {
       modes: modesData,
-      models: availableModels,
       configOptions,
     };
   }
@@ -4400,7 +4397,7 @@ class QwenAgent implements Agent {
     try {
       usage = await collectContextData(config, showDetails);
     } catch (err) {
-      console.warn('[context-usage] collectContextData failed:', err);
+      debugLogger.warn('collectContextData failed:', err);
       usage = {
         type: 'context_usage' as const,
         modelName: config.getModel() || 'unknown',
@@ -7814,7 +7811,7 @@ class QwenAgent implements Agent {
     return session;
   }
 
-  private buildAvailableModels(config: Config): NewSessionResponse['models'] {
+  private buildAvailableModels(config: Config): SessionModelState {
     const rawCurrentModelId = (
       config.getModel() ||
       this.config.getModel() ||
@@ -7840,7 +7837,7 @@ class QwenAgent implements Agent {
           : model.id;
 
       return {
-        modelId: formatAcpModelId(effectiveModelId, model.authType),
+        id: formatAcpModelId(effectiveModelId, model.authType),
         name: model.label,
         description: model.description ?? null,
         _meta: {

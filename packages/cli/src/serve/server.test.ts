@@ -38,9 +38,11 @@ import type {
   PromptRequest,
   PromptResponse,
   RequestPermissionResponse,
+} from '@agentclientprotocol/sdk';
+import type {
   SetSessionModelRequest,
   SetSessionModelResponse,
-} from '@agentclientprotocol/sdk';
+} from '@qwen-code/acp-bridge/bridgeTypes';
 import {
   ApprovalMode,
   ExtensionManager,

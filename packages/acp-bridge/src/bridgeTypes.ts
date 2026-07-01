@@ -12,9 +12,52 @@ import type {
   PromptResponse,
   RequestPermissionResponse,
   ResumeSessionResponse,
-  SetSessionModelRequest,
-  SetSessionModelResponse,
+  SessionId,
+  SetSessionModeRequest,
+  SetSessionModeResponse,
 } from '@agentclientprotocol/sdk';
+
+/**
+ * Request parameters for setting a session model.
+ *
+ * The SDK removed `SetSessionModelRequest` in v1.1.0; this local type
+ * restores it so model-switching call sites are not forced to misuse
+ * {@link SetSessionModeRequest} (which carries approval-mode ids).
+ */
+export interface SetSessionModelRequest {
+  sessionId: SessionId;
+  modelId: string;
+}
+
+/**
+ * Response to a session model-switch request.
+ *
+ * Mirrors {@link SetSessionModeResponse} shape; defined locally because
+ * `SetSessionModelResponse` was removed from the SDK in v1.1.0.
+ */
+export interface SetSessionModelResponse {
+  _meta?: {
+    [key: string]: unknown;
+  } | null;
+}
+
+/**
+ * Snapshot of the models available to a session.
+ *
+ * The SDK has no model-state type (only `SessionModeState` for approval
+ * modes), so this local type keeps `buildAvailableModels` from misusing
+ * the approval-mode shape.
+ */
+export interface SessionModelState {
+  currentModelId: string;
+  availableModels: Array<{
+    id: string;
+    name: string;
+    description?: string | null;
+    _meta?: { contextLimit?: number } | null;
+  }>;
+}
+
 import type { BridgeEvent, SubscribeOptions } from './eventBus.js';
 import type { PermissionPolicy } from './permission.js';
 import type {

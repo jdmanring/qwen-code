@@ -27,8 +27,8 @@ import type {
   ListSessionsResponse,
   PromptResponse,
   SetSessionModeResponse,
-  SetSessionModelResponse,
 } from '@agentclientprotocol/sdk';
+import type { SetSessionModelResponse } from '@qwen-code/acp-bridge/bridgeTypes';
 import type {
   AuthenticateUpdateNotification,
   AskUserQuestionRequest,
