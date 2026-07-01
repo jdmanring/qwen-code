@@ -667,6 +667,9 @@ export class DaemonSessionClient {
       [Symbol.asyncIterator]() {
         return this;
       },
+      async [Symbol.asyncDispose]() {
+        release();
+      },
     };
   }
 

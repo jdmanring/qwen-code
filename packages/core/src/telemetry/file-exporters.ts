@@ -81,6 +81,10 @@ export class FileLogExporter extends FileExporter implements LogRecordExporter {
       });
     });
   }
+
+  async forceFlush(): Promise<void> {
+    // No-op: writes are synchronous
+  }
 }
 
 export class FileMetricExporter

@@ -3000,14 +3000,14 @@ export class Config {
     const available = selector.authType
       ? this.getAllConfiguredModels([selector.authType])
       : this.getAllConfiguredModels();
-    if (!available.some((m) => m.id === selector.modelId)) {
+    if (!available.some((m) => m.id === selector.modeId)) {
       return undefined;
     }
 
     const rawSelector = resolveModelId(this.fastModel);
     return rawSelector?.authType
-      ? `${rawSelector.authType}:${selector.modelId}`
-      : selector.modelId;
+      ? `${rawSelector.authType}:${selector.modeId}`
+      : selector.modeId;
   }
 
   private resolveFastModelSelector() {

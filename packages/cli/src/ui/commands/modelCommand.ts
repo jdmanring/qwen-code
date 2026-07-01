@@ -465,14 +465,14 @@ export const modelCommand: SlashCommand = {
           ? config.getAvailableModelsForAuthType(selector.authType)
           : config.getAllConfiguredModels()
       ).filter((m) => !m.voiceOnly);
-      if (!availableModels.some((model) => model.id === selector.modelId)) {
+      if (!availableModels.some((model) => model.id === selector.modeId)) {
         return {
           type: 'message',
           messageType: 'error',
           content: selector.authType
             ? formatUnavailableModelMessage(
                 'Fast model',
-                selector.modelId,
+                selector.modeId,
                 selector.authType,
                 availableModels,
               )

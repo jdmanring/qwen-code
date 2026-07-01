@@ -220,7 +220,7 @@ export function resolveContentGeneratorConfigWithSources(
 
   // Preserve seed sources for fields that were passed in
   const seedOrUnknown = (path: string): ContentGeneratorConfigSource =>
-    getSeedSource(seedSources, path) ?? { kind: 'unknown' };
+    getSeedSource(seedSources, path) ?? { kind: 'unknown', detail: 'unknown' };
 
   for (const field of PROVIDER_SOURCED_FIELDS) {
     if (generationConfig && field in generationConfig && !sources[field]) {

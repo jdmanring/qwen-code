@@ -34,7 +34,7 @@ export interface ConfigSource {
   /** The kind/category of the source */
   kind: ConfigSourceKind;
   /** Additional detail about the source (e.g., '--model' for CLI) */
-  detail?: string;
+  detail: string;
   /** Environment variable key if kind is 'env' */
   envKey?: string;
   /** Settings path if kind is 'settings' (e.g., 'model.name') */
@@ -100,7 +100,7 @@ export interface ResolvedField<T> {
 export function resolveField<T>(
   layers: Array<ConfigLayer<T>>,
   defaultValue: T,
-  defaultSource: ConfigSource = { kind: 'default' },
+  defaultSource: ConfigSource = { kind: 'default', detail: 'default-model' },
 ): ResolvedField<T> {
   for (const layer of layers) {
     if (isValuePresent(layer.value)) {
@@ -155,14 +155,14 @@ export function cliSource(detail: string): ConfigSource {
  * Create an environment variable source descriptor
  */
 function envSource(envKey: string): ConfigSource {
-  return { kind: 'env', envKey };
+  return { kind: 'env', detail: `env.${envKey}`, envKey };
 }
 
 /**
  * Create a settings source descriptor
  */
 export function settingsSource(settingsPath: string): ConfigSource {
-  return { kind: 'settings', settingsPath };
+  return { kind: 'settings', detail: `settings.${settingsPath}`, settingsPath };
 }
 
 /**
@@ -173,21 +173,26 @@ export function modelProvidersSource(
   modelId: string,
   detail?: string,
 ): ConfigSource {
-  return { kind: 'modelProviders', authType, modelId, detail };
+  return {
+    kind: 'modelProviders',
+    detail: detail ?? `modelProviders.${authType}.${modelId}`,
+    authType,
+    modelId,
+  };
 }
 
 /**
  * Create a default value source descriptor
  */
 export function defaultSource(detail?: string): ConfigSource {
-  return { kind: 'default', detail };
+  return { kind: 'default', detail: detail ?? 'default' };
 }
 
 /**
  * Create a computed value source descriptor
  */
 export function computedSource(detail?: string): ConfigSource {
-  return { kind: 'computed', detail };
+  return { kind: 'computed', detail: detail ?? 'computed' };
 }
 
 /**

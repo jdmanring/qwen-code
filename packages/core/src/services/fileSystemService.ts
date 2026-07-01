@@ -15,11 +15,28 @@ import {
   isUtf8CompatibleEncoding,
 } from '../utils/iconvHelper.js';
 import { getSystemEncoding } from '../utils/systemEncoding.js';
-import type {
-  ReadTextFileRequest,
-  WriteTextFileRequest,
-  WriteTextFileResponse,
-} from '@agentclientprotocol/sdk';
+
+// Local type definitions for ACP SDK types (not a dependency of core)
+type SessionId = string;
+
+type ReadTextFileRequest = {
+  sessionId: SessionId;
+  path: string;
+  line?: number | null;
+  limit?: number | null;
+  _meta?: { [key: string]: unknown } | null;
+};
+
+type WriteTextFileRequest = {
+  sessionId: SessionId;
+  path: string;
+  content: string;
+  _meta?: { [key: string]: unknown } | null;
+};
+
+type WriteTextFileResponse = {
+  _meta?: { [key: string]: unknown } | null;
+};
 
 export type LineEnding = 'crlf' | 'lf';
 
@@ -279,7 +296,7 @@ export class StandardFileSystemService implements FileSystemService {
     params: Omit<WriteTextFileRequest, 'sessionId'>,
   ): Promise<WriteTextFileResponse> {
     const { path: filePath, _meta } = params;
-    const prepared = prepareTextFileContent(filePath, params.content, _meta);
+    const prepared = prepareTextFileContent(filePath, params['content'], _meta);
     if (Buffer.isBuffer(prepared.data)) {
       await atomicWriteFile(filePath, prepared.data);
     } else {

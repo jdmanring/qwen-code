@@ -838,6 +838,7 @@ export class ModelsConfig {
         this._generationConfig.apiKey = apiKey;
         this.generationConfigSources['apiKey'] = {
           kind: 'env',
+          detail: `env.${model.envKey}`,
           envKey: model.envKey,
           via: {
             kind: 'modelProviders',

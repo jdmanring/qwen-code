@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { vi } from 'vitest';
+import { vi, type Mock } from 'vitest';
 import * as actualFsPromises from 'node:fs/promises';
 
 const readFileMock = vi.fn();
 
 // Export a control object so tests can access and manipulate the mock
-export const mockControl = {
+export const mockControl: { mockReadFile: Mock } = {
   mockReadFile: readFileMock,
 };
 
@@ -45,4 +45,4 @@ export const {
 } = actualFsPromises;
 
 // Override readFile with our mock
-export const readFile = readFileMock;
+export const readFile: Mock = readFileMock;

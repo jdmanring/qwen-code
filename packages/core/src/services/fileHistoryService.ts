@@ -16,7 +16,7 @@ import {
   unlink,
 } from 'node:fs/promises';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { diffLines, structuredPatch, type Hunk } from 'diff';
+import { diffLines, structuredPatch, type StructuredPatchHunk } from 'diff';
 import { Storage } from '../config/storage.js';
 import { createDebugLogger } from '../utils/debugLogger.js';
 import { MAX_DIFF_SIZE_BYTES } from '../utils/gitDiff.js';
@@ -64,7 +64,7 @@ export interface RewindResult {
 
 export interface TurnFileDiff {
   filePath: string;
-  hunks: Hunk[];
+  hunks: StructuredPatchHunk[];
   isNewFile: boolean;
   isDeleted: boolean;
   linesAdded: number;

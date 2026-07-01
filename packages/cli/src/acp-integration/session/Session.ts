@@ -145,8 +145,6 @@ import type {
   SessionUpdate,
   SetSessionModeRequest,
   SetSessionModeResponse,
-  SetSessionModelRequest,
-  SetSessionModelResponse,
   AgentSideConnection,
 } from '@agentclientprotocol/sdk';
 import type { LoadedSettings } from '../../config/settings.js';
@@ -3621,13 +3619,13 @@ export class Session implements SessionContext {
    * Validates the model ID and switches the model via Config.
    */
   async setModel(
-    params: SetSessionModelRequest,
+    params: SetSessionModeRequest,
     options: { persistDefault?: boolean } = {},
-  ): Promise<SetSessionModelResponse | void> {
-    const rawModelId = params.modelId.trim();
+  ): Promise<SetSessionModeResponse | void> {
+    const rawModelId = params.modeId.trim();
 
     if (!rawModelId) {
-      throw RequestError.invalidParams(undefined, 'modelId cannot be empty');
+      throw RequestError.invalidParams(undefined, 'modeId cannot be empty');
     }
 
     const parsed = parseAcpModelOption(rawModelId);

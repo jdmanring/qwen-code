@@ -9,7 +9,7 @@ import { AuthType } from '../core/contentGenerator.js';
 
 export interface ResolvedModelId {
   authType?: AuthType;
-  modelId: string;
+  modeId: string;
 }
 
 export interface ModelIdResolutionContext {
@@ -36,7 +36,7 @@ type ModelIdSelector =
   | {
       kind: 'model';
       authType?: AuthType;
-      modelId: string;
+      modeId: string;
     };
 
 const AUTH_TYPES = new Set<AuthType>(Object.values(AuthType));
@@ -89,19 +89,19 @@ function parseModelIdSelector(model: string | undefined): ModelIdSelector {
 
   const colonIndex = trimmed.indexOf(':');
   if (colonIndex === -1) {
-    return { kind: 'model', modelId: trimmed };
+    return { kind: 'model', modeId: trimmed };
   }
 
   const maybeAuthType = trimmed.slice(0, colonIndex).trim();
-  const modelId = trimmed.slice(colonIndex + 1).trim();
+  const modeId = trimmed.slice(colonIndex + 1).trim();
 
   // If the prefix isn't a known AuthType, treat the whole string as a bare
   // model ID. Model IDs can legitimately contain colons (e.g. gpt-4o:online).
   if (!AUTH_TYPES.has(maybeAuthType as AuthType)) {
-    return { kind: 'model', modelId: trimmed };
+    return { kind: 'model', modeId: trimmed };
   }
 
-  if (!modelId) {
+  if (!modeId) {
     throw new Error(
       'Model selector must include a model ID after the authType',
     );
@@ -110,23 +110,23 @@ function parseModelIdSelector(model: string | undefined): ModelIdSelector {
   return {
     kind: 'model',
     authType: maybeAuthType as AuthType,
-    modelId,
+    modeId,
   };
 }
 
 function resolveAuthTypeForBareModel(
-  modelId: string,
+  modeId: string,
   context: ModelIdResolutionContext,
 ): AuthType | undefined {
   if (context.currentAuthType && context.getAvailableModels) {
     const currentModels = context.getAvailableModels([context.currentAuthType]);
-    if (currentModels.some((model) => model.id === modelId)) {
+    if (currentModels.some((model) => model.id === modeId)) {
       return context.currentAuthType;
     }
   }
 
   const configuredModel = context.getAvailableModels
-    ? context.getAvailableModels().find((model) => model.id === modelId)
+    ? context.getAvailableModels().find((model) => model.id === modeId)
     : undefined;
   return configuredModel?.authType ?? context.currentAuthType;
 }
@@ -138,10 +138,10 @@ function resolveModelIdSelector(
   if (selector.kind === 'model') {
     const authType =
       selector.authType ??
-      resolveAuthTypeForBareModel(selector.modelId, context);
+      resolveAuthTypeForBareModel(selector.modeId, context);
     return {
       ...(authType ? { authType } : {}),
-      modelId: selector.modelId,
+      modeId: selector.modeId,
     };
   }
 
@@ -151,7 +151,7 @@ function resolveModelIdSelector(
           ...(context.currentAuthType
             ? { authType: context.currentAuthType }
             : {}),
-          modelId: context.currentModel,
+          modeId: context.currentModel,
         }
       : undefined;
   }

@@ -192,7 +192,9 @@ export function preconnectApi(
   try {
     // Use the same shared undici dispatcher that SDK clients will use,
     // so the warmed TCP+TLS connection is reused by subsequent API calls.
-    const dispatcher = getOrCreateSharedDispatcher(proxy);
+    // Cast through unknown because cli and core may bundle different undici
+    // versions with incompatible Dispatcher types.
+    const dispatcher = getOrCreateSharedDispatcher(proxy) as unknown as any;
 
     // Fire HEAD request to warm connection (fire-and-forget).
     // Use undici's own fetch (not Node's built-in fetch) so the dispatcher

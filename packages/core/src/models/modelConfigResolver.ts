@@ -128,6 +128,7 @@ function applyTimeoutEnvOverride(
     generationConfig.timeout = parsed;
     sources['timeout'] = {
       kind: 'env',
+      detail: 'env.QWEN_CODE_API_TIMEOUT_MS',
       envKey: 'QWEN_CODE_API_TIMEOUT_MS',
     };
   }
@@ -204,6 +205,7 @@ export function resolveModelConfig(
       apiKeyLayers.push(
         layer(apiKeyFromEnv, {
           kind: 'env',
+          detail: `env.${modelProvider.envKey}`,
           envKey: modelProvider.envKey,
           via: modelProvidersSource(authType, modelProvider.id, 'envKey'),
         }),
