@@ -20,10 +20,16 @@ vi.mock('../../telemetry/loggers.js', () => ({
   logApiError: vi.fn(),
 }));
 
+class MockOpenAILogger {
+  constructor() {
+    return {
+      logInteraction: vi.fn(),
+    };
+  }
+}
+
 vi.mock('../../utils/openaiLogger.js', () => ({
-  OpenAILogger: vi.fn().mockImplementation(() => ({
-    logInteraction: vi.fn(),
-  })),
+  OpenAILogger: vi.fn(MockOpenAILogger),
   openaiLogger: {
     logInteraction: vi.fn(),
   },

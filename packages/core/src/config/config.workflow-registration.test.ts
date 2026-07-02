@@ -10,12 +10,18 @@ import type { Mock } from 'vitest';
 // Shared mocks needed by Config constructor.
 vi.mock('node:fs');
 vi.mock('node:fs/promises');
+class MockQwenLogger {
+  constructor() {
+    return {
+      logStartSessionEvent: vi.fn().mockResolvedValue(undefined),
+      logEndSessionEvent: vi.fn().mockResolvedValue(undefined),
+      shutdown: vi.fn().mockResolvedValue(undefined),
+    };
+  }
+}
+
 vi.mock('../telemetry/index.js', () => ({
-  QwenLogger: vi.fn().mockImplementation(() => ({
-    logStartSessionEvent: vi.fn().mockResolvedValue(undefined),
-    logEndSessionEvent: vi.fn().mockResolvedValue(undefined),
-    shutdown: vi.fn().mockResolvedValue(undefined),
-  })),
+  QwenLogger: vi.fn(MockQwenLogger),
   DEFAULT_TELEMETRY_TARGET: 'none',
   DEFAULT_OTLP_ENDPOINT: '',
   DEFAULT_SENSITIVE_SPAN_ATTRIBUTE_MAX_LENGTH: 1024 * 1024,

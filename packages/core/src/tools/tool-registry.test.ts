@@ -27,6 +27,61 @@ import {
 } from './mcp-client.js';
 import { ToolErrorType } from './tool-error.js';
 
+const {
+  mockMcpClientConnect,
+  mockMcpClientOnError,
+  mockStdioTransportClose,
+  mockSseTransportClose,
+  MockClient,
+  MockStdioClientTransport,
+  MockSSEClientTransport,
+} = vi.hoisted(() => {
+  const mockMcpClientConnect = vi.fn();
+  const mockMcpClientOnError = vi.fn();
+  const mockStdioTransportClose = vi.fn();
+  const mockSseTransportClose = vi.fn();
+
+  class MockClient {
+    constructor() {
+      return {
+        connect: mockMcpClientConnect,
+        set onerror(handler: any) {
+          mockMcpClientOnError(handler);
+        },
+      };
+    }
+  }
+
+  class MockStdioClientTransport {
+    constructor() {
+      return {
+        stderr: {
+          on: vi.fn(),
+        },
+        close: mockStdioTransportClose,
+      };
+    }
+  }
+
+  class MockSSEClientTransport {
+    constructor() {
+      return {
+        close: mockSseTransportClose,
+      };
+    }
+  }
+
+  return {
+    mockMcpClientConnect,
+    mockMcpClientOnError,
+    mockStdioTransportClose,
+    mockSseTransportClose,
+    MockClient,
+    MockStdioClientTransport,
+    MockSSEClientTransport,
+  };
+});
+
 vi.mock('node:fs');
 
 // Mock ./mcp-client.js to control its behavior within tool-registry tests
@@ -47,38 +102,17 @@ vi.mock('node:child_process', async () => {
   };
 });
 
-// Mock MCP SDK Client and Transports
-const mockMcpClientConnect = vi.fn();
-const mockMcpClientOnError = vi.fn();
-const mockStdioTransportClose = vi.fn();
-const mockSseTransportClose = vi.fn();
+vi.mock('@modelcontextprotocol/sdk/client/index.js', () => ({
+  Client: vi.fn(MockClient),
+}));
 
-vi.mock('@modelcontextprotocol/sdk/client/index.js', () => {
-  const MockClient = vi.fn().mockImplementation(() => ({
-    connect: mockMcpClientConnect,
-    set onerror(handler: any) {
-      mockMcpClientOnError(handler);
-    },
-  }));
-  return { Client: MockClient };
-});
+vi.mock('@modelcontextprotocol/sdk/client/stdio.js', () => ({
+  StdioClientTransport: vi.fn(MockStdioClientTransport),
+}));
 
-vi.mock('@modelcontextprotocol/sdk/client/stdio.js', () => {
-  const MockStdioClientTransport = vi.fn().mockImplementation(() => ({
-    stderr: {
-      on: vi.fn(),
-    },
-    close: mockStdioTransportClose,
-  }));
-  return { StdioClientTransport: MockStdioClientTransport };
-});
-
-vi.mock('@modelcontextprotocol/sdk/client/sse.js', () => {
-  const MockSSEClientTransport = vi.fn().mockImplementation(() => ({
-    close: mockSseTransportClose,
-  }));
-  return { SSEClientTransport: MockSSEClientTransport };
-});
+vi.mock('@modelcontextprotocol/sdk/client/sse.js', () => ({
+  SSEClientTransport: vi.fn(MockSSEClientTransport),
+}));
 
 // Mock @google/genai mcpToTool
 vi.mock('@google/genai', async () => {

@@ -13,7 +13,14 @@ import {
 import { Config } from '../config/config.js';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 
-vi.mock('@opentelemetry/sdk-node');
+vi.mock('@opentelemetry/sdk-node', () => {
+  class MockNodeSDK {
+    constructor() {}
+  }
+  return {
+    NodeSDK: vi.fn(MockNodeSDK),
+  };
+});
 vi.mock('../config/config.js');
 
 describe('telemetry', () => {
@@ -38,7 +45,9 @@ describe('telemetry', () => {
       start: vi.fn(),
       shutdown: vi.fn().mockResolvedValue(undefined),
     } as unknown as NodeSDK;
-    vi.mocked(NodeSDK).mockImplementation(() => mockNodeSdk);
+    vi.mocked(NodeSDK).mockImplementation(function () {
+      return mockNodeSdk;
+    });
   });
 
   afterEach(async () => {

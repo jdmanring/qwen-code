@@ -21,8 +21,16 @@ const mockTokenizer = {
   dispose: vi.fn(),
 };
 
+const { MockRequestTokenEstimator } = vi.hoisted(() => {
+  class MockRequestTokenEstimator {
+    constructor() {
+      return mockTokenizer;
+    }
+  }
+  return { MockRequestTokenEstimator };
+});
 vi.mock('../../../utils/request-tokenizer/index.js', () => ({
-  RequestTokenEstimator: vi.fn(() => mockTokenizer),
+  RequestTokenEstimator: vi.fn(MockRequestTokenEstimator),
 }));
 
 // Now import the modules that depend on the mocked modules

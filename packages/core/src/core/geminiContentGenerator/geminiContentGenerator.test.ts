@@ -14,15 +14,17 @@ vi.mock('@google/genai', () => {
   const mockCountTokens = vi.fn();
   const mockEmbedContent = vi.fn();
 
+  class MockGoogleGenAI {
+    models = {
+      generateContent: mockGenerateContent,
+      generateContentStream: mockGenerateContentStream,
+      countTokens: mockCountTokens,
+      embedContent: mockEmbedContent,
+    };
+  }
+
   return {
-    GoogleGenAI: vi.fn().mockImplementation(() => ({
-      models: {
-        generateContent: mockGenerateContent,
-        generateContentStream: mockGenerateContentStream,
-        countTokens: mockCountTokens,
-        embedContent: mockEmbedContent,
-      },
-    })),
+    GoogleGenAI: vi.fn(MockGoogleGenAI),
   };
 });
 

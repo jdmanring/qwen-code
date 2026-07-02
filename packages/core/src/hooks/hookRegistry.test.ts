@@ -11,11 +11,14 @@ import { HookEventName, HooksConfigSource, HookType } from './types.js';
 import type { HookConfig } from './types.js';
 
 // Mock TrustedHooksManager
+class MockTrustedHooksManager {
+  constructor() {
+    this.getUntrustedHooks = vi.fn().mockReturnValue([]);
+    this.trustHooks = vi.fn();
+  }
+}
 vi.mock('./trustedHooks.js', () => ({
-  TrustedHooksManager: vi.fn().mockImplementation(() => ({
-    getUntrustedHooks: vi.fn().mockReturnValue([]),
-    trustHooks: vi.fn(),
-  })),
+  TrustedHooksManager: vi.fn(MockTrustedHooksManager),
 }));
 
 describe('HookRegistry', () => {

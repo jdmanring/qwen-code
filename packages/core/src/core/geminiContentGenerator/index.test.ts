@@ -10,8 +10,14 @@ import { GeminiContentGenerator } from './geminiContentGenerator.js';
 import type { Config } from '../../config/config.js';
 import { AuthType } from '../contentGenerator.js';
 
+class MockGeminiContentGenerator {
+  constructor() {
+    return {};
+  }
+}
+
 vi.mock('./geminiContentGenerator.js', () => ({
-  GeminiContentGenerator: vi.fn().mockImplementation(() => ({})),
+  GeminiContentGenerator: vi.fn(MockGeminiContentGenerator),
 }));
 
 describe('createGeminiContentGenerator', () => {

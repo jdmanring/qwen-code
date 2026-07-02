@@ -20,9 +20,12 @@ import type { RuntimeContentGeneratorView } from '../agents/runtime/agent-contex
 
 vi.mock('../core/geminiChat.js', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../core/geminiChat.js')>();
+  class MockGeminiChat {
+    constructor() {}
+  }
   return {
     ...actual,
-    GeminiChat: vi.fn(),
+    GeminiChat: vi.fn(MockGeminiChat),
   };
 });
 
@@ -244,10 +247,11 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
+      function () {
+        return {
           sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+        } as unknown as GeminiChat;
+      },
     );
 
     const mockConfig = {} as unknown as Config;
@@ -339,10 +343,11 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
+      function () {
+        return {
           sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+        } as unknown as GeminiChat;
+      },
     );
 
     const schema = {
@@ -408,10 +413,11 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
+      function () {
+        return {
           sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+        } as unknown as GeminiChat;
+      },
     );
 
     const mockConfig = {
@@ -494,10 +500,11 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
+      function () {
+        return {
           sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+        } as unknown as GeminiChat;
+      },
     );
 
     const mockConfig = {
@@ -585,10 +592,11 @@ describe('runForkedAgent (cache path)', () => {
     );
 
     vi.mocked(GeminiChat).mockImplementation(
-      () =>
-        ({
+      function () {
+        return {
           sendMessageStream: mockSendMessageStream,
-        }) as unknown as GeminiChat,
+        } as unknown as GeminiChat;
+      },
     );
 
     const mockConfig = {

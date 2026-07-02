@@ -26,7 +26,7 @@ import * as fsSync from 'node:fs';
 import * as path from 'node:path';
 import { Readable } from 'node:stream';
 import * as tar from 'tar';
-import * as archiver from 'archiver';
+import archiver from 'archiver';
 import {
   ExtensionUpdateState,
   type Extension,
@@ -122,7 +122,7 @@ describe('git extension helpers', () => {
   ): Promise<Buffer> {
     const archivePath = path.join(tempDir, `archive-${Date.now()}.zip`);
     const output = fsSync.createWriteStream(archivePath);
-    const archive = archiver.create('zip');
+    const archive = new archiver('zip');
     const streamFinished = new Promise((resolve, reject) => {
       output.on('close', () => resolve(null));
       archive.on('error', reject);
@@ -1647,7 +1647,7 @@ describe('git extension helpers', () => {
 
       // Create the zip file
       const output = fsSync.createWriteStream(archivePath);
-      const archive = archiver.create('zip');
+      const archive = new archiver('zip');
 
       const streamFinished = new Promise((resolve, reject) => {
         output.on('close', () => resolve(null));
@@ -1672,7 +1672,7 @@ describe('git extension helpers', () => {
       await fs.mkdir(extractionDest);
 
       const output = fsSync.createWriteStream(archivePath);
-      const archive = archiver.create('zip');
+      const archive = new archiver('zip');
 
       const streamFinished = new Promise((resolve, reject) => {
         output.on('close', () => resolve(null));

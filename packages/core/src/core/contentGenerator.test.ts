@@ -14,7 +14,20 @@ import { GoogleGenAI } from '@google/genai';
 import type { Config } from '../config/config.js';
 import { LoggingContentGenerator } from './loggingContentGenerator/index.js';
 
-vi.mock('@google/genai');
+const { mockGoogleGenAI } = vi.hoisted(() => {
+  class MockGoogleGenAI {
+    constructor() {
+      return {
+        models: {},
+      } as unknown as GoogleGenAI;
+    }
+  }
+  return { mockGoogleGenAI: vi.fn(MockGoogleGenAI) };
+});
+
+vi.mock('@google/genai', () => ({
+  GoogleGenAI: mockGoogleGenAI,
+}));
 
 const openaiMockState = vi.hoisted(() => ({
   importError: null as Error | null,
@@ -63,10 +76,6 @@ describe('createContentGenerator', () => {
       getSessionId: () => 'test-session',
     } as unknown as Config;
 
-    const mockGenerator = {
-      models: {},
-    } as unknown as GoogleGenAI;
-    vi.mocked(GoogleGenAI).mockImplementation(() => mockGenerator as never);
     const generator = await createContentGenerator(
       {
         model: 'test-model',
@@ -99,10 +108,6 @@ describe('createContentGenerator', () => {
       getTelemetryEnabled: () => false,
       getSessionId: () => 'test-session',
     } as unknown as Config;
-    const mockGenerator = {
-      models: {},
-    } as unknown as GoogleGenAI;
-    vi.mocked(GoogleGenAI).mockImplementation(() => mockGenerator as never);
     const generator = await createContentGenerator(
       {
         model: 'test-model',

@@ -18,6 +18,48 @@ import * as fs from 'node:fs';
 import { KeychainTokenStorage } from '../mcp/token-storage/keychain-token-storage.js';
 import { EXTENSION_SETTINGS_FILENAME } from './variables.js';
 
+const { MockKeychainTokenStorage, mockKeychainData } = vi.hoisted(() => {
+  const mockKeychainData: Record<string, Record<string, string>> = {};
+
+  class MockKeychainTokenStorage {
+    static override:
+      | ((serviceName: string) => KeychainTokenStorage)
+      | null = null;
+
+    constructor(serviceName: string) {
+      if (MockKeychainTokenStorage.override) {
+        return MockKeychainTokenStorage.override(
+          serviceName,
+        ) as unknown as MockKeychainTokenStorage;
+      }
+
+      if (!mockKeychainData[serviceName]) {
+        mockKeychainData[serviceName] = {};
+      }
+      const keychainData = mockKeychainData[serviceName];
+      return {
+        getSecret: vi
+          .fn()
+          .mockImplementation(async (key: string) => keychainData[key] || null),
+        setSecret: vi
+          .fn()
+          .mockImplementation(async (key: string, value: string) => {
+            keychainData[key] = value;
+          }),
+        deleteSecret: vi.fn().mockImplementation(async (key: string) => {
+          delete keychainData[key];
+        }),
+        listSecrets: vi
+          .fn()
+          .mockImplementation(async () => Object.keys(keychainData)),
+        isAvailable: vi.fn().mockResolvedValue(true),
+      } as unknown as MockKeychainTokenStorage;
+    }
+  }
+
+  return { MockKeychainTokenStorage, mockKeychainData };
+});
+
 vi.mock('prompts');
 vi.mock('os', async (importOriginal) => {
   const mockedOs = await importOriginal<typeof os>();
@@ -36,7 +78,7 @@ vi.mock(
       >();
     return {
       ...actual,
-      KeychainTokenStorage: vi.fn(),
+      KeychainTokenStorage: vi.fn(MockKeychainTokenStorage),
     };
   },
 );
@@ -45,38 +87,13 @@ describe('extensionSettings', () => {
   let tempHomeDir: string;
   let tempWorkspaceDir: string;
   let extensionDir: string;
-  let mockKeychainData: Record<string, Record<string, string>>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockKeychainData = {};
-    vi.mocked(KeychainTokenStorage).mockImplementation(
-      (serviceName: string) => {
-        if (!mockKeychainData[serviceName]) {
-          mockKeychainData[serviceName] = {};
-        }
-        const keychainData = mockKeychainData[serviceName];
-        return {
-          getSecret: vi
-            .fn()
-            .mockImplementation(
-              async (key: string) => keychainData[key] || null,
-            ),
-          setSecret: vi
-            .fn()
-            .mockImplementation(async (key: string, value: string) => {
-              keychainData[key] = value;
-            }),
-          deleteSecret: vi.fn().mockImplementation(async (key: string) => {
-            delete keychainData[key];
-          }),
-          listSecrets: vi
-            .fn()
-            .mockImplementation(async () => Object.keys(keychainData)),
-          isAvailable: vi.fn().mockResolvedValue(true),
-        } as unknown as KeychainTokenStorage;
-      },
-    );
+    for (const key of Object.keys(mockKeychainData)) {
+      delete mockKeychainData[key];
+    }
+    MockKeychainTokenStorage.override = null;
     tempHomeDir = os.tmpdir() + path.sep + `gemini-cli-test-home-${Date.now()}`;
     tempWorkspaceDir = path.join(
       os.tmpdir(),
@@ -402,16 +419,14 @@ describe('extensionSettings', () => {
       const mockIsAvailable = vi.fn().mockResolvedValue(false);
       const mockListSecrets = vi.fn();
 
-      vi.mocked(KeychainTokenStorage).mockImplementation(
-        () =>
-          ({
-            isAvailable: mockIsAvailable,
-            listSecrets: mockListSecrets,
-            deleteSecret: vi.fn(),
-            getSecret: vi.fn(),
-            setSecret: vi.fn(),
-          }) as unknown as KeychainTokenStorage,
-      );
+      MockKeychainTokenStorage.override = () =>
+        ({
+          isAvailable: mockIsAvailable,
+          listSecrets: mockListSecrets,
+          deleteSecret: vi.fn(),
+          getSecret: vi.fn(),
+          setSecret: vi.fn(),
+        }) as unknown as KeychainTokenStorage;
 
       const config: ExtensionConfig = {
         name: 'test-ext',

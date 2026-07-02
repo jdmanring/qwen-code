@@ -21,16 +21,25 @@ import { DEFAULT_TIMEOUT, DEFAULT_MAX_RETRIES } from '../constants.js';
 import { buildRuntimeFetchOptions } from '../../../utils/runtimeFetchOptions.js';
 import type { OpenAIRuntimeFetchOptions } from '../../../utils/runtimeFetchOptions.js';
 
+const { OpenAIMock } = vi.hoisted(() => {
+  class OpenAIMockClass {
+    constructor(config: unknown) {
+      return {
+        config,
+        chat: {
+          completions: {
+            create: vi.fn(),
+          },
+        },
+      };
+    }
+  }
+  return { OpenAIMock: vi.fn(OpenAIMockClass) };
+});
+
 // Mock OpenAI
 vi.mock('openai', () => ({
-  default: vi.fn().mockImplementation((config) => ({
-    config,
-    chat: {
-      completions: {
-        create: vi.fn(),
-      },
-    },
-  })),
+  default: OpenAIMock,
 }));
 
 vi.mock('../../../utils/runtimeFetchOptions.js', () => ({

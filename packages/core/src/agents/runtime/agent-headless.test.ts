@@ -52,7 +52,14 @@ import type {
 import { AgentTerminateMode } from './agent-types.js';
 import { WriteFileTool } from '../../tools/write-file.js';
 
-vi.mock('../../core/geminiChat.js');
+vi.mock('../../core/geminiChat.js', () => {
+  class MockGeminiChat {
+    constructor() {}
+  }
+  return {
+    GeminiChat: vi.fn(MockGeminiChat),
+  };
+});
 vi.mock('../../core/contentGenerator.js', async (importOriginal) => {
   const actual =
     await importOriginal<typeof import('../../core/contentGenerator.js')>();
@@ -249,6 +256,16 @@ describe('subagent.ts', () => {
     let mockSendMessageStream: Mock;
     let mockGetHistoryFunctionResponseIds: Mock;
 
+    class MockGeminiChat {
+      sendMessageStream: Mock;
+      setLastPromptTokenCount = vi.fn();
+      getHistoryFunctionResponseIds: Mock;
+      constructor(sendMessageStream: Mock, getHistoryFunctionResponseIds: Mock) {
+        this.sendMessageStream = sendMessageStream;
+        this.getHistoryFunctionResponseIds = getHistoryFunctionResponseIds;
+      }
+    }
+
     const defaultModelConfig: ModelConfig = {
       model: 'qwen3-coder-plus',
     };
@@ -282,11 +299,10 @@ describe('subagent.ts', () => {
       mockGetHistoryFunctionResponseIds = vi.fn(() => new Set<string>());
       vi.mocked(GeminiChat).mockImplementation(
         () =>
-          ({
-            sendMessageStream: mockSendMessageStream,
-            setLastPromptTokenCount: vi.fn(),
-            getHistoryFunctionResponseIds: mockGetHistoryFunctionResponseIds,
-          }) as unknown as GeminiChat,
+          new MockGeminiChat(
+            mockSendMessageStream,
+            mockGetHistoryFunctionResponseIds,
+          ) as unknown as GeminiChat,
       );
 
       // Default mock for executeToolCall
@@ -1698,11 +1714,10 @@ describe('subagent.ts', () => {
         ]);
         vi.mocked(GeminiChat).mockImplementation(
           () =>
-            ({
-              sendMessageStream: mockSendMessageStream,
-              setLastPromptTokenCount: vi.fn(),
-              getHistoryFunctionResponseIds: vi.fn(() => new Set<string>()),
-            }) as unknown as GeminiChat,
+            new MockGeminiChat(
+              mockSendMessageStream,
+              vi.fn(() => new Set<string>()),
+            ) as unknown as GeminiChat,
         );
 
         const eventEmitter = new AgentEventEmitter();
@@ -1739,11 +1754,10 @@ describe('subagent.ts', () => {
         ]);
         vi.mocked(GeminiChat).mockImplementation(
           () =>
-            ({
-              sendMessageStream: mockSendMessageStream,
-              setLastPromptTokenCount: vi.fn(),
-              getHistoryFunctionResponseIds: vi.fn(() => new Set<string>()),
-            }) as unknown as GeminiChat,
+            new MockGeminiChat(
+              mockSendMessageStream,
+              vi.fn(() => new Set<string>()),
+            ) as unknown as GeminiChat,
         );
 
         const scope = await AgentHeadless.create(
@@ -1805,11 +1819,10 @@ describe('subagent.ts', () => {
         });
         vi.mocked(GeminiChat).mockImplementation(
           () =>
-            ({
-              sendMessageStream: mockSendMessageStream,
-              setLastPromptTokenCount: vi.fn(),
-              getHistoryFunctionResponseIds: vi.fn(() => new Set<string>()),
-            }) as unknown as GeminiChat,
+            new MockGeminiChat(
+              mockSendMessageStream,
+              vi.fn(() => new Set<string>()),
+            ) as unknown as GeminiChat,
         );
 
         const scope = await AgentHeadless.create(
