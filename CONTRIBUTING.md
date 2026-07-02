@@ -219,9 +219,10 @@ npm run lint
   - `cli/`: The command-line interface.
   - `core/`: The core backend logic for Qwen Code.
 - `docs/`: Contains all project documentation.
+  - `docs/design/`: Architecture and design documents for specific features.
+  - `docs/developers/`: Development guides and references.
+  - `docs/users/`: User-facing documentation.
 - `scripts/`: Utility scripts for building, testing, and development tasks.
-
-For more detailed architecture, see `docs/architecture.md`.
 
 ## Documentation Development
 
