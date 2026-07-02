@@ -29,6 +29,6 @@
     "@qwen-code/channel-base": "file:../base"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^6.0.3"
   }
 }
