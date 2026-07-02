@@ -82,7 +82,7 @@
   "peerDependencies": {
     "@agentclientprotocol/sdk": ">=0.21.0",
     "@modelcontextprotocol/sdk": ">=1.0.0",
-    "zod": ">=3.0.0"
+    "zod": ">=4.0.0"
   },
   "devDependencies": {
     "@types/shell-quote": "^1.7.5",
