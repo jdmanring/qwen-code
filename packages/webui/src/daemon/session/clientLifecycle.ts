@@ -4,37 +4,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-const WEBUI_SESSION_CLIENT_ID_PREFIX = 'qwen-code-webui-client-id:session:';
+const WEBUI_CLIENT_ID_KEY = 'qwen-code-webui-client-id';
 
-export function getStableClientId(
-  clientId: string | undefined,
-  sessionId?: string,
-): string {
+export function getStableClientId(clientId: string | undefined): string {
   if (clientId) return clientId;
   if (typeof window === 'undefined') return createWebuiClientId();
   try {
-    if (sessionId) {
-      const existingSessionClientId = window.sessionStorage.getItem(
-        sessionClientIdKey(sessionId),
-      );
-      if (existingSessionClientId) return existingSessionClientId;
-    }
-    return createWebuiClientId();
+    const existing = window.sessionStorage.getItem(WEBUI_CLIENT_ID_KEY);
+    if (existing) return existing;
+    const next = createWebuiClientId();
+    window.sessionStorage.setItem(WEBUI_CLIENT_ID_KEY, next);
+    return next;
   } catch {
     return createWebuiClientId();
-  }
-}
-
-export function persistStableClientId(
-  clientId: string | undefined,
-  sessionId?: string,
-): void {
-  if (!clientId || !sessionId || typeof window === 'undefined') return;
-  try {
-    window.sessionStorage.setItem(sessionClientIdKey(sessionId), clientId);
-  } catch {
-    // Best-effort persistence only. Private-mode or quota failures should not
-    // break an already attached daemon session.
   }
 }
 
@@ -63,10 +45,6 @@ function createWebuiClientId(): string {
       ? crypto.randomUUID()
       : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
   return `webui_${random}`;
-}
-
-function sessionClientIdKey(sessionId: string): string {
-  return `${WEBUI_SESSION_CLIENT_ID_PREFIX}${encodeURIComponent(sessionId)}`;
 }
 
 function stripTrailingSlashes(url: string): string {
