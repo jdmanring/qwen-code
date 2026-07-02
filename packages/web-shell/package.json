@@ -46,7 +46,7 @@
   "devDependencies": {
     "@qwen-code/sdk": "file:../sdk-typescript",
     "@qwen-code/webui": "file:../webui",
-    "@types/node": "^22.0.0",
+    "@types/node": "^26.0.1",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.2.0",
