@@ -6,10 +6,15 @@
 
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
+import reactPlugin from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
 import prettierConfig from 'eslint-config-prettier';
 import importPlugin from 'eslint-plugin-import-x';
 import vitest from '@vitest/eslint-plugin';
 import globals from 'globals';
+import { fixupPluginRules } from '@eslint/compat';
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import storybook from 'eslint-plugin-storybook';
 import checkFile from 'eslint-plugin-check-file';
 import { legacyFilenames } from './eslint.legacy-filenames.mjs';
 
@@ -34,6 +39,21 @@ export default tseslint.config(
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
+  {
+    files: ['**/*.tsx'],
+    plugins: {
+      react: fixupPluginRules(reactPlugin),
+      'react-hooks': fixupPluginRules(reactHooks),
+    },
+    ...reactHooks.configs['recommended-latest'],
+    ...reactPlugin.configs.flat.recommended,
+    ...reactPlugin.configs.flat['jsx-runtime'],
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
+  },
   {
     // Import specific config
     files: ['packages/cli/src/**/*.{ts,tsx}'], // Target only TS/TSX in the cli package
@@ -71,6 +91,8 @@ export default tseslint.config(
       },
     },
     rules: {
+      // We use TypeScript for React components; prop-types are unnecessary
+      'react/prop-types': 'off',
       // General Best Practice Rules (subset adapted for flat config)
       '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
       'arrow-body-style': ['error', 'as-needed'],
@@ -311,6 +333,8 @@ export default tseslint.config(
       },
     },
     rules: {
+      'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
       'no-console': 'off',
       'no-undef': 'off',
     },
@@ -356,6 +380,9 @@ export default tseslint.config(
     rules: {
       // Allow relaxed rules for documentation site
       '@typescript-eslint/no-unused-vars': 'off',
+      'react/prop-types': 'off',
+      'react/react-in-jsx-scope': 'off',
     },
   },
+  storybook.configs['flat/recommended'],
 );
