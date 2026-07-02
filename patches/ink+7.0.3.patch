@@ -1,3 +1,12 @@
+// PATCH: ink+7.0.3
+// WHY: Ink 7.0.3's package.json exports only define "." but the codebase
+// imports from "./dom" and "./components/CursorContext" which are not
+// exported. This patch adds the missing export entries so the imports
+// resolve correctly.
+//
+// TODO: Remove this patch when upstream ink fixes the exports field.
+// Track: https://github.com/vadimdemedes/ink/issues (file an issue if none exists)
+
 diff --git a/node_modules/ink/package.json b/node_modules/ink/package.json
 --- a/node_modules/ink/package.json
 +++ b/node_modules/ink/package.json

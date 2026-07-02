@@ -107,8 +107,15 @@ cd qwen-code
 To install dependencies defined in `package.json` as well as root dependencies:
 
 ```bash
-npm install
+npm install --legacy-peer-deps
 ```
+
+> **Why `--legacy-peer-deps`?** The `packages/webui` package requires `vitest@^4.1.9`
+> for `@storybook/addon-vitest` compatibility, while `packages/core` and
+> `packages/cli` use `vitest@^3.1.1`. This is a genuine version mismatch that
+> npm 7+ strict peer dependency checking cannot resolve. The flag falls back
+> to npm 6 behavior, which ignores peer dependency conflicts. This is a
+> known limitation that requires upstream resolution from the Storybook team.
 
 To build the entire project (all packages):
 
