@@ -229,8 +229,7 @@ describe('settings default thinking RPC handlers', () => {
 
     const result = await setHandler!(requestContext, 'yolo');
     expect(result).toEqual({ success: true });
-    const call = setQwenCoreSettingViaAcpMock.mock.calls[0] as unknown[];
-    expect(call.slice(1)).toEqual(['user', 'tools.approvalMode', 'yolo']);
+    expect(setQwenCoreSettingViaAcpMock).toHaveBeenCalledWith('user', 'tools.approvalMode', 'yolo');
     expect(applyGlobalPermissionModeMock).toHaveBeenCalledWith('allow-all');
   });
 
@@ -264,7 +263,8 @@ describe('settings default thinking RPC handlers', () => {
     await getHandler!(requestContext, 'ws-1');
 
     expect(getQwenMemoryPathsViaAcpMock).toHaveBeenCalledTimes(1);
-    expect(getQwenMemoryPathsViaAcpMock.mock.calls[0]?.[0]).toMatchObject({
+    const memoryPathsCall = getQwenMemoryPathsViaAcpMock.mock.calls[0] as [Record<string, unknown>] | undefined;
+    expect(memoryPathsCall?.[0]).toMatchObject({
       cwd: '/Users/dragon/Documents/qwen-code',
       processCwd: '/Users/dragon/.craft-agent/workspaces/qwen-code',
       projectRoot: '/Users/dragon/Documents/qwen-code',
@@ -290,7 +290,8 @@ describe('settings default thinking RPC handlers', () => {
     await getHandler!(requestContext, 'ws-1');
 
     expect(getQwenMemorySettingsViaAcpMock).toHaveBeenCalledTimes(1);
-    expect(getQwenMemorySettingsViaAcpMock.mock.calls[0]?.[0]).toMatchObject({
+    const memorySettingsCall = getQwenMemorySettingsViaAcpMock.mock.calls[0] as [Record<string, unknown>] | undefined;
+    expect(memorySettingsCall?.[0]).toMatchObject({
       cwd: '/Users/dragon/Documents/qwen-code',
       processCwd: '/Users/dragon/.craft-agent/workspaces/qwen-code',
       projectRoot: '/Users/dragon/Documents/qwen-code',
@@ -317,11 +318,12 @@ describe('settings default thinking RPC handlers', () => {
     await setHandler!(requestContext, updates, 'ws-1');
 
     expect(setQwenMemorySettingsViaAcpMock).toHaveBeenCalledTimes(1);
-    expect(setQwenMemorySettingsViaAcpMock.mock.calls[0]?.[0]).toMatchObject({
+    const setMemoryCall = setQwenMemorySettingsViaAcpMock.mock.calls[0] as [Record<string, unknown>, Record<string, unknown>] | undefined;
+    expect(setMemoryCall?.[0]).toMatchObject({
       cwd: '/Users/dragon/Documents/qwen-code',
       processCwd: '/Users/dragon/.craft-agent/workspaces/qwen-code',
       projectRoot: '/Users/dragon/Documents/qwen-code',
     });
-    expect(setQwenMemorySettingsViaAcpMock.mock.calls[0]?.[1]).toBe(updates);
+    expect(setMemoryCall?.[1]).toBe(updates);
   });
 });

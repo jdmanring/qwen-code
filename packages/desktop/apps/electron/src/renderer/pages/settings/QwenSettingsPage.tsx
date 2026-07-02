@@ -1001,7 +1001,7 @@ function HooksTab({
     value: QwenSettingValue,
     scope?: QwenSettingsScope,
   ) => Promise<void>;
-  scrollViewportRef: RefObject<HTMLDivElement>;
+  scrollViewportRef: RefObject<HTMLDivElement | null>;
 }) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<HookDraft>(createEmptyHookDraft);
