@@ -150,6 +150,38 @@ dry-run, implement, verify, code review, and iterate.
 Use the `/bugfix` skill for the reproduce-first workflow: reproduce, fix,
 verify, test, and code review.
 
+### Update Pipeline
+
+When upstream-mirror is fast-forwarded to a new version, use the scripted
+pipeline to rebase contribution branches:
+
+```bash
+# Preview what would happen (no changes made)
+./scripts/update-pipeline.sh --dry-run
+
+# Rebase all auto-discovered branches
+./scripts/update-pipeline.sh
+
+# Rebase specific branches
+./scripts/update-pipeline.sh chore/upgrade-anthropic-sdk fix/acp-approval-mode
+```
+
+The script:
+- Auto-discovers `chore/*`, `fix/*`, `feat/*`, `refactor/*`, `test/*`, `docs/*` branches
+- Saves original branch tips for rollback
+- Rebases each branch onto upstream-mirror
+- **Does NOT auto-resolve conflicts** — it aborts and restores the original branch
+- Generates a report at `.qwen/update-pipeline/report-*.md`
+
+**NEVER use `--strategy-option=ours` or `--strategy-option=theirs`** when rebasing.
+These silently discard changes. Conflicts must be resolved manually.
+
+If the script reports conflicts:
+1. `git checkout <branch> && git rebase upstream-mirror`
+2. Resolve each conflict manually
+3. `git rebase --continue`
+4. Re-run the script to verify
+
 ## GitHub Operations
 
 Use the `gh` CLI for all GitHub-related operations — issues, pull requests,
