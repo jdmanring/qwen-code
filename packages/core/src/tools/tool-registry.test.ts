@@ -29,7 +29,7 @@ import { ToolErrorType } from './tool-error.js';
 
 const {
   mockMcpClientConnect,
-  mockMcpClientOnError,
+  mockMcpClientOnError: _mockMcpClientOnError,
   mockStdioTransportClose,
   mockSseTransportClose,
   MockClient,

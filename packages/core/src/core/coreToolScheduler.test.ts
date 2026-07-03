@@ -35,8 +35,10 @@ import { SkillTool } from '../tools/skill.js';
 import { StructuredToolError } from '../tools/priorReadEnforcement.js';
 import { ToolNames, ToolNamesMigration } from '../tools/tool-names.js';
 import type {
+  AllToolCallsCompleteHandler,
   ExecutingToolCall,
   ToolCall,
+  ToolCallsUpdateHandler,
   WaitingToolCall,
 } from './coreToolScheduler.js';
 import {
@@ -777,8 +779,10 @@ describe('CoreToolScheduler', () => {
         getInputFormat: () => undefined,
         getExperimentalZedIntegration: () => false,
       } as unknown as Config,
-      onAllToolCallsComplete: onAllToolCallsComplete as any,
-      onToolCallsUpdate: onToolCallsUpdate as any,
+      onAllToolCallsComplete:
+        onAllToolCallsComplete as unknown as AllToolCallsCompleteHandler,
+      onToolCallsUpdate:
+        onToolCallsUpdate as unknown as ToolCallsUpdateHandler,
       getPreferredEditor: () => 'vscode',
       onEditorClose: vi.fn(),
     });
@@ -5862,8 +5866,10 @@ describe('CoreToolScheduler plan mode with ask_user_question', () => {
 
     return new CoreToolScheduler({
       config: mockConfig,
-      onAllToolCallsComplete: onAllToolCallsComplete as any,
-      onToolCallsUpdate: onToolCallsUpdate as any,
+      onAllToolCallsComplete:
+        onAllToolCallsComplete as unknown as AllToolCallsCompleteHandler,
+      onToolCallsUpdate:
+        onToolCallsUpdate as unknown as ToolCallsUpdateHandler,
       getPreferredEditor: () => 'vscode',
       onEditorClose: vi.fn(),
     });

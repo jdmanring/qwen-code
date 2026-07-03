@@ -19,19 +19,21 @@ import {
 
 function createAdapter(modelProviders: ModelProvidersConfig = {}) {
   const adapter: ProviderSettingsAdapter & {
+    getValue: ReturnType<typeof vi.fn>;
     setValue: ReturnType<typeof vi.fn>;
+    getModelProviders: ReturnType<typeof vi.fn>;
     persist: ReturnType<typeof vi.fn>;
     backup: ReturnType<typeof vi.fn>;
     restore: ReturnType<typeof vi.fn>;
     cleanupBackup: ReturnType<typeof vi.fn>;
   } = {
-    getValue: vi.fn() as any,
-    setValue: vi.fn() as any,
-    getModelProviders: vi.fn(() => modelProviders) as any,
-    persist: vi.fn() as any,
-    backup: vi.fn() as any,
-    restore: vi.fn() as any,
-    cleanupBackup: vi.fn() as any,
+    getValue: vi.fn(),
+    setValue: vi.fn(),
+    getModelProviders: vi.fn(() => modelProviders),
+    persist: vi.fn(),
+    backup: vi.fn(),
+    restore: vi.fn(),
+    cleanupBackup: vi.fn(),
   };
   return adapter;
 }

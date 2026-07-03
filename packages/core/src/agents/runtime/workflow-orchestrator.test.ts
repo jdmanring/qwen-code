@@ -2835,7 +2835,7 @@ describe('WorkflowOrchestrator P3 — agentType / model / isolation / schema', (
       stub.removeUserWorktree = vi.fn(async (slug: string) => {
         removeCalls.push(slug);
         return { success: true };
-      }) as any;
+      }) as unknown as typeof stub.removeUserWorktree;
       worktreeStubs.instances.push(stub);
       return stub as unknown as InstanceType<typeof GitWorktreeService>;
     });

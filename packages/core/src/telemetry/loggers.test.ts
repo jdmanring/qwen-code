@@ -5,6 +5,7 @@
  */
 
 import { logs } from '@opentelemetry/api-logs';
+import type { LogAttributes, LogBody } from '@opentelemetry/api-logs';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import type { Config } from '../config/config.js';
@@ -97,9 +98,14 @@ import * as uiTelemetry from './uiTelemetry.js';
 import { makeFakeConfig } from '../test-utils/config.js';
 import { runWithChatRecordingSuppressed } from '../utils/chat-recording-suppression-context.js';
 
+interface TestLogRecord {
+  body?: LogBody;
+  attributes: LogAttributes;
+}
+
 describe('loggers', () => {
   const mockLogger = {
-    emit: vi.fn() as any,
+    emit: vi.fn<(logRecord: TestLogRecord) => void>(),
     enabled: vi.fn().mockReturnValue(true),
   };
   const mockUiEvent = {

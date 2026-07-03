@@ -6,8 +6,6 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { HybridTokenStorage } from './hybrid-token-storage.js';
-import { KeychainTokenStorage } from './keychain-token-storage.js';
-import { FileTokenStorage } from './file-token-storage.js';
 import { type OAuthCredentials, TokenStorageType } from './types.js';
 
 const {

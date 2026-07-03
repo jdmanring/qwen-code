@@ -35,7 +35,7 @@ describe('runBootstrap', () => {
 
   beforeEach(() => {
     tmpHome = mkdtempSync(join(tmpdir(), 'qwen-cu-bs-'));
-    daemon = { kill: vi.fn() as any };
+    daemon = { kill: vi.fn<() => void>() };
     deps = {
       homeDir: tmpHome,
       approvalKey: KEY,
