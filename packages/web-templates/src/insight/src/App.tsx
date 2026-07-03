@@ -16,7 +16,6 @@ import {
 import { ShareCard, type Theme } from './ShareCard';
 import './styles.css';
 import type { InsightData } from './types';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import React from 'react';
 
 // Keep in sync with packages/cli/src/services/insight/generators/DataProcessor.ts.
