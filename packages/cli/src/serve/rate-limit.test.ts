@@ -39,6 +39,7 @@ describe('rateLimit', () => {
   describe('token bucket - continuous drip', () => {
     beforeEach(() => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
     });
     afterEach(() => {
       vi.useRealTimers();

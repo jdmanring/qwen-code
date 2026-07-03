@@ -159,6 +159,7 @@ describe('detectTerminalTheme', () => {
 
     it('should resolve undefined on timeout and remove its data listener', async () => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       const restoreTTY = forceTTY();
       vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
       const baseline = process.stdin.listenerCount('data');

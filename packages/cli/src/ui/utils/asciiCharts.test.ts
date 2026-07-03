@@ -10,6 +10,7 @@ import { buildHeatmapData, buildBrailleLineChart } from './asciiCharts.js';
 describe('buildHeatmapData', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(new Date('2025-06-04T12:00:00Z'));
   });
 

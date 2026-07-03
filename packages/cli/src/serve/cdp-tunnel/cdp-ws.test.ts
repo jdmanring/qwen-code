@@ -246,6 +246,7 @@ describe('attachCdpClient (Plan C #5626)', () => {
 
   it('pings the /cdp socket and tears down the binding when pong is missed', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const { bridge, sent } = makeBridge();
       const ws = new FakeWs();

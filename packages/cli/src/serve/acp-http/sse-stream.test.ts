@@ -129,6 +129,7 @@ describe('SseStream', () => {
 
   it('heartbeat fires onHeartbeat on the interval', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     let beats = 0;
     const res = mockRes();
     const s = new SseStream(res, undefined, () => {

@@ -110,6 +110,7 @@ describe('FileReadCache', () => {
   describe('recordRead', () => {
     beforeEach(() => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       vi.setSystemTime(new Date('2026-04-29T00:00:00Z'));
     });
     afterEach(() => {
@@ -250,6 +251,7 @@ describe('FileReadCache', () => {
   describe('recordWrite', () => {
     beforeEach(() => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       vi.setSystemTime(new Date('2026-04-29T00:00:00Z'));
     });
     afterEach(() => {
@@ -348,6 +350,7 @@ describe('FileReadCache', () => {
   describe('read-then-write-then-read ordering', () => {
     beforeEach(() => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       vi.setSystemTime(new Date('2026-04-29T00:00:00Z'));
     });
     afterEach(() => {
@@ -753,6 +756,7 @@ describe('FileReadCache', () => {
       const recentStats = makeStats({ ino: 2 });
 
       vi.useFakeTimers();
+    vi.clearAllMocks();
       vi.setSystemTime(old);
       cache.recordRead('/x/old.ts', oldStats, { full: true, cacheable: true });
 
@@ -774,6 +778,7 @@ describe('FileReadCache', () => {
     it('evicts entries that were only written, never read', () => {
       const cache = new FileReadCache();
       vi.useFakeTimers();
+    vi.clearAllMocks();
 
       const pastWrite = 1000; // some fixed timestamp in the past
       vi.setSystemTime(pastWrite);
@@ -790,6 +795,7 @@ describe('FileReadCache', () => {
     it('preserves recently accessed entries', () => {
       const cache = new FileReadCache();
       vi.useFakeTimers();
+    vi.clearAllMocks();
 
       const now = Date.now();
       vi.setSystemTime(now);
@@ -807,6 +813,7 @@ describe('FileReadCache', () => {
     it('returns correct eviction count', () => {
       const cache = new FileReadCache();
       vi.useFakeTimers();
+    vi.clearAllMocks();
 
       const now = Date.now();
       vi.setSystemTime(now);

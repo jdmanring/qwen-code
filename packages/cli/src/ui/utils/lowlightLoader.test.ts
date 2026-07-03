@@ -22,6 +22,7 @@ describe('lowlightLoader', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.useFakeTimers();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {

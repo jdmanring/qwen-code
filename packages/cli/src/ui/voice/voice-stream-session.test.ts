@@ -186,6 +186,7 @@ describe('voice-stream-session', () => {
 
   it('rejects finish when the task never finishes', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const socket = new FakeSocket();
     const session = await startSession(socket);
 

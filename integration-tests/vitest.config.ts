@@ -26,11 +26,11 @@ export default defineConfig({
     ],
     retry: 2,
     fileParallelism: true,
-    poolOptions: {
-      threads: {
-        minThreads: 2,
-        maxThreads: 4,
-      },
+  },
+  poolOptions: {
+    threads: {
+      minThreads: 2,
+      maxThreads: 4,
     },
   },
   resolve: {

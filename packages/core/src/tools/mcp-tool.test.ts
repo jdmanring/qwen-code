@@ -1614,6 +1614,7 @@ describe('DiscoveredMCPTool', () => {
   describe('MCP Tool Idle Timeout', () => {
     it('should abort when MCP server does not respond within idle timeout', async () => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
 
       const idleTimeoutMs = 1000; // 1 second for testing
       const mockMcpClient: McpDirectClient = {
@@ -1665,6 +1666,7 @@ describe('DiscoveredMCPTool', () => {
 
     it('should reset idle timeout on progress updates', async () => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
 
       const idleTimeoutMs = 1000;
       let onProgressCallback: ((progress: any) => void) | undefined;
@@ -1726,6 +1728,7 @@ describe('DiscoveredMCPTool', () => {
 
     it('should not apply idle timeout when set to 0 or undefined', async () => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
 
       const mockMcpClient: McpDirectClient = {
         callTool: vi.fn().mockResolvedValue({

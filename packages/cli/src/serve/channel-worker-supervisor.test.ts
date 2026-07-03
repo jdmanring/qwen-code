@@ -407,6 +407,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('restarts a ready worker after unexpected exit within budget', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const firstChild = new FakeChild(false);
     const secondChild = new FakeChild();
     const spawnWorker = vi
@@ -474,6 +475,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('uses escalating restart delays from the restart policy', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const firstChild = new FakeChild(false);
     const secondChild = new FakeChild(false);
     const thirdChild = new FakeChild();
@@ -540,6 +542,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('does not restart a pre-ready startup failure', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const child = new FakeChild();
     const spawnWorker = vi.fn(() => child);
     const supervisor = createChannelWorkerSupervisor({
@@ -567,6 +570,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('stops restarting after restart budget is exhausted', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const firstChild = new FakeChild(false);
     const secondChild = new FakeChild(false);
     const spawnWorker = vi
@@ -608,6 +612,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('resets restart budget after an intentional stop and start', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const firstChild = new FakeChild(false);
     const secondChild = new FakeChild();
     const thirdChild = new FakeChild(false);
@@ -675,6 +680,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('does not double-notify or reschedule when a restart launch times out then exits', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const firstChild = new FakeChild(false);
     const secondChild = new FakeChild(false);
     const thirdChild = new FakeChild();
@@ -733,6 +739,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('continues restarting when a restart worker errors before ready and never exits', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const firstChild = new FakeChild(false);
     const secondChild = new FakeChild(false);
     const thirdChild = new FakeChild();
@@ -797,6 +804,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('captures restart spawn failures and schedules the next restart internally', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const firstChild = new FakeChild(false);
     const thirdChild = new FakeChild();
     const spawnWorker = vi
@@ -858,6 +866,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('keeps the last restart failure in the budget exhausted error', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const firstChild = new FakeChild(false);
     const spawnWorker = vi.fn().mockReturnValueOnce(firstChild);
     spawnWorker.mockImplementationOnce(() => {
@@ -905,6 +914,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('does not clobber restart spawn failure state on force shutdown', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const firstChild = new FakeChild(false);
     const spawnWorker = vi.fn().mockReturnValueOnce(firstChild);
     spawnWorker.mockImplementationOnce(() => {
@@ -942,6 +952,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('does not count expired restart attempts against the restart budget', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const firstChild = new FakeChild(false);
     const secondChild = new FakeChild(false);
     const thirdChild = new FakeChild();
@@ -999,6 +1010,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('cancels a pending restart when stopped', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const firstChild = new FakeChild(false);
     const secondChild = new FakeChild();
     const spawnWorker = vi
@@ -1037,6 +1049,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('clears a pending restart timestamp when force shutdown cancels the timer', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const firstChild = new FakeChild(false);
     const spawnWorker = vi.fn().mockReturnValueOnce(firstChild);
     const supervisor = createChannelWorkerSupervisor({
@@ -1066,6 +1079,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('restarts when no heartbeat arrives after ready', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const firstChild = new FakeChild(false);
     const secondChild = new FakeChild();
     const spawnWorker = vi
@@ -1124,6 +1138,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('restarts when heartbeat becomes stale after ready', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const firstChild = new FakeChild(false);
     const secondChild = new FakeChild();
     const spawnWorker = vi
@@ -1177,6 +1192,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('ignores heartbeats from a mismatched pid without rearming stale detection', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const child = new FakeChild();
     const supervisor = createChannelWorkerSupervisor({
       cliEntryPath: '/repo/dist/index.js',
@@ -1210,6 +1226,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('keeps the worker running and heartbeat-armed when onReady throws', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const child = new FakeChild(false);
     const supervisor = createChannelWorkerSupervisor({
       cliEntryPath: '/repo/dist/index.js',
@@ -1243,6 +1260,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('cancels stale heartbeat detection when stopped intentionally', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const child = new FakeChild();
     const supervisor = createChannelWorkerSupervisor({
       cliEntryPath: '/repo/dist/index.js',
@@ -1719,6 +1737,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('can still stop a ready worker after an error without exit', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const child = new FakeChild(false);
     const supervisor = createChannelWorkerSupervisor({
       cliEntryPath: '/repo/dist/index.js',
@@ -1895,6 +1914,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('escalates pre-ready termination to SIGKILL when the worker ignores SIGTERM', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const child = new FakeChild(false);
     const supervisor = createChannelWorkerSupervisor({
       cliEntryPath: '/repo/dist/index.js',
@@ -1921,6 +1941,7 @@ describe('createChannelWorkerSupervisor', () => {
 
   it('does not report stopped when the worker ignores SIGKILL', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const child = new FakeChild(false);
     const secondChild = new FakeChild();
     const spawnWorker = vi

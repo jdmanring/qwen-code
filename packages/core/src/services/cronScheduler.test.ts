@@ -177,6 +177,7 @@ describe('CronScheduler', () => {
     // before it, so pin "now" just before the minutes these tests tick.
     beforeEach(() => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       vi.setSystemTime(new Date(2025, 0, 15, 9, 59, 30));
     });
 
@@ -201,6 +202,7 @@ describe('CronScheduler', () => {
 
     it('does not fire on the same minute the job was created', () => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       const localScheduler = new CronScheduler();
       try {
         vi.setSystemTime(new Date(2025, 0, 15, 10, 30, 15));
@@ -405,6 +407,7 @@ describe('CronScheduler', () => {
   describe('session wakeups', () => {
     beforeEach(() => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       vi.setSystemTime(new Date(2025, 0, 15, 10, 30, 0));
     });
     afterEach(() => {
@@ -1260,6 +1263,7 @@ describe('CronScheduler', () => {
       // timers don't flush, so switch back to real timers and waitFor the
       // lock to settle rather than reading it synchronously.
       vi.useFakeTimers();
+    vi.clearAllMocks();
       let usingFakeTimers = true;
       try {
         await lockAsOtherSession(); // live foreign lock → we start non-owner

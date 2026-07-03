@@ -135,6 +135,7 @@ describe('combineAbortSignals', () => {
 
   it('fires the timeout when no signal aborts first', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const { signal } = combineAbortSignals([], { timeoutMs: 50 });
       vi.advanceTimersByTime(50);
@@ -152,6 +153,7 @@ describe('combineAbortSignals', () => {
     // combinedSignal calls. Verifies cleanup is wired to the COMBINED
     // controller abort path, not just to source-signal events.
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const source = createAbortController();
       const before = getEventListeners(source.signal, 'abort').length;
@@ -186,6 +188,7 @@ describe('combineAbortSignals', () => {
 
   it('manual cleanup() cancels a pending timeout so it never fires', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const { signal, cleanup } = combineAbortSignals([], { timeoutMs: 50 });
       cleanup();
@@ -200,6 +203,7 @@ describe('combineAbortSignals', () => {
 
   it('treats timeoutMs <= 0 as "no timeout"', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const zero = combineAbortSignals([], { timeoutMs: 0 });
       const negative = combineAbortSignals([], { timeoutMs: -1 });
@@ -252,6 +256,7 @@ describe('combineAbortSignals', () => {
     // advancement alone since cleanup() runs synchronously and clears the
     // timer it just scheduled.
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const setTimeoutSpy = vi.spyOn(globalThis, 'setTimeout');
     try {
       const a = createAbortController();

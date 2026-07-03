@@ -11,6 +11,7 @@ import { useTimer } from './useTimer.js';
 describe('useTimer', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {

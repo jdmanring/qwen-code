@@ -234,6 +234,7 @@ describe('qwen-asr-realtime-session', () => {
 
   it('rejects finish when the server never sends session.finished', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const socket = new FakeSocket();
     const sessionPromise = openQwenAsrRealtimeStream(
       {

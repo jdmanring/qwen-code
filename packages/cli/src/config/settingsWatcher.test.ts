@@ -138,6 +138,7 @@ describe('SettingsWatcher', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     mockWatchers.length = 0;
     mockExistsSync.mockReturnValue(true);
     mockMkdirSync.mockReset();

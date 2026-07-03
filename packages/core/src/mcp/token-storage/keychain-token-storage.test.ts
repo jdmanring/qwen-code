@@ -195,6 +195,7 @@ describe('KeychainTokenStorage', () => {
     describe('setCredentials', () => {
       it('should save credentials to keychain', async () => {
         vi.useFakeTimers();
+    vi.clearAllMocks();
         mockKeytar.setPassword.mockResolvedValue(undefined);
         await storage.setCredentials(validCredentials);
         expect(mockKeytar.setPassword).toHaveBeenCalledWith(

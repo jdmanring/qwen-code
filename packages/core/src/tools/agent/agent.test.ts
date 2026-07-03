@@ -120,6 +120,7 @@ describe('AgentTool', () => {
   beforeEach(async () => {
     // Setup fake timers
     vi.useFakeTimers();
+    vi.clearAllMocks();
 
     // Create mock config. The outer describe covers foreground execution
     // paths, which now register/unregister in the BackgroundTaskRegistry
@@ -1022,6 +1023,7 @@ describe('AgentTool', () => {
       } finally {
         fs.rmSync(repo, { recursive: true, force: true });
         vi.useFakeTimers();
+    vi.clearAllMocks();
       }
     }, 20000);
 

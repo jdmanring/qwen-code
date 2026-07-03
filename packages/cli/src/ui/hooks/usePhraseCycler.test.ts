@@ -17,6 +17,7 @@ const MOCK_WITTY_PHRASES = ['Phrase 1', 'Phrase 2', 'Phrase 3'];
 describe('usePhraseCycler', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.spyOn(i18n, 'ta').mockReturnValue(MOCK_WITTY_PHRASES);
     vi.spyOn(i18n, 't').mockImplementation((key) => key);
   });

@@ -722,6 +722,7 @@ describe('renameWithRetry (async, dependency-injected rename)', () => {
   // make the assertion deterministic without burning real wall-clock time.
   it('backs off exponentially: delayMs, 2*delayMs, 4*delayMs, ...', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const gaps: number[] = [];
       let lastInvocation = Date.now();

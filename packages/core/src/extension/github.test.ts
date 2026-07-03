@@ -1142,6 +1142,7 @@ describe('git extension helpers', () => {
 
     it('should reject redirects without a location and clear the timeout', async () => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       const response = createResponse(undefined, 302);
       const resumeSpy = vi.spyOn(response, 'resume');
       mockHttpsGet.mockImplementationOnce(((

@@ -18,6 +18,7 @@ describe('formatters', () => {
 
     beforeEach(() => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       vi.setSystemTime(NOW);
     });
 

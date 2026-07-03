@@ -25,15 +25,17 @@ import {
 } from './extensionManager.js';
 import type { MCPServerConfig, ExtensionInstallMetadata } from '../index.js';
 
-const mockGit = {
-  clone: vi.fn(),
-  getRemotes: vi.fn(),
-  fetch: vi.fn(),
-  checkout: vi.fn(),
-  listRemote: vi.fn(),
-  revparse: vi.fn(),
-  path: vi.fn(),
-};
+const { mockGit } = vi.hoisted(() => ({
+  mockGit: {
+    clone: vi.fn(),
+    getRemotes: vi.fn(),
+    fetch: vi.fn(),
+    checkout: vi.fn(),
+    listRemote: vi.fn(),
+    revparse: vi.fn(),
+    path: vi.fn(),
+  },
+}));
 const mockDownloadFromArchiveUrl = vi.hoisted(() => vi.fn());
 const mockExtractArchiveFile = vi.hoisted(() => vi.fn());
 

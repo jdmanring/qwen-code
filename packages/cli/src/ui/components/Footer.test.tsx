@@ -157,6 +157,7 @@ describe('<Footer />', () => {
 
   it('refreshes the scheduled task count after mount', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     let schedulerSize = 0;
     let unmount: (() => void) | undefined;
     const scheduler = {

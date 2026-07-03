@@ -126,6 +126,7 @@ describe('createGoalStopHookCallback', () => {
 
   it('aborts the underlying judge call when the judge timeout fires', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       setActiveGoal('sess-1', {
         condition: 'do x',

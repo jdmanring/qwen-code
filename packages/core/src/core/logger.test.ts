@@ -118,6 +118,7 @@ describe('Logger', () => {
     // logger's initialize/append paths still hit the real disk.
     vi.mocked(atomicWriteFile).mockImplementation(realAtomicWriteFile);
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(new Date('2025-01-01T12:00:00.000Z'));
     originalHome = process.env['HOME'];
     process.env['HOME'] = TEST_HOME_DIR;

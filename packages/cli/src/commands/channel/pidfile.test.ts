@@ -204,6 +204,7 @@ describe('writeServiceInfo + readServiceInfo', () => {
 
   it('preserves the serve reservation start time when worker metadata changes', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(new Date('2026-07-01T01:00:00.000Z'));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     process.kill = vi.fn(() => true) as any;

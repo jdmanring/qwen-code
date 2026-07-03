@@ -83,6 +83,7 @@ describe('discoveryTimeoutFor', () => {
 describe('runWithTimeout', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
   });
   afterEach(() => {
     vi.useRealTimers();

@@ -433,6 +433,7 @@ describe('useSelectionList', () => {
   describe('Numeric Quick Selection (showNumbers=true)', () => {
     beforeEach(() => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
     });
 
     afterEach(() => {
@@ -988,6 +989,7 @@ describe('useSelectionList', () => {
   describe('Cleanup', () => {
     beforeEach(() => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
     });
 
     afterEach(() => {

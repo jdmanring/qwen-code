@@ -149,6 +149,7 @@ describe('CdpReverseLink (Plan C #5626)', () => {
 
   it('rejects a forwarded command when its per-command timer expires', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const sent: CdpOutboundFrame[] = [];
       // Small per-command timeout so the timer fires under the fake clock.
@@ -174,6 +175,7 @@ describe('CdpReverseLink (Plan C #5626)', () => {
 
   it('logs forwarded commands, midpoint waits, and timeout context', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const sent: CdpOutboundFrame[] = [];
       const log = vi.fn();
@@ -228,6 +230,7 @@ describe('CdpReverseLink (Plan C #5626)', () => {
 
   it('attach rejects when its cdp_attach timer expires', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const sent: CdpOutboundFrame[] = [];
       const link = new CdpReverseLink((f) => sent.push(f), 50);
@@ -249,6 +252,7 @@ describe('CdpReverseLink (Plan C #5626)', () => {
 
   it('rejects a lazy command when attach times out', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const sent: CdpOutboundFrame[] = [];
       const link = new CdpReverseLink((f) => sent.push(f), 50);

@@ -130,6 +130,7 @@ describe('idle shutdown', () => {
 
   it('defaults to a 5 minute idle timeout', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const c = new ComputerUseClient({ binary: '/fake/cua-driver' });
     const inner = makeInner();
     installInner(c, inner);
@@ -145,6 +146,7 @@ describe('idle shutdown', () => {
 
   it('treats negative idle timeouts as invalid and falls back to the default', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const c = new ComputerUseClient({
       binary: '/fake/cua-driver',
       idleTimeoutMs: -1,
@@ -162,6 +164,7 @@ describe('idle shutdown', () => {
 
   it('uses the configured idle timeout after the last tool call', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const c = new ComputerUseClient({
       binary: '/fake/cua-driver',
       idleTimeoutMs: 25,
@@ -179,6 +182,7 @@ describe('idle shutdown', () => {
 
   it('does not stop while another tool call is still active', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     let releaseFirst!: (result: CallToolResult) => void;
     const c = new ComputerUseClient({
       binary: '/fake/cua-driver',
@@ -214,6 +218,7 @@ describe('idle shutdown', () => {
 
   it('disables idle shutdown when configured as 0', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const c = new ComputerUseClient({
       binary: '/fake/cua-driver',
       idleTimeoutMs: 0,
@@ -230,6 +235,7 @@ describe('idle shutdown', () => {
 
   it('reschedules the idle timer when setIdleTimeoutMs is called while pending', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const c = new ComputerUseClient({
       binary: '/fake/cua-driver',
       idleTimeoutMs: 25,
@@ -248,6 +254,7 @@ describe('idle shutdown', () => {
 
   it('cancels the pending idle timer when stop() is called explicitly', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const c = new ComputerUseClient({
       binary: '/fake/cua-driver',
       idleTimeoutMs: 25,
@@ -266,6 +273,7 @@ describe('idle shutdown', () => {
     'treats %p as invalid and falls back to the default',
     async (value) => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       const c = new ComputerUseClient({
         binary: '/fake/cua-driver',
         idleTimeoutMs: value,
@@ -285,6 +293,7 @@ describe('idle shutdown', () => {
 
   it('treats idle timeouts above the setTimeout safe range as invalid', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const c = new ComputerUseClient({
       binary: '/fake/cua-driver',
       idleTimeoutMs: MAX_COMPUTER_USE_IDLE_TIMEOUT_MS + 1,

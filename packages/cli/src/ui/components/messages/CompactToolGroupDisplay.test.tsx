@@ -58,6 +58,7 @@ function toolCall(
 describe('<CompactToolGroupDisplay /> — shell timeout plumbing', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(NOW);
   });
 

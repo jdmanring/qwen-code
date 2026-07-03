@@ -337,6 +337,7 @@ describe('createVoiceWsConnectionHandler', () => {
 
   it('aborts the streaming session if finalization times out', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const session: VoiceStreamSession = {
       pushAudio: vi.fn(),
       finish: vi.fn(() => new Promise<string>(() => {})),
@@ -405,6 +406,7 @@ describe('createVoiceWsConnectionHandler', () => {
 
   it('fails and cleans up when the hard timer fires', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const session: VoiceStreamSession = {
       pushAudio: vi.fn(),
       finish: vi.fn(async () => ''),
@@ -431,6 +433,7 @@ describe('createVoiceWsConnectionHandler', () => {
 
   it('frees a voice slot when a failed socket ignores close', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const handler = createVoiceWsConnectionHandler('/ws', {
       loadContext: () => streamingCtx(),
       openStream: async () => ({

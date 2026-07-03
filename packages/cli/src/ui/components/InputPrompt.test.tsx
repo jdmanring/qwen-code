@@ -565,6 +565,7 @@ describe('InputPrompt', () => {
     // execution of destructive slash commands (/clear, /quit).
     it('fills buffer on Enter when suggestion is available (does not submit)', async () => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       const { stdin, unmount } = renderWithProviders(
         <InputPrompt {...props} promptSuggestion="commit this" />,
       );
@@ -587,6 +588,7 @@ describe('InputPrompt', () => {
 
     it('does not accept the prompt suggestion on shift+tab', async () => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       const { stdin, unmount } = renderWithProviders(
         <InputPrompt {...props} promptSuggestion="commit this" />,
       );
@@ -616,6 +618,7 @@ describe('InputPrompt', () => {
       ] as UseCommandCompletionReturn['suggestions'];
 
       vi.useFakeTimers();
+    vi.clearAllMocks();
       const { stdin, unmount } = renderWithProviders(
         <InputPrompt {...props} promptSuggestion="commit this" />,
       );
@@ -652,6 +655,7 @@ describe('InputPrompt', () => {
 
       it('accepts promptSuggestion via Tab when followup.state.suggestion is null', async () => {
         vi.useFakeTimers();
+    vi.clearAllMocks();
         const { stdin, unmount } = renderWithProviders(
           <InputPrompt {...props} promptSuggestion="commit this" />,
         );
@@ -673,6 +677,7 @@ describe('InputPrompt', () => {
 
       it('accepts promptSuggestion via Right arrow when followup.state.suggestion is null', async () => {
         vi.useFakeTimers();
+    vi.clearAllMocks();
         const { stdin, unmount } = renderWithProviders(
           <InputPrompt {...props} promptSuggestion="commit this" />,
         );
@@ -694,6 +699,7 @@ describe('InputPrompt', () => {
 
       it('fills buffer on Enter (does not submit) when followup.state.suggestion is null', async () => {
         vi.useFakeTimers();
+    vi.clearAllMocks();
         const { stdin, unmount } = renderWithProviders(
           <InputPrompt {...props} promptSuggestion="commit this" />,
         );
@@ -729,6 +735,7 @@ describe('InputPrompt', () => {
 
       it('calls onPromptSuggestionDismiss when Tab accepts the suggestion', async () => {
         vi.useFakeTimers();
+    vi.clearAllMocks();
         const onPromptSuggestionDismiss = vi.fn();
         const { stdin, unmount } = renderWithProviders(
           <InputPrompt
@@ -755,6 +762,7 @@ describe('InputPrompt', () => {
 
       it('calls onPromptSuggestionDismiss when Right arrow accepts the suggestion', async () => {
         vi.useFakeTimers();
+    vi.clearAllMocks();
         const onPromptSuggestionDismiss = vi.fn();
         const { stdin, unmount } = renderWithProviders(
           <InputPrompt
@@ -781,6 +789,7 @@ describe('InputPrompt', () => {
 
       it('calls onPromptSuggestionDismiss when Enter accepts the suggestion', async () => {
         vi.useFakeTimers();
+    vi.clearAllMocks();
         const onPromptSuggestionDismiss = vi.fn();
         const { stdin, unmount } = renderWithProviders(
           <InputPrompt
@@ -809,6 +818,7 @@ describe('InputPrompt', () => {
 
       it('calls onPromptSuggestionDismiss when a typed message is submitted', async () => {
         vi.useFakeTimers();
+    vi.clearAllMocks();
         const onPromptSuggestionDismiss = vi.fn();
         mockBuffer.text = 'ship it';
         mockBuffer.lines = ['ship it'];
@@ -3372,6 +3382,7 @@ describe('InputPrompt', () => {
       await wait();
 
       vi.useFakeTimers();
+    vi.clearAllMocks();
       try {
         // Simulate a paste operation (this sets the protection)
         act(() => {
@@ -4137,6 +4148,7 @@ describe('InputPrompt', () => {
       await wait();
 
       vi.useFakeTimers();
+    vi.clearAllMocks();
       try {
         // First paste to set up the placeholder
         act(() => {
@@ -4171,6 +4183,7 @@ describe('InputPrompt', () => {
       await wait();
 
       vi.useFakeTimers();
+    vi.clearAllMocks();
       try {
         act(() => {
           stdin.write(`\x1b[200~${firstPaste}\x1b[201~`);
@@ -4216,6 +4229,7 @@ describe('InputPrompt', () => {
       await wait();
 
       vi.useFakeTimers();
+    vi.clearAllMocks();
       try {
         act(() => {
           stdin.write(`\x1b[200~${largeContent}\x1b[201~`);
@@ -4265,6 +4279,7 @@ describe('InputPrompt', () => {
       await wait();
 
       vi.useFakeTimers();
+    vi.clearAllMocks();
       const largeContent = 'x'.repeat(1001);
 
       try {

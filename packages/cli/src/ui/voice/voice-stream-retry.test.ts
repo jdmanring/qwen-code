@@ -19,6 +19,7 @@ function session(): VoiceStreamSession {
 describe('openVoiceStreamWithRetry', () => {
   it('retries once when opening the realtime stream fails before use', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const opened = session();
       const open = vi
@@ -41,6 +42,7 @@ describe('openVoiceStreamWithRetry', () => {
 
   it('throws the second open error after the retry is exhausted', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const second = new Error('still failing');
       const open = vi

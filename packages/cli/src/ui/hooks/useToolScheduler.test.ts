@@ -111,6 +111,7 @@ describe('useReactToolScheduler in YOLO Mode', () => {
     (mockConfig.getApprovalMode as Mock).mockReturnValue(ApprovalMode.YOLO);
 
     vi.useFakeTimers();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -230,6 +231,7 @@ describe('useReactToolScheduler', () => {
     );
 
     vi.useFakeTimers();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {

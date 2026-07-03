@@ -37,6 +37,7 @@ describe('createNativeAudioRecorder', () => {
 
   it('polls the silence flag and auto-stops when silence is detected', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       let silent = false;
       const backend = {
@@ -71,6 +72,7 @@ describe('createNativeAudioRecorder', () => {
 
   it('auto-stops when native silence polling fails', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const backend = {
         startRecording: vi.fn(),

@@ -393,6 +393,7 @@ describe('crawler', () => {
     beforeEach(() => {
       cache.clear();
       vi.useFakeTimers();
+    vi.clearAllMocks();
     });
 
     afterEach(() => {
@@ -1645,6 +1646,7 @@ describe('crawler', () => {
       };
 
       vi.useFakeTimers();
+    vi.clearAllMocks();
       try {
         const first = await crawl(options);
         expect(first).toContain('file1.js');

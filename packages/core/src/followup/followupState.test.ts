@@ -14,6 +14,7 @@ import type { FollowupState } from './followupState.js';
 describe('createFollowupController', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {

@@ -34,6 +34,7 @@ describe('tokenUsageService', () => {
 
   beforeEach(async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(new Date('2026-05-25T10:00:00.000Z'));
     originalRuntimeDir = process.env['QWEN_RUNTIME_DIR'];
     originalDebugLogFileEnv = process.env['QWEN_DEBUG_LOG_FILE'];

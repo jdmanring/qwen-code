@@ -187,6 +187,7 @@ describe('BackgroundTaskRegistry', () => {
 
   it('emits a fallback cancelled notification after the grace period when the natural handler never runs', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const callback = vi.fn();
       registry.setNotificationCallback(callback);
@@ -220,6 +221,7 @@ describe('BackgroundTaskRegistry', () => {
 
   it('skips the fallback notification when the natural handler finalizes first', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const callback = vi.fn();
       registry.setNotificationCallback(callback);
@@ -565,6 +567,7 @@ describe('BackgroundTaskRegistry', () => {
 
   it('abortAll({ notify: false }) suppresses pending fallback notifications', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const callback = vi.fn();
       registry.setNotificationCallback(callback);
@@ -1447,6 +1450,7 @@ describe('BackgroundTaskRegistry', () => {
       // might not see their natural completion handler fire. Foreground
       // entries unregister themselves in agent.ts's finally path.
       vi.useFakeTimers();
+    vi.clearAllMocks();
       try {
         const callback = vi.fn();
         registry.setNotificationCallback(callback);

@@ -322,6 +322,7 @@ describe('ConnectionRegistry.getSnapshot', () => {
     // re-arm grace on the fresh binding — that would be frame loss
     // indistinguishable from a network drop.
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const detached: string[] = [];
     const registry = new ConnectionRegistry(undefined, (sid) =>
       detached.push(sid),
@@ -356,6 +357,7 @@ describe('ConnectionRegistry.getSnapshot', () => {
 
   it('detachSessionStream keeps ownership/prompt across the grace window, then tears down on expiry', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const detached: string[] = [];
     const registry = new ConnectionRegistry(undefined, (sid) =>
       detached.push(sid),
@@ -394,6 +396,7 @@ describe('ConnectionRegistry.getSnapshot', () => {
 
   it('attachSessionStream within the grace window reclaims (cancels the pending teardown)', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const detached: string[] = [];
     const registry = new ConnectionRegistry(undefined, (sid) =>
       detached.push(sid),
@@ -434,6 +437,7 @@ describe('ConnectionRegistry.getSnapshot', () => {
     // events flush exactly once, in order. (A resuming reattach instead leaves
     // id-bearing frames to the ring replay — covered by the resume test above.)
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const registry = new ConnectionRegistry();
     try {
       const conn = registry.create(true);
@@ -524,6 +528,7 @@ describe('ConnectionRegistry.getSnapshot', () => {
     // stream undefined) must count as connection activity, else the conn reaper
     // can delete the whole connection mid SESSION_GRACE_MS and 404 the resume.
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const registry = new ConnectionRegistry();
     try {
       const conn = registry.create(true);
@@ -770,6 +775,7 @@ describe('ConnectionRegistry.getSnapshot', () => {
 
   it('invokes onSessionGraceExpired when a session reclaim grace expires (drives the deferred connection reap, MsyIs)', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const registry = new ConnectionRegistry();
     try {
       const conn = registry.create(true);
@@ -794,6 +800,7 @@ describe('ConnectionRegistry.getSnapshot', () => {
 
   it('grace-expiry teardown swallows a throwing detach callback (MylZ8) — the setTimeout never crashes the process', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const onDetach = vi.fn(() => {
       throw new Error('boom');
     });
@@ -819,6 +826,7 @@ describe('ConnectionRegistry.getSnapshot', () => {
 
   it('grace-expiry swallows a throwing onSessionGraceExpired callback (M4i9z) — the setTimeout never crashes the process', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const registry = new ConnectionRegistry();
     try {
       const conn = registry.create(true);

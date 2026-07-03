@@ -1501,6 +1501,7 @@ describe('getIdeServerHost', () => {
 
   it('should fall back to 127.0.0.1 when DNS lookup times out in a container', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.mocked(fs.existsSync).mockImplementation(
       (filePath: fs.PathLike) => filePath === '/.dockerenv',
     );

@@ -36,6 +36,7 @@ describe('MonitorRegistry', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     registry = new MonitorRegistry();
   });
 

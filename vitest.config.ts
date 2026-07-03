@@ -12,6 +12,8 @@ export default defineConfig({
       'packages/channels/telegram',
       'packages/channels/weixin',
       'packages/channels/qqbot',
+      'packages/web-shell',
+      'packages/webui',
       'integration-tests',
       'scripts',
     ],

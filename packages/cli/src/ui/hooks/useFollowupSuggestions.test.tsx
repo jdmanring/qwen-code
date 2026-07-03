@@ -37,6 +37,7 @@ function acceptedEvent(): PromptSuggestionEvent | undefined {
 describe('useFollowupSuggestionsCLI telemetry', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     mockLogPromptSuggestion.mockReset();
   });
 

@@ -14,6 +14,7 @@ describe('<ToolElapsedTime />', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(NOW);
   });
 

@@ -86,6 +86,7 @@ describe('CrawlCache', () => {
 
     it('should automatically evict a cache entry after its TTL expires', async () => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       const key = 'ttl-key';
       const data = ['foo'];
       const ttl = 5000; // 5 seconds
@@ -106,6 +107,7 @@ describe('CrawlCache', () => {
 
     it('should reset the timer when an entry is updated', async () => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       const key = 'update-key';
       const initialData = ['initial'];
       const updatedData = ['updated'];

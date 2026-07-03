@@ -809,6 +809,7 @@ describe('DaemonTuiAdapter', () => {
 
   it('forces idle when the event pump ignores abort during stop', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     const events = new EventQueue();
     const session = createFakeSession(events);
     const hangingEvents: AsyncGenerator<DaemonTuiEvent> = {

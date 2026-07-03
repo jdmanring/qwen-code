@@ -667,6 +667,7 @@ describe('CoreToolScheduler', () => {
 
   it('cleans denialTracking fallback call ids when abort draining runs', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const { internals } = createSchedulerForDenialTrackingApprovalTest();
       internals.autoModeFallbackCallIds.add('call-1');

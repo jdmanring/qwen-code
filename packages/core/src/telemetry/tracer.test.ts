@@ -137,6 +137,7 @@ describe('withSpan', () => {
   it('rate-limits repeated telemetry operation warnings and reports suppressed count', async () => {
     mockState.throwOnSetStatus = true;
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       vi.setSystemTime(0);
 

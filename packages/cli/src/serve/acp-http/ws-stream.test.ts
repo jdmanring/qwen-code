@@ -38,6 +38,7 @@ describe('WsStream', () => {
   beforeEach(() => {
     ws = new MockWebSocket();
     vi.useFakeTimers();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {

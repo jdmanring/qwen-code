@@ -309,6 +309,7 @@ describe('buildDaemonStatusResponse', () => {
 
   it('marks a timed-out full workspace section unavailable', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
 
     const pending = buildDaemonStatusResponse(
       'full',

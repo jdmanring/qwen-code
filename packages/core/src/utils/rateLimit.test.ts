@@ -331,6 +331,7 @@ describe('rate-limit retry diagnostics', () => {
 
   it('should read HTTP-date Retry-After values', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
 
     try {
@@ -353,6 +354,7 @@ describe('rate-limit retry diagnostics', () => {
 
   it('should ignore past HTTP-date Retry-After values', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(new Date('2026-01-01T00:03:00.000Z'));
 
     try {

@@ -132,6 +132,7 @@ function makeRegistryConfig(agents: readonly AgentDialogEntry[]): {
 describe('<LiveAgentPanel />', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(new Date(0));
   });
 

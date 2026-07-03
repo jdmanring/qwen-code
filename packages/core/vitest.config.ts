@@ -28,11 +28,11 @@ export default defineConfig({
         ['json-summary', { outputFile: 'coverage-summary.json' }],
       ],
     },
-    poolOptions: {
-      threads: {
-        minThreads: 8,
-        maxThreads: 16,
-      },
+  },
+  poolOptions: {
+    threads: {
+      minThreads: 8,
+      maxThreads: 16,
     },
   },
 });

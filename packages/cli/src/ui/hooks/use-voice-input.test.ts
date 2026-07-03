@@ -227,6 +227,7 @@ describe('use-voice-input', () => {
 
   it('updates audio level while recording with a batch model', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       buffer = createBuffer();
       const recorder = {
@@ -266,6 +267,7 @@ describe('use-voice-input', () => {
 
   it('hold mode: finalizes after key repeat stops', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       buffer = createBuffer();
       const recorder = {
@@ -621,6 +623,7 @@ describe('use-voice-input', () => {
 
   it('reports streaming pump errors without throwing from the timer', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       buffer = createBuffer();
       const addItem = vi.fn();
@@ -840,6 +843,7 @@ describe('use-voice-input', () => {
 
   it('does not wait forever for a previous stop before starting again', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       buffer = createBuffer();
       const firstRecorder = {
@@ -1003,6 +1007,7 @@ describe('use-voice-input', () => {
 
   it('hold mode: refines without submitting', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       buffer = createBuffer();
       const recorder = {

@@ -192,6 +192,7 @@ describe('BaseTokenStorage', () => {
     it('should expire tokens exactly at the 5-minute buffer boundary', () => {
       const now = new Date('2026-01-01T00:00:00.000Z');
       vi.useFakeTimers();
+    vi.clearAllMocks();
       vi.setSystemTime(now);
 
       const credentials: OAuthCredentials = {
@@ -210,6 +211,7 @@ describe('BaseTokenStorage', () => {
     it('should keep tokens valid just outside the 5-minute buffer boundary', () => {
       const now = new Date('2026-01-01T00:00:00.000Z');
       vi.useFakeTimers();
+    vi.clearAllMocks();
       vi.setSystemTime(now);
 
       const credentials: OAuthCredentials = {

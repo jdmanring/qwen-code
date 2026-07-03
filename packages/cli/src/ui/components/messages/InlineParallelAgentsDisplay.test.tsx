@@ -88,6 +88,7 @@ function renderInline(options: {
 describe('<InlineParallelAgentsDisplay />', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(new Date(0));
   });
 

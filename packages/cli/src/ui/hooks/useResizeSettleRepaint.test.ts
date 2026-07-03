@@ -14,6 +14,7 @@ import {
 describe('useResizeSettleRepaint (#4891)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {

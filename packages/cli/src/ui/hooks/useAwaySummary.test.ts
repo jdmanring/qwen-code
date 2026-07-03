@@ -42,6 +42,7 @@ const THREE_USER_HISTORY: HistoryItem[] = [
 
 beforeEach(() => {
   vi.useFakeTimers();
+    vi.clearAllMocks();
   generateSessionRecapMock.mockReset();
 });
 

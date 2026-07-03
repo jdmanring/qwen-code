@@ -20,6 +20,7 @@ vi.mock('update-notifier', () => ({
 describe('checkForUpdates', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.resetAllMocks();
     // Clear DEV environment variable before each test
     delete process.env['DEV'];

@@ -187,6 +187,7 @@ describe('ideCommand', () => {
 
     it('should install the extension', async () => {
       vi.useFakeTimers();
+    vi.clearAllMocks();
       mockInstall.mockResolvedValue({
         success: true,
         message: 'Successfully installed.',

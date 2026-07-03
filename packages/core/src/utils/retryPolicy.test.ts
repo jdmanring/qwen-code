@@ -176,6 +176,7 @@ describe('getRetryAfterDelayMs', () => {
 
   it('should read HTTP-date Retry-After values', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
 
     try {
@@ -191,6 +192,7 @@ describe('getRetryAfterDelayMs', () => {
 
   it('should return 0 for past HTTP-date Retry-After values', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(new Date('2026-01-01T00:03:00.000Z'));
 
     try {
@@ -243,6 +245,7 @@ describe('getRetryAfterDelayMs', () => {
 
   it('should cap far-future HTTP-date Retry-After at the setTimeout ceiling', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
 
     try {

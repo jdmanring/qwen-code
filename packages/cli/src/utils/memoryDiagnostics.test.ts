@@ -47,6 +47,7 @@ describe('memoryDiagnostics', () => {
 
   it('formats a paste-safe human-readable report with key sections', () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(new Date('2026-05-15T12:00:00.000Z'));
 
     try {

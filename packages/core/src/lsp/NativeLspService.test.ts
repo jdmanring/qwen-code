@@ -278,6 +278,7 @@ describe('NativeLspService', () => {
       serverManager;
 
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const promise1 = lspService.hover({
         uri,
@@ -407,6 +408,7 @@ describe('NativeLspService', () => {
       serverManager;
 
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const promise = tempService.workspaceSymbols('Calculator');
       await vi.runAllTimersAsync();
@@ -515,6 +517,7 @@ describe('NativeLspService', () => {
       serverManager;
 
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const promise = tempService.workspaceSymbols('Calculator');
       await vi.runAllTimersAsync();
@@ -589,6 +592,7 @@ describe('NativeLspService', () => {
       serverManager;
 
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const promise = tempService.workspaceSymbols('Calculator');
       await vi.runAllTimersAsync();
@@ -666,6 +670,7 @@ describe('NativeLspService', () => {
       serverManager;
 
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const promise1 = tempService.hover({
         uri,
@@ -758,6 +763,7 @@ describe('NativeLspService', () => {
       serverManager;
 
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const promise = lspService.definitions({
         uri,
@@ -825,6 +831,7 @@ describe('NativeLspService', () => {
       serverManager;
 
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       // First hover opens the document
       const promise1 = lspService.hover({
@@ -912,6 +919,7 @@ describe('NativeLspService', () => {
       serverManager;
 
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       // First request: opens queryUri via ensureDocumentOpen, warmup returns warmupUri
       const promise1 = lspService.hover({
@@ -1025,6 +1033,7 @@ describe('NativeLspService', () => {
       serverManager;
 
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const promise = tempService.documentSymbols(uri);
       await vi.runAllTimersAsync();
@@ -1086,6 +1095,7 @@ describe('NativeLspService', () => {
       serverManager;
 
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       const promise = lspService.documentSymbols(uri);
       await vi.runAllTimersAsync();
@@ -1164,6 +1174,7 @@ describe('NativeLspService', () => {
       serverManager;
 
     vi.useFakeTimers();
+    vi.clearAllMocks();
     try {
       // First call opens the document (retry is allowed on this call)
       const promise1 = tempService.hover({

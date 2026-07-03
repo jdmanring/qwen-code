@@ -81,6 +81,7 @@ describe('CronListTool', () => {
 
   it('lists pending wakeups', async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(new Date(2025, 0, 15, 10, 30, 0));
     const longPrompt = `continue ${'x'.repeat(80)}`;
     config._scheduler.scheduleWakeup(300, longPrompt);

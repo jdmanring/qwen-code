@@ -1054,6 +1054,7 @@ describe('LogToSpanProcessor', () => {
     it('routes export timeout through the injected sink', async () => {
       await processor.shutdown();
       vi.useFakeTimers();
+    vi.clearAllMocks();
       const sink = vi.fn();
       try {
         processor = new LogToSpanProcessor(

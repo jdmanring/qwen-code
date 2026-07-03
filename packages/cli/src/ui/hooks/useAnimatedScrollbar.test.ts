@@ -11,6 +11,7 @@ import { useAnimatedScrollbar } from './useAnimatedScrollbar.js';
 describe('useAnimatedScrollbar', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {

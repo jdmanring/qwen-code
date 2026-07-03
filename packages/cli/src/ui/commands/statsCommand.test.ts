@@ -64,6 +64,7 @@ describe('statsCommand', () => {
 
   beforeEach(async () => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
     vi.setSystemTime(endTime);
     const actualFs =
       await vi.importActual<typeof import('node:fs/promises')>(
