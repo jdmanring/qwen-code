@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ToolCallEmitter } from './ToolCallEmitter.js';
 import type { SessionContext, SubagentMeta } from '../types.js';
+import type { SessionUpdate } from '@agentclientprotocol/sdk';
 import type {
   Config,
   ToolRegistry,
@@ -53,7 +54,7 @@ describe('ToolCallEmitter', () => {
       config: {
         getToolRegistry: () => mockToolRegistry,
       } as unknown as Config,
-      sendUpdate: sendUpdateSpy as any,
+      sendUpdate: sendUpdateSpy as unknown as (update: SessionUpdate) => Promise<void>,
     };
 
     emitter = new ToolCallEmitter(mockContext);

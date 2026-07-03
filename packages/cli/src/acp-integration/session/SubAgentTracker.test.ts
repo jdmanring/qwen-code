@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SubAgentTracker } from './SubAgentTracker.js';
 import type { SessionContext } from './types.js';
+import type { SessionUpdate } from '@agentclientprotocol/sdk';
 import type {
   Config,
   ToolRegistry,
@@ -139,7 +140,7 @@ describe('SubAgentTracker', () => {
       config: {
         getToolRegistry: () => mockToolRegistry,
       } as unknown as Config,
-      sendUpdate: sendUpdateSpy as any,
+      sendUpdate: sendUpdateSpy as unknown as (update: SessionUpdate) => Promise<void>,
     };
 
     mockClient = {

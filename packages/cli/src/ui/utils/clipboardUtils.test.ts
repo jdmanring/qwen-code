@@ -585,12 +585,12 @@ describe('clipboardUtils', () => {
   describe('writeOsc52', () => {
     const originalStdoutIsTTY = process.stdout.isTTY;
     const originalStderrIsTTY = process.stderr.isTTY;
-    let stdoutWriteMock = vi.fn() as any;
-    let stderrWriteMock = vi.fn() as any;
+    let stdoutWriteMock = vi.fn() as unknown as typeof process.stdout.write;
+    let stderrWriteMock = vi.fn() as unknown as typeof process.stderr.write;
 
     beforeEach(() => {
-      stdoutWriteMock = vi.fn() as any;
-      stderrWriteMock = vi.fn() as any;
+      stdoutWriteMock = vi.fn() as unknown as typeof process.stdout.write;
+      stderrWriteMock = vi.fn() as unknown as typeof process.stderr.write;
       // Control multiplexer env vars for deterministic tests
       vi.stubEnv('TMUX', undefined as unknown as string);
       vi.stubEnv('STY', undefined as unknown as string);

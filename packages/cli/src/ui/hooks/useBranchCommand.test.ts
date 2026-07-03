@@ -8,7 +8,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useBranchCommand, type UseBranchCommandOptions } from './useBranchCommand.js';
 import { restoreGoalFromHistory } from '../utils/restoreGoal.js';
+import type { Config } from '@qwen-code/qwen-code-core';
 import type { LoadedSettings } from '../../config/settings.js';
+import type { UseHistoryManagerReturn } from './useHistoryManager.js';
 
 vi.mock('../utils/restoreGoal.js', () => ({
   restoreGoalFromHistory: vi.fn(() => ({ restored: false })),
@@ -33,16 +35,24 @@ describe('useBranchCommand', () => {
   let remount: ReturnType<typeof vi.fn>;
   let addItem: ReturnType<typeof vi.fn>;
   // Mock Config shape covers only what useBranchCommand touches.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let config: any;
+  let config: Config | null;
 
   const makeOptions = (): UseBranchCommandOptions => ({
     config,
     settings: mockSettings,
-    historyManager: { clearItems, loadHistory, addItem } as any,
-    startNewSession: startNewSessionUI as any,
-    setSessionName: setSessionName as any,
-    remount: remount as any,
+    historyManager: {
+      clearItems,
+      loadHistory,
+      addItem,
+    } as unknown as Pick<
+      UseHistoryManagerReturn,
+      'clearItems' | 'loadHistory' | 'addItem'
+    >,
+    startNewSession:
+      startNewSessionUI as unknown as (sessionId: string) => void,
+    setSessionName:
+      setSessionName as unknown as (name: string | null) => void,
+    remount: remount as unknown as () => void,
   });
 
   // Helper to build a ChatRecord-shaped user message for loadSession mocks.

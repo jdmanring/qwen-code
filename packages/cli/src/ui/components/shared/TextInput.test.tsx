@@ -48,13 +48,13 @@ function captureKeypressHandler(): (key: Key) => void {
 }
 
 describe('TextInput', () => {
-  let onChange = vi.fn() as any;
-  let onSubmit = vi.fn() as any;
+  let onChange = vi.fn() as unknown as (text: string) => void;
+  let onSubmit = vi.fn() as unknown as (text: string) => void;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    onChange = vi.fn() as any;
-    onSubmit = vi.fn() as any;
+    onChange = vi.fn() as unknown as (text: string) => void;
+    onSubmit = vi.fn() as unknown as (text: string) => void;
   });
 
   describe('multiline mode (height > 1)', () => {

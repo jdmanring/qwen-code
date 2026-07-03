@@ -10,6 +10,7 @@ import {
   MISSING_TOOL_RESULT_MESSAGE,
 } from './HistoryReplayer.js';
 import type { SessionContext } from './types.js';
+import type { SessionUpdate } from '@agentclientprotocol/sdk';
 import type {
   Config,
   ChatRecord,
@@ -48,7 +49,7 @@ describe('HistoryReplayer', () => {
       } as unknown as Config,
       sendUpdate: vi.fn(async (update) => {
         sentUpdateContexts.push({ activeRecordId, activeRecordTimestamp });
-        await (sendUpdateSpy as any)(update);
+        await (sendUpdateSpy as unknown as (update: SessionUpdate) => Promise<void>)(update);
       }),
       setActiveRecordId: setActiveRecordIdSpy,
     } as unknown as SessionContext;

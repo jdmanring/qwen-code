@@ -533,7 +533,7 @@ describe('ExtensionsManagerDialog (tabbed)', () => {
     const manager = createManager({
       extensions: [mockExtension('alpha', true), mockExtension('beta', true)],
     });
-    manager.getFavorites = vi.fn(() => [...favorites]) as any;
+    manager.getFavorites = vi.fn(() => [...favorites]) as unknown as () => string[];
     manager.toggleFavorite = vi.fn((name: string) => {
       const i = favorites.indexOf(name);
       if (i >= 0) {
@@ -542,7 +542,7 @@ describe('ExtensionsManagerDialog (tabbed)', () => {
       }
       favorites.push(name);
       return true;
-    }) as any;
+    }) as unknown as (name: string) => boolean;
     const { stdin, lastFrame } = renderDialog(createConfig(manager), {
       initialTab: EXTENSIONS_TABS.INSTALLED,
     });

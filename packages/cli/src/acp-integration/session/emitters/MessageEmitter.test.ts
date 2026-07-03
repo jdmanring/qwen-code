@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MessageEmitter } from './MessageEmitter.js';
 import type { SessionContext } from '../types.js';
+import type { SessionUpdate } from '@agentclientprotocol/sdk';
 import type { Config } from '@qwen-code/qwen-code-core';
 
 describe('MessageEmitter', () => {
@@ -19,7 +20,7 @@ describe('MessageEmitter', () => {
     mockContext = {
       sessionId: 'test-session-id',
       config: {} as Config,
-      sendUpdate: sendUpdateSpy as any,
+      sendUpdate: sendUpdateSpy as unknown as (update: SessionUpdate) => Promise<void>,
     };
     emitter = new MessageEmitter(mockContext);
   });
@@ -289,7 +290,7 @@ describe('MessageEmitter', () => {
       const ctx: SessionContext = {
         sessionId: 'test-session-id',
         config: {} as Config,
-        sendUpdate: sendUpdateSpy as any,
+        sendUpdate: sendUpdateSpy as unknown as (update: SessionUpdate) => Promise<void>,
         cumulativeUsage,
       };
       const e = new MessageEmitter(ctx);
@@ -330,7 +331,7 @@ describe('MessageEmitter', () => {
       const ctx: SessionContext = {
         sessionId: 'test-session-id',
         config: {} as Config,
-        sendUpdate: sendUpdateSpy as any,
+        sendUpdate: sendUpdateSpy as unknown as (update: SessionUpdate) => Promise<void>,
         cumulativeUsage,
       };
       await new MessageEmitter(ctx).emitUsageMetadata({
@@ -357,7 +358,7 @@ describe('MessageEmitter', () => {
       const ctx: SessionContext = {
         sessionId: 'test-session-id',
         config: {} as Config,
-        sendUpdate: sendUpdateSpy as any,
+        sendUpdate: sendUpdateSpy as unknown as (update: SessionUpdate) => Promise<void>,
         cumulativeUsage,
       };
       // NaN survives `?? 0` (NaN ?? 0 === NaN); a non-finite duration or token

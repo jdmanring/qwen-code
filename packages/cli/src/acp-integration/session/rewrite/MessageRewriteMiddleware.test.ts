@@ -38,7 +38,7 @@ function createMiddleware(
   const middleware = new MessageRewriteMiddleware(
     {} as Config,
     { enabled: true, target, prompt: 'test prompt' },
-    mockSendUpdate as any,
+    mockSendUpdate as unknown as (update: SessionUpdate) => Promise<void>,
   );
   return { middleware, mockSendUpdate };
 }

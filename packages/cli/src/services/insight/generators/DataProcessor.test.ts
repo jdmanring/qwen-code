@@ -58,7 +58,9 @@ describe('DataProcessor', () => {
 
     mockGenerateJson = vi.fn();
     mockRunSideQuery.mockImplementation((_config, request) =>
-      (mockGenerateJson as any)(request),
+      (mockGenerateJson as unknown as (request: unknown) => Promise<unknown>)(
+        request,
+      ),
     );
     mockConfig = {
       getBaseLlmClient: vi.fn(() => ({

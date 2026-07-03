@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PlanEmitter } from './PlanEmitter.js';
 import type { SessionContext, TodoItem } from '../types.js';
+import type { SessionUpdate } from '@agentclientprotocol/sdk';
 import type { Config } from '@qwen-code/qwen-code-core';
 
 describe('PlanEmitter', () => {
@@ -19,7 +20,7 @@ describe('PlanEmitter', () => {
     mockContext = {
       sessionId: 'test-session-id',
       config: {} as Config,
-      sendUpdate: sendUpdateSpy as any,
+      sendUpdate: sendUpdateSpy as unknown as (update: SessionUpdate) => Promise<void>,
     };
     emitter = new PlanEmitter(mockContext);
   });
@@ -71,7 +72,7 @@ describe('PlanEmitter', () => {
       const ctx: SessionContext = {
         sessionId: 'test-session-id',
         config: {} as Config,
-        sendUpdate: sendUpdateSpy as any,
+        sendUpdate: sendUpdateSpy as unknown as (update: SessionUpdate) => Promise<void>,
         cumulativeUsage,
       };
       await new PlanEmitter(ctx).emitPlan([

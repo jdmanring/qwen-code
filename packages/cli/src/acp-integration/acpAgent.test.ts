@@ -7633,7 +7633,7 @@ describe('sessionLanguage multi-session propagation', () => {
 
     vi.mocked(Session).mockImplementation(() => {
       const cfg = sessionConfigs[sessionIdx]!;
-      const id = (cfg.getSessionId as any)();
+      const id = (cfg.getSessionId as () => string)();
       const mock = {
         getId: vi.fn().mockReturnValue(id),
         getConfig: vi.fn().mockReturnValue(cfg),
@@ -7732,7 +7732,7 @@ describe('sessionLanguage multi-session propagation', () => {
     );
     vi.mocked(Session).mockImplementation(() => {
       const cfg = sessionConfigs[sessionIdx]!;
-      const id = (cfg.getSessionId as any)();
+      const id = (cfg.getSessionId as () => string)();
       sessionIdx++;
       return {
         getId: vi.fn().mockReturnValue(id),

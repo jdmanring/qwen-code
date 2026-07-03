@@ -28,6 +28,10 @@ import { createServeApp } from '../server.js';
 import type { ServeOptions } from '../types.js';
 import { registerWorkspaceVoiceRoutes } from './workspace-voice.js';
 import { WorkspaceSettingsPartialPersistError } from '../workspace-service/types.js';
+import type {
+  WorkspaceVoiceTranscriptionInput,
+  WorkspaceVoiceTranscriptionResult,
+} from '../../services/voice-service.js';
 
 const mockWriteStderrLine = vi.hoisted(() => vi.fn());
 
@@ -397,11 +401,18 @@ describe('workspace voice routes', () => {
       mutate: () => (_req: Request, _res: Response, next: NextFunction) =>
         next(),
       safeBody: (req) => req.body as Record<string, unknown>,
-      persistSetting: h.persistSetting as any,
+      persistSetting: h.persistSetting as unknown as (
+        workspace: string,
+        scope: SettingScope,
+        key: string,
+        value: unknown,
+      ) => Promise<void>,
       persistSettings,
       broadcastSettingsChanged,
       parseAndValidateClientId: vi.fn(() => 'client-1'),
-      transcribe: h.transcribe as any,
+      transcribe: h.transcribe as unknown as (
+        input: WorkspaceVoiceTranscriptionInput,
+      ) => Promise<WorkspaceVoiceTranscriptionResult>,
     });
 
     const res = await request(app).post('/workspace/voice').send({
@@ -482,11 +493,18 @@ describe('workspace voice routes', () => {
       mutate: () => (_req: Request, _res: Response, next: NextFunction) =>
         next(),
       safeBody: (req) => req.body as Record<string, unknown>,
-      persistSetting: h.persistSetting as any,
+      persistSetting: h.persistSetting as unknown as (
+        workspace: string,
+        scope: SettingScope,
+        key: string,
+        value: unknown,
+      ) => Promise<void>,
       persistSettings,
       broadcastSettingsChanged,
       parseAndValidateClientId: vi.fn(() => 'client-1'),
-      transcribe: h.transcribe as any,
+      transcribe: h.transcribe as unknown as (
+        input: WorkspaceVoiceTranscriptionInput,
+      ) => Promise<WorkspaceVoiceTranscriptionResult>,
     });
 
     const res = await request(app).post('/workspace/voice').send({
@@ -529,7 +547,9 @@ describe('workspace voice routes', () => {
       persistSetting,
       broadcastSettingsChanged,
       parseAndValidateClientId: vi.fn(() => 'client-1'),
-      transcribe: h.transcribe as any,
+      transcribe: h.transcribe as unknown as (
+        input: WorkspaceVoiceTranscriptionInput,
+      ) => Promise<WorkspaceVoiceTranscriptionResult>,
     });
 
     const res = await request(app).post('/workspace/voice').send({
@@ -784,10 +804,17 @@ describe('workspace voice routes', () => {
       boundWorkspace: h.workspace,
       mutate,
       safeBody: () => ({}),
-      persistSetting: h.persistSetting as any,
+      persistSetting: h.persistSetting as unknown as (
+        workspace: string,
+        scope: SettingScope,
+        key: string,
+        value: unknown,
+      ) => Promise<void>,
       broadcastSettingsChanged: vi.fn(),
       parseAndValidateClientId: vi.fn(),
-      transcribe: h.transcribe as any,
+      transcribe: h.transcribe as unknown as (
+        input: WorkspaceVoiceTranscriptionInput,
+      ) => Promise<WorkspaceVoiceTranscriptionResult>,
     });
 
     expect(mutate).toHaveBeenNthCalledWith(1, { strict: true });
