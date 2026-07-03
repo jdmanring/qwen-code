@@ -13,8 +13,6 @@ import type {
   RequestPermissionResponse,
   ResumeSessionResponse,
   SessionId,
-  SetSessionModeRequest,
-  SetSessionModeResponse,
 } from '@agentclientprotocol/sdk';
 
 /**
