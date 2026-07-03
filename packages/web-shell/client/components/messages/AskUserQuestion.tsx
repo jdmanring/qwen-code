@@ -211,6 +211,9 @@ export function AskUserQuestion({
     selectQuestion(currentIdx + 1);
   };
 
+  const customOptionActive = selectedIdx === current.options.length;
+  const customHasValue = !!customInputs[currentIdx];
+
   return (
     <div
       className={`${styles.question} ${
@@ -301,22 +304,18 @@ export function AskUserQuestion({
             })}
 
             {/* Other / custom input option */}
-            {(() => {
-              const isCustomActive = selectedIdx === current.options.length;
-              const hasCustomValue = !!customInputs[currentIdx];
-              return (
-                <div
-                  className={`${styles.option} ${
-                    isCustomActive ? styles.optionActive : ''
-                  } ${hasCustomValue ? styles.optionSelected : ''}`}
-                  onClick={() => {
-                    setSelectedIdx(current.options.length);
-                    focusCustomInput();
-                  }}
-                  onMouseEnter={() => setSelectedIdx(current.options.length)}
-                >
+            <div
+              className={`${styles.option} ${
+                customOptionActive ? styles.optionActive : ''
+              } ${customHasValue ? styles.optionSelected : ''}`}
+              onClick={() => {
+                setSelectedIdx(current.options.length);
+                focusCustomInput();
+              }}
+              onMouseEnter={() => setSelectedIdx(current.options.length)}
+            >
                   <span className={styles.pointer}>
-                    {isCustomActive ? '›' : ' '}
+                    {customOptionActive ? '›' : ' '}
                   </span>
                   <span className={styles.editIcon} aria-hidden="true">
                     <svg viewBox="0 0 16 16">
@@ -354,8 +353,6 @@ export function AskUserQuestion({
                     </span>
                   )}
                 </div>
-              );
-            })()}
           </div>
         </>
       ) : null}

@@ -39,6 +39,6 @@ export function useDelayedGlobalKeyDown(
       clearTimeout(timer);
       window.removeEventListener('keydown', listener);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, deps);
 }

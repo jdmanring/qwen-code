@@ -2003,7 +2003,7 @@ export const InputPrompt: React.FC<InputPromptProps> = ({
   // Trigger prompt suggestion when prop changes
   useEffect(() => {
     followup.setSuggestion(promptSuggestion ?? null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only trigger on prop change
+    // eslint-disable-next-line @eslint-react/exhaustive-deps -- only trigger on prop change
   }, [promptSuggestion]);
 
   const approvalModePromptStyle = !shellModeActive

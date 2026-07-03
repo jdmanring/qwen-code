@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
+/* eslint-disable @eslint-react/static-components */
 import { createPortal } from 'react-dom';
 import type { CSSProperties, ReactNode, RefObject } from 'react';
 import { DAEMON_APPROVAL_MODES } from '@qwen-code/webui/daemon-react-sdk';

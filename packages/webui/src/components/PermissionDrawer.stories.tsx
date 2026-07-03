@@ -53,29 +53,31 @@ const meta: Meta<typeof PermissionDrawer> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  render: () => {
-    const [isOpen, setIsOpen] = useState(true);
+function PermissionDrawerPreview() {
+  const [isOpen, setIsOpen] = useState(true);
 
-    return (
-      <div
-        style={{
-          minHeight: '100vh',
-          padding: '16px',
-          background: 'var(--app-primary-background, #1e1e1e)',
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        padding: '16px',
+        background: 'var(--app-primary-background, #1e1e1e)',
+      }}
+    >
+      <PermissionDrawer
+        isOpen={isOpen}
+        options={options}
+        toolCall={toolCall}
+        onResponse={(optionId) => {
+          console.log('[PermissionDrawer story] response:', optionId);
+          setIsOpen(false);
         }}
-      >
-        <PermissionDrawer
-          isOpen={isOpen}
-          options={options}
-          toolCall={toolCall}
-          onResponse={(optionId) => {
-            console.log('[PermissionDrawer story] response:', optionId);
-            setIsOpen(false);
-          }}
-          onClose={() => setIsOpen(false)}
-        />
-      </div>
-    );
-  },
+        onClose={() => setIsOpen(false)}
+      />
+    </div>
+  );
+}
+
+export const Default: Story = {
+  render: () => <PermissionDrawerPreview />,
 };

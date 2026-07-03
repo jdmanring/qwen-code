@@ -287,26 +287,9 @@ const CommandsHelp: React.FC<{
     scrollOffset + COMMAND_LIST_VISIBLE_LINES,
   );
 
-  return (
-    <Box flexDirection="column">
-      <Box marginBottom={1}>
-        <Text color={theme.text.primary}>
-          {customOnly
-            ? t('Browse custom, skill, plugin, and MCP commands:')
-            : t('Browse built-in commands:')}
-        </Text>
-      </Box>
-      <Box flexDirection="column" height={COMMAND_LIST_VISIBLE_LINES}>
-        {visibleLines.map((line, index) => {
-          const stableKey =
-            line.type === 'blank'
-              ? `blank:${index}`
-              : `${line.type}:${line.text}:${index}`;
-          return <CommandLine key={stableKey} line={line} />;
-        })}
-      </Box>
-      {maxScroll > 0 &&
-        (() => {
+  const scrollInfo =
+    maxScroll > 0
+      ? (() => {
           const totalCommands = lines.filter(
             (l) => l.type === 'signature',
           ).length;
@@ -331,7 +314,28 @@ const CommandsHelp: React.FC<{
               </Text>
             </Box>
           );
-        })()}
+        })()
+      : null;
+
+  return (
+    <Box flexDirection="column">
+      <Box marginBottom={1}>
+        <Text color={theme.text.primary}>
+          {customOnly
+            ? t('Browse custom, skill, plugin, and MCP commands:')
+            : t('Browse built-in commands:')}
+        </Text>
+      </Box>
+      <Box flexDirection="column" height={COMMAND_LIST_VISIBLE_LINES}>
+        {visibleLines.map((line, index) => {
+          const stableKey =
+            line.type === 'blank'
+              ? `blank:${index}`
+              : `${line.type}:${line.text}:${index}`;
+          return <CommandLine key={stableKey} line={line} />;
+        })}
+      </Box>
+      {scrollInfo}
     </Box>
   );
 };

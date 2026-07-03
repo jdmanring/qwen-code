@@ -834,7 +834,7 @@ export const ToolLine = memo(function ToolLine({
       // A new tool identity (or compact-mode toggle) resets the manual latch.
       userToggledRef.current = false;
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
     [compactMode, tool.callId, tool.toolName],
   );
   const isAgent = isSubAgentToolCall(tool);

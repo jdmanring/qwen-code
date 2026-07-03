@@ -16,8 +16,8 @@ import { AssistantMessage } from '../messages/Assistant/AssistantMessage.js';
 import { ThinkingMessage } from '../messages/ThinkingMessage.js';
 import {
   shouldShowToolCall,
-  getToolCallComponent,
 } from '../toolcalls/index.js';
+import { ToolCallRenderer } from '../toolcalls/ToolCallRenderer.js';
 import type { ToolCallData as BaseToolCallData } from '../toolcalls/index.js';
 import './ChatViewer.css';
 
@@ -258,14 +258,8 @@ export const ChatViewer = forwardRef<ChatViewerHandle, ChatViewerProps>(
 
       // Handle tool calls
       if (msg.type === 'tool_call' && msg.toolCall) {
-        const ToolCallComponent = getToolCallComponent(msg.toolCall);
-
-        if (!ToolCallComponent) {
-          return null;
-        }
-
         return (
-          <ToolCallComponent
+          <ToolCallRenderer
             key={key}
             toolCall={msg.toolCall}
             isFirst={isFirst}

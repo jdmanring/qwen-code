@@ -6,8 +6,8 @@
 
 import typescriptEslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
-import reactHooks from 'eslint-plugin-react-hooks';
-import importPlugin from 'eslint-plugin-import';
+import eslintReact from '@eslint-react/eslint-plugin';
+import importPlugin from 'eslint-plugin-import-x';
 
 export default [
   {
@@ -31,8 +31,8 @@ export default [
   {
     plugins: {
       '@typescript-eslint': typescriptEslint,
-      'react-hooks': reactHooks,
-      import: importPlugin,
+      '@eslint-react': eslintReact,
+      'import-x': importPlugin,
     },
 
     languageOptions: {
@@ -54,15 +54,24 @@ export default [
           format: ['camelCase', 'PascalCase'],
         },
       ],
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'error',
+      '@eslint-react/rules-of-hooks': 'error',
+      '@eslint-react/exhaustive-deps': 'error',
       // Restrict deep imports but allow known-safe exceptions used by the webview
       // - react-dom/client: required for React 18's createRoot API
       // - ./styles/**: local CSS modules loaded by the webview
-      'import/no-internal-modules': [
+      'import-x/no-internal-modules': [
         'error',
         {
-          allow: ['react-dom/client', './styles/**'],
+          allow: [
+            'react-dom/client',
+            './styles/**',
+            '@modelcontextprotocol/sdk/**',
+            '@qwen-code/acp-bridge/**',
+            '@qwen-code/channel-weixin/**',
+            '@qwen-code/qwen-code/export',
+            '@qwen-code/webui/tailwind.preset',
+            'vitest/config',
+          ],
         },
       ],
 

@@ -73,7 +73,7 @@ function ControlsMeasured({
     if (!ref.current) return;
     const { height } = measureElement(ref.current);
     setControlsHeight((prev) => (prev === height ? prev : height));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, deps);
 
   report(Math.max(0, TERMINAL_HEIGHT - controlsHeight));

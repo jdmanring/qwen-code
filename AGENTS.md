@@ -100,13 +100,15 @@ ANSI output streams asynchronously.
 ### Linting & Formatting
 
 ```bash
-npm run lint       # ESLint check
+npm run lint       # ESLint check (uses @eslint-react/eslint-plugin for React rules)
 npm run lint:fix   # Auto-fix lint issues
 npm run format     # Prettier formatting
 npm run typecheck  # TypeScript type checking
 npm run preflight  # Full check: clean → install → format → lint → build
                    # → typecheck → test
 ```
+
+**ESLint config:** Uses `@eslint-react/eslint-plugin` for React-specific rules (replaces `eslint-plugin-react` and `eslint-plugin-react-hooks`). Config is in `eslint.config.js` using flat config format.
 
 ## Code Conventions
 

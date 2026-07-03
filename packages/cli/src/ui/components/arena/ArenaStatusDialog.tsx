@@ -117,7 +117,7 @@ export function ArenaStatusDialog({
       }
     }
     return statsMap;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, [inProcessBackend, agents, tick]);
 
   const maxTaskLen = 60;

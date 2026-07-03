@@ -64,7 +64,7 @@ export function useAutoAcceptIndicator({
     // Intentionally mount-only — subsequent mode changes are handled by
     // the Shift+Tab handler below and by the `/approval-mode` slash
     // command, which both call emitAutoModeEntryNotices on AUTO entry.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   useKeypress(

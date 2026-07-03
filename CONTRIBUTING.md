@@ -116,6 +116,11 @@ npm install --legacy-peer-deps
 > npm 7+ strict peer dependency checking cannot resolve. The flag falls back
 > to npm 6 behavior, which ignores peer dependency conflicts. This is a
 > known limitation that requires upstream resolution from the Storybook team.
+>
+> **Note:** The React linting plugins (`eslint-plugin-react`, `eslint-plugin-react-hooks`)
+> previously required `--legacy-peer-deps` due to ESLint 10 incompatibility. This was
+> resolved by migrating to [`@eslint-react/eslint-plugin`](https://www.npmjs.com/package/@eslint-react/eslint-plugin),
+> which is ESLint 10 native.
 
 To build the entire project (all packages):
 

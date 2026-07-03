@@ -24,6 +24,118 @@ interface ToolSelectorProps {
   config: Config | null;
 }
 
+interface ToolCategorization {
+  toolCategories: ToolCategory[];
+  readTools: string[];
+  editTools: string[];
+  executeTools: string[];
+  initialCategory: string;
+}
+
+function categorizeTools(
+  config: Config | null,
+  tools: string[],
+  t: (key: string) => string,
+): ToolCategorization {
+  if (!config) {
+    return {
+      toolCategories: [
+        {
+          id: 'all',
+          name: t('All Tools (Default)'),
+          tools: [],
+        },
+      ],
+      readTools: [],
+      editTools: [],
+      executeTools: [],
+      initialCategory: 'all',
+    };
+  }
+
+  const toolRegistry = config.getToolRegistry();
+  const allTools = toolRegistry.getAllTools();
+
+  const readTools = allTools
+    .filter(
+      (tool) =>
+        tool.kind === Kind.Read ||
+        tool.kind === Kind.Search ||
+        tool.kind === Kind.Fetch ||
+        tool.kind === Kind.Think,
+    )
+    .map((tool) => tool.displayName)
+    .sort();
+
+  const editTools = allTools
+    .filter(
+      (tool) =>
+        tool.kind === Kind.Edit ||
+        tool.kind === Kind.Delete ||
+        tool.kind === Kind.Move,
+    )
+    .map((tool) => tool.displayName)
+    .sort();
+
+  const executeTools = allTools
+    .filter((tool) => tool.kind === Kind.Execute)
+    .map((tool) => tool.displayName)
+    .sort();
+
+  const toolCategories: ToolCategory[] = [
+    {
+      id: 'all',
+      name: t('All Tools'),
+      tools: [],
+    },
+    {
+      id: 'read',
+      name: t('Read-only Tools'),
+      tools: readTools,
+    },
+    {
+      id: 'edit',
+      name: t('Read & Edit Tools'),
+      tools: [...readTools, ...editTools],
+    },
+    {
+      id: 'execute',
+      name: t('Read & Edit & Execution Tools'),
+      tools: [...readTools, ...editTools, ...executeTools],
+    },
+  ].filter((category) => category.id === 'all' || category.tools.length > 0);
+
+  let initialCategory = 'all';
+
+  if (tools.length === 0) {
+    initialCategory = 'all';
+  } else {
+    const matchingCategory = toolCategories.find((category) => {
+      if (category.id === 'all') return false;
+
+      const categoryToolsSet = new Set(category.tools);
+      const inputToolsSet = new Set(tools);
+
+      return (
+        categoryToolsSet.size === inputToolsSet.size &&
+        [...categoryToolsSet].every((tool) => inputToolsSet.has(tool))
+      );
+    });
+
+    if (matchingCategory) {
+      initialCategory = matchingCategory.id;
+    }
+  }
+
+  return {
+    toolCategories,
+    readTools,
+    editTools,
+    executeTools,
+    initialCategory,
+  };
+}
+
 /**
  * Tool selection with categories.
  */
@@ -39,112 +151,10 @@ export function ToolSelector({
     editTools,
     executeTools,
     initialCategory,
-  } = useMemo(() => {
-    if (!config) {
-      // Fallback categories if config not available
-      return {
-        toolCategories: [
-          {
-            id: 'all',
-            name: t('All Tools (Default)'),
-            tools: [],
-          },
-        ],
-        readTools: [],
-        editTools: [],
-        executeTools: [],
-        initialCategory: 'all',
-      };
-    }
-
-    const toolRegistry = config.getToolRegistry();
-    const allTools = toolRegistry.getAllTools();
-
-    // Categorize tools by Kind
-    const readTools = allTools
-      .filter(
-        (tool) =>
-          tool.kind === Kind.Read ||
-          tool.kind === Kind.Search ||
-          tool.kind === Kind.Fetch ||
-          tool.kind === Kind.Think,
-      )
-      .map((tool) => tool.displayName)
-      .sort();
-
-    const editTools = allTools
-      .filter(
-        (tool) =>
-          tool.kind === Kind.Edit ||
-          tool.kind === Kind.Delete ||
-          tool.kind === Kind.Move,
-      )
-      .map((tool) => tool.displayName)
-      .sort();
-
-    const executeTools = allTools
-      .filter((tool) => tool.kind === Kind.Execute)
-      .map((tool) => tool.displayName)
-      .sort();
-
-    const toolCategories = [
-      {
-        id: 'all',
-        name: t('All Tools'),
-        tools: [],
-      },
-      {
-        id: 'read',
-        name: t('Read-only Tools'),
-        tools: readTools,
-      },
-      {
-        id: 'edit',
-        name: t('Read & Edit Tools'),
-        tools: [...readTools, ...editTools],
-      },
-      {
-        id: 'execute',
-        name: t('Read & Edit & Execution Tools'),
-        tools: [...readTools, ...editTools, ...executeTools],
-      },
-    ].filter((category) => category.id === 'all' || category.tools.length > 0);
-
-    // Determine initial category based on tools prop
-    let initialCategory = 'all'; // default to first option
-
-    if (tools.length === 0) {
-      // Empty array represents all tools
-      initialCategory = 'all';
-    } else {
-      // Try to match tools array to a category
-      const matchingCategory = toolCategories.find((category) => {
-        if (category.id === 'all') return false;
-
-        // Check if the tools array exactly matches this category's tools
-        const categoryToolsSet = new Set(category.tools);
-        const inputToolsSet = new Set(tools);
-
-        return (
-          categoryToolsSet.size === inputToolsSet.size &&
-          [...categoryToolsSet].every((tool) => inputToolsSet.has(tool))
-        );
-      });
-
-      if (matchingCategory) {
-        initialCategory = matchingCategory.id;
-      }
-      // If no exact match found, keep default 'all'
-    }
-
-    return {
-      toolCategories,
-      readTools,
-      editTools,
-      executeTools,
-      initialCategory,
-    };
-  }, [config, tools]);
+  } = useMemo(
+    () => categorizeTools(config, tools, t),
+    [config, tools],
+  );
 
   const [selectedCategory, setSelectedCategory] =
     useState<string>(initialCategory);
@@ -180,6 +190,41 @@ export function ToolSelector({
     (cat) => cat.id === selectedCategory,
   );
 
+  const categoryToolsContent = currentCategory
+    ? (() => {
+        // Filter the already categorized tools to show only those in current category
+        const categoryReadTools = currentCategory.tools.filter(
+          (tool) => readTools.includes(tool),
+        );
+        const categoryEditTools = currentCategory.tools.filter(
+          (tool) => editTools.includes(tool),
+        );
+        const categoryExecuteTools = currentCategory.tools.filter(
+          (tool) => executeTools.includes(tool),
+        );
+
+        return (
+          <>
+            {categoryReadTools.length > 0 && (
+              <Text color={theme.text.secondary}>
+                • {t('Read-only tools:')} {categoryReadTools.join(', ')}
+              </Text>
+            )}
+            {categoryEditTools.length > 0 && (
+              <Text color={theme.text.secondary}>
+                • {t('Edit tools:')} {categoryEditTools.join(', ')}
+              </Text>
+            )}
+            {categoryExecuteTools.length > 0 && (
+              <Text color={theme.text.secondary}>
+                • {t('Execution tools:')} {categoryExecuteTools.join(', ')}
+              </Text>
+            )}
+          </>
+        );
+      })()
+    : null;
+
   return (
     <Box flexDirection="column" gap={1}>
       <Box flexDirection="column">
@@ -209,40 +254,7 @@ export function ToolSelector({
             <>
               <Text color={theme.text.secondary}>{t('Selected tools:')}</Text>
               <Box flexDirection="column" marginLeft={2}>
-                {(() => {
-                  // Filter the already categorized tools to show only those in current category
-                  const categoryReadTools = currentCategory.tools.filter(
-                    (tool) => readTools.includes(tool),
-                  );
-                  const categoryEditTools = currentCategory.tools.filter(
-                    (tool) => editTools.includes(tool),
-                  );
-                  const categoryExecuteTools = currentCategory.tools.filter(
-                    (tool) => executeTools.includes(tool),
-                  );
-
-                  return (
-                    <>
-                      {categoryReadTools.length > 0 && (
-                        <Text color={theme.text.secondary}>
-                          • {t('Read-only tools:')}{' '}
-                          {categoryReadTools.join(', ')}
-                        </Text>
-                      )}
-                      {categoryEditTools.length > 0 && (
-                        <Text color={theme.text.secondary}>
-                          • {t('Edit tools:')} {categoryEditTools.join(', ')}
-                        </Text>
-                      )}
-                      {categoryExecuteTools.length > 0 && (
-                        <Text color={theme.text.secondary}>
-                          • {t('Execution tools:')}{' '}
-                          {categoryExecuteTools.join(', ')}
-                        </Text>
-                      )}
-                    </>
-                  );
-                })()}
+                {categoryToolsContent}
               </Box>
             </>
           ) : null}

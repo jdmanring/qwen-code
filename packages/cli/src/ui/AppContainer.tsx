@@ -735,7 +735,7 @@ export const AppContainer = (props: AppContainerProps) => {
       const ideClient = await IdeClient.getInstance();
       await ideClient.disconnect();
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, [config]);
 
   /**
@@ -2496,7 +2496,7 @@ export const AppContainer = (props: AppContainerProps) => {
         speculationRef.current = IDLE_SPECULATION;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- guards may change independently
+    // eslint-disable-next-line @eslint-react/exhaustive-deps -- guards may change independently
   }, [
     streamingState,
     followupSuggestionsEnabled,

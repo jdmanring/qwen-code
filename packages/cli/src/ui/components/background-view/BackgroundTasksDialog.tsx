@@ -1170,7 +1170,7 @@ export const BackgroundTasksDialog: React.FC<BackgroundTasksDialogProps> = ({
     return fromSnapshot;
     // activityTick is a dep on purpose: the registry mutation is invisible
     // to useMemo otherwise and we need to recompute on each activity.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, [entries, selectedIndex, config, activityTick]);
 
   const selectedEntryId = selectedEntry ? entryId(selectedEntry) : undefined;

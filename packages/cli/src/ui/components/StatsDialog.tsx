@@ -171,7 +171,7 @@ export const StatsDialog: React.FC<StatsDialogProps> = ({
     return () => {
       stale = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only reload on range/session change, not every metrics tick
+    // eslint-disable-next-line @eslint-react/exhaustive-deps -- only reload on range/session change, not every metrics tick
   }, [range, stats.sessionId]);
 
   const handleTabChange = useCallback(

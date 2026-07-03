@@ -195,6 +195,14 @@ export function ThemeDialog({
   // The code block is slightly longer than the diff, so give it more space.
   const codeBlockHeight = Math.ceil(availableHeightForPanes * 0.6);
   const diffHeight = Math.floor(availableHeightForPanes * 0.4);
+
+  // For 'auto', show the currently resolved theme (set by onHighlight → applyTheme)
+  const previewTheme =
+    highlightedThemeName === AUTO_THEME_NAME
+      ? themeManager.getActiveTheme()
+      : themeManager.getTheme(highlightedThemeName || DEFAULT_THEME.name) ||
+        DEFAULT_THEME;
+
   return (
     <Box
       borderStyle="round"
@@ -235,24 +243,16 @@ export function ThemeDialog({
               {t('Preview')}
             </Text>
             {/* Get the Theme object for the highlighted theme, fall back to default if not found */}
-            {(() => {
-              // For 'auto', show the currently resolved theme (set by onHighlight → applyTheme)
-              const previewTheme =
-                highlightedThemeName === AUTO_THEME_NAME
-                  ? themeManager.getActiveTheme()
-                  : themeManager.getTheme(
-                      highlightedThemeName || DEFAULT_THEME.name,
-                    ) || DEFAULT_THEME;
-              return (
-                <Box
-                  borderStyle="single"
-                  borderColor={theme.border.default}
-                  paddingTop={includePadding ? 1 : 0}
-                  paddingBottom={includePadding ? 1 : 0}
-                  paddingLeft={1}
-                  paddingRight={1}
-                  flexDirection="column"
-                >
+            {/* Right Column: Preview */}
+            <Box
+              borderStyle="single"
+              borderColor={theme.border.default}
+              paddingTop={includePadding ? 1 : 0}
+              paddingBottom={includePadding ? 1 : 0}
+              paddingLeft={1}
+              paddingRight={1}
+              flexDirection="column"
+            >
                   {colorizeCode(
                     `# function
 def fibonacci(n):
@@ -278,8 +278,6 @@ def fibonacci(n):
                     settings={settings}
                   />
                 </Box>
-              );
-            })()}
           </Box>
         </Box>
       ) : (

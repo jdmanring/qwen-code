@@ -25,6 +25,38 @@ export const HeatmapView: React.FC<{
     return `${MONTH_LABELS[dt.getMonth()]} ${dt.getDate()}, ${dt.getFullYear()}`;
   };
 
+  const columnLabels = (() => {
+    const labelAt = new Map<number, string>();
+    for (const cl of heatmap.colLabels) labelAt.set(cl.col, cl.text);
+
+    const out: React.ReactNode[] = [];
+    let skipCols = 0;
+    for (let c = 0; c < heatmap.totalCols; c++) {
+      if (skipCols > 0) {
+        skipCols--;
+        continue;
+      }
+      const label = labelAt.get(c);
+      if (label && label.length > 2) {
+        out.push(
+          <Text key={c} color={theme.text.secondary}>
+            {label.padEnd(4)}
+          </Text>,
+        );
+        skipCols = 1;
+      } else if (label) {
+        out.push(
+          <Text key={c} color={theme.text.secondary}>
+            {label.padEnd(2)}
+          </Text>,
+        );
+      } else {
+        out.push(<Text key={c}>{'  '}</Text>);
+      }
+    }
+    return out;
+  })();
+
   return (
     <Box flexDirection="column">
       <Box marginBottom={1}>
@@ -38,37 +70,7 @@ export const HeatmapView: React.FC<{
       </Box>
       <Box>
         <Text color={theme.text.secondary}>{'    '}</Text>
-        {(() => {
-          const labelAt = new Map<number, string>();
-          for (const cl of heatmap.colLabels) labelAt.set(cl.col, cl.text);
-
-          const out: React.ReactNode[] = [];
-          let skipCols = 0;
-          for (let c = 0; c < heatmap.totalCols; c++) {
-            if (skipCols > 0) {
-              skipCols--;
-              continue;
-            }
-            const label = labelAt.get(c);
-            if (label && label.length > 2) {
-              out.push(
-                <Text key={c} color={theme.text.secondary}>
-                  {label.padEnd(4)}
-                </Text>,
-              );
-              skipCols = 1;
-            } else if (label) {
-              out.push(
-                <Text key={c} color={theme.text.secondary}>
-                  {label.padEnd(2)}
-                </Text>,
-              );
-            } else {
-              out.push(<Text key={c}>{'  '}</Text>);
-            }
-          }
-          return out;
-        })()}
+        {columnLabels}
       </Box>
       {heatmap.rows.map((row, ri) => (
         <Box key={ri}>

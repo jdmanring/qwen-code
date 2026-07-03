@@ -32,7 +32,7 @@ export const usePhraseCycler = (
     return translatedPhrases.length > 0
       ? translatedPhrases
       : WITTY_LOADING_PHRASES;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [customPhrases, currentLanguage]);
 
   const [currentLoadingPhrase, setCurrentLoadingPhrase] = useState(

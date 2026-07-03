@@ -1890,7 +1890,7 @@ export function useComposerCore(
       observer.disconnect();
       tooltipPortal.remove();
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); 
 
   // ---- Reactions to prop changes ----
 

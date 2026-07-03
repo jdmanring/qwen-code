@@ -181,7 +181,7 @@ export const AuthenticateStep: React.FC<AuthenticateStepProps> = ({
 
   useEffect(() => {
     runAuthentication();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, []);
 
   // Auto-navigate back after authentication succeeds

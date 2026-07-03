@@ -164,7 +164,7 @@ export const AgentChatContent = ({
         shellPids,
         executionStartTimes,
       ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
     [
       instanceKey,
       messages.length,
@@ -209,7 +209,7 @@ export const AgentChatContent = ({
   // getGitBranch uses synchronous execSync which blocks the render loop.
   const agentGitBranch = useMemo(
     () => (agentWorkingDir ? getGitBranch(agentWorkingDir) : ''),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
     [instanceKey],
   );
 

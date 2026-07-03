@@ -6,13 +6,11 @@
 
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import reactPlugin from 'eslint-plugin-react';
-import reactHooks from 'eslint-plugin-react-hooks';
+import eslintReact from '@eslint-react/eslint-plugin';
 import prettierConfig from 'eslint-config-prettier';
 import importPlugin from 'eslint-plugin-import-x';
 import vitest from '@vitest/eslint-plugin';
 import globals from 'globals';
-import { fixupPluginRules } from '@eslint/compat';
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import storybook from 'eslint-plugin-storybook';
 import checkFile from 'eslint-plugin-check-file';
@@ -42,16 +40,10 @@ export default tseslint.config(
   {
     files: ['**/*.tsx'],
     plugins: {
-      react: fixupPluginRules(reactPlugin),
-      'react-hooks': fixupPluginRules(reactHooks),
+      '@eslint-react': eslintReact,
     },
-    ...reactHooks.configs['recommended-latest'],
-    ...reactPlugin.configs.flat.recommended,
-    ...reactPlugin.configs.flat['jsx-runtime'],
-    settings: {
-      react: {
-        version: 'detect',
-      },
+    rules: {
+      ...eslintReact.configs['recommended-typescript'].rules,
     },
   },
   {
@@ -91,8 +83,6 @@ export default tseslint.config(
       },
     },
     rules: {
-      // We use TypeScript for React components; prop-types are unnecessary
-      'react/prop-types': 'off',
       // General Best Practice Rules (subset adapted for flat config)
       '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
       'arrow-body-style': ['error', 'as-needed'],
@@ -137,7 +127,13 @@ export default tseslint.config(
             '**/generated/**',
             './styles/tailwind.css',
             './styles/App.css',
-            './styles/style.css'
+            './styles/style.css',
+            '@modelcontextprotocol/sdk/**',
+            '@qwen-code/acp-bridge/**',
+            '@qwen-code/channel-weixin/**',
+            '@qwen-code/qwen-code/export',
+            '@qwen-code/webui/tailwind.preset',
+            'vitest/config',
           ],
         },
       ],
@@ -207,6 +203,10 @@ export default tseslint.config(
       'vitest/expect-expect': 'off',
       'vitest/no-commented-out-tests': 'off',
       'no-console': 'off', // Allow console in tests
+      '@eslint-react/static-components': 'off', // Test harnesses define components inline
+      '@eslint-react/no-nested-component-definitions': 'off', // Test harness pattern
+      '@eslint-react/dom-no-flush-sync': 'off', // flushSync needed for sync rendering in tests
+      '@eslint-react/unsupported-syntax': 'off', // IIFEs in test setup
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -333,8 +333,6 @@ export default tseslint.config(
       },
     },
     rules: {
-      'react/react-in-jsx-scope': 'off',
-      'react/prop-types': 'off',
       'no-console': 'off',
       'no-undef': 'off',
     },
@@ -380,8 +378,6 @@ export default tseslint.config(
     rules: {
       // Allow relaxed rules for documentation site
       '@typescript-eslint/no-unused-vars': 'off',
-      'react/prop-types': 'off',
-      'react/react-in-jsx-scope': 'off',
     },
   },
   storybook.configs['flat/recommended'],

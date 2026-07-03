@@ -284,6 +284,30 @@ export function SessionPicker(props: SessionPickerProps) {
     );
   }
 
+  const multiSelectFooter = enableMultiSelect ? (() => {
+    // Count every checked id that's also committable
+    // (not disabled) — regardless of whether the current
+    // filter happens to hide it. This is the exact set
+    // Enter will commit, so the footer can't drift from
+    // it (no more "0 selected" while the user has 3
+    // checks hidden by a search).
+    let committableCheckedCount = 0;
+    for (const id of picker.checkedIds) {
+      if (!picker.disabledIdSet.has(id)) {
+        committableCheckedCount++;
+      }
+    }
+    return (
+      <Text color={theme.text.secondary}>
+        {committableCheckedCount > 0
+          ? t('Space to toggle · {{count}} selected · ', {
+              count: String(committableCheckedCount),
+            })
+          : t('Space to select multiple · ')}
+      </Text>
+    );
+  })() : null;
+
   return (
     <Box
       flexDirection="column"
@@ -440,30 +464,7 @@ export function SessionPicker(props: SessionPickerProps) {
                     {t('Space to preview · ')}
                   </Text>
                 )}
-                {enableMultiSelect &&
-                  (() => {
-                    // Count every checked id that's also committable
-                    // (not disabled) — regardless of whether the current
-                    // filter happens to hide it. This is the exact set
-                    // Enter will commit, so the footer can't drift from
-                    // it (no more "0 selected" while the user has 3
-                    // checks hidden by a search).
-                    let committableCheckedCount = 0;
-                    for (const id of picker.checkedIds) {
-                      if (!picker.disabledIdSet.has(id)) {
-                        committableCheckedCount++;
-                      }
-                    }
-                    return (
-                      <Text color={theme.text.secondary}>
-                        {committableCheckedCount > 0
-                          ? t('Space to toggle · {{count}} selected · ', {
-                              count: String(committableCheckedCount),
-                            })
-                          : t('Space to select multiple · ')}
-                      </Text>
-                    );
-                  })()}
+                {multiSelectFooter}
                 <Text color={theme.text.secondary}>
                   {t('↑↓ to navigate · Type to search · Esc to cancel')}
                 </Text>

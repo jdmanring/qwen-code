@@ -125,7 +125,7 @@ export function MemoryMessage({
     loadContent(selectedEntry, mode);
     // Only reload when the selected file changes. Mode changes are explicit
     // button actions that call loadContent directly.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, [selectedEntry?.file?.path, selectedEntry?.scope]);
 
   useEffect(() => {

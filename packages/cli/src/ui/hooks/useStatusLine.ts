@@ -665,7 +665,6 @@ export function useStatusLine(): {
       doUpdate();
     }
     // Cleanup when command is removed is handled by the state-change effect.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     statusLineCommand,
     hasStatusLinePreset,
@@ -728,7 +727,6 @@ export function useStatusLine(): {
         debounceRef.current = undefined;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {
